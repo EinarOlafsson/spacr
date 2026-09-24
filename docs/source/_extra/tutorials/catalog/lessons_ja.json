@@ -4112,131 +4112,106 @@
       "slug": "align_stitch",
       "series": 4,
       "app_key": "align",
-      "section": "データとバッチ実行",
-      "title": "Align & Stitch：実際の配置計画を確認し、書き出したモザイクを検証する",
-      "description": "保持された実際の顕微鏡画像の画素に現在のステッチング画面を使い、計算された配置を確認します。サイズを制限した帯状の画像領域を書き出し、モザイクと座標記録の両方を検証します。",
+      "section": "Tools",
+      "title": "Align & Stitch: plan and write an image mosaic",
+      "description": "Choose image tiles, set their acquisition layout, inspect the registration plan, and write the mosaic with its coordinates.",
       "objectives": [
-        "既知の幾何配置を持つ切り出し画像の例と、各タイルを独立に撮影した実験を区別する。",
-        "現在の GUI でグリッド、重なり、順序、基準チャンネルを設定する。",
-        "書き出す前に位置合わせを確認し、帯状画像のバッファ予算と総メモリ使用量を区別する。",
-        "結合画像、座標記録、ソースの由来を一緒に保管する。"
+        "Choose tiles and set the grid, overlap and registration channel.",
+        "Inspect the planned positions and registration quality.",
+        "Write the mosaic and retain its coordinate database."
       ],
-      "prerequisite": "自分のデータで実行する場合は、撮影順序と重なりが分かっていて、位置合わせに使えるチャンネルを持つタイルを用意してください。個数や結果はこの例と異なります。録画では、実際に撮影された一つの2,000 × 2,000 × 4の視野から、600画素間隔で正確に切り出し、保持していた800 × 800 × 4の画像九枚を再利用します。これは3 × 3の撮影配置を模したもので、独立に撮影された九つの視野ではありません。tutorial_A01 という名前は実演用の座標を表し、元のプレートとウェルの名前ではありません。Align & Stitch に専用のサンプルダウンロードボタンはありません。",
+      "prerequisite": "Download and unzip the nine-tile example below, or prepare image tiles with known acquisition order, overlap and a useful registration channel. The example uses overlapping crops from one microscopy field to provide a practice layout.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home の Tools カテゴリから Align & Stitch を開きます。配置の計画と書き出しは別の操作なので、モザイクを作成する前に配置を確認できます。この画面に表示されるのはタイル配置と文字による報告です。色付きの長方形は顕微鏡画像のプレビューではありません。",
-          "hold_after": 0.7,
-          "speech_text": "ホーム の Tools カテゴリから Align & Stitch を開きます。配置の計画と書き出しは別の操作なので、モザイクを作成する前に配置を確認できます。この画面に表示されるのはタイル配置と文字による報告です。色付きの長方形は顕微鏡画像のプレビューではありません。"
+          "narration": "From Home’s Tools category, open Align and Stitch. Choose the tiles, review their layout with Plan, then use Write stack to create the mosaic.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_preserved_real_pixel_tiles",
-          "narration": "保持しているチュートリアル用タイルのフォルダーを選びます。九枚のタイルは、実際の四チャンネル画像一枚から正確に切り出したものです。既知の幾何配置での撮影を模すよう、意図的に並べています。九つの独立した視野ではなく、チュートリアルのプレート名とウェル名も実演用の識別子です。",
-          "hold_after": 0.7,
-          "speech_text": "保持しているチュートリアル用タイルのフォルダーを選びます。九枚のタイルは、実際の四チャンネル画像一枚から正確に切り出したものです。既知の幾何配置での撮影を模すよう、意図的に並べています。九つの独立した視野ではなく、チュートリアルのプレート名とウェル名も実演用の識別子です。"
+          "narration": "Download and unzip the example below, then select its tiles folder. It contains nine overlapping crops arranged in a three-by-three grid. For your own acquisition, keep the original tile order and stage metadata available.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Grid を三行三列、Order を row-major、Overlap を零点二五に設定します。一辺八百画素のタイルを六百画素間隔で配置します。自分のデータでは、実際の撮影順序と公称の重なり率を使ってください。蛇行する走査を row-major として指定してはいけません。",
+          "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
           "hold_after": 0.7,
           "focus": [
             450,
             300,
             1800,
             170
-          ],
-          "speech_text": "Grid を三行三列、Order を row-major、Overlap を零点二五に設定します。一辺八百画素のタイルを六百画素間隔で配置します。自分のデータでは、実際の撮影順序と公称の重なり率を使ってください。蛇行する走査を row-major として指定してはいけません。"
+          ]
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Ref. channel を一に設定します。この例では番号がゼロから始まるため、二番目のプレーンです。位置合わせにはそのプレーンの構造を使い、一つの配置を四チャンネルすべてに適用します。位置合わせに適したチャンネルを選んでください。この処理は、各チャンネルの色ずれを独立に補正するものではありません。",
+          "narration": "Set Reference channel to the image plane used for registration. This example uses channel one, the second plane with zero-based numbering. Choose a channel with visible structure across overlaps; the resulting placement applies to all image channels.",
           "hold_after": 0.7,
           "focus": [
             450,
             300,
             1800,
             170
-          ],
-          "speech_text": "Ref. channel を一に設定します。この例では番号がゼロから始まるため、二番目のプレーンです。位置合わせにはそのプレーンの構造を使い、一つの配置を四チャンネルすべてに適用します。位置合わせに適したチャンネルを選んでください。この処理は、各チャンネルの色ずれを独立に補正するものではありません。"
+          ]
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Min confidence を零点三、Neighbour radius を一、Blend を feather に設定します。この範囲を限定した例では、RAM budget (MB) で帯状画像のバッファ予算を八メガバイトにします。この設定が制限するのは、書き込み処理に使う帯状の画像領域のバッファです。すべてのメモリ確保や、アプリ全体のメモリ使用量を制限するわけではありません。",
+          "narration": "Set Minimum confidence for accepting a registration and Neighbour radius for the nearby tiles to compare. The example uses zero point three and one, with feather blending across overlaps. The band-buffer budget controls memory used by the image writer.",
           "hold_after": 0.7,
           "focus": [
             450,
             300,
             1800,
             170
-          ],
-          "speech_text": "Min confidence を零点三、Neighbour radius を一、Blend を feather に設定します。この範囲を限定した例では、RAM budget (MB) で帯状画像のバッファ予算を八メガバイトにします。この設定が制限するのは、書き込み処理に使う帯状の画像領域のバッファです。すべてのメモリ確保や、アプリ全体のメモリ使用量を制限するわけではありません。"
+          ]
         },
         {
           "visual": "04_registered_plan_not_yet_written",
-          "narration": "Plan を押します。例の九枚すべてのタイルで位置合わせが成功し、公称位置へのフォールバックはありません。提案されるキャンバスは二千掛ける二千画素で、四チャンネルです。この時点では出力画像はまだ書き込まれていません。計画が完了しただけで良しとせず、registered、nominal、unplaced の件数を確認してください。",
+          "narration": "Press Plan. Inspect the registered, nominal and unplaced tile counts and the proposed canvas size. The layout shows tile positions. Review any nominal fallback or unplaced tiles before writing the mosaic.",
           "hold_after": 0.7,
           "focus": [
             1700,
             440,
             2100,
             850
-          ],
-          "speech_text": "Plan を押します。例の九枚すべてのタイルで位置合わせが成功し、公称位置へのフォールバックはありません。提案されるキャンバスは二千掛ける二千画素で、四チャンネルです。この時点では出力画像はまだ書き込まれていません。計画が完了しただけで良しとせず、registered、nominal、unplaced の件数を確認してください。"
+          ]
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "中央のタイルをクリックして、座標、信頼度、残差、計算に使われたペアを確認します。ここでの原点は両方向とも六百画素で、既知の切り出し配置と一致します。このように構成した例で重複部分が完全に一致しても、新たな撮影での位置合わせ品質は予測できません。",
-          "hold_after": 0.7,
-          "speech_text": "中央のタイルをクリックして、座標、信頼度、残差、計算に使われたペアを確認します。ここでの原点は両方向とも六百画素で、既知の切り出し配置と一致します。このように構成した例で重複部分が完全に一致しても、新たな撮影での位置合わせ品質は予測できません。"
+          "narration": "Click a tile to inspect its coordinates, confidence, residual and contributing pairs. Use these details to investigate unexpected positions, then adjust the registration settings and plan again if needed.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "新しい出力フォルダーと、座標用の別のデータベースを選び、Overwrite はオフのままにします。Write stack が有効になるのは、計画が存在し、出力先も指定された後です。ソースのタイルは変更しないでください。出力パスの指定は、位置合わせの確認に代わるものではありません。",
+          "narration": "Choose an output folder and a coordinate-database path. Leave Overwrite off when creating a new result. Once the plan and destination are ready, press Write stack.",
           "hold_after": 0.7,
           "focus": [
             450,
             1990,
             3370,
             140
-          ],
-          "speech_text": "新しい出力フォルダーと、座標用の別のデータベースを選び、Overwrite はオフのままにします。Write stack が有効になるのは、計画が存在し、出力先も指定された後です。ソースのタイルは変更しないでください。出力パスの指定は、位置合わせの確認に代わるものではありません。"
+          ]
         },
         {
           "visual": "06_real_stitch_complete",
-          "narration": "Write stack を押します。実際の出力には九枚すべてのタイルが含まれ、この例では四チャンネルの全画素が元の視野と一致します。結果には出力パスと帯状画像バッファの使用量が報告されます。これは既知の切り出し画像に対する実測結果です。任意の画像で情報を失わずに位置合わせできると保証するものではありません。",
+          "narration": "Wait for the completion summary and open the output stack. Inspect the overlaps and object boundaries in the mosaic. Keep the coordinate database and source tiles with it so downstream locations can be traced back to the acquisition.",
           "hold_after": 0.7,
           "focus": [
             1700,
             440,
             2100,
             1100
-          ],
-          "speech_text": "Write stack を押します。実際の出力には九枚すべてのタイルが含まれ、この例では四チャンネルの全画素が元の視野と一致します。結果には出力パスと帯状画像バッファの使用量が報告されます。これは既知の切り出し画像に対する実測結果です。任意の画像で情報を失わずに位置合わせできると保証するものではありません。"
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "座標データベースには九件の記録があります。行数だけでなく、各ソースファイル、実演用のプレートとウェル、視野識別子、キャンバス上の位置、出力スタックのパスを確認します。後の処理でも座標の意味を追えるよう、これらの記録を画像とソースのマニフェストとともに保管してください。",
-          "hold_after": 0.7,
-          "focus": [
-            450,
-            1990,
-            3370,
-            140
-          ],
-          "speech_text": "座標データベースには九件の記録があります。行数だけでなく、各ソースファイル、実演用のプレートとウェル、視野識別子、キャンバス上の位置、出力スタックのパスを確認します。後の処理でも座標の意味を追えるよう、これらの記録を画像とソースのマニフェストとともに保管してください。"
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "Python では spacr.align.scan_tiles がタイル配置を読み取り、estimate_offsets が計画を作成します。write_stack がモザイクを作り、save_coordinates と read_coordinates が座標表を書き込み、読み戻します。この小規模なステッチングで、別の OPS ワークフローが検証されるわけではありません。いずれのワークフローでも、科学的な結論に使う前に、実際の撮影の幾何配置を確認してください。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "36_import",
-            "74_import_images"
-          ],
-          "speech_text": "Python では スペーカー.align.scan_tiles がタイル配置を読み取り、estimate_offsets が計画を作成します。write_stack がモザイクを作り、save_coordinates と read_coordinates が座標表を書き込み、読み戻します。この小規模なステッチングで、別の OPS ワークフローが検証されるわけではありません。いずれのワークフローでも、科学的な結論に使う前に、実際の撮影の幾何配置を確認してください。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Align_Stitch_nine_tiles.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "33_plate_viewer",
@@ -4317,75 +4292,72 @@
       "id": "34_database",
       "number": 34,
       "slug": "database",
-      "title": "データベースブラウザー",
+      "title": "Database Browser: filter and export measurements",
       "series": 4,
       "app_key": "db_browser",
-      "section": "データ",
-      "description": "コマンドラインを使わずに spaCR の測定データベースを閲覧、絞り込み、エクスポートします。",
+      "section": "Data",
+      "description": "Open a measurement database, select columns and rows, and export the result.",
       "objectives": [
-        "データベースを安全に開き、ページ単位で閲覧する。",
-        "プレビューと混同せず、テーブル全体を絞り込む。",
-        "追跡可能なサブセットをエクスポートする。"
+        "Open and browse a measurement table.",
+        "Select columns and filter rows.",
+        "Export the matching records."
       ],
-      "prerequisite": "spaCR SQLite データベースまたは実行フォルダーを用意してください。",
+      "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
       "scenes": [
         {
-          "narration": "Database Browser は、大規模な spaCR データベースを、行数を制限した読み取り専用ビューで確認します。",
+          "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
           "visual": "01_overview",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Database Browser は、大規模な スペーカー データベースを、行数を制限した読み取り専用ビューで確認します。"
+          "focus_key": "screen"
         },
         {
-          "narration": "Data セクションから Database Browser を開きます。measurements データベースまたはその実行フォルダーを選択して開きます。",
+          "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
           "visual": "02_open",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "Data セクションから Database Browser を開きます。measurements データベースまたはその実行フォルダーを選択して開きます。"
+          "focus_key": "source"
         },
         {
-          "narration": "用途と読み取り専用であることを確認してから、テーブルを選択します。",
+          "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
           "visual": "03_tables",
           "hold_after": 0.7,
-          "focus_key": "tables",
-          "speech_text": "用途と読み取り専用であることを確認してから、テーブルを選択します。"
+          "focus_key": "tables"
         },
         {
-          "narration": "プレビューには制限された 1 ページを読み込み、全体の行数と列数は別に報告します。",
+          "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
           "visual": "04_cell_table",
           "hold_after": 0.7,
-          "focus_key": "preview",
-          "speech_text": "プレビューには制限された 1 ページを読み込み、全体の行数と列数は別に報告します。"
+          "focus_key": "preview"
         },
         {
-          "narration": "元の行を変更せず、列を検索して幅の広い特徴量テーブルを読みやすくします。",
+          "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
           "visual": "05_column_search",
           "hold_after": 0.7,
-          "focus_key": "column_search",
-          "speech_text": "元の行を変更せず、列を検索して幅の広い特徴量テーブルを読みやすくします。"
+          "focus_key": "column_search"
         },
         {
-          "narration": "構造化フィルターを作成します。列名と演算子が検証され、値は安全にバインドされます。",
+          "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
           "visual": "08_filter",
           "hold_after": 0.7,
-          "focus_key": "filter",
-          "speech_text": "構造化フィルターを作成します。列名と演算子が検証され、値は安全にバインドされます。"
+          "focus_key": "filter"
         },
         {
-          "narration": "画面には 1 ページだけを表示していても、正確な絞り込み後の件数はクエリ全体を表します。",
+          "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
           "visual": "09_filtered",
           "hold_after": 0.7,
-          "focus_key": "status",
-          "speech_text": "画面には 1 ページだけを表示していても、正確な絞り込み後の件数はクエリ全体を表します。"
+          "focus_key": "status"
         },
         {
-          "narration": "現在のフィルターに一致する全データと、選択した表示列をエクスポートします。入力元データベースは変更されません。",
+          "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
           "visual": "10_export",
           "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "現在のフィルターに一致する全データと、選択した表示列をエクスポートします。入力元データベースは変更されません。"
+          "focus_key": "export"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "35_converter",
@@ -4394,331 +4366,261 @@
       "series": 4,
       "app_key": "convert",
       "host_app_key": "foreign",
-      "section": "データ",
-      "title": "Format Converter：実画像を書き出す前に識別情報を確認する",
-      "description": "Import から Format Converter を開き、実画像2枚の対応付けをプレビューします。元データを変更せずに別の出力先へ書き込み、チェックポイントによる再利用を検証します。",
+      "section": "Data",
+      "title": "Format Converter: preview and convert image files",
+      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
       "objectives": [
-        "画像形式の変換と、測定値やラベルマスクのインポートを区別する。",
-        "書き出す前に、ソース、出力先、撮影時の識別情報を確認する。",
-        "ソース画像、対応付けの CSV、視野単位のチェックポイントを一緒に保管する。",
-        "新たな画像を書き込まない Resume の結果を正しく解釈し、画素の完全性の保証と取り違えない。"
+        "Choose source and destination folders with the correct acquisition layout.",
+        "Preview target names, fields and channel assignments.",
+        "Convert the files and use Resume for completed fields."
       ],
-      "prerequisite": "Import Project チュートリアルで、実際に測定された画像から用意した単一チャンネルの TIFF 2枚を再利用します。それぞれは元の配列の2番目の画像プレーンと完全に一致します。中立的なファイル名 fov01_C1.tif と fov02_C1.tif には、元のプレートやウェルの識別情報は残っていません。この意図的に範囲を限定した例で示すのは2次元 TIFF の変換であり、装置メーカー固有形式の読み込み、複数チャンネルの撮影、Z 投影、時系列ではありません。Format Converter には専用のサンプルダウンロード、Plot、Live preview、AI の操作部はありません。",
+      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home の Data カテゴリから Import を開き、その中のツールから Format Converter を選びます。これは画像形式とファイル名を変換します。Import Project は、画像、ラベルマスク、測定テーブルをまとめる別の作業を扱います。親画面の操作部と、その中にあるコンバーターの操作部を混同しないでください。",
+          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
             "74_import_images"
-          ],
-          "speech_text": "ホーム の Data カテゴリから Import を開き、その中のツールから Format Converter を選びます。これは画像形式とファイル名を変換します。Import Project は、画像、ラベルマスク、測定テーブルをまとめる別の作業を扱います。親画面の操作部と、その中にあるコンバーターの操作部を混同しないでください。"
+          ]
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "Format Converter タブには、独自の Source、Destination、Preview、Convert があります。プレビューはソースから出力への対応表であり、顕微鏡画像のライブ表示やセグメンテーションのプレビューではありません。タブの下にある親の Import 画面の出力先と Import ボタンは、別のワークフロー用です。",
+          "narration": "Use the converter’s Source, Destination, Preview and Convert controls. Preview displays the planned source-to-target mapping so you can inspect the assignments before writing files.",
           "hold_after": 0.7,
           "focus": [
             460,
             600,
             3370,
             1190
-          ],
-          "speech_text": "Format Converter タブには、独自の Source、Destination、Preview、Convert があります。プレビューはソースから出力への対応表であり、顕微鏡画像のライブ表示やセグメンテーションのプレビューではありません。タブの下にある親の Import 画面の出力先と Import ボタンは、別のワークフロー用です。"
+          ]
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "個々の画像ではなく、ソースフォルダーを選びます。この例では Import のレッスンで使った実際の単一チャンネル TIFF 2枚を再利用します。画素は測定済みの顕微鏡画像から来ていますが、中立的な視野名は実演用の名前で、元の撮影座標ではありません。",
+          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
-          ],
-          "speech_text": "個々の画像ではなく、ソースフォルダーを選びます。この例では Import のレッスンで使った実際の単一チャンネル TIFF 2枚を再利用します。画素は測定済みの顕微鏡画像から来ていますが、中立的な視野名は実演用の名前で、元の撮影座標ではありません。"
+          ]
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "ソースとは別の、新しい空の出力先フォルダーを選びます。元の画像とその由来を示す情報は変更せず保管してください。変換では新しい TIFF と対応付けファイルを作成しますが、実演用ファイルの命名時に取り除かれた実験メタデータを再構成するわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "ソースとは別の、新しい空の出力先フォルダーを選びます。元の画像とその由来を示す情報は変更せず保管してください。変換では新しい TIFF と対応付けファイルを作成しますが、実演用ファイルの命名時に取り除かれた実験メタデータを再構成するわけではありません。"
+          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "2ファイルとも一つのフォルダーにあるため、Layout に images directly in src を指定します。プレート名には連番形式を使い、最初の実行では Resume をオフにしておきます。実際のプレートとウェルの階層を持つフォルダーでは、このフラットなフォルダー用設定をそのまま使わず、対応するレイアウトを選んで割り当て結果を確認してください。",
+          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
           "hold_after": 0.7,
           "focus": [
             460,
             815,
             3370,
             200
-          ],
-          "speech_text": "2ファイルとも一つのフォルダーにあるため、Layout に images directly in src を指定します。プレート名には連番形式を使い、最初の実行では Resume をオフにしておきます。実際のプレートとウェルの階層を持つフォルダーでは、このフラットなフォルダー用設定をそのまま使わず、対応するレイアウトを選んで割り当て結果を確認してください。"
+          ]
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Z は Keep every plane (one file per Z) にします。Max-project Z と First plane only は、意図的に Z の情報を捨てる選択肢です。ここではどちらも実演していません。各入力に含まれるのは2次元の単一チャンネルなので、この録画では特定のメーカーのファイル、時系列、複数チャンネルの撮影がどのように解釈されるかは検証できません。",
+          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
           "hold_after": 0.7,
           "focus": [
             460,
             870,
             3370,
             100
-          ],
-          "speech_text": "Z は Keep every plane (one file per Z) にします。Max-project Z と First plane only は、意図的に Z の情報を捨てる選択肢です。ここではどちらも実演していません。各入力に含まれるのは2次元の単一チャンネルなので、この録画では特定のメーカーのファイル、時系列、複数チャンネルの撮影がどのように解釈されるかは検証できません。"
+          ]
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "コンバーターの Preview ボタンを押します。実際の計画には2個のソースファイルからの2個の出力が表示され、出力先は空のままです。Convert の前にソースと出力の対応全体を確認してください。プレビューが完了しても、ウェルやチャンネルの割り当てが自分の実験と一致する証拠にはなりません。",
+          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
           "hold_after": 0.7,
           "focus": [
             460,
             995,
             3370,
             790
-          ],
-          "speech_text": "コンバーターの Preview ボタンを押します。実際の計画には2個のソースファイルからの2個の出力が表示され、出力先は空のままです。Convert の前にソースと出力の対応全体を確認してください。プレビューが完了しても、ウェルやチャンネルの割り当てが自分の実験と一致する証拠にはなりません。"
-        },
-        {
-          "visual": "05_preview_no_output_written",
-          "narration": "ここで生成される名前は plate1、ウェル A01、視野1と2、チャンネル1を使います。これらは実演用に割り当てた識別情報です。ソース画像はもともと異なるウェルで撮影されたものなので、この対応付けを復元したプレートメタデータとして示したり、それぞれの処置群を統合するために使ったりしてはいけません。",
-          "hold_after": 0.7,
-          "focus": [
-            465,
-            1020,
-            1950,
-            180
-          ],
-          "speech_text": "ここで生成される名前は plate1、ウェル A01、視野1と2、チャンネル1を使います。これらは実演用に割り当てた識別情報です。ソース画像はもともと異なるウェルで撮影されたものなので、この対応付けを復元したプレートメタデータとして示したり、それぞれの処置群を統合するために使ったりしてはいけません。"
+          ]
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "生成された名前と合わせて、From field と From channel の列を確認します。TIFF の唯一のプレーンの配列インデックスは0ですが、保存されている画素は元の7プレーン配列のチャンネルインデックス1から切り出したものです。出力ファイル名のチャンネル1は、1から始まる番号です。この三つの番号付けの文脈を混同してはいけません。",
+          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ],
-          "speech_text": "生成された名前と合わせて、From field と From channel の列を確認します。TIFF の唯一のプレーンの配列インデックスは0ですが、保存されている画素は元の7プレーン配列のチャンネルインデックス1から切り出したものです。出力ファイル名のチャンネル1は、1から始まる番号です。この三つの番号付けの文脈を混同してはいけません。"
+          ]
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "プレビュー表は読み取り専用です。識別情報が誤っている場合はソースのレイアウトや変換設定を直して再度プレビューします。この画面には行ごとの編集機能や、シリーズと時間を個別に選ぶ操作部はありません。自動割り当てを確認するときは、元のメタデータを参照できるようにしてください。",
+          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ],
-          "speech_text": "プレビュー表は読み取り専用です。識別情報が誤っている場合はソースのレイアウトや変換設定を直して再度プレビューします。この画面には行ごとの編集機能や、シリーズと時間を個別に選ぶ操作部はありません。自動割り当てを確認するときは、元のメタデータを参照できるようにしてください。"
+          ]
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Convert を押してサマリーを読みます。この実際の実行では、失敗した対応付けやスキップされた対応付けはなく、新しい TIFF が2枚書き出されます。出力の全画素、形状、データ型をソースと独立に比較し、対応付けファイル内のソース、視野、チャンネルの識別情報も検証します。元ファイルは変更されません。",
+          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ],
-          "speech_text": "Convert を押してサマリーを読みます。この実際の実行では、失敗した対応付けやスキップされた対応付けはなく、新しい TIFF が2枚書き出されます。出力の全画素、形状、データ型をソースと独立に比較し、対応付けファイル内のソース、視野、チャンネルの識別情報も検証します。元ファイルは変更されません。"
+          ]
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "conversion_map.csv を、変換後の画像と元の撮影マニフェストとともに保管します。この表にはソースと出力のパス、割り当てられた識別情報、ソースチャンネルのメタデータ、変換状態が保存されます。別の実行状態ファイルが処理を記録し、隠しファイルの視野単位チェックポイントが後の Resume を支えます。",
+          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ],
-          "speech_text": "conversion_map.csv を、変換後の画像と元の撮影マニフェストとともに保管します。この表にはソースと出力のパス、割り当てられた識別情報、ソースチャンネルのメタデータ、変換状態が保存されます。別の実行状態ファイルが処理を記録し、隠しファイルの視野単位チェックポイントが後の Resume を支えます。"
+          ]
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "Resume をオンにして、同じソース、計画、出力先で再び Convert を押します。アプリは互換性のある視野単位チェックポイントと、読み取り可能な TIFF メタデータを確認してから、処理済みの視野を再利用します。全画素を元のソースと比較するわけではありません。Resume をあらゆる破損を検出する完全な検査と説明してはいけません。",
+          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
           "hold_after": 0.7,
           "focus": [
             2700,
             825,
             1130,
             190
-          ],
-          "speech_text": "Resume をオンにして、同じソース、計画、出力先で再び Convert を押します。アプリは互換性のある視野単位チェックポイントと、読み取り可能な TIFF メタデータを確認してから、処理済みの視野を再利用します。全画素を元のソースと比較するわけではありません。Resume をあらゆる破損を検出する完全な検査と説明してはいけません。"
-        },
-        {
-          "visual": "09_completed_fields_reused",
-          "narration": "2回目の実行では、変換したファイルは0個、すでに存在した出力は2個と表示されます。ここでは予定どおりで、計画した両方の出力が存在し、変更されていません。表はプレビュー時の planned 状態のままなので、実際の結果はその列だけで判断せず、処理のサマリーと対応付けファイルを読んでください。",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ],
-          "speech_text": "2回目の実行では、変換したファイルは0個、すでに存在した出力は2個と表示されます。ここでは予定どおりで、計画した両方の出力が存在し、変更されていません。表はプレビュー時の planned 状態のままなので、実際の結果はその列だけで判断せず、処理のサマリーと対応付けファイルを読んでください。"
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "サマリーをスクロールし、処理済みの2視野が再利用されたことを確認します。変換が必要なソースがなかったため、最新の実行台帳のエントリーは empty を報告しますが、最初の complete エントリーも保持されています。この書き込みゼロの結果を受け入れるのは、再利用した両方の出力と正確な識別情報を独立に検証した後に限ります。",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ],
-          "speech_text": "サマリーをスクロールし、処理済みの2視野が再利用されたことを確認します。変換が必要なソースがなかったため、最新の実行台帳のエントリーは empty を報告しますが、最初の complete エントリーも保持されています。この書き込みゼロの結果を受け入れるのは、再利用した両方の出力と正確な識別情報を独立に検証した後に限ります。"
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "Python では spacr.convert.scan がソースの記述情報を読み、plan が確認対象の対応付けを作り、convert が出力を書き込みます。convert_folder は設定辞書を受け取る入口です。変換とセグメンテーションや測定は分けて考え、画像を Mask または Measure に渡す前に、自分の撮影データの次元構成を検証してください。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "07_mask",
-            "08_measure",
-            "36_import"
-          ],
-          "speech_text": "Python では スペーカー.convert.scan がソースの記述情報を読み、plan が確認対象の対応付けを作り、convert が出力を書き込みます。convert_folder は設定辞書を受け取る入口です。変換とセグメンテーションや測定は分けて考え、画像を Mask または Measure に渡す前に、自分の撮影データの次元構成を検証してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "36_import",
       "number": 36,
       "slug": "import",
       "series": 5,
-      "title": "Import Project：実際のマスク、測定値、由来を確認する",
+      "title": "Import Project: bring images, masks and measurements into spaCR",
       "app_key": "foreign",
-      "section": "データ",
-      "description": "実際の顕微鏡画像二視野を取り込み、書き込み前にオブジェクトの対応と列名を確認します。取り込んだ測定値とspaCRによる新たな測定を区別します。",
+      "section": "Data",
+      "description": "Choose matching images, instance masks and measurement tables, review their mapping, and create a spaCR project.",
       "objectives": [
-        "Import Projectと三つの入れ子の入力ツールを見つける。",
-        "単位とオブジェクト識別を明示して画像、インスタンスマスク、測定表を対応付ける。",
-        "推定された名前を確認し、予約名の衝突と解決を実演してマッピングを保存、再読み込みする。",
-        "取り込みが再測定だと誤解せず、画素、オブジェクトごとの値、由来を検証する。"
+        "Match images, masks and measurement rows.",
+        "Review and save the column mapping.",
+        "Import the project and inspect its outputs."
       ],
-      "prerequisite": "先にMeasureの例をダウンロードしてください。tools/tutorials/capture_foreign.pyのprepare_inputsは、plate1_E01_1_1とplate1_L02_9_1からER強度の平面1と細胞ラベルの平面4を変更せず抽出します。同じラベルから正確な画素面積と生の平均強度を再計算し、実測百三行を作ります。中立的なfov01/fov02というTIFF名から元の撮影ウェルを確認するには、保存した由来の一覧が必要です。プレート配置が自動的に保たれるわけではありません。画素の物理的な較正は主張しません。",
+      "prerequisite": "Prepare corresponding image files, instance-label masks and a measurement CSV. Keep each field’s original plate and well identity, and use documented measurement units.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "HomeのDataカテゴリーでImportを開きます。この親ワークフローは既存の画像、インスタンスマスク、測定値を取り込みます。顕微鏡の生ファイルから始めてspaCRで新しいマスクと測定値を作る作業とは異なります。",
-          "hold_after": 0.7,
-          "speech_text": "ホームのDataカテゴリーでImportを開きます。この親ワークフローは既存の画像、インスタンスマスク、測定値を取り込みます。顕微鏡の生ファイルから始めてスペーカーで新しいマスクと測定値を作る作業とは異なります。"
+          "narration": "From Home’s Data category, open Import. Use this screen to bring existing images, instance masks and measurements into a spaCR project.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_import_images",
-          "narration": "ヘッダーにはImport Images、Format Converter、External Masksが配置されました。生の撮影データにはImport Images、対応形式の変換にはFormat Converter、既存の分割ラベルにはExternal Masksを使います。専門レッスンはSubmodulesのImport配下に維持されています。",
+          "narration": "The header also opens Import Images, Format Converter and External Masks. Choose the tool that matches your starting files; this walkthrough uses images, masks and an existing measurement table together.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ],
-          "speech_text": "ヘッダーにはImport Images、Format Converter、External Masksが配置されました。生の撮影データにはImport Images、対応形式の変換にはFormat Converter、既存の分割ラベルにはExternal Masksを使います。専門レッスンはSubmodulesのImport配下に維持されています。"
+          ]
         },
         {
           "visual": "03_choose_images",
-          "narration": "この録画ではMeasureのダウンロード例から実際の二視野を再利用します。別々のTIFFコピーは元の強度とラベルの画素を保ちます。準備処理はその同じラベルから画素面積と平均強度を測定し、独立した別バージョンの測定表とマスクを混ぜません。",
+          "narration": "Choose the image folder. The example uses two microscopy fields with one intensity channel and matching cell labels. Keep a record of each file’s original plate, well and field.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "この録画ではMeasureのダウンロード例から実際の二視野を再利用します。別々のTIFFコピーは元の強度とラベルの画素を保ちます。準備処理はその同じラベルから画素面積と平均強度を測定し、独立した別バージョンの測定表とマスクを混ぜません。"
+          ]
         },
         {
           "visual": "04_choose_masks",
-          "narration": "画像フォルダー、次にCellマスクフォルダーを選び、Addを押します。これはインスタンスラベルで、単なる二値の前景画像ではありません。本例には強度チャンネル一つとマスククラス一つがあります。別のクラスは、対応する視野を実際に表す場合だけ追加してください。",
-          "hold_after": 0.7,
-          "speech_text": "画像フォルダー、次にCellマスクフォルダーを選び、Addを押します。これはインスタンスラベルで、単なる二値の前景画像ではありません。本例には強度チャンネル一つとマスククラス一つがあります。別のクラスは、対応する視野を実際に表す場合だけ追加してください。"
+          "narration": "Choose the Cell mask folder and press Add. Each object needs its own integer label. Add further mask classes when you have corresponding labels for the same fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_choose_table",
-          "narration": "実際の測定CSVを選びます。ImageNumberは準備した各画像、ObjectNumberはその視野内のラベルを識別します。ラベル番号だけでは複数画像間で一意になりません。表には実測した百三オブジェクトがあり、対応付けを通すための合成行は加えていません。",
-          "hold_after": 0.7,
-          "speech_text": "実際の測定CSVを選びます。ImageNumberは準備した各画像、ObjectNumberはその視野内のラベルを識別します。ラベル番号だけでは複数画像間で一意になりません。表には実測した百三オブジェクトがあり、対応付けを通すための合成行は加えていません。"
+          "narration": "Choose the measurement CSV. Match ImageNumber to each field and ObjectNumber to its mask label. Use both identifiers to distinguish objects across fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_inputs_unknown_calibration",
-          "narration": "較正が不明なら、一画素あたりのマイクロメートルを空欄にします。面積列は平方画素を明示し、強度は画像の生の平均値です。尺度を作り上げないでください。物理単位の列は別途確認が必要です。未較正の値を画素単位に変換済みの測定として説明してはいけません。",
+          "narration": "Enter micrometres per pixel when you know the calibration; otherwise leave it blank. Check that area and intensity columns retain their documented units.",
           "hold_after": 0.7,
           "focus": [
             350,
             440,
             3450,
             65
-          ],
-          "speech_text": "較正が不明なら、一画素あたりのマイクロメートルを空欄にします。面積列は平方画素を明示し、強度は画像の生の平均値です。尺度を作り上げないでください。物理単位の列は別途確認が必要です。未較正の値を画素単位に変換済みの測定として説明してはいけません。"
+          ]
         },
         {
           "visual": "06b_safe_inferred_names",
-          "narration": "Previewはプロジェクトデータを書き込みません。現在のインポーターはforeign接頭辞付きの列名を慎重に提案し、元からcell_areaという列にはforeign_cell_areaを使います。この注記は処理を止めるエラーではありません。推定でspaCR特徴量の上書きは避けていますが、科学的意味の確認は必要です。",
+          "narration": "Press Preview to inspect the proposed column mapping and joins before creating the project. Review the suggested foreign-prefixed names and their scientific meaning.",
           "hold_after": 0.7,
           "focus": [
             350,
             500,
             2650,
             155
-          ],
-          "speech_text": "Previewはプロジェクトデータを書き込みません。現在のインポーターはforeign接頭辞付きの列名を慎重に提案し、元からcell_areaという列にはforeign_cell_areaを使います。この注記は処理を止めるエラーではありません。推定でスペーカー特徴量の上書きは避けていますが、科学的意味の確認は必要です。"
+          ]
         },
         {
           "visual": "07_conflict_refused",
-          "narration": "出力先のセルを選び、F二を押して編集します。ここでは面積の出力先を意図的に予約名cell_areaへ変更します。Refuse the importを選んでいるため、実際の衝突によってImportが無効になります。何も書き込まれていません。実演用の出力先を推奨マッピングと考えないでください。",
-          "hold_after": 0.7,
-          "speech_text": "出力先のセルを選び、F二を押して編集します。ここでは面積の出力先を意図的に予約名cell_areaへ変更します。Refuse the importを選んでいるため、実際の衝突によってImportが無効になります。何も書き込まれていません。実演用の出力先を推奨マッピングと考えないでください。"
+          "narration": "Select a target cell and press F two to edit its name. A reserved-name conflict disables Import when Refuse the import is selected; choose a distinct target name or use the Rename policy.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_join_report",
-          "narration": "Rename方針を選ぶとspaCRの特徴量を上書きせず衝突を解決できます。対応付けの報告を読みます。百三行すべてが実際のマスクオブジェクトに一致し、この部分集合に未測定のオブジェクトはありません。行数だけでは別の視野やラベルに値が割り当てられた誤りを見つけられません。",
+          "narration": "Read the join report and resolve unmatched rows or objects. In the example, all one hundred and three measurement rows match mask objects.",
           "hold_after": 0.7,
           "focus": [
             350,
             1830,
             3450,
             195
-          ],
-          "speech_text": "Rename方針を選ぶとスペーカーの特徴量を上書きせず衝突を解決できます。対応付けの報告を読みます。百三行すべてが実際のマスクオブジェクトに一致し、この部分集合に未測定のオブジェクトはありません。行数だけでは別の視野やラベルに値が割り当てられた誤りを見つけられません。"
+          ]
         },
         {
           "visual": "09_mapping_edited",
-          "narration": "面積には明示的に確認した出力先foreign_reviewed_area_px2を指定します。マッピングはその場で更新されます。入力元、出力先、変換、単位をまとめて確認してください。列名を変えただけでは、二つの研究室が同じ生物学的な量を測ったとは言えません。",
+          "narration": "Give the imported area a clear name, such as foreign reviewed area pixels squared. Review the source, target, transform and units together.",
           "hold_after": 0.7,
           "focus": [
             350,
             500,
             2650,
             155
-          ],
-          "speech_text": "面積には明示的に確認した出力先foreign_reviewed_area_px2を指定します。マッピングはその場で更新されます。入力元、出力先、変換、単位をまとめて確認してください。列名を変えただけでは、二つの研究室が同じ生物学的な量を測ったとは言えません。"
+          ]
         },
         {
           "visual": "10_save_mapping",
-          "narration": "Save mappingは確認済みの列定義をCSVに保存します。画像のバックアップでも完全な撮影一覧でもありません。後で判断を監査できるよう、マッピングに加えて元ファイルと識別記録も残してください。",
-          "hold_after": 0.7,
-          "speech_text": "Save mappingは確認済みの列定義をCSVに保存します。画像のバックアップでも完全な撮影一覧でもありません。後で判断を監査できるよう、マッピングに加えて元ファイルと識別記録も残してください。"
+          "narration": "Use Save mapping to keep the reviewed column definitions as a CSV. Keep the mapping with your images, masks, measurement table and acquisition identities.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_mapping_reloaded",
-          "narration": "Load mappingはその定義を現在の計画に読み戻します。まず保存せずに出力先を一時変更し、その後保存したCSVを選ぶと確認済みの名前が復元されます。ファイル、ラベル、単位が変わったら計画を再確認してください。再利用可能なマッピングが新しい実験を自動承認するわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Load mappingはその定義を現在の計画に読み戻します。まず保存せずに出力先を一時変更し、その後保存したCSVを選ぶと確認済みの名前が復元されます。ファイル、ラベル、単位が変わったら計画を再確認してください。再利用可能なマッピングが新しい実験を自動承認するわけではありません。"
+          "narration": "Use Load mapping to reuse saved definitions. Review the resulting plan whenever source columns, labels or units differ.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_imported",
-          "narration": "確認済み計画のImportを押し、実際の報告を見ます。この実行は画像二つを変換し、マスク二つと結合配列二つを書き込み、二つのオブジェクト表それぞれに百三行を保存します。状態表示の二百六は両表を合計した数で、異なるオブジェクトが倍に増えたわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "確認済み計画のImportを押し、実際の報告を見ます。この実行は画像二つを変換し、マスク二つと結合配列二つを書き込み、二つのオブジェクト表それぞれに百三行を保存します。状態表示の二百六は両表を合計した数で、異なるオブジェクトが倍に増えたわけではありません。"
+          "narration": "Press Import and read the completion report. The example writes two image files, two masks and two merged arrays, with one hundred and three rows in each of two object tables.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_import_scope",
-          "narration": "要約はspaCRが測定値を再抽出していないと明記します。foreign_columns表はどの値が今回の取り込みに由来するかを記録します。検証で元画素、ラベル、各オブジェクトの面積と平均強度の保存を確認しました。これは生物学的解釈の妥当性を検証したこととは違います。",
+          "narration": "Open the project and inspect the imported measurements. The foreign columns table records their origin. Use Measure when you want spaCR to calculate new features from the images.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4728,29 +4630,31 @@
           ],
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "要約はスペーカーが測定値を再抽出していないと明記します。foreign_columns表はどの値が今回の取り込みに由来するかを記録します。検証で元画素、ラベル、各オブジェクトの面積と平均強度の保存を確認しました。これは生物学的解釈の妥当性を検証したこととは違います。"
+          ]
         },
         {
           "visual": "14_import_scope",
-          "narration": "中立的なfov名はAゼロ一の新しい視野になりますが、元の撮影ウェルを再構築しません。準備時の由来一覧と変換マップを保管してください。実際のプレート実験では、新たに割り当てた座標を元メタデータと扱わず、下流解析の前に撮影データの識別を確定してください。",
+          "narration": "Keep the conversion map with the project and check its plate, well and field assignments. Generic file names may receive new coordinates, so resolve their original identities before plate-level analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "74_import_images"
-          ],
-          "speech_text": "中立的なfov名はAゼロ一の新しい視野になりますが、元の撮影ウェルを再構築しません。準備時の由来一覧と変換マップを保管してください。実際のプレート実験では、新たに割り当てた座標を元メタデータと扱わず、下流解析の前に撮影データの識別を確定してください。"
+          ]
         },
         {
           "visual": "14_import_scope",
-          "narration": "Pythonではspacr.foreignのplan_import、save_column_map、load_column_map、run_importが同じ確認と適用の分離を提供します。完成したプロジェクトと確認済みマッピングを一緒に保存してください。spaCRで新しい特徴量を計算したい場合はMeasureを使い、取り込みで既に計算されたと思い込まないでください。",
+          "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
-          ],
-          "speech_text": "Pythonではスペーカー.foreignのplan_import、save_column_map、load_column_map、run_importが同じ確認と適用の分離を提供します。完成したプロジェクトと確認済みマッピングを一緒に保存してください。スペーカーで新しい特徴量を計算したい場合はMeasureを使い、取り込みで既に計算されたと思い込まないでください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "37_batch",
@@ -4758,181 +4662,172 @@
       "slug": "batch",
       "series": 5,
       "app_key": "batch",
-      "section": "データとバッチ実行",
-      "title": "Batch Runner：検証済みジョブ、依存関係、個別ログ",
-      "description": "実際のマルチスレッド画面とファイル選択画面で、チャンネルを保つ三つの変換を設定します。依存順序を確認し、キューの保存・読み込みと実サブプロセスの停止・再開を行います。",
+      "section": "Data and batch runs",
+      "title": "Batch Runner: configure and run a queue",
+      "description": "Add module settings, arrange dependencies, run jobs, and inspect their separate logs.",
       "objectives": [
-        "Help から Batch runner を開き、依存関係と上書き値を明示して設定を追加する。",
-        "不正な依存順序を確認し、修正して検証済み計画を保存する。",
-        "計画を読み直し、ジョブ間で停止して、完了済みジョブを繰り返さず再開する。",
-        "個別ログと、独立に検証した画素・チャンネル・変換記録を確認する。"
+        "Add jobs with their settings and dependencies.",
+        "Save, run and continue the queue.",
+        "Inspect each job’s log and outputs."
       ],
-      "prerequisite": "テストデータの実測四チャンネル画像三視野を使い、ジョブごとに入力・出力フォルダーを分けます。tools/tutorials/batch_data.py は原本をバイト単位でコピーし、fov01_C1 から fov01_C4 という明確な TIFF 名を付けます。A01 は実演用座標で、元のプレート・ウェル座標を復元しません。旧収録は元の名前を四つの別々の C01 視野に変換したため、チャンネル保持の証拠になりません。ここでは convert のみを実行し、Mask-to-Classify 全体は検証しません。モデル実行、AI 要求、生物学的発見は主張しません。専用の Load test data、画像プレビュー、図パネルはありません。Preview と Resume は Format Converter 教程を参照してください。失敗方針は表示しますが、失敗解析、クラッシュ復旧、GPU ドライバー隔離は試していません。",
+      "prerequisite": "Prepare the input data and exported settings JSON for each job. The example runs three image conversions into separate output folders.",
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Help から Batch runner を開きます。共有メニューツールとして、画面を必要としないモジュールのジョブ、設定ファイル、依存関係、個別ログを組み合わせます。このキューのジョブは順次実行されますが、他のアプリやキューによる同じ計算資源の使用を防ぐものではありません。",
+          "narration": "Open Help, then Batch runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
-          ],
-          "speech_text": "Help から Batch runner を開きます。共有メニューツールとして、画面を必要としないモジュールのジョブ、設定ファイル、依存関係、個別ログを組み合わせます。このキューのジョブは順次実行されますが、他のアプリやキューによる同じ計算資源の使用を防ぐものではありません。"
+          ]
         },
         {
           "visual": "03_choose_settings_1",
-          "narration": "convert を選び、Choose settings で最初の JSON を開きます。三つの実測顕微鏡視野を別々のフォルダーに置き、それぞれに四つのチャンネル名が明確なファイルを用意しました。画素は変わりませんが、A ゼロ一は実演用座標で、元のウェルを復元したものではありません。",
+          "narration": "Choose the module and click Choose settings. For this example, select convert and the JSON settings for the first microscopy field.",
           "hold_after": 0.7,
           "related_lessons": [
             "35_converter"
-          ],
-          "speech_text": "convert を選び、Choose settings で最初の JSON を開きます。三つの実測顕微鏡視野を別々のフォルダーに置き、それぞれに四つのチャンネル名が明確なファイルを用意しました。画素は変わりませんが、A ゼロ一は実演用座標で、元のウェルを復元したものではありません。"
+          ]
         },
         {
           "visual": "04_configure_job_1",
-          "narration": "設定は入力、出力、実変換を指定し、プレビューと再開は無効です。説明的なラベルを付けて Add job を選びます。最初の識別子は convert 一です。大きなバッチを組む前に、小さな例で変換とチャンネル対応を検証してください。",
+          "narration": "Check the source and destination in the settings, add a descriptive label, then click Add job. Use a separate output folder for each conversion.",
           "hold_after": 0.7,
           "focus": [
             450,
             235,
             3370,
             255
-          ],
-          "speech_text": "設定は入力、出力、実変換を指定し、プレビューと再開は無効です。説明的なラベルを付けて Add job を選びます。最初の識別子は convert 一です。大きなバッチを組む前に、小さな例で変換とチャンネル対応を検証してください。"
+          ]
         },
         {
           "visual": "04_configure_job_2",
-          "narration": "二つ目の After には convert 一を指定します。plate naming を name にする上書き値は、保存設定を書き換えずプレート名の規則を変えます。依存関係は実行資格と順序を制御しますが、二つ目が一つ目の出力を自動的に入力として使うわけではありません。",
+          "narration": "For the second job, enter convert one in After to make it depend on the first. Add a setting override when this job needs a different value. Set any input paths explicitly; a dependency controls order.",
           "hold_after": 0.7,
           "focus": [
             450,
             235,
             3370,
             255
-          ],
-          "speech_text": "二つ目の After には convert 一を指定します。plate naming を name にする上書き値は、保存設定を書き換えずプレート名の規則を変えます。依存関係は実行資格と順序を制御しますが、二つ目が一つ目の出力を自動的に入力として使うわけではありません。"
+          ]
         },
         {
           "visual": "05_added_job_3",
-          "narration": "三つ目を依存関係も上書き値もなしで追加します。出力フォルダーはすべて別です。表に識別子、ラベル、依存関係、pending 状態が並びます。行を選ぶと設定が編集欄に読み込まれますが、表自体は編集可能なスプレッドシートではありません。",
+          "narration": "Add further jobs and review their identifiers, labels and dependencies. Select a row to load its configuration into the editor.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "三つ目を依存関係も上書き値もなしで追加します。出力フォルダーはすべて別です。表に識別子、ラベル、依存関係、pending 状態が並びます。行を選ぶと設定が編集欄に読み込まれますが、表自体は編集可能なスプレッドシートではありません。"
+          ]
         },
         {
           "visual": "06b_dependency_error_scrolled",
-          "narration": "二つ目を前提ジョブより上へ移動します。検証は依存先が後にあると報告し、Run queue を無効にします。小さい問題欄は、説明と修正案を読むためにスクロールが必要な場合があります。保護すると言うだけでなく、実際の拒否を確認しています。",
+          "narration": "Use the move controls to arrange jobs. A dependency must appear before the job that needs it; read any validation message and correct the order.",
           "hold_after": 0.7,
           "focus": [
             450,
             1225,
             3350,
             180
-          ],
-          "speech_text": "二つ目を前提ジョブより上へ移動します。検証は依存先が後にあると報告し、Run queue を無効にします。小さい問題欄は、説明と修正案を読むためにスクロールが必要な場合があります。保護すると言うだけでなく、実際の拒否を確認しています。"
+          ]
         },
         {
           "visual": "07_valid_reordered_queue",
-          "narration": "convert 一の下へ戻し、独立した三つ目をその上へ移します。有効な順序は一、三、二です。Validate を再度選ぶと問題はありません。順序条件は満たしますが、解析が科学的な問いに答えるかどうかは検証機能だけでは判断できません。",
+          "narration": "Click Validate after arranging the queue. Resolve the listed problems until Run queue becomes available.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "convert 一の下へ戻し、独立した三つ目をその上へ移します。有効な順序は一、三、二です。Validate を再度選ぶと問題はありません。順序条件は満たしますが、解析が科学的な問いに答えるかどうかは検証機能だけでは判断できません。"
+          ]
         },
         {
           "visual": "09_continue_policy",
-          "narration": "On failure は独立ジョブを続行するか、最初の失敗で停止するかを選べます。両方を確認して続行へ戻しました。Stop after は連続三回の失敗です。数を数えるだけで、原因が同じだと証明しません。この成功例では、どちらの失敗時動作も実行していません。",
+          "narration": "Choose On failure to continue with independent jobs or stop at the first failure. Set Stop after to limit consecutive failures.",
           "hold_after": 0.7,
           "focus": [
             450,
             440,
             1760,
             95
-          ],
-          "speech_text": "On failure は独立ジョブを続行するか、最初の失敗で停止するかを選べます。両方を確認して続行へ戻しました。Stop after は連続三回の失敗です。数を数えるだけで、原因が同じだと証明しません。この成功例では、どちらの失敗時動作も実行していません。"
+          ]
         },
         {
           "visual": "10_save_queue_picker",
-          "narration": "Save queue で順序付き計画を JSON に保存します。その後、この一時的なメモリー内キューから三つ目を削除し、Load queue で保存した三件を復元しました。プロジェクトフォルダーは削除していません。設定ファイルと入力を計画と一緒に保管してください。",
-          "hold_after": 0.7,
-          "speech_text": "Save queue で順序付き計画を JSON に保存します。その後、この一時的なメモリー内キューから三つ目を削除し、Load queue で保存した三件を復元しました。プロジェクトフォルダーは削除していません。設定ファイルと入力を計画と一緒に保管してください。"
+          "narration": "Click Save queue to store the plan as JSON. Use Load queue to reopen it later, keeping the referenced settings files and inputs available.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_stopped_between_jobs",
-          "narration": "Run queue が最初の実サブプロセスを開始したら Stop を押します。実行中のジョブが完了してから停止し、最初は success、残り二つは not run になります。即時終了ではなく、この制御された停止はコンピューターのクラッシュ復旧の証明でもありません。",
+          "narration": "Click Run queue. To pause between jobs, press Stop; the current job finishes and the remaining jobs stay unrun.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "Run queue が最初の実サブプロセスを開始したら Stop を押します。実行中のジョブが完了してから停止し、最初は success、残り二つは not run になります。即時終了ではなく、この制御された停止はコンピューターのクラッシュ復旧の証明でもありません。"
+          ]
         },
         {
           "visual": "15_completed_real_queue",
-          "narration": "Run queue を再度選びます。残り二つだけを保存順に実行し、最初の時刻記録は変わりません。三つとも success になります。別プロセスは通常の実行を分離しますが、システム全体の GPU やメモリー障害からの保護をこの実演が保証するわけではありません。",
+          "narration": "Click Run queue again to continue with the remaining jobs. Watch each row’s status as the queue progresses.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "Run queue を再度選びます。残り二つだけを保存順に実行し、最初の時刻記録は変わりません。三つとも success になります。別プロセスは通常の実行を分離しますが、システム全体の GPU やメモリー障害からの保護をこの実演が保証するわけではありません。"
+          ]
         },
         {
           "visual": "16_log_convert-2",
-          "narration": "各行を選んで個別ログを読みます。変換器は一ウェル、一視野、四チャンネルを報告し、続いて四ファイルの変換と終了コードゼロを示します。二つ目の出力には名前の上書きが反映されます。ログは調べるべき証拠であり、科学的な正しさの自動保証ではありません。",
+          "narration": "Select a row to read its log and inspect errors or output paths. For the conversion example, check the reported field and channel identifiers.",
           "hold_after": 0.7,
           "focus": [
             450,
             1380,
             3350,
             705
-          ],
-          "speech_text": "各行を選んで個別ログを読みます。変換器は一ウェル、一視野、四チャンネルを報告し、続いて四ファイルの変換と終了コードゼロを示します。二つ目の出力には名前の上書きが反映されます。ログは調べるべき証拠であり、科学的な正しさの自動保証ではありません。"
+          ]
         },
         {
           "visual": "16_log_convert-1",
-          "narration": "三ジョブの十二画像について、全原本画素と意図したチャンネル識別子が一致しました。各変換記録も四回試行、四回成功、失敗ゼロです。原本は不変です。スクリプトには spacr.batch の Job、Queue、run_queue を使えます。API レッスンと変換器のプレビュー教程を参照してください。",
+          "narration": "Open each output folder and inspect the converted images and conversion record. Keep the queue JSON, settings and logs with the results.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "35_converter",
             "30_plate_queue"
-          ],
-          "speech_text": "三ジョブの十二画像について、全原本画素と意図したチャンネル識別子が一致しました。各変換記録も四回試行、四回成功、失敗ゼロです。原本は不変です。スクリプトには スペーカー.batch の Job、Queue、run_queue を使えます。API レッスンと変換器のプレビュー教程を参照してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "38_distributed_jobs",
       "number": 38,
       "slug": "distributed_jobs",
-      "title": "分散ジョブ",
+      "title": "Distributed Jobs: configure an execution target",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "データとバッチ実行",
-      "description": "Helpから実際の実行プロファイルを準備し、設定の保存と検証済みのリモート実行を区別します。",
+      "section": "Data and batch runs",
+      "description": "Create an execution profile and prepare a module job for another workstation or cluster.",
       "objectives": [
-        "HelpからDistributed jobsを開き、プロファイルを保存する。",
-        "パスの対応付け、データ転送、認証の違いを理解する。",
-        "未検証の実行を成功とせず、SSH、Slurm、カスタムコマンドを準備する。"
+        "Create a profile for your execution target.",
+        "Configure paths and backend options.",
+        "Prepare submission and inspect job status."
       ],
-      "prerequisite": "ローカルの独立した保存先で設定のみを実演します。接続やジョブ投入は行いません。researcher@workstation.invalidと表示されるディレクトリは例示用で、有効な接続先ではありません。投入前に、許可されたアクセス、互換性のあるspaCRと依存関係、接続先の実データを用意してください。実験設定にはモジュールから書き出した設定を使い、このプロファイルを代用しないでください。API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager。パスワードは保存せず、認証はspaCRの外部で設定します。データのルートは絶対パスの接頭辞を置き換えますが、画像はコピーしません。保存、再表示、変更の取り消しを確認したもので、スケジューラの成功、リモート出力、モデルの妥当性の証明ではありません。",
+      "prerequisite": "Arrange access to a target with spaCR, its dependencies and your input data. Export the module settings you intend to run. Replace the illustrative host and paths shown here with your own.",
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "HelpからDistributed jobsを開きます。このユーティリティはHelpから利用し、Homeの独立した主要モジュールではありません。実際の実行プロファイルを準備し、現在の操作項目を確認します。リモート接続やジョブ投入は実演しません。プロファイルを保存しても、接続先が動作する証明にはなりません。",
+          "narration": "Open Help, then Distributed jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
           "focus": [
             80,
             0,
@@ -4942,12 +4837,11 @@
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "speech_text": "HelpからDistributed jobsを開きます。このユーティリティはHelpから利用し、ホームの独立した主要モジュールではありません。実際の実行プロファイルを準備し、現在の操作項目を確認します。リモート接続やジョブ投入は実演しません。プロファイルを保存しても、接続先が動作する証明にはなりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_empty_actual_workbench",
-          "narration": "この画面では、モジュールの設定を別の実行先へ送ります。投入前に、許可されたアクセス、互換性のあるspaCR環境、その実行先で利用できるデータを用意してください。プロファイルに保存するのは接続設定で、パスワードではありません。SSH鍵やクラウド用コマンドラインツールの認証はspaCRの外部で設定します。",
+          "narration": "Install compatible spaCR dependencies on the target and make the input data available there. Set up SSH keys or your provider’s command-line authentication outside spaCR.",
           "focus": [
             455,
             155,
@@ -4958,84 +4852,77 @@
             "06_api",
             "37_batch"
           ],
-          "hold_after": 0.7,
-          "speech_text": "この画面では、モジュールの設定を別の実行先へ送ります。投入前に、許可されたアクセス、互換性のあるスペーカー環境、その実行先で利用できるデータを用意してください。プロファイルに保存するのは接続設定で、パスワードではありません。SSH鍵やクラウド用コマンドラインツールの認証はスペーカーの外部で設定します。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_empty_profile_refused",
-          "narration": "New profileを選びます。空のフォームは保存できず、画面内にメッセージが出ます。分かりやすい名前を付け、バックエンドを選びます。この例ではNOT CONNECTEDと明記し、検証済みのワークステーションや成功したジョブと混同しないようにしています。",
+          "narration": "Choose New profile. Enter a descriptive name and select the backend. Complete the required fields shown by the form.",
           "focus": [
             695,
             195,
             2210,
             1220
           ],
-          "hold_after": 0.7,
-          "speech_text": "New profileを選びます。空のフォームは保存できず、画面内にメッセージが出ます。分かりやすい名前を付け、バックエンドを選びます。この例ではNOT CONNECTEDと明記し、検証済みのワークステーションや成功したジョブと混同しないようにしています。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "SSHでは、ホスト、リモート作業ディレクトリ、spaCRの実行コマンドを入力します。末尾がドットinvalidのホストと表示されるディレクトリは例示用で、有効な認証情報や確認済みの場所ではありません。保存したプロファイルを開き直すと、表示値は保存された設定と完全に一致します。",
+          "narration": "For SSH, enter your host, remote work directory and spaCR runner. Save the profile, then reopen it whenever you need to update these settings.",
           "focus": [
             695,
             380,
             2210,
             390
           ],
-          "hold_after": 0.7,
-          "speech_text": "SSHでは、ホスト、リモート作業ディレクトリ、スペーカーの実行コマンドを入力します。末尾がドットinvalidのホストと表示されるディレクトリは例示用で、有効な認証情報や確認済みの場所ではありません。保存したプロファイルを開き直すと、表示値は保存された設定と完全に一致します。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "ローカルとリモートのデータルートは、同じデータを異なる絶対パスの接頭辞で表します。両方を設定するか、パスが同一なら両方を空欄にします。これは設定内のパスを対応付ける機能で、画像集をサーバーへコピーするものではありません。共有ストレージや転送は別途用意してください。",
+          "narration": "Set the local and remote dataset roots when the same data has different absolute paths on the two machines. This rewrites settings paths; arrange shared storage or copy the files separately.",
           "focus": [
             695,
             595,
             2210,
             170
           ],
-          "hold_after": 0.7,
-          "speech_text": "ローカルとリモートのデータルートは、同じデータを異なる絶対パスの接頭辞で表します。両方を設定するか、パスが同一なら両方を空欄にします。これは設定内のパスを対応付ける機能で、画像集をサーバーへコピーするものではありません。共有ストレージや転送は別途用意してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_slurm_controls_not_submitted",
-          "narration": "Slurmを選ぶと、ホストとパスの項目を保ったままスケジューラのオプションが有効になります。パーティション名、制限時間、アクセラレータの要求は、クラスタで割り当てられた資源に合わせます。表示中のパーティションは仮の値です。選択を変えてもGPUは予約されず、スケジューラへの接続も確認されません。",
+          "narration": "For Slurm, choose the partition, time limit and accelerator request supported by your cluster. Keep the host and directory settings appropriate for its login environment.",
           "focus": [
             695,
             450,
             2210,
             430
           ],
-          "hold_after": 0.7,
-          "speech_text": "Slurmを選ぶと、ホストとパスの項目を保ったままスケジューラのオプションが有効になります。パーティション名、制限時間、アクセラレータの要求は、クラスタで割り当てられた資源に合わせます。表示中のパーティションは仮の値です。選択を変えてもGPUは予約されず、スケジューラへの接続も確認されません。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_custom_argument_templates",
-          "narration": "Cloud or custom commandでは、投入、状態確認、取り消しの引数テンプレートと、任意のログ取得が有効になります。設定と外部IDに必要なプレースホルダを使ってください。これはトークンに分割される引数で、シェルスクリプトではありません。無効表示の接続項目は別のバックエンド用です。このレッスンでカスタムコマンドは実行しません。",
+          "narration": "For a cloud or custom command, enter submit, status and cancel argument templates, plus log retrieval if needed. Include the required settings and external-ID placeholders shown by the controls.",
           "focus": [
             695,
             805,
             2210,
             350
           ],
-          "hold_after": 0.7,
-          "speech_text": "Cloud or custom commandでは、投入、状態確認、取り消しの引数テンプレートと、任意のログ取得が有効になります。設定と外部IDに必要なプレースホルダを使ってください。これはトークンに分割される引数で、シェルスクリプトではありません。無効表示の接続項目は別のバックエンド用です。このレッスンでカスタムコマンドは実行しません。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_profile_saved_not_connected",
-          "narration": "Cancelで未保存のバックエンド変更を閉じると、元のSSHプロファイルはバイト単位で維持されます。残したい変更にはSaveを使います。Poll intervalは監視間隔の目安で、計算速度ではありません。保存済みの実行先も、実際の許可されたジョブを確認するまでは設定にすぎません。",
+          "narration": "Save the changes you want to retain, or use Cancel to leave the profile unchanged. Poll interval sets how frequently to check job status.",
           "focus": [
             455,
             220,
             3350,
             205
           ],
-          "hold_after": 0.7,
-          "speech_text": "Cancelで未保存のバックエンド変更を閉じると、元のSSHプロファイルはバイト単位で維持されます。残したい変更にはSaveを使います。Poll intervalは監視間隔の目安で、計算速度ではありません。保存済みの実行先も、実際の許可されたジョブを確認するまでは設定にすぎません。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_submission_controls_no_job",
-          "narration": "実行時には、対応するモジュールと、そのモジュールから書き出した設定を選んでからSubmitを使います。許可された小さな確認用ジョブから始め、状態、ログ、ローカル記録を確認してください。Cancel jobは選択したジョブを対象とし、プロファイルの削除とは異なります。ここでは何も投入せず、リモート出力も主張しないため、表は空のままです。",
+          "narration": "Select the profile, module and its exported settings, then use Submit when the target is ready. Monitor status and logs in the job table. Use Cancel job to stop a selected job, and inspect its results at the configured output location.",
           "focus": [
             455,
             220,
@@ -5047,34 +4934,38 @@
             "40_run_history",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "実行時には、対応するモジュールと、そのモジュールから書き出した設定を選んでからSubmitを使います。許可された小さな確認用ジョブから始め、状態、ログ、ローカル記録を確認してください。Cancel jobは選択したジョブを対象とし、プロファイルの削除とは異なります。ここでは何も投入せず、リモート出力も主張しないため、表は空のままです。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "39_classifier_evaluation",
       "number": 39,
       "slug": "classifier_evaluation",
-      "title": "分類器の評価",
+      "title": "Classifier Evaluation: inspect predictions and errors",
       "series": 3,
       "app_key": "classifier_evaluation",
-      "section": "結果と品質管理",
+      "section": "Tools",
       "host_app_key": "classify_merged",
-      "description": "Classify 内で実際の保存済み予測を確認し、学習とテストのウェル重複を見抜きます。",
+      "description": "Load a saved evaluation bundle, inspect leakage and confusion counts, and filter predictions for review.",
       "objectives": [
-        "ダウンロード例で入れ子の評価ビューを開く。",
-        "混同行列、信頼度リスト、校正、ライブ絞り込みを読む。",
-        "結果の確認と独立した検証を区別する。"
+        "Load a bundle and review leakage.",
+        "Inspect confusion counts and confidence groups.",
+        "Filter predictions and locate saved figures."
       ],
       "example_files": [
         "REAL_evaluation_known_overlap.zip"
       ],
-      "prerequisite": "REAL_evaluation_known_overlap.zip を新しいフォルダーに展開し、evaluation_manifest.json を含む場所を選びます。実際の予測234件を含みますが、切り出し画像、注釈データベース、モデルは含みません。テストの3ウェルはすべて学習側にも存在します。私有パスだけを crops-not-included の参照に置換し、数値と識別情報は保持しています。infected_1 と infected_2 は既存ラベルです。OOF の名前は交差検証の証拠ではありません。API：spacr.classifier_evaluation.evaluate_predictions、write_evaluation_bundle、load_evaluation_bundle。再学習、再推論、spaCR AI への送信はありません。",
+      "prerequisite": "Download and unzip the linked saved-results example. It contains predictions, tables and figures; crops require your matching experiment in Annotate. The example shares wells between training and test data, so use it to learn the inspector rather than estimate independent-well accuracy.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Classify を開き、その中の Classifier Evaluation ショートカットを選びます。これは入れ子の結果ビューであり、独立した Home モジュールや学習フォームではありません。予測の生成は Classify のレッスンで扱い、ここでは保存済みの結果を確認します。",
+          "narration": "Open Classify, then Classifier Evaluation. Use this inspector to explore a saved evaluation bundle after producing predictions.",
           "focus": [
             3510,
             105,
@@ -5084,132 +4975,121 @@
           "related_lessons": [
             "41_classify"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Classify を開き、その中の Classifier Evaluation ショートカットを選びます。これは入れ子の結果ビューであり、独立した ホーム モジュールや学習フォームではありません。予測の生成は Classify のレッスンで扱い、ここでは保存済みの結果を確認します。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_bundle_folder",
-          "narration": "下のリンクから結果のサンプルをダウンロードし、新しいフォルダーに展開します。Browse を押し、evaluation manifest ドット json のあるフォルダーを選びます。実際の予測と表を含む小さなアーカイブですが、切り出し画像、注釈データベース、学習済みモデルは含まれません。",
+          "narration": "Download and unzip the example below. Click Browse and choose the folder containing evaluation manifest dot json.",
           "focus": [
             1563,
             798,
             1400,
             950
           ],
-          "hold_after": 0.7,
-          "speech_text": "下のリンクから結果のサンプルをダウンロードし、新しいフォルダーに展開します。Browse を押し、evaluation manifest ドット json のあるフォルダーを選びます。実際の予測と表を含む小さなアーカイブですが、切り出し画像、注釈データベース、学習済みモデルは含まれません。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_summary",
-          "narration": "Summary には、一エポックの実行による二百三十四件のテスト予測が表示されます。infected ワンと infected ツーは既存のデータセットのラベルで、新たに確認した感染状態ではありません。読み込みは保存結果を読むだけで、学習、予測、データの修復はしません。",
+          "narration": "Read Summary for the number of predictions and the recorded class names. The example contains two hundred thirty-four predictions across two classes.",
           "focus": [
             475,
             650,
             3335,
             1170
           ],
-          "hold_after": 0.7,
-          "speech_text": "Summary には、一エポックの実行による二百三十四件のテスト予測が表示されます。infected ワンと infected ツーは既存のデータセットのラベルで、新たに確認した感染状態ではありません。読み込みは保存結果を読むだけで、学習、予測、データの修復はしません。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_actual_leakage_requires_review",
-          "narration": "正解率を解釈する前に Leakage audit を確認します。テストの三ウェルすべてが学習にも存在するため、監査は不合格です。旧ファイル名監査が見落とした重複をデータベースの識別情報で確認しました。この数値は操作例で、独立ウェルの性能や生物学的検証を示しません。",
+          "narration": "Open Leakage audit before interpreting accuracy. This example flags wells shared between training and test data. For an independent-well evaluation, prepare a split with separate wells and rerun training and evaluation.",
           "focus": [
             475,
             650,
             3335,
             1390
           ],
-          "hold_after": 0.7,
-          "speech_text": "正解率を解釈する前に Leakage audit を確認します。テストの三ウェルすべてが学習にも存在するため、監査は不合格です。旧ファイル名監査が見落とした重複をデータベースの識別情報で確認しました。この数値は操作例で、独立ウェルの性能や生物学的検証を示しません。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_confusion_counts",
-          "narration": "Confusion matrix の行は記録されたクラス、列は予測です。対角線は百四と百十一、ほかの二セルは十一と八で、合計十九件の不一致です。これらのラベルとの一致は、ラベル自体が正しい証拠ではありません。",
+          "narration": "Open Confusion matrix. Rows are recorded classes and columns are predictions. The diagonal shows agreement; off-diagonal cells identify disagreements to review.",
           "focus": [
             475,
             600,
             3335,
             265
           ],
-          "hold_after": 0.7,
-          "speech_text": "Confusion matrix の行は記録されたクラス、列は予測です。対角線は百四と百十一、ほかの二セルは十一と八で、合計十九件の不一致です。これらのラベルとの一致は、ラベル自体が正しい証拠ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "十一のセルをクリックします。記録は infected ワン、予測は infected ツーです。信頼度の閾値が零点七五では、高信頼度に六件、低信頼度に五件入ります。同じセルを確認するための二つの待ち行列であり、新しい分類結果ではありません。",
+          "narration": "Click a disagreement cell to list its examples. The selected cell contains eleven disagreements, grouped by confidence.",
           "focus": [
             475,
             1090,
             3335,
             530
           ],
-          "hold_after": 0.7,
-          "speech_text": "十一のセルをクリックします。記録は infected ワン、予測は infected ツーです。信頼度の閾値が零点七五では、高信頼度に六件、低信頼度に五件入ります。同じセルを確認するための二つの待ち行列であり、新しい分類結果ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_confidence_threshold",
-          "narration": "閾値を零点九五に上げます。高信頼度は二つの切り出し対象、低信頼度は九つになります。確率、予測クラス、十一件のセルは変わりません。このライブ操作は待ち行列を分けるだけで、モデルを再校正したり推論を再実行したりしません。",
+          "narration": "Change Confidence threshold to choose which disagreements enter the high-confidence list. Raising it from zero point seven five to zero point nine five leaves two in the high list and nine in the low list.",
           "focus": [
             475,
             1090,
             3335,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "閾値を零点九五に上げます。高信頼度は二つの切り出し対象、低信頼度は九つになります。確率、予測クラス、十一件のセルは変わりません。このライブ操作は待ち行列を分けるだけで、モデルを再校正したり推論を再実行したりしません。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "自動の説明は慎重に扱ってください。高信頼度の不一致だけでは注釈の誤りを証明できず、一枚のプレートからプレート起因と断定もできません。モデルかウェルかという表示上の提案は仮説です。修正を決める前に、取得条件、ラベル、真に独立したデータを調べます。",
+          "narration": "Review the selected examples alongside their images and annotations. Use the displayed explanations as prompts for investigation, and check the evidence before changing labels.",
           "focus": [
             475,
             1170,
             3335,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "自動の説明は慎重に扱ってください。高信頼度の不一致だけでは注釈の誤りを証明できず、一枚のプレートからプレート起因と断定もできません。モデルかウェルかという表示上の提案は仮説です。修正を決める前に、取得条件、ラベル、真に独立したデータを調べます。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_per_plate",
-          "narration": "Per-plate metrics は一行で、二百三十四件すべてを含みます。プレート別の結果確認には役立ちますが、この例ではプレート間比較もプレート効果の推定もできません。高い正解率でも Leakage audit のウェル重複は解消されません。",
+          "narration": "Open Per-plate metrics to compare results by plate. This example has one plate; a multi-plate bundle provides separate rows for comparison.",
           "focus": [
             475,
             595,
             3335,
             205
           ],
-          "hold_after": 0.7,
-          "speech_text": "Per-plate metrics は一行で、二百三十四件すべてを含みます。プレート別の結果確認には役立ちますが、この例ではプレート間比較もプレート効果の推定もできません。高い正解率でも Leakage audit のウェル重複は解消されません。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_calibration_table",
-          "narration": "Calibration はクラスごとに五つの区間を使い、平均予測確率と観測されたクラス頻度を比較します。件数を確認してください。データの少ない区間は不確かです。この結果は校正補正を使用していません。このタブは作成済みの結果を表示するだけで、校正の当てはめは行いません。",
+          "narration": "Open Calibration to compare predicted probability with observed class frequency. Check each bin’s count when interpreting the differences.",
           "focus": [
             475,
             595,
             3335,
             450
           ],
-          "hold_after": 0.7,
-          "speech_text": "Calibration はクラスごとに五つの区間を使い、平均予測確率と観測されたクラス頻度を比較します。件数を確認してください。データの少ない区間は不確かです。この結果は校正補正を使用していません。このタブは作成済みの結果を表示するだけで、校正の当てはめは行いません。"
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_prediction_filter",
-          "narration": "Predictions に r 五、アンダースコア、c 二と入力し、そのウェルを確認します。表は二百三十四行から百二十八行に絞られます。保存された記録へのライブ文字列フィルターであり、画像フィルター、セグメンテーション、結果ファイルの変更ではありません。",
+          "narration": "Open Predictions and type a sample or well identifier to filter the records. In the example, r five underscore c two selects one well’s predictions.",
           "focus": [
             475,
             595,
             3335,
             400
           ],
-          "hold_after": 0.7,
-          "speech_text": "Predictions に r 五、アンダースコア、c 二と入力し、そのウェルを確認します。表は二百三十四行から百二十八行に絞られます。保存された記録へのライブ文字列フィルターであり、画像フィルター、セグメンテーション、結果ファイルの変更ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "13_actual_filter_cleared",
-          "narration": "フィルターを消すと二百三十四行すべてが戻ります。パスには切り出し画像が含まれないと明記されています。自分のプロジェクトで不一致画像を開くには、先に Annotate で対応する実験を開いてください。このアーカイブはそのデータベースを含まず、無効なボタンは画像表示の実証ではありません。",
+          "narration": "Clear the filter to restore all records. To open crops in your own project, first load the matching experiment in Annotate; the downloadable results example contains no crops.",
           "focus": [
             475,
             595,
@@ -5219,24 +5099,22 @@
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "フィルターを消すと二百三十四行すべてが戻ります。パスには切り出し画像が含まれないと明記されています。自分のプロジェクトで不一致画像を開くには、先に Annotate で対応する実験を開いてください。このアーカイブはそのデータベースを含まず、無効なボタンは画像表示の実証ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_summary",
-          "narration": "ダウンロードには元の校正図と混同行列図も残しています。報告に使う前にコントラストを確認してください。汎用の out-of-fold タイトルやファイル名で、この一回のテスト分割が交差検証になるわけではありません。確率と件数はそのままで、私有パスだけを明示的な参照へ置き換えました。",
+          "narration": "Find the saved calibration and confusion figures in the bundle folder. Check labels and readability before using them in a report.",
           "focus": [
             475,
             650,
             3335,
             1170
           ],
-          "hold_after": 0.7,
-          "speech_text": "ダウンロードには元の校正図と混同行列図も残しています。報告に使う前にコントラストを確認してください。汎用の out-of-fold タイトルやファイル名で、この一回のテスト分割が交差検証になるわけではありません。確率と件数はそのままで、私有パスだけを明示的な参照へ置き換えました。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_final_leakage",
-          "narration": "最後に、エクスポートした指標にはデータ漏洩の警告も付けておきます。API リファレンスは結果の準備と読み込みを、Training Runs は保存した進捗ログの比較を説明します。spaCR AI は用語を説明できますが、ラベルや独立性を保証できません。この例では提供者へのリクエストは不要でした。",
+          "narration": "Keep the leakage audit with reported metrics. Use Training Runs to compare saved training progress, and return to Annotate when image or label review is needed.",
           "focus": [
             475,
             650,
@@ -5246,10 +5124,14 @@
           "related_lessons": [
             "28_training_runs"
           ],
-          "hold_after": 0.7,
-          "speech_text": "最後に、エクスポートした指標にはデータ漏洩の警告も付けておきます。API リファレンスは結果の準備と読み込みを、Training Runs は保存した進捗ログの比較を説明します。スペーカー AI は用語を説明できますが、ラベルや独立性を保証できません。この例では提供者へのリクエストは不要でした。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "40_run_history",
@@ -5257,48 +5139,44 @@
       "slug": "run_history",
       "series": 5,
       "app_key": "run_history",
-      "section": "結果と品質管理",
-      "title": "Run History：実際の実行記録を確認し、利用可能な設定を復元する",
-      "description": "Help から実行記録を探し、設定、ファイル一覧、警告、失敗を確認します。再実行や削除をせずに、実際の Recruitment の設定を開き直します。",
+      "section": "Data and batch runs",
+      "title": "Run History: inspect past jobs and restore settings",
+      "description": "Find saved runs, inspect settings and logs, and load a previous configuration into its module.",
       "objectives": [
-        "Help の Run history を開き、モジュール、状態、テキストで絞り込む。",
-        "記録されたファイル一覧や実行成功と、科学的な妥当性の検証を区別する。",
-        "保存された設定、環境、警告、実際のエラーのトレースを読む。",
-        "ログのパスをコピーし、解析を開始せずに Recruitment の設定を復元する。"
+        "Find runs using filters and search.",
+        "Inspect saved settings, files and problems.",
+        "Restore settings for a new run."
       ],
-      "prerequisite": "完了したサンプル実行のログを使用してください。この録画では ~/.spacr/runs の隔離コピーを読み、架空の結果ではなく実際のチュートリアルの記録を使います。取得済みテストデータは Batch Runner と Recruitment、実際の警告は Regression、失敗例は以前の Model Zoo の試行に由来します。Run History 専用のデータ取得、ライブプレビュー、描画、AI パネルはありません。解析、削除、外部ファイルマネージャーの起動は行いません。496 個のログファイルはバイト単位で不変です。Recruitment の公開された設定 27 個を復元しますが、hash_inputs に対応するフォーム項目はありません。保存されたハッシュは過去の実行を記録したもので、現在のファイルの再検証ではありません。",
+      "prerequisite": "Complete a spaCR job to create a local run record. The example browses records from conversion, Recruitment and Regression runs.",
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Help から Run history を開きます。この共通ツールが読むのはローカルの実行ログであり、コンピューター内の全プロジェクトフォルダーではありません。他のチュートリアルで実際に実行した記録を使用します。履歴を確認するだけなら、その解析を繰り返す必要はありません。",
+          "narration": "Open Help, then Run history to browse the run records saved on this computer.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
             "25_recruitment"
-          ],
-          "speech_text": "Help から Run history を開きます。この共通ツールが読むのはローカルの実行ログであり、コンピューター内の全プロジェクトフォルダーではありません。他のチュートリアルで実際に実行した記録を使用します。履歴を確認するだけなら、その解析を繰り返す必要はありません。"
+          ]
         },
         {
           "visual": "02_loaded_history",
-          "narration": "Refresh で利用可能な記録を読み込みます。表にはモジュール、状態、所要時間、CPU 時間、記録されたファイル数とサイズが表示されます。仕切りをドラッグすると詳細欄を広げられます。保存された実行時の測定値であり、リアルタイムの性能監視や科学的品質の独立評価ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Refresh で利用可能な記録を読み込みます。表にはモジュール、状態、所要時間、CPU 時間、記録されたファイル数とサイズが表示されます。仕切りをドラッグすると詳細欄を広げられます。保存された実行時の測定値であり、リアルタイムの性能監視や科学的品質の独立評価ではありません。"
+          "narration": "Click Refresh to load available records. Select a run to inspect its details, and drag the divider if you need more room.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_batch_search",
-          "narration": "convert と Success を選び、例で共通して使うフォルダー名を検索します。実際の Batch Runner の三つのジョブが残ります。モジュール、状態、テキストの条件は組み合わされます。設定、パス、バージョン、記録された問題を検索できますが、日付やリソース専用のフィルターはありません。",
+          "narration": "Choose a module and status, then enter a search term to narrow the list. For example, select convert and Success to find completed conversions.",
           "hold_after": 0.7,
           "focus": [
             340,
             175,
             3480,
             180
-          ],
-          "speech_text": "convert と Success を選び、例で共通して使うフォルダー名を検索します。実際の Batch Runner の三つのジョブが残ります。モジュール、状態、テキストの条件は組み合わされます。設定、パス、バージョン、記録された問題を検索できますが、日付やリソース専用のフィルターはありません。"
+          ]
         },
         {
           "visual": "04_batch_empty_inventory",
-          "narration": "成功したこれらの変換では、ログがファイルのハッシュ計算を省略したため Files and models が空です。画像が生成されなかったという意味ではありません。Batch Runner のレッスンで十二個の出力を別途確認しています。一覧の欠如は証拠の不足であり、データがない証拠ではありません。",
+          "narration": "Open Files and models for recorded input and output details. Runs that skipped file hashing can have an empty inventory; use the output paths in settings or logs to find their results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5308,18 +5186,16 @@
           ],
           "related_lessons": [
             "37_batch"
-          ],
-          "speech_text": "成功したこれらの変換では、ログがファイルのハッシュ計算を省略したため Files and models が空です。画像が生成されなかったという意味ではありません。Batch Runner のレッスンで十二個の出力を別途確認しています。一覧の欠如は証拠の不足であり、データがない証拠ではありません。"
+          ]
         },
         {
           "visual": "05_no_match",
-          "narration": "一致しない文字列を検索すると、表と詳細欄が空になり、選択した実行への操作も無効になります。前の検索に戻すと同じ三件が再表示されます。記録が消えたと判断する前に条件を確認してください。検索によってログファイルが削除されることはありません。",
-          "hold_after": 0.7,
-          "speech_text": "一致しない文字列を検索すると、表と詳細欄が空になり、選択した実行への操作も無効になります。前の検索に戻すと同じ三件が再表示されます。記録が消えたと判断する前に条件を確認してください。検索によってログファイルが削除されることはありません。"
+          "narration": "Clear or adjust the filters if the table is empty. Search terms and status selections work together.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_recruitment_overview",
-          "narration": "実際の Recruitment の実行を選びます。Overview の経過時間は約十八秒、プロセスの CPU 時間は約四十五秒です。この二つは異なる指標です。入力六件と出力六件のファイル記録がありますが、細胞数を示すものでも、一覧の完全性を保証するものでもありません。",
+          "narration": "Select a Recruitment run and read Overview for its elapsed time and recorded file counts. These summarize that saved execution.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5329,48 +5205,44 @@
           ],
           "related_lessons": [
             "25_recruitment"
-          ],
-          "speech_text": "実際の Recruitment の実行を選びます。Overview の経過時間は約十八秒、プロセスの CPU 時間は約四十五秒です。この二つは異なる指標です。入力六件と出力六件のファイル記録がありますが、細胞数を示すものでも、一覧の完全性を保証するものでもありません。"
+          ]
         },
         {
           "visual": "09_settings_source",
-          "narration": "Settings には保存時の入力元、チャネル、オブジェクトのフィルター、オンの Plot などが表示されます。スクロールして設定全体を読みます。入力元はチュートリアル用の私有プロジェクトです。後でプロジェクトや現在のモジュール設定を変えても、これらの過去の値は自動では変わりません。",
+          "narration": "Open Settings to inspect its source folder, channels and object filters. Scroll through the saved configuration before deciding to reuse it.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             3000,
             1380
-          ],
-          "speech_text": "Settings には保存時の入力元、チャネル、オブジェクトのフィルター、オンの Plot などが表示されます。スクロールして設定全体を読みます。入力元はチュートリアル用の私有プロジェクトです。後でプロジェクトや現在のモジュール設定を変えても、これらの過去の値は自動では変わりません。"
+          ]
         },
         {
           "visual": "10_recorded_files",
-          "narration": "Files and models は、記録があるパス、サイズ、ハッシュを一覧表示します。入力と出力を両方確認しましょう。同じデータベースでも処理前後のハッシュは異なる場合があります。履歴を開いても、現在の全ファイルのハッシュを再計算したり、生物学的結果を検証したりするわけではありません。",
+          "narration": "Open Files and models to inspect recorded paths, sizes and hashes. Keep the referenced project files available when you need to revisit the analysis.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             3000,
             1380
-          ],
-          "speech_text": "Files and models は、記録があるパス、サイズ、ハッシュを一覧表示します。入力と出力を両方確認しましょう。同じデータベースでも処理前後のハッシュは異なる場合があります。履歴を開いても、現在の全ファイルのハッシュを再計算したり、生物学的結果を検証したりするわけではありません。"
+          ]
         },
         {
           "visual": "12_hashes_and_seeds",
-          "narration": "Environment には記録されたソフトウェアのバージョン、乱数シード情報、スナップショットのハッシュがあります。実行間の違いを調べる手掛かりですが、それだけで再現性は保証されません。Copy path は実行ログのフォルダーパスをクリップボードへコピーします。設定とマニフェストを、別に保存されたプロジェクトの入力と結果とともに保管してください。",
+          "narration": "Open Environment for recorded software versions and seeds. Use Copy path to locate the run’s journal folder.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             2650,
             1380
-          ],
-          "speech_text": "Environment には記録されたソフトウェアのバージョン、乱数シード情報、スナップショットのハッシュがあります。実行間の違いを調べる手掛かりですが、それだけで再現性は保証されません。Copy path は実行ログのフォルダーパスをクリップボードへコピーします。設定とマニフェストを、別に保存されたプロジェクトの入力と結果とともに保管してください。"
+          ]
         },
         {
           "visual": "14_recorded_warning",
-          "narration": "成功した Regression の記録にも、保存画像のコントラストや来歴ファイルの不足に関する警告があります。Warnings and failure は警告とエラーのトレースを分けて表示します。Success は実行の終了を示すだけで、図の読みやすさ、来歴の完全性、統計設計の妥当性までは保証しません。検証方法は Regression のレッスンを参照してください。",
+          "narration": "Open Warnings and failure to read warnings attached to a completed run. Investigate relevant warnings before using its results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5380,41 +5252,42 @@
           ],
           "related_lessons": [
             "13_regression"
-          ],
-          "speech_text": "成功した Regression の記録にも、保存画像のコントラストや来歴ファイルの不足に関する警告があります。Warnings and failure は警告とエラーのトレースを分けて表示します。Success は実行の終了を示すだけで、図の読みやすさ、来歴の完全性、統計設計の妥当性までは保証しません。検証方法は Regression のレッスンを参照してください。"
+          ]
         },
         {
           "visual": "16_failure_exception",
-          "narration": "Failed で、以前の実際の Model Zoo の失敗を表示します。トレースの末尾は Cellpose が invert 引数を受け付けないことを示しています。互換性の問題であり、分割結果ではありません。失敗した処理を繰り返さず記録を読みます。問題報告には関連するバージョンとエラーの詳細を添えてください。",
+          "narration": "Choose Failed to find unsuccessful jobs. Read the traceback and software versions when diagnosing a problem or preparing a bug report.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             2450,
             730
-          ],
-          "speech_text": "Failed で、以前の実際の Model Zoo の失敗を表示します。トレースの末尾は セルポーズ が invert 引数を受け付けないことを示しています。互換性の問題であり、分割結果ではありません。失敗した処理を繰り返さず記録を読みます。問題報告には関連するバージョンとエラーの詳細を添えてください。"
+          ]
         },
         {
           "visual": "18_restored_recruitment",
-          "narration": "Recruitment に戻り、Load settings in module を選びます。利用可能な二十七個の設定は保存値と一致し、解析は開始されません。ログにはフォームに対応項目がない hash inputs も含まれます。実行前に復元された設定と現在の入力を確認してください。完全に同じ再実行を保証する機能ではありません。",
+          "narration": "Return to the desired run and choose Load settings in module. Review the restored controls and current input paths before pressing Run.",
           "hold_after": 0.7,
           "related_lessons": [
             "25_recruitment"
-          ],
-          "speech_text": "Recruitment に戻り、Load settings in module を選びます。利用可能な二十七個の設定は保存値と一致し、解析は開始されません。ログにはフォームに対応項目がない hash inputs も含まれます。実行前に復元された設定と現在の入力を確認してください。完全に同じ再実行を保証する機能ではありません。"
+          ]
         },
         {
           "visual": "17_ready_to_restore",
-          "narration": "Clear all は実行ログを削除する操作で、絞り込み条件のリセットではありません。このボタンも行メニューの削除も使わず、すべてのログファイルを保持しました。プログラムからの検索には spacr.run_journal の search_runs を使います。プロジェクトの報告書は別の Report レッスンを参照してください。",
+          "narration": "Keep the journals you need with your project records. Use Clear all only when you intend to delete run records. Open Report to create a project summary.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "29_report"
-          ],
-          "speech_text": "Clear all は実行ログを削除する操作で、絞り込み条件のリセットではありません。このボタンも行メニューの削除も使わず、すべてのログファイルを保持しました。プログラムからの検索には スペーカー.run_journal の search_runs を使います。プロジェクトの報告書は別の Report レッスンを参照してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "41_classify",
@@ -5582,161 +5455,154 @@
       "id": "42_curate",
       "number": 42,
       "slug": "curate",
-      "title": "Curate：編集を練習し履歴を保全する",
+      "title": "Curate: edit masks and tracks",
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "主要モジュール",
+      "section": "Make Masks",
       "example_files": [
         "Curate_SYNTHETIC_practice.zip"
       ],
-      "description": "合成データでマスクと軌跡の編集を練習し、現在のマスク履歴の制約に対して外部バックアップを使います。",
+      "description": "Practise brush edits, track splitting and joining, and save the corrected files.",
       "objectives": [
-        "Make Masks内のCurateで練習データのコピーを開く。",
-        "描画、取り消し、保存を生物学的な修正と混同しない。",
-        "再び開く前に保存済みマスクと履歴をアプリ外に保全する。",
-        "軌跡を分割・結合し、未保存の削除を破棄する。"
+        "Edit a label mask with the brush and undo controls.",
+        "Split, join and save tracks.",
+        "Preserve source files and curation history."
       ],
-      "prerequisite": "Curate_SYNTHETIC_practice.zipを展開してコピーで作業します。TIFFは合成Timelapseのラベル平面2で、256×256画素、ラベル2〜17の16個です。CSVは16軌跡、128行、8フレーム。生物学的な実測データではありません。NPY読み込みは失敗したため整数ラベルTIFFを使います。半径8とラベル18は練習用。全画素とCSV値を検証済みです。Save maskは選択ファイルと.curation.jsonを保存します。マスクを再度開くとメモリ上の3件の履歴が消え、次の保存で新しい1件に置換されます。未修正の不具合です。事前にcurate_checkpoint.pyへ保存済みマスクと新しい保存先を指定し、両ファイルを完全にコピーしてください。履歴の復元・統合はしません。再読み込みは表示レイヤーも追加するため、明るさはラベル識別情報ではありません。軌跡2をフレーム4で分割すると18が生じ、両半分の結合で128行に戻ります。2と3の結合はフレーム重複により拒否されます。軌跡履歴は再読み込みで保持されます。API：spacr.curation.MaskCurationとTrackCuration。GPU、AI、新規分割、精度認証、アプリ変更、公開はありません。",
+      "prerequisite": "Download the synthetic practice archive and work on copies. Keep separate backups of masks and their .curation.json sidecars before reopening: saving a reopened mask currently replaces its earlier edit log.",
       "scenes": [
         {
           "visual": "02_actual_curate_page",
-          "narration": "Make Masksから内部のCurateを開きます。チュートリアルではMake Masksのサブモジュールに分類され、独立したHomeタイルではありません。ラベルマスクと軌跡を編集します。このレッスンはTimelapseの合成出力を使い、生物学的観察や手動編集による精度改善を示すものではありません。",
+          "narration": "Open Make Masks, then Curate to edit label masks and tracks. Download the synthetic practice example below and keep an untouched copy.",
           "related_lessons": [
             "14_make_masks",
             "17_timelapse"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Make Masksから内部のCurateを開きます。チュートリアルではMake Masksのサブモジュールに分類され、独立したホームタイルではありません。ラベルマスクと軌跡を編集します。このレッスンはTimelapseの合成出力を使い、生物学的観察や手動編集による精度改善を示すものではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_original_sixteen_label_mask",
-          "narration": "リンクされた練習用ファイルをダウンロードし、コピーで作業します。整数ラベルのTIFFを開くと、一辺二百五十六画素の画像に元の十六ラベルがあります。選択画面にはNPYもありますが、この版では読み込みに失敗しました。TIFFは正確なラベル平面であり、色付きスクリーンショットで代用してはいけません。",
-          "hold_after": 0.7,
-          "speech_text": "リンクされた練習用ファイルをダウンロードし、コピーで作業します。整数ラベルのTIFFを開くと、一辺二百五十六画素の画像に元の十六ラベルがあります。選択画面にはNPYもありますが、この版では読み込みに失敗しました。TIFFは正確なラベル平面であり、色付きスクリーンショットで代用してはいけません。"
+          "narration": "Browse to the example’s integer-label TIFF. Each object has its own label, with zero reserved for background. Use the TIFF example for this walkthrough.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_practice_disk_not_a_real_object",
-          "narration": "ブラシ半径を八にし、Newでラベル十八を選びます。空いた練習領域で一度描きます。この円は操作練習のために作ったもので、見落とした細胞ではありません。メモリ内のラベル画素が変わり、Save maskまで保存ファイルは変わりません。",
+          "narration": "Set Brush radius to eight and click New to select a new label. Click an empty part of the practice image to paint a small region.",
           "focus": [
             355,
             470,
             3450,
             660
           ],
-          "hold_after": 0.7,
-          "speech_text": "ブラシ半径を八にし、Newでラベル十八を選びます。空いた練習領域で一度描きます。この円は操作練習のために作ったもので、見落とした細胞ではありません。メモリ内のラベル画素が変わり、Save maskまで保存ファイルは変わりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_undo_restores_every_original_pixel",
-          "narration": "Undo strokeで元の全画素に戻ります。再び描いて保存前に確認します。履歴には描画、取り消し、描画が記録され、取り消しも履歴の一部です。マウスの位置により画素数は変わるので、この練習の塗り跡を生物学的な目標にしないでください。",
+          "narration": "Click Undo stroke to remove the last brush edit. Paint again and inspect the result before saving.",
           "focus": [
             3380,
             480,
             425,
             710
           ],
-          "hold_after": 0.7,
-          "speech_text": "Undo strokeで元の全画素に戻ります。再び描いて保存前に確認します。履歴には描画、取り消し、描画が記録され、取り消しも履歴の一部です。マウスの位置により画素数は変わるので、この練習の塗り跡を生物学的な目標にしないでください。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_saved_mask_and_ledger",
-          "narration": "Save maskは選択した作業用TIFFを上書きし、編集履歴ファイルも保存します。再度開く前に、同梱の独立したバックアップスクリプトへ保存済みマスクと新しいフォルダーを指定します。両ファイルを完全にコピーします。これは明示的な外部バックアップであり、隠れたアプリ機能ではありません。",
+          "narration": "Click Save mask to write the working TIFF and its curation sidecar. Before reopening, preserve both files in a new backup folder; the download includes a checkpoint script for this step.",
           "focus": [
             3380,
             480,
             425,
             710
           ],
-          "hold_after": 0.7,
-          "speech_text": "Save maskは選択した作業用TIFFを上書きし、編集履歴ファイルも保存します。再度開く前に、同梱の独立したバックアップスクリプトへ保存済みマスクと新しいフォルダーを指定します。両ファイルを完全にコピーします。これは明示的な外部バックアップであり、隠れたアプリ機能ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_second_session_saved_history",
-          "narration": "現在の制約を示します。再度開くとマスクのメモリ内履歴がリセットされ、次の保存で新しいセッションの編集だけに置換されます。外部コピーには元の三件が残っています。別々のバックアップとメモを保管してください。スクリプトは履歴を復元しません。再読み込みは表示レイヤーも増やすので、明るさはラベルの同一性ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "現在の制約を示します。再度開くとマスクのメモリ内履歴がリセットされ、次の保存で新しいセッションの編集だけに置換されます。外部コピーには元の三件が残っています。別々のバックアップとメモを保管してください。スクリプトは履歴を復元しません。再読み込みは表示レイヤーも増やすので、明るさはラベルの同一性ではありません。"
+          "narration": "Keep each session’s backup and edit notes. Reopening a mask starts a new in-memory log, and another save replaces its sidecar with that session’s history.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_overlapping_tracks_cannot_join",
-          "narration": "作業用の軌跡CSVを開きます。八フレームの十六軌跡、百二十八行です。軌跡二と三を選んでJoinを押すと、同じフレームに両者が存在するため拒否されます。メッセージを読みましょう。関係のない軌跡を無理に結合しても正しい修正にはなりません。",
+          "narration": "Browse to the tracks CSV and select tracks to review. Join accepts tracks with non-overlapping frame ranges; an overlap produces a message to resolve first.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "作業用の軌跡CSVを開きます。八フレームの十六軌跡、百二十八行です。軌跡二と三を選んでJoinを押すと、同じフレームに両者が存在するため拒否されます。メッセージを読みましょう。関係のない軌跡を無理に結合しても正しい修正にはなりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_split_tail_starts_at_frame_four",
-          "narration": "軌跡二を選び、Split at frameを四にしてSplitを押します。フレーム四から七は新しい軌跡十八に移り、零から三は二に残ります。座標と元のラベルは変わりません。制御された編集練習であり、実際の細胞分裂を示すものではありません。",
+          "narration": "Select track two, set Split at frame to four, and click Split. The later frames move to a new track while the earlier frames retain the original identifier.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "軌跡二を選び、Split at frameを四にしてSplitを押します。フレーム四から七は新しい軌跡十八に移り、零から三は二に残ります。座標と元のラベルは変わりません。制御された編集練習であり、実際の細胞分裂を示すものではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "16_saved_tracks_and_history",
-          "narration": "二と十八を一緒に選びJoinを押します。重複しない前半と後半が結合され、元の全行に戻ります。Save tracksでCSVと専用の履歴を保存します。独立検証は軌跡数だけでなく、全フレーム、識別子、座標を比較しています。マスクと軌跡の履歴は区別して保管します。",
+          "narration": "Select the two non-overlapping halves and click Join to combine them. Click Save tracks to write the CSV and its separate curation sidecar.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "二と十八を一緒に選びJoinを押します。重複しない前半と後半が結合され、元の全行に戻ります。Save tracksでCSVと専用の履歴を保存します。独立検証は軌跡数だけでなく、全フレーム、識別子、座標を比較しています。マスクと軌跡の履歴は区別して保管します。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_unsaved_delete_removes_eight_rows",
-          "narration": "軌跡三を削除するとメモリ上の八行が消えます。この練習の削除は保存しません。保存済みCSVを開き直し、未保存の変更を破棄します。現在の編集とディスク上の内容は別です。実データの軌跡削除には、望ましくない結果だからという理由ではなく、文書化した根拠が必要です。",
+          "narration": "Use Delete only for tracks you intend to remove. To discard an unsaved change, reopen the last saved CSV.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "軌跡三を削除するとメモリ上の八行が消えます。この練習の削除は保存しません。保存済みCSVを開き直し、未保存の変更を破棄します。現在の編集とディスク上の内容は別です。実データの軌跡削除には、望ましくない結果だからという理由ではなく、文書化した根拠が必要です。"
+          "hold_after": 0.7
         },
         {
           "visual": "19_saved_tracks_and_two_actions_return",
-          "narration": "百二十八行と保存された分割・結合履歴が戻ります。この版のマスクとは異なり、軌跡は検証で履歴を保持しました。元データ、バックアップ、編集理由を保存します。PythonにはMaskCurationとTrackCurationがあります。GPUやAIサービスは不要で、編集の成功は科学的妥当性の証明ではありません。",
+          "narration": "Inspect the reopened tracks and saved history. Keep originals and reasons for edits, and rerun any downstream analysis affected by corrected masks or trajectories.",
           "related_lessons": [
             "06_api",
             "17_timelapse"
           ],
-          "hold_after": 0.7,
-          "speech_text": "百二十八行と保存された分割・結合履歴が戻ります。この版のマスクとは異なり、軌跡は検証で履歴を保持しました。元データ、バックアップ、編集理由を保存します。PythonにはMaskCurationとTrackCurationがあります。GPUやAIサービスは不要で、編集の成功は科学的妥当性の証明ではありません。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "照明補正",
+      "title": "Illumination: estimate and inspect a correction model",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "データ",
-      "description": "Measure内のIlluminationページでダウンロード画像から照明分布を推定し、実際に出力された品質管理図を確認します。数値上の改善と生物学的な検証を区別します。",
+      "section": "Data",
+      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
       "objectives": [
-        "入れ子のIlluminationページを開き、統合画像の実際の輝度チャネルを選ぶ。",
-        "補正の無効・有効を比較し、保存されたモデルと品質管理画像を確認する。",
-        "学習に使った画像上の診断を独立した検証と混同せず、確認済みモデルを再利用する。"
+        "Select representative fields and intensity channels.",
+        "Estimate and inspect an illumination model.",
+        "Reuse the model in Mask or Measure."
       ],
-      "prerequisite": "ダウンロード済みplate1の16視野をバイト単位で同一にコピーして使います。各視野は1994×1994ピクセル、保存された7平面からなります。チャネル0は輝度軸の位置であり、特定の染色を意味しません。ラベル平面を輝度として使わないでください。原本とコピーは保護されます。GUI実行後、公開APIを通した補正の7,952,072ピクセルを独立した式で検証しており、GUI出力の置き換えではありません。モデルと品質管理は同じ16視野を使うため、独立検証でも光学的・生物学的な真値でもありません。オフセット0は実測校正値ではありません。Figuresパネルは空のままで、実際のPNGを別の画像ビューアーで開きます。アプリのコードや元画像は変更しません。旧版の5場面のシミュレーションを置き換えます。",
+      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Measureを開き、Illuminationボタンを押します。この入れ子のページでは、本格的な解析の前に補正モデルを推定します。測定の実行中に補正を有効にするだけの操作とは異なり、アプリ全体を自動補正状態にするわけではありません。",
+          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
           "focus": [
             3625,
             65,
@@ -5746,12 +5612,11 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Measureを開き、Illuminationボタンを押します。この入れ子のページでは、本格的な解析の前に補正モデルを推定します。測定の実行中に補正を有効にするだけの操作とは異なり、アプリ全体を自動補正状態にするわけではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_src",
-          "narration": "Sourceには測定データベースではなく、画像配列を含むmergedフォルダーを指定します。ダウンロード可能なプレート例の十六視野をすべて新しくコピーして使います。元画像は変わらず、照明モデルはmergedフォルダーの隣に保存されます。",
+          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
           "focus": [
             363,
             375,
@@ -5762,132 +5627,121 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Sourceには測定データベースではなく、画像配列を含むmergedフォルダーを指定します。ダウンロード可能なプレート例の十六視野をすべて新しくコピーして使います。元画像は変わらず、照明モデルはmergedフォルダーの隣に保存されます。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Channelsは保存された輝度配列内の位置を指定します。ここではチャネルゼロを選びます。ゼロが常に同じ染色を表すと思い込まず、自分の撮影時の対応を確認してください。ラベルマスクの平面を蛍光強度として選んではいけません。",
+          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
           "focus": [
             374,
             475,
             850,
             65
           ],
-          "hold_after": 0.7,
-          "speech_text": "Channelsは保存された輝度配列内の位置を指定します。ここではチャネルゼロを選びます。ゼロが常に同じ染色を表すと思い込まず、自分の撮影時の対応を確認してください。ラベルマスクの平面を蛍光強度として選んではいけません。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "まず補正は無効です。Runは終了しますが、コンソールには照明分布を推定していないと明記されます。モデルが作成されていないことも確認しました。したがって、正常終了というメッセージだけでは補正された証拠になりません。",
+          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
           "focus": [
             1518,
             405,
             2280,
             260
           ],
-          "hold_after": 0.7,
-          "speech_text": "まず補正は無効です。Runは終了しますが、コンソールには照明分布を推定していないと明記されます。モデルが作成されていないことも確認しました。したがって、正常終了というメッセージだけでは補正された証拠になりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Illumination correctionを有効にします。この例ではpolynomial推定器の次数を四にし、新しい照明分布を推定するためIllumination modelを空欄にします。柔軟性を高くすればよいとは限りません。細胞や処置のパターンを追う補正は、測りたい生物学的情報まで消してしまう可能性があります。",
+          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
           "focus": [
             363,
             550,
             1140,
             300
           ],
-          "hold_after": 0.7,
-          "speech_text": "Illumination correctionを有効にします。この例ではpolynomial推定器の次数を四にし、新しい照明分布を推定するためIllumination modelを空欄にします。柔軟性を高くすればよいとは限りません。細胞や処置のパターンを追う補正は、測りたい生物学的情報まで消してしまう可能性があります。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Illumination per plateで撮影群を分けて扱います。ここでは利用できる十六視野すべてを使います。数だけをむやみに増やすより、代表性のある範囲を含めることが重要です。細胞が密集した一隅だけで推定すると、生物構造と照明むらを混同するおそれがあります。",
+          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
           "focus": [
             363,
             858,
             1140,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Illumination per plateで撮影群を分けて扱います。ここでは利用できる十六視野すべてを使います。数だけをむやみに増やすより、代表性のある範囲を含めることが重要です。細胞が密集した一隅だけで推定すると、生物構造と照明むらを混同するおそれがあります。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Illumination darkは生のカウント単位で表すカメラの加算オフセットで、生物学的背景を学習した値ではありません。ゼロはこのデモの設定値で、校正結果ではありません。ある表現型が消えるまで調整するのではなく、適切な撮影対照からオフセットを選んでください。",
+          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
           "focus": [
             374,
             775,
             1110,
             61
           ],
-          "hold_after": 0.7,
-          "speech_text": "Illumination darkは生のカウント単位で表すカメラの加算オフセットで、生物学的背景を学習した値ではありません。ゼロはこのデモの設定値で、校正結果ではありません。ある表現型が消えるまで調整するのではなく、適切な撮影対照からオフセットを選んでください。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Illumination QCを有効のままにし、モデルがない場合の扱いを確認します。ここではerrorを選び、あるプレートに必要な補正がない場合は処理を止めます。補正済みと未補正の視野を黙って混ぜないためです。ただし、この確認だけで推定分布の目視確認を省略できるわけではありません。",
+          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
           "focus": [
             363,
             1020,
             1140,
             150
           ],
-          "hold_after": 0.7,
-          "speech_text": "Illumination QCを有効のままにし、モデルがない場合の扱いを確認します。ここではerrorを選び、あるプレートに必要な補正がない場合は処理を止めます。補正済みと未補正の視野を黙って混ぜないためです。ただし、この確認だけで推定分布の目視確認を省略できるわけではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "補正を有効にして再実行します。コンソールには推定された照明分布、診断用の傾き、保存モデルのパスが表示されます。この単独の処理では画像ファイルを変更しません。画像分割を再実行したり、新たな細胞測定値を生成したりはしていません。",
+          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
           "focus": [
             1518,
             405,
             2280,
             485
           ],
-          "hold_after": 0.7,
-          "speech_text": "補正を有効にして再実行します。コンソールには推定された照明分布、診断用の傾き、保存モデルのパスが表示されます。この単独の処理では画像ファイルを変更しません。画像分割を再実行したり、新たな細胞測定値を生成したりはしていません。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "この版では品質管理画像は保存されますが、組み込みのFiguresパネルには表示されません。illuminationフォルダーの、illuminationアンダースコアQCアンダースコアplate一ドットPNGを画像ビューアーで開きます。これは実際の出力画像を別のビューアーで表示したもので、spaCRの模擬パネルではありません。",
+          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
           "focus": [
             200,
             100,
             3440,
             1920
           ],
-          "hold_after": 0.7,
-          "speech_text": "この版では品質管理画像は保存されますが、組み込みのFiguresパネルには表示されません。illuminationフォルダーの、illuminationアンダースコアQCアンダースコアplate一ドットPNGを画像ビューアーで開きます。これは実際の出力画像を別のビューアーで表示したもので、スペーカーの模擬パネルではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "左のパネルは平均が一になるよう正規化した推定照明分布です。補正ではカメラのオフセットを引き、この分布で割ります。見出しはgainとなっていますが、表示されたマップを強度に掛けないでください。補正に使うのはその逆数です。生物構造が推定に入り込んでいないか確認しましょう。",
+          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
           "focus": [
             400,
             680,
             790,
             825
           ],
-          "hold_after": 0.7,
-          "speech_text": "左のパネルは平均が一になるよう正規化した推定照明分布です。補正ではカメラのオフセットを引き、この分布で割ります。見出しはgainとなっていますが、表示されたマップを強度に掛けないでください。補正に使うのはその逆数です。生物構造が推定に入り込んでいないか確認しましょう。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "半径方向の傾きは、およそマイナス零点一八一からプラス零点零二六に変わります。表示された八十五点四パーセントの低減率は独立計算と一致しますが、補正後の曲線は平坦ではありません。モデル推定に使ったのと同じ視野なので、独立した検証ではありません。",
+          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
           "focus": [
             1270,
             680,
             1080,
             840
           ],
-          "hold_after": 0.7,
-          "speech_text": "半径方向の傾きは、およそマイナス零点一八一からプラス零点零二六に変わります。表示された八十五点四パーセントの低減率は独立計算と一致しますが、補正後の曲線は平坦ではありません。モデル推定に使ったのと同じ視野なので、独立した検証ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "後で再利用する際は保存モデルのパスを指定し、対象のMaskまたはMeasureワークフローで補正を明示的に有効にします。モデル、チャネルの対応、プレート識別情報、設定を一緒に保管してください。生物学的な差を解釈する前に独立した視野を確認し、補正済み強度を二重に補正しないようにしましょう。",
+          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
           "focus": [
             363,
             370,
@@ -5898,10 +5752,14 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "後で再利用する際は保存モデルのパスを指定し、対象のMaskまたはMeasureワークフローで補正を明示的に有効にします。モデル、チャネルの対応、プレート識別情報、設定を一緒に保管してください。生物学的な差を解釈する前に独立した視野を確認し、補正済み強度を二重に補正しないようにしましょう。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "44_data_manager",
@@ -5909,140 +5767,131 @@
       "slug": "data_manager",
       "series": 5,
       "app_key": "data_manager",
-      "section": "データ",
-      "title": "Data Manager：実データの例を安全に確認・整理・アーカイブする",
-      "description": "登録済みと未登録のファイルを確認し、切り出し画像の削除を取消・確定して、記録を残しながら専用コピーを移動します。",
+      "section": "Data and batch runs",
+      "title": "Data Manager: inspect usage, clean up and archive",
+      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
       "objectives": [
-        "HelpからData managerを開き、実際の容量を確認する。",
-        "削除計画、保持理由、確認画面の全ファイルを読む。",
-        "元に戻せない削除と移動の違いを理解し、Cancelを確認する。",
-        "移動先を再確認し、マニフェスト、移動元のログ、独立したバックアップを保存する。"
+        "Inspect project disk usage.",
+        "Review and apply a cleanup plan.",
+        "Move and rescan an archived project."
       ],
-      "prerequisite": "External Masksの実例を使います。2視野、測定済みの103オブジェクト、保存済みの図を含みます。録画ではバイト単位で検証した隔離コピーを使用し、録画プロセス内だけでレジストリの元の絶対パスをそのコピーに対応させています。元の131ファイルは変わりません。Data Manager専用のデータダウンロード、画像のライブプレビュー、Plot操作、AIパネルはありません。容量はバイト数であり科学的品質ではありません。コピー内の103枚のPNGと形式JSONだけを削除し、測定データベースと処理設定の記録は保持します。再生成は実演しません。アーカイブは残りのプロジェクトを移動する操作で、バックアップでも全履歴パスの更新保証でもありません。プロジェクト外のリソースログは移動しません。",
+      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "HelpからData managerを開きます。この共通ツールはプロジェクトのファイルを管理するもので、画像解析は実行しません。測定結果と保存済みの図を含む、External Masksの実例の使い捨てコピーを使います。自分で整理を試す前に、独立したバックアップを確保してください。",
+          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
-          ],
-          "speech_text": "HelpからData managerを開きます。この共通ツールはプロジェクトのファイルを管理するもので、画像解析は実行しません。測定結果と保存済みの図を含む、External Masksの実例の使い捨てコピーを使います。自分で整理を試す前に、独立したバックアップを確保してください。"
+          ]
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Choose projectでプロジェクトのルートを選びます。走査後のUsageは129ファイル、約91メガバイトです。RegisteredとUnregisteredは区別されます。ファイルが存在してもレジストリに記録があるとは限りません。フォルダーから推定した分類は、科学的な内容を証明するものではありません。",
+          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3400,
             570
-          ],
-          "speech_text": "Choose projectでプロジェクトのルートを選びます。走査後のUsageは129ファイル、約91メガバイトです。RegisteredとUnregisteredは区別されます。ファイルが存在してもレジストリに記録があるとは限りません。フォルダーから推定した分類は、科学的な内容を証明するものではありません。"
+          ]
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Pruneで検討対象の種類を選びます。スイッチをオンにするだけでは削除を許可しません。ここでは測定データベースとモデルの重みを選択せず、Show what can be deletedを押します。削除候補だけでなく、ほかの成果物を保持する理由も読んでください。",
+          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
             245,
             3470,
             230
-          ],
-          "speech_text": "Pruneで検討対象の種類を選びます。スイッチをオンにするだけでは削除を許可しません。ここでは測定データベースとモデルの重みを選択せず、Show what can be deletedを押します。削除候補だけでなく、ほかの成果物を保持する理由も読んでください。"
+          ]
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "この計画の対象はdataの切り出し画像フォルダーだけです。103枚のオブジェクト画像と形式ファイル1個であり、104個の細胞ではありません。約3.4メガバイトの削減を提案しています。Get it back byはMeasureを示しますが、再生成には元の入力、設定、適切なソフトウェアが必要です。",
+          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
           "hold_after": 0.7,
           "focus": [
             345,
             320,
             3450,
             160
-          ],
-          "speech_text": "この計画の対象はdataの切り出し画像フォルダーだけです。103枚のオブジェクト画像と形式ファイル1個であり、104個の細胞ではありません。約3.4メガバイトの削減を提案しています。Get it back byはMeasureを示しますが、再生成には元の入力、設定、適切なソフトウェアが必要です。"
+          ]
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Deleteを押すと、実際のファイル一覧を含む二段階目の確認が開きます。削除は取り消せません。ダイアログを広げてパスをスクロールし、内容を確認してください。最後のDeleteボタンは初めは無効です。確認スイッチを入れる操作と削除の実行は別です。",
-          "hold_after": 0.7,
-          "speech_text": "Deleteを押すと、実際のファイル一覧を含む二段階目の確認が開きます。削除は取り消せません。ダイアログを広げてパスをスクロールし、内容を確認してください。最後のDeleteボタンは初めは無効です。確認スイッチを入れる操作と削除の実行は別です。"
+          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "確認スイッチを入れるとDeleteが有効になり、外すと再び無効になります。最初の実演ではCancelを選び、すべてのプロジェクトファイルが変わらないことを確認します。パス、ファイル数、復元手順に不明点があれば取り消してください。",
-          "hold_after": 0.7,
-          "speech_text": "確認スイッチを入れるとDeleteが有効になり、外すと再び無効になります。最初の実演ではCancelを選び、すべてのプロジェクトファイルが変わらないことを確認します。パス、ファイル数、復元手順に不明点があれば取り消してください。"
+          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "検証済みの同じ計画を再び開き、使い捨てコピーだけで削除を確定します。結果は104ファイルで約3.4メガバイトを解放したと表示します。レジストリ以外の残る24ファイルはバイト単位で同一で、測定データベースと図も含まれます。",
+          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             2500,
             240
-          ],
-          "speech_text": "検証済みの同じ計画を再び開き、使い捨てコピーだけで削除を確定します。結果は104ファイルで約3.4メガバイトを解放したと表示します。レジストリ以外の残る24ファイルはバイト単位で同一で、測定データベースと図も含まれます。"
+          ]
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "自動再走査では、登録済みの成果物1件がディスクにないと表示されます。意図して削除した切り出し画像フォルダーです。処理設定の記録は削除メタデータとともにレジストリに残ります。これは元に戻すための保存領域ではなく、Measureを再実行して画像を再生成したわけでもありません。",
+          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             580
-          ],
-          "speech_text": "自動再走査では、登録済みの成果物1件がディスクにないと表示されます。意図して削除した切り出し画像フォルダーです。処理設定の記録は削除メタデータとともにレジストリに残ります。これは元に戻すための保存領域ではなく、Measureを再実行して画像を再生成したわけでもありません。"
+          ]
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Archiveは別の操作で、残りのプロジェクトを移動します。元のフォルダーの外に空の移動先を選び、Show what would moveを押します。整理後の計画は25ファイル、約88メガバイトです。移動元と移動先を十分確認してください。この画面はプロジェクト全体を対象にします。",
-          "hold_after": 0.7,
-          "speech_text": "Archiveは別の操作で、残りのプロジェクトを移動します。元のフォルダーの外に空の移動先を選び、Show what would moveを押します。整理後の計画は25ファイル、約88メガバイトです。移動元と移動先を十分確認してください。この画面はプロジェクト全体を対象にします。"
+          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Moveは確認を求め、初期選択はNoです。まずNoを選び、移動元が変わらず移動先も空のままであることを確認します。計画の作成や確認の取消だけでは何も移動しません。移動先を追加のバックアップコピーだと考えないでください。",
-          "hold_after": 0.7,
-          "speech_text": "Moveは確認を求め、初期選択はNoです。まずNoを選び、移動元が変わらず移動先も空のままであることを確認します。計画の作成や確認の取消だけでは何も移動しません。移動先を追加のバックアップコピーだと考えないでください。"
+          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "この専用の例だけでYesを確定します。残りのファイルは移動先へ移ります。移動先にはマニフェストが書かれ、移動元にはアーカイブログが残ります。使い捨てコピーの作成元となった元のプロジェクトは完全に変わりません。",
-          "hold_after": 0.7,
-          "speech_text": "この専用の例だけでYesを確定します。残りのファイルは移動先へ移ります。移動先にはマニフェストが書かれ、移動元にはアーカイブログが残ります。使い捨てコピーの作成元となった元のプロジェクトは完全に変わりません。"
+          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "移動先をプロジェクトとして選んで再走査します。測定データベースは新しいパスで登録され、レジストリ以外の各ファイルは移動前とバイト単位で一致します。追加のマニフェストがファイル数の増加を説明します。過去の記録や外部ログは自動で書き換えたり移動したりしません。",
+          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
           "hold_after": 0.7,
           "focus": [
             345,
             80,
             3470,
             670
-          ],
-          "speech_text": "移動先をプロジェクトとして選んで再走査します。測定データベースは新しいパスで登録され、レジストリ以外の各ファイルは移動前とバイト単位で一致します。追加のマニフェストがファイル数の増加を説明します。過去の記録や外部ログは自動で書き換えたり移動したりしません。"
+          ]
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Pythonで自動化する場合、spacr.data_managerにはscan_project、plan_prune、prune、plan_archive、archiveがあります。確認トークンを渡す前に計画を確認してください。測定値の閲覧にはDatabase Browser、読みやすい概要にはReportを使います。独立したバックアップとアーカイブの記録を研究資料と一緒に保管してください。",
+          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "29_report"
-          ],
-          "speech_text": "Pythonで自動化する場合、スペーカー.data_managerにはscan_project、plan_prune、prune、plan_archive、archiveがあります。確認トークンを渡す前に計画を確認してください。測定値の閲覧にはDatabase Browser、読みやすい概要にはReportを使います。独立したバックアップとアーカイブの記録を研究資料と一緒に保管してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "45_project_browser",
@@ -6050,54 +5899,50 @@
       "slug": "project_browser",
       "series": 5,
       "app_key": "project_browser",
-      "section": "データ",
-      "title": "Project Browser：実際のプロジェクトを見つけ、記録を読み解く",
-      "description": "登録済みと未登録の例を探し、探索の深さや容量順を変え、解析や削除を行わずに記録を確認します。",
+      "section": "Data and batch runs",
+      "title": "Project Browser: find and inspect projects",
+      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
       "objectives": [
-        "HelpからProject browserを開き、探索範囲を限定する。",
-        "DepthとScanで発見し、実測バイト数で並べ替える。",
-        "来歴不明や宣言された出力による段階を、実際の実行履歴と区別する。",
-        "詳細を読み、探索ルートだけを除外し、記録やデータには専用ツールを使う。"
+        "Discover projects using roots and search depth.",
+        "Inspect artifacts and recorded stages.",
+        "Choose the next relevant tool."
       ],
-      "prerequisite": "External MasksとBatch Runnerの完了済み例を使います。録画では、2視野の測定済みプロジェクトの検証済み専用コピーと、4チャンネル変換出力のコピーを比較します。変換出力には隠しチェックポイントとほかの2記録も含みます。異なる例であり処理前後の比較ではありません。元の測定プロジェクト131ファイルと変換7ファイルは変わりません。元の成果物パスは録画用隔離プロセス内だけで測定コピーを指し、来歴を書き換えません。Project Browser専用のダウンロード、ライブプレビュー、Plot、AIパネルはありません。Scanが読むのはプロジェクトの証拠であり、全実行ログではありません。実際の並べ替え、深さ、ルート除外操作を使い、解析、削除、外部ファイルマネージャー起動、自動引き渡しは行いません。通常のSQLiteアクセスで専用レジストリの空のWALと32768バイトのSHMだけが削除されます。データベースとその他のファイルのバイトは変わりません。",
+      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "HelpからProject browserを開きます。この共通画面はプロジェクトフォルダーを探し、記録やディスク上に存在するものを要約します。External MasksとBatch Runnerの実際の出力の専用コピーを使います。これは一覧確認ツールであり、画像解析の実行ではありません。",
+          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "37_batch"
-          ],
-          "speech_text": "HelpからProject browserを開きます。この共通画面はプロジェクトフォルダーを探し、記録やディスク上に存在するものを要約します。External MasksとBatch Runnerの実際の出力の専用コピーを使います。これは一覧確認ツールであり、画像解析の実行ではありません。"
+          ]
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Add folderで探索先を選びます。Depthがゼロの場合、選んだフォルダー自体だけを確認します。この親フォルダーには一階層下にプロジェクトがあるため、表は空です。この深さで見つからなくても、プロジェクトや画像がないとは限りません。",
+          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             360
-          ],
-          "speech_text": "Add folderで探索先を選びます。Depthがゼロの場合、選んだフォルダー自体だけを確認します。この親フォルダーには一階層下にプロジェクトがあるため、表は空です。この深さで見つからなくても、プロジェクトや画像がないとは限りません。"
+          ]
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Depthを一にしてScanを押します。変換済み画像のフォルダーが現れ、7ファイル、約32メガバイトと表示されます。取得済みの4チャンネル画像、変換マップ、状態記録、隠しチェックポイントです。ファイル数は細胞数や独立した実験数ではありません。",
+          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
           "hold_after": 0.7,
           "focus": [
             345,
             180,
             3450,
             660
-          ],
-          "speech_text": "Depthを一にしてScanを押します。変換済み画像のフォルダーが現れ、7ファイル、約32メガバイトと表示されます。取得済みの4チャンネル画像、変換マップ、状態記録、隠しチェックポイントです。ファイル数は細胞数や独立した実験数ではありません。"
+          ]
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "成果物レジストリがないため、Stateはunknown, nothing recordedです。変換は本当に完了していますが、Stageはnothing run、Last runはneverと表示します。これらは宣言されたワークフロー出力と登録成果物を示すもので、全変換履歴ではありません。Unknownは品質が良いことや未処理であることの証拠ではありません。",
+          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6108,36 +5953,33 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ],
-          "speech_text": "成果物レジストリがないため、Stateはunknown, nothing recordedです。変換は本当に完了していますが、Stageはnothing run、Last runはneverと表示します。これらは宣言されたワークフロー出力と登録成果物を示すもので、全変換履歴ではありません。Unknownは品質が良いことや未処理であることの証拠ではありません。"
+          ]
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "測定済みプロジェクトを二つ目の探索ルートとして追加します。行にはMeasure、約91メガバイト、129ファイル、レジストリの日時が表示されます。再走査後に選択行の詳細が空なら、別の行を選んでから戻ってください。アプリを変更せず、この回避操作を実演します。",
+          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
           "hold_after": 0.7,
           "focus": [
             345,
             225,
             3450,
             260
-          ],
-          "speech_text": "測定済みプロジェクトを二つ目の探索ルートとして追加します。行にはMeasure、約91メガバイト、129ファイル、レジストリの日時が表示されます。再走査後に選択行の詳細が空なら、別の行を選んでから戻ってください。アプリを変更せず、この回避操作を実演します。"
+          ]
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "測定済みプロジェクトを選び、区切り線をドラッグして詳細を広げます。3件の成果物記録はcurrentですが、約87メガバイトは未登録です。Currentは記録に基づく比較を表し、完全な来歴や科学的妥当性を意味しません。Last runの詳細には日時がレジストリ由来であると明記されています。",
+          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
           "hold_after": 0.7,
           "focus": [
             2020,
             300,
             1790,
             260
-          ],
-          "speech_text": "測定済みプロジェクトを選び、区切り線をドラッグして詳細を広げます。3件の成果物記録はcurrentですが、約87メガバイトは未登録です。Currentは記録に基づく比較を表し、完全な来歴や科学的妥当性を意味しません。Last runの詳細には日時がレジストリ由来であると明記されています。"
+          ]
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "完了表示を解釈する前にStagesを読んでください。この例ではインポートした配列、個数、マスクが存在するためMaskの出力はcompleteですが、Maskで分割を実行した証拠ではありません。What could run nextは候補一覧であり、ボタンでも、各解析がこの実験データに適するという検証でもありません。",
+          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -6147,76 +5989,76 @@
           ],
           "related_lessons": [
             "31_external_masks"
-          ],
-          "speech_text": "完了表示を解釈する前にStagesを読んでください。この例ではインポートした配列、個数、マスクが存在するためMaskの出力はcompleteですが、Maskで分割を実行した証拠ではありません。What could run nextは候補一覧であり、ボタンでも、各解析がこの実験データに適するという検証でもありません。"
+          ]
         },
         {
           "visual": "12_size_descending",
-          "narration": "Size見出しをクリックして並び順を変えます。昇順と降順を実際のバイト数で確認し、行の選択も正しいプロジェクトを指します。この画面には段階、経過時間、モジュール状態、古くなった結果の個別フィルターはありません。実際の並べ替え可能な列と探索ルートを使ってください。",
+          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
           "hold_after": 0.7,
           "focus": [
             345,
             300,
             1680,
             170
-          ],
-          "speech_text": "Size見出しをクリックして並び順を変えます。昇順と降順を実際のバイト数で確認し、行の選択も正しいプロジェクトを指します。この画面には段階、経過時間、モジュール状態、古くなった結果の個別フィルターはありません。実際の並べ替え可能な列と探索ルートを使ってください。"
+          ]
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "両方のルートがある状態でDepthをゼロにすると、直接選んだ測定プロジェクトは見つかりますが、親フォルダーの下にある変換は見つかりません。一に戻すと両方の行が復元します。深さは探索範囲を変えるだけで、データ削除や解析の完了状況の変更ではありません。",
+          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3450,
             340
-          ],
-          "speech_text": "両方のルートがある状態でDepthをゼロにすると、直接選んだ測定プロジェクトは見つかりますが、親フォルダーの下にある変換は見つかりません。一に戻すと両方の行が復元します。深さは探索範囲を変えるだけで、データ削除や解析の完了状況の変更ではありません。"
+          ]
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Removeは選択ルートの探索をやめるだけで、フォルダーを削除しません。測定ルートを除外し、変わっていないプロジェクトを再追加します。このビルドでは行のダブルクリックで選択が通知されますがProject Browserにとどまります。プロジェクトや最新実行の窓が自動で開くとは考えないでください。",
-          "hold_after": 0.7,
-          "speech_text": "Removeは選択ルートの探索をやめるだけで、フォルダーを削除しません。測定ルートを除外し、変わっていないプロジェクトを再追加します。このビルドでは行のダブルクリックで選択が通知されますがProject Browserにとどまります。プロジェクトや最新実行の窓が自動で開くとは考えないでください。"
+          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "実行ログの詳細にはRun History、測定表にはDatabase Browser、整理やアーカイブにはData Managerを使います。Pythonではspacr.projectsにdiscover、scan、browseがあります。元の全ファイルは変わらず、新しい解析も始めていません。候補を実行する前に、対応するワークフローのレッスンを確認してください。",
+          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "34_database",
             "44_data_manager"
-          ],
-          "speech_text": "実行ログの詳細にはRun History、測定表にはDatabase Browser、整理やアーカイブにはData Managerを使います。Pythonではスペーカー.projectsにdiscover、scan、browseがあります。元の全ファイルは変わらず、新しい解析も始めていません。候補を実行する前に、対応するワークフローのレッスンを確認してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge：編集・取り込み・再起動を安全に行う",
+      "title": "Napari Bridge: edit and return a label mask",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
-      "description": "合成画像とラベルを使い、バックアップ、実際の Fill と Undo、取り込みの間の終了・再起動を、ピクセル単位の検証付きで練習します。",
+      "section": "Mask correction",
+      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
       "objectives": [
-        "Make Masks 内の Napari Bridge で画像とラベルを別々のファイルとして開く。",
-        "ビューアー内の編集、Undo、ディスクへの取り込み、修正履歴を区別する。",
-        "取り込みの間に終了して開き直し、同じビューアーでの不具合が修正されたとは言わずに、保存した両方の修正を確認する。"
+        "Open corresponding image and label files.",
+        "Edit and undo changes in napari.",
+        "Return and inspect the saved mask."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "SYNTHETIC と明示した例を新しいフォルダーに展開し、未変更のバックアップを残してください。256x256 の uint16 画像とマスクに16個の合成オブジェクトがあります。生物学的な精度は検証していません。録画は任意依存の napari 0.9.1、フォントサイズ20です。Make Masks 内の Napari Bridge で mask.tif と image.tif を選択します。Fill で2を18に変更し、Undo、再実行後に Take the mask back を押します。作業マスクが上書きされ、2,197ピクセルの変更が mask.tif.curation.json に記録されます。次の編集の前に必ず終了して開き直します。同じビューアー内の2回目の編集が「変更なし」とされ失われた既知の問題は、修正済みとは主張しません。開き直して4を20に変更し取り込むと1,288ピクセルが変わり、両方の履歴が残ります。保存した両マスクの全65,536ピクセルを検証し、元データと画像強度は不変です。追加・削除ラベルは細胞の増減ではありません。API: spacr.napari_bridge.load_handoff, open_in_napari, write_back。訓練、生物学的検証、無制限の連続編集、公開、聴取承認は主張しません。",
+      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Make Masks 内の Napari Bridge を開きます。画像とラベルマスクを任意の napari ビューアーに渡し、修正したラベルを取り込みます。このレッスンは合成と明示した練習用データであり、生物実験ではありません。取り込みは選択した作業マスクを上書きするので、未変更のバックアップを残してください。",
+          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
           "focus": [
             460,
             235,
@@ -6226,78 +6068,70 @@
           "related_lessons": [
             "14_make_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Make Masks 内の Napari Bridge を開きます。画像とラベルマスクを任意の napari ビューアーに渡し、修正したラベルを取り込みます。このレッスンは合成と明示した練習用データであり、生物実験ではありません。取り込みは選択した作業マスクを上書きするので、未変更のバックアップを残してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "例をダウンロードし、新しいフォルダーに展開します。mask ドット tif、次に image ドット tif を選び、Open in napari を押します。入力は異なります。整数のオブジェクトラベルは Mask に、強度画像は視覚的な参照に使います。例には16個の合成オブジェクトがあります。",
+          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
           "focus": [
             460,
             365,
             3350,
             370
           ],
-          "hold_after": 0.7,
-          "speech_text": "例をダウンロードし、新しいフォルダーに展開します。mask ドット tif、次に image ドット tif を選び、Open in napari を押します。入力は異なります。整数のオブジェクトラベルは Mask に、強度画像は視覚的な参照に使います。例には16個の合成オブジェクトがあります。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Napari は画像レイヤーと、mask という Labels レイヤーを開きます。編集には mask を選び、画像強度は変えません。ラベルゼロは背景です。色はオブジェクトの識別用で、生物学的なクラスや確信度ではありません。録画では実際の画面の文字を大きくしていますが、元画像は拡大加工していません。",
-          "hold_after": 0.7,
-          "speech_text": "Napari は画像レイヤーと、mask という Labels レイヤーを開きます。編集には mask を選び、画像強度は変えません。ラベルゼロは背景です。色はオブジェクトの識別用で、生物学的なクラスや確信度ではありません。録画では実際の画面の文字を大きくしていますが、元画像は拡大加工していません。"
+          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "何も変える前に spaCR に戻り、Take the mask back を押します。状態表示はマスクに変更がないことを示し、書き込みは行いません。取り込みはビューアー内の編集とは別の操作です。この変更なしの確認だけでは、後の修正が保存された証拠にはなりません。その結果も確認します。",
+          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7,
-          "speech_text": "何も変える前に スペーカー に戻り、Take the mask back を押します。状態表示はマスクに変更がないことを示し、書き込みは行いません。取り込みはビューアー内の編集とは別の操作です。この変更なしの確認だけでは、後の修正が保存された証拠にはなりません。その結果も確認します。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "napari でラベル18を選び、Fill を選択し、ラベル2の練習オブジェクトをクリックします。そのオブジェクトのラベルだけが変わります。これは制御されたラベル変更の練習で、生物学的な領域分割の改善ではありません。ディスク上の作業ファイルはまだ変わっていません。",
-          "hold_after": 0.7,
-          "speech_text": "napari でラベル18を選び、Fill を選択し、ラベル2の練習オブジェクトをクリックします。そのオブジェクトのラベルだけが変わります。これは制御されたラベル変更の練習で、生物学的な領域分割の改善ではありません。ディスク上の作業ファイルはまだ変わっていません。"
+          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Undo で元のラベルに戻します。録画ではコントロール・ゼットを使います。次に同じ Fill を繰り返してから取り込みます。Undo はビューアーの編集履歴に働きます。取り込み後に以前のファイルを復元する操作とは違います。そのためにバックアップを残します。",
-          "hold_after": 0.7,
-          "speech_text": "Undo で元のラベルに戻します。録画ではコントロール・ゼットを使います。次に同じ Fill を繰り返してから取り込みます。Undo はビューアーの編集履歴に働きます。取り込み後に以前のファイルを復元する操作とは違います。そのためにバックアップを残します。"
+          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Take the mask back を押します。状態表示に2,197ピクセルの変更と修正履歴ファイルが出ます。2が18になったため、ラベルが1つ追加され1つ削除されましたが、オブジェクトは16個のままです。napari の表示色だけでなく、保存したマスクと履歴を確認してください。",
+          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7,
-          "speech_text": "Take the mask back を押します。状態表示に2,197ピクセルの変更と修正履歴ファイルが出ます。2が18になったため、ラベルが1つ追加され1つ削除されましたが、オブジェクトは16個のままです。napari の表示色だけでなく、保存したマスクと履歴を確認してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "次の編集をする前に、いま Close viewer を押して終了し、開き直します。検証したバージョンでは必須です。同じビューアー内の2回目の編集が変更なしと報告され、失われる場合がありました。ここで示すのは検証済みの終了・再起動手順であり、アプリの不具合の修正ではありません。",
+          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7,
-          "speech_text": "次の編集をする前に、いま Close viewer を押して終了し、開き直します。検証したバージョンでは必須です。同じビューアー内の2回目の編集が変更なしと報告され、失われる場合がありました。ここで示すのは検証済みの終了・再起動手順であり、アプリの不具合の修正ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "開き直したらラベル4を20に変え、再度取り込みます。1,288ピクセルが変わり、前の履歴も残ります。終わったらビューアーを閉じます。元画像、修正マスク、その来歴を保存し、古いラベルに対応する結果を流用せず、影響を受ける測定を再実行してください。",
+          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
           "focus": [
             460,
             445,
@@ -6308,104 +6142,101 @@
             "08_measure",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "開き直したらラベル4を20に変え、再度取り込みます。1,288ピクセルが変わり、前の履歴も残ります。終わったらビューアーを閉じます。元画像、修正マスク、その来歴を保存し、古いラベルに対応する結果を流用せず、影響を受ける測定を再実行してください。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC：実際のカウント、しきい値のトレードオフ、保存済みグラフ",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "結果と品質管理",
-      "description": "公開カウント表でBarcode QCを実行し、実際に保存されたグラフからリード深度としきい値の影響を確認します。",
+      "section": "Map Barcodes",
+      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
       "objectives": [
-        "Map Barcodes内のBarcode QCで実際のカウント表を選ぶ。",
-        "説明用の目標と実験上妥当な選択を区別する。",
-        "警告、保存グラフ、独立検証済みの表を確認する。",
-        "低リードのウェル、目標超過のウェル、配列の衝突を区別する。"
+        "Choose count inputs and QC settings.",
+        "Inspect coverage and positional effects.",
+        "Compare thresholds and keep the resulting tables and plots."
       ],
-      "prerequisite": "Regressionでダウンロードした例のplate_1_unique_combinations.csvのコピーと新しい出力先を使います。これは失敗したFASTQマッピングの出力ではありません。172756行、49464341マッピング済みリード、384ウェル、1379観測ガイドを含みます。目標5・中央値は説明用で、低リード比率0.1、Plot/Save/Verbose有効。任意のQC・参照入力は省略。2884項目を数値誤差なしで独立検証。src警告と空のFiguresパネルは未修正で、PNGは実際の外部ビューアで表示します。ライブプレビュー、GPU計算、AI要求、生物学的検証、公開は行いません。API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Map Barcodesを開き、その中のBarcode QCを選びます。この処理はマッピング後のカウントを調べるもので、FASTQリードを再マッピングしません。リンク先のRegressionレッスンにある公開カウント表を使います。以前の生リードのマッピング失敗から得た出力ではありません。",
+          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Map Barcodesを開き、その中のBarcode QCを選びます。この処理はマッピング後のカウントを調べるもので、FASTQリードを再マッピングしません。リンク先のRegressionレッスンにある公開カウント表を使います。以前の生リードのマッピング失敗から得た出力ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Count dataでplate one unique combinationsのコピーを選びます。仮のパスを残さず、選択ファイルを確認してください。この実際の表には、三百八十四ウェルの約四千九百五十万のマッピング済みリードが含まれます。原本を変更せず、QC出力には新しい保存先を選びます。",
-          "hold_after": 0.7,
-          "speech_text": "Count dataでplate one unique combinationsのコピーを選びます。仮のパスを残さず、選択ファイルを確認してください。この実際の表には、三百八十四ウェルの約四千九百五十万のマッピング済みリードが含まれます。原本を変更せず、QC出力には新しい保存先を選びます。"
+          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Target gRNAs per wellは、リード存在量のしきい値を求めるための目標です。ここでは説明用の値、五と中央値を使います。推奨する実験設計でも、単一ガイドへの帰属の証明でもありません。自分の設計に基づいて選び、提案された数値だけでなくトレードオフを確認します。",
-          "hold_after": 0.7,
-          "speech_text": "Target gRNAs per wellは、リード存在量のしきい値を求めるための目標です。ここでは説明用の値、五と中央値を使います。推奨する実験設計でも、単一ガイドへの帰属の証明でもありません。自分の設計に基づいて選び、提案された数値だけでなくトレードオフを確認します。"
+          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "低リード比率は、プレート中央値に比べて極端にリードが少ないウェルを特定します。ここでは零点一で、三百八十四ウェルのどれも算出された下限を下回りません。これは深度の指標であり、すべてのウェル、ガイド、生物学的測定が信頼できるという保証ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "低リード比率は、プレート中央値に比べて極端にリードが少ないウェルを特定します。ここでは零点一で、三百八十四ウェルのどれも算出された下限を下回りません。これは深度の指標であり、すべてのウェル、ガイド、生物学的測定が信頼できるという保証ではありません。"
+          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "PlotとSaveを有効にし、保存先を明示してRunを押します。小規模な表の解析であってGPUによるセグメンテーションではなく、この画面にはライブプレビューがありません。任意のマッピングQCとバーコード参照の入力は空にします。それらを必要とする結論はカウント表だけでは出せません。",
-          "hold_after": 0.7,
-          "speech_text": "PlotとSaveを有効にし、保存先を明示してRunを押します。小規模な表の解析であってGPUによるセグメンテーションではなく、この画面にはライブプレビューがありません。任意のマッピングQCとバーコード参照の入力は空にします。それらを必要とする結論はカウント表だけでは出せません。"
+          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "警告を含めて実際のコンソールを読みます。処理は完了しますが、この版はCount dataを使うモジュールなのにsrcがないと誤って報告します。実際の入力と保存表を検証しましたが、事前確認は修正していません。この特定済みの不整合を、他のエラーを無視する理由にしないでください。",
-          "hold_after": 0.7,
-          "speech_text": "警告を含めて実際のコンソールを読みます。処理は完了しますが、この版はCount dataを使うモジュールなのにsrcがないと誤って報告します。実際の入力と保存表を検証しましたが、事前確認は修正していません。この特定済みの不整合を、他のエラーを無視する理由にしないでください。"
+          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "この版は二つのPNGグラフを保存してもFiguresパネルが空のままです。出力フォルダーのbarcodeアンダースコアqcドットpngとthresholdアンダースコアsweepドットpngを画像ビューアで開きます。次の場面は本物のシステムビューアであり、spaCRへの画像挿入やGUI修正を示すものではありません。",
-          "hold_after": 0.7,
-          "speech_text": "この版は二つのPNGグラフを保存してもFiguresパネルが空のままです。出力フォルダーのbarcodeアンダースコアqcドットpngとthresholdアンダースコアsweepドットpngを画像ビューアで開きます。次の場面は本物のシステムビューアであり、スペーカーへの画像挿入やGUI修正を示すものではありません。"
+          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "リード深度、行と列の効果、観測されたライブラリ分布を調べます。破線の下限は低リードのウェルを示し、棒は行や列の中央値をプレート中央値と比較します。ライブラリ曲線は観測ガイドのリード数の偏りを示します。参照ライブラリがなければ、期待されたガイドのうち完全に欠けたものは分かりません。",
-          "hold_after": 0.7,
-          "speech_text": "リード深度、行と列の効果、観測されたライブラリ分布を調べます。破線の下限は低リードのウェルを示し、棒は行や列の中央値をプレート中央値と比較します。ライブラリ曲線は観測ガイドのリード数の偏りを示します。参照ライブラリがなければ、期待されたガイドのうち完全に欠けたものは分かりません。"
+          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "しきい値をそのまま採用せず、スイープを確認します。ここで求めた値は約零点零一二一、つまりウェル内リードの一点二一パーセントです。ガイド数の中央値は五で、全ウェルとマッピング済みリードの約五十八パーセントが残りますが、約四十パーセントのウェルはまだ目標を超えます。",
-          "hold_after": 0.7,
-          "speech_text": "しきい値をそのまま採用せず、スイープを確認します。ここで求めた値は約零点零一二一、つまりウェル内リードの一点二一パーセントです。ガイド数の中央値は五で、全ウェルとマッピング済みリードの約五十八パーセントが残りますが、約四十パーセントのウェルはまだ目標を超えます。"
+          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "赤い曲線は五ガイドの目標を超えるウェルを数えます。バーコード配列の類似度ではなく、目標以下でも単一ガイドへの帰属は証明できません。ここではしきい値を緩めてもウェルは増えず、目標超過の割合が増えます。保存されたスイープ表を比較し、この例を万能なしきい値とせず、自分の解析で選択を根拠づけてください。",
-          "hold_after": 0.7,
-          "speech_text": "赤い曲線は五ガイドの目標を超えるウェルを数えます。バーコード配列の類似度ではなく、目標以下でも単一ガイドへの帰属は証明できません。ここではしきい値を緩めてもウェルは増えず、目標超過の割合が増えます。保存されたスイープ表を比較し、この例を万能なしきい値とせず、自分の解析で選択を根拠づけてください。"
+          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "元のカウント、設定、コンソールログ、推奨値、表、グラフを一緒に保存します。独立検証でウェル、位置、スイープの統計を数値差なしで再現しました。計算の確認であって生物学的解釈の検証ではありません。AI支援は任意で、ここでは要求を送っていません。後から得る助言も実際のデータとAPIに照らして確認します。",
+          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "元のカウント、設定、コンソールログ、推奨値、表、グラフを一緒に保存します。独立検証でウェル、位置、スイープの統計を数値差なしで再現しました。計算の確認であって生物学的解釈の検証ではありません。AI支援は任意で、ここでは要求を送っていません。後から得る助言も実際のデータとAPIに照らして確認します。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "48_hit_list",
@@ -6623,24 +6454,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare：Measureの実際のスナップショットを比較する",
+      "title": "Run Compare: compare saved runs",
       "series": 5,
       "app_key": "run_compare",
-      "section": "結果と品質管理",
+      "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "保存された2回のMeasure出力で設定と件数を比較し、結果の欠落と科学的な否定的結論を区別します。",
+      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
       "objectives": [
-        "HomeのDataからRun Compareを開き、配布例を準備する。",
-        "記録された履歴を変えずに異なる実行を比較する。",
-        "設定、件数、警告が示す範囲を正しく読む。"
+        "Select baseline and comparison runs.",
+        "Inspect settings and count differences.",
+        "Locate available result comparisons."
       ],
-      "prerequisite": "Run_Compare_real_snapshots.zipを展開し、spaCR環境でprepare_run_compare_download.pyに新しい出力フォルダーを指定して実行後、Browseで選びます。これは2つのデータベースと過去の記録の明示的な移送であり、GUIの自動インポート、新規解析、プロジェクト全体のアーカイブではありません。完全なSHA-256は元の記録と一致し、変わるのはプロジェクト、パス、移送注記だけです。実際の実行はspaCR 1.5.0.5、2026年9月11日03:37:56と04:05:56 UTCです。各実行は細胞601、核622、病原体オブジェクト373、細胞質601、png_list 601行、1プレート、4ウェル、16視野です。オブジェクト識別情報と設定は一致しますが、データベースのバイト列は異なります。全特徴量の一致、精度、改善を証明しません。回帰結果は含みません。APIはspacr.run_compare.runs_inとcompare_runs、およびspacr.artifacts.Registryです。GPU、AIサービス、新規解析、公開はありません。",
+      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Homeを開き、DataからRun Compareを選びます。これはメインモジュールで、Regression内のサブツールではありません。2回の実行で記録された出力を読み取ります。この例はダウンロード可能なデータを使ったMeasureの実際のスナップショットです。見栄えのために差を作り出すことはしません。",
+          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
           "focus_modules": [
             "run_compare"
           ],
@@ -6648,60 +6479,54 @@
             "08_measure",
             "40_run_history"
           ],
-          "hold_after": 0.7,
-          "speech_text": "ホームを開き、DataからRun Compareを選びます。これはメインモジュールで、Regression内のサブツールではありません。2回の実行で記録された出力を読み取ります。この例はダウンロード可能なデータを使ったMeasureの実際のスナップショットです。見栄えのために差を作り出すことはしません。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "付属のアーカイブをダウンロードして展開します。readmeに従い、spaCR環境で準備スクリプトに新しい出力先を指定します。変更していない2つのデータベースと過去の記録を明示的に移送する処理です。自動インポートボタンでも、新しい解析でも、元のプロジェクト全体のコピーでもありません。",
-          "hold_after": 0.7,
-          "speech_text": "付属のアーカイブをダウンロードして展開します。readmeに従い、スペーカー環境で準備スクリプトに新しい出力先を指定します。変更していない2つのデータベースと過去の記録を明示的に移送する処理です。自動インポートボタンでも、新しい解析でも、元のプロジェクト全体のコピーでもありません。"
+          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Browseで準備済みのフォルダーを選びます。スクリプトは元の実行ID、設定、バージョン、時刻、内容のハッシュを維持します。コピーした索引の参照先と移送注記だけが変わります。元のプロジェクトを保存してください。後で上書きされたデータベースを指す履歴だけでは、スナップショットを保存したことにはなりません。",
-          "hold_after": 0.7,
-          "speech_text": "Browseで準備済みのフォルダーを選びます。スクリプトは元の実行ID、設定、バージョン、時刻、内容のハッシュを維持します。コピーした索引の参照先と移送注記だけが変わります。元のプロジェクトを保存してください。後で上書きされたデータベースを指す履歴だけでは、スナップショットを保存したことにはなりません。"
+          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "早い方のMeasure実行を基準A、遅い方をBにしてCompareを押します。どちらもspaCRバージョン一点五点零点五で生成されました。新しいビューアーでも過去のバージョンは変わりません。ここでは設定と件数が一致します。整合性の例であって、モデル改善の証拠ではありません。",
+          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
           "focus": [
             350,
             235,
             3450,
             190
           ],
-          "hold_after": 0.7,
-          "speech_text": "早い方のMeasure実行を基準A、遅い方をBにしてCompareを押します。どちらもスペーカーバージョン一点五点零点五で生成されました。新しいビューアーでも過去のバージョンは変わりません。ここでは設定と件数が一致します。整合性の例であって、モデル改善の証拠ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Show unchanged settingsを有効にし、記録値を確認します。Settingsタブのゼロは差がないという意味で、設定が保存されていないという意味ではありません。項目を展開して値を比べます。この2回は記録された設定が同じなので、パラメーター変更の効果を示す例にはなりません。",
+          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
           "focus": [
             350,
             360,
             2300,
             1400
           ],
-          "hold_after": 0.7,
-          "speech_text": "Show unchanged settingsを有効にし、記録値を確認します。Settingsタブのゼロは差がないという意味で、設定が保存されていないという意味ではありません。項目を展開して値を比べます。この2回は記録された設定が同じなので、パラメーター変更の効果を示す例にはなりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Countsでは各実行に細胞六百一個、核六百二十二個があり、十六視野、四ウェルにまたがります。デルタはBからAを引いた値で、すべてゼロです。独立した検証ではオブジェクトの識別情報も一致しました。合計が等しいだけでは、同じオブジェクトやすべての測定値が一致するとは限りません。",
+          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
           "focus": [
             350,
             425,
             1250,
             720
           ],
-          "hold_after": 0.7,
-          "speech_text": "Countsでは各実行に細胞六百一個、核六百二十二個があり、十六視野、四ウェルにまたがります。デルタはBからAを引いた値で、すべてゼロです。独立した検証ではオブジェクトの識別情報も一致しました。合計が等しいだけでは、同じオブジェクトやすべての測定値が一致するとは限りません。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Hitsには回帰結果が登録されていないと表示されます。このスナップショットは測定だけなので、順位付きヒットの比較はありません。回帰で有意なヒットが見つからなかったという意味ではなく、回帰結果そのものが存在しません。必要な出力の追跡はRegressionとRun Historyのチュートリアルを参照してください。",
+          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
           "focus": [
             350,
             405,
@@ -6712,32 +6537,34 @@
             "13_regression",
             "40_run_history"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hitsには回帰結果が登録されていないと表示されます。このスナップショットは測定だけなので、順位付きヒットの比較はありません。回帰で有意なヒットが見つからなかったという意味ではなく、回帰結果そのものが存在しません。必要な出力の追跡はRegressionとRun Historyのチュートリアルを参照してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "両側に同じ実行を選ぶと警告が出ます。比較できたことを自動的な妥当性確認とせず、警告を読んでください。異なる2回に戻し、結論の前に出所、バージョン、対象範囲を確認します。警告は調査の理由であり、無理に結果を出す指示ではありません。",
+          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
           "focus": [
             350,
             235,
             3450,
             220
           ],
-          "hold_after": 0.7,
-          "speech_text": "両側に同じ実行を選ぶと警告が出ます。比較できたことを自動的な妥当性確認とせず、警告を読んでください。異なる2回に戻し、結論の前に出所、バージョン、対象範囲を確認します。警告は調査の理由であり、無理に結果を出す指示ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "異なる実行の組に戻り、元のファイルは変更されていません。Run Compareは読み取りと比較を行い、Measureを再実行せず、GPUやAIサービスも必要としません。Pythonのruns_inとcompare_runsでも同じ比較ができます。自分の実行を比較する前に、実際の出力スナップショットと来歴を保存してください。",
+          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "異なる実行の組に戻り、元のファイルは変更されていません。Run Compareは読み取りと比較を行い、Measureを再実行せず、GPUやAIサービスも必要としません。Pythonのruns_inとcompare_runsでも同じ比較ができます。自分の実行を比較する前に、実際の出力スナップショットと来歴を保存してください。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "51_control_charts",
@@ -6746,127 +6573,124 @@
       "series": 5,
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
-      "section": "結果と品質管理",
-      "title": "Control Charts：対照と管理限界を明示して連続した実験プレートを確認する",
-      "description": "QC 内の専用ツールで、合成データと明示された三十枚のプレート例を読み込み、対照と基準期間を確認し、独立に検算したデータ点を出力します。",
+      "section": "Data",
+      "title": "Control Charts: monitor controls across plates",
+      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
       "objectives": [
-        "QC 内の Control Charts を開き、付属の合成 CSV を読み込む。",
-        "ウェル単位の入力行とプレート単位の平均値を区別し、対照を一種類だけ選ぶ。",
-        "ルールを比較し、対照と基準期間を変更して元に戻し、警告を読む。",
-        "画像出力や生物学的検証を行ったと主張せず、実際のデータ点表を出力する。"
+        "Choose the measurement and control population.",
+        "Set the baseline and alert rules.",
+        "Inspect alerts and export chart points."
       ],
-      "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv は固定シードのアプリ試験データを基にした完全な合成例です。架空の三十枚のプレートに、対照の種類ごとに三ウェルずつあり、二十枚目の後の上昇ドリフトはプログラムで設定されています。日付は例示用の順序ラベルで、取得記録ではありません。この専用パネルに Load test data ボタンは現在ありません。顕微鏡画像のダウンロード、モデル、GPU 解析、AI リクエストは使いません。旧動画の二枚の例は限界を推定できず、採用しませんでした。狭い設定列では長い選択肢が切れますが、実際のドロップダウンを開くと全文を読めます。Z-prime と再推定モードは扱いません。",
+      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "QC を開き、その中の Control Charts ボタンを選びます。この専用ツールは一連の実験プレートにおける反復対照を表示します。付属 CSV はドリフトも含めて合成データと明示されています。ソフトウェアの操作例であり、実測した実験や検証済みのアッセイではありません。",
+          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
-          ],
-          "speech_text": "QC を開き、その中の Control Charts ボタンを選びます。この専用ツールは一連の実験プレートにおける反復対照を表示します。付属 CSV はドリフトも含めて合成データと明示されています。ソフトウェアの操作例であり、実測した実験や検証済みのアッセイではありません。"
+          ]
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Load table を選び、例の CSV を開きます。入力はウェル単位の二百七十行です。三十枚の各プレートに陰性対照、陽性対照、サンプルが三ウェルずつあります。グラフの一点は選択した対照のプレート平均であり、細胞一個に対応する点ではありません。",
+          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ],
-          "speech_text": "Load table を選び、例の CSV を開きます。入力はウェル単位の二百七十行です。三十枚の各プレートに陰性対照、陽性対照、サンプルが三ウェルずつあります。グラフの一点は選択した対照のプレート平均であり、細胞一個に対応する点ではありません。"
+          ]
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "表示された列名に合わせて Plate、Run order、Measurement、Control column を確認します。Control is では neg だけを選びます。このリストは複数選択に対応し、何も選ばないと全行を使います。読み込みだけで目的の対照が選択済みになるとは考えないでください。",
+          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
           "hold_after": 0.7,
           "focus": [
             290,
             460,
             740,
             700
-          ],
-          "speech_text": "表示された列名に合わせて Plate、Run order、Measurement、Control column を確認します。Control is では neg だけを選びます。このリストは複数選択に対応し、何も選ばないと全行を使います。読み込みだけで目的の対照が選択済みになるとは考えないでください。"
+          ]
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Sigma from を開くと選択肢を全文で確認できます。各プレートに選択されたウェルが三つあるため、ここでは Auto がサブグループ推定量を選びます。限界には基準期間のプレート内変動を平均の標本数で調整して使い、ドリフトを含む全系列の標準偏差は使いません。",
+          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
           "hold_after": 0.7,
           "focus": [
             290,
             980,
             1760,
             600
-          ],
-          "speech_text": "Sigma from を開くと選択肢を全文で確認できます。各プレートに選択されたウェルが三つあるため、ここでは Auto がサブグループ推定量を選びます。限界には基準期間のプレート内変動を平均の標本数で調整して使い、ドリフトを含む全系列の標準偏差は使いません。"
+          ]
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Rules には通常の四ルール、全八ルール、Limits only があります。ルールを増やすと誤警報の機会も増えます。ここでは Limits only で三シグマのルールだけを調べます。ドロップダウンを変えると再計算され、別の Run ボタンは不要です。",
+          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
           "hold_after": 0.7,
           "focus": [
             290,
             1160,
             1900,
             450
-          ],
-          "speech_text": "Rules には通常の四ルール、全八ルール、Limits only があります。ルールを増やすと誤警報の機会も増えます。ここでは Limits only で三シグマのルールだけを調べます。ドロップダウンを変えると再計算され、別の Run ボタンは不要です。"
+          ]
         },
         {
           "visual": "06_limits_only",
-          "narration": "Baseline plates は二十です。ピーゼロ一からピー二十で限界を推定し、残りのプレートに適用します。ピー二十二からピー三十までの九点が上限を超えています。報告とルール表で該当点を確認できます。これらはプログラムされた変化で、生物学的発見ではありません。",
+          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
           "hold_after": 0.7,
           "focus": [
             1010,
             450,
             2790,
             1600
-          ],
-          "speech_text": "Baseline plates は二十です。ピーゼロ一からピー二十で限界を推定し、残りのプレートに適用します。ピー二十二からピー三十までの九点が上限を超えています。報告とルール表で該当点を確認できます。これらはプログラムされた変化で、生物学的発見ではありません。"
+          ]
         },
         {
           "visual": "07_positive_control",
-          "narration": "neg を解除し、pos だけを選択します。別の対照の平均と、その対照から求めた基準限界が表示され、この例ではルール一の違反はありません。警報のないグラフだけではアッセイの妥当性を証明できません。続ける前に neg に戻します。",
-          "hold_after": 0.7,
-          "speech_text": "neg を解除し、pos だけを選択します。別の対照の平均と、その対照から求めた基準限界が表示され、この例ではルール一の違反はありません。警報のないグラフだけではアッセイの妥当性を証明できません。続ける前に neg に戻します。"
+          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Baseline plates を十二に変えて中心と限界の変化を確認し、二十に戻します。アプリは基準期間に最低八枚を要求しますが、この最低値は推奨枚数ではありません。基準期間は計画し、根拠を説明してください。都合の悪い警報を消すためだけに調整してはいけません。",
+          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
           "hold_after": 0.7,
           "focus": [
             295,
             1400,
             2600,
             375
-          ],
-          "speech_text": "Baseline plates を十二に変えて中心と限界の変化を確認し、二十に戻します。アプリは基準期間に最低八枚を要求しますが、この最低値は推奨枚数ではありません。基準期間は計画し、根拠を説明してください。都合の悪い警報を消すためだけに調整してはいけません。"
+          ]
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "元の対照と二十枚の基準期間に戻したら、Export points を選び、別の CSV に保存します。三十行にはプレート識別子、順序、平均、サブグループの大きさとばらつき、限界、標準化距離、基準期間への所属、発動したルールが含まれます。グラフ画像や設定全体の出力ではありません。",
+          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ],
-          "speech_text": "元の対照と二十枚の基準期間に戻したら、Export points を選び、別の CSV に保存します。三十行にはプレート識別子、順序、平均、サブグループの大きさとばらつき、限界、標準化距離、基準期間への所属、発動したルールが含まれます。グラフ画像や設定全体の出力ではありません。"
+          ]
         },
         {
           "visual": "12_exported",
-          "narration": "出力された全識別子と数値フィールドを、ルール一のフラグも含めて元の CSV と照合しました。入力原本は変わっていません。スクリプトでは管理図ウィジェットのモジュールが ControlChartSpec と control_chart を公開し、結果から points_frame を利用できます。実際の警報を調べる際は、入力、設定、取得記録を一緒に残してください。",
+          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
-          ],
-          "speech_text": "出力された全識別子と数値フィールドを、ルール一のフラグも含めて元の CSV と照合しました。入力原本は変わっていません。スクリプトでは管理図ウィジェットのモジュールが ControlChartSpec と control_chart を公開し、結果から points_frame を利用できます。実際の警報を調べる際は、入力、設定、取得記録を一緒に残してください。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Control_Charts_SYNTHETIC_campaign.csv"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "52_pipeline_graph",
@@ -6874,30 +6698,28 @@
       "slug": "pipeline_graph",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "探索",
-      "title": "Pipeline Graph：実際の来歴と欠落した成果物を確認する",
-      "description": "実際の成果物記録を読み、ファイルの欠落と来歴の未記録を区別し、解析を再実行せずにグラフの絞り込みと全体のGraphvizコピーを行います。",
+      "section": "Explore",
+      "title": "Pipeline Graph: inspect outputs and dependencies",
+      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
       "objectives": [
-        "HelpからPipeline graphを開き、既存のプロジェクトを選ぶ。",
-        "記録された来歴と実際のファイルの存在を照合し、未記録の依存関係を理解する。",
-        "Current、Stale、Missingで非表示にしたノードと、記録自体の不在を区別する。",
-        "Redrawで再読込し、グラフ全体をコピーして適切なワークフローで調べる。"
+        "Open the artifact graph for a project.",
+        "Inspect paths, states and dependencies.",
+        "Copy the diagram and refresh its records."
       ],
-      "prerequisite": "External Masksの実データプロジェクトと、完了済みのData Managerの整理実演を使います。整理後にアーカイブした状態のバイト単位で検証済みのコピーを、隔離環境内の元のプロジェクトパスで読みます。元データやレジストリの記録は書き換えません。別の実際のBatch Runner変換結果は、未処理の実験ではなく来歴の未記録を示します。元の131ファイル、アーカイブの26ファイル、変換結果の7ファイルはすべて不変です。過去の3記録には入力の辺が記録されておらず、4番目の記録は別のプロジェクトパスに属します。この画面では削除、解析、専用ダウンロード、画像のライブプレビュー、Plot操作、AIへの質問、復元の実行は行いません。",
+      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "HelpからPipeline graphを開きます。この画面は記録された出力と依存関係を調べるもので、パイプラインを実行しません。External Masksで取得データから作成した出力と、Data Managerの実際の整理例を、専用コピーで使います。データの作成と安全な管理は、それぞれのレッスンを参照してください。",
+          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "44_data_manager"
-          ],
-          "speech_text": "HelpからPipeline graphを開きます。この画面は記録された出力と依存関係を調べるもので、パイプラインを実行しません。External Masksで取得データから作成した出力と、Data Managerの実際の整理例を、専用コピーで使います。データの作成と安全な管理は、それぞれのレッスンを参照してください。"
+          ]
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "まずBrowseで変換済み画像のフォルダーを選びます。Batch Runnerの変換は完了していますが、ここには出力成果物が登録されていないためグラフは空です。来歴がないのであって、処理が行われなかった証拠ではありません。Declared orderはモジュール間にあり得る依存関係で、完了した実行の履歴ではありません。",
+          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6908,141 +6730,136 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ],
-          "speech_text": "まずBrowseで変換済み画像のフォルダーを選びます。Batch Runnerの変換は完了していますが、ここには出力成果物が登録されていないためグラフは空です。来歴がないのであって、処理が行われなかった証拠ではありません。Declared orderはモジュール間にあり得る依存関係で、完了した実行の履歴ではありません。"
+          ]
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "計測プロジェクトの整理後のスナップショットを選びます。計測データベース、切り出し画像、リソースログという過去の3記録が現れます。2つのパスは今も存在しますが、切り出し画像のフォルダーは前の専用コピーの整理で実際に削除されました。今回の録画では何も削除せず、元の実験プロジェクトはそのままです。",
+          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ],
-          "speech_text": "計測プロジェクトの整理後のスナップショットを選びます。計測データベース、切り出し画像、リソースログという過去の3記録が現れます。2つのパスは今も存在しますが、切り出し画像のフォルダーは前の専用コピーの整理で実際に削除されました。今回の録画では何も削除せず、元の実験プロジェクトはそのままです。"
+          ]
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "計測データベースのボックスをクリックし、仕切りを動かして詳細を広げます。パス、役割、実行ID、生成日時、spaCRのバージョン、設定のダイジェストを読みます。ダイジェストは識別用の指紋で、設定全体でも復元ボタンでもありません。Currentは科学的妥当性や完全な来歴を証明しません。",
+          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ],
-          "speech_text": "計測データベースのボックスをクリックし、仕切りを動かして詳細を広げます。パス、役割、実行ID、生成日時、スペーカーのバージョン、設定のダイジェストを読みます。ダイジェストは識別用の指紋で、設定全体でも復元ボタンでもありません。Currentは科学的妥当性や完全な来歴を証明しません。"
+          ]
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "赤い切り出し画像のボックスを選びます。Missingは登録先のパスが存在しないという意味です。記録上のサイズは今も約3.4メガバイト、104ファイルです。内訳は103枚の切り出し画像と形式の記録1つです。過去のサイズであって、現在のディスク使用量でも104個の細胞でもありません。",
+          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ],
-          "speech_text": "赤い切り出し画像のボックスを選びます。Missingは登録先のパスが存在しないという意味です。記録上のサイズは今も約3.4メガバイト、104ファイルです。内訳は103枚の切り出し画像と形式の記録1つです。過去のサイズであって、現在のディスク使用量でも104個の細胞でもありません。"
+          ]
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "リソースログはプロジェクトフォルダーの外にある別の成果物です。そのパスは今も存在しますが、アーカイブには移動されていません。このグラフには入力の辺が記録されていません。Nothing was derived from thisは、ここに下流の依存関係が記録されていないという意味で、科学的な出力が独立だったという意味ではありません。",
+          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ],
-          "speech_text": "リソースログはプロジェクトフォルダーの外にある別の成果物です。そのパスは今も存在しますが、アーカイブには移動されていません。このグラフには入力の辺が記録されていません。Nothing was derived from thisは、ここに下流の依存関係が記録されていないという意味で、科学的な出力が独立だったという意味ではありません。"
+          ]
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Currentをオフにすると、欠落した切り出し画像の成果物だけになります。Current、Stale、Missingは表示フィルターで、ファイルを操作しません。Staleは記録された来歴についての警告ですが、この例にはStaleの成果物はありません。モジュール、成果物の種類、ワークフローの分岐ごとの別フィルターはありません。",
+          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ],
-          "speech_text": "Currentをオフにすると、欠落した切り出し画像の成果物だけになります。Current、Stale、Missingは表示フィルターで、ファイルを操作しません。Staleは記録された来歴についての警告ですが、この例にはStaleの成果物はありません。モジュール、成果物の種類、ワークフローの分岐ごとの別フィルターはありません。"
+          ]
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "Missingもオフにします。ボックスはすべて消えますが、バナーは依然として3つ中1つが欠落と示します。この版では空のキャンバスが誤って何も登録されていないと表示し、前の詳細が残ることもあります。表示を解釈する前にフィルターを確認してください。非表示は削除ではありません。",
+          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ],
-          "speech_text": "Missingもオフにします。ボックスはすべて消えますが、バナーは依然として3つ中1つが欠落と示します。この版では空のキャンバスが誤って何も登録されていないと表示し、前の詳細が残ることもあります。表示を解釈する前にフィルターを確認してください。非表示は削除ではありません。"
+          ]
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Copy Graphvizは非表示のノードも含むグラフ全体をクリップボードに入れます。実際の3つの成果物IDがすべて存在し、架空の依存矢印がないことを確認しました。これは他で利用するGraphviz DOTテキストであり、保存済み画像でも、見えている選択だけのエクスポートでもありません。",
+          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
           "hold_after": 0.7,
           "focus": [
             345,
             230,
             3450,
             200
-          ],
-          "speech_text": "Copy Graphvizは非表示のノードも含むグラフ全体をクリップボードに入れます。実際の3つの成果物IDがすべて存在し、架空の依存矢印がないことを確認しました。これは他で利用するGraphviz DOTテキストであり、保存済み画像でも、見えている選択だけのエクスポートでもありません。"
+          ]
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Current、次にMissingをオンに戻すと、2つ、続いて3つすべてのボックスが戻ります。ボックスをもう一度選び、詳細を表示中のグラフに合わせます。フィルターは欠落ファイルを修復せず、来歴を変更せず、再実行するモジュールを選びません。操作前に実際の登録パスと上流の処理を調べてください。",
+          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ],
-          "speech_text": "Current、次にMissingをオンに戻すと、2つ、続いて3つすべてのボックスが戻ります。ボックスをもう一度選び、詳細を表示中のグラフに合わせます。フィルターは欠落ファイルを修復せず、来歴を変更せず、再実行するモジュールを選びません。操作前に実際の登録パスと上流の処理を調べてください。"
+          ]
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Redrawはレジストリを読み直して成果物を再確認します。記録とファイルのバイト列は変わっていません。保存設定や実行記録にはRun History、明示的な整理にはData Managerを使います。Pythonではspacr.pipeline_graphにbuild_graphとto_dotがあります。この確認では再生成も科学的検証も行いません。",
+          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "44_data_manager",
             "45_project_browser"
-          ],
-          "speech_text": "Redrawはレジストリを読み直して成果物を再確認します。記録とファイルのバイト列は変わっていません。保存設定や実行記録にはRun History、明示的な整理にはData Managerを使います。Pythonではスペーカー.pipeline_graphにbuild_graphとto_dotがあります。この確認では再生成も科学的検証も行いません。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "53_prediction_profiler",
       "number": 53,
       "slug": "prediction_profiler",
-      "title": "予測プロファイル",
+      "title": "Prediction Profiler: explore a fitted model",
       "series": 5,
       "app_key": "profiler",
-      "section": "探索",
-      "description": "合成データで当てはめたモデルを読み込み、固定値と描画設定が予測に与える影響を確認します。",
+      "section": "Explore",
+      "description": "Load model coefficients, vary one input while holding others fixed, and inspect predicted responses.",
       "objectives": [
-        "Regression 内の Prediction Profiler を開き、適切な係数表を読み込む。",
-        "モデルの当てはめ、逆リンク、仮定した範囲、描画の解像度を区別する。",
-        "両方の入力を比較し、固定値を変更して中点に戻す。"
+        "Load coefficients with the correct model link.",
+        "Sweep one input and adjust held values.",
+        "Inspect response curves and sensitivity."
       ],
       "example_files": [
         "SYNTHETIC_profiler_example.zip"
       ],
-      "prerequisite": "SYNTHETIC と明記された例を新しいフォルダーに展開してください。作成した121観測、statsmodels で実際に OLS を当てはめた係数、マニフェスト、再現用スクリプトを含みます。生物学的検証や保留データによる検証は行っていません。GUI は feature/coefficient と Intercept だけを読み込み、モデルの当てはめも観測データの読込みもしません。identity を維持します。ファイル経由では0..1の2行を仮定し、固定値は0.5です。順位は0.05..0.95、曲線は0..1を使います。曲線338値と順位付け12値を独立に確認しました。置換検定の周辺効果は同時に当てはめた予測モデルの代わりにはなりません。API：spacr.profiler.from_coefficients、profile、sensitivity。ProfilerScreen.set_model/set_design はプログラム用APIで、ファイル選択ボタンではありません。信頼区間、因果関係、公開、音声の聴取承認は主張しません。",
+      "prerequisite": "Download the synthetic coefficient example, or use coefficients from a suitable fitted model. Match its link and input encoding. The coefficient-file route assumes input ranges of zero to one; separate marginal effects are not substitutes for a jointly fitted prediction model.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Regression を開き、その中のツール Prediction Profiler を選びます。このレッスンでは、合成データと明記した教材を使います。生物学的スクリーニングの結果ではありません。一方の入力を固定し、もう一方を変えて、当てはめ済みモデルを調べます。プロファイラーはモデルを読むだけで、別のモデルを学習しません。",
+          "narration": "Open Regression, then Prediction Profiler to explore predicted responses from a fitted model. The linked example uses synthetic data.",
           "focus": [
             460,
             45,
@@ -7052,108 +6869,99 @@
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Regression を開き、その中のツール Prediction Profiler を選びます。このレッスンでは、合成データと明記した教材を使います。生物学的スクリーニングの結果ではありません。一方の入力を固定し、もう一方を変えて、当てはめ済みモデルを調べます。プロファイラーはモデルを読むだけで、別のモデルを学習しません。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_explicit_synthetic_coefficients_picker",
-          "narration": "付属の例をダウンロードして展開し、Browse から合成 OLS 係数ファイルを開きます。切片と二つの推定済み入力係数が含まれます。アーカイブには観測データと準備用スクリプトもあります。係数は作成したデータに実際に最小二乗法を適用した結果であり、架空の回帰出力ではありません。",
+          "narration": "Download and unzip the example, then Browse to the synthetic OLS coefficients CSV. Include the intercept when supplying your own fitted coefficients.",
           "focus": [
             890,
             390,
             1920,
             1080
           ],
-          "hold_after": 0.7,
-          "speech_text": "付属の例をダウンロードして展開し、Browse から合成 OLS 係数ファイルを開きます。切片と二つの推定済み入力係数が含まれます。アーカイブには観測データと準備用スクリプトもあります。係数は作成したデータに実際に最小二乗法を適用した結果であり、架空の回帰出力ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_link_options_keep_identity",
-          "narration": "この例は通常の最小二乗法で当てはめたため、Link は identity のままにします。他のリンクは別のモデル族に対応します。選択を変えても元のモデルを変換したり再学習したりはしません。もっともらしい曲線でも、応答尺度が違えば誤りです。必ず元の当てはめで使ったリンクを選びます。",
+          "narration": "Set Link to the function used by the fitted model. Keep identity for this ordinary least-squares example.",
           "focus": [
             2910,
             465,
             900,
             610
           ],
-          "hold_after": 0.7,
-          "speech_text": "この例は通常の最小二乗法で当てはめたため、Link は identity のままにします。他のリンクは別のモデル族に対応します。選択を変えても元のモデルを変換したり再学習したりはしません。もっともらしい曲線でも、応答尺度が違えば誤りです。必ず元の当てはめで使ったリンクを選びます。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_loaded_identity_model",
-          "narration": "状態メッセージを確認します。計画行列が渡されていないため、ファイル読込みでは各入力の範囲をゼロから一と仮定します。この合成入力はその範囲ですが、実際のデータもそうとは限りません。順位付けには第五と第九十五パーセンタイルを使うため、Moves by は曲線全体の両端の差とは異なります。",
+          "narration": "Check the range information after loading. The coefficient-file route assumes each input spans zero to one. Confirm that this matches your intended use before interpreting the curves.",
           "focus": [
             470,
             530,
             3320,
             240
           ],
-          "hold_after": 0.7,
-          "speech_text": "状態メッセージを確認します。計画行列が渡されていないため、ファイル読込みでは各入力の範囲をゼロから一と仮定します。この合成入力はその範囲ですが、実際のデータもそうとは限りません。順位付けには第五と第九十五パーセンタイルを使うため、Moves by は曲線全体の両端の差とは異なります。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_hold_b_at_one",
-          "narration": "入力 A が変化させる対象として選ばれています。入力 B のスライダーを中点から一へ動かします。B の推定係数は負なので、予測応答が下がります。変わるのは固定値を設定したシナリオで、学習データや係数ではありません。線の形だけでなく両端の数値も読みます。",
+          "narration": "Select Input A for the sweep. Move the held Input B slider to one and inspect the resulting response curve.",
           "focus": [
             1480,
             590,
             2320,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "入力 A が変化させる対象として選ばれています。入力 B のスライダーを中点から一へ動かします。B の推定係数は負なので、予測応答が下がります。変わるのは固定値を設定したシナリオで、学習データや係数ではありません。線の形だけでなく両端の数値も読みます。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_hold_b_at_zero",
-          "narration": "B をゼロに動かして再び比較します。応答が上がります。グラフは縦軸の尺度を自動調整するため、平行に見える線でも応答水準は異なり得ます。これは仮定したモデル内の予測であり、B を変えると実験で因果効果が生じるという証拠ではありません。",
+          "narration": "Move B to zero and compare the response values. Watch the axis scale as well as the line, because the plot may rescale.",
           "focus": [
             1480,
             590,
             2320,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "B をゼロに動かして再び比較します。応答が上がります。グラフは縦軸の尺度を自動調整するため、平行に見える線でも応答水準は異なり得ます。これは仮定したモデル内の予測であり、B を変えると実験で因果効果が生じるという証拠ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_reset_midpoints",
-          "narration": "Reset held values はスライダーを仮定した範囲の中点へ戻します。ここでは二分の一です。モデルを当てはめ直す操作ではありません。係数ファイルだけを読む場合、この中点は元のデータから測った中央値ではありません。元のデータはプロファイラーに読み込まれていないからです。",
+          "narration": "Click Reset held values to return the sliders to the midpoints of their assumed ranges, one half in this example.",
           "focus": [
             1470,
             1435,
             2330,
             660
           ],
-          "hold_after": 0.7,
-          "speech_text": "Reset held values はスライダーを仮定した範囲の中点へ戻します。ここでは二分の一です。モデルを当てはめ直す操作ではありません。係数ファイルだけを読む場合、この中点は元のデータから測った中央値ではありません。元のデータはプロファイラーに読み込まれていないからです。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_sweep_second_input",
-          "narration": "順位表で入力 B を選びます。今度は B が横軸に沿って変化し、A は二分の一に固定されます。右下がりの曲線は B の負の係数と一致します。この表はモデルの感度順位であり、有意性検定でも信頼区間でも、検証済みの生物学的ヒット一覧でもありません。",
+          "narration": "Select Input B in the ranked list to sweep B while holding A fixed. The ranking summarizes model sensitivity over its configured input ranges.",
           "focus": [
             470,
             590,
             3330,
             940
           ],
-          "hold_after": 0.7,
-          "speech_text": "順位表で入力 B を選びます。今度は B が横軸に沿って変化し、A は二分の一に固定されます。右下がりの曲線は B の負の係数と一致します。この表はモデルの感度順位であり、有意性検定でも信頼区間でも、検証済みの生物学的ヒット一覧でもありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_eleven_grid_points",
-          "narration": "Points を六十一から十一に変えます。これは曲線を描くために評価する位置の数で、標本数や当てはめの品質を変えません。この線形例では両端の値は変わりません。描画点を増やしても観測は増えず、不確実性が減ったり、当てはめ済みモデルが改善したりはしません。",
+          "narration": "Change Points to choose the number of positions evaluated along the plotted curve. Eleven gives a coarser grid than sixty-one without changing the fitted model.",
           "focus": [
             1480,
             465,
             2320,
             1040
           ],
-          "hold_after": 0.7,
-          "speech_text": "Points を六十一から十一に変えます。これは曲線を描くために評価する位置の数で、標本数や当てはめの品質を変えません。この線形例では両端の値は変わりません。描画点を増やしても観測は増えず、不確実性が減ったり、当てはめ済みモデルが改善したりはしません。"
+          "hold_after": 0.7
         },
         {
           "visual": "11_hold_a_at_one",
-          "narration": "B を選んだまま A を一に動かし、新しい応答の両端を確認した後、固定値をリセットします。自分の解析では適切なモデルの推定係数を用意し、リンク、切片、符号化、範囲を確認してください。同時に当てはめた予測モデルの代わりに、個別の置換検定の効果を使わないでください。",
+          "narration": "Adjust the held values to explore further scenarios, then reset when finished. Interpret the curves as model predictions and assess real experimental effects with appropriate data.",
           "focus": [
             1480,
             590,
@@ -7164,11 +6972,15 @@
             "06_api",
             "75_regression_diagnostics"
           ],
-          "hold_after": 0.7,
-          "speech_text": "B を選んだまま A を一に動かし、新しい応答の両端を確認した後、固定値をリセットします。自分の解析では適切なモデルの推定係数を用意し、リンク、切片、符号化、範囲を確認してください。同時に当てはめた予測モデルの代わりに、個別の置換検定の効果を使わないでください。"
+          "hold_after": 0.7
         }
       ],
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "54_qc_dashboard",
@@ -7176,63 +6988,57 @@
       "slug": "qc_dashboard",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "探索",
-      "title": "QC：見出しだけでなく根拠を読む",
-      "description": "実際にダウンロード・計算された品質レポートを読み、未取得のチェック、警告、不合格を区別して、QC 配下の三つのツールを見つけます。",
+      "section": "Data",
+      "title": "QC: inspect project quality reports",
+      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
       "objectives": [
-        "QC と配下のツールを見つける。",
-        "プロジェクトまたは小規模実行の正しいフォルダーを選び、五つの根拠カテゴリを確認する。",
-        "ダッシュボードが解析全体を検証するとは考えず、欠落、警告、不合格を区別する。",
-        "再計算や元ファイルの変更をせずに既存の根拠を更新表示する。"
+        "Choose the intended project or run.",
+        "Read available, missing and outdated reports.",
+        "Investigate findings and refresh the view."
       ],
-      "prerequisite": "最初に Annotate と Mask のサンプルをダウンロードしてください。この録画では Annotate の測定データベース、Mask サンプルの元の評価レポート、および plate1/test にある実際のチュートリアル実行結果を使います。Mask は二視野、Measure は一視野です。QC 自体はダウンロードや新たな評価を行いません。親フォルダーと test フォルダーでは根拠の対象が異なり、改善前後の比較実験ではありません。",
+      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home の Data カテゴリから QC を開きます。このダッシュボードはディスク上の既存の品質レポートを読みます。マスク生成、画像測定、分類器の学習は行いません。見出しは利用できる根拠の要約であり、解析全体が正しいという証明ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "ホーム の Data カテゴリから QC を開きます。このダッシュボードはディスク上の既存の品質レポートを読みます。マスク生成、画像測定、分類器の学習は行いません。見出しは利用できる根拠の要約であり、解析全体が正しいという証明ではありません。"
+          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "ヘッダーでは Layer Viewer、Control Charts、Outliers が QC の下にまとめられています。各専門チュートリアルは Submodules セクションのこの親モジュール配下に残っています。観察結果の調査に使い、安心できる色で不足する根拠を置き換えないでください。",
+          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ],
-          "speech_text": "ヘッダーでは Layer Viewer、Control Charts、Outliers が QC の下にまとめられています。各専門チュートリアルは Submodules セクションのこの親モジュール配下に残っています。観察結果の調査に使い、安心できる色で不足する根拠を置き換えないでください。"
+          ]
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Browse で実際のプロジェクトフォルダーを選びます。まずダウンロード済みの Annotate サンプルを開きます。このフォルダーには測定値がありますが、分割評価レポートはありません。QC に専用のサンプルダウンロード機能はないため、前のワークフローの実プロジェクトを再利用します。",
+          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Browse で実際のプロジェクトフォルダーを選びます。まずダウンロード済みの Annotate サンプルを開きます。このフォルダーには測定値がありますが、分割評価レポートはありません。QC に専用のサンプルダウンロード機能はないため、前のワークフローの実プロジェクトを再利用します。"
+          ]
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Missing は、そのチェックに利用できるレポートを読み取り側が持っていないという意味です。合格でも、不合格の証明でもありません。別の画面で行った計算が、このダッシュボードで読めるレポートとして保存されていない場合もあります。示された出典と対象範囲を必ず確認します。",
-          "hold_after": 0.7,
-          "speech_text": "Missing は、そのチェックに利用できるレポートを読み取り側が持っていないという意味です。合格でも、不合格の証明でもありません。別の画面で行った計算が、このダッシュボードで読めるレポートとして保存されていない場合もあります。示された出典と対象範囲を必ず確認します。"
+          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "次に、実際に小規模で実行した Mask と Measure の出力を含む test サブフォルダーを選びます。親フォルダーを選ぶこととは同じではありません。対象集団と成果物が異なるので、判定を条件のそろった前後比較として示してはいけません。",
+          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "speech_text": "次に、実際に小規模で実行した Mask と Measure の出力を含む test サブフォルダーを選びます。親フォルダーを選ぶこととは同じではありません。対象集団と成果物が異なるので、判定を条件のそろった前後比較として示してはいけません。"
+          ]
         },
         {
           "visual": "04_computed_subset",
-          "narration": "この部分データでは分割の警告が出ています。一つの細胞視野の大きさの分布が不均一です。説明を読み、画像を確認してください。大きさによるフラグだけでは、生物学的に二種類の細胞があるとも、すべての輪郭が誤っているとも言えません。",
+          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -7243,69 +7049,67 @@
           "related_lessons": [
             "14_make_masks",
             "57_layer_viewer"
-          ],
-          "speech_text": "この部分データでは分割の警告が出ています。一つの細胞視野の大きさの分布が不均一です。説明を読み、画像を確認してください。大きさによるフラグだけでは、生物学的に二種類の細胞があるとも、すべての輪郭が誤っているとも言えません。"
+          ]
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "単位のカードは四つの測定テーブル内で整合していると報告しています。これは較正や各特徴量を独立に検証したという意味ではありません。学習・テスト間の漏洩、プレート効果、注釈者の一致度のレポートはまだありません。緑色の単位カードが未確認のチェックを合格にするわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "単位のカードは四つの測定テーブル内で整合していると報告しています。これは較正や各特徴量を独立に検証したという意味ではありません。学習・テスト間の漏洩、プレート効果、注釈者の一致度のレポートはまだありません。緑色の単位カードが未確認のチェックを合格にするわけではありません。"
+          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "不足しているカードの説明も含め、五つのカテゴリをすべて読みます。元のレポートを保持し、該当するワークフローを調べます。特に漏洩判定は、正しいサンプル識別とグループ分けに依存します。ソフトウェア上の合格だけでは生物学的な独立性を証明できません。",
+          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "23_agreement",
             "33_plate_viewer"
-          ],
-          "speech_text": "不足しているカードの説明も含め、五つのカテゴリをすべて読みます。元のレポートを保持し、該当するワークフローを調べます。特に漏洩判定は、正しいサンプル識別とグループ分けに依存します。ソフトウェア上の合格だけでは生物学的な独立性を証明できません。"
+          ]
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "ダウンロードしたプレート全体の評価レポートには、警告だけでなく不合格もあります。見出しは病原体オブジェクト数の少ない視野を示し、詳細にはほかのフラグも並びます。広い範囲のサンプルに既にあったレポートであり、QC を開いて新しく計算した評価でも、小規模実行でプレートが改善した証拠でもありません。",
+          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
           "hold_after": 0.7,
           "focus": [
             450,
             400,
             2950,
             240
-          ],
-          "speech_text": "ダウンロードしたプレート全体の評価レポートには、警告だけでなく不合格もあります。見出しは病原体オブジェクト数の少ない視野を示し、詳細にはほかのフラグも並びます。広い範囲のサンプルに既にあったレポートであり、QC を開いて新しく計算した評価でも、小規模実行でプレートが改善した証拠でもありません。"
+          ]
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "出典を確認して Refresh を押します。ここではディスク上に変更がないため、既存の根拠を再利用したと表示されます。Refresh は Run ではありません。マスクを再評価したり警告を修復したりしていません。データベースとレポートのハッシュ値は変わりません。",
+          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             2950,
             50
-          ],
-          "speech_text": "出典を確認して Refresh を押します。ここではディスク上に変更がないため、既存の根拠を再利用したと表示されます。Refresh は Run ではありません。マスクを再評価したり警告を修復したりしていません。データベースとレポートのハッシュ値は変わりません。"
+          ]
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "古い結果という表示がある場合は、元のレポートと入力を確認します。このダッシュボードは参考情報を示すもので、実行を禁止しません。カードは説明文であり、不合格の解析を自動で開いたり修復したりするボタンではありません。",
-          "hold_after": 0.7,
-          "speech_text": "古い結果という表示がある場合は、元のレポートと入力を確認します。このダッシュボードは参考情報を示すもので、実行を禁止しません。カードは説明文であり、不合格の解析を自動で開いたり修復したりするボタンではありません。"
+          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "スクリプトから読む場合は、spacr.qt.widgets.qc_summary の read_dashboard と format_dashboard を使えます。新しいチェックを実行するのではなく、既存の根拠をまとめます。元のレポートをプロジェクトとともに保存し、実際の調査は該当する解析や専門チュートリアルに戻って進めてください。",
+          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ],
-          "speech_text": "スクリプトから読む場合は、スペーカー.キュー ティー.widgets.qc_summary の read_dashboard と format_dashboard を使えます。新しいチェックを実行するのではなく、既存の根拠をまとめます。元のレポートをプロジェクトとともに保存し、実際の調査は該当する解析や専門チュートリアルに戻って進めてください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "55_image_scatter",
@@ -7314,41 +7118,38 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "探索",
-      "title": "Image Scatter：実測値と各点に対応する画像",
-      "description": "Image UMAP 内の Image Scatter で、ダウンロードした実際の細胞測定値、検証済みの画像プレビュー、Annotate への正確な単一細胞の受け渡しを確認します。",
+      "section": "Explore",
+      "title": "Image Scatter: inspect measurements and their crops",
+      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
       "objectives": [
-        "Image UMAP 内の Image Scatter を開き、正しい cell テーブルを読み込む。",
-        "実測値の組を調べ、欠損座標と一定値の座標を理解する。",
-        "ラベルや元データを変更せず、点と細胞画像の対応を確認する。"
+        "Load measurements and choose axes.",
+        "Inspect the crop behind a point.",
+        "Send a selected object to Annotate."
       ],
-      "prerequisite": "Annotate のダウンロード可能な実例を、測定データベース、細胞の切り出し画像、画像形式マーカーとともに使用します。2,341 細胞と全 2,341 PNG のバイト単位で同一の専用コピーです。独立した SQLite 検証で元の全値、視野を含む細胞識別子、画像パスを確認し、表示座標と縮小画像の RGB ピクセルも確認します。対象は細胞画像のみで、核や病原体の対応は検証していません。特異な点は表現型、感染、処置、分割精度の証拠ではありません。UMAP の学習、モデル訓練、GPU 計算、ファイル出力、ラベル変更は行いません。専用ダウンロード、画像列選択、色・グループ設定、軸変換、エクスポート、AI コンソールはありません。Plot はテーブルを読み込み、軸の変更は再描画します。上限 200,000 行は無作為抽出ではなく、大規模テーブルの情報を失わないという保証でもありません。共有フィルターは本教材の検証対象外です。API：spacr.qt.screens.image_scatter.load_scatter_frame、ImageScatterScreen.set_frame、ScatterCanvas.point_position。",
+      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Home から Image UMAP を開き、Image Scatter を選びます。この入れ子の画面は既存の二つの測定値を描画し、UMAP の埋め込みを学習するものではありません。Annotate の実際のダウンロード例を使い、測定データベースと細胞画像を一緒に保持します。入手方法は Annotate の教材で説明しています。",
+          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ],
-          "speech_text": "ホーム から Image ユーマップ を開き、Image Scatter を選びます。この入れ子の画面は既存の二つの測定値を描画し、ユーマップ の埋め込みを学習するものではありません。Annotate の実際のダウンロード例を使い、測定データベースと細胞画像を一緒に保持します。入手方法は Annotate の教材で説明しています。"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Browse を選び、コピーした測定データベースを開きます。プロジェクトを移動するときは data フォルダーと画像形式マーカーを残してください。テーブルだけでは画像は含まれません。この例は専用コピーを使い、元の測定値と画像ピクセルは変更しません。",
-          "hold_after": 0.7,
-          "speech_text": "Browse を選び、コピーした測定データベースを開きます。プロジェクトを移動するときは data フォルダーと画像形式マーカーを残してください。テーブルだけでは画像は含まれません。この例は専用コピーを使い、元の測定値と画像ピクセルは変更しません。"
+          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "テーブル選択で cell を選んでから Plot を押します。Plot はテーブルを読み込む操作で、画像分割や訓練ではありません。この例には画像と対応する二千三百四十一個の細胞があります。別のテーブルを選んだら再び Plot が必要です。選択欄を変えただけでは行は読み込まれません。",
-          "hold_after": 0.7,
-          "speech_text": "テーブル選択で cell を選んでから Plot を押します。Plot はテーブルを読み込む操作で、画像分割や訓練ではありません。この例には画像と対応する二千三百四十一個の細胞があります。別のテーブルを選んだら再び Plot が必要です。選択欄を変えただけでは行は読み込まれません。"
+          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "x を cell_area、y を cell_channel_1_mean_intensity にします。軸を変えると、読み込み済みの行をすぐに再描画します。これは実測値であり、変換された埋め込み座標ではありません。点は個々の細胞で、独立した実験反復ではなく、見た目のパターンは統計検定ではありません。",
+          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7358,93 +7159,85 @@
             405,
             3410,
             120
-          ],
-          "speech_text": "x を cell_area、y を cell_channel_1_mean_intensity にします。軸を変えると、読み込み済みの行をすぐに再描画します。これは実測値であり、変換された埋め込み座標ではありません。点は個々の細胞で、独立した実験反復ではなく、見た目のパターンは統計検定ではありません。"
+          ]
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "一番右の細胞の点にポインターを置きます。横に切り出し画像と、プレート、行、列、視野、細胞を含む完全な識別子が現れます。これは保存済みの切り出し画像であり、顕微鏡の視野全体でも新たな画像分割でもありません。特異な見た目だけでは表現型は確定できません。",
+          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ],
-          "speech_text": "一番右の細胞の点にポインターを置きます。横に切り出し画像と、プレート、行、列、視野、細胞を含む完全な識別子が現れます。これは保存済みの切り出し画像であり、顕微鏡の視野全体でも新たな画像分割でもありません。特異な見た目だけでは表現型は確定できません。"
+          ]
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "ポインターをグラフの外へ動かすと、一時的なプレビューが消えます。同じ点に戻ると、キャッシュされた画像が再デコードなしで現れます。ホバーは一時的な画像確認であり、注釈付けや永続的な選択ではありません。元のラベルは変わりません。",
+          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ],
-          "speech_text": "ポインターをグラフの外へ動かすと、一時的なプレビューが消えます。同じ点に戻ると、キャッシュされた画像が再デコードなしで現れます。ホバーは一時的な画像確認であり、注釈付けや永続的な選択ではありません。元のラベルは変わりません。"
+          ]
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "x と y の二つの測定値を入れ替えます。画面上の位置が変わっても、同じ細胞は識別子と画像を保持します。最初の数値列を自動的に受け入れず、意味のある軸を選びましょう。数値の識別子や取得メタデータも、この選択欄に含まれます。",
+          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ],
-          "speech_text": "x と y の二つの測定値を入れ替えます。画面上の位置が変わっても、同じ細胞は識別子と画像を保持します。最初の数値列を自動的に受け入れず、意味のある軸を選びましょう。数値の識別子や取得メタデータも、この選択欄に含まれます。"
+          ]
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "x を cell_area に戻し、y に cell_channel_0_homogeneity_distance_32 を選びます。七個の細胞はこの測定値が欠けているため、描ける座標の組は二千三百三十四個だけです。読み込み済みの行数は二千三百四十一のままです。欠損値はゼロではなく、座標が描かれなくても細胞識別子の番号は変わりません。",
+          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ],
-          "speech_text": "x を cell_area に戻し、y に cell_channel_0_homogeneity_distance_32 を選びます。七個の細胞はこの測定値が欠けているため、描ける座標の組は二千三百三十四個だけです。読み込み済みの行数は二千三百四十一のままです。欠損値はゼロではなく、座標が描かれなくても細胞識別子の番号は変わりません。"
+          ]
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "y に measurement_ndim を選びます。全行の値が二なので、点は水平な直線になります。一定値のメタデータ列であり、生物学的な一致ではありません。次の細胞を調べる前に cell_channel_1_mean_intensity に戻します。",
+          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ],
-          "speech_text": "y に measurement_ndim を選びます。全行の値が二なので、点は水平な直線になります。一定値のメタデータ列であり、生物学的な一致ではありません。次の細胞を調べる前に cell_channel_1_mean_intensity に戻します。"
+          ]
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "クリックした細胞画像を Annotate で確認するには、まず Annotate を開いて、この同じコピー済みプロジェクトを読み込みます。Home、Image UMAP、既存の Image Scatter タブを通って戻ります。注釈画面には正しいプロジェクトが必要です。無関係なデータセットとの組み合わせは正しい受け渡しにはなりません。",
+          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "クリックした細胞画像を Annotate で確認するには、まず Annotate を開いて、この同じコピー済みプロジェクトを読み込みます。ホーム、Image ユーマップ、既存の Image Scatter タブを通って戻ります。注釈画面には正しいプロジェクトが必要です。無関係なデータセットとの組み合わせは正しい受け渡しにはなりません。"
+          ]
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "点そのものをクリックし、それから Annotate に切り替えます。ホバーだけでは画像のプレビューにとどまります。クリックによって正確な細胞キーと二つの軸名が注釈画面に送られます。自動的な画面切り替えやラベル付けは行わず、その細胞が外れ値であることも証明しません。",
+          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ],
-          "speech_text": "点そのものをクリックし、それから Annotate に切り替えます。ホバーだけでは画像のプレビューにとどまります。クリックによって正確な細胞キーと二つの軸名が注釈画面に送られます。自動的な画面切り替えやラベル付けは行わず、その細胞が外れ値であることも証明しません。"
+          ]
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Annotate に、クリックした細胞だけが同じ保存画像で表示されます。注釈を付けるか決める前に画像を確認しましょう。この実演では全ラベルを変更しません。Image Scatter にはグラフや選択の専用エクスポートはありません。テーブル出力は Database Browser、主成分分析と説明された CSV 出力は PCA の教材を参照してください。",
+          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -7456,10 +7249,14 @@
             330,
             550,
             410
-          ],
-          "speech_text": "Annotate に、クリックした細胞だけが同じ保存画像で表示されます。注釈を付けるか決める前に画像を確認しましょう。この実演では全ラベルを変更しません。Image Scatter にはグラフや選択の専用エクスポートはありません。テーブル出力は Database Browser、主成分分析と説明された CSV 出力は PCA の教材を参照してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "56_lineage",

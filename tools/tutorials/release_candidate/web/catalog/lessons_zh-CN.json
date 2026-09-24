@@ -4112,131 +4112,106 @@
       "slug": "align_stitch",
       "series": 4,
       "app_key": "align",
-      "section": "数据和批处理运行",
-      "title": "Align & Stitch：检查实际方案，核验写出的拼接图像",
-      "description": "使用当前拼接界面处理保留原始像素的真实显微图像，检查求解得到的布局，以大小受限的图像条带写出结果，并核验拼接图像及其坐标记录。",
+      "section": "Tools",
+      "title": "Align & Stitch: plan and write an image mosaic",
+      "description": "Choose image tiles, set their acquisition layout, inspect the registration plan, and write the mosaic with its coordinates.",
       "objectives": [
-        "区分这个几何关系已知的裁剪示例与逐块独立采集的平铺实验。",
-        "通过当前 GUI 设置网格、重叠率、顺序和参考通道。",
-        "写出前检查配准，区分条带缓冲区预算与总内存使用量。",
-        "将拼接图像、坐标记录和源数据的出处信息一起保存。"
+        "Choose tiles and set the grid, overlap and registration channel.",
+        "Inspect the planned positions and registration quality.",
+        "Write the mosaic and retain its coordinate database."
       ],
-      "prerequisite": "处理自己的数据时，请准备采集顺序和重叠率已知、且具有适用配准通道的图块；你的数量和结果会有所不同。录制复用九个原样保留的精确裁剪图块，每个大小为800 × 800 × 4，以600像素的步距从同一个真实采集的2,000 × 2,000 × 4视野中裁出。它们模拟3 × 3采集布局，并不是九个独立采集的视野。tutorial_A01 这类名称是演示坐标，不是原始板和孔的名称。Align & Stitch 没有单独的示例下载按钮。",
+      "prerequisite": "Download and unzip the nine-tile example below, or prepare image tiles with known acquisition order, overlap and a useful registration channel. The example uses overlapping crops from one microscopy field to provide a practice layout.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "从 Home 的 Tools 类别打开 Align & Stitch。规划和写出是两个独立操作，因此可以在生成拼接图像前检查布局。这个界面显示图块布局和文字报告；彩色矩形并不是显微图像预览。",
-          "hold_after": 0.7,
-          "speech_text": "从 主页 的 Tools 类别打开 Align & Stitch。规划和写出是两个独立操作，因此可以在生成拼接图像前检查布局。这个界面显示图块布局和文字报告；彩色矩形并不是显微图像预览。"
+          "narration": "From Home’s Tools category, open Align and Stitch. Choose the tiles, review their layout with Plan, then use Write stack to create the mosaic.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_preserved_real_pixel_tiles",
-          "narration": "选择保留的教程图块文件夹。其中九个图块都是从同一张真实四通道图像中精确裁出的，特意按已知几何关系排列，以模拟一次采集。它们不是九个独立视野，教程使用的板名和孔名也只是演示标识符。",
-          "hold_after": 0.7,
-          "speech_text": "选择保留的教程图块文件夹。其中九个图块都是从同一张真实四通道图像中精确裁出的，特意按已知几何关系排列，以模拟一次采集。它们不是九个独立视野，教程使用的板名和孔名也只是演示标识符。"
+          "narration": "Download and unzip the example below, then select its tiles folder. It contains nine overlapping crops arranged in a three-by-three grid. For your own acquisition, keep the original tile order and stage metadata available.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "将 Grid 设为三行三列，Order 设为 row-major，Overlap 设为零点二五。这些边长八百像素的图块以六百像素为步距排列。处理自己的数据时，应使用实际采集顺序和标称重叠率；不能把蛇形扫描描述成 row-major。",
+          "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
           "hold_after": 0.7,
           "focus": [
             450,
             300,
             1800,
             170
-          ],
-          "speech_text": "将 Grid 设为三行三列，Order 设为 row-major，Overlap 设为零点二五。这些边长八百像素的图块以六百像素为步距排列。处理自己的数据时，应使用实际采集顺序和标称重叠率；不能把蛇形扫描描述成 row-major。"
+          ]
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "将 Ref. channel 设为一。在这个从零开始编号的示例中，它是第二个平面。配准利用该平面的结构，并把同一个位置应用于全部四个通道。请选择适合配准的通道；此操作不是对各通道分别进行独立的色差对齐。",
+          "narration": "Set Reference channel to the image plane used for registration. This example uses channel one, the second plane with zero-based numbering. Choose a channel with visible structure across overlaps; the resulting placement applies to all image channels.",
           "hold_after": 0.7,
           "focus": [
             450,
             300,
             1800,
             170
-          ],
-          "speech_text": "将 Ref. channel 设为一。在这个从零开始编号的示例中，它是第二个平面。配准利用该平面的结构，并把同一个位置应用于全部四个通道。请选择适合配准的通道；此操作不是对各通道分别进行独立的色差对齐。"
+          ]
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "将 Min confidence 设为零点三，Neighbour radius 设为一，Blend 选择 feather。对于这个限定缓冲区大小的示例，在 RAM budget (MB) 中将条带缓冲区预算设为八兆字节。这一设置限制写入程序的图像条带，并不限制每次内存分配或应用的总内存使用量。",
+          "narration": "Set Minimum confidence for accepting a registration and Neighbour radius for the nearby tiles to compare. The example uses zero point three and one, with feather blending across overlaps. The band-buffer budget controls memory used by the image writer.",
           "hold_after": 0.7,
           "focus": [
             450,
             300,
             1800,
             170
-          ],
-          "speech_text": "将 Min confidence 设为零点三，Neighbour radius 设为一，Blend 选择 feather。对于这个限定缓冲区大小的示例，在 RAM budget (MB) 中将条带缓冲区预算设为八兆字节。这一设置限制写入程序的图像条带，并不限制每次内存分配或应用的总内存使用量。"
+          ]
         },
         {
           "visual": "04_registered_plan_not_yet_written",
-          "narration": "点击 Plan。示例的九个图块全部配准成功，没有任何图块回退到标称位置；拟定画布为两千乘两千像素，四个通道。此时还没有写出图像。请检查 registered、nominal 和 unplaced 的数量，不要把任何已完成的方案都视为可接受。",
+          "narration": "Press Plan. Inspect the registered, nominal and unplaced tile counts and the proposed canvas size. The layout shows tile positions. Review any nominal fallback or unplaced tiles before writing the mosaic.",
           "hold_after": 0.7,
           "focus": [
             1700,
             440,
             2100,
             850
-          ],
-          "speech_text": "点击 Plan。示例的九个图块全部配准成功，没有任何图块回退到标称位置；拟定画布为两千乘两千像素，四个通道。此时还没有写出图像。请检查 registered、nominal 和 unplaced 的数量，不要把任何已完成的方案都视为可接受。"
+          ]
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "点击中间图块，检查其坐标、置信度、残差和参与计算的图块对。这里的起点在两个方向上都是六百像素，与已知裁剪布局一致。这个人为构建的示例中，重叠部分完全匹配，并不能预测新采集数据的配准质量。",
-          "hold_after": 0.7,
-          "speech_text": "点击中间图块，检查其坐标、置信度、残差和参与计算的图块对。这里的起点在两个方向上都是六百像素，与已知裁剪布局一致。这个人为构建的示例中，重叠部分完全匹配，并不能预测新采集数据的配准质量。"
+          "narration": "Click a tile to inspect its coordinates, confidence, residual and contributing pairs. Use these details to investigate unexpected positions, then adjust the registration settings and plan again if needed.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "选择一个新的输出文件夹和一个单独的坐标数据库，让 Overwrite 保持关闭。只有方案已经存在且已提供保存位置时，Write stack 才会启用。保留源图块不变；指定输出路径不能替代对配准结果的检查。",
+          "narration": "Choose an output folder and a coordinate-database path. Leave Overwrite off when creating a new result. Once the plan and destination are ready, press Write stack.",
           "hold_after": 0.7,
           "focus": [
             450,
             1990,
             3370,
             140
-          ],
-          "speech_text": "选择一个新的输出文件夹和一个单独的坐标数据库，让 Overwrite 保持关闭。只有方案已经存在且已提供保存位置时，Write stack 才会启用。保留源图块不变；指定输出路径不能替代对配准结果的检查。"
+          ]
         },
         {
           "visual": "06_real_stitch_complete",
-          "narration": "点击 Write stack。实际输出包含全部九个图块，而且在本例中，四个通道的每个像素都与原始视野一致。结果会报告输出路径和条带缓冲区使用量。这是针对这些已知裁剪图块测得的结果，并不保证任意图像都能实现无损配准。",
+          "narration": "Wait for the completion summary and open the output stack. Inspect the overlaps and object boundaries in the mosaic. Keep the coordinate database and source tiles with it so downstream locations can be traced back to the acquisition.",
           "hold_after": 0.7,
           "focus": [
             1700,
             440,
             2100,
             1100
-          ],
-          "speech_text": "点击 Write stack。实际输出包含全部九个图块，而且在本例中，四个通道的每个像素都与原始视野一致。结果会报告输出路径和条带缓冲区使用量。这是针对这些已知裁剪图块测得的结果，并不保证任意图像都能实现无损配准。"
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "坐标数据库包含九条记录。我们逐一检查源文件、演示板和孔、视野标识符、画布位置以及输出图像堆栈路径，而不只是检查行数。将这些记录与图像、源文件清单一同保留，使后续处理中的坐标仍然能够被正确解释。",
-          "hold_after": 0.7,
-          "focus": [
-            450,
-            1990,
-            3370,
-            140
-          ],
-          "speech_text": "坐标数据库包含九条记录。我们逐一检查源文件、演示板和孔、视野标识符、画布位置以及输出图像堆栈路径，而不只是检查行数。将这些记录与图像、源文件清单一同保留，使后续处理中的坐标仍然能够被正确解释。"
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "在 Python 中，spacr.align.scan_tiles 读取图块布局，estimate_offsets 构建方案。write_stack 生成拼接图像；save_coordinates 和 read_coordinates 写入并读回坐标表。这个小型拼接示例没有验证另一个独立的 OPS 工作流程。在使用任一流程得出科学结论之前，请检查真实采集的几何关系。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "36_import",
-            "74_import_images"
-          ],
-          "speech_text": "在 Python 中，斯佩克尔.align.scan_tiles 读取图块布局，estimate_offsets 构建方案。write_stack 生成拼接图像；save_coordinates 和 read_coordinates 写入并读回坐标表。这个小型拼接示例没有验证另一个独立的 OPS 工作流程。在使用任一流程得出科学结论之前，请检查真实采集的几何关系。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Align_Stitch_nine_tiles.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "33_plate_viewer",
@@ -4317,75 +4292,72 @@
       "id": "34_database",
       "number": 34,
       "slug": "database",
-      "title": "数据库浏览器",
+      "title": "Database Browser: filter and export measurements",
       "series": 4,
       "app_key": "db_browser",
-      "section": "数据",
-      "description": "无需命令行即可浏览、过滤和导出 spaCR 测量数据库。",
+      "section": "Data",
+      "description": "Open a measurement database, select columns and rows, and export the result.",
       "objectives": [
-        "安全打开数据库并逐页浏览。",
-        "过滤完整表格，同时不将完整结果与预览页混淆。",
-        "导出可追溯的数据子集。"
+        "Open and browse a measurement table.",
+        "Select columns and filter rows.",
+        "Export the matching records."
       ],
-      "prerequisite": "准备 spaCR SQLite 数据库或运行文件夹。",
+      "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
       "scenes": [
         {
-          "narration": "Database Browser 会在规模受限的只读视图中检查大型 spaCR 数据库。",
+          "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
           "visual": "01_overview",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Database Browser 会在规模受限的只读视图中检查大型 斯佩克尔 数据库。"
+          "focus_key": "screen"
         },
         {
-          "narration": "从 Data 部分打开 Database Browser。选择 measurements 数据库或相应运行文件夹并打开。",
+          "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
           "visual": "02_open",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "从 Data 部分打开 Database Browser。选择 measurements 数据库或相应运行文件夹并打开。"
+          "focus_key": "source"
         },
         {
-          "narration": "复核表格用途和只读状态后再选择该表。",
+          "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
           "visual": "03_tables",
           "hold_after": 0.7,
-          "focus_key": "tables",
-          "speech_text": "复核表格用途和只读状态后再选择该表。"
+          "focus_key": "tables"
         },
         {
-          "narration": "预览只加载规模受限的一页，同时单独报告完整的行数和列数。",
+          "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
           "visual": "04_cell_table",
           "hold_after": 0.7,
-          "focus_key": "preview",
-          "speech_text": "预览只加载规模受限的一页，同时单独报告完整的行数和列数。"
+          "focus_key": "preview"
         },
         {
-          "narration": "搜索列可以提高宽特征表的可读性，而不会改变底层数据行。",
+          "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
           "visual": "05_column_search",
           "hold_after": 0.7,
-          "focus_key": "column_search",
-          "speech_text": "搜索列可以提高宽特征表的可读性，而不会改变底层数据行。"
+          "focus_key": "column_search"
         },
         {
-          "narration": "构建结构化过滤器。系统会验证列名和运算符，并安全绑定数值。",
+          "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
           "visual": "08_filter",
           "hold_after": 0.7,
-          "focus_key": "filter",
-          "speech_text": "构建结构化过滤器。系统会验证列名和运算符，并安全绑定数值。"
+          "focus_key": "filter"
         },
         {
-          "narration": "虽然当前只绘制一页，但准确的过滤后计数描述的是完整查询结果。",
+          "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
           "visual": "09_filtered",
           "hold_after": 0.7,
-          "focus_key": "status",
-          "speech_text": "虽然当前只绘制一页，但准确的过滤后计数描述的是完整查询结果。"
+          "focus_key": "status"
         },
         {
-          "narration": "导出当前完整过滤结果和可见列选择。源数据库保持不变。",
+          "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
           "visual": "10_export",
           "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "导出当前完整过滤结果和可见列选择。源数据库保持不变。"
+          "focus_key": "export"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "35_converter",
@@ -4394,331 +4366,261 @@
       "series": 4,
       "app_key": "convert",
       "host_app_key": "foreign",
-      "section": "数据",
-      "title": "Format Converter：写出真实图像前核对标识",
-      "description": "通过 Import 打开 Format Converter，预览两幅真实图像的映射，写入独立的输出目录，并在不改变原始数据的前提下验证检查点复用。",
+      "section": "Data",
+      "title": "Format Converter: preview and convert image files",
+      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
       "objectives": [
-        "区分图像格式转换与导入测量数据和标签掩膜。",
-        "写出前核对源、目标和采集时的标识。",
-        "将源图像、映射 CSV 和视野检查点一起保留。",
-        "正确解读未写入新图像的 Resume 结果，不将其视为像素完整性的保证。"
+        "Choose source and destination folders with the correct acquisition layout.",
+        "Preview target names, fields and channel assignments.",
+        "Convert the files and use Resume for completed fields."
       ],
-      "prerequisite": "复用 Import Project 教程中从真实已测量图像准备的两幅单通道 TIFF。每幅 TIFF 都与原始数组的第2个图像平面完全一致；中性的文件名 fov01_C1.tif 和 fov02_C1.tif 已不包含原始板或孔的标识。这个有意限定范围的示例演示二维 TIFF 转换，不演示厂商专用读取器、多通道采集、Z 投影或时间序列。Format Converter 中没有独立的示例下载、Plot、Live preview 或 AI 控件。",
+      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "从 Home 的 Data 类别打开 Import，再从其内部工具中选择 Format Converter。它负责转换图像格式和文件名。Import Project 则负责将图像、标签掩膜与测量表整合起来，这是另一项任务；不要混淆父界面的控件和其中转换器的控件。",
+          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
             "74_import_images"
-          ],
-          "speech_text": "从 主页 的 Data 类别打开 Import，再从其内部工具中选择 Format Converter。它负责转换图像格式和文件名。Import Project 则负责将图像、标签掩膜与测量表整合起来，这是另一项任务；不要混淆父界面的控件和其中转换器的控件。"
+          ]
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "Format Converter 标签页有自己的 Source、Destination、Preview 和 Convert 控件。它的预览是源到目标的映射表，不是实时显微图像或分割预览。标签页下方父级 Import 的目标目录和 Import 按钮属于另一套流程。",
+          "narration": "Use the converter’s Source, Destination, Preview and Convert controls. Preview displays the planned source-to-target mapping so you can inspect the assignments before writing files.",
           "hold_after": 0.7,
           "focus": [
             460,
             600,
             3370,
             1190
-          ],
-          "speech_text": "Format Converter 标签页有自己的 Source、Destination、Preview 和 Convert 控件。它的预览是源到目标的映射表，不是实时显微图像或分割预览。标签页下方父级 Import 的目标目录和 Import 按钮属于另一套流程。"
+          ]
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "选择源文件夹，而不是单独一幅图像。本例复用 Import 课程中的两幅真实单通道 TIFF。像素来自已测量的显微图像，但中性的视野名称只是演示名称，不是原始采集坐标。",
+          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
-          ],
-          "speech_text": "选择源文件夹，而不是单独一幅图像。本例复用 Import 课程中的两幅真实单通道 TIFF。像素来自已测量的显微图像，但中性的视野名称只是演示名称，不是原始采集坐标。"
+          ]
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "选择一个与源目录分开的、新建且为空的目标文件夹。保留原始图像及其来源记录，不要修改。转换会生成新的 TIFF 和映射文件，但不会重建这些演示文件命名时去掉的实验元数据。",
-          "hold_after": 0.7,
-          "speech_text": "选择一个与源目录分开的、新建且为空的目标文件夹。保留原始图像及其来源记录，不要修改。转换会生成新的 TIFF 和映射文件，但不会重建这些演示文件命名时去掉的实验元数据。"
+          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "将 Layout 设为 images directly in src，因为两个文件都直接放在同一个文件夹中。使用按序编号的板名，并在首次运行时关闭 Resume。对于真实的板、孔目录树，应选择匹配的布局并核对分配结果，不要直接照搬这个平铺文件夹选项。",
+          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
           "hold_after": 0.7,
           "focus": [
             460,
             815,
             3370,
             200
-          ],
-          "speech_text": "将 Layout 设为 images directly in src，因为两个文件都直接放在同一个文件夹中。使用按序编号的板名，并在首次运行时关闭 Resume。对于真实的板、孔目录树，应选择匹配的布局并核对分配结果，不要直接照搬这个平铺文件夹选项。"
+          ]
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Z 选择 Keep every plane (one file per Z)。Max-project Z 和 First plane only 选项会有意丢弃 Z 维度的信息，这里没有演示这两种选项。每个输入都只包含一个二维通道，所以这次录制不能证明某种特定厂商文件、时间序列或多通道采集将如何被解释。",
+          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
           "hold_after": 0.7,
           "focus": [
             460,
             870,
             3370,
             100
-          ],
-          "speech_text": "Z 选择 Keep every plane (one file per Z)。Max-project Z 和 First plane only 选项会有意丢弃 Z 维度的信息，这里没有演示这两种选项。每个输入都只包含一个二维通道，所以这次录制不能证明某种特定厂商文件、时间序列或多通道采集将如何被解释。"
+          ]
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "按转换器的 Preview 按钮。实际计划列出两个源文件对应的两个输出，目标文件夹仍然为空。在 Convert 前检查完整的源到目标映射；预览完成并不能证明其中的孔和通道分配符合你的实验。",
+          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
           "hold_after": 0.7,
           "focus": [
             460,
             995,
             3370,
             790
-          ],
-          "speech_text": "按转换器的 Preview 按钮。实际计划列出两个源文件对应的两个输出，目标文件夹仍然为空。在 Convert 前检查完整的源到目标映射；预览完成并不能证明其中的孔和通道分配符合你的实验。"
-        },
-        {
-          "visual": "05_preview_no_output_written",
-          "narration": "这里生成的名称使用 plate1、孔 A01、视野1和2，以及通道1。这些是为演示分配的标识。源图像原本来自不同的采集孔，因此不能把这套映射当成恢复出的板元数据，也不能据此合并它们的处理组。",
-          "hold_after": 0.7,
-          "focus": [
-            465,
-            1020,
-            1950,
-            180
-          ],
-          "speech_text": "这里生成的名称使用 plate1、孔 A01、视野1和2，以及通道1。这些是为演示分配的标识。源图像原本来自不同的采集孔，因此不能把这套映射当成恢复出的板元数据，也不能据此合并它们的处理组。"
+          ]
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "将 From field 和 From channel 列与生成的名称对照检查。TIFF 唯一的平面在数组中的索引为0，但保留的像素是从原始七平面数组的通道索引1提取的。输出文件名中的通道1采用从1开始的编号；这三种编号语境不能混用。",
+          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ],
-          "speech_text": "将 From field 和 From channel 列与生成的名称对照检查。TIFF 唯一的平面在数组中的索引为0，但保留的像素是从原始七平面数组的通道索引1提取的。输出文件名中的通道1采用从1开始的编号；这三种编号语境不能混用。"
+          ]
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "预览表是只读的。如果标识有误，请修改源布局或转换设置，然后重新预览；此界面不支持逐行编辑，也没有独立的系列和时间选择器。检查自动分配结果时，应能随时查阅原始元数据。",
+          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ],
-          "speech_text": "预览表是只读的。如果标识有误，请修改源布局或转换设置，然后重新预览；此界面不支持逐行编辑，也没有独立的系列和时间选择器。检查自动分配结果时，应能随时查阅原始元数据。"
+          ]
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "按 Convert 并阅读摘要。本次实际运行写出了两幅新 TIFF，没有失败或跳过的映射。我们将每个输出像素、数组形状和数据类型与源数据独立比较，并核实映射文件中的源、视野和通道标识。原始文件保持不变。",
+          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ],
-          "speech_text": "按 Convert 并阅读摘要。本次实际运行写出了两幅新 TIFF，没有失败或跳过的映射。我们将每个输出像素、数组形状和数据类型与源数据独立比较，并核实映射文件中的源、视野和通道标识。原始文件保持不变。"
+          ]
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "将 conversion_map.csv 与转换后的图像和原始采集清单一同保留。映射表保存源和目标路径、分配的标识、源通道元数据以及转换状态。单独的运行状态文件记录本次操作，隐藏的视野检查点则支持后续 Resume。",
+          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ],
-          "speech_text": "将 conversion_map.csv 与转换后的图像和原始采集清单一同保留。映射表保存源和目标路径、分配的标识、源通道元数据以及转换状态。单独的运行状态文件记录本次操作，隐藏的视野检查点则支持后续 Resume。"
+          ]
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "开启 Resume，使用相同的源、计划和目标目录，再按一次 Convert。应用会先检查兼容的视野检查点和可读取的 TIFF 元数据，再复用已完成的视野。它不会将每个像素与原始源数据逐一比较；不要把 Resume 描述为全面的文件损坏检查。",
+          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
           "hold_after": 0.7,
           "focus": [
             2700,
             825,
             1130,
             190
-          ],
-          "speech_text": "开启 Resume，使用相同的源、计划和目标目录，再按一次 Convert。应用会先检查兼容的视野检查点和可读取的 TIFF 元数据，再复用已完成的视野。它不会将每个像素与原始源数据逐一比较；不要把 Resume 描述为全面的文件损坏检查。"
-        },
-        {
-          "visual": "09_completed_fields_reused",
-          "narration": "第二次运行显示转换了0个文件，且2个目标文件已存在。这正是本例的预期结果：计划中的两个输出均已存在且未改变。表中仍显示预览时的 planned 状态，因此应阅读操作摘要和映射文件来判断实际结果，而不是仅看表中的状态列。",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ],
-          "speech_text": "第二次运行显示转换了0个文件，且2个目标文件已存在。这正是本例的预期结果：计划中的两个输出均已存在且未改变。表中仍显示预览时的 planned 状态，因此应阅读操作摘要和映射文件来判断实际结果，而不是仅看表中的状态列。"
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "滚动摘要，确认复用了2个已完成的视野。由于没有源文件需要转换，最新的运行记录条目报告 empty；第一次的 complete 条目仍被保留。只有独立核实两个复用输出及其精确标识之后，我们才接受本次未写入新图像的特定结果。",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ],
-          "speech_text": "滚动摘要，确认复用了2个已完成的视野。由于没有源文件需要转换，最新的运行记录条目报告 empty；第一次的 complete 条目仍被保留。只有独立核实两个复用输出及其精确标识之后，我们才接受本次未写入新图像的特定结果。"
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "在 Python 中，spacr.convert.scan 读取源的描述信息，plan 建立供核对的映射，convert 写出输出。convert_folder 是接收设置字典的入口。请将转换与分割、测量分开，并在将输出图像交给 Mask 或 Measure 之前，验证自己采集数据的维度。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "07_mask",
-            "08_measure",
-            "36_import"
-          ],
-          "speech_text": "在 Python 中，斯佩克尔.convert.scan 读取源的描述信息，plan 建立供核对的映射，convert 写出输出。convert_folder 是接收设置字典的入口。请将转换与分割、测量分开，并在将输出图像交给 Mask 或 Measure 之前，验证自己采集数据的维度。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "36_import",
       "number": 36,
       "slug": "import",
       "series": 5,
-      "title": "Import Project：核查真实掩膜、测量值与来源",
+      "title": "Import Project: bring images, masks and measurements into spaCR",
       "app_key": "foreign",
-      "section": "数据",
-      "description": "导入包含两个真实显微视野的子集，在写入前核查对象关联和列名，并区分导入的测量值与 spaCR 重新执行测量的结果。",
+      "section": "Data",
+      "description": "Choose matching images, instance masks and measurement tables, review their mapping, and create a spaCR project.",
       "objectives": [
-        "找到 Import Project 及其三个嵌套输入工具。",
-        "以明确的单位和对象身份关联图像、实例掩膜与测量表。",
-        "核查推断的名称，演示并解决保留名称冲突，然后保存和重新加载映射。",
-        "验证导入的像素、逐对象数值及来源，不把导入描述成重新测量。"
+        "Match images, masks and measurement rows.",
+        "Review and save the column mapping.",
+        "Import the project and inspect its outputs."
       ],
-      "prerequisite": "先下载 Measure 示例。tools/tutorials/capture_foreign.py 中的 prepare_inputs 从 plate1_E01_1_1 和 plate1_L02_9_1 原样提取 ER 强度平面 1 和细胞标签平面 4，再从这些相同标签计算精确的像素面积及原始平均强度，得到 103 行真实测量。中性的 fov01/fov02 TIFF 文件名必须结合保存的来源清单才能找回原始采集孔位，不能自动保留板布局。这里不声称具备像素物理标定。",
+      "prerequisite": "Prepare corresponding image files, instance-label masks and a measurement CSV. Keep each field’s original plate and well identity, and use documented measurement units.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在 Home 的 Data 类别中打开 Import。这个父工作流接收已有图像、实例掩膜和测量值。它不同于从显微镜原始文件开始，再用 spaCR 生成新掩膜和测量值。",
-          "hold_after": 0.7,
-          "speech_text": "在 主页 的 Data 类别中打开 Import。这个父工作流接收已有图像、实例掩膜和测量值。它不同于从显微镜原始文件开始，再用 斯佩克尔 生成新掩膜和测量值。"
+          "narration": "From Home’s Data category, open Import. Use this screen to bring existing images, instance masks and measurements into a spaCR project.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_import_images",
-          "narration": "顶部现在提供 Import Images、Format Converter 和 External Masks。原始采集使用 Import Images；支持的格式转换使用 Format Converter；已有分割标签使用 External Masks。它们的专业课程仍位于 Submodules 部分的 Import 分类下。",
+          "narration": "The header also opens Import Images, Format Converter and External Masks. Choose the tool that matches your starting files; this walkthrough uses images, masks and an existing measurement table together.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ],
-          "speech_text": "顶部现在提供 Import Images、Format Converter 和 External Masks。原始采集使用 Import Images；支持的格式转换使用 Format Converter；已有分割标签使用 External Masks。它们的专业课程仍位于 Submodules 部分的 Import 分类下。"
+          ]
         },
         {
           "visual": "03_choose_images",
-          "narration": "本次录制复用 Measure 下载示例中的两个真实视野。独立 TIFF 副本保留原始强度和标签像素。准备步骤直接根据这些确切标签计算像素面积和平均强度，而不是把掩膜与独立版本的测量表混用。",
+          "narration": "Choose the image folder. The example uses two microscopy fields with one intensity channel and matching cell labels. Keep a record of each file’s original plate, well and field.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "本次录制复用 Measure 下载示例中的两个真实视野。独立 TIFF 副本保留原始强度和标签像素。准备步骤直接根据这些确切标签计算像素面积和平均强度，而不是把掩膜与独立版本的测量表混用。"
+          ]
         },
         {
           "visual": "04_choose_masks",
-          "narration": "选择图像文件夹，再选择 Cell 掩膜文件夹并按 Add。这些是实例标签，不是二值前景图。本例包含一个强度通道和一个掩膜类别。只有当其他类别确实对应这些视野时才添加它们。",
-          "hold_after": 0.7,
-          "speech_text": "选择图像文件夹，再选择 Cell 掩膜文件夹并按 Add。这些是实例标签，不是二值前景图。本例包含一个强度通道和一个掩膜类别。只有当其他类别确实对应这些视野时才添加它们。"
+          "narration": "Choose the Cell mask folder and press Add. Each object needs its own integer label. Add further mask classes when you have corresponding labels for the same fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_choose_table",
-          "narration": "选择真实的测量 CSV。ImageNumber 标识每张准备好的图像，ObjectNumber 标识该视野中的对象标签。单独的标签编号在不同图像间并不唯一。表中有一百零三个实测对象，不是为让关联通过而补入的合成行。",
-          "hold_after": 0.7,
-          "speech_text": "选择真实的测量 CSV。ImageNumber 标识每张准备好的图像，ObjectNumber 标识该视野中的对象标签。单独的标签编号在不同图像间并不唯一。表中有一百零三个实测对象，不是为让关联通过而补入的合成行。"
+          "narration": "Choose the measurement CSV. Match ImageNumber to each field and ObjectNumber to its mask label. Use both identifiers to distinguish objects across fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_inputs_unknown_calibration",
-          "narration": "标定未知时，将每像素微米数留空。本例面积列明确使用平方像素，强度是图像原始值的均值。不要编造尺度。物理单位列需要单独核查；不能把未标定的值称为已转换成像素单位的测量。",
+          "narration": "Enter micrometres per pixel when you know the calibration; otherwise leave it blank. Check that area and intensity columns retain their documented units.",
           "hold_after": 0.7,
           "focus": [
             350,
             440,
             3450,
             65
-          ],
-          "speech_text": "标定未知时，将每像素微米数留空。本例面积列明确使用平方像素，强度是图像原始值的均值。不要编造尺度。物理单位列需要单独核查；不能把未标定的值称为已转换成像素单位的测量。"
+          ]
         },
         {
           "visual": "06b_safe_inferred_names",
-          "narration": "Preview 不写入项目数据。当前导入器保守地建议带 foreign 前缀的列名，包括将原本已叫 cell_area 的来源列映射到 foreign_cell_area。这条提示不是阻止导入的错误：推断避免了覆盖 spaCR 特征，但科学含义仍需核查。",
+          "narration": "Press Preview to inspect the proposed column mapping and joins before creating the project. Review the suggested foreign-prefixed names and their scientific meaning.",
           "hold_after": 0.7,
           "focus": [
             350,
             500,
             2650,
             155
-          ],
-          "speech_text": "Preview 不写入项目数据。当前导入器保守地建议带 foreign 前缀的列名，包括将原本已叫 cell_area 的来源列映射到 foreign_cell_area。这条提示不是阻止导入的错误：推断避免了覆盖 斯佩克尔 特征，但科学含义仍需核查。"
+          ]
         },
         {
           "visual": "07_conflict_refused",
-          "narration": "选择目标单元格并按 F 二进行编辑。这里故意将面积目标改为保留名称 cell_area。选择 Refuse the import 时，这个真实冲突会禁用 Import。尚未写入任何内容；演示用目标不代表推荐映射。",
-          "hold_after": 0.7,
-          "speech_text": "选择目标单元格并按 F 二进行编辑。这里故意将面积目标改为保留名称 cell_area。选择 Refuse the import 时，这个真实冲突会禁用 Import。尚未写入任何内容；演示用目标不代表推荐映射。"
+          "narration": "Select a target cell and press F two to edit its name. A reserved-name conflict disables Import when Refuse the import is selected; choose a distinct target name or use the Rename policy.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_join_report",
-          "narration": "选择 Rename 策略即可在不覆盖 spaCR 特征的情况下解决冲突。阅读关联报告：一百零三行全部匹配真实掩膜对象，子集中没有缺少测量的对象。仅看行数无法发现数值被分配给错误视野或标签的问题。",
+          "narration": "Read the join report and resolve unmatched rows or objects. In the example, all one hundred and three measurement rows match mask objects.",
           "hold_after": 0.7,
           "focus": [
             350,
             1830,
             3450,
             195
-          ],
-          "speech_text": "选择 Rename 策略即可在不覆盖 斯佩克尔 特征的情况下解决冲突。阅读关联报告：一百零三行全部匹配真实掩膜对象，子集中没有缺少测量的对象。仅看行数无法发现数值被分配给错误视野或标签的问题。"
+          ]
         },
         {
           "visual": "09_mapping_edited",
-          "narration": "为面积指定明确且经过核查的目标 foreign_reviewed_area_px2。映射会原位更新。请一起检查来源、目标、变换和单位：重命名一列并不能证明两个实验室测量了相同的生物学量。",
+          "narration": "Give the imported area a clear name, such as foreign reviewed area pixels squared. Review the source, target, transform and units together.",
           "hold_after": 0.7,
           "focus": [
             350,
             500,
             2650,
             155
-          ],
-          "speech_text": "为面积指定明确且经过核查的目标 foreign_reviewed_area_px2。映射会原位更新。请一起检查来源、目标、变换和单位：重命名一列并不能证明两个实验室测量了相同的生物学量。"
+          ]
         },
         {
           "visual": "10_save_mapping",
-          "narration": "Save mapping 将核查后的列定义保存为 CSV。它不是图像备份，也不是完整采集清单。除映射外，还应保留源文件和身份记录，以便日后审计这些决定。",
-          "hold_after": 0.7,
-          "speech_text": "Save mapping 将核查后的列定义保存为 CSV。它不是图像备份，也不是完整采集清单。除映射外，还应保留源文件和身份记录，以便日后审计这些决定。"
+          "narration": "Use Save mapping to keep the reviewed column definitions as a CSV. Keep the mapping with your images, masks, measurement table and acquisition identities.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_mapping_reloaded",
-          "narration": "Load mapping 将定义读回当前计划。我们先临时修改目标而不保存；随后选择已保存的 CSV，恢复核查过的名称。源文件、标签或单位变化时，应重新检查计划。可复用映射不等于自动批准新实验。",
-          "hold_after": 0.7,
-          "speech_text": "Load mapping 将定义读回当前计划。我们先临时修改目标而不保存；随后选择已保存的 CSV，恢复核查过的名称。源文件、标签或单位变化时，应重新检查计划。可复用映射不等于自动批准新实验。"
+          "narration": "Use Load mapping to reuse saved definitions. Review the resulting plan whenever source columns, labels or units differ.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_imported",
-          "narration": "对核查后的计划按 Import，并检查真实报告。本次运行转换两张图像，写入两个掩膜和两个合并数组，然后在两张对象表中各存入一百零三行。状态中的二百零六合计了两张表，不表示不同对象的数量翻倍。",
-          "hold_after": 0.7,
-          "speech_text": "对核查后的计划按 Import，并检查真实报告。本次运行转换两张图像，写入两个掩膜和两个合并数组，然后在两张对象表中各存入一百零三行。状态中的二百零六合计了两张表，不表示不同对象的数量翻倍。"
+          "narration": "Press Import and read the completion report. The example writes two image files, two masks and two merged arrays, with one hundred and three rows in each of two object tables.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_import_scope",
-          "narration": "摘要明确说明 spaCR 没有重新提取测量值。foreign_columns 表记录哪些数值来自本次导入。我们的检查确认像素、标签以及每个对象的面积和平均强度均被保留；这与验证生物学解释是两回事。",
+          "narration": "Open the project and inspect the imported measurements. The foreign columns table records their origin. Use Measure when you want spaCR to calculate new features from the images.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4728,29 +4630,31 @@
           ],
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "摘要明确说明 斯佩克尔 没有重新提取测量值。foreign_columns 表记录哪些数值来自本次导入。我们的检查确认像素、标签以及每个对象的面积和平均强度均被保留；这与验证生物学解释是两回事。"
+          ]
         },
         {
           "visual": "14_import_scope",
-          "narration": "中性的 fov 名称被转换成 A 零一中的新视野，并不会重建原始采集孔位。请保留准备清单和转换映射。真实板实验应在下游分析前确认采集身份，不要把新分配的坐标当作原始元数据。",
+          "narration": "Keep the conversion map with the project and check its plate, well and field assignments. Generic file names may receive new coordinates, so resolve their original identities before plate-level analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "74_import_images"
-          ],
-          "speech_text": "中性的 fov 名称被转换成 A 零一中的新视野，并不会重建原始采集孔位。请保留准备清单和转换映射。真实板实验应在下游分析前确认采集身份，不要把新分配的坐标当作原始元数据。"
+          ]
         },
         {
           "visual": "14_import_scope",
-          "narration": "在 Python 中，spacr.foreign 提供 plan_import、save_column_map、load_column_map 和 run_import，保持相同的先核查后应用边界。将核查后的映射与完整项目一起保存。确实需要 spaCR 计算新特征时使用 Measure，不要假定导入已经完成了这一步。",
+          "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
-          ],
-          "speech_text": "在 Python 中，斯佩克尔.foreign 提供 plan_import、save_column_map、load_column_map 和 run_import，保持相同的先核查后应用边界。将核查后的映射与完整项目一起保存。确实需要 斯佩克尔 计算新特征时使用 Measure，不要假定导入已经完成了这一步。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "37_batch",
@@ -4758,181 +4662,172 @@
       "slug": "batch",
       "series": 5,
       "app_key": "batch",
-      "section": "数据和批处理运行",
-      "title": "Batch Runner：经过验证的任务、依赖关系和独立日志",
-      "description": "用真实的多线程界面和文件选择器配置三次保留通道的转换，核对依赖顺序，保存并重新加载队列，再停止和继续真实子进程任务。",
+      "section": "Data and batch runs",
+      "title": "Batch Runner: configure and run a queue",
+      "description": "Add module settings, arrange dependencies, run jobs, and inspect their separate logs.",
       "objectives": [
-        "从 Help 找到 Batch runner，添加带有明确依赖和覆盖参数的模块设置。",
-        "观察无效依赖顺序，修正后保存经过验证的计划。",
-        "重新加载计划，在任务之间停止，再继续而不重复已完成任务。",
-        "查看独立日志，并独立核验像素、通道标识及转换记录。"
+        "Add jobs with their settings and dependencies.",
+        "Save, run and continue the queue.",
+        "Inspect each job’s log and outputs."
       ],
-      "prerequisite": "使用测试数据集中的三个真实四通道显微视野，每个任务配备独立的源目录和目标目录。tools/tutorials/batch_data.py 按字节复制原件，并采用明确的 fov01_C1 至 fov01_C4 TIFF 文件名。A01 是演示坐标，并未重建原始实验板和孔坐标。旧录制把原文件名映射为四个不同的 C01 视野，不能证明通道信息得到保留。本课只运行 convert，不验证完整的 Mask-to-Classify 流程。不声称运行模型、发送 AI 请求或发现生物学效应。队列没有专门的 Load test data、实时图像预览或绘图面板；Preview 和 Resume 见 Format Converter 教程。仅展示失败策略，未测试失败分析、崩溃恢复或 GPU 驱动隔离。",
+      "prerequisite": "Prepare the input data and exported settings JSON for each job. The example runs three image conversions into separate output folders.",
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "打开 Help，再选择 Batch runner。这个共享菜单工具组合无图形界面模块任务、设置文件、依赖关系和独立日志。它按顺序运行自己的任务，但无法阻止其他应用或队列使用同一台电脑的资源。",
+          "narration": "Open Help, then Batch runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
-          ],
-          "speech_text": "打开 Help，再选择 Batch runner。这个共享菜单工具组合无图形界面模块任务、设置文件、依赖关系和独立日志。它按顺序运行自己的任务，但无法阻止其他应用或队列使用同一台电脑的资源。"
+          ]
         },
         {
           "visual": "03_choose_settings_1",
-          "narration": "选择 convert，用 Choose settings 打开第一个 JSON。我们准备了三个真实显微视野，分别放在独立目录中，每个视野都有四个通道名称明确的文件。像素没有改变，但 A 零一只是演示坐标，不是恢复出的原始孔位置。",
+          "narration": "Choose the module and click Choose settings. For this example, select convert and the JSON settings for the first microscopy field.",
           "hold_after": 0.7,
           "related_lessons": [
             "35_converter"
-          ],
-          "speech_text": "选择 convert，用 Choose settings 打开第一个 JSON。我们准备了三个真实显微视野，分别放在独立目录中，每个视野都有四个通道名称明确的文件。像素没有改变，但 A 零一只是演示坐标，不是恢复出的原始孔位置。"
+          ]
         },
         {
           "visual": "04_configure_job_1",
-          "narration": "设置指定源目录、目标目录和实际转换，预览与续跑均关闭。填写说明性标签，再选择 Add job。第一个标识是 convert 一。在安排更大的批次之前，先用小样本验证转换和通道映射。",
+          "narration": "Check the source and destination in the settings, add a descriptive label, then click Add job. Use a separate output folder for each conversion.",
           "hold_after": 0.7,
           "focus": [
             450,
             235,
             3370,
             255
-          ],
-          "speech_text": "设置指定源目录、目标目录和实际转换，预览与续跑均关闭。填写说明性标签，再选择 Add job。第一个标识是 convert 一。在安排更大的批次之前，先用小样本验证转换和通道映射。"
+          ]
         },
         {
           "visual": "04_configure_job_2",
-          "narration": "第二个任务的 After 填写 convert 一。plate naming 等于 name 的覆盖参数改变实验板命名规则，不重写保存的设置文件。依赖关系控制执行资格和顺序，不会自动让第二个任务使用第一个任务的输出。",
+          "narration": "For the second job, enter convert one in After to make it depend on the first. Add a setting override when this job needs a different value. Set any input paths explicitly; a dependency controls order.",
           "hold_after": 0.7,
           "focus": [
             450,
             235,
             3370,
             255
-          ],
-          "speech_text": "第二个任务的 After 填写 convert 一。plate naming 等于 name 的覆盖参数改变实验板命名规则，不重写保存的设置文件。依赖关系控制执行资格和顺序，不会自动让第二个任务使用第一个任务的输出。"
+          ]
         },
         {
           "visual": "05_added_job_3",
-          "narration": "添加第三个任务，不设依赖或覆盖参数。三个任务的输出目录各不相同。表格显示标识、标签、依赖和 pending 状态。选择一行会把该任务的配置加载到编辑区，但表格本身不是可编辑的电子表格。",
+          "narration": "Add further jobs and review their identifiers, labels and dependencies. Select a row to load its configuration into the editor.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "添加第三个任务，不设依赖或覆盖参数。三个任务的输出目录各不相同。表格显示标识、标签、依赖和 pending 状态。选择一行会把该任务的配置加载到编辑区，但表格本身不是可编辑的电子表格。"
+          ]
         },
         {
           "visual": "06b_dependency_error_scrolled",
-          "narration": "把第二个任务移到其前置任务上方。验证会指出依赖任务排在后面，并禁用 Run queue。小问题面板可能需要滚动，才能读到说明和建议的修正方法。这里验证了真实拒绝，而不只是宣称验证器能保护你。",
+          "narration": "Use the move controls to arrange jobs. A dependency must appear before the job that needs it; read any validation message and correct the order.",
           "hold_after": 0.7,
           "focus": [
             450,
             1225,
             3350,
             180
-          ],
-          "speech_text": "把第二个任务移到其前置任务上方。验证会指出依赖任务排在后面，并禁用 Run queue。小问题面板可能需要滚动，才能读到说明和建议的修正方法。这里验证了真实拒绝，而不只是宣称验证器能保护你。"
+          ]
         },
         {
           "visual": "07_valid_reordered_queue",
-          "narration": "将它移回 convert 一的下方，再把独立的第三个任务移到它上方。有效顺序现在是一、三、二。再次选择 Validate，没有剩余问题。顺序满足约束，但验证不能证明分析能回答你的科学问题。",
+          "narration": "Click Validate after arranging the queue. Resolve the listed problems until Run queue becomes available.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "将它移回 convert 一的下方，再把独立的第三个任务移到它上方。有效顺序现在是一、三、二。再次选择 Validate，没有剩余问题。顺序满足约束，但验证不能证明分析能回答你的科学问题。"
+          ]
         },
         {
           "visual": "09_continue_policy",
-          "narration": "On failure 可以继续独立任务，或在首次失败时停止。我们查看两项后恢复了继续执行。Stop after 设置为连续三次失败；它只计数，并不能证明原因相同。这次成功示例未实际测试任何一种失败结果。",
+          "narration": "Choose On failure to continue with independent jobs or stop at the first failure. Set Stop after to limit consecutive failures.",
           "hold_after": 0.7,
           "focus": [
             450,
             440,
             1760,
             95
-          ],
-          "speech_text": "On failure 可以继续独立任务，或在首次失败时停止。我们查看两项后恢复了继续执行。Stop after 设置为连续三次失败；它只计数，并不能证明原因相同。这次成功示例未实际测试任何一种失败结果。"
+          ]
         },
         {
           "visual": "10_save_queue_picker",
-          "narration": "用 Save queue 把有序计划保存为 JSON。随后从这次临时的内存队列移除第三个任务，再用 Load queue 恢复保存的三个任务。项目目录没有删除。请把设置文件和输入数据与计划一同保留。",
-          "hold_after": 0.7,
-          "speech_text": "用 Save queue 把有序计划保存为 JSON。随后从这次临时的内存队列移除第三个任务，再用 Load queue 恢复保存的三个任务。项目目录没有删除。请把设置文件和输入数据与计划一同保留。"
+          "narration": "Click Save queue to store the plan as JSON. Use Load queue to reopen it later, keeping the referenced settings files and inputs available.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_stopped_between_jobs",
-          "narration": "Run queue 启动第一个真实子进程后，按 Stop。它先完成活动任务再停止：第一行显示 success，另外两行显示 not run。这不是立即终止进程，这种受控停止也不能证明电脑崩溃后的恢复能力。",
+          "narration": "Click Run queue. To pause between jobs, press Stop; the current job finishes and the remaining jobs stay unrun.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "Run queue 启动第一个真实子进程后，按 Stop。它先完成活动任务再停止：第一行显示 success，另外两行显示 not run。这不是立即终止进程，这种受控停止也不能证明电脑崩溃后的恢复能力。"
+          ]
         },
         {
           "visual": "15_completed_real_queue",
-          "narration": "再次选择 Run queue。只按保存的顺序执行剩余两个任务，第一个任务的时间戳不变。现在三个任务都显示 success。独立子进程可分隔通常的任务执行，但这里并未保证能抵御系统范围的 GPU 或内存故障。",
+          "narration": "Click Run queue again to continue with the remaining jobs. Watch each row’s status as the queue progresses.",
           "hold_after": 0.7,
           "focus": [
             450,
             530,
             3360,
             235
-          ],
-          "speech_text": "再次选择 Run queue。只按保存的顺序执行剩余两个任务，第一个任务的时间戳不变。现在三个任务都显示 success。独立子进程可分隔通常的任务执行，但这里并未保证能抵御系统范围的 GPU 或内存故障。"
+          ]
         },
         {
           "visual": "16_log_convert-2",
-          "narration": "逐行选择并查看各自的日志。这里转换器报告一个孔、一个视野和四个通道标识，随后报告四个文件已转换、退出码为零。第二个任务的输出体现了名称覆盖。日志是需要检查的证据，不会自动证明科学结果正确。",
+          "narration": "Select a row to read its log and inspect errors or output paths. For the conversion example, check the reported field and channel identifiers.",
           "hold_after": 0.7,
           "focus": [
             450,
             1380,
             3350,
             705
-          ],
-          "speech_text": "逐行选择并查看各自的日志。这里转换器报告一个孔、一个视野和四个通道标识，随后报告四个文件已转换、退出码为零。第二个任务的输出体现了名称覆盖。日志是需要检查的证据，不会自动证明科学结果正确。"
+          ]
         },
         {
           "visual": "16_log_convert-1",
-          "narration": "三个任务共生成十二幅图像，每个原始像素和预期通道标识都核验一致。各转换记录还报告四次尝试、四次成功、零失败。原件保持不变。编写脚本时，spacr.batch 提供 Job、Queue 和 run_queue；参见 API 课程与转换器的专门预览教程。",
+          "narration": "Open each output folder and inspect the converted images and conversion record. Keep the queue JSON, settings and logs with the results.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "35_converter",
             "30_plate_queue"
-          ],
-          "speech_text": "三个任务共生成十二幅图像，每个原始像素和预期通道标识都核验一致。各转换记录还报告四次尝试、四次成功、零失败。原件保持不变。编写脚本时，斯佩克尔.batch 提供 Job、Queue 和 run_queue；参见 API 课程与转换器的专门预览教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "38_distributed_jobs",
       "number": 38,
       "slug": "distributed_jobs",
-      "title": "分布式任务",
+      "title": "Distributed Jobs: configure an execution target",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "数据和批处理运行",
-      "description": "从Help准备真实的执行配置，区分保存配置与经过验证的远程执行。",
+      "section": "Data and batch runs",
+      "description": "Create an execution profile and prepare a module job for another workstation or cluster.",
       "objectives": [
-        "从Help打开Distributed jobs并保存配置。",
-        "区分路径映射、数据复制和身份认证。",
-        "准备SSH、Slurm或自定义命令，不把未经测试的执行说成成功。"
+        "Create a profile for your execution target.",
+        "Configure paths and backend options.",
+        "Prepare submission and inspect job status."
       ],
-      "prerequisite": "本课仅演示配置，使用隔离的本地存储，不连接远程主机，也不提交任务。researcher@workstation.invalid和所示目录均为示例，不是可用目标。提交前请准备经授权的访问、兼容的spaCR及依赖项，以及目标上已有的数据。应使用模块导出的设置，不要把此执行配置当作实验设置。API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager。配置不保存密码；请在spaCR外完成认证。数据根目录替换匹配的绝对路径前缀，不会复制图像。本课验证保存、重新打开和取消修改，不验证调度器成功、远程输出或模型有效性。",
+      "prerequisite": "Arrange access to a target with spaCR, its dependencies and your input data. Export the module settings you intend to run. Replace the illustrative host and paths shown here with your own.",
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "打开Help，再选择Distributed jobs。这个工具位于Help中，并不是Home上的独立核心模块磁贴。我们将准备真实的执行配置，查看当前控件。本课不演示远程连接或任务提交；保存配置并不能证明目标可用。",
+          "narration": "Open Help, then Distributed jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
           "focus": [
             80,
             0,
@@ -4942,12 +4837,11 @@
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Help，再选择Distributed jobs。这个工具位于Help中，并不是主页上的独立核心模块磁贴。我们将准备真实的执行配置，查看当前控件。本课不演示远程连接或任务提交；保存配置并不能证明目标可用。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_empty_actual_workbench",
-          "narration": "此界面可将模块设置发送到另一个执行目标。提交前，请准备经授权的访问、兼容的spaCR安装环境，以及目标上可用的数据。配置保存的是连接设置，不是密码。SSH密钥或云命令行工具的认证应在spaCR外完成。",
+          "narration": "Install compatible spaCR dependencies on the target and make the input data available there. Set up SSH keys or your provider’s command-line authentication outside spaCR.",
           "focus": [
             455,
             155,
@@ -4958,84 +4852,77 @@
             "06_api",
             "37_batch"
           ],
-          "hold_after": 0.7,
-          "speech_text": "此界面可将模块设置发送到另一个执行目标。提交前，请准备经授权的访问、兼容的斯佩克尔安装环境，以及目标上可用的数据。配置保存的是连接设置，不是密码。SSH密钥或云命令行工具的认证应在斯佩克尔外完成。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_empty_profile_refused",
-          "narration": "选择New profile。保存空表单会被拒绝，并显示内嵌提示。请设置清晰的名称并选择后端。我们明确将示例命名为NOT CONNECTED，以免把它误认为经过测试的工作站或已成功完成的任务。",
+          "narration": "Choose New profile. Enter a descriptive name and select the backend. Complete the required fields shown by the form.",
           "focus": [
             695,
             195,
             2210,
             1220
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择New profile。保存空表单会被拒绝，并显示内嵌提示。请设置清晰的名称并选择后端。我们明确将示例命名为NOT CONNECTED，以免把它误认为经过测试的工作站或已成功完成的任务。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "对于SSH，请输入主机、远程工作目录和spaCR运行程序。以点invalid结尾的主机以及显示的目录都是示例，不是可用凭据或已验证位置。我们保存后重新打开了配置，界面值与存储内容完全一致。",
+          "narration": "For SSH, enter your host, remote work directory and spaCR runner. Save the profile, then reopen it whenever you need to update these settings.",
           "focus": [
             695,
             380,
             2210,
             390
           ],
-          "hold_after": 0.7,
-          "speech_text": "对于SSH，请输入主机、远程工作目录和斯佩克尔运行程序。以点invalid结尾的主机以及显示的目录都是示例，不是可用凭据或已验证位置。我们保存后重新打开了配置，界面值与存储内容完全一致。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "本地和远程数据根目录用不同的绝对路径前缀表示同一批数据。应同时设置两者；路径相同时，也可以同时留空。这只是映射设置中的路径，不会把图像集合复制到服务器。共享存储或数据传输需要另行安排。",
+          "narration": "Set the local and remote dataset roots when the same data has different absolute paths on the two machines. This rewrites settings paths; arrange shared storage or copy the files separately.",
           "focus": [
             695,
             595,
             2210,
             170
           ],
-          "hold_after": 0.7,
-          "speech_text": "本地和远程数据根目录用不同的绝对路径前缀表示同一批数据。应同时设置两者；路径相同时，也可以同时留空。这只是映射设置中的路径，不会把图像集合复制到服务器。共享存储或数据传输需要另行安排。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_slurm_controls_not_submitted",
-          "narration": "选择Slurm会启用调度器选项，同时保留主机和路径控件。分区名称、时间限制和加速器请求必须符合集群分配给您的资源。显示的分区只是占位示例。改变这个选项既不会预留GPU，也不会验证调度器能否访问。",
+          "narration": "For Slurm, choose the partition, time limit and accelerator request supported by your cluster. Keep the host and directory settings appropriate for its login environment.",
           "focus": [
             695,
             450,
             2210,
             430
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择Slurm会启用调度器选项，同时保留主机和路径控件。分区名称、时间限制和加速器请求必须符合集群分配给您的资源。显示的分区只是占位示例。改变这个选项既不会预留GPU，也不会验证调度器能否访问。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_custom_argument_templates",
-          "narration": "Cloud or custom command会启用独立的提交、状态查询和取消命令参数模板，并可选取回日志。请使用设置和外部任务标识所需的占位符。这些内容按参数拆分，不是shell脚本。灰色连接控件属于其他后端；本课不会执行自定义命令。",
+          "narration": "For a cloud or custom command, enter submit, status and cancel argument templates, plus log retrieval if needed. Include the required settings and external-ID placeholders shown by the controls.",
           "focus": [
             695,
             805,
             2210,
             350
           ],
-          "hold_after": 0.7,
-          "speech_text": "Cloud or custom command会启用独立的提交、状态查询和取消命令参数模板，并可选取回日志。请使用设置和外部任务标识所需的占位符。这些内容按参数拆分，不是shell脚本。灰色连接控件属于其他后端；本课不会执行自定义命令。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_profile_saved_not_connected",
-          "narration": "Cancel会关闭尚未保存的后端修改，并逐字节保留原始SSH配置。需要保留的修改应使用Save。Poll interval表示建议的监控频率，而不是计算速度。在实际且经授权的任务通过检查前，已保存的执行目标仍然只是配置。",
+          "narration": "Save the changes you want to retain, or use Cancel to leave the profile unchanged. Poll interval sets how frequently to check job status.",
           "focus": [
             455,
             220,
             3350,
             205
           ],
-          "hold_after": 0.7,
-          "speech_text": "Cancel会关闭尚未保存的后端修改，并逐字节保留原始SSH配置。需要保留的修改应使用Save。Poll interval表示建议的监控频率，而不是计算速度。在实际且经授权的任务通过检查前，已保存的执行目标仍然只是配置。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_submission_controls_no_job",
-          "narration": "真正运行时，请在Submit前选择对应模块及其导出的设置。先进行小规模、经授权的检查，再查看任务状态、日志和本地记录。Cancel job针对选中的任务，与删除配置不同。这里没有提交任何任务，也没有声称获得远程输出，所以任务表保持为空。",
+          "narration": "Select the profile, module and its exported settings, then use Submit when the target is ready. Monitor status and logs in the job table. Use Cancel job to stop a selected job, and inspect its results at the configured output location.",
           "focus": [
             455,
             220,
@@ -5047,34 +4934,38 @@
             "40_run_history",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "真正运行时，请在Submit前选择对应模块及其导出的设置。先进行小规模、经授权的检查，再查看任务状态、日志和本地记录。Cancel job针对选中的任务，与删除配置不同。这里没有提交任何任务，也没有声称获得远程输出，所以任务表保持为空。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "39_classifier_evaluation",
       "number": 39,
       "slug": "classifier_evaluation",
-      "title": "分类器评估",
+      "title": "Classifier Evaluation: inspect predictions and errors",
       "series": 3,
       "app_key": "classifier_evaluation",
-      "section": "结果与质量控制",
+      "section": "Tools",
       "host_app_key": "classify_merged",
-      "description": "在 Classify 中检查真实的已保存预测，并识别训练集与测试集的孔位重叠。",
+      "description": "Load a saved evaluation bundle, inspect leakage and confusion counts, and filter predictions for review.",
       "objectives": [
-        "用可下载示例打开嵌套的评估查看器。",
-        "查看混淆矩阵、置信度列表、校准和实时筛选。",
-        "区分结果检查与独立验证。"
+        "Load a bundle and review leakage.",
+        "Inspect confusion counts and confidence groups.",
+        "Filter predictions and locate saved figures."
       ],
       "example_files": [
         "REAL_evaluation_known_overlap.zip"
       ],
-      "prerequisite": "将 REAL_evaluation_known_overlap.zip 解压到新文件夹，选择包含 evaluation_manifest.json 的目录。示例包含234条真实预测，不包含裁剪图、标注数据库或模型。三个测试孔都出现在训练集中。只有私有路径被替换为 crops-not-included 引用，数值和对象身份保持不变。infected_1 和 infected_2 是沿用的标签；OOF 文件名和标题不证明交叉验证。API：spacr.classifier_evaluation.evaluate_predictions、write_evaluation_bundle、load_evaluation_bundle。未重新训练、推理或调用 spaCR AI 服务。",
+      "prerequisite": "Download and unzip the linked saved-results example. It contains predictions, tables and figures; crops require your matching experiment in Annotate. The example shares wells between training and test data, so use it to learn the inspector rather than estimate independent-well accuracy.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "打开 Classify，再打开其中的 Classifier Evaluation 快捷入口。这是嵌套的结果查看器，不是独立的 Home 模块，也不是模型训练表单。Classify 教程介绍如何生成预测；这里检查的是已经保存的结果包。",
+          "narration": "Open Classify, then Classifier Evaluation. Use this inspector to explore a saved evaluation bundle after producing predictions.",
           "focus": [
             3510,
             105,
@@ -5084,132 +4975,121 @@
           "related_lessons": [
             "41_classify"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开 Classify，再打开其中的 Classifier Evaluation 快捷入口。这是嵌套的结果查看器，不是独立的 主页 模块，也不是模型训练表单。Classify 教程介绍如何生成预测；这里检查的是已经保存的结果包。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_bundle_folder",
-          "narration": "从下方链接下载结果示例，解压到新文件夹。点击 Browse，选择包含 evaluation manifest 点 json 的目录。这个小型压缩包提供真实的已保存预测和表格，但不包含裁剪图、标注数据库或训练好的模型。",
+          "narration": "Download and unzip the example below. Click Browse and choose the folder containing evaluation manifest dot json.",
           "focus": [
             1563,
             798,
             1400,
             950
           ],
-          "hold_after": 0.7,
-          "speech_text": "从下方链接下载结果示例，解压到新文件夹。点击 Browse，选择包含 evaluation manifest 点 json 的目录。这个小型压缩包提供真实的已保存预测和表格，但不包含裁剪图、标注数据库或训练好的模型。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_summary",
-          "narration": "Summary 显示一次单轮训练运行生成的二百三十四条测试预测。infected 一和 infected 二是沿用的数据集标签，不是重新核实的感染状态。加载结果包只读取已有结果，不会训练、预测或修复数据集。",
+          "narration": "Read Summary for the number of predictions and the recorded class names. The example contains two hundred thirty-four predictions across two classes.",
           "focus": [
             475,
             650,
             3335,
             1170
           ],
-          "hold_after": 0.7,
-          "speech_text": "Summary 显示一次单轮训练运行生成的二百三十四条测试预测。infected 一和 infected 二是沿用的数据集标签，不是重新核实的感染状态。加载结果包只读取已有结果，不会训练、预测或修复数据集。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_actual_leakage_requires_review",
-          "narration": "解释准确率之前，先查看 Leakage audit。三个测试孔也都出现在训练集中，因此审计不通过。数据库中的真实身份揭示了旧文件名审计遗漏的重叠。这些数字用于演示查看器，不代表独立孔位上的性能，也不构成生物学验证。",
+          "narration": "Open Leakage audit before interpreting accuracy. This example flags wells shared between training and test data. For an independent-well evaluation, prepare a split with separate wells and rerun training and evaluation.",
           "focus": [
             475,
             650,
             3335,
             1390
           ],
-          "hold_after": 0.7,
-          "speech_text": "解释准确率之前，先查看 Leakage audit。三个测试孔也都出现在训练集中，因此审计不通过。数据库中的真实身份揭示了旧文件名审计遗漏的重叠。这些数字用于演示查看器，不代表独立孔位上的性能，也不构成生物学验证。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_confusion_counts",
-          "narration": "在 Confusion matrix 中，行表示记录的类别，列表示预测类别。对角线计数为一百零四和一百一十一。另外两格分别有十一和八条不一致，共十九条。与这些标签一致，并不能证明标签本身正确。",
+          "narration": "Open Confusion matrix. Rows are recorded classes and columns are predictions. The diagonal shows agreement; off-diagonal cells identify disagreements to review.",
           "focus": [
             475,
             600,
             3335,
             265
           ],
-          "hold_after": 0.7,
-          "speech_text": "在 Confusion matrix 中，行表示记录的类别，列表示预测类别。对角线计数为一百零四和一百一十一。另外两格分别有十一和八条不一致，共十九条。与这些标签一致，并不能证明标签本身正确。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "点击计数为十一的单元格：记录类别为 infected 一，预测为 infected 二。置信度阈值为零点七五时，六条不一致进入高置信度列表，五条进入低置信度列表。这是同一个单元格的两条检查队列，不是新的分类结果。",
+          "narration": "Click a disagreement cell to list its examples. The selected cell contains eleven disagreements, grouped by confidence.",
           "focus": [
             475,
             1090,
             3335,
             530
           ],
-          "hold_after": 0.7,
-          "speech_text": "点击计数为十一的单元格：记录类别为 infected 一，预测为 infected 二。置信度阈值为零点七五时，六条不一致进入高置信度列表，五条进入低置信度列表。这是同一个单元格的两条检查队列，不是新的分类结果。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_confidence_threshold",
-          "narration": "把置信度阈值提高到零点九五。高置信度列表现在有两个裁剪对象，低置信度列表有九个。概率、预测类别和十一条不一致都不变。这个实时控件只划分队列，不会重新校准模型，也不会重新执行推理。",
+          "narration": "Change Confidence threshold to choose which disagreements enter the high-confidence list. Raising it from zero point seven five to zero point nine five leaves two in the high list and nine in the low list.",
           "focus": [
             475,
             1090,
             3335,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "把置信度阈值提高到零点九五。高置信度列表现在有两个裁剪对象，低置信度列表有九个。概率、预测类别和十一条不一致都不变。这个实时控件只划分队列，不会重新校准模型，也不会重新执行推理。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "请谨慎看待自动解释。高置信度的不一致不证明标注错误，只有一块板也不能确定问题由板造成。界面关于模型或孔位的建议是待检验的假设。决定修正什么之前，应检查采集过程、标签和真正独立的数据。",
+          "narration": "Review the selected examples alongside their images and annotations. Use the displayed explanations as prompts for investigation, and check the evidence before changing labels.",
           "focus": [
             475,
             1170,
             3335,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "请谨慎看待自动解释。高置信度的不一致不证明标注错误，只有一块板也不能确定问题由板造成。界面关于模型或孔位的建议是待检验的假设。决定修正什么之前，应检查采集过程、标签和真正独立的数据。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_per_plate",
-          "narration": "Per-plate metrics 只有一行，包含全部二百三十四条预测。它便于按板定位结果，但这个示例不能比较不同板，也不能估计板效应。较高的准确率并不能消除 Leakage audit 中显示的孔位重叠问题。",
+          "narration": "Open Per-plate metrics to compare results by plate. This example has one plate; a multi-plate bundle provides separate rows for comparison.",
           "focus": [
             475,
             595,
             3335,
             205
           ],
-          "hold_after": 0.7,
-          "speech_text": "Per-plate metrics 只有一行，包含全部二百三十四条预测。它便于按板定位结果，但这个示例不能比较不同板，也不能估计板效应。较高的准确率并不能消除 Leakage audit 中显示的孔位重叠问题。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_calibration_table",
-          "narration": "Calibration 为每个类别使用五个区间，比较平均预测概率与观察到的类别频率。要留意计数列：样本少的区间具有较大不确定性。这个结果包没有应用校准修正。此标签页只展示之前计算的结果，不提供校准拟合控件。",
+          "narration": "Open Calibration to compare predicted probability with observed class frequency. Check each bin’s count when interpreting the differences.",
           "focus": [
             475,
             595,
             3335,
             450
           ],
-          "hold_after": 0.7,
-          "speech_text": "Calibration 为每个类别使用五个区间，比较平均预测概率与观察到的类别频率。要留意计数列：样本少的区间具有较大不确定性。这个结果包没有应用校准修正。此标签页只展示之前计算的结果，不提供校准拟合控件。"
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_prediction_filter",
-          "narration": "在 Predictions 中输入 r 五、下划线、c 二，检查该孔。表格从二百三十四行缩小到一百二十八行。这是对已保存记录的实时文本筛选，不是图像过滤或分割，也不会修改底层结果文件。",
+          "narration": "Open Predictions and type a sample or well identifier to filter the records. In the example, r five underscore c two selects one well’s predictions.",
           "focus": [
             475,
             595,
             3335,
             400
           ],
-          "hold_after": 0.7,
-          "speech_text": "在 Predictions 中输入 r 五、下划线、c 二，检查该孔。表格从二百三十四行缩小到一百二十八行。这是对已保存记录的实时文本筛选，不是图像过滤或分割，也不会修改底层结果文件。"
+          "hold_after": 0.7
         },
         {
           "visual": "13_actual_filter_cleared",
-          "narration": "清空筛选条件，全部二百三十四行重新出现。样本路径明确注明不包含裁剪图。若要打开自己项目中的不一致对象，请先在 Annotate 中打开对应实验。此压缩包不能提供该数据库，禁用的按钮也不是已演示成功的裁剪图工作流程。",
+          "narration": "Clear the filter to restore all records. To open crops in your own project, first load the matching experiment in Annotate; the downloadable results example contains no crops.",
           "focus": [
             475,
             595,
@@ -5219,24 +5099,22 @@
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "清空筛选条件，全部二百三十四行重新出现。样本路径明确注明不包含裁剪图。若要打开自己项目中的不一致对象，请先在 Annotate 中打开对应实验。此压缩包不能提供该数据库，禁用的按钮也不是已演示成功的裁剪图工作流程。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_summary",
-          "narration": "下载包还保留了原生校准图和混淆矩阵图。用于报告前请检查对比度。通用的 out-of-fold 标题和文件名，不会让这一次测试划分变成交叉验证。保存的概率和计数没有改变，只有私有样本路径被替换为明确的引用。",
+          "narration": "Find the saved calibration and confusion figures in the bundle folder. Check labels and readability before using them in a report.",
           "focus": [
             475,
             650,
             3335,
             1170
           ],
-          "hold_after": 0.7,
-          "speech_text": "下载包还保留了原生校准图和混淆矩阵图。用于报告前请检查对比度。通用的 out-of-fold 标题和文件名，不会让这一次测试划分变成交叉验证。保存的概率和计数没有改变，只有私有样本路径被替换为明确的引用。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_final_leakage",
-          "narration": "最后，请把数据泄漏警告与导出的指标一起保留。API 参考说明结果包的准备和加载，Training Runs 介绍已保存训练日志的比较。spaCR AI 可以解释术语，但不能证明标签正确或数据独立。这个示例不需要向服务提供商发送请求。",
+          "narration": "Keep the leakage audit with reported metrics. Use Training Runs to compare saved training progress, and return to Annotate when image or label review is needed.",
           "focus": [
             475,
             650,
@@ -5246,10 +5124,14 @@
           "related_lessons": [
             "28_training_runs"
           ],
-          "hold_after": 0.7,
-          "speech_text": "最后，请把数据泄漏警告与导出的指标一起保留。API 参考说明结果包的准备和加载，Training Runs 介绍已保存训练日志的比较。斯佩克尔 AI 可以解释术语，但不能证明标签正确或数据独立。这个示例不需要向服务提供商发送请求。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "40_run_history",
@@ -5257,48 +5139,44 @@
       "slug": "run_history",
       "series": 5,
       "app_key": "run_history",
-      "section": "结果与质量控制",
-      "title": "Run History：检查真实运行日志并恢复可用设置",
-      "description": "从 Help 查找运行记录，查看设置、文件清单、警告和故障，并重新打开真实的 Recruitment 配置，不重新运行或删除任何内容。",
+      "section": "Data and batch runs",
+      "title": "Run History: inspect past jobs and restore settings",
+      "description": "Find saved runs, inspect settings and logs, and load a previous configuration into its module.",
       "objectives": [
-        "从 Help 打开 Run history，组合模块、状态和文本筛选。",
-        "区分文件清单、执行成功与科学有效性验证。",
-        "阅读已保存的设置、环境、警告和真实错误堆栈。",
-        "复制日志路径，恢复 Recruitment 的可用控件而不启动分析。"
+        "Find runs using filters and search.",
+        "Inspect saved settings, files and problems.",
+        "Restore settings for a new run."
       ],
-      "prerequisite": "请使用自己已完成的示例运行日志。本录制读取 ~/.spacr/runs 的隔离副本，其中是真实教程任务，不是伪造结果。Batch Runner 和 Recruitment 介绍实际采集的测试数据；Regression 提供真实警告，之前一次 Model Zoo 尝试提供真实故障。Run History 没有专用数据下载、实时图像预览、绘图或 AI 面板。此处不启动分析、不删除记录，也不打开外部文件管理器。496 个日志文件的字节保持不变。示例恢复了 Recruitment 的 27 个可用设置；hash_inputs 没有对应的界面控件。记录的哈希描述过去的运行，并非对当前项目文件重新验证。",
+      "prerequisite": "Complete a spaCR job to create a local run record. The example browses records from conversion, Recruitment and Regression runs.",
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "打开 Help，再选择 Run history。这项共享工具读取本机的运行日志，而不是电脑上所有项目文件夹。我们使用其他教程运行产生的真实记录。仅仅查看历史记录，不需要重新进行那些分析。",
+          "narration": "Open Help, then Run history to browse the run records saved on this computer.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
             "25_recruitment"
-          ],
-          "speech_text": "打开 Help，再选择 Run history。这项共享工具读取本机的运行日志，而不是电脑上所有项目文件夹。我们使用其他教程运行产生的真实记录。仅仅查看历史记录，不需要重新进行那些分析。"
+          ]
         },
         {
           "visual": "02_loaded_history",
-          "narration": "Refresh 加载现有日志记录。表格显示模块、状态、耗时、CPU 时间，以及已记录文件的数量和大小。拖动分隔条可以扩大详情区域。这些是保存下来的执行测量，不是实时性能监控，也不是对科学质量的独立评估。",
-          "hold_after": 0.7,
-          "speech_text": "Refresh 加载现有日志记录。表格显示模块、状态、耗时、CPU 时间，以及已记录文件的数量和大小。拖动分隔条可以扩大详情区域。这些是保存下来的执行测量，不是实时性能监控，也不是对科学质量的独立评估。"
+          "narration": "Click Refresh to load available records. Select a run to inspect its details, and drag the divider if you need more room.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_batch_search",
-          "narration": "选择 convert 和 Success，再搜索示例共用文件夹的名称。列表剩下三个真实的 Batch Runner 任务。模块、状态和文本筛选共同生效；文本可以查找设置、路径、版本或已记录的问题。这个界面没有单独的日期或资源筛选器。",
+          "narration": "Choose a module and status, then enter a search term to narrow the list. For example, select convert and Success to find completed conversions.",
           "hold_after": 0.7,
           "focus": [
             340,
             175,
             3480,
             180
-          ],
-          "speech_text": "选择 convert 和 Success，再搜索示例共用文件夹的名称。列表剩下三个真实的 Batch Runner 任务。模块、状态和文本筛选共同生效；文本可以查找设置、路径、版本或已记录的问题。这个界面没有单独的日期或资源筛选器。"
+          ]
         },
         {
           "visual": "04_batch_empty_inventory",
-          "narration": "这些成功转换的 Files and models 是空的，因为其日志跳过了文件哈希计算。这不意味着没有生成图像。Batch Runner 教程另外检查了全部十二个输出。缺少清单意味着缺少证据，并不能证明数据不存在。",
+          "narration": "Open Files and models for recorded input and output details. Runs that skipped file hashing can have an empty inventory; use the output paths in settings or logs to find their results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5308,18 +5186,16 @@
           ],
           "related_lessons": [
             "37_batch"
-          ],
-          "speech_text": "这些成功转换的 Files and models 是空的，因为其日志跳过了文件哈希计算。这不意味着没有生成图像。Batch Runner 教程另外检查了全部十二个输出。缺少清单意味着缺少证据，并不能证明数据不存在。"
+          ]
         },
         {
           "visual": "05_no_match",
-          "narration": "搜索没有匹配项时，表格和详情会清空，针对所选运行的操作也会禁用。恢复之前的搜索，三个相同记录就会重新出现。认定运行记录消失之前，先检查筛选条件；搜索不会删除日志文件。",
-          "hold_after": 0.7,
-          "speech_text": "搜索没有匹配项时，表格和详情会清空，针对所选运行的操作也会禁用。恢复之前的搜索，三个相同记录就会重新出现。认定运行记录消失之前，先检查筛选条件；搜索不会删除日志文件。"
+          "narration": "Clear or adjust the filters if the table is empty. Search terms and status selections work together.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_recruitment_overview",
-          "narration": "现在选择真实的 Recruitment 运行。Overview 显示约十八秒实际耗时和四十五秒进程 CPU 时间，它们是不同的测量。这里有六条输入文件记录和六条输出文件记录。这些数目不是细胞数量，也不能保证清单完整。",
+          "narration": "Select a Recruitment run and read Overview for its elapsed time and recorded file counts. These summarize that saved execution.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5329,48 +5205,44 @@
           ],
           "related_lessons": [
             "25_recruitment"
-          ],
-          "speech_text": "现在选择真实的 Recruitment 运行。Overview 显示约十八秒实际耗时和四十五秒进程 CPU 时间，它们是不同的测量。这里有六条输入文件记录和六条输出文件记录。这些数目不是细胞数量，也不能保证清单完整。"
+          ]
         },
         {
           "visual": "09_settings_source",
-          "narration": "Settings 显示保存的配置，包括源路径、通道、对象筛选以及开启的 Plot。滚动查看完整快照。源路径指向教程的私有示例项目。以后修改项目或模块的当前设置，不会自动改变这些历史值。",
+          "narration": "Open Settings to inspect its source folder, channels and object filters. Scroll through the saved configuration before deciding to reuse it.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             3000,
             1380
-          ],
-          "speech_text": "Settings 显示保存的配置，包括源路径、通道、对象筛选以及开启的 Plot。滚动查看完整快照。源路径指向教程的私有示例项目。以后修改项目或模块的当前设置，不会自动改变这些历史值。"
+          ]
         },
         {
           "visual": "10_recorded_files",
-          "narration": "Files and models 列出可用的已记录路径、大小和哈希。检查输入与输出；同一个数据库在运行前后可能有不同的哈希。打开历史记录只是读取已保存的信息，不会重新计算所有当前文件的哈希，也不会验证生物学结果。",
+          "narration": "Open Files and models to inspect recorded paths, sizes and hashes. Keep the referenced project files available when you need to revisit the analysis.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             3000,
             1380
-          ],
-          "speech_text": "Files and models 列出可用的已记录路径、大小和哈希。检查输入与输出；同一个数据库在运行前后可能有不同的哈希。打开历史记录只是读取已保存的信息，不会重新计算所有当前文件的哈希，也不会验证生物学结果。"
+          ]
         },
         {
           "visual": "12_hashes_and_seeds",
-          "narration": "Environment 包含记录的软件版本、随机种子信息和快照哈希。这些有助于调查运行之间的差异，但本身不能保证可重复性。Copy path 把这次运行的日志文件夹路径复制到剪贴板。请保留设置和清单文件，以及另行存放的项目输入与结果。",
+          "narration": "Open Environment for recorded software versions and seeds. Use Copy path to locate the run’s journal folder.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             2650,
             1380
-          ],
-          "speech_text": "Environment 包含记录的软件版本、随机种子信息和快照哈希。这些有助于调查运行之间的差异，但本身不能保证可重复性。Copy path 把这次运行的日志文件夹路径复制到剪贴板。请保留设置和清单文件，以及另行存放的项目输入与结果。"
+          ]
         },
         {
           "visual": "14_recorded_warning",
-          "narration": "一个执行成功的 Regression 记录仍可能包含图像对比度不足和来源记录文件缺失的警告。Warnings and failure 将这些消息与错误堆栈分开。Success 只表示执行结束，不代表图像清晰、来源信息完整或统计设计有效。相关检查请参阅 Regression 教程。",
+          "narration": "Open Warnings and failure to read warnings attached to a completed run. Investigate relevant warnings before using its results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5380,41 +5252,42 @@
           ],
           "related_lessons": [
             "13_regression"
-          ],
-          "speech_text": "一个执行成功的 Regression 记录仍可能包含图像对比度不足和来源记录文件缺失的警告。Warnings and failure 将这些消息与错误堆栈分开。Success 只表示执行结束，不代表图像清晰、来源信息完整或统计设计有效。相关检查请参阅 Regression 教程。"
+          ]
         },
         {
           "visual": "16_failure_exception",
-          "narration": "Failed 筛选显示之前一次真实的 Model Zoo 尝试。错误堆栈最后说明 Cellpose 不接受 invert 参数；这是兼容性问题，不是分割结果。我们只查看记录，不重复失败的操作。报告问题时，请提供相关版本和错误细节。",
+          "narration": "Choose Failed to find unsuccessful jobs. Read the traceback and software versions when diagnosing a problem or preparing a bug report.",
           "hold_after": 0.7,
           "focus": [
             345,
             710,
             2450,
             730
-          ],
-          "speech_text": "Failed 筛选显示之前一次真实的 Model Zoo 尝试。错误堆栈最后说明 塞尔波斯 不接受 invert 参数；这是兼容性问题，不是分割结果。我们只查看记录，不重复失败的操作。报告问题时，请提供相关版本和错误细节。"
+          ]
         },
         {
           "visual": "18_restored_recruitment",
-          "narration": "返回 Recruitment，选择 Load settings in module。二十七个可用控件都与保存的值一致，而且不会开始分析。日志还包含 hash inputs，但表单中没有对应控件。运行前应检查恢复的设置和当前输入；这并不保证完全相同的重放。",
+          "narration": "Return to the desired run and choose Load settings in module. Review the restored controls and current input paths before pressing Run.",
           "hold_after": 0.7,
           "related_lessons": [
             "25_recruitment"
-          ],
-          "speech_text": "返回 Recruitment，选择 Load settings in module。二十七个可用控件都与保存的值一致，而且不会开始分析。日志还包含 hash inputs，但表单中没有对应控件。运行前应检查恢复的设置和当前输入；这并不保证完全相同的重放。"
+          ]
         },
         {
           "visual": "17_ready_to_restore",
-          "narration": "Clear all 会删除运行日志，不是重置筛选器。我们既没有使用这个按钮，也没有使用行菜单中的删除操作，所有日志文件保持不变。编程搜索可使用 spacr.run_journal 中的 search_runs。生成项目报告请参阅单独的 Report 教程。",
+          "narration": "Keep the journals you need with your project records. Use Clear all only when you intend to delete run records. Open Report to create a project summary.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "29_report"
-          ],
-          "speech_text": "Clear all 会删除运行日志，不是重置筛选器。我们既没有使用这个按钮，也没有使用行菜单中的删除操作，所有日志文件保持不变。编程搜索可使用 斯佩克尔.run_journal 中的 search_runs。生成项目报告请参阅单独的 Report 教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "41_classify",
@@ -5582,161 +5455,154 @@
       "id": "42_curate",
       "number": 42,
       "slug": "curate",
-      "title": "Curate：练习编辑并保存操作历史",
+      "title": "Curate: edit masks and tracks",
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "核心模块",
+      "section": "Make Masks",
       "example_files": [
         "Curate_SYNTHETIC_practice.zip"
       ],
-      "description": "用明确标注的合成数据练习掩膜和轨迹编辑，并以外部备份应对当前掩膜历史丢失的问题。",
+      "description": "Practise brush edits, track splitting and joining, and save the corrected files.",
       "objectives": [
-        "在Make Masks内打开Curate并使用练习文件副本。",
-        "绘制、撤销和保存，不把练习标记当成生物学修正。",
-        "重新打开前，在应用外保存掩膜及其历史文件。",
-        "分割、合并轨迹并放弃未保存的删除。"
+        "Edit a label mask with the brush and undo controls.",
+        "Split, join and save tracks.",
+        "Preserve source files and curation history."
       ],
-      "prerequisite": "解压Curate_SYNTHETIC_practice.zip，使用副本。TIFF是合成Timelapse输出的标签平面2，256×256像素，16个标签，编号2至17。CSV有16条轨迹、128行、8帧，不是采集的生物数据。NPY加载失败，因此使用保留整数标签的TIFF。半径8和标签18仅用于练习。所有像素及CSV值均已核验。Save mask写回所选文件并生成.curation.json。重新打开掩膜会清空内存中的3条历史，下一次保存会用新会话的1条记录覆盖旁置文件。缺陷未修复。事先运行curate_checkpoint.py，指定已保存掩膜与全新备份目录，可精确复制两文件，但不恢复或合并应用历史。重新打开还会增加显示图层，因此亮度不等于标签身份。轨迹2在第4帧分割后产生18，重新合并两部分恢复128行。2与3因帧重叠而无法合并。轨迹历史在重新加载时得到保留。API：spacr.curation.MaskCuration和TrackCuration。不使用GPU、AI、新分割或生物学验证，不修改应用、不发布。",
+      "prerequisite": "Download the synthetic practice archive and work on copies. Keep separate backups of masks and their .curation.json sidecars before reopening: saving a reopened mask currently replaces its earlier edit log.",
       "scenes": [
         {
           "visual": "02_actual_curate_page",
-          "narration": "打开Make Masks，再进入其嵌套工具Curate。在教程中，Curate归入Make Masks的子模块，不是单独的Home入口。它编辑标签掩膜和轨迹。本课使用Timelapse的合成教学输出，不是生物学观测，也不证明手动编辑会提高准确率。",
+          "narration": "Open Make Masks, then Curate to edit label masks and tracks. Download the synthetic practice example below and keep an untouched copy.",
           "related_lessons": [
             "14_make_masks",
             "17_timelapse"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Make Masks，再进入其嵌套工具Curate。在教程中，Curate归入Make Masks的子模块，不是单独的主页入口。它编辑标签掩膜和轨迹。本课使用Timelapse的合成教学输出，不是生物学观测，也不证明手动编辑会提高准确率。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_original_sixteen_label_mask",
-          "narration": "下载链接中的练习压缩包，在副本上操作。打开整数标签TIFF：边长二百五十六像素的图像中有十六个原始标签。文件选择器也列出NPY，但本版本的这条路径加载失败。TIFF保留精确标签平面，不要用彩色截图代替标签。",
-          "hold_after": 0.7,
-          "speech_text": "下载链接中的练习压缩包，在副本上操作。打开整数标签TIFF：边长二百五十六像素的图像中有十六个原始标签。文件选择器也列出NPY，但本版本的这条路径加载失败。TIFF保留精确标签平面，不要用彩色截图代替标签。"
+          "narration": "Browse to the example’s integer-label TIFF. Each object has its own label, with zero reserved for background. Use the TIFF example for this walkthrough.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_practice_disk_not_a_real_object",
-          "narration": "把画笔半径设为八，点击New选取标签十八。在空白练习区域画一次。这个圆盘是为学习操作而添加的，不是遗漏的细胞。画笔更改内存中的标签像素；点击Save mask之前，保存的文件保持不变。",
+          "narration": "Set Brush radius to eight and click New to select a new label. Click an empty part of the practice image to paint a small region.",
           "focus": [
             355,
             470,
             3450,
             660
           ],
-          "hold_after": 0.7,
-          "speech_text": "把画笔半径设为八，点击New选取标签十八。在空白练习区域画一次。这个圆盘是为学习操作而添加的，不是遗漏的细胞。画笔更改内存中的标签像素；点击Save mask之前，保存的文件保持不变。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_undo_restores_every_original_pixel",
-          "narration": "Undo stroke在本练习中恢复全部原始像素。再次绘制，保存前检查。记录包含绘制、撤销、绘制，撤销也是历史的一部分。鼠标精确位置会改变像素数量，因此不要把我们的练习笔迹当作生物学目标。",
+          "narration": "Click Undo stroke to remove the last brush edit. Paint again and inspect the result before saving.",
           "focus": [
             3380,
             480,
             425,
             710
           ],
-          "hold_after": 0.7,
-          "speech_text": "Undo stroke在本练习中恢复全部原始像素。再次绘制，保存前检查。记录包含绘制、撤销、绘制，撤销也是历史的一部分。鼠标精确位置会改变像素数量，因此不要把我们的练习笔迹当作生物学目标。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_saved_mask_and_ledger",
-          "narration": "Save mask写回所选的工作TIFF，并保存旁边的编辑历史文件。重新打开前，运行下载包附带的独立备份脚本，指定已保存掩膜和新的备份目录。它精确复制两个文件。这是明确的外部备份步骤，不是应用中的隐藏功能。",
+          "narration": "Click Save mask to write the working TIFF and its curation sidecar. Before reopening, preserve both files in a new backup folder; the download includes a checkpoint script for this step.",
           "focus": [
             3380,
             480,
             425,
             710
           ],
-          "hold_after": 0.7,
-          "speech_text": "Save mask写回所选的工作TIFF，并保存旁边的编辑历史文件。重新打开前，运行下载包附带的独立备份脚本，指定已保存掩膜和新的备份目录。它精确复制两个文件。这是明确的外部备份步骤，不是应用中的隐藏功能。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_second_session_saved_history",
-          "narration": "当前限制如下：重新打开掩膜会重置内存日志，再保存就会用新会话的编辑覆盖历史文件。之前的外部备份仍保留原来三条记录。请分别保管备份和说明；脚本不会修复或恢复应用历史。重新打开还会添加一个显示图层，所以颜色亮度并不是标签身份。",
-          "hold_after": 0.7,
-          "speech_text": "当前限制如下：重新打开掩膜会重置内存日志，再保存就会用新会话的编辑覆盖历史文件。之前的外部备份仍保留原来三条记录。请分别保管备份和说明；脚本不会修复或恢复应用历史。重新打开还会添加一个显示图层，所以颜色亮度并不是标签身份。"
+          "narration": "Keep each session’s backup and edit notes. Reopening a mask starts a new in-memory log, and another save replaces its sidecar with that session’s history.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_overlapping_tracks_cannot_join",
-          "narration": "打开轨迹CSV工作副本。它包含八帧中的十六条轨迹，共一百二十八行。选择轨迹二和三点击Join会被拒绝，因为两者存在于相同帧中。请阅读提示；强行合并无关轨迹不是有效修正。",
+          "narration": "Browse to the tracks CSV and select tracks to review. Join accepts tracks with non-overlapping frame ranges; an overlap produces a message to resolve first.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开轨迹CSV工作副本。它包含八帧中的十六条轨迹，共一百二十八行。选择轨迹二和三点击Join会被拒绝，因为两者存在于相同帧中。请阅读提示；强行合并无关轨迹不是有效修正。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_split_tail_starts_at_frame_four",
-          "narration": "选择轨迹二，把Split at frame设为四，再点击Split。第四到第七帧移动到新轨迹十八，零到第三帧仍属于轨迹二。坐标和原始标签不变。这是受控编辑练习，不是发生真实细胞分裂的证据。",
+          "narration": "Select track two, set Split at frame to four, and click Split. The later frames move to a new track while the earlier frames retain the original identifier.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择轨迹二，把Split at frame设为四，再点击Split。第四到第七帧移动到新轨迹十八，零到第三帧仍属于轨迹二。坐标和原始标签不变。这是受控编辑练习，不是发生真实细胞分裂的证据。"
+          "hold_after": 0.7
         },
         {
           "visual": "16_saved_tracks_and_history",
-          "narration": "同时选中二和十八，点击Join。不重叠的前后两部分合并，恢复全部原始行。点击Save tracks保存CSV及其独立历史文件。独立检查比较每个帧、标识符和坐标，而非仅看轨迹总数。请区分掩膜与轨迹的历史。",
+          "narration": "Select the two non-overlapping halves and click Join to combine them. Click Save tracks to write the CSV and its separate curation sidecar.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "同时选中二和十八，点击Join。不重叠的前后两部分合并，恢复全部原始行。点击Save tracks保存CSV及其独立历史文件。独立检查比较每个帧、标识符和坐标，而非仅看轨迹总数。请区分掩膜与轨迹的历史。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_unsaved_delete_removes_eight_rows",
-          "narration": "删除轨迹三会在内存中移除它的八行。不要保存这次演示删除。重新打开已保存的CSV，放弃未保存的变化。这说明当前编辑与磁盘内容的区别；删除真实轨迹需要记录理由，不能只是因为不喜欢结果。",
+          "narration": "Use Delete only for tracks you intend to remove. To discard an unsaved change, reopen the last saved CSV.",
           "focus": [
             3380,
             480,
             425,
             1250
           ],
-          "hold_after": 0.7,
-          "speech_text": "删除轨迹三会在内存中移除它的八行。不要保存这次演示删除。重新打开已保存的CSV，放弃未保存的变化。这说明当前编辑与磁盘内容的区别；删除真实轨迹需要记录理由，不能只是因为不喜欢结果。"
+          "hold_after": 0.7
         },
         {
           "visual": "19_saved_tracks_and_two_actions_return",
-          "narration": "全部一百二十八行以及保存的分割、合并历史恢复了。与本版本的掩膜不同，轨迹重新打开后在此测试中保留了历史。请保存原始数据、备份和编辑理由。Python提供MaskCuration和TrackCuration；无需GPU或AI服务，编辑成功不等于科学验证。",
+          "narration": "Inspect the reopened tracks and saved history. Keep originals and reasons for edits, and rerun any downstream analysis affected by corrected masks or trajectories.",
           "related_lessons": [
             "06_api",
             "17_timelapse"
           ],
-          "hold_after": 0.7,
-          "speech_text": "全部一百二十八行以及保存的分割、合并历史恢复了。与本版本的掩膜不同，轨迹重新打开后在此测试中保留了历史。请保存原始数据、备份和编辑理由。Python提供MaskCuration和TrackCuration；无需GPU或AI服务，编辑成功不等于科学验证。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "照明校正",
+      "title": "Illumination: estimate and inspect a correction model",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "数据",
-      "description": "在Measure的Illumination页面中，用下载的图像估计照明场，检查实际导出的质控图，并区分数值改善与生物学验证。",
+      "section": "Data",
+      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
       "objectives": [
-        "打开嵌套的Illumination页面，选择合并图像中的实际强度通道。",
-        "比较校正关闭与开启的结果，检查保存的模型和质控图。",
-        "有意识地复用审阅后的模型，不把拟合数据上的诊断当作独立验证。"
+        "Select representative fields and intensity channels.",
+        "Estimate and inspect an illumination model.",
+        "Reuse the model in Mask or Measure."
       ],
-      "prerequisite": "使用下载的plate1全部16个视野的逐字节相同副本，每个为1994×1994像素，含7个存储平面。通道0是强度轴索引，不代表某一种染色；标签平面不能作为强度。原件和副本均保持不变。GUI运行后，通过公共API对7,952,072个校正像素进行独立公式核对，并非替换GUI输出。模型和质控使用相同的16个视野，因此不是独立验证，也不是光学或生物学真值。暗偏置0并非实测校准结果。Figures面板保持空白；实际导出的PNG在独立图像查看器中打开。不修改应用代码或原始图像。旧的五场景模拟教程将被替换。",
+      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "打开Measure，再点击它的Illumination按钮。这个嵌套页面用于在较大规模分析前估计校正模型。它不同于在测量运行中简单开启校正，也不会让整个应用会话自动处于校正状态。",
+          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
           "focus": [
             3625,
             65,
@@ -5746,12 +5612,11 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Measure，再点击它的Illumination按钮。这个嵌套页面用于在较大规模分析前估计校正模型。它不同于在测量运行中简单开启校正，也不会让整个应用会话自动处于校正状态。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_src",
-          "narration": "将Source指向包含图像数组的merged文件夹，而不是测量数据库。我们使用可下载示例板全部十六个视野的新副本。原始文件保持不变，照明模型保存在merged文件夹旁边。",
+          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
           "focus": [
             363,
             375,
@@ -5762,132 +5627,121 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "将Source指向包含图像数组的merged文件夹，而不是测量数据库。我们使用可下载示例板全部十六个视野的新副本。原始文件保持不变，照明模型保存在merged文件夹旁边。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Channels设置指定存储强度数组中的位置。这里选择通道零。请核对您自己的采集通道对应关系，不要假定零总是表示同一种染色；也绝不能把标签掩膜平面当作荧光强度来选择。",
+          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
           "focus": [
             374,
             475,
             850,
             65
           ],
-          "hold_after": 0.7,
-          "speech_text": "Channels设置指定存储强度数组中的位置。这里选择通道零。请核对您自己的采集通道对应关系，不要假定零总是表示同一种染色；也绝不能把标签掩膜平面当作荧光强度来选择。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "首先关闭校正。Run虽然结束，但控制台明确说明没有估计照明场。我们也验证了没有创建模型。因此，仅凭成功完成的消息，不能证明进行了校正。",
+          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
           "focus": [
             1518,
             405,
             2280,
             260
           ],
-          "hold_after": 0.7,
-          "speech_text": "首先关闭校正。Run虽然结束，但控制台明确说明没有估计照明场。我们也验证了没有创建模型。因此，仅凭成功完成的消息，不能证明进行了校正。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "打开Illumination correction。本例使用四阶polynomial估计器，并将Illumination model留空，以估计新的照明场。灵活性更高不一定更好：如果校正跟随细胞或处理条件形成的模式，就可能消除您原本想测量的生物学信号。",
+          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
           "focus": [
             363,
             550,
             1140,
             300
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Illumination correction。本例使用四阶polynomial估计器，并将Illumination model留空，以估计新的照明场。灵活性更高不一定更好：如果校正跟随细胞或处理条件形成的模式，就可能消除您原本想测量的生物学信号。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "通过Illumination per plate分开处理不同采集组。这里使用全部十六个可用视野。代表性覆盖比盲目增大数量更重要；仅用一个细胞密集的角落拟合模型，可能把生物结构误认为照明不均。",
+          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
           "focus": [
             363,
             858,
             1140,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "通过Illumination per plate分开处理不同采集组。这里使用全部十六个可用视野。代表性覆盖比盲目增大数量更重要；仅用一个细胞密集的角落拟合模型，可能把生物结构误认为照明不均。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Illumination dark是以原始计数为单位的相机加性偏置，不是学习得到的生物背景。零只是这次演示使用的设置，不是校准结果。应根据适当的采集对照选择偏置，而不是不断调整直到某种表型消失。",
+          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
           "focus": [
             374,
             775,
             1110,
             61
           ],
-          "hold_after": 0.7,
-          "speech_text": "Illumination dark是以原始计数为单位的相机加性偏置，不是学习得到的生物背景。零只是这次演示使用的设置，不是校准结果。应根据适当的采集对照选择偏置，而不是不断调整直到某种表型消失。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "保持Illumination QC开启，并检查模型缺失时的处理策略。我们使用error，让某块板没有可用校正时停止操作，而不是悄悄混合已校正与未校正的视野。这些检查不能替代对估计照明场的查看。",
+          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
           "focus": [
             363,
             1020,
             1140,
             150
           ],
-          "hold_after": 0.7,
-          "speech_text": "保持Illumination QC开启，并检查模型缺失时的处理策略。我们使用error，让某块板没有可用校正时停止操作，而不是悄悄混合已校正与未校正的视野。这些检查不能替代对估计照明场的查看。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "开启校正后再次运行。控制台现在报告拟合的照明场、诊断斜率和保存的模型路径。这个独立步骤不改变图像文件，也没有重新进行分割或生成新的细胞测量数据。",
+          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
           "focus": [
             1518,
             405,
             2280,
             485
           ],
-          "hold_after": 0.7,
-          "speech_text": "开启校正后再次运行。控制台现在报告拟合的照明场、诊断斜率和保存的模型路径。这个独立步骤不改变图像文件，也没有重新进行分割或生成新的细胞测量数据。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "在此版本中，质控图已经保存，但不会出现在内嵌Figures面板中。请用图像查看器打开illumination文件夹下的illumination下划线QC下划线plate一，点PNG。这是在独立查看器里打开的真实导出图，不是模拟的spaCR面板。",
+          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
           "focus": [
             200,
             100,
             3440,
             1920
           ],
-          "hold_after": 0.7,
-          "speech_text": "在此版本中，质控图已经保存，但不会出现在内嵌Figures面板中。请用图像查看器打开illumination文件夹下的illumination下划线QC下划线plate一，点PNG。这是在独立查看器里打开的真实导出图，不是模拟的斯佩克尔面板。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "左图显示均值为一的估计照明场。校正先减去相机偏置，再除以这个场。虽然标题称其为gain，但不要把显示的图直接乘到强度上；校正使用的是它的倒数。请检查生物结构是否混入了估计。",
+          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
           "focus": [
             400,
             680,
             790,
             825
           ],
-          "hold_after": 0.7,
-          "speech_text": "左图显示均值为一的估计照明场。校正先减去相机偏置，再除以这个场。虽然标题称其为gain，但不要把显示的图直接乘到强度上；校正使用的是它的倒数。请检查生物结构是否混入了估计。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "径向斜率从约负零点一八一变为正零点零二六。报告的百分之八十五点四的降低与我们的独立计算一致，但校正后的曲线并不平坦。这些正是用于拟合模型的视野，因此不是独立验证。",
+          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
           "focus": [
             1270,
             680,
             1080,
             840
           ],
-          "hold_after": 0.7,
-          "speech_text": "径向斜率从约负零点一八一变为正零点零二六。报告的百分之八十五点四的降低与我们的独立计算一致，但校正后的曲线并不平坦。这些正是用于拟合模型的视野，因此不是独立验证。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "以后复用时，请提供已保存模型的路径，并在目标Mask或Measure流程中明确开启校正。将模型、通道对应关系、板标识和设置一起保留。解释生物学差异前，应查看独立视野，并避免对已校正强度重复校正。",
+          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
           "focus": [
             363,
             370,
@@ -5898,10 +5752,14 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "以后复用时，请提供已保存模型的路径，并在目标Mask或Measure流程中明确开启校正。将模型、通道对应关系、板标识和设置一起保留。解释生物学差异前，应查看独立视野，并避免对已校正强度重复校正。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "44_data_manager",
@@ -5909,140 +5767,131 @@
       "slug": "data_manager",
       "series": 5,
       "app_key": "data_manager",
-      "section": "数据",
-      "title": "Data Manager：安全检查、清理和归档真实示例",
-      "description": "检查已登记与未登记的文件，取消并确认精确的裁剪图像清理，再将专用项目副本连同归档记录移至目标位置。",
+      "section": "Data and batch runs",
+      "title": "Data Manager: inspect usage, clean up and archive",
+      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
       "objectives": [
-        "从Help打开Data manager，检查实际磁盘占用。",
-        "阅读删除计划、保留原因和完整确认清单。",
-        "区分不可撤销的删除与移动，验证Cancel保持文件不变。",
-        "重新扫描归档位置，保留清单、原位置日志及独立备份。"
+        "Inspect project disk usage.",
+        "Review and apply a cleanup plan.",
+        "Move and rescan an archived project."
       ],
-      "prerequisite": "使用External Masks的真实示例：两个视野、103个已测量对象和保存的图表。录制使用逐字节验证过的隔离副本；只有在录制进程内，登记信息中的原始绝对路径才指向这个可丢弃副本。原来的131个文件保持不变。Data Manager没有独立的数据下载、图像实时预览、Plot开关或AI面板。文件大小表示字节数，不代表科学质量。只从副本中删除103张PNG裁剪图及其格式JSON，保留测量数据库和已记录的生成配置；本课不演示重新生成。归档会移动剩余项目，并非备份，也不保证改写全部历史绝对路径。项目外的资源日志不会随项目移动。",
+      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "打开Help，再选择Data manager。这个共享工具管理项目文件，不运行图像分析。我们使用External Masks真实示例的可丢弃副本，其中包含测量结果和保存的图表。自己尝试清理前，请保留一份独立备份。",
+          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
-          ],
-          "speech_text": "打开Help，再选择Data manager。这个共享工具管理项目文件，不运行图像分析。我们使用External Masks真实示例的可丢弃副本，其中包含测量结果和保存的图表。自己尝试清理前，请保留一份独立备份。"
+          ]
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Choose project用于选择项目根目录。扫描后，Usage显示一百二十九个文件，约九十一兆字节。Registered和Unregistered不同：文件可以存在，却没有登记记录。根据文件夹推断的类别只是估计，不能证明文件的科学内容。",
+          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3400,
             570
-          ],
-          "speech_text": "Choose project用于选择项目根目录。扫描后，Usage显示一百二十九个文件，约九十一兆字节。Registered和Unregistered不同：文件可以存在，却没有登记记录。根据文件夹推断的类别只是估计，不能证明文件的科学内容。"
+          ]
         },
         {
           "visual": "04_prune_choices",
-          "narration": "在Prune中选择要考虑的类别。打开开关本身并不授权删除。这里保持测量数据库和模型权重未选中，再点击Show what can be deleted。既要阅读建议删除的文件，也要阅读其他产物被保留的原因。",
+          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
             245,
             3470,
             230
-          ],
-          "speech_text": "在Prune中选择要考虑的类别。打开开关本身并不授权删除。这里保持测量数据库和模型权重未选中，再点击Show what can be deleted。既要阅读建议删除的文件，也要阅读其他产物被保留的原因。"
+          ]
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "这个计划只包含data裁剪文件夹：一百零三张对象图像和一个格式文件，并不是一百零四个细胞。计划可释放约三点四兆字节。Get it back by指向Measure，但重新生成仍需原始输入、设置以及合适的软件。",
+          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
           "hold_after": 0.7,
           "focus": [
             345,
             320,
             3450,
             160
-          ],
-          "speech_text": "这个计划只包含data裁剪文件夹：一百零三张对象图像和一个格式文件，并不是一百零四个细胞。计划可释放约三点四兆字节。Get it back by指向Measure，但重新生成仍需原始输入、设置以及合适的软件。"
+          ]
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Delete会打开第二次确认，展示实际文件清单。删除无法撤销。请放大对话框并滚动检查各条路径，再确认已阅读。最后的Delete按钮起初不可用；打开确认开关与真正删除是两件事。",
-          "hold_after": 0.7,
-          "speech_text": "Delete会打开第二次确认，展示实际文件清单。删除无法撤销。请放大对话框并滚动检查各条路径，再确认已阅读。最后的Delete按钮起初不可用；打开确认开关与真正删除是两件事。"
+          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "确认开关会启用Delete，关闭后又会禁用它。第一次演示选择Cancel，所有项目文件保持不变。如果对路径、文件数量或恢复方法有疑问，应选择取消。",
-          "hold_after": 0.7,
-          "speech_text": "确认开关会启用Delete，关闭后又会禁用它。第一次演示选择Cancel，所有项目文件保持不变。如果对路径、文件数量或恢复方法有疑问，应选择取消。"
+          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "重新打开同一份已验证的计划，只在可丢弃副本上确认删除。结果报告一百零四个文件释放了约三点四兆字节。其余二十四个非登记库文件逐字节保持一致，包括测量数据库和保存的图表。",
+          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             2500,
             240
-          ],
-          "speech_text": "重新打开同一份已验证的计划，只在可丢弃副本上确认删除。结果报告一百零四个文件释放了约三点四兆字节。其余二十四个非登记库文件逐字节保持一致，包括测量数据库和保存的图表。"
+          ]
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "自动重新扫描现在提示一个已登记产物不在磁盘上：就是有意删除的裁剪文件夹。其生成配置和清理元数据仍保留在登记库中。这条记录不是撤销缓存，我们也没有重新运行Measure生成裁剪图像。",
+          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             580
-          ],
-          "speech_text": "自动重新扫描现在提示一个已登记产物不在磁盘上：就是有意删除的裁剪文件夹。其生成配置和清理元数据仍保留在登记库中。这条记录不是撤销缓存，我们也没有重新运行Measure生成裁剪图像。"
+          ]
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Archive不同，它会移动剩余项目。在源目录之外选择一个空目标位置，再点击Show what would move。清理后，计划包含二十五个文件，总计约八十八兆字节。请仔细核对源位置与目标位置；此界面规划的是整个项目。",
-          "hold_after": 0.7,
-          "speech_text": "Archive不同，它会移动剩余项目。在源目录之外选择一个空目标位置，再点击Show what would move。清理后，计划包含二十五个文件，总计约八十八兆字节。请仔细核对源位置与目标位置；此界面规划的是整个项目。"
+          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Move请求确认，默认选择No。我们先选择No，确认源文件不变且目标位置仍为空。制定计划和取消确认都不会移动文件。不要把归档目标位置当作额外的备份副本。",
-          "hold_after": 0.7,
-          "speech_text": "Move请求确认，默认选择No。我们先选择No，确认源文件不变且目标位置仍为空。制定计划和取消确认都不会移动文件。不要把归档目标位置当作额外的备份副本。"
+          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "我们只为这个专用示例确认Yes。剩余文件移到目标位置，那里会写入一份归档清单，源位置则留下归档日志。用于制作可丢弃副本的原始项目完全不变。",
-          "hold_after": 0.7,
-          "speech_text": "我们只为这个专用示例确认Yes。剩余文件移到目标位置，那里会写入一份归档清单，源位置则留下归档日志。用于制作可丢弃副本的原始项目完全不变。"
+          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "将目标位置选作项目，再扫描一次。归档后的测量数据库已登记在新路径下，每个非登记库文件都与移动前逐字节一致。新增清单解释了文件数量的变化。历史记录和外部日志不会自动改写或迁移。",
+          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
           "hold_after": 0.7,
           "focus": [
             345,
             80,
             3470,
             670
-          ],
-          "speech_text": "将目标位置选作项目，再扫描一次。归档后的测量数据库已登记在新路径下，每个非登记库文件都与移动前逐字节一致。新增清单解释了文件数量的变化。历史记录和外部日志不会自动改写或迁移。"
+          ]
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "通过Python自动化时，spacr.data_manager提供scan_project、plan_prune、prune、plan_archive和archive。提供确认令牌前，请先检查计划。浏览测量结果可用Database Browser，生成易读的项目概要可用Report。请将独立备份和归档记录与研究文档一起妥善保存。",
+          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "29_report"
-          ],
-          "speech_text": "通过Python自动化时，斯佩克尔.data_manager提供scan_project、plan_prune、prune、plan_archive和archive。提供确认令牌前，请先检查计划。浏览测量结果可用Database Browser，生成易读的项目概要可用Report。请将独立备份和归档记录与研究文档一起妥善保存。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "45_project_browser",
@@ -6050,54 +5899,50 @@
       "slug": "project_browser",
       "series": 5,
       "app_key": "project_browser",
-      "section": "数据",
-      "title": "Project Browser：发现真实项目并解读证据",
-      "description": "查找已登记和未登记的示例，控制搜索深度，按实际磁盘占用排序，在不运行分析或删除文件的情况下查看记录。",
+      "section": "Data and batch runs",
+      "title": "Project Browser: find and inspect projects",
+      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
       "objectives": [
-        "从Help打开Project browser，选择范围有限的搜索文件夹。",
-        "用Depth和Scan发现项目，并按实测字节数排序。",
-        "区分缺失的来源记录、基于声明输出的阶段和真实执行历史。",
-        "阅读详情，只移除搜索根目录，并使用专用记录与数据工具。"
+        "Discover projects using roots and search depth.",
+        "Inspect artifacts and recorded stages.",
+        "Choose the next relevant tool."
       ],
-      "prerequisite": "使用External Masks和Batch Runner的已完成示例。录制比较两个视野测量项目的已验证专用副本，以及一个四通道转换输出的副本，后者包括隐藏检查点和另外两份转换记录。这是两个不同示例，不是处理前后对比。测量项目原有131个文件和转换的7个原文件均保持不变。仅在录制的隔离进程内，原始产物路径才指向测量副本，不改写来源信息。Project Browser没有独立下载、实时预览、Plot控制或AI面板。Scan读取项目证据，不是所有执行日志。排序、深度和移除根目录均用真实控件，不运行分析、删除、外部文件管理器或自动交接。常规SQLite访问只移除专用登记库的空WAL和32768字节SHM，数据库及其他文件的字节不变。",
+      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "打开Help，再选择Project browser。这个共享界面查找项目文件夹，概述已记录或存在于磁盘上的内容。我们使用External Masks和Batch Runner真实输出的专用副本。这是清单浏览工具，不是一次图像分析。",
+          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "37_batch"
-          ],
-          "speech_text": "打开Help，再选择Project browser。这个共享界面查找项目文件夹，概述已记录或存在于磁盘上的内容。我们使用External Masks和Batch Runner真实输出的专用副本。这是清单浏览工具，不是一次图像分析。"
+          ]
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Add folder选择搜索位置。Depth为零时，只检查该文件夹本身。我们选择的父文件夹在下一层包含项目，所以表格为空。在这个深度没有结果，并不意味着项目或图像丢失。",
+          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             360
-          ],
-          "speech_text": "Add folder选择搜索位置。Depth为零时，只检查该文件夹本身。我们选择的父文件夹在下一层包含项目，所以表格为空。在这个深度没有结果，并不意味着项目或图像丢失。"
+          ]
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "把Depth设为一并点击Scan。转换后的图像文件夹出现：七个文件，约三十二兆字节。它们是四张采集到的通道图像、一份转换映射、一份状态记录和一个隐藏检查点。文件数不是细胞数，也不是独立实验数。",
+          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
           "hold_after": 0.7,
           "focus": [
             345,
             180,
             3450,
             660
-          ],
-          "speech_text": "把Depth设为一并点击Scan。转换后的图像文件夹出现：七个文件，约三十二兆字节。它们是四张采集到的通道图像、一份转换映射、一份状态记录和一个隐藏检查点。文件数不是细胞数，也不是独立实验数。"
+          ]
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "因为文件夹没有产物登记库，State显示unknown, nothing recorded。虽然转换确实完成，Stage仍显示nothing run，Last run显示never。这些列反映声明的工作流输出和已登记产物，不是全部转换历史。Unknown不能证明数据质量良好或从未处理。",
+          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6108,36 +5953,33 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ],
-          "speech_text": "因为文件夹没有产物登记库，State显示unknown, nothing recorded。虽然转换确实完成，Stage仍显示nothing run，Last run显示never。这些列反映声明的工作流输出和已登记产物，不是全部转换历史。Unknown不能证明数据质量良好或从未处理。"
+          ]
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "将测量项目添加为第二个搜索根目录。其行显示Measure、约九十一兆字节、一百二十九个文件和登记库时间戳。如果重新扫描后已选行的详情为空，先选择另一行再返回。我们演示这个绕行方法，不修改应用程序。",
+          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
           "hold_after": 0.7,
           "focus": [
             345,
             225,
             3450,
             260
-          ],
-          "speech_text": "将测量项目添加为第二个搜索根目录。其行显示Measure、约九十一兆字节、一百二十九个文件和登记库时间戳。如果重新扫描后已选行的详情为空，先选择另一行再返回。我们演示这个绕行方法，不修改应用程序。"
+          ]
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "选择测量项目，拖动分隔线扩大详情区。三个产物记录在这里为current，但约八十七兆字节仍未登记。Current描述的是基于记录的比较，不表示完整来源信息或科学有效性。Last run详情明确说明时间戳来自登记库。",
+          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
           "hold_after": 0.7,
           "focus": [
             2020,
             300,
             1790,
             260
-          ],
-          "speech_text": "选择测量项目，拖动分隔线扩大详情区。三个产物记录在这里为current，但约八十七兆字节仍未登记。Current描述的是基于记录的比较，不表示完整来源信息或科学有效性。Last run详情明确说明时间戳来自登记库。"
+          ]
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "解读完成标记前先阅读Stages。本例显示Mask输出完整，是因为导入的数组、计数和掩膜存在；并不能证明运行过Mask分割。What could run next列出工作流建议，并非按钮，也不是对每项分析都适合这些实验数据的验证。",
+          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -6147,76 +5989,76 @@
           ],
           "related_lessons": [
             "31_external_masks"
-          ],
-          "speech_text": "解读完成标记前先阅读Stages。本例显示Mask输出完整，是因为导入的数组、计数和掩膜存在；并不能证明运行过Mask分割。What could run next列出工作流建议，并非按钮，也不是对每项分析都适合这些实验数据的验证。"
+          ]
         },
         {
           "visual": "12_size_descending",
-          "narration": "点击Size表头改变顺序。我们按实际字节数核对了升序和降序，行选择仍指向正确项目。本界面没有单独的阶段、时间跨度、模块状态或过期结果筛选控件；请使用实际存在的可排序列和搜索根目录。",
+          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
           "hold_after": 0.7,
           "focus": [
             345,
             300,
             1680,
             170
-          ],
-          "speech_text": "点击Size表头改变顺序。我们按实际字节数核对了升序和降序，行选择仍指向正确项目。本界面没有单独的阶段、时间跨度、模块状态或过期结果筛选控件；请使用实际存在的可排序列和搜索根目录。"
+          ]
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "两个根目录都在时，Depth为零仍能找到直接选中的测量项目，但找不到嵌套在父目录下的转换。恢复为一后两行都回来。深度只改变搜索范围，不会移除数据，也不会改变已经完成多少分析。",
+          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3450,
             340
-          ],
-          "speech_text": "两个根目录都在时，Depth为零仍能找到直接选中的测量项目，但找不到嵌套在父目录下的转换。恢复为一后两行都回来。深度只改变搜索范围，不会移除数据，也不会改变已经完成多少分析。"
+          ]
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Remove停止搜索选中的根目录，不会删除文件夹。我们移除测量根目录，再把未改变的项目加回来。本版本中双击该行会发出选择信号，但仍停留在Project Browser；不要期待自动打开项目或最近执行的窗口。",
-          "hold_after": 0.7,
-          "speech_text": "Remove停止搜索选中的根目录，不会删除文件夹。我们移除测量根目录，再把未改变的项目加回来。本版本中双击该行会发出选择信号，但仍停留在Project Browser；不要期待自动打开项目或最近执行的窗口。"
+          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "查看真实执行日志请用Run History，测量表用Database Browser，清理或归档用Data Manager。在Python中，spacr.projects提供discover、scan和browse。所有原文件不变，也没有启动新分析。执行建议的下一步前，请先查看对应工作流的教程。",
+          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "34_database",
             "44_data_manager"
-          ],
-          "speech_text": "查看真实执行日志请用Run History，测量表用Database Browser，清理或归档用Data Manager。在Python中，斯佩克尔.projects提供discover、scan和browse。所有原文件不变，也没有启动新分析。执行建议的下一步前，请先查看对应工作流的教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge：安全编辑、导入并重新打开",
+      "title": "Napari Bridge: edit and return a label mask",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "分割模型",
-      "description": "使用合成图像与标签文件练习经过逐像素核验的往返流程，包括备份、原生 Fill 与 Undo，以及每次导入之间关闭再打开查看器。",
+      "section": "Mask correction",
+      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
       "objectives": [
-        "在 Make Masks 内打开 Napari Bridge，分别选择图像文件和标签文件。",
-        "区分查看器内编辑、Undo、导入磁盘及修正历史。",
-        "每次导入之间关闭再打开，核验两次保存的修正；不声称同一查看器内的编辑缺陷已修复。"
+        "Open corresponding image and label files.",
+        "Edit and undo changes in napari.",
+        "Return and inspect the saved mask."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "将明确标记为 SYNTHETIC 的示例解压到新文件夹，保留未修改的备份。256x256 uint16 图像和标签掩膜包含十六个人工对象，未验证生物学准确性。录制使用可选依赖 napari 0.9.1，界面字号20。在 Make Masks 的 Napari Bridge 中选择 mask.tif 与 image.tif。用 Fill 将2改为18，Undo 撤销后重做，再点击 Take the mask back；工作掩膜被覆盖，mask.tif.curation.json 记录2,197个变化像素。下次编辑前必须关闭并重新打开：已发现同一查看器内第二次编辑被误报为未更改并丢失，不宣称缺陷已修复。重新打开后将4改为20并导入，变化1,288个像素，保留两条历史。两个保存掩膜的全部65,536个像素均已核验；原始合成数据和图像强度不变。增删标签编号不代表新增或丢失细胞。API：spacr.napari_bridge.load_handoff、open_in_napari、write_back。未声称完成模型训练、生物学验证、无限制重复编辑验收、发布或试听批准。",
+      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "在 Make Masks 内打开 Napari Bridge。它将图像和标签掩膜传给可选的 napari 查看器，再导入修正后的标签。本课使用明确标记为合成的练习示例，不是生物实验。请保留未修改的备份：导入修正会覆盖选定的工作掩膜。",
+          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
           "focus": [
             460,
             235,
@@ -6226,78 +6068,70 @@
           "related_lessons": [
             "14_make_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "在 Make Masks 内打开 Napari Bridge。它将图像和标签掩膜传给可选的 napari 查看器，再导入修正后的标签。本课使用明确标记为合成的练习示例，不是生物实验。请保留未修改的备份：导入修正会覆盖选定的工作掩膜。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "下载示例并解压到新文件夹。先选择 mask 点 tif，再选择 image 点 tif，然后点击 Open in napari。这是两种不同输入：对象的整数标签放在 Mask 中，强度图像用作视觉参照。示例包含十六个人工对象。",
+          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
           "focus": [
             460,
             365,
             3350,
             370
           ],
-          "hold_after": 0.7,
-          "speech_text": "下载示例并解压到新文件夹。先选择 mask 点 tif，再选择 image 点 tif，然后点击 Open in napari。这是两种不同输入：对象的整数标签放在 Mask 中，强度图像用作视觉参照。示例包含十六个人工对象。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Napari 打开一个图像图层，以及名为 mask 的 Labels 图层。选择 mask 图层进行编辑，不要改变图像强度。标签零是背景。颜色区分对象身份，并不代表生物学类别或置信度。录制时我们调大了真实界面的字号，没有改动源图像。",
-          "hold_after": 0.7,
-          "speech_text": "Napari 打开一个图像图层，以及名为 mask 的 Labels 图层。选择 mask 图层进行编辑，不要改变图像强度。标签零是背景。颜色区分对象身份，并不代表生物学类别或置信度。录制时我们调大了真实界面的字号，没有改动源图像。"
+          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "在做任何修改之前，回到 spaCR 点击 Take the mask back。状态显示掩膜未改变，不会写入任何内容。导入与在查看器内编辑是分开的操作。这次无变化检查不能证明稍后的修正已保存；还要检查那个结果。",
+          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7,
-          "speech_text": "在做任何修改之前，回到 斯佩克尔 点击 Take the mask back。状态显示掩膜未改变，不会写入任何内容。导入与在查看器内编辑是分开的操作。这次无变化检查不能证明稍后的修正已保存；还要检查那个结果。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "在 napari 中选择标签十八，选择 Fill，然后点击标为二的练习对象。只有该对象的标签会改变。这是受控的重新标记练习，不是改进生物学分割。磁盘上的工作文件尚未改变。",
-          "hold_after": 0.7,
-          "speech_text": "在 napari 中选择标签十八，选择 Fill，然后点击标为二的练习对象。只有该对象的标签会改变。这是受控的重新标记练习，不是改进生物学分割。磁盘上的工作文件尚未改变。"
+          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "使用 Undo 恢复原标签；本次录制使用 Control Z。然后在导入前重复同一次 Fill 操作。Undo 作用于查看器的编辑历史。不要将它与导入后恢复旧文件混为一谈；后者需要保留备份。",
-          "hold_after": 0.7,
-          "speech_text": "使用 Undo 恢复原标签；本次录制使用 Control Z。然后在导入前重复同一次 Fill 操作。Undo 作用于查看器的编辑历史。不要将它与导入后恢复旧文件混为一谈；后者需要保留备份。"
+          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "点击 Take the mask back。状态显示两千一百九十七个像素发生变化，并给出修正历史文件。由于二变成十八，新增一个标签、删除一个标签，但仍然只有十六个对象。请核验保存的掩膜和历史，而不仅是 napari 显示的颜色。",
+          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7,
-          "speech_text": "点击 Take the mask back。状态显示两千一百九十七个像素发生变化，并给出修正历史文件。由于二变成十八，新增一个标签、删除一个标签，但仍然只有十六个对象。请核验保存的掩膜和历史，而不仅是 napari 显示的颜色。"
+          "hold_after": 0.7
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "现在先点击 Close viewer 关闭查看器，再重新打开，然后才能进行下一次编辑。在测试版本中这一步必不可少：同一查看器内的第二次编辑可能被误报为未改变并丢失。我们演示的是经过核验的关闭再打开流程，不是在宣称应用缺陷已修复。",
+          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7,
-          "speech_text": "现在先点击 Close viewer 关闭查看器，再重新打开，然后才能进行下一次编辑。在测试版本中这一步必不可少：同一查看器内的第二次编辑可能被误报为未改变并丢失。我们演示的是经过核验的关闭再打开流程，不是在宣称应用缺陷已修复。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "重新打开后，将标签四替换为二十，再次导入。这会改变一千二百八十八个像素，并保留先前的历史条目。完成后关闭查看器。保留原始图像、修正后的掩膜及其来源记录，重新运行受影响的测量，不要沿用与旧标签对应的结果。",
+          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
           "focus": [
             460,
             445,
@@ -6308,104 +6142,101 @@
             "08_measure",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "重新打开后，将标签四替换为二十，再次导入。这会改变一千二百八十八个像素，并保留先前的历史条目。完成后关闭查看器。保留原始图像、修正后的掩膜及其来源记录，重新运行受影响的测量，不要沿用与旧标签对应的结果。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC：真实计数、阈值取舍与保存的图形",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "结果与质量控制",
-      "description": "使用已发布的计数示例运行Barcode QC，在实际保存的图形中比较读段深度和阈值取舍。",
+      "section": "Map Barcodes",
+      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
       "objectives": [
-        "在Map Barcodes内找到Barcode QC并选择真实计数表。",
-        "区分演示目标与有实验依据的选择。",
-        "检查警告、保存的图形及独立验证的表格。",
-        "区分低读段孔、超目标孔和条码序列冲突。"
+        "Choose count inputs and QC settings.",
+        "Inspect coverage and positional effects.",
+        "Compare thresholds and keep the resulting tables and plots."
       ],
-      "prerequisite": "使用Regression下载示例中plate_1_unique_combinations.csv的副本及新的输出目录。该表不是本次失败的FASTQ比对尝试的输出。包含172756行、49464341条已映射读段、384孔和1379种观测向导。目标5和中位数仅用于演示，低读段比例0.1，开启Plot/Save/Verbose。省略可选QC及参考输入。独立检查2884项，数值误差为零。src警告和空Figures面板仍未修复；PNG在真实外部查看器中显示。无实时预览、GPU计算、AI请求、生物学验证或发布。API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "打开Map Barcodes，再选择其中嵌套的Barcode QC。此流程检查映射后的计数，不会重新映射FASTQ读段。我们使用链接的Regression课程中已发布的计数表示例。它不是之前那次失败的原始读段映射尝试产生的结果。",
+          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Map Barcodes，再选择其中嵌套的Barcode QC。此流程检查映射后的计数，不会重新映射FASTQ读段。我们使用链接的Regression课程中已发布的计数表示例。它不是之前那次失败的原始读段映射尝试产生的结果。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "在Count data中选择plate one unique combinations的副本。核对实际选中的文件，不要留下占位路径。这张真实表包含三百八十四个孔中约四千九百五十万条已映射读段。保持原件不变，并为QC输出选择新的目录。",
-          "hold_after": 0.7,
-          "speech_text": "在Count data中选择plate one unique combinations的副本。核对实际选中的文件，不要留下占位路径。这张真实表包含三百八十四个孔中约四千九百五十万条已映射读段。保持原件不变，并为QC输出选择新的目录。"
+          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Target gRNAs per well表示用于推导读段丰度阈值的目标。这里保留演示值五，并使用中位数。这不是推荐的实验设计，也不能证明单一向导归属。根据自己的设计选择目标，检查产生的取舍，而不只看建议数字。",
-          "hold_after": 0.7,
-          "speech_text": "Target gRNAs per well表示用于推导读段丰度阈值的目标。这里保留演示值五，并使用中位数。这不是推荐的实验设计，也不能证明单一向导归属。根据自己的设计选择目标，检查产生的取舍，而不只看建议数字。"
+          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "低读段比例用于识别相对于整板中位数读段异常少的孔。这里为零点一，三百八十四个孔都没有低于计算出的界限。这是读段深度标记，不保证每个孔、向导或生物学测量都可靠。",
-          "hold_after": 0.7,
-          "speech_text": "低读段比例用于识别相对于整板中位数读段异常少的孔。这里为零点一，三百八十四个孔都没有低于计算出的界限。这是读段深度标记，不保证每个孔、向导或生物学测量都可靠。"
+          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "启用Plot和Save，明确输出位置，然后点击Run。这是小型表格分析，不是GPU分割任务，此屏幕也没有实时预览控件。我们将可选的映射QC和条码参考输入留空。仅凭计数表无法得出需要这些文件支持的结论。",
-          "hold_after": 0.7,
-          "speech_text": "启用Plot和Save，明确输出位置，然后点击Run。这是小型表格分析，不是GPU分割任务，此屏幕也没有实时预览控件。我们将可选的映射QC和条码参考输入留空。仅凭计数表无法得出需要这些文件支持的结论。"
+          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "阅读实际控制台，包括警告。后台任务完成了，但这个版本错误地提示缺少src，尽管模块使用的是Count data。我们核验了真实输入和保存的表格，并没有修复预检查。不要把这个已诊断的不一致理解为可以忽略其他错误。",
-          "hold_after": 0.7,
-          "speech_text": "阅读实际控制台，包括警告。后台任务完成了，但这个版本错误地提示缺少src，尽管模块使用的是Count data。我们核验了真实输入和保存的表格，并没有修复预检查。不要把这个已诊断的不一致理解为可以忽略其他错误。"
+          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "这个版本虽然保存了两张PNG图，却仍让Figures面板保持空白。在图像查看器中打开输出目录的barcode下划线qc点png和threshold下划线sweep点png。接下来的画面是真实系统查看器，不是向spaCR插入图形，也不表示GUI已经修好。",
-          "hold_after": 0.7,
-          "speech_text": "这个版本虽然保存了两张PNG图，却仍让Figures面板保持空白。在图像查看器中打开输出目录的barcode下划线qc点png和threshold下划线sweep点png。接下来的画面是真实系统查看器，不是向斯佩克尔插入图形，也不表示GUI已经修好。"
+          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "检查读段深度、行列效应和观测文库分布。深度虚线标出低读段孔，柱形图比较各行或各列的中位数与整板中位数。文库曲线显示观测到的向导之间读段代表性不均。没有参考文库，就无法知道哪些预期向导完全缺失。",
-          "hold_after": 0.7,
-          "speech_text": "检查读段深度、行列效应和观测文库分布。深度虚线标出低读段孔，柱形图比较各行或各列的中位数与整板中位数。文库曲线显示观测到的向导之间读段代表性不均。没有参考文库，就无法知道哪些预期向导完全缺失。"
+          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "查看阈值扫描，不要盲目接受一个界限。这里推导出的阈值约为零点零一二一，也就是一个孔读段的百分之一点二一。它使向导数中位数为五，保留所有孔和约百分之五十八的已映射读段，但仍有约百分之四十的孔超过目标。",
-          "hold_after": 0.7,
-          "speech_text": "查看阈值扫描，不要盲目接受一个界限。这里推导出的阈值约为零点零一二一，也就是一个孔读段的百分之一点二一。它使向导数中位数为五，保留所有孔和约百分之五十八的已映射读段，但仍有约百分之四十的孔超过目标。"
+          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "红色曲线统计超过五个向导目标的孔。它不测量条码序列相似性，低于此目标也不能证明单一向导归属。这里放宽阈值会增加超目标比例，却不会多保留孔。比较保存的扫描表，为自己的分析说明选择依据，而不要将示例当作通用阈值。",
-          "hold_after": 0.7,
-          "speech_text": "红色曲线统计超过五个向导目标的孔。它不测量条码序列相似性，低于此目标也不能证明单一向导归属。这里放宽阈值会增加超目标比例，却不会多保留孔。比较保存的扫描表，为自己的分析说明选择依据，而不要将示例当作通用阈值。"
+          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "将原始计数、设置、控制台日志、建议、表格和图形保存在一起。独立检查无数值差异地复现了保存的孔、位置和扫描统计。这验证的是计算，不是生物学解释。AI辅助是可选的，这里未发送请求；以后获得的建议也应与实际数据和API核对。",
+          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "将原始计数、设置、控制台日志、建议、表格和图形保存在一起。独立检查无数值差异地复现了保存的孔、位置和扫描统计。这验证的是计算，不是生物学解释。AI辅助是可选的，这里未发送请求；以后获得的建议也应与实际数据和API核对。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "48_hit_list",
@@ -6623,24 +6454,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare：比较两个真实的Measure快照",
+      "title": "Run Compare: compare saved runs",
       "series": 5,
       "app_key": "run_compare",
-      "section": "结果与质量控制",
+      "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "比较保存的Measure输出、设置和数量，区分缺少结果与科学上的阴性结论。",
+      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
       "objectives": [
-        "从Home的Data打开Run Compare并准备可下载示例。",
-        "保留历史元数据，比较两次不同的真实运行。",
-        "正确解读设置、数量和警告，不夸大证据。"
+        "Select baseline and comparison runs.",
+        "Inspect settings and count differences.",
+        "Locate available result comparisons."
       ],
-      "prerequisite": "解压Run_Compare_real_snapshots.zip，在spaCR环境中运行prepare_run_compare_download.py并指定全新目标文件夹，然后用Browse选择。此步骤明确迁移两个数据库及其历史记录，不是GUI自动导入、新分析或完整项目归档。完整SHA-256与原始记录一致；仅项目位置、路径和迁移说明改变。两次真实运行使用spaCR 1.5.0.5，时间为2026年9月11日03:37:56和04:05:56 UTC。每次包含601个细胞、622个细胞核、373个病原体对象、601个细胞质对象和601行png_list，覆盖1块板、4个孔、16个视野。对象身份和设置一致，但数据库字节不同。不证明所有特征值相同、准确率或模型改善。不包含回归结果。API：spacr.run_compare.runs_in、compare_runs和spacr.artifacts.Registry。不使用GPU、AI服务或新分析，不发布。",
+      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "打开Home，选择Data，再打开Run Compare。这是主模块，不是Regression内的嵌套工具。它读取两次运行记录的输出。示例使用可下载数据流程产生的两个真实Measure快照，不会为了让比较有看点而虚构变化。",
+          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
           "focus_modules": [
             "run_compare"
           ],
@@ -6648,60 +6479,54 @@
             "08_measure",
             "40_run_history"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开主页，选择Data，再打开Run Compare。这是主模块，不是Regression内的嵌套工具。它读取两次运行记录的输出。示例使用可下载数据流程产生的两个真实Measure快照，不会为了让比较有看点而虚构变化。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "下载并解压配套快照压缩包。按照readme，在spaCR环境中运行准备脚本，指定一个全新的目标文件夹。它明确迁移两个未修改的数据库及其历史记录。这不是自动导入按钮，不是重新分析，也不是原始项目的完整副本。",
-          "hold_after": 0.7,
-          "speech_text": "下载并解压配套快照压缩包。按照readme，在斯佩克尔环境中运行准备脚本，指定一个全新的目标文件夹。它明确迁移两个未修改的数据库及其历史记录。这不是自动导入按钮，不是重新分析，也不是原始项目的完整副本。"
+          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "点击Browse，选择准备好的比较文件夹。脚本保留原始运行标识、设置、版本、时间和内容哈希，仅更改复制索引中的地址与迁移说明。请保留原始项目；如果历史记录指向的数据库后来被覆盖，这条记录就不能充当保存的快照。",
-          "hold_after": 0.7,
-          "speech_text": "点击Browse，选择准备好的比较文件夹。脚本保留原始运行标识、设置、版本、时间和内容哈希，仅更改复制索引中的地址与迁移说明。请保留原始项目；如果历史记录指向的数据库后来被覆盖，这条记录就不能充当保存的快照。"
+          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "将较早的Measure运行选为基线A，较晚的选为B，然后点击Compare。两次均由spaCR一点五点零点五版本生成。较新的查看器不会改变历史版本。这里设置和数量一致，是一致性演示，不是模型得到改善的证据。",
+          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
           "focus": [
             350,
             235,
             3450,
             190
           ],
-          "hold_after": 0.7,
-          "speech_text": "将较早的Measure运行选为基线A，较晚的选为B，然后点击Compare。两次均由斯佩克尔一点五点零点五版本生成。较新的查看器不会改变历史版本。这里设置和数量一致，是一致性演示，不是模型得到改善的证据。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "启用Show unchanged settings，查看记录值。Settings标签上的零表示没有差异，并非没有保存设置。展开条目，比较具体数值。这两次运行记录的设置完全相同，因此本例不能说明改变某个参数会产生什么效果。",
+          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
           "focus": [
             350,
             360,
             2300,
             1400
           ],
-          "hold_after": 0.7,
-          "speech_text": "启用Show unchanged settings，查看记录值。Settings标签上的零表示没有差异，并非没有保存设置。展开条目，比较具体数值。这两次运行记录的设置完全相同，因此本例不能说明改变某个参数会产生什么效果。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Counts显示每次有六百零一个细胞、六百二十二个细胞核，覆盖十六个视野和四个孔。Delta是B减A，所有显示差值都是零。独立检查还核对了对象身份。仅仅总数相同，并不能证明对象相同或所有测量特征值一致。",
+          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
           "focus": [
             350,
             425,
             1250,
             720
           ],
-          "hold_after": 0.7,
-          "speech_text": "Counts显示每次有六百零一个细胞、六百二十二个细胞核，覆盖十六个视野和四个孔。Delta是B减A，所有显示差值都是零。独立检查还核对了对象身份。仅仅总数相同，并不能证明对象相同或所有测量特征值一致。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Hits提示没有注册回归结果。这些快照仅包含测量，因此没有可显示的命中排序比较。这并不表示回归没有发现显著命中，而是这里根本没有回归结果。请通过Regression和Run History教程追踪所需输出。",
+          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
           "focus": [
             350,
             405,
@@ -6712,32 +6537,34 @@
             "13_regression",
             "40_run_history"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hits提示没有注册回归结果。这些快照仅包含测量，因此没有可显示的命中排序比较。这并不表示回归没有发现显著命中，而是这里根本没有回归结果。请通过Regression和Run History教程追踪所需输出。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "两边选择同一次运行会出现警告。请阅读它，不要把产生比较结果当成自动验证。恢复为两次不同的运行，在下结论前核对来源、版本和范围。警告提示应调查原因，而不是要求强行得出结果。",
+          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
           "focus": [
             350,
             235,
             3450,
             220
           ],
-          "hold_after": 0.7,
-          "speech_text": "两边选择同一次运行会出现警告。请阅读它，不要把产生比较结果当成自动验证。恢复为两次不同的运行，在下结论前核对来源、版本和范围。警告提示应调查原因，而不是要求强行得出结果。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "现已恢复不同运行的组合，原始文件保持不变。Run Compare只读取并比较，不重新运行Measure，也不需要GPU或AI服务。Python提供runs_in和compare_runs进行相同比较。比较自己的运行前，请保存真实输出快照并记录其来源。",
+          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "现已恢复不同运行的组合，原始文件保持不变。Run Compare只读取并比较，不重新运行Measure，也不需要GPU或AI服务。Python提供runs_in和compare_runs进行相同比较。比较自己的运行前，请保存真实输出快照并记录其来源。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "51_control_charts",
@@ -6746,127 +6573,124 @@
       "series": 5,
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
-      "section": "结果与质量控制",
-      "title": "Control Charts：用明确的对照和界限检查实验批次序列",
-      "description": "从 QC 打开专用工具，加载明确标注为合成数据的三十块板示例，核对所选对照与基线，并导出经过独立核验的图表数据点。",
+      "section": "Data",
+      "title": "Control Charts: monitor controls across plates",
+      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
       "objectives": [
-        "在 QC 中找到 Control Charts 并加载附带的合成 CSV。",
-        "区分按孔记录的输入行与按板计算的均值，只选择一种对照。",
-        "比较规则，修改并恢复对照和基线，阅读结果中的警示。",
-        "导出实际的数据点表，不宣称导出了图像或完成了生物学验证。"
+        "Choose the measurement and control population.",
+        "Set the baseline and alert rules.",
+        "Inspect alerts and export chart points."
       ],
-      "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv 完全是合成数据，改编自应用中使用固定随机种子的测试：三十块虚构的板，每块板每种对照有三个孔，第二十块板之后的上升漂移由程序设定。日期仅表示示例顺序，不是采集记录。此专用面板目前没有 Load test data 按钮；本课不下载显微图像，不运行模型或 GPU 分析，也不发送 AI 请求。旧视频只有两块板，应用拒绝估计界限，因此未被采用。设置栏较窄，关闭时会截断较长选项；打开真实下拉菜单即可看到全名。本课不演示 Z-prime 和重新估计模式。",
+      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "打开 QC，再点击其中的 Control Charts。这个专用流程显示一系列实验板上的重复对照。附带 CSV 明确属于合成数据，包括其中的漂移；它演示软件操作，而不是实际采集的实验或经过验证的检测。",
+          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
-          ],
-          "speech_text": "打开 QC，再点击其中的 Control Charts。这个专用流程显示一系列实验板上的重复对照。附带 CSV 明确属于合成数据，包括其中的漂移；它演示软件操作，而不是实际采集的实验或经过验证的检测。"
+          ]
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "选择 Load table，打开示例 CSV。文件有二百七十行孔级记录：三十块板，每块板含三个阴性对照孔、三个阳性对照孔和三个样本孔。图中每个点是每块板所选对照的均值，并非每个细胞一个点。",
+          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ],
-          "speech_text": "选择 Load table，打开示例 CSV。文件有二百七十行孔级记录：三十块板，每块板含三个阴性对照孔、三个阳性对照孔和三个样本孔。图中每个点是每块板所选对照的均值，并非每个细胞一个点。"
+          ]
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "按照屏幕上的列名核对 Plate、Run order、Measurement 和 Control column。在 Control is 中只选择 neg。此列表支持多选；如果所有类别都未选中，图表会使用全部行。不要以为加载文件就已选好所需的对照。",
+          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
           "hold_after": 0.7,
           "focus": [
             290,
             460,
             740,
             700
-          ],
-          "speech_text": "按照屏幕上的列名核对 Plate、Run order、Measurement 和 Control column。在 Control is 中只选择 neg。此列表支持多选；如果所有类别都未选中，图表会使用全部行。不要以为加载文件就已选好所需的对照。"
+          ]
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "打开 Sigma from，查看完整选项。这里每块板有三个选定的孔，因此 Auto 选择子组估计量。界限使用基线板内的变异，并按均值的样本量调整，而不是使用整个漂移序列的标准差。",
+          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
           "hold_after": 0.7,
           "focus": [
             290,
             980,
             1760,
             600
-          ],
-          "speech_text": "打开 Sigma from，查看完整选项。这里每块板有三个选定的孔，因此 Auto 选择子组估计量。界限使用基线板内的变异，并按均值的样本量调整，而不是使用整个漂移序列的标准差。"
+          ]
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Rules 提供常用的四条规则、全部八条规则和 Limits only。规则越多，出现误报的机会也越多。这里选择 Limits only，单独检查三西格玛规则；更改下拉选项会重新计算图表，无需另按 Run。",
+          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
           "hold_after": 0.7,
           "focus": [
             290,
             1160,
             1900,
             450
-          ],
-          "speech_text": "Rules 提供常用的四条规则、全部八条规则和 Limits only。规则越多，出现误报的机会也越多。这里选择 Limits only，单独检查三西格玛规则；更改下拉选项会重新计算图表，无需另按 Run。"
+          ]
         },
         {
           "visual": "06_limits_only",
-          "narration": "Baseline plates 为二十：P 零一到 P 二十用于估计界限，再将界限应用于剩余的板。P 二十二到 P 三十共九个点超过上限。报告和规则表会标明这些点；这些预先编程的信号不是生物学发现。",
+          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
           "hold_after": 0.7,
           "focus": [
             1010,
             450,
             2790,
             1600
-          ],
-          "speech_text": "Baseline plates 为二十：P 零一到 P 二十用于估计界限，再将界限应用于剩余的板。P 二十二到 P 三十共九个点超过上限。报告和规则表会标明这些点；这些预先编程的信号不是生物学发现。"
+          ]
         },
         {
           "visual": "07_positive_control",
-          "narration": "取消勾选 neg，只选择 pos。图表现在显示另一种对照的均值和它自身的基线界限，在本例中没有违反规则一的点。仅凭图表没有警报，不能证明检测有效。继续之前恢复 neg。",
-          "hold_after": 0.7,
-          "speech_text": "取消勾选 neg，只选择 pos。图表现在显示另一种对照的均值和它自身的基线界限，在本例中没有违反规则一的点。仅凭图表没有警报，不能证明检测有效。继续之前恢复 neg。"
+          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "把 Baseline plates 改为十二，观察中心线和界限的变化，再恢复二十。应用至少要求八块基线板，但这只是最低限制，并不是建议采用的数量。应事先规划并说明基线的依据，不要仅为消除不想看到的警报而调整它。",
+          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
           "hold_after": 0.7,
           "focus": [
             295,
             1400,
             2600,
             375
-          ],
-          "speech_text": "把 Baseline plates 改为十二，观察中心线和界限的变化，再恢复二十。应用至少要求八块基线板，但这只是最低限制，并不是建议采用的数量。应事先规划并说明基线的依据，不要仅为消除不想看到的警报而调整它。"
+          ]
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "恢复原来的对照和二十块板的基线后，选择 Export points，另存一个 CSV。三十行数据包含板标识、顺序、均值、子组大小与离散程度、界限、标准化距离、是否属于基线以及触发的规则。这不是图表图像或完整配置的导出。",
+          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ],
-          "speech_text": "恢复原来的对照和二十块板的基线后，选择 Export points，另存一个 CSV。三十行数据包含板标识、顺序、均值、子组大小与离散程度、界限、标准化距离、是否属于基线以及触发的规则。这不是图表图像或完整配置的导出。"
+          ]
         },
         {
           "visual": "12_exported",
-          "narration": "已将导出的每个标识和数值字段与源 CSV 核对，包括规则一的标记。原始输入保持不变。编写脚本时，控制图部件模块提供 ControlChartSpec 和 control_chart，结果对象提供 points_frame。调查实际警报时，应一起保留输入、设置和采集记录。",
+          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
-          ],
-          "speech_text": "已将导出的每个标识和数值字段与源 CSV 核对，包括规则一的标记。原始输入保持不变。编写脚本时，控制图部件模块提供 ControlChartSpec 和 control_chart，结果对象提供 points_frame。调查实际警报时，应一起保留输入、设置和采集记录。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Control_Charts_SYNTHETIC_campaign.csv"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "52_pipeline_graph",
@@ -6874,30 +6698,28 @@
       "slug": "pipeline_graph",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "探索",
-      "title": "Pipeline Graph：检查真实来源记录和缺失产物",
-      "description": "读取真实产物记录，区分文件缺失与来源未记录，筛选图并复制完整的Graphviz表示，而不重新运行分析。",
+      "section": "Explore",
+      "title": "Pipeline Graph: inspect outputs and dependencies",
+      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
       "objectives": [
-        "从Help打开Pipeline graph并选择已有项目。",
-        "对照来源记录与实际文件是否存在，理解未记录的依赖关系。",
-        "使用Current、Stale和Missing，不把隐藏节点误认为记录不存在。",
-        "用Redraw重新读取，复制完整图，再通过适当工作流程调查。"
+        "Open the artifact graph for a project.",
+        "Inspect paths, states and dependencies.",
+        "Copy the diagram and refresh its records."
       ],
-      "prerequisite": "使用真实的External Masks项目和已完成的Data Manager清理演示。本录制在隔离环境内的历史项目路径读取清理后归档快照的逐字节验证副本，不改写原始数据或注册记录。另一个真实的Batch Runner转换结果用于说明来源未记录，不是未经处理的实验。原项目131个文件、归档26个文件和转换结果7个文件均保持不变。三个历史项目记录没有已记录的输入边；第四条记录属于另一个项目路径。这里不删除文件、不运行分析、专用下载、图像实时预览、Plot操作、AI请求或恢复任务。",
+      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "打开Help，再选择Pipeline graph。此界面检查已记录的输出及依赖关系，不执行流水线。我们在独立副本上使用External Masks的采集数据输出，以及Data Manager的真实清理示例。请参照对应教程生成数据并安全管理数据。",
+          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "44_data_manager"
-          ],
-          "speech_text": "打开Help，再选择Pipeline graph。此界面检查已记录的输出及依赖关系，不执行流水线。我们在独立副本上使用External Masks的采集数据输出，以及Data Manager的真实清理示例。请参照对应教程生成数据并安全管理数据。"
+          ]
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "先用Browse选择转换后的图像文件夹。Batch Runner转换已完成，但这里未注册任何输出产物，所以图是空的。这是来源记录缺失，不是从未处理过的证据。Declared order描述模块间可能的依赖关系，不是已完成运行的历史。",
+          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6908,141 +6730,136 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ],
-          "speech_text": "先用Browse选择转换后的图像文件夹。Batch Runner转换已完成，但这里未注册任何输出产物，所以图是空的。这是来源记录缺失，不是从未处理过的证据。Declared order描述模块间可能的依赖关系，不是已完成运行的历史。"
+          ]
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "选择测量项目清理后的快照。三个历史记录出现：测量数据库、裁剪图像和资源日志。两个路径仍存在，而裁剪图像文件夹确实在之前的独立副本清理中被移除。本次录制不删除任何内容，原始实验项目保持完好。",
+          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ],
-          "speech_text": "选择测量项目清理后的快照。三个历史记录出现：测量数据库、裁剪图像和资源日志。两个路径仍存在，而裁剪图像文件夹确实在之前的独立副本清理中被移除。本次录制不删除任何内容，原始实验项目保持完好。"
+          ]
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "点击测量数据库方框，拖动分隔条拓宽详情。查看路径、角色、运行标识、生成时间、spaCR版本和设置摘要。摘要是指纹，不是完整设置，也不是恢复按钮。Current不能证明科学有效性或来源记录完整。",
+          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ],
-          "speech_text": "点击测量数据库方框，拖动分隔条拓宽详情。查看路径、角色、运行标识、生成时间、斯佩克尔版本和设置摘要。摘要是指纹，不是完整设置，也不是恢复按钮。Current不能证明科学有效性或来源记录完整。"
+          ]
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "选择红色裁剪图像方框。Missing表示注册路径不存在。记录大小仍显示约三点四兆字节，共一百零四个文件，即一百零三张裁剪图像和一个格式记录。这是历史大小，不是当前磁盘占用，更不是一百零四个细胞。",
+          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ],
-          "speech_text": "选择红色裁剪图像方框。Missing表示注册路径不存在。记录大小仍显示约三点四兆字节，共一百零四个文件，即一百零三张裁剪图像和一个格式记录。这是历史大小，不是当前磁盘占用，更不是一百零四个细胞。"
+          ]
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "资源日志是项目文件夹外的独立产物。其路径仍存在，但它没有被移入归档。此图没有已记录的输入边。Nothing was derived from this表示这里未记录下游依赖，不代表科学输出彼此独立。",
+          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ],
-          "speech_text": "资源日志是项目文件夹外的独立产物。其路径仍存在，但它没有被移入归档。此图没有已记录的输入边。Nothing was derived from this表示这里未记录下游依赖，不代表科学输出彼此独立。"
+          ]
         },
         {
           "visual": "11_missing_detail",
-          "narration": "关闭Current，就只显示缺失的裁剪图像产物。Current、Stale和Missing是显示筛选器，不是文件操作。Stale是针对已记录来源的警告；本例没有过时产物。此界面没有独立的模块、产物类型或工作流程分支筛选器。",
+          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ],
-          "speech_text": "关闭Current，就只显示缺失的裁剪图像产物。Current、Stale和Missing是显示筛选器，不是文件操作。Stale是针对已记录来源的警告；本例没有过时产物。此界面没有独立的模块、产物类型或工作流程分支筛选器。"
+          ]
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "再关闭Missing。所有方框消失，但顶部仍报告三个产物中有一个缺失。在此版本中，空白画布错误地显示没有注册内容，之前的详情也可能保留。解释这些信息前先检查筛选器；隐藏不等于删除。",
+          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ],
-          "speech_text": "再关闭Missing。所有方框消失，但顶部仍报告三个产物中有一个缺失。在此版本中，空白画布错误地显示没有注册内容，之前的详情也可能保留。解释这些信息前先检查筛选器；隐藏不等于删除。"
+          ]
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Copy Graphviz将完整图放入剪贴板，包括隐藏节点。我们核对了三个真实产物标识全部存在，也没有虚构依赖箭头。这是供其他工具使用的Graphviz DOT文本，不是保存的图片，也不是仅导出当前可见选择。",
+          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
           "hold_after": 0.7,
           "focus": [
             345,
             230,
             3450,
             200
-          ],
-          "speech_text": "Copy Graphviz将完整图放入剪贴板，包括隐藏节点。我们核对了三个真实产物标识全部存在，也没有虚构依赖箭头。这是供其他工具使用的Graphviz DOT文本，不是保存的图片，也不是仅导出当前可见选择。"
+          ]
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "重新打开Current，再打开Missing：先恢复两个方框，再恢复全部三个。重新选择一个方框，使详情对应当前可见图。显示筛选器不会修复缺失文件、改变来源记录，或选择要重跑的模块。采取行动前，请调查实际注册路径和上游流程。",
+          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ],
-          "speech_text": "重新打开Current，再打开Missing：先恢复两个方框，再恢复全部三个。重新选择一个方框，使详情对应当前可见图。显示筛选器不会修复缺失文件、改变来源记录，或选择要重跑的模块。采取行动前，请调查实际注册路径和上游流程。"
+          ]
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Redraw重新读取注册表并再次检查产物。我们的记录及文件字节保持不变。已保存设置和运行日志请用Run History，明确执行清理请用Data Manager。在Python中，spacr.pipeline_graph提供build_graph和to_dot。此检查不执行重新生成或科学验证。",
+          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "44_data_manager",
             "45_project_browser"
-          ],
-          "speech_text": "Redraw重新读取注册表并再次检查产物。我们的记录及文件字节保持不变。已保存设置和运行日志请用Run History，明确执行清理请用Data Manager。在Python中，斯佩克尔.pipeline_graph提供build_graph和to_dot。此检查不执行重新生成或科学验证。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "53_prediction_profiler",
       "number": 53,
       "slug": "prediction_profiler",
-      "title": "预测剖面",
+      "title": "Prediction Profiler: explore a fitted model",
       "series": 5,
       "app_key": "profiler",
-      "section": "探索",
-      "description": "导入用合成数据拟合的模型，改变一个输入，并检查固定值和绘图设置对预测的影响。",
+      "section": "Explore",
+      "description": "Load model coefficients, vary one input while holding others fixed, and inspect predicted responses.",
       "objectives": [
-        "在 Regression 中打开 Prediction Profiler 并导入适用的系数表。",
-        "区分模型拟合、逆链接函数、假定输入范围和绘图分辨率。",
-        "比较两个输入，调整固定值并恢复中点。"
+        "Load coefficients with the correct model link.",
+        "Sweep one input and adjust held values.",
+        "Inspect response curves and sensitivity."
       ],
       "example_files": [
         "SYNTHETIC_profiler_example.zip"
       ],
-      "prerequisite": "将标有 SYNTHETIC 的示例解压到新文件夹。示例包含121条构造观测、用 statsmodels 实际完成 OLS 拟合后保存的系数、清单和可复现脚本。不声称经过生物学验证或留出数据验证。界面只导入 feature/coefficient 和 Intercept，不拟合模型，也不读取观测数据。保持 identity 链接。文件导入采用假定的两行0..1设计，固定值为0.5。排名使用0.05..0.95，曲线覆盖0..1。已独立核对338个曲线值和12个排名值。置换检验的边际效应不能替代联合拟合的预测模型。API：spacr.profiler.from_coefficients、profile、sensitivity；ProfilerScreen.set_model/set_design 是编程接口，不是文件选择控件。不声称提供置信区间、因果结论、发布或听审批准。",
+      "prerequisite": "Download the synthetic coefficient example, or use coefficients from a suitable fitted model. Match its link and input encoding. The coefficient-file route assumes input ranges of zero to one; separate marginal effects are not substitutes for a jointly fitted prediction model.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "打开 Regression，再进入其嵌套工具 Prediction Profiler。本课使用明确标注的合成教学示例，而不是生物筛选结果。我们改变一个输入，同时固定另一个输入，检查已经拟合的模型。剖面工具只读取模型，不会另行训练模型。",
+          "narration": "Open Regression, then Prediction Profiler to explore predicted responses from a fitted model. The linked example uses synthetic data.",
           "focus": [
             460,
             45,
@@ -7052,108 +6869,99 @@
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开 Regression，再进入其嵌套工具 Prediction Profiler。本课使用明确标注的合成教学示例，而不是生物筛选结果。我们改变一个输入，同时固定另一个输入，检查已经拟合的模型。剖面工具只读取模型，不会另行训练模型。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_explicit_synthetic_coefficients_picker",
-          "narration": "下载并解压随附示例，然后通过 Browse 选择合成 OLS 系数文件。文件包含截距和两个已经拟合的输入系数。压缩包还提供观测数据和准备脚本。这些系数来自对构造数据实际进行的最小二乘拟合，并非编造的回归输出。",
+          "narration": "Download and unzip the example, then Browse to the synthetic OLS coefficients CSV. Include the intercept when supplying your own fitted coefficients.",
           "focus": [
             890,
             390,
             1920,
             1080
           ],
-          "hold_after": 0.7,
-          "speech_text": "下载并解压随附示例，然后通过 Browse 选择合成 OLS 系数文件。文件包含截距和两个已经拟合的输入系数。压缩包还提供观测数据和准备脚本。这些系数来自对构造数据实际进行的最小二乘拟合，并非编造的回归输出。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_link_options_keep_identity",
-          "narration": "将 Link 保持为 identity，因为本示例采用普通最小二乘拟合。其他链接对应不同模型族；更改选择器不会转换或重新训练原模型。即使曲线看起来合理，响应尺度错误仍然是错误。务必使用原拟合所采用的链接函数。",
+          "narration": "Set Link to the function used by the fitted model. Keep identity for this ordinary least-squares example.",
           "focus": [
             2910,
             465,
             900,
             610
           ],
-          "hold_after": 0.7,
-          "speech_text": "将 Link 保持为 identity，因为本示例采用普通最小二乘拟合。其他链接对应不同模型族；更改选择器不会转换或重新训练原模型。即使曲线看起来合理，响应尺度错误仍然是错误。务必使用原拟合所采用的链接函数。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_loaded_identity_model",
-          "narration": "阅读状态提示：没有提供设计矩阵，因此文件导入假定每个输入都在零到一之间变化。我们的合成输入符合这个范围，但您的输入不一定符合。排名采用第五和第九十五百分位数；Moves by 不是整条曲线两个端点之间的差值。",
+          "narration": "Check the range information after loading. The coefficient-file route assumes each input spans zero to one. Confirm that this matches your intended use before interpreting the curves.",
           "focus": [
             470,
             530,
             3320,
             240
           ],
-          "hold_after": 0.7,
-          "speech_text": "阅读状态提示：没有提供设计矩阵，因此文件导入假定每个输入都在零到一之间变化。我们的合成输入符合这个范围，但您的输入不一定符合。排名采用第五和第九十五百分位数；Moves by 不是整条曲线两个端点之间的差值。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_hold_b_at_one",
-          "narration": "当前选中输入 A 进行扫描。将输入 B 的滑块从中点移到一。由于 B 的拟合系数为负，预测响应下降。这改变的是固定输入的情景，而不是训练数据或系数。既要观察线条形状，也要读取端点数值。",
+          "narration": "Select Input A for the sweep. Move the held Input B slider to one and inspect the resulting response curve.",
           "focus": [
             1480,
             590,
             2320,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "当前选中输入 A 进行扫描。将输入 B 的滑块从中点移到一。由于 B 的拟合系数为负，预测响应下降。这改变的是固定输入的情景，而不是训练数据或系数。既要观察线条形状，也要读取端点数值。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_hold_b_at_zero",
-          "narration": "将 B 移到零，再次比较。响应上升。图形会自动调整纵轴尺度，因此看起来平行的线可能代表不同响应水平。这些是某个假定模型内的预测，并不能证明改变 B 会产生实验中的因果效应。",
+          "narration": "Move B to zero and compare the response values. Watch the axis scale as well as the line, because the plot may rescale.",
           "focus": [
             1480,
             590,
             2320,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "将 B 移到零，再次比较。响应上升。图形会自动调整纵轴尺度，因此看起来平行的线可能代表不同响应水平。这些是某个假定模型内的预测，并不能证明改变 B 会产生实验中的因果效应。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_reset_midpoints",
-          "narration": "Reset held values 将滑块恢复到假定范围的中点，这里为二分之一。它不会重新拟合模型。对于仅导入系数文件的方式，中点并不是从原始数据中测得的中位数，因为这些原始数据根本没有载入剖面工具。",
+          "narration": "Click Reset held values to return the sliders to the midpoints of their assumed ranges, one half in this example.",
           "focus": [
             1470,
             1435,
             2330,
             660
           ],
-          "hold_after": 0.7,
-          "speech_text": "Reset held values 将滑块恢复到假定范围的中点，这里为二分之一。它不会重新拟合模型。对于仅导入系数文件的方式，中点并不是从原始数据中测得的中位数，因为这些原始数据根本没有载入剖面工具。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_sweep_second_input",
-          "narration": "在排名列表中选择输入 B。现在 B 沿横轴变化，A 固定为二分之一。下降的曲线符合 B 的负系数。该列表表示模型敏感性排名，不是显著性检验、置信区间，也不是经过验证的生物学命中列表。",
+          "narration": "Select Input B in the ranked list to sweep B while holding A fixed. The ranking summarizes model sensitivity over its configured input ranges.",
           "focus": [
             470,
             590,
             3330,
             940
           ],
-          "hold_after": 0.7,
-          "speech_text": "在排名列表中选择输入 B。现在 B 沿横轴变化，A 固定为二分之一。下降的曲线符合 B 的负系数。该列表表示模型敏感性排名，不是显著性检验、置信区间，也不是经过验证的生物学命中列表。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_eleven_grid_points",
-          "narration": "将 Points 从六十一改为十一。这决定绘制曲线时计算多少个位置，不会改变样本量或拟合质量。在线性示例中，端点保持不变。增加绘图点不会增加观测、降低不确定性或改善已经拟合的模型。",
+          "narration": "Change Points to choose the number of positions evaluated along the plotted curve. Eleven gives a coarser grid than sixty-one without changing the fitted model.",
           "focus": [
             1480,
             465,
             2320,
             1040
           ],
-          "hold_after": 0.7,
-          "speech_text": "将 Points 从六十一改为十一。这决定绘制曲线时计算多少个位置，不会改变样本量或拟合质量。在线性示例中，端点保持不变。增加绘图点不会增加观测、降低不确定性或改善已经拟合的模型。"
+          "hold_after": 0.7
         },
         {
           "visual": "11_hold_a_at_one",
-          "narration": "仍选中 B 时，将 A 移到一，检查新的响应端点，完成后恢复固定值。分析自己的数据时，应提供适用模型的拟合系数，并检查链接函数、截距、编码和范围。不要用各自独立的置换检验效应代替联合拟合的预测模型。",
+          "narration": "Adjust the held values to explore further scenarios, then reset when finished. Interpret the curves as model predictions and assess real experimental effects with appropriate data.",
           "focus": [
             1480,
             590,
@@ -7164,11 +6972,15 @@
             "06_api",
             "75_regression_diagnostics"
           ],
-          "hold_after": 0.7,
-          "speech_text": "仍选中 B 时，将 A 移到一，检查新的响应端点，完成后恢复固定值。分析自己的数据时，应提供适用模型的拟合系数，并检查链接函数、截距、编码和范围。不要用各自独立的置换检验效应代替联合拟合的预测模型。"
+          "hold_after": 0.7
         }
       ],
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "54_qc_dashboard",
@@ -7176,63 +6988,57 @@
       "slug": "qc_dashboard",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "探索",
-      "title": "QC：阅读证据，不只看摘要",
-      "description": "阅读真实下载和计算得到的质量报告，区分缺失检查、警告与失败，并找到 QC 下的三个子模块工具。",
+      "section": "Data",
+      "title": "QC: inspect project quality reports",
+      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
       "objectives": [
-        "找到 QC 及其嵌套工具。",
-        "选择准确的项目或小规模运行文件夹，检查五类证据。",
-        "区分缺失、警告和失败，不把仪表板当作整个分析的验证。",
-        "刷新已有证据，不重新计算或修改源文件。"
+        "Choose the intended project or run.",
+        "Read available, missing and outdated reports.",
+        "Investigate findings and refresh the view."
       ],
-      "prerequisite": "先下载 Annotate 和 Mask 示例。本录制复用 Annotate 的测量数据库、Mask 示例的原始评分报告，以及 plate1/test 中真实教程运行的结果：Mask 使用两个视野，Measure 使用一个视野。QC 本身不下载数据，也不重新评分。父文件夹与 test 文件夹的证据范围不同，不是改进前后的对照实验。",
+      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在 Home 的 Data 类别中打开 QC。这个仪表板读取磁盘上已有的质量报告，不生成掩膜、不测量图像，也不训练分类器。顶部摘要汇总可用证据，并不能保证整个分析都正确。",
-          "hold_after": 0.7,
-          "speech_text": "在 主页 的 Data 类别中打开 QC。这个仪表板读取磁盘上已有的质量报告，不生成掩膜、不测量图像，也不训练分类器。顶部摘要汇总可用证据，并不能保证整个分析都正确。"
+          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "顶部把 Layer Viewer、Control Charts 和 Outliers 归在 QC 下。它们的专题教程仍位于 Submodules 部分的这个主模块之下。请用这些工具调查观察结果，不要用让人安心的颜色代替缺失的证据。",
+          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ],
-          "speech_text": "顶部把 Layer Viewer、Control Charts 和 Outliers 归在 QC 下。它们的专题教程仍位于 Submodules 部分的这个主模块之下。请用这些工具调查观察结果，不要用让人安心的颜色代替缺失的证据。"
+          ]
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "通过 Browse 选择实际的项目文件夹。我们先打开下载的 Annotate 示例；这个文件夹有测量数据，但没有分割评分报告。QC 没有独立的示例下载功能，请复用前面工作流程中的真实项目。",
+          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "通过 Browse 选择实际的项目文件夹。我们先打开下载的 Annotate 示例；这个文件夹有测量数据，但没有分割评分报告。QC 没有独立的示例下载功能，请复用前面工作流程中的真实项目。"
+          ]
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Missing 表示读取器没有找到该项检查可用的报告。它既不代表通过，也不能证明检查失败。在另一个视图中完成的计算，可能没有保存成此仪表板能够读取的报告。始终检查所指明的来源和范围。",
-          "hold_after": 0.7,
-          "speech_text": "Missing 表示读取器没有找到该项检查可用的报告。它既不代表通过，也不能证明检查失败。在另一个视图中完成的计算，可能没有保存成此仪表板能够读取的报告。始终检查所指明的来源和范围。"
+          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "现在选择 test 子文件夹，其中包含我们真实的小规模 Mask 和 Measure 运行结果。选择父文件夹并不等价。这些数据群体和结果文件不同，因此不能把它们的结论当作受控的前后对比。",
+          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "speech_text": "现在选择 test 子文件夹，其中包含我们真实的小规模 Mask 和 Measure 运行结果。选择父文件夹并不等价。这些数据群体和结果文件不同，因此不能把它们的结论当作受控的前后对比。"
+          ]
         },
         {
           "visual": "04_computed_subset",
-          "narration": "子集出现分割警告：一个细胞视野的大小分布不均一。请阅读说明并检查图像。基于大小的标记既不能证明存在两种生物学细胞类型，也不能证明每个对象的边界都错了。",
+          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -7243,69 +7049,67 @@
           "related_lessons": [
             "14_make_masks",
             "57_layer_viewer"
-          ],
-          "speech_text": "子集出现分割警告：一个细胞视野的大小分布不均一。请阅读说明并检查图像。基于大小的标记既不能证明存在两种生物学细胞类型，也不能证明每个对象的边界都错了。"
+          ]
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "单位卡片报告四张测量表内部的单位一致性。这不等于独立验证校准或每个特征。这里仍缺少训练测试泄漏、板效应和标注者一致性报告；绿色的单位卡片不会让这些缺失的检查变成通过。",
-          "hold_after": 0.7,
-          "speech_text": "单位卡片报告四张测量表内部的单位一致性。这不等于独立验证校准或每个特征。这里仍缺少训练测试泄漏、板效应和标注者一致性报告；绿色的单位卡片不会让这些缺失的检查变成通过。"
+          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "阅读全部五类内容，包括缺失卡片下方的说明。保留原始报告，调查相应的工作流程。尤其是泄漏检查，结论依赖正确的样本身份和分组；软件报告通过，本身不能证明生物学上的独立性。",
+          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "23_agreement",
             "33_plate_viewer"
-          ],
-          "speech_text": "阅读全部五类内容，包括缺失卡片下方的说明。保留原始报告，调查相应的工作流程。尤其是泄漏检查，结论依赖正确的样本身份和分组；软件报告通过，本身不能证明生物学上的独立性。"
+          ]
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "下载的整板评分报告既有失败也有警告。摘要指出一个病原体对象数偏少的视野，详细说明列出其他标记。这是较大示例已有的报告，不是打开 QC 时重新计算的评分，也不是我们的小规模运行改善了整板的证据。",
+          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
           "hold_after": 0.7,
           "focus": [
             450,
             400,
             2950,
             240
-          ],
-          "speech_text": "下载的整板评分报告既有失败也有警告。摘要指出一个病原体对象数偏少的视野，详细说明列出其他标记。这是较大示例已有的报告，不是打开 QC 时重新计算的评分，也不是我们的小规模运行改善了整板的证据。"
+          ]
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "检查来源后点击 Refresh。这里的状态说明磁盘上没有变化，因此复用已有证据。Refresh 不是 Run：它没有重新给掩膜评分，也没有修复警告。数据库和报告的哈希值保持不变。",
+          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             2950,
             50
-          ],
-          "speech_text": "检查来源后点击 Refresh。这里的状态说明磁盘上没有变化，因此复用已有证据。Refresh 不是 Run：它没有重新给掩膜评分，也没有修复警告。数据库和报告的哈希值保持不变。"
+          ]
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "出现过期标记时，应检查对应报告及其输入。此仪表板提供参考意见，不阻止运行。卡片是说明文字，不是自动打开或修复每项失败分析的按钮。",
-          "hold_after": 0.7,
-          "speech_text": "出现过期标记时，应检查对应报告及其输入。此仪表板提供参考意见，不阻止运行。卡片是说明文字，不是自动打开或修复每项失败分析的按钮。"
+          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "如果要通过脚本读取，spacr.qt.widgets.qc_summary 提供 read_dashboard 和 format_dashboard。它们汇总已有证据，而不是执行新检查。将源报告与项目一同保存，并返回相应分析或专题教程开展实际调查。",
+          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ],
-          "speech_text": "如果要通过脚本读取，斯佩克尔.Q T.widgets.qc_summary 提供 read_dashboard 和 format_dashboard。它们汇总已有证据，而不是执行新检查。将源报告与项目一同保存，并返回相应分析或专题教程开展实际调查。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "55_image_scatter",
@@ -7314,41 +7118,38 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "探索",
-      "title": "Image Scatter：真实测量值与每个点对应的图像",
-      "description": "在 Image UMAP 内使用 Image Scatter，查看下载的真实细胞测量值、经过核对的悬停图像，以及向 Annotate 精确传递单个细胞的过程。",
+      "section": "Explore",
+      "title": "Image Scatter: inspect measurements and their crops",
+      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
       "objectives": [
-        "在 Image UMAP 中找到 Image Scatter，加载正确的 cell 表。",
-        "查看原始测量值对，理解缺失坐标和常数坐标。",
-        "核对点与细胞图像的对应关系，不修改标签或原始数据。"
+        "Load measurements and choose axes.",
+        "Inspect the crop behind a point.",
+        "Send a selected object to Annotate."
       ],
-      "prerequisite": "复用 Annotate 可下载的真实示例，包括测量数据库、细胞裁剪图和图像格式标记。使用逐字节一致的独立副本，包含 2,341 个细胞及全部 2,341 个 PNG。独立 SQLite 检查核对每个原始值、完整视野级细胞标识及图像路径，并核对屏幕坐标和缩略图 RGB 像素。仅验证细胞图像，不验证细胞核或病原体图像映射。异常外观不证明表型、感染、处理效应或分割准确性。未进行 UMAP 拟合、模型训练、GPU 计算、文件导出或标签修改。本页没有专用下载、图像列选择、颜色或分组、坐标变换、导出或 AI 控制台。Plot 加载表，改变坐标轴则重绘。加载上限为 200,000 行，不是随机抽样，也不保证大型表不会丢失信息。本教程未验证共享筛选。API：spacr.qt.screens.image_scatter.load_scatter_frame、ImageScatterScreen.set_frame、ScatterCanvas.point_position。",
+      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "从 Home 打开 Image UMAP，然后选择 Image Scatter。这个嵌套视图绘制两个已有测量值，并不拟合 UMAP 嵌入。我们复用 Annotate 可下载的真实示例，把测量数据库和细胞裁剪图保留在一起。获取方法见 Annotate 教程。",
+          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ],
-          "speech_text": "从 主页 打开 Image 优麦普，然后选择 Image Scatter。这个嵌套视图绘制两个已有测量值，并不拟合 优麦普 嵌入。我们复用 Annotate 可下载的真实示例，把测量数据库和细胞裁剪图保留在一起。获取方法见 Annotate 教程。"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "选择 Browse，打开复制的测量数据库。移动项目时，请保留 data 文件夹和裁剪图格式标记，因为数据表本身不包含图像。当前示例使用独立副本，原始测量值和图像像素保持不变。",
-          "hold_after": 0.7,
-          "speech_text": "选择 Browse，打开复制的测量数据库。移动项目时，请保留 data 文件夹和裁剪图格式标记，因为数据表本身不包含图像。当前示例使用独立副本，原始测量值和图像像素保持不变。"
+          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "在表选择框中选 cell，再点击 Plot。Plot 读取该表，不是分割或训练任务。示例有两千三百四十一个细胞及其对应裁剪图。选择其他表后，需要再次点击 Plot；只改变选择框不会加载其中的行。",
-          "hold_after": 0.7,
-          "speech_text": "在表选择框中选 cell，再点击 Plot。Plot 读取该表，不是分割或训练任务。示例有两千三百四十一个细胞及其对应裁剪图。选择其他表后，需要再次点击 Plot；只改变选择框不会加载其中的行。"
+          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "把 x 设为 cell_area，y 设为 cell_channel_1_mean_intensity。改变坐标轴会立即重绘已加载的行。这些是原始测量值，不是经过变换的嵌入坐标。点代表单个细胞，而非独立的实验重复；图形中的模式不是统计检验。",
+          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7358,93 +7159,85 @@
             405,
             3410,
             120
-          ],
-          "speech_text": "把 x 设为 cell_area，y 设为 cell_channel_1_mean_intensity。改变坐标轴会立即重绘已加载的行。这些是原始测量值，不是经过变换的嵌入坐标。点代表单个细胞，而非独立的实验重复；图形中的模式不是统计检验。"
+          ]
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "把指针停在最右侧的细胞点上。旁边会显示其裁剪图和完整的板、行、列、视野及细胞标识。这是保存的裁剪图，不是完整显微视野，也不是新的分割结果。仅凭外观特殊，不能确认一种表型。",
+          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ],
-          "speech_text": "把指针停在最右侧的细胞点上。旁边会显示其裁剪图和完整的板、行、列、视野及细胞标识。这是保存的裁剪图，不是完整显微视野，也不是新的分割结果。仅凭外观特殊，不能确认一种表型。"
+          ]
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "将指针移出绘图区，临时预览便会消失。返回同一点，缓存的图像会再次出现，无需重新解码。悬停只是临时查看图像，不是标注或持久选择。原始标签不会改变。",
+          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ],
-          "speech_text": "将指针移出绘图区，临时预览便会消失。返回同一点，缓存的图像会再次出现，无需重新解码。悬停只是临时查看图像，不是标注或持久选择。原始标签不会改变。"
+          ]
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "交换 x 和 y 上的两个测量值。即使屏幕位置改变，同一细胞仍保留原来的标识和图像。请选择有意义的坐标轴，不要自动接受最前面的数值列；这些选择框也会提供数值标识符和采集元数据。",
+          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ],
-          "speech_text": "交换 x 和 y 上的两个测量值。即使屏幕位置改变，同一细胞仍保留原来的标识和图像。请选择有意义的坐标轴，不要自动接受最前面的数值列；这些选择框也会提供数值标识符和采集元数据。"
+          ]
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "把 x 恢复为 cell_area，y 选择 cell_channel_0_homogeneity_distance_32。七个细胞缺少这项测量，因此只能绘制两千三百三十四对坐标。已加载行数仍显示两千三百四十一。缺失值不是零；坐标没有画出来，也不会重新编号对象标识。",
+          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ],
-          "speech_text": "把 x 恢复为 cell_area，y 选择 cell_channel_0_homogeneity_distance_32。七个细胞缺少这项测量，因此只能绘制两千三百三十四对坐标。已加载行数仍显示两千三百四十一。缺失值不是零；坐标没有画出来，也不会重新编号对象标识。"
+          ]
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "在 y 中选择 measurement_ndim。每一行的值都是二，所以所有点落在一条水平线上。这是常数元数据列，不是生物学上的一致性。查看其他细胞前，请恢复 cell_channel_1_mean_intensity。",
+          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ],
-          "speech_text": "在 y 中选择 measurement_ndim。每一行的值都是二，所以所有点落在一条水平线上。这是常数元数据列，不是生物学上的一致性。查看其他细胞前，请恢复 cell_channel_1_mean_intensity。"
+          ]
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "要在 Annotate 中查看点击的细胞图像，先打开 Annotate，加载同一个复制项目。然后经 Home、Image UMAP 和现有的 Image Scatter 标签页返回。标注页必须知道正确项目；图表与无关的已打开数据集不能构成有效的传递。",
+          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "要在 Annotate 中查看点击的细胞图像，先打开 Annotate，加载同一个复制项目。然后经 主页、Image 优麦普 和现有的 Image Scatter 标签页返回。标注页必须知道正确项目；图表与无关的已打开数据集不能构成有效的传递。"
+          ]
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "点击点本身，然后切换到 Annotate。仅悬停只会预览图像。点击会把准确的细胞键和两个坐标轴名称发送到标注视图。它不会自动切换页面、赋予标签，也不证明该对象是异常值。",
+          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ],
-          "speech_text": "点击点本身，然后切换到 Annotate。仅悬停只会预览图像。点击会把准确的细胞键和两个坐标轴名称发送到标注视图。它不会自动切换页面、赋予标签，也不证明该对象是异常值。"
+          ]
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "现在 Annotate 仅显示所点击的那个细胞，使用同一张已保存裁剪图。决定是否标注前，请先查看图像；本演示保持所有标签不变。Image Scatter 没有专用的图表或选择导出功能。导出数据表请用 Database Browser，主成分分析及其已说明的 CSV 输出请看 PCA 教程。",
+          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -7456,10 +7249,14 @@
             330,
             550,
             410
-          ],
-          "speech_text": "现在 Annotate 仅显示所点击的那个细胞，使用同一张已保存裁剪图。决定是否标注前，请先查看图像；本演示保持所有标签不变。Image Scatter 没有专用的图表或选择导出功能。导出数据表请用 Database Browser，主成分分析及其已说明的 CSV 输出请看 PCA 教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "56_lineage",

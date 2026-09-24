@@ -16309,3 +16309,26 @@ batch with two workers/coverage all pass. See288's new receipt and dated
 note. No runtime/API/caption changes. Other CI failures are not declared
 fixed, and the old protected full run continues. GPU observer remains live,
 with no qualifying idle interval and no GPU analysis launched.
+
+2026-09-24 — CODEX: TWENTY WALKTHROUGHS ACCEPTED; PAGES SIZE FAILURE FIXED
+Data/analysis candidate8vaimbg8 passed all84 hosted playback cases plus14
+placeholder-language views. All3290 hosted files SHA256matched revision
+948fd55c6d13ee107b8bce22c26957178e7415dd;3,742,683,994bytes. Hold lifted.
+47 of53 rewritten existing lessons now have matching prepared media, plus
+four new organism guides. Six existing rewrites still need current captures;
+28 existing scripts remain to review.664 stale tutorial reviews stay tracked.
+English API/runtime audit and final strict Sphinx build pass.73 rendered API
+module links preserve their main/nightly channel. Four publication tests pass.
+
+Docs run35948635800 built both branches but assembly exceeded950MiB. Fixed
+publisher to use each branch's verified immutable full-resolution recordings
+when the local rendition matches its manifest; posters still deduplicate.
+15 publisher tests pass. Actual main CI artifact plus current nightly assembles
+to682,878,218bytes. Browser playback and chapter seeks pass for main Mask and
+nightly AlignStitch/HostPathogen; their different immutable pins are preserved.
+Receipt:features/data/358_docs_pages_size_repair_2026-09-24.json. No limit raised.
+
+Eight API language drafts are now privately reconstructed; Korean completed
+11,387documents on frozen3ee2a1809, with known unresolved/semantic issues.
+Icelandic follows. These are not approved catalogs. No translation backlog
+blocks English publication. Maintainer still owns1.5.1.0/main promotion.

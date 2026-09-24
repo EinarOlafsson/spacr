@@ -4036,29 +4036,28 @@
       "series": 4,
       "app_key": "align",
       "section": "Tools",
-      "title": "Align & Stitch: undersøg en faktisk plan, og kontrollér den skrevne mosaik",
-      "description": "Kør den aktuelle mosaikgrænseflade på bevarede, virkelige mikroskopipixels, undersøg den beregnede opstilling, skriv billedstriber med afgrænset bufferstørrelse, og kontrollér både mosaikken og dens koordinatposter.",
+      "title": "Align & Stitch: plan and write an image mosaic",
+      "description": "Choose image tiles, set their acquisition layout, inspect the registration plan, and write the mosaic with its coordinates.",
       "objectives": [
-        "Skeln mellem dette eksempel med udsnit og kendt geometri og et eksperiment med uafhængigt optagne billedfliser.",
-        "Indstil gitter, overlap, rækkefølge og referencekanal i den aktuelle brugergrænseflade.",
-        "Undersøg registreringen før skrivning, og skeln mellem budgettet for billedstribebufferen og det samlede hukommelsesforbrug.",
-        "Bevar det sammensatte billede, koordinatposterne og dokumentationen for kildens oprindelse sammen."
+        "Choose tiles and set the grid, overlap and registration channel.",
+        "Inspect the planned positions and registration quality.",
+        "Write the mosaic and retain its coordinate database."
       ],
-      "prerequisite": "Forbered til din egen kørsel billedfliser med kendt rækkefølge og overlap samt en brugbar registreringskanal; dine antal og resultater vil være anderledes. Optagelsen genbruger ni bevarede, præcise udsnit på 800 × 800 × 4 fra ét virkeligt billedfelt på 2.000 × 2.000 × 4 med en forskydning på 600 pixels. De efterligner en 3 × 3-optagelse, ikke ni uafhængigt optagne billedfelter. Navnene tutorial_A01 er demonstrationskoordinater, ikke den oprindelige plade og brønd. Align & Stitch har ingen særskilt knap til at downloade et eksempel.",
+      "prerequisite": "Download and unzip the nine-tile example below, or prepare image tiles with known acquisition order, overlap and a useful registration channel. The example uses overlapping crops from one microscopy field to provide a practice layout.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åbn Align & Stitch i kategorien Tools på Home. Planlægning og skrivning er separate handlinger, så du kan undersøge en opstilling, før du opretter dens mosaik. Denne skærm viser en fliseopstilling og en tekstrapport; de farvede rektangler er ikke en forhåndsvisning af mikroskopibillederne.",
+          "narration": "From Home’s Tools category, open Align and Stitch. Choose the tiles, review their layout with Plan, then use Write stack to create the mosaic.",
           "hold_after": 0.7
         },
         {
           "visual": "02_preserved_real_pixel_tiles",
-          "narration": "Vælg mappen med de bevarede billedfliser til vejledningen. De ni fliser er præcise udsnit fra ét virkeligt firekanalsbillede, bevidst arrangeret for at efterligne en optagelse med kendt geometri. De er ikke ni uafhængige billedfelter, og vejledningens plade- og brøndnavne er demonstrationsidentifikatorer.",
+          "narration": "Download and unzip the example below, then select its tiles folder. It contains nine overlapping crops arranged in a three-by-three grid. For your own acquisition, keep the original tile order and stage metadata available.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Indstil Grid til 3 × 3, Order til row-major og Overlap til 0,25. Disse fliser på 800 pixels forskydes med 600 pixels. Brug den faktiske optagerækkefølge og det nominelle overlap til dine egne data; en slangeformet skanning må ikke beskrives som row-major.",
+          "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4069,7 +4068,7 @@
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Indstil Ref. channel til 1, det andet plan i dette eksempel med nulbaseret indeksering. Registreringen bruger strukturen i dette plan og anvender én placering på alle fire kanaler. Vælg en meningsfuld registreringskanal; denne handling er ikke en uafhængig kromatisk justering af hver kanal.",
+          "narration": "Set Reference channel to the image plane used for registration. This example uses channel one, the second plane with zero-based numbering. Choose a channel with visible structure across overlaps; the resulting placement applies to all image channels.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4080,7 +4079,7 @@
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Brug Min confidence 0,3, Neighbour radius 1 og Blend feather. Indstil RAM budget (MB), budgettet for billedstribebufferen, til 8 for dette afgrænsede eksempel. Indstillingen begrænser de billedstriber, der bruges ved skrivning; den sætter ikke et loft over hver hukommelsesallokering eller applikationens samlede hukommelsesforbrug.",
+          "narration": "Set Minimum confidence for accepting a registration and Neighbour radius for the nearby tiles to compare. The example uses zero point three and one, with feather blending across overlaps. The band-buffer budget controls memory used by the image writer.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4091,7 +4090,7 @@
         },
         {
           "visual": "04_registered_plan_not_yet_written",
-          "narration": "Tryk på Plan. Alle ni eksempelfliser registreres uden at falde tilbage på nominelle positioner, og det foreslåede lærred er 2.000 × 2.000 pixels med fire kanaler. Der er endnu ikke skrevet noget outputbillede. Undersøg antallet af registrerede, nominelt placerede og ikke placerede fliser frem for at anse enhver færdig plan for acceptabel.",
+          "narration": "Press Plan. Inspect the registered, nominal and unplaced tile counts and the proposed canvas size. The layout shows tile positions. Review any nominal fallback or unplaced tiles before writing the mosaic.",
           "hold_after": 0.7,
           "focus": [
             1700,
@@ -4102,12 +4101,12 @@
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "Klik på den midterste flise for at undersøge dens koordinater, konfidens, residual og bidragende par. Her ligger dens udgangspunkt ved 600 pixels i hver retning og svarer til den kendte opstilling af udsnit. Perfekt sammenfaldende overlap i dette konstruerede eksempel forudsiger ikke registreringskvaliteten ved en ny optagelse.",
+          "narration": "Click a tile to inspect its coordinates, confidence, residual and contributing pairs. Use these details to investigate unexpected positions, then adjust the registration settings and plan again if needed.",
           "hold_after": 0.7
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "Vælg en ny outputmappe og en separat koordinatdatabase, og lad Overwrite være slået fra. Write stack aktiveres først, når der findes en plan, og en destination er angivet. Bevar kildefliserne uændrede; at angive en outputsti erstatter ikke en gennemgang af registreringen.",
+          "narration": "Choose an output folder and a coordinate-database path. Leave Overwrite off when creating a new result. Once the plan and destination are ready, press Write stack.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4118,7 +4117,7 @@
         },
         {
           "visual": "06_real_stitch_complete",
-          "narration": "Tryk på Write stack. Det faktiske output indeholder alle ni fliser, og hver pixel i alle fire kanaler svarer til det oprindelige billedfelt i dette eksempel. Resultatet angiver outputstien og forbruget i billedstribebufferen. Dette er et målt resultat for disse kendte udsnit, ikke et løfte om tabsfri registrering af vilkårlige billeder.",
+          "narration": "Wait for the completion summary and open the output stack. Inspect the overlaps and object boundaries in the mosaic. Keep the coordinate database and source tiles with it so downstream locations can be traced back to the acquisition.",
           "hold_after": 0.7,
           "focus": [
             1700,
@@ -4126,29 +4125,16 @@
             2100,
             1100
           ]
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "Koordinatdatabasen indeholder ni poster. Vi kontrollerer hver kildefil, demonstrationsplade og -brønd, billedfeltidentifikator, position på lærredet og sti til outputstakken, ikke kun antallet af rækker. Bevar posterne sammen med billedet og kildemanifestet, så koordinaterne fortsat kan fortolkes ved senere brug.",
-          "hold_after": 0.7,
-          "focus": [
-            450,
-            1990,
-            3370,
-            140
-          ]
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "I Python læser spacr.align.scan_tiles fliseopstillingen, og estimate_offsets opbygger planen. write_stack opretter mosaikken; save_coordinates og read_coordinates skriver og genindlæser dens koordinattabel. Den separate OPS-arbejdsgang valideres ikke af denne lille mosaik. Gennemgå den faktiske optagegeometri, før du bruger nogen af arbejdsgangene til videnskabelige konklusioner.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "36_import",
-            "74_import_images"
-          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Align_Stitch_nine_tiles.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "33_plate_viewer",
@@ -4187,37 +4173,74 @@
     },
     {
       "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filter and export measurements",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Open a measurement database, select columns and rows, and export the result.",
+      "objectives": [
+        "Open and browse a measurement table.",
+        "Select columns and filter rows.",
+        "Export the matching records."
+      ],
+      "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
       "scenes": [
         {
-          "narration": "Database Browser kontrollerer store spaCR-databaser i en begrænset, kun-læse-visning."
+          "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
+          "visual": "01_overview",
+          "hold_after": 0.7,
+          "focus_key": "screen"
         },
         {
-          "narration": "Vælg en måledatabase eller dens køremappe og åbn den."
+          "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
+          "visual": "02_open",
+          "hold_after": 0.7,
+          "focus_key": "source"
         },
         {
-          "narration": "Vælg en tabel efter at have gennemgået dens formål og status som kun læses."
+          "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
+          "visual": "03_tables",
+          "hold_after": 0.7,
+          "focus_key": "tables"
         },
         {
-          "narration": "Forhåndsvisningene indlæser en afgrænset side, mens de samlede række- og kolonneantaller rapporteres separat."
+          "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
+          "visual": "04_cell_table",
+          "hold_after": 0.7,
+          "focus_key": "preview"
         },
         {
-          "narration": "Søg i kolonner for at gøre tabeller med brede funktioner læsbare uden at ændre de underliggende rækker."
+          "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
+          "visual": "05_column_search",
+          "hold_after": 0.7,
+          "focus_key": "column_search"
         },
         {
-          "narration": "- Bygg et struktureret filter. Kolonne navne og operatører er valideret, og værdier er bundet sikkert."
+          "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
+          "visual": "08_filter",
+          "hold_after": 0.7,
+          "focus_key": "filter"
         },
         {
-          "narration": "Den nøjagtige filtrerede tælle beskriver hele forespørgslen, selvom kun én side er tegnet."
+          "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
+          "visual": "09_filtered",
+          "hold_after": 0.7,
+          "focus_key": "status"
         },
         {
-          "narration": "Eksporterer hele strømfilteret og valg af synlige kolonne. Kildedatabasen forbliver uændret."
+          "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
+          "visual": "10_export",
+          "hold_after": 0.7,
+          "focus_key": "export"
         }
       ],
-      "number": 34,
-      "app_key": "db_browser",
-      "series": 4,
-      "slug": "database",
-      "section": "Data"
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "35_converter",
@@ -4227,19 +4250,18 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: kontrollér identiteter, før virkelige billeder skrives",
-      "description": "Åbn Format Converter via Import, forhåndsvis to virkelige billedtilknytninger, skriv til en særskilt destination, og kontrollér genbrug via kontrolpunktet uden at ændre originalerne.",
+      "title": "Format Converter: preview and convert image files",
+      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
       "objectives": [
-        "Skeln mellem konvertering af billedformater og import af målinger og labelmasker.",
-        "Kontrollér kilde-, mål- og optagelsesidentiteter, før der skrives.",
-        "Gem kildebilleder, tilknytnings-CSV og kontrolpunkt for billedfelter sammen.",
-        "Fortolk en Resume-kørsel uden skrivning korrekt uden at behandle den som en garanti for pixelintegritet."
+        "Choose source and destination folders with the correct acquisition layout.",
+        "Preview target names, fields and channel assignments.",
+        "Convert the files and use Resume for completed fields."
       ],
-      "prerequisite": "Genbrug de to enkeltkanals-TIFF'er, der blev klargjort fra virkelige, målte billeder i Import Project-tutorialen. Hver af dem er det præcise andet billedplan fra sit oprindelige array; de neutrale filnavne fov01_C1.tif og fov02_C1.tif indeholder ikke længere de oprindelige plade- eller brøndidentiteter. Dette bevidst afgrænsede eksempel demonstrerer konvertering af todimensionale TIFF'er, ikke leverandørspecifikke indlæsningsfunktioner, flerkanalsoptagelser, Z-projektion eller tidsserier. Format Converter har ingen særskilt funktion til at downloade et eksempel og ingen Plot-, Live preview- eller AI-kontrol.",
+      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åbn Import fra kategorien Data på Home, og vælg derefter Format Converter blandt de indlejrede værktøjer. Det konverterer billedformater og filnavne. Import Project løser en anden opgave: at samle billeder, labelmasker og måletabeller. Bland ikke den overordnede skærms kontroller sammen med kontrollerne i den indlejrede konverter.",
+          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
@@ -4248,7 +4270,7 @@
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "Fanen Format Converter har sine egne kontroller for Source, Destination, Preview og Convert. Forhåndsvisningen er en kilde-til-mål-tabel, ikke en live-forhåndsvisning af mikroskopibilleder eller segmentering. Destinationen i den overordnede Import-visning og Import-knappen under fanen tilhører den anden arbejdsgang.",
+          "narration": "Use the converter’s Source, Destination, Preview and Convert controls. Preview displays the planned source-to-target mapping so you can inspect the assignments before writing files.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4259,7 +4281,7 @@
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Vælg en kildemappe, ikke et enkelt billede. Dette eksempel genbruger de to virkelige enkeltkanals-TIFF'er fra Import-tutorialen. Deres pixels kommer fra målte mikroskopibilleder, men de neutrale feltnavne er demonstrationsnavne, ikke de oprindelige optagelseskoordinater.",
+          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
@@ -4267,12 +4289,12 @@
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Vælg en ny, tom destinationsmappe adskilt fra kilden. Bevar de oprindelige billeder og deres oprindelsesdokumentation uændret. Konverteringen opretter nye TIFF'er og en tilknytningsfil; den rekonstruerer ikke eksperimentelle metadata, der blev fjernet, da disse demonstrationsfiler fik deres navne.",
+          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
           "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Indstil Layout til images directly in src, fordi begge filer ligger direkte i én mappe. Brug de indekserede pladenavne plate1, plate2, … under Plate names, og lad Resume være slået fra ved denne første kørsel. Ved en virkelig mappestruktur med plader og brønde skal du vælge det tilsvarende layout og kontrollere de resulterende tilknytninger i stedet for at kopiere dette valg af en flad mappe.",
+          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4283,7 +4305,7 @@
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Bevar hvert Z-plan med Keep every plane (one file per Z). Valgene Max-project Z (planes are discarded) og First plane only (planes are discarded) kasserer bevidst Z-information; ingen af dem demonstreres her. Hver inputfil indeholder én todimensional kanal, så denne optagelse fastslår ikke, hvordan en bestemt leverandørfil, tidsserie eller flerkanalsoptagelse vil blive fortolket.",
+          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4294,7 +4316,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Tryk på konverterens Preview-knap. Den faktiske plan viser to outputfiler fra to kildefiler, og destinationen forbliver tom. Undersøg hele kilde-til-mål-tilknytningen før Convert; en færdig forhåndsvisning er ikke bevis for, at dens brønd- og kanaltilknytninger passer til dit forsøg.",
+          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4304,19 +4326,8 @@
           ]
         },
         {
-          "visual": "05_preview_no_output_written",
-          "narration": "Her bruger de genererede navne plate1, brønd A01, felt 1 og 2 samt kanal 1. Det er tildelte demonstrationsidentiteter. Kildebillederne stammer oprindeligt fra optagelser i forskellige brønde, så denne tilknytning må ikke præsenteres som genskabte plademetadata eller bruges til at sammenlægge deres behandlinger.",
-          "hold_after": 0.7,
-          "focus": [
-            465,
-            1020,
-            1950,
-            180
-          ]
-        },
-        {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Kontrollér kolonnerne From field og From channel sammen med de genererede navne. TIFF-filens eneste plan har arrayindeks 0, selv om dets bevarede pixels blev udtrukket fra kanalindeks 1 i det oprindelige array med syv planer. Kanal 1 i outputfilnavnet er derimod 1-baseret; disse tre nummereringskontekster er ikke indbyrdes udskiftelige.",
+          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4327,7 +4338,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Forhåndsvisningstabellen er skrivebeskyttet. Hvis identiteterne er forkerte, skal du rette kildestrukturen eller konverteringsindstillingerne og forhåndsvise igen; der er ingen redigering pr. række eller særskilte serie- og tidsvælgere på denne skærm. Hav de oprindelige metadata til rådighed, når du gennemgår automatiske tildelinger.",
+          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4338,7 +4349,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Tryk på Convert, og læs oversigten. Denne faktiske kørsel skriver to nye TIFF'er uden mislykkede eller oversprungne tilknytninger. Vi sammenligner uafhængigt hver outputpixel, arrayets form og datatypen med kilden og kontrollerer kilde-, felt- og kanalidentiteter i tilknytningsfilen. Originalerne forbliver uændrede.",
+          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4349,7 +4360,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Gem conversion_map.csv sammen med de konverterede billeder og det oprindelige optagelsesmanifest. Tilknytningen bevarer kilde- og målstier, tildelte identiteter, kildekanalmetadata og konverteringsstatus. En særskilt kørselsstatusfil registrerer handlingen, og et skjult feltkontrolpunkt understøtter senere Resume.",
+          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4360,7 +4371,7 @@
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "Slå Resume til, og tryk på Convert igen med samme kilde, plan og destination. Programmet kontrollerer det kompatible feltkontrolpunkt og læsbare TIFF-metadata, før færdige felter genbruges. Det sammenligner ikke hver pixel med den oprindelige kilde; beskriv ikke Resume som en fuldstændig kontrol for dataskader.",
+          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
           "hold_after": 0.7,
           "focus": [
             2700,
@@ -4368,67 +4379,38 @@
             1130,
             190
           ]
-        },
-        {
-          "visual": "09_completed_fields_reused",
-          "narration": "Den anden kørsel angiver nul konverterede filer og to allerede eksisterende mål. Det er forventet her: Begge planlagte outputfiler findes og er uændrede. Tabellen viser stadig forhåndsvisningens status planned, så læs handlingsoversigten og tilknytningsfilen for det faktiske resultat, ikke kun denne tabelkolonne.",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ]
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "Rul i oversigten for at se, at to færdige felter blev genoptaget. Den seneste post i kørselsloggen angiver empty, fordi ingen kilde skulle konverteres; den første post med complete er stadig bevaret. Vi accepterer kun dette konkrete resultat uden skrivning, efter at begge genbrugte outputfiler og deres nøjagtige identiteter er kontrolleret uafhængigt.",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ]
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "I Python læser spacr.convert.scan kildebeskrivelserne, plan opbygger de gennemgåede tilknytninger, og convert skriver outputfilerne. convert_folder er indgangspunktet for en dictionary med indstillinger. Hold konvertering adskilt fra segmentering og måling, og validér dimensionerne i dine egne optagelser, før du sender billederne videre til Mask eller Measure.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "07_mask",
-            "08_measure",
-            "36_import"
-          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "36_import",
       "number": 36,
       "slug": "import",
       "series": 5,
-      "title": "Import Project: gennemgå virkelige masker, målinger og proveniens",
+      "title": "Import Project: bring images, masks and measurements into spaCR",
       "app_key": "foreign",
       "section": "Data",
-      "description": "Importer et virkeligt udsnit med to mikroskopifelter, gennemgå objektsammenkædninger og kolonnenavne før skrivning, og skeln mellem importerede målinger og en ny målekørsel i spaCR.",
+      "description": "Choose matching images, instance masks and measurement tables, review their mapping, and create a spaCR project.",
       "objectives": [
-        "Find Import Project og dets tre indlejrede inputværktøjer.",
-        "Sammenkæd billeder, instansmasker og en måletabel med tydelige enheder og objektidentiteter.",
-        "Gennemgå foreslåede navne, demonstrer og løs en konflikt med et reserveret navn, og gem og genindlæs kolonnetilknytningen.",
-        "Kontroller importerede pixels, objektværdier og proveniens uden at hævde, at importen måler data igen."
+        "Match images, masks and measurement rows.",
+        "Review and save the column mapping.",
+        "Import the project and inspect its outputs."
       ],
-      "prerequisite": "Download først Measures eksempel. prepare_inputs i tools/tutorials/capture_foreign.py udtrækker ER-intensitetsplan 1 og cellemærkeplan 4 uændret fra plate1_E01_1_1 og plate1_L02_9_1. Præcise pixelarealer og rå middelintensiteter beregnes fra netop de samme mærker og giver 103 virkelige rækker. De neutrale TIFF-navne fov01/fov02 kræver det gemte kildemanifest for at genfinde optagelsens oprindelige brønde; de bevarer ikke automatisk pladelayoutet. Der angives ingen fysisk pixelkalibrering.",
+      "prerequisite": "Prepare corresponding image files, instance-label masks and a measurement CSV. Keep each field’s original plate and well identity, and use documented measurement units.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åbn Import i Home-skærmens Data-kategori. Dette overordnede forløb overtager eksisterende billeder, instansmasker og målinger. Det er noget andet end at begynde med rå mikroskopfiler og danne nye masker og målinger i spaCR.",
+          "narration": "From Home’s Data category, open Import. Use this screen to bring existing images, instance masks and measurements into a spaCR project.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_import_images",
-          "narration": "Topbjælken indeholder nu Import Images, Format Converter og External Masks. Brug Import Images til rå optagelser, Format Converter til understøttede formatkonverteringer og External Masks til eksisterende segmenteringsmærker. Deres speciallektioner ligger fortsat under Import i afsnittet Submodules.",
+          "narration": "The header also opens Import Images, Format Converter and External Masks. Choose the tool that matches your starting files; this walkthrough uses images, masks and an existing measurement table together.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -4439,7 +4421,7 @@
         },
         {
           "visual": "03_choose_images",
-          "narration": "Optagelsen genbruger to virkelige felter fra Measures downloadede eksempel. Separate TIFF-kopier bevarer de oprindelige intensitets- og mærkepixels. Forberedelsen måler pixelareal og middelintensitet fra netop disse mærker i stedet for at blande masker med en måletabel fra en uafhængig version.",
+          "narration": "Choose the image folder. The example uses two microscopy fields with one intensity channel and matching cell labels. Keep a record of each file’s original plate, well and field.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -4447,17 +4429,17 @@
         },
         {
           "visual": "04_choose_masks",
-          "narration": "Vælg billedmappen, derefter mappen med Cell-masker, og tryk Add. Det er instansmærker, ikke et binært forgrundsbillede. Eksemplet har én intensitetskanal og én maskeklasse. Tilføj kun andre klasser, hvis de faktisk beskriver de tilsvarende felter.",
+          "narration": "Choose the Cell mask folder and press Add. Each object needs its own integer label. Add further mask classes when you have corresponding labels for the same fields.",
           "hold_after": 0.7
         },
         {
           "visual": "05_choose_table",
-          "narration": "Vælg den virkelige CSV med målinger. ImageNumber identificerer hvert forberedt billede, og ObjectNumber identificerer mærket i feltet. Et mærkenummer alene er ikke entydigt på tværs af billeder. Tabellen indeholder et hundrede og tre målte objekter, ikke syntetiske rækker tilføjet for at få en sammenkædning til at lykkes.",
+          "narration": "Choose the measurement CSV. Match ImageNumber to each field and ObjectNumber to its mask label. Use both identifiers to distinguish objects across fields.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inputs_unknown_calibration",
-          "narration": "Lad mikrometer pr. pixel stå tomt, når kalibreringen er ukendt. Vores arealkolonne bruger udtrykkeligt kvadratiske pixels, og intensiteten er et råt billedgennemsnit. Opfind ikke en skala. Kolonner i fysiske enheder kræver særskilt gennemgang; en ukalibreret værdi må ikke beskrives som en måling, der er omregnet til pixels.",
+          "narration": "Enter micrometres per pixel when you know the calibration; otherwise leave it blank. Check that area and intensity columns retain their documented units.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4468,7 +4450,7 @@
         },
         {
           "visual": "06b_safe_inferred_names",
-          "narration": "Preview skriver ingen projektdata. Importøren foreslår forsigtigt navne med foreign-præfiks, herunder foreign_cell_area for en kildekolonne, der allerede hedder cell_area. Noten er ikke en blokerende fejl: forslaget undgår at overskrive en spaCR-egenskab, men den videnskabelige betydning skal stadig gennemgås.",
+          "narration": "Press Preview to inspect the proposed column mapping and joins before creating the project. Review the suggested foreign-prefixed names and their scientific meaning.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4479,12 +4461,12 @@
         },
         {
           "visual": "07_conflict_refused",
-          "narration": "Vælg en målcelle, og tryk F to for at redigere. Her ændrer vi med vilje arealets mål til det reserverede navn cell_area. Med Refuse the import valgt deaktiverer denne virkelige konflikt Import. Intet er skrevet; demonstrationsmålet er ikke en anbefalet kolonnetilknytning.",
+          "narration": "Select a target cell and press F two to edit its name. A reserved-name conflict disables Import when Refuse the import is selected; choose a distinct target name or use the Rename policy.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_join_report",
-          "narration": "Valget Rename løser konflikten uden at overskrive spaCR-egenskaben. Læs sammenkædningsrapporten: alle et hundrede og tre rækker matcher virkelige maskeobjekter, og ingen objekter i dette udsnit mangler målinger. Rækkeantal alene ville ikke afsløre værdier tildelt det forkerte felt eller mærke.",
+          "narration": "Read the join report and resolve unmatched rows or objects. In the example, all one hundred and three measurement rows match mask objects.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4495,7 +4477,7 @@
         },
         {
           "visual": "09_mapping_edited",
-          "narration": "Giv arealet det tydelige, gennemgåede mål foreign_reviewed_area_px2. Tilknytningen opdateres på stedet. Gennemgå kilde, mål, transformation og enheder sammen: et nyt kolonnenavn beviser ikke, at to laboratorier målte den samme biologiske størrelse.",
+          "narration": "Give the imported area a clear name, such as foreign reviewed area pixels squared. Review the source, target, transform and units together.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4506,22 +4488,22 @@
         },
         {
           "visual": "10_save_mapping",
-          "narration": "Save mapping gemmer de gennemgåede kolonnedefinitioner i en CSV. Det er hverken en billedbackup eller et fuldstændigt optagelsesmanifest. Bevar også kildefiler og deres identitetsregistreringer, så beslutningerne kan efterprøves senere.",
+          "narration": "Use Save mapping to keep the reviewed column definitions as a CSV. Keep the mapping with your images, masks, measurement table and acquisition identities.",
           "hold_after": 0.7
         },
         {
           "visual": "12_mapping_reloaded",
-          "narration": "Load mapping læser definitionerne tilbage i den aktuelle plan. Vi ændrer først et mål midlertidigt uden at gemme; valg af den gemte CSV gendanner derefter det gennemgåede navn. Kontroller planen igen, hvis filer, mærker eller enheder ændres. En genbrugelig tilknytning godkender ikke automatisk et nyt forsøg.",
+          "narration": "Use Load mapping to reuse saved definitions. Review the resulting plan whenever source columns, labels or units differ.",
           "hold_after": 0.7
         },
         {
           "visual": "13_imported",
-          "narration": "Tryk Import for den gennemgåede plan, og undersøg den virkelige rapport. Kørslen konverterer to billedfiler, skriver to masker og to sammenlagte arrays og gemmer et hundrede og tre rækker i hver af to objekttabeller. Statussummen på to hundrede og seks tæller begge tabeller, ikke dobbelt så mange forskellige objekter.",
+          "narration": "Press Import and read the completion report. The example writes two image files, two masks and two merged arrays, with one hundred and three rows in each of two object tables.",
           "hold_after": 0.7
         },
         {
           "visual": "14_import_scope",
-          "narration": "Oversigten siger udtrykkeligt, at spaCR ikke har udtrukket målingerne igen. Tabellen foreign_columns registrerer, hvilke værdier der kom fra importen. Vores kontrol bekræfter bevarelse af pixels, mærker samt hvert objekts areal og middelintensitet; det er ikke en validering af den biologiske fortolkning.",
+          "narration": "Open the project and inspect the imported measurements. The foreign columns table records their origin. Use Measure when you want spaCR to calculate new features from the images.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4535,7 +4517,7 @@
         },
         {
           "visual": "14_import_scope",
-          "narration": "De neutrale fov-navne bliver til nye felter i A nul en; de genskaber ikke optagelsens oprindelige brønde. Bevar forberedelsesmanifestet og konverteringstabellen. I et virkeligt pladeforsøg skal optagelsesidentiteter afklares før videre analyse, ikke erstattes af en antagelse om, at nye koordinater er oprindelige metadata.",
+          "narration": "Keep the conversion map with the project and check its plate, well and field assignments. Generic file names may receive new coordinates, so resolve their original identities before plate-level analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "74_import_images"
@@ -4543,14 +4525,19 @@
         },
         {
           "visual": "14_import_scope",
-          "narration": "I Python har spacr.foreign funktionerne plan_import, save_column_map, load_column_map og run_import med samme grænse mellem gennemgang og anvendelse. Bevar den gennemgåede tilknytning med det færdige projekt. Brug Measure, når spaCR faktisk skal beregne nye egenskaber, i stedet for at antage, at importen allerede gjorde det.",
+          "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "37_batch",
@@ -4559,19 +4546,18 @@
       "series": 5,
       "app_key": "batch",
       "section": "Data and batch runs",
-      "title": "Batch Runner: validerede job, afhængigheder og separate logfiler",
-      "description": "Konfigurér tre kanalbevarende konverteringer med den rigtige trådede grænseflade og filvælgere. Kontrollér rækkefølgen, gem og indlæs køen, og stop og fortsæt rigtige underprocesser.",
+      "title": "Batch Runner: configure and run a queue",
+      "description": "Add module settings, arrange dependencies, run jobs, and inspect their separate logs.",
       "objectives": [
-        "Find Batch runner under Help, og tilføj indstillinger med tydelige afhængigheder og tilsidesættelser.",
-        "Se en ugyldig rækkefølge, ret den, og gem den validerede plan.",
-        "Indlæs planen, stop mellem job, og fortsæt uden at gentage afsluttede job.",
-        "Undersøg separate logfiler og uafhængigt verificerede pixel, kanaler og konverteringsregistre."
+        "Add jobs with their settings and dependencies.",
+        "Save, run and continue the queue.",
+        "Inspect each job’s log and outputs."
       ],
-      "prerequisite": "Brug testdatasættets tre optagne firekanalfelter med separate kilde- og målmapper pr. job. tools/tutorials/batch_data.py kopierer originalerne byte for byte til TIFF-navnene fov01_C1 til fov01_C4. A01 er en demonstrationskoordinat; oprindelige plade- og brøndkoordinater rekonstrueres ikke. Den gamle optagelse fordelte originalnavnene på fire separate C01-felter og dokumenterer ikke bevarede kanaler. Her køres kun convert, ikke hele Mask-to-Classify-kæden. Ingen model, AI-anmodning eller biologisk opdagelse påstås. Køen har ikke egen Load test data, livebilledvisning eller figurpanel; se Format Converter for Preview og Resume. Fejlpolitikker vises, men fejlede analyser, gendannelse efter nedbrud og GPU-driverisolation afprøves ikke.",
+      "prerequisite": "Prepare the input data and exported settings JSON for each job. The example runs three image conversions into separate output folders.",
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Åbn Help og derefter Batch runner. Dette fælles menuværktøj kombinerer moduljob uden grafisk brugerflade, indstillingsfiler, afhængigheder og separate logfiler. Dets egne job kører i rækkefølge; det forhindrer ikke andre programmer eller køer i at bruge samme computers ressourcer.",
+          "narration": "Open Help, then Batch runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -4579,7 +4565,7 @@
         },
         {
           "visual": "03_choose_settings_1",
-          "narration": "Vælg convert, og åbn den første JSON med Choose settings. Vi forberedte tre virkelige mikroskopifelter i separate mapper med fire tydeligt navngivne kanalfiler hver. Deres pixel er uændrede, men A nul et er en demonstrationskoordinat, ikke en genskabt original brønd.",
+          "narration": "Choose the module and click Choose settings. For this example, select convert and the JSON settings for the first microscopy field.",
           "hold_after": 0.7,
           "related_lessons": [
             "35_converter"
@@ -4587,7 +4573,7 @@
         },
         {
           "visual": "04_configure_job_1",
-          "narration": "Indstillingerne angiver kilde, mål og faktisk konvertering med forhåndsvisning og genoptagelse slået fra. Tilføj en beskrivende etiket, og vælg Add job. Første id er convert et. Kontrollér konvertering og kanaler med et lille eksempel før planlægning af en større batch.",
+          "narration": "Check the source and destination in the settings, add a descriptive label, then click Add job. Use a separate output folder for each conversion.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4598,7 +4584,7 @@
         },
         {
           "visual": "04_configure_job_2",
-          "narration": "For det andet job angiver After convert et. Tilsidesættelsen plate naming lig med name ændrer pladenavngivningen uden at omskrive den gemte fil. Afhængigheden styrer, om jobbet må køre, og rækkefølgen; den sender ikke automatisk første jobs output ind i det andet job.",
+          "narration": "For the second job, enter convert one in After to make it depend on the first. Add a setting override when this job needs a different value. Set any input paths explicitly; a dependency controls order.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4609,7 +4595,7 @@
         },
         {
           "visual": "05_added_job_3",
-          "narration": "Tilføj tredje job uden afhængighed eller tilsidesættelse. Alle har separate outputmapper. Tabellen viser id, etiketter, afhængigheder og pending. Når en række vælges, indlæses konfigurationen i editoren; selve tabellen er ikke et redigerbart regneark.",
+          "narration": "Add further jobs and review their identifiers, labels and dependencies. Select a row to load its configuration into the editor.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4620,7 +4606,7 @@
         },
         {
           "visual": "06b_dependency_error_scrolled",
-          "narration": "Flyt andet job over dets forudsætning. Valideringen melder den senere afhængighed og deaktiverer Run queue. Det lille problempanel kræver måske rulning for at vise forklaring og rettelse. Dette verificerer en virkelig afvisning, ikke kun en påstand om beskyttelse.",
+          "narration": "Use the move controls to arrange jobs. A dependency must appear before the job that needs it; read any validation message and correct the order.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4631,7 +4617,7 @@
         },
         {
           "visual": "07_valid_reordered_queue",
-          "narration": "Flyt jobbet tilbage under convert et og det uafhængige tredje job over det. Gyldig rækkefølge er et, tre, to. Vælg Validate igen: ingen problemer. Rækkefølgen overholder kravene, men validering afgør ikke, om analysen besvarer dit videnskabelige spørgsmål.",
+          "narration": "Click Validate after arranging the queue. Resolve the listed problems until Run queue becomes available.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4642,7 +4628,7 @@
         },
         {
           "visual": "09_continue_policy",
-          "narration": "On failure kan fortsætte uafhængige job eller stoppe ved første fejl. Vi så begge valg og gendannede fortsættelse. Stop after er tre fejl i træk; den tæller fejl, ikke bevis for samme årsag. Dette vellykkede eksempel afprøver ingen af de to fejlforløb.",
+          "narration": "Choose On failure to continue with independent jobs or stop at the first failure. Set Stop after to limit consecutive failures.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4653,12 +4639,12 @@
         },
         {
           "visual": "10_save_queue_picker",
-          "narration": "Save queue gemmer den ordnede plan som JSON. Vi fjernede derefter tredje job fra denne midlertidige kø i hukommelsen og gendannede de tre job med Load queue. Projektmapper blev ikke slettet. Gem indstillingsfiler og input sammen med planen.",
+          "narration": "Click Save queue to store the plan as JSON. Use Load queue to reopen it later, keeping the referenced settings files and inputs available.",
           "hold_after": 0.7
         },
         {
           "visual": "14_stopped_between_jobs",
-          "narration": "Tryk Stop, når Run queue starter den første rigtige underproces. Det aktive job afsluttes før stoppet: første række viser success, de andre not run. Processen dræbes ikke straks, og dette kontrollerede stop beviser ikke gendannelse efter computernedbrud.",
+          "narration": "Click Run queue. To pause between jobs, press Stop; the current job finishes and the remaining jobs stay unrun.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4669,7 +4655,7 @@
         },
         {
           "visual": "15_completed_real_queue",
-          "narration": "Vælg Run queue igen. Kun de to resterende job kører i gemt rækkefølge; første jobs tidsstempler er uændrede. Alle viser success. Separate processer adskiller normal jobkørsel, men demonstrationen garanterer ikke beskyttelse mod systemomfattende GPU- eller hukommelsesfejl.",
+          "narration": "Click Run queue again to continue with the remaining jobs. Watch each row’s status as the queue progresses.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4680,7 +4666,7 @@
         },
         {
           "visual": "16_log_convert-2",
-          "narration": "Vælg hver række for dens logfil. Konverteren viser én brønd, ét billedfelt og fire kanal-id'er, derefter fire konverterede filer og exitkode nul. Navnetilsidesættelsen ses i andet jobs output. Logfiler er materiale, der skal undersøges, ikke automatisk bevis for videnskabelig korrekthed.",
+          "narration": "Select a row to read its log and inspect errors or output paths. For the conversion example, check the reported field and channel identifiers.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4691,7 +4677,7 @@
         },
         {
           "visual": "16_log_convert-1",
-          "narration": "De tolv outputbilleder fra tre job matchede hver original pixel og de tilsigtede kanal-id'er. Hvert konverteringsregister viser fire forsøg, fire succeser og ingen fejl. Originalerne er uændrede. Til scripts tilbyder spacr.batch Job, Queue og run_queue; se API-lektionen og konverterens forhåndsvisning.",
+          "narration": "Open each output folder and inspect the converted images and conversion record. Keep the queue JSON, settings and logs with the results.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -4699,27 +4685,32 @@
             "30_plate_queue"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "38_distributed_jobs",
       "number": 38,
       "slug": "distributed_jobs",
-      "title": "Distribuerede job",
+      "title": "Distributed Jobs: configure an execution target",
       "series": 5,
       "app_key": "distributed_jobs",
       "section": "Data and batch runs",
-      "description": "Forbered en rigtig kørselsprofil fra Help, og skeln mellem gemt konfiguration og verificeret fjernkørsel.",
+      "description": "Create an execution profile and prepare a module job for another workstation or cluster.",
       "objectives": [
-        "Åbn Distributed jobs fra Help, og gem en profil.",
-        "Skeln mellem stimapping, datakopiering og godkendelse.",
-        "Forbered SSH, Slurm eller egne kommandoer uden at påstå en uprøvet kørsel."
+        "Create a profile for your execution target.",
+        "Configure paths and backend options.",
+        "Prepare submission and inspect job status."
       ],
-      "prerequisite": "Kun konfiguration med isoleret lokal lagring, ingen forbindelse og intet indsendt job. researcher@workstation.invalid og mapperne er eksempler, ikke fungerende mål. Før indsendelse kræves tilladt adgang, kompatibel spaCR med afhængigheder og data på målet. Brug modulets eksporterede indstillinger, ikke denne profil som forsøgsopsætning. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Profiler gemmer ikke adgangskoder; godkendelse opsættes uden for spaCR. Datarødder omskriver absolutte stipræfikser uden at kopiere billeder. Gemning, genåbning og annullering er kontrolleret, ikke jobplanlæggerens succes, fjernresultater eller modelgyldighed.",
+      "prerequisite": "Arrange access to a target with spaCR, its dependencies and your input data. Export the module settings you intend to run. Replace the illustrative host and paths shown here with your own.",
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Åbn Help og derefter Distributed jobs. Værktøjet findes i Help, ikke som et særskilt kernemodul på Home. Vi forbereder en rigtig kørselsprofil og gennemgår de aktuelle kontroller. Ingen fjernforbindelse eller indsendt opgave demonstreres; en gemt profil beviser ikke, at målet virker.",
+          "narration": "Open Help, then Distributed jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
           "focus": [
             80,
             0,
@@ -4733,7 +4724,7 @@
         },
         {
           "visual": "02_empty_actual_workbench",
-          "narration": "Denne arbejdsflade sender et moduls indstillinger til et andet kørselsmål. Sørg før indsendelse for tilladt adgang, en kompatibel spaCR-installation og tilgængelige data på målet. Profiler gemmer forbindelsesindstillinger, ikke adgangskoder. Opsæt SSH-nøgler eller godkendelse til cloudens kommandolinjeværktøj uden for spaCR.",
+          "narration": "Install compatible spaCR dependencies on the target and make the input data available there. Set up SSH keys or your provider’s command-line authentication outside spaCR.",
           "focus": [
             455,
             155,
@@ -4748,7 +4739,7 @@
         },
         {
           "visual": "03_empty_profile_refused",
-          "narration": "Vælg New profile. Et tomt skema afvises ved gemning med en besked i skemaet. Giv profilen et tydeligt navn, og vælg backend. Vores eksempel hedder udtrykkeligt NOT CONNECTED, så det ikke forveksles med en afprøvet arbejdsstation eller et vellykket job.",
+          "narration": "Choose New profile. Enter a descriptive name and select the backend. Complete the required fields shown by the form.",
           "focus": [
             695,
             195,
@@ -4759,7 +4750,7 @@
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "For SSH angives vært, fjernarbejdsmappe og spaCR-program. Værtsnavnet med endelsen punktum invalid og mapperne er eksempler, ikke brugbare loginoplysninger eller verificerede steder. Vi gemte og genåbnede profilen; de synlige værdier svarer nøjagtigt til den lagrede konfiguration.",
+          "narration": "For SSH, enter your host, remote work directory and spaCR runner. Save the profile, then reopen it whenever you need to update these settings.",
           "focus": [
             695,
             380,
@@ -4770,7 +4761,7 @@
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "Lokale og fjerne datarødder beskriver de samme data med forskellige absolutte stipræfikser. Udfyld begge, eller lad begge stå tomme, når stierne er identiske. Dette mapper stier i indstillingerne; det kopierer ikke billederne til serveren. Arranger selv delt lagring eller overførsel.",
+          "narration": "Set the local and remote dataset roots when the same data has different absolute paths on the two machines. This rewrites settings paths; arrange shared storage or copy the files separately.",
           "focus": [
             695,
             595,
@@ -4781,7 +4772,7 @@
         },
         {
           "visual": "07_slurm_controls_not_submitted",
-          "narration": "Slurm aktiverer planlæggerindstillinger og beholder vært- og stikontrollerne. Partitionsnavne, tidsgrænser og acceleratorønsker skal passe til din tildeling på klyngen. Den viste partition er en pladsholder. Valget reserverer ingen GPU og kontrollerer ikke, om planlæggeren kan kontaktes.",
+          "narration": "For Slurm, choose the partition, time limit and accelerator request supported by your cluster. Keep the host and directory settings appropriate for its login environment.",
           "focus": [
             695,
             450,
@@ -4792,7 +4783,7 @@
         },
         {
           "visual": "08_custom_argument_templates",
-          "narration": "Cloud or custom command aktiverer separate argumentskabeloner til indsendelse, status og annullering samt valgfri hentning af log. Brug de krævede pladsholdere for indstillinger og eksternt ID. Det er argumenter opdelt i tokens, ikke et shellscript. Grå forbindelseskontroller tilhører andre backends; ingen egen kommando køres i denne lektion.",
+          "narration": "For a cloud or custom command, enter submit, status and cancel argument templates, plus log retrieval if needed. Include the required settings and external-ID placeholders shown by the controls.",
           "focus": [
             695,
             805,
@@ -4803,7 +4794,7 @@
         },
         {
           "visual": "05_profile_saved_not_connected",
-          "narration": "Cancel lukker vores ugemte backendændringer og bevarer den oprindelige SSH-profil byte for byte. Save gemmer de ændringer, du vil beholde. Poll interval foreslår overvågningshyppighed, ikke beregningshastighed. Et gemt mål er stadig kun konfiguration, indtil et rigtigt, autoriseret job er kontrolleret.",
+          "narration": "Save the changes you want to retain, or use Cancel to leave the profile unchanged. Poll interval sets how frequently to check job status.",
           "focus": [
             455,
             220,
@@ -4814,7 +4805,7 @@
         },
         {
           "visual": "09_submission_controls_no_job",
-          "narration": "Vælg ved en rigtig kørsel det passende modul og dets eksporterede indstillinger før Submit. Begynd med en lille tilladt kontrol, og se derefter jobstatus, log og lokal registrering. Cancel job gælder et valgt job; at slette en profil er noget andet. Tabellen er tom, fordi vi ikke indsender noget og ikke påstår fjernresultater.",
+          "narration": "Select the profile, module and its exported settings, then use Submit when the target is ready. Monitor status and logs in the job table. Use Cancel job to stop a selected job, and inspect its results at the configured output location.",
           "focus": [
             455,
             220,
@@ -4828,31 +4819,36 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "39_classifier_evaluation",
       "number": 39,
       "slug": "classifier_evaluation",
-      "title": "Evaluering af klassifikatorer",
+      "title": "Classifier Evaluation: inspect predictions and errors",
       "series": 3,
       "app_key": "classifier_evaluation",
       "section": "Tools",
       "host_app_key": "classify_merged",
-      "description": "Undersøg gemte, reelle forudsigelser i Classify, og genkend fælles brønde i træning og test.",
+      "description": "Load a saved evaluation bundle, inspect leakage and confusion counts, and filter predictions for review.",
       "objectives": [
-        "Åbne den indlejrede resultatvisning med eksemplet til download.",
-        "Læse forvekslingsmatrix, konfidenslister, kalibrering og livefiltre.",
-        "Skelne mellem resultatinspektion og uafhængig validering."
+        "Load a bundle and review leakage.",
+        "Inspect confusion counts and confidence groups.",
+        "Filter predictions and locate saved figures."
       ],
       "example_files": [
         "REAL_evaluation_known_overlap.zip"
       ],
-      "prerequisite": "Pak REAL_evaluation_known_overlap.zip ud i en ny mappe, og vælg mappen med evaluation_manifest.json. Der er 234 reelle forudsigelser, men ingen billedudsnit, annotationsdatabase eller model. Alle tre testbrønde findes også i træningen. Kun private stier er erstattet af crops-not-included-referencer; tal og identiteter er bevaret. infected_1 og infected_2 er overtagne mærkater. OOF-titler beviser ikke krydsvalidering. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle og load_evaluation_bundle. Ingen ny træning, inferens eller forespørgsel til spaCR AI.",
+      "prerequisite": "Download and unzip the linked saved-results example. It contains predictions, tables and figures; crops require your matching experiment in Annotate. The example shares wells between training and test data, so use it to learn the inspector rather than estimate independent-well accuracy.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Åbn Classify og derefter genvejen Classifier Evaluation. Dette er en indlejret resultatvisning, ikke et selvstændigt Home-modul eller en formular til modeltræning. Classify-lektionen viser, hvordan forudsigelser laves; her undersøger vi en allerede gemt resultatpakke.",
+          "narration": "Open Classify, then Classifier Evaluation. Use this inspector to explore a saved evaluation bundle after producing predictions.",
           "focus": [
             3510,
             105,
@@ -4866,7 +4862,7 @@
         },
         {
           "visual": "03_actual_bundle_folder",
-          "narration": "Hent resultateksemplet fra linket nedenfor, og pak det ud i en ny mappe. Klik Browse, og vælg mappen med evaluation_manifest.json. Det lille arkiv indeholder reelle, gemte forudsigelser og tabeller, men ingen billedudsnit, annotationsdatabase eller trænet model.",
+          "narration": "Download and unzip the example below. Click Browse and choose the folder containing evaluation manifest dot json.",
           "focus": [
             1563,
             798,
@@ -4877,7 +4873,7 @@
         },
         {
           "visual": "04_actual_summary",
-          "narration": "Summary viser 234 testforudsigelser fra en kørsel med én epoke. infected_1 og infected_2 er overtagne datasætmærkater, ikke nyverificerede infektionstilstande. Indlæsning læser gemte resultater; den træner ikke, laver ikke nye forudsigelser og reparerer ikke datasættet.",
+          "narration": "Read Summary for the number of predictions and the recorded class names. The example contains two hundred thirty-four predictions across two classes.",
           "focus": [
             475,
             650,
@@ -4888,7 +4884,7 @@
         },
         {
           "visual": "05_actual_leakage_requires_review",
-          "narration": "Kontrollér Leakage audit, før du fortolker nøjagtigheden. Alle tre testbrønde forekommer også i træningen, så kontrollen fejler. Databaseidentiteter afslørede overlap, som den gamle filnavnekontrol overså. Tallene demonstrerer visningen, ikke præstation på uafhængige brønde eller biologisk validering.",
+          "narration": "Open Leakage audit before interpreting accuracy. This example flags wells shared between training and test data. For an independent-well evaluation, prepare a split with separate wells and rerun training and evaluation.",
           "focus": [
             475,
             650,
@@ -4899,7 +4895,7 @@
         },
         {
           "visual": "06_actual_confusion_counts",
-          "narration": "I Confusion matrix er rækkerne de registrerede klasser og kolonnerne forudsigelserne. Diagonalen indeholder 104 og 111. De øvrige felter indeholder elleve og otte uoverensstemmelser: nitten i alt. Overensstemmelse med disse mærkater beviser ikke, at mærkaterne er korrekte.",
+          "narration": "Open Confusion matrix. Rows are recorded classes and columns are predictions. The diagonal shows agreement; off-diagonal cells identify disagreements to review.",
           "focus": [
             475,
             600,
@@ -4910,7 +4906,7 @@
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "Klik feltet med elleve: registreret infected_1, forudsagt infected_2. Ved konfidens 0,75 går seks uoverensstemmelser til listen med høj konfidens og fem til den lave. Det er to inspektionskøer for samme felt, ikke nye klassifikationsresultater.",
+          "narration": "Click a disagreement cell to list its examples. The selected cell contains eleven disagreements, grouped by confidence.",
           "focus": [
             475,
             1090,
@@ -4921,7 +4917,7 @@
         },
         {
           "visual": "08_actual_confidence_threshold",
-          "narration": "Hæv konfidensgrænsen til 0,95. Den høje liste har nu to billedudsnit, den lave ni. Sandsynligheder, klasseforudsigelser og feltet med elleve ændres ikke. Denne livekontrol opdeler køen; den genkalibrerer ikke modellen og kører ikke inferens igen.",
+          "narration": "Change Confidence threshold to choose which disagreements enter the high-confidence list. Raising it from zero point seven five to zero point nine five leaves two in the high list and nine in the low list.",
           "focus": [
             475,
             1090,
@@ -4932,7 +4928,7 @@
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "Vær forsigtig med automatiske forklaringer. En sikker uoverensstemmelse beviser ikke en forkert annotation, og én plade kan ikke fastslå en pladerelateret årsag. Forslagene om model eller brønd er hypoteser. Undersøg optagelse, mærkater og reelt uafhængige data, før du vælger en rettelse.",
+          "narration": "Review the selected examples alongside their images and annotations. Use the displayed explanations as prompts for investigation, and check the evidence before changing labels.",
           "focus": [
             475,
             1170,
@@ -4943,7 +4939,7 @@
         },
         {
           "visual": "09_actual_per_plate",
-          "narration": "Per-plate metrics har én række med alle 234 forudsigelser. Det hjælper med at finde resultater pr. plade, men eksemplet kan hverken sammenligne plader eller estimere en pladeeffekt. Høj nøjagtighed fjerner ikke problemet med fælles brønde i Leakage audit.",
+          "narration": "Open Per-plate metrics to compare results by plate. This example has one plate; a multi-plate bundle provides separate rows for comparison.",
           "focus": [
             475,
             595,
@@ -4954,7 +4950,7 @@
         },
         {
           "visual": "10_actual_calibration_table",
-          "narration": "Calibration sammenligner gennemsnitlig forudsagt sandsynlighed med observeret klassehyppighed i fem intervaller pr. klasse. Antallet er vigtigt: tyndt besatte intervaller er usikre. Pakken brugte ingen kalibreringskorrektion. Fanen beskriver tidligere beregnede resultater; den har ingen kontrol til at tilpasse kalibreringen.",
+          "narration": "Open Calibration to compare predicted probability with observed class frequency. Check each bin’s count when interpreting the differences.",
           "focus": [
             475,
             595,
@@ -4965,7 +4961,7 @@
         },
         {
           "visual": "12_actual_prediction_filter",
-          "narration": "Skriv r5_c2 i Predictions for at undersøge den brønd. Tabellen går fra 234 til 128 rækker. Dette er et live-tekstfilter over gemte poster, ikke billedfiltrering, segmentering eller ændring af de underliggende resultatfiler.",
+          "narration": "Open Predictions and type a sample or well identifier to filter the records. In the example, r five underscore c two selects one well’s predictions.",
           "focus": [
             475,
             595,
@@ -4976,7 +4972,7 @@
         },
         {
           "visual": "13_actual_filter_cleared",
-          "narration": "Ryd filteret, så alle 234 rækker vender tilbage. Stierne siger udtrykkeligt, at billedudsnit ikke er inkluderet. Åbn først det tilsvarende eksperiment i Annotate, hvis du vil se dit projekts uoverensstemmende udsnit. Arkivet leverer ikke den database; deaktiverede knapper demonstrerer ikke en fungerende billedarbejdsgang.",
+          "narration": "Clear the filter to restore all records. To open crops in your own project, first load the matching experiment in Annotate; the downloadable results example contains no crops.",
           "focus": [
             475,
             595,
@@ -4990,7 +4986,7 @@
         },
         {
           "visual": "04_actual_summary",
-          "narration": "Downloadet bevarer også de oprindelige kalibrerings- og forvekslingsfigurer. Kontrollér kontrasten, før du bruger dem i rapporter. Generiske out-of-fold-titler og filnavne gør ikke denne ene testopdeling til krydsvalidering. Sandsynligheder og antal er uændrede; kun private stier er erstattet af tydelige referencer.",
+          "narration": "Find the saved calibration and confusion figures in the bundle folder. Check labels and readability before using them in a report.",
           "focus": [
             475,
             650,
@@ -5001,7 +4997,7 @@
         },
         {
           "visual": "14_actual_final_leakage",
-          "narration": "Behold advarslen om datalækage sammen med alle eksporterede mål. API-referencen forklarer klargøring og indlæsning; Training Runs sammenligner gemte forløbslogfiler. spaCR AI kan forklare ord, men ikke godkende mærkater eller uafhængighed. Eksemplet krævede ingen forespørgsel til en udbyder.",
+          "narration": "Keep the leakage audit with reported metrics. Use Training Runs to compare saved training progress, and return to Annotate when image or label review is needed.",
           "focus": [
             475,
             650,
@@ -5013,7 +5009,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "40_run_history",
@@ -5022,19 +5023,18 @@
       "series": 5,
       "app_key": "run_history",
       "section": "Data and batch runs",
-      "title": "Run History: undersøg ægte kørselslogge og gendan tilgængelige indstillinger",
-      "description": "Find registrerede job via Help, kontrollér indstillinger, fillister, advarsler og fejl, og åbn en ægte Recruitment-konfiguration uden at køre eller slette noget.",
+      "title": "Run History: inspect past jobs and restore settings",
+      "description": "Find saved runs, inspect settings and logs, and load a previous configuration into its module.",
       "objectives": [
-        "Find Run history under Help, og kombinér modul-, status- og tekstfiltre.",
-        "Skeln mellem fillister, vellykket kørsel og videnskabelig validering.",
-        "Læs gemte indstillinger, miljø, advarsler og en ægte fejlsporing.",
-        "Kopiér loggens sti, og gendan Recruitment-kontroller uden at starte analyse."
+        "Find runs using filters and search.",
+        "Inspect saved settings, files and problems.",
+        "Restore settings for a new run."
       ],
-      "prerequisite": "Brug logge fra dine afsluttede eksempelkørsler. Optagelsen læser en isoleret kopi af ~/.spacr/runs med ægte tutorialjob, ikke opdigtede resultater. Batch Runner og Recruitment beskriver de optagne testdata; Regression giver virkelige advarsler og et tidligere Model Zoo-forsøg en virkelig fejl. Run History har ingen egen datadownload, live-billedvisning, grafer eller AI-panel. Ingen analyse, sletning eller ekstern filhåndtering startes. Alle 496 logfiler er uændrede byte for byte. Eksemplet gendanner 27 tilgængelige Recruitment-indstillinger; hash_inputs findes ikke i formularen. Gemte hashes beskriver den tidligere kørsel, ikke en ny kontrol af aktuelle filer.",
+      "prerequisite": "Complete a spaCR job to create a local run record. The example browses records from conversion, Recruitment and Regression runs.",
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Åbn Help og derefter Run history. Dette fælles værktøj læser den lokale kørselslog, ikke alle projektmapper på computeren. Vi bruger ægte registreringer fra de andre tutorials. Du behøver ikke gentage analyserne for at se deres historik.",
+          "narration": "Open Help, then Run history to browse the run records saved on this computer.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -5043,12 +5043,12 @@
         },
         {
           "visual": "02_loaded_history",
-          "narration": "Refresh indlæser de tilgængelige registreringer. Tabellen viser modul, status, varighed, CPU-tid samt antal og størrelse af registrerede filer. Træk skillelinjen for at forstørre detaljerne. Det er gemte kørselsmålinger, ikke live-overvågning eller en uafhængig vurdering af videnskabelig kvalitet.",
+          "narration": "Click Refresh to load available records. Select a run to inspect its details, and drag the divider if you need more room.",
           "hold_after": 0.7
         },
         {
           "visual": "03_batch_search",
-          "narration": "Vælg convert og Success, og søg efter eksemplets fælles mappenavn. Tre ægte Batch Runner-job er tilbage. Modul-, status- og tekstfiltre kombineres; tekst kan finde indstillinger, stier, versioner og registrerede problemer. Der er ingen særskilte dato- eller ressourcefiltre her.",
+          "narration": "Choose a module and status, then enter a search term to narrow the list. For example, select convert and Success to find completed conversions.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -5059,7 +5059,7 @@
         },
         {
           "visual": "04_batch_empty_inventory",
-          "narration": "Files and models er tom for disse vellykkede konverteringer, fordi loggen sprang filhashing over. Det betyder ikke, at der ikke blev dannet billeder. Batch Runner-lektionen kontrollerede alle tolv output separat. En manglende filliste er manglende dokumentation, ikke bevis på manglende data.",
+          "narration": "Open Files and models for recorded input and output details. Runs that skipped file hashing can have an empty inventory; use the output paths in settings or logs to find their results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5073,12 +5073,12 @@
         },
         {
           "visual": "05_no_match",
-          "narration": "En søgning uden træffere tømmer tabellen og detaljerne og deaktiverer handlinger for den valgte kørsel. Den tidligere søgning bringer de samme tre registreringer tilbage. Kontrollér filtrene, før du konkluderer, at en kørsel er forsvundet; søgningen sletter ikke logfiler.",
+          "narration": "Clear or adjust the filters if the table is empty. Search terms and status selections work together.",
           "hold_after": 0.7
         },
         {
           "visual": "07_recruitment_overview",
-          "narration": "Vælg den ægte Recruitment-kørsel. Overview viser cirka atten sekunders forløbet tid og femogfyrre sekunders proces-CPU-tid: to forskellige målinger. Seks inputfiler og seks outputfiler er registreret. Det er ikke celletal og ingen garanti for en fuldstændig filliste.",
+          "narration": "Select a Recruitment run and read Overview for its elapsed time and recorded file counts. These summarize that saved execution.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5092,7 +5092,7 @@
         },
         {
           "visual": "09_settings_source",
-          "narration": "Settings viser den gemte konfiguration med kilde, kanaler, objektfiltre og Plot slået til. Rul for at læse hele øjebliksbilledet. Kilden er tutorialens private eksempelprojekt. Disse historiske værdier ændres ikke automatisk, når du senere redigerer projektet eller modulets aktuelle indstillinger.",
+          "narration": "Open Settings to inspect its source folder, channels and object filters. Scroll through the saved configuration before deciding to reuse it.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5103,7 +5103,7 @@
         },
         {
           "visual": "10_recorded_files",
-          "narration": "Files and models viser registrerede stier, størrelser og hashes, når de findes. Undersøg både input og output; samme database kan have forskellige hashes før og efter. Historikken læser gemte oplysninger og genberegner hverken alle aktuelle filhashes eller validerer det biologiske resultat.",
+          "narration": "Open Files and models to inspect recorded paths, sizes and hashes. Keep the referenced project files available when you need to revisit the analysis.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5114,7 +5114,7 @@
         },
         {
           "visual": "12_hashes_and_seeds",
-          "narration": "Environment indeholder registrerede softwareversioner, oplysninger om tilfældighedsfrø og hashes af øjebliksbilleder. De hjælper med at undersøge forskelle mellem kørsler, men garanterer ikke alene reproducerbarhed. Copy path kopierer kørselsloggens mappesti til udklipsholderen. Gem indstillinger og manifest sammen med projektets separate input og resultater.",
+          "narration": "Open Environment for recorded software versions and seeds. Use Copy path to locate the run’s journal folder.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5125,7 +5125,7 @@
         },
         {
           "visual": "14_recorded_warning",
-          "narration": "En vellykket Regression-kørsel kan stadig advare om gemte figurers kontrast og manglende proveniensfiler. Warnings and failure adskiller advarsler fra fejlsporingen. Success betyder afsluttet kørsel, ikke læsbare figurer, fuldstændig proveniens eller et gyldigt statistisk design. Se Regression-lektionen for disse kontroller.",
+          "narration": "Open Warnings and failure to read warnings attached to a completed run. Investigate relevant warnings before using its results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5139,7 +5139,7 @@
         },
         {
           "visual": "16_failure_exception",
-          "narration": "Failed viser et ægte tidligere Model Zoo-forsøg. Fejlsporingen ender med, at Cellpose ikke understøtter argumentet invert. Det er et kompatibilitetsproblem, ikke et segmenteringsresultat. Vi læser fejlen uden at gentage kørslen. Medtag relevante versioner og fejldetaljer, når du rapporterer et problem.",
+          "narration": "Choose Failed to find unsuccessful jobs. Read the traceback and software versions when diagnosing a problem or preparing a bug report.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5150,7 +5150,7 @@
         },
         {
           "visual": "18_restored_recruitment",
-          "narration": "Vend tilbage til Recruitment, og vælg Load settings in module. Alle syvogtyve tilgængelige kontroller svarer til de gemte værdier, og ingen analyse starter. Loggen indeholder også hash inputs, som formularen ikke repræsenterer. Gennemgå gendannede indstillinger og aktuelle input før kørsel; en nøjagtig gentagelse er ikke garanteret.",
+          "narration": "Return to the desired run and choose Load settings in module. Review the restored controls and current input paths before pressing Run.",
           "hold_after": 0.7,
           "related_lessons": [
             "25_recruitment"
@@ -5158,14 +5158,19 @@
         },
         {
           "visual": "17_ready_to_restore",
-          "narration": "Clear all sletter kørselslogge; det nulstiller ikke filtre. Vi brugte hverken den knap eller rækkemenuens sletning, og alle logfiler forblev uændrede. Brug search_runs i spacr.run_journal til søgninger fra kode. Se den separate Report-lektion for projektrapporter.",
+          "narration": "Keep the journals you need with your project records. Use Clear all only when you intend to delete run records. Open Report to create a project summary.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "29_report"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "41_classify",
@@ -5333,7 +5338,7 @@
       "id": "42_curate",
       "number": 42,
       "slug": "curate",
-      "title": "Curate: øv rettelser og bevar deres historik",
+      "title": "Curate: edit masks and tracks",
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
@@ -5341,18 +5346,17 @@
       "example_files": [
         "Curate_SYNTHETIC_practice.zip"
       ],
-      "description": "Øv ændring af masker og spor med syntetiske data og eksterne sikkerhedskopier ved den nuværende fejl i maskernes historik.",
+      "description": "Practise brush edits, track splitting and joining, and save the corrected files.",
       "objectives": [
-        "Åbn Curate i Make Masks med arbejdskopier.",
-        "Mal, fortryd og gem uden at kalde øvelsen en biologisk rettelse.",
-        "Gem maske og log uden for appen før genåbning.",
-        "Del og saml spor, og kassér en ikke-gemt sletning."
+        "Edit a label mask with the brush and undo controls.",
+        "Split, join and save tracks.",
+        "Preserve source files and curation history."
       ],
-      "prerequisite": "Pak Curate_SYNTHETIC_practice.zip ud og brug kopier. TIFF: etiketplan 2 fra syntetisk Timelapse, 256 × 256 pixels, seksten etiketter 2–17. CSV: seksten spor, 128 rækker, otte frames. Ikke optagne biologiske data. NPY-indlæsning fejlede; TIFF bevarer heltalsetiketter. Radius 8 og etiket 18 er øvelser. Alle pixels og CSV-værdier er kontrolleret. Save mask overskriver den valgte fil og gemmer .curation.json. Genåbning nulstiller tre logposter i hukommelsen; næste gemning erstatter sidefilen med én ny post. Fejlen er ikke rettet. Kør først curate_checkpoint.py med den gemte maske og en NY mappe: begge filer kopieres præcist, men apphistorik gendannes eller sammenflettes ikke. Genåbning tilføjer også et visningslag; lysstyrke er ikke etiketidentitet. Del spor 2 ved frame 4 for at skabe 18; samling af halvdelene gendanner 128 rækker. 2 og 3 kan ikke samles på grund af overlappende frames. Sporhistorik bevares ved genindlæsning. API: spacr.curation.MaskCuration og TrackCuration. Ingen GPU, AI, ny segmentering, biologisk validering, appændring eller offentliggørelse.",
+      "prerequisite": "Download the synthetic practice archive and work on copies. Keep separate backups of masks and their .curation.json sidecars before reopening: saving a reopened mask currently replaces its earlier edit log.",
       "scenes": [
         {
           "visual": "02_actual_curate_page",
-          "narration": "Åbn Make Masks og derefter det indlejrede Curate. I tutorials hører Curate under Make Masks' undermoduler, ikke til en separat Home-flise. Det redigerer etiketmasker og spor. Lektionen bruger syntetiske Timelapse-output, ikke biologiske observationer eller dokumentation for, at manuelle rettelser øger nøjagtigheden.",
+          "narration": "Open Make Masks, then Curate to edit label masks and tracks. Download the synthetic practice example below and keep an untouched copy.",
           "related_lessons": [
             "14_make_masks",
             "17_timelapse"
@@ -5361,12 +5365,12 @@
         },
         {
           "visual": "04_original_sixteen_label_mask",
-          "narration": "Hent det tilknyttede øvelsesarkiv og arbejd på kopier. Åbn heltalsmaskens TIFF: seksten oprindelige etiketter ligger i et kvadrat på 256 pixels. Vælgeren tilbyder også NPY, men den indlæsning fejlede. TIFF bevarer det præcise etiketplan; erstat ikke etiketter med et farvet skærmbillede.",
+          "narration": "Browse to the example’s integer-label TIFF. Each object has its own label, with zero reserved for background. Use the TIFF example for this walkthrough.",
           "hold_after": 0.7
         },
         {
           "visual": "05_practice_disk_not_a_real_object",
-          "narration": "Sæt penselradius til otte og klik New for at vælge etiket atten. Mal én gang i det tomme øvelsesområde. Cirklen er opfundet for at lære kontrollen, ikke en manglende celle. Penslen ændrer pixels i hukommelsen; den gemte fil er uændret indtil Save mask.",
+          "narration": "Set Brush radius to eight and click New to select a new label. Click an empty part of the practice image to paint a small region.",
           "focus": [
             355,
             470,
@@ -5377,7 +5381,7 @@
         },
         {
           "visual": "06_undo_restores_every_original_pixel",
-          "narration": "Undo stroke gendanner alle oprindelige pixels i øvelsen. Mal igen og undersøg før gemning. Loggen indeholder maling, fortryd og maling; fortryd er også historik. Musens præcise position kan ændre pixelantallet, så vores øvelsesaftryk er ikke et biologisk mål.",
+          "narration": "Click Undo stroke to remove the last brush edit. Paint again and inspect the result before saving.",
           "focus": [
             3380,
             480,
@@ -5388,7 +5392,7 @@
         },
         {
           "visual": "07_saved_mask_and_ledger",
-          "narration": "Save mask skriver tilbage til den valgte arbejds-TIFF og gemmer dens rettelseslog. Før genåbning køres det separate sikkerhedskopiscript fra downloadet med den gemte maske og en ny mappe. Det kopierer begge filer præcist. Dette er en udtrykkelig ekstern backup, ikke en skjult appfunktion.",
+          "narration": "Click Save mask to write the working TIFF and its curation sidecar. Before reopening, preserve both files in a new backup folder; the download includes a checkpoint script for this step.",
           "focus": [
             3380,
             480,
@@ -5399,12 +5403,12 @@
         },
         {
           "visual": "10_second_session_saved_history",
-          "narration": "Her er begrænsningen: Genåbning nulstiller maskeloggen i hukommelsen, og næste gemning erstatter sidefilen med den nye sessions rettelse. Vores tidligere backup bevarer de tre oprindelige poster. Behold separate kopier og noter; scriptet reparerer ikke apphistorik. Genåbning tilføjer også et visningslag, så lysstyrke ikke er etiketidentitet.",
+          "narration": "Keep each session’s backup and edit notes. Reopening a mask starts a new in-memory log, and another save replaces its sidecar with that session’s history.",
           "hold_after": 0.7
         },
         {
           "visual": "13_overlapping_tracks_cannot_join",
-          "narration": "Åbn sporenes arbejds-CSV. Den har seksten spor over otte frames, i alt 128 rækker. Valg af spor to og tre med Join afvises, fordi begge findes i samme frames. Læs beskeden; at tvinge uvedkommende baner sammen ville ikke være en gyldig rettelse.",
+          "narration": "Browse to the tracks CSV and select tracks to review. Join accepts tracks with non-overlapping frame ranges; an overlap produces a message to resolve first.",
           "focus": [
             3380,
             480,
@@ -5415,7 +5419,7 @@
         },
         {
           "visual": "14_split_tail_starts_at_frame_four",
-          "narration": "Vælg spor to, sæt Split at frame til fire og klik Split. Frames fire til syv flyttes til nyt spor atten, mens nul til tre forbliver i to. Koordinater og oprindelige etiketter ændres ikke. Dette er en kontrolleret redigeringsøvelse, ikke bevis på en virkelig celledeling.",
+          "narration": "Select track two, set Split at frame to four, and click Split. The later frames move to a new track while the earlier frames retain the original identifier.",
           "focus": [
             3380,
             480,
@@ -5426,7 +5430,7 @@
         },
         {
           "visual": "16_saved_tracks_and_history",
-          "narration": "Vælg to og atten sammen og klik Join. De ikke-overlappende halvdele samles og gendanner alle oprindelige rækker. Save tracks gemmer CSV og dens egen log. Den uafhængige kontrol sammenligner hver frame, identifikator og koordinat, ikke kun sporantallet. Hold maske- og sporhistorik adskilt.",
+          "narration": "Select the two non-overlapping halves and click Join to combine them. Click Save tracks to write the CSV and its separate curation sidecar.",
           "focus": [
             3380,
             480,
@@ -5437,7 +5441,7 @@
         },
         {
           "visual": "17_unsaved_delete_removes_eight_rows",
-          "narration": "Sletning af spor tre fjerner dets otte rækker i hukommelsen. Gem ikke denne øvelsessletning. Genåbn den gemte CSV for at kassere ændringen. Det viser forskellen på aktuelle rettelser og diskindhold; sletning af virkelige spor kræver en dokumenteret grund, ikke bare et uønsket resultat.",
+          "narration": "Use Delete only for tracks you intend to remove. To discard an unsaved change, reopen the last saved CSV.",
           "focus": [
             3380,
             480,
@@ -5448,35 +5452,40 @@
         },
         {
           "visual": "19_saved_tracks_and_two_actions_return",
-          "narration": "Alle 128 rækker og den gemte delings- og samlingshistorik kommer tilbage. Modsat masker i denne version bevarer genåbning af spor historikken i testen. Behold originaler, sikkerhedskopier og begrundelser. Python tilbyder MaskCuration og TrackCuration; GPU og AI-udbyder er unødvendige, og vellykket redigering er ikke videnskabelig validering.",
+          "narration": "Inspect the reopened tracks and saved history. Keep originals and reasons for edits, and rerun any downstream analysis affected by corrected masks or trajectories.",
           "related_lessons": [
             "06_api",
             "17_timelapse"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Belysningskorrektion",
+      "title": "Illumination: estimate and inspect a correction model",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Estimér et belysningsfelt fra downloadede billeder via Illumination i Measure, undersøg eksporteret kvalitetskontrol, og adskil numerisk forbedring fra biologisk validering.",
+      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
       "objectives": [
-        "Åbne den integrerede side og vælge intensitetskanaler i sammenlagte billeder.",
-        "Sammenligne slået fra og slået til og undersøge den gemte model og kvalitetskontrol.",
-        "Genbruge en gennemgået model uden at forveksle diagnostik på tilpasningsdata med uafhængig validering."
+        "Select representative fields and intensity channels.",
+        "Estimate and inspect an illumination model.",
+        "Reuse the model in Mask or Measure."
       ],
-      "prerequisite": "Der bruges uændrede kopier af seksten downloadede plate1-felter, 1994 × 1994 pixels med syv lagrede planer. Kanal nul er et intensitetsindeks, ikke en farvningsidentitet; labelplaner er ikke intensiteter. Originaler og kopier bevares. Efter GUI-kørslen kontrollerer en uafhængig formel 7.952.072 korrigerede pixels via den offentlige API uden at erstatte GUI-resultater. Model og kvalitetskontrol bruger de samme seksten felter, ikke uafhængige optiske eller biologiske referencedata. Mørkeoffset nul er ikke en målt kalibrering. Figures forbliver tomt; den faktiske PNG åbnes i en separat billedfremviser. Ingen programkode eller originalbilleder ændres. Den gamle simulering med fem scener erstattes.",
+      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Åbn Measure og derefter knappen Illumination. Denne integrerede side estimerer en korrektionsmodel før en større analyse. Det adskiller sig fra blot at aktivere korrektion under en målekørsel og gør ikke hele applikationssessionen automatisk korrigeret.",
+          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
           "focus": [
             3625,
             65,
@@ -5490,7 +5499,7 @@
         },
         {
           "visual": "05_setting_src",
-          "narration": "Sæt Source til merged-mappen med billedarrayerne, ikke måledatabasen. Vi bruger nye kopier af alle seksten felter fra det downloadbare pladeeksempel. Originalerne forbliver uændrede, og belysningsmodellen gemmes ved siden af merged-mappen.",
+          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
           "focus": [
             363,
             375,
@@ -5505,7 +5514,7 @@
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Indstillingen Channels angiver positioner i det lagrede intensitetsarray. Her vælger vi kanal nul. Kontrollér din egen optagelsesmapping frem for at antage, at nul altid betyder den samme farvning. Vælg aldrig et labelmaskeplan, som om det var fluorescensintensitet.",
+          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
           "focus": [
             374,
             475,
@@ -5516,7 +5525,7 @@
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Først er korrektionen slået fra. Run afsluttes, men konsollen siger udtrykkeligt, at intet felt blev estimeret. Vi kontrollerede, at ingen model blev oprettet. En besked om vellykket afslutning beviser derfor ikke i sig selv, at der er sket korrektion.",
+          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
           "focus": [
             1518,
             405,
@@ -5527,7 +5536,7 @@
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Slå Illumination correction til. Eksemplet bruger polynomial-estimatoren med grad fire og lader Illumination model være tom for at estimere et nyt felt. Mere fleksibilitet er ikke automatisk bedre: En korrektion, der følger celler eller behandlingsmønstre, kan fjerne den biologi, du ville måle.",
+          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
           "focus": [
             363,
             550,
@@ -5538,7 +5547,7 @@
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Hold optagelsesgrupper adskilt med Illumination per plate. Her bruger vi alle seksten tilgængelige felter. Repræsentativ dækning er vigtigere end blindt at øge et tal; en model tilpasset ét tætbevokset hjørne kan forveksle biologisk struktur med ujævn belysning.",
+          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
           "focus": [
             363,
             858,
@@ -5549,7 +5558,7 @@
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Illumination dark er et additivt kameraoffset i rå tælleenheder, ikke en indlært biologisk baggrund. Nul er indstillingen i demonstrationen, ikke et kalibreringsresultat. Vælg offset ud fra passende optagelseskontroller i stedet for at justere det, indtil en fænotype forsvinder.",
+          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
           "focus": [
             374,
             775,
@@ -5560,7 +5569,7 @@
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Behold Illumination QC slået til, og kontrollér politikken for manglende modeller. Vi bruger error, så en utilgængelig pladekorrektion stopper handlingen i stedet for tavst at blande korrigerede og ukorrigerede felter. Disse kontroller erstatter ikke undersøgelse af det estimerede felt.",
+          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
           "focus": [
             363,
             1020,
@@ -5571,7 +5580,7 @@
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Kør igen med korrektionen slået til. Konsollen viser nu det tilpassede felt, diagnostiske hældninger og stien til den gemte model. Dette selvstændige trin lader billedfilerne være uændrede; det har hverken kørt segmentering igen eller frembragt nye cellemålinger.",
+          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
           "focus": [
             1518,
             405,
@@ -5582,7 +5591,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "I denne version gemmes QC-billedet, men det vises ikke i det indbyggede Figures-panel. Åbn illumination_qc_plate1.png fra illumination-mappen i din billedfremviser. Dette er den faktiske eksporterede figur i en separat fremviser, ikke et simuleret spaCR-panel.",
+          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
           "focus": [
             200,
             100,
@@ -5593,7 +5602,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Venstre panel viser det estimerede belysningsfelt med middelværdi én. Korrektionen trækker kameraoffset fra og dividerer med dette felt. Selv om titlen kalder det gain, skal du ikke multiplicere intensiteterne med det viste kort: Korrektionen bruger dets reciprokke værdi. Se efter biologiske strukturer, som er kommet med i estimatet.",
+          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
           "focus": [
             400,
             680,
@@ -5604,7 +5613,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Den radiale hældning ændres fra cirka −0,181 til +0,026. Den rapporterede reduktion på 85,4 procent stemmer med vores uafhængige beregning, men kurven efter korrektionen er ikke flad. Det er de samme felter, der blev brugt til at tilpasse modellen, så dette er ikke uafhængig validering.",
+          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
           "focus": [
             1270,
             680,
@@ -5615,7 +5624,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "Ved senere genbrug skal du angive stien til den gemte model og udtrykkeligt aktivere korrektion i den ønskede Mask- eller Measure-arbejdsgang. Bevar model, kanalmapping, pladeidentiteter og indstillinger sammen. Undersøg uafhængige felter, og undgå dobbelt korrektion af allerede korrigerede intensiteter, før du fortolker biologiske forskelle.",
+          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
           "focus": [
             363,
             370,
@@ -5628,7 +5637,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "44_data_manager",
@@ -5637,19 +5651,18 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: undersøg, ryd op i og arkivér et ægte eksempel sikkert",
-      "description": "Undersøg registrerede og uregistrerede filer, annullér og bekræft en præcis sletning af billedudsnit, og flyt en privat projektkopi med arkivspor.",
+      "title": "Data Manager: inspect usage, clean up and archive",
+      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
       "objectives": [
-        "Åbn Data manager fra Help og undersøg faktisk diskforbrug.",
-        "Læs sletteplanen, bevaringsgrundene og hele bekræftelseslisten.",
-        "Skeln mellem uigenkaldelig sletning og flytning, og kontrollér Cancel.",
-        "Scan arkivet igen og gem manifest, oprindelseslog og uafhængig sikkerhedskopi."
+        "Inspect project disk usage.",
+        "Review and apply a cleanup plan.",
+        "Move and rescan an archived project."
       ],
-      "prerequisite": "Brug det ægte External Masks-eksempel med to billedfelter, 103 målte objekter og gemte figurer. Optagelsen bruger en isoleret, bytekontrolleret kopi; kun i optageprocessen henviser registrets oprindelige absolutte stier til denne midlertidige kopi. Alle 131 originalfiler er uændrede. Data Manager har ingen egen datahentning, live-billedvisning, Plot-kontrol eller AI-panel. Størrelser angiver byte, ikke videnskabelig kvalitet. Kun fra kopien slettes 103 PNG-udsnit og deres format-JSON; måledatabasen og den registrerede opskrift bevares. Gendannelse vises ikke. Arkivering flytter resten af projektet; det er ikke en sikkerhedskopi eller en garanti for opdatering af historiske absolutte stier. Eksterne ressourcelogfiler flyttes ikke med.",
+      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Åbn Help og derefter Data manager. Dette fælles værktøj håndterer projektfiler; det udfører ikke billedanalyse. Vi bruger en midlertidig kopi af det ægte External Masks-eksempel med målinger og gemte figurer. Gem en uafhængig sikkerhedskopi, før du selv prøver oprydning.",
+          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -5657,7 +5670,7 @@
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Choose project vælger projektets rodmappe. Efter scanning viser Usage omkring enoghalvfems megabyte i hundrede niogtyve filer. Registered og Unregistered er forskellige: filer kan findes uden en registerpost. Kategorier udledt af mapper er skøn, ikke dokumentation for filernes videnskabelige indhold.",
+          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5668,7 +5681,7 @@
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Vælg i Prune, hvilke typer der skal overvejes. En aktiveret kontakt giver ikke i sig selv tilladelse til sletning. Lad måledatabaser og modelvægte være fravalgt her, og vælg Show what can be deleted. Læs både de foreslåede filer og grundene til, at andre resultater bevares.",
+          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5679,7 +5692,7 @@
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Planen omfatter kun udsnitsmappen data: hundrede tre objektbilleder og én formatfil, ikke hundrede fire celler. Den foreslår at frigøre cirka tre komma fire megabyte. Get it back by angiver Measure, men gendannelse kræver stadig oprindelige input, indstillinger og egnet software.",
+          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5690,17 +5703,17 @@
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Delete åbner endnu en bekræftelse med den faktiske filliste. Sletningen kan ikke fortrydes. Gør dialogen større, og rul gennem stierne, før du godkender dem. Den sidste Delete-knap er først deaktiveret; godkendelse og sletning er to forskellige handlinger.",
+          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
           "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Godkendelsen aktiverer Delete. Slår du den fra, deaktiveres Delete igen. Første gang vælger vi Cancel, og alle projektfiler forbliver uændrede. Annullér, hvis der er tvivl om stier, antal filer eller fremgangsmåden til at genskabe dem.",
+          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
           "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Vi åbner den samme kontrollerede plan igen og bekræfter kun sletningen på vores midlertidige kopi. Resultatet viser tre komma fire megabyte frigjort fra hundrede fire filer. Alle øvrige fireogtyve filer uden for registret er byteidentiske, herunder måledatabasen og de gemte figurer.",
+          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5711,7 +5724,7 @@
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Den automatiske nye scanning viser nu ét registreret resultat, som mangler på disken: udsnitsmappen, vi med vilje slettede. Opskriften bliver i registret sammen med oprydningsmetadata. Posten er ikke en fortrydelsesbuffer, og vi har ikke kørt Measure igen for at genskabe udsnittene.",
+          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5722,22 +5735,22 @@
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Archive er noget andet: det flytter resten af projektet. Vælg en tom destination uden for kilden og derefter Show what would move. Efter oprydningen indeholder planen femogtyve filer på cirka otteogfirs megabyte. Læs kilde og destination grundigt; denne skærm planlægger hele projektet.",
+          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
           "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Move beder om bekræftelse med No valgt som standard. Først vælger vi No og kontrollerer, at kilden er uændret og destinationen tom. En plan og en annulleret bekræftelse flytter ingenting. Arkivdestinationen er ikke en ekstra sikkerhedskopi.",
+          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
           "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Vi bekræfter kun Yes for dette private eksempel. De resterende filer flyttes til destinationen. Her skrives et manifest, og en arkivlog efterlades ved oprindelsen. Det originale projekt, som den midlertidige kopi blev lavet fra, er helt uændret.",
+          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
           "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Vælg destinationen som projekt og scan igen. Den arkiverede måledatabase er registreret ved sin nye sti, og hver fil uden for registret har samme byte som før flytningen. Det ekstra manifest forklarer det nye filantal. Historiske poster og eksterne logfiler omskrives eller flyttes ikke automatisk.",
+          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5748,7 +5761,7 @@
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Til Python-automatisering tilbyder spacr.data_manager scan_project, plan_prune, prune, plan_archive og archive. Undersøg planen, før du giver dens bekræftelsestoken. Brug Database Browser til målinger og Report til en læsbar projektoversigt. Gem den uafhængige sikkerhedskopi og arkivsporene sammen med forskningsdokumentationen.",
+          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -5756,7 +5769,12 @@
             "29_report"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "45_project_browser",
@@ -5765,19 +5783,18 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find ægte projekter og fortolk deres dokumentation",
-      "description": "Find registrerede og uregistrerede eksempler, vælg søgedybde, sortér faktisk diskforbrug og læs dokumentation uden analyse eller sletning.",
+      "title": "Project Browser: find and inspect projects",
+      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
       "objectives": [
-        "Åbn Project browser i Help og afgræns søgemapperne.",
-        "Brug Depth og Scan, og sortér efter målte byte.",
-        "Skeln manglende proveniens og deklarerede outputtrin fra virkelig kørselshistorik.",
-        "Læs detaljer, fjern kun søgerødder og brug særskilte værktøjer til data og logfiler."
+        "Discover projects using roots and search depth.",
+        "Inspect artifacts and recorded stages.",
+        "Choose the next relevant tool."
       ],
-      "prerequisite": "Brug de afsluttede eksempler fra External Masks og Batch Runner. Optagelsen sammenligner en kontrolleret privat kopi af det målte projekt med to billedfelter med en firekanalskonvertering, inklusive skjult kontrolpunkt og to andre konverteringsposter. Det er forskellige eksempler, ikke før og efter. Alle 131 originalfiler i måleprojektet og syv konverteringsfiler er uændrede. Kun i den isolerede optageproces peger de oprindelige artefaktstier på målekopien; proveniensen omskrives ikke. Project Browser har ingen egen download, live-forhåndsvisning, Plot-kontrol eller AI-panel. Scan læser projektets dokumentation, ikke alle kørselsjournaler. Sortering, dybde og fjernelse af søgerødder bruger rigtige kontroller; ingen analyse, sletning, ekstern filhåndtering eller automatisk overdragelse udføres. SQLite fjerner kun det private registers tomme WAL og SHM på 32768 byte. Databaser og øvrige filer beholder deres byte.",
+      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Åbn Help og derefter Project browser. Denne fælles skærm finder projektmapper og sammenfatter, hvad der er registreret eller findes på disken. Vi bruger private kopier af ægte output fra External Masks og Batch Runner. Det er et overbliksværktøj, ikke en billedanalyse.",
+          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -5786,7 +5803,7 @@
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Add folder vælger, hvor der søges. Ved Depth nul undersøges kun selve mappen. Den valgte overordnede mappe indeholder et projekt ét niveau længere nede, så tabellen er tom. Et tomt resultat ved denne dybde betyder ikke, at projektet eller billederne mangler.",
+          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5797,7 +5814,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Sæt Depth til én og vælg Scan. Den konverterede billedmappe vises: cirka toogtredive megabyte i syv filer. Det er fire optagne kanalbilleder, en konverteringstabel, en statuspost og et skjult kontrolpunkt. Filantal er ikke antal celler eller uafhængige forsøg.",
+          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5808,7 +5825,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "State viser unknown, nothing recorded, fordi mappen ikke har et artefaktregister. Stage siger nothing run og Last run never, selv om konverteringen faktisk blev gennemført. Kolonnerne viser deklarerede output og registrerede resultater, ikke hele konverteringshistorikken. Unknown beviser hverken god datakvalitet eller ubehandlede data.",
+          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5823,7 +5840,7 @@
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Tilføj måleprojektet som en anden søgerod. Rækken viser Measure, cirka enoghalvfems megabyte, hundrede niogtyve filer og et registertidspunkt. Hvis en ny scanning efterlader den valgte rækkes detaljer tomme, så vælg en anden række og gå tilbage. Vi viser omvejen uden at ændre programmet.",
+          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5834,7 +5851,7 @@
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Vælg måleprojektet og træk skillelinjen for at udvide detaljerne. Tre artefaktposter er current her, men cirka syvogfirs megabyte er stadig uregistrerede. Current beskriver den registrerede sammenligning, ikke fuld proveniens eller videnskabelig gyldighed. Last run siger udtrykkeligt, at tidspunktet kommer fra registret.",
+          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -5845,7 +5862,7 @@
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Læs Stages, før du fortolker et færdigmærke. Her er Mask-output complete, fordi importerede arrays, optællinger og masker findes; det beviser ikke, at Mask-segmentering er kørt. What could run next viser forslag, ikke knapper eller en validering af, at hver analyse passer til disse forsøgsdata.",
+          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -5859,7 +5876,7 @@
         },
         {
           "visual": "12_size_descending",
-          "narration": "Klik på Size for at ændre sorteringen. Vi kontrollerede stigende og faldende rækkefølge mod de faktiske byte, og rækkevalget peger stadig på det rigtige projekt. Her er ingen særskilte filtre for trin, alder, modulstatus eller forældede resultater. Brug de eksisterende sorterbare kolonner og søgerødder.",
+          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5870,7 +5887,7 @@
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Med begge rødder finder Depth nul stadig det direkte valgte måleprojekt, men ikke konverteringen under dens overordnede mappe. Depth én genskaber begge rækker. Dybden ændrer søgeområdet; den fjerner ikke data og ændrer ikke, hvor meget analyse der er afsluttet.",
+          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5881,12 +5898,12 @@
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Remove stopper søgningen i den valgte rod; det sletter ikke mappen. Vi fjerner måleroden og tilføjer det uændrede projekt igen. I denne version udsender et dobbeltklik valget, men bliver i Project Browser. Forvent ikke, at et projektvindue eller den seneste kørsel åbnes automatisk.",
+          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
           "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Brug Run History til egentlige kørselsjournaler, Database Browser til måletabeller og Data Manager til oprydning eller arkivering. I Python tilbyder spacr.projects discover, scan og browse. Alle originalfiler er uændrede, og ingen ny analyse blev startet. Følg den relevante arbejdsgangslektion, før du vælger et foreslået næste trin.",
+          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -5895,31 +5912,36 @@
             "44_data_manager"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: redigér, importér og genåbn sikkert",
+      "title": "Napari Bridge: edit and return a label mask",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Et pixelkontrolleret forløb med syntetiske billed- og labelfiler, sikkerhedskopier, Fill og Undo samt lukning og genåbning mellem importer.",
+      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
       "objectives": [
-        "Åbn Napari Bridge under Make Masks med separate billed- og labelfiler.",
-        "Skeln mellem redigering, Undo, import til disk og korrektionshistorik.",
-        "Luk og genåbn mellem importer, og kontrollér begge gemte rettelser uden at kalde fejlen i samme fremviser løst."
+        "Open corresponding image and label files.",
+        "Edit and undo changes in napari.",
+        "Return and inspect the saved mask."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Pak det tydeligt SYNTHETIC-mærkede eksempel ud i en NY mappe, og behold en urørt sikkerhedskopi. Billede og maske er256x256 uint16 med16 syntetiske objekter; ingen biologisk validering. Optagelsen bruger valgfri napari0.9.1 og skriftstørrelse20. Vælg mask.tif og image.tif i Make Masks → Napari Bridge. Fill:2→18, Undo, gentag, Take the mask back; arbejdsmasken overskrives, og2.197 pixels registreres i mask.tif.curation.json. LUK og GENÅBN før næste rettelse: en anden redigering i samme fremviser blev fejlagtigt meldt uændret og tabt. Fejlen er IKKE erklæret løst. Genåbn,4→20, importér:1.288 pixels ændres, og begge historikposter bevares. Alle65.536 pixels i hver gemt maske er kontrolleret; kilde og billedintensiteter er bevaret. Tilføjede/fjernede labels betyder ikke flere/færre celler. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Ingen påstand om træning, biologisk validering, ubegrænset gentagen redigering, udgivelse eller lyttegodkendelse.",
+      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Åbn Napari Bridge inde i Make Masks. Funktionen sender et billede og en labelmaske til den valgfrie napari-fremviser og importerer derefter rettede labels. Lektionen bruger et tydeligt syntetisk øvelseseksempel, ikke et biologisk forsøg. Behold en urørt sikkerhedskopi: Import af rettelser overskriver den valgte arbejdsmaske.",
+          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
           "focus": [
             460,
             235,
@@ -5933,7 +5955,7 @@
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Hent eksemplet, og pak det ud i en ny mappe. Vælg mask.tif, derefter image.tif, og tryk Open in napari. Det er forskellige input: Heltalslabels for objekterne hører til i Mask, mens intensitetsbilledet er visuel reference. Eksemplet indeholder seksten syntetiske objekter.",
+          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
           "focus": [
             460,
             365,
@@ -5944,12 +5966,12 @@
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Napari åbner et billedlag og et Labels-lag med navnet mask. Vælg mask til redigering; lad billedintensiteterne være uændrede. Label nul er baggrund. Farverne adskiller objekternes identitet, ikke biologiske klasser eller sikkerhed. Vi har forstørret den faktiske grænseflades skrift til optagelsen, ikke kildebilledet.",
+          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
           "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Gå tilbage til spaCR, og klik Take the mask back, før du ændrer noget. Status siger, at masken er uændret, og intet skrives. Import er en anden handling end redigering i fremviseren. Denne kontrol uden ændringer beviser ikke, at en senere rettelse blev gemt; kontrollér også dét resultat.",
+          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
           "focus": [
             460,
             445,
@@ -5960,17 +5982,17 @@
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "Vælg label atten i napari, vælg Fill, og klik på øvelsesobjektet med label to. Kun dette objekts label ændres. Det er en kontrolleret ommærkning, ikke en forbedring af biologisk segmentering. Arbejdsfilen på disken er endnu ikke ændret.",
+          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Brug Undo til at gendanne den oprindelige label; optagelsen bruger Control Z. Gentag derefter samme Fill før import. Undo virker på fremviserens redigeringshistorik. Det er ikke det samme som at gendanne en tidligere fil efter import: Behold sikkerhedskopier til det formål.",
+          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
           "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Klik Take the mask back. Status viser to tusind et hundrede syvoghalvfems ændrede pixels og en korrektionshistorik. Én label er tilføjet og én fjernet, fordi to blev til atten; der er stadig seksten objekter. Kontrollér den gemte maske og historik, ikke kun farven i napari.",
+          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
           "focus": [
             460,
             445,
@@ -5981,7 +6003,7 @@
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Klik nu Close viewer, før du redigerer igen, og åbn fremviseren på ny. Dette er vigtigt i den testede version: En anden redigering i samme fremviser kunne blive meldt uændret og gå tabt. Vi viser det kontrollerede luk-og-genåbn-forløb, ikke en rettelse af programfejlen.",
+          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
           "focus": [
             460,
             445,
@@ -5992,7 +6014,7 @@
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "Efter genåbning erstatter du label fire med tyve og importerer igen. Det ændrer et tusind to hundrede otteogfirs pixels, og den tidligere historikpost bevares. Luk fremviseren til sidst. Gem originalbillede, rettet maske og deres oprindelsesoplysninger, og kør berørte målinger igen frem for at genbruge resultater knyttet til gamle labels.",
+          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
           "focus": [
             460,
             445,
@@ -6005,29 +6027,33 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: reelle optællinger, tærskelvalg og gemte figurer",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Undersøg den offentliggjorte optællingstabel, kør Barcode QC, og sammenlign læsedybde og tærskler i de faktisk gemte figurer.",
+      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
       "objectives": [
-        "Find Barcode QC inde i Map Barcodes, og vælg reelle optællinger.",
-        "Skeln mellem et illustrativt mål og et fagligt begrundet forsøgsvalg.",
-        "Undersøg advarsler, gemte figurer og uafhængigt kontrollerede tabeller.",
-        "Skeln mellem brønde med få læsninger, brønde over målet og sekvenskollisioner."
+        "Choose count inputs and QC settings.",
+        "Inspect coverage and positional effects.",
+        "Compare thresholds and keep the resulting tables and plots."
       ],
-      "prerequisite": "Brug en kopi af plate_1_unique_combinations.csv fra det downloadede Regression-eksempel og en ny outputmappe. Tabellen stammer ikke fra vores mislykkede FASTQ-kørsel. Den har 172756 rækker, 49464341 mappede læsninger, 384 brønde og 1379 observerede guides. Mål 5/median er kun illustrativt, lavlæsningsfraktion 0.1, Plot/Save/Verbose slået til. Valgfrie QC- og referenceinput er udeladt. 2884 felter kontrolleret uden numerisk fejl. src-advarslen og det tomme Figures-panel er ikke rettet; PNG-filer vises i den rigtige eksterne billedfremviser. Ingen livevisning, GPU-beregning, AI-forespørgsel, biologisk validering eller publicering. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Åbn Map Barcodes og derefter det indlejrede Barcode QC-værktøj. Arbejdsgangen undersøger optællinger efter mapping; den mapper ikke FASTQ-læsninger igen. Vi bruger den offentliggjorte optællingstabel fra den tilknyttede Regression-lektion. Den er ikke resultatet af vores tidligere mislykkede forsøg på at mappe rå læsninger.",
+          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
@@ -6036,59 +6062,64 @@
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Vælg en kopi af plate one unique combinations under Count data. Kontrollér den valgte fil frem for at beholde en eksempelsti. Denne reelle tabel indeholder cirka 49,5 millioner mappede læsninger fordelt på 384 brønde. Bevar originalen uændret, og vælg en ny destination til QC-resultaterne.",
+          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
           "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Target gRNAs per well angiver det mål, der bruges til at udlede en tærskel for læsningernes relative forekomst. Her beholder vi den illustrative værdi fem og bruger medianen. Det er ikke et anbefalet forsøgsdesign eller bevis for tilskrivning til én guide. Vælg ud fra dit design, og undersøg afvejningerne, ikke kun det foreslåede tal.",
+          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
           "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Fraktionen for læsefattige brønde identificerer brønde med usædvanligt få læsninger i forhold til pladens median. Her er den 0,1, og ingen af de 384 brønde ligger under den beregnede grænse. Det er en markør for læsedybde, ikke en garanti for, at hver brønd, guide eller biologisk måling er pålidelig.",
+          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
           "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "Slå Plot og Save til, angiv destinationen, og tryk Run. Dette er en lille tabelanalyse, ikke en GPU-segmentering, og skærmen har ingen livevisning. Vi lader de valgfrie input til mapping-QC og stregkodereferencer stå tomme. Konklusioner, som kræver disse filer, kan ikke udledes af optællingstabellen alene.",
+          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
           "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "Læs den faktiske konsol, også advarslerne. Beregningen afsluttes, men denne version klager fejlagtigt over manglende src, selvom modulet bruger Count data. Vi har kontrolleret input og gemte tabeller; vi har ikke rettet forhåndskontrollen. Denne diagnosticerede uoverensstemmelse giver ikke tilladelse til at ignorere andre fejl.",
+          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Denne version lader også Figures-panelet være tomt, selvom to PNG-figurer blev gemt. Åbn barcode_qc.png og threshold_sweep.png fra outputmappen i en billedfremviser. De næste scener viser systemets rigtige fremviser, ikke figurer indsat i spaCR eller en påstand om, at brugerfladen er rettet.",
+          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
           "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Undersøg læsedybde, række- og kolonneeffekter samt fordelingen i det observerede bibliotek. Den stiplede grænse markerer brønde med få læsninger; søjlerne sammenligner række- eller kolonnemedianer med pladens median. Bibliotekskurven viser ulige repræsentation blandt observerede guides. Uden et referencebibliotek kan den ikke vise, hvilke forventede guides der mangler helt.",
+          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Undersøg tærskelscanningen frem for blindt at acceptere en grænse. Her er den udledte tærskel cirka 0,0121, altså 1,21 procent af en brønds læsninger. Den giver en median på fem guides, bevarer alle brønde og cirka 58 procent af de mappede læsninger, mens omtrent 40 procent af brøndene stadig overstiger målet.",
+          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Den røde kurve tæller brønde over målet på fem guides. Den måler ikke lighed mellem stregkodesekvenser, og at ligge under målet beviser heller ikke tilskrivning til én guide. En lempeligere grænse øger her andelen over målet uden at vinde brønde. Sammenlign den gemte tabel, og begrund valget for din analyse; dette er ikke en universel tærskel.",
+          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
           "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Bevar optællinger, indstillinger, konsollog, anbefaling, tabeller og figurer sammen. Uafhængige kontroller reproducerede de gemte brønd-, positions- og scanningsstatistikker uden numeriske forskelle. Det verificerer beregningen, ikke den biologiske fortolkning. AI-hjælp er valgfri, og ingen forespørgsel blev sendt her; efterprøv senere råd mod de faktiske data og API'en.",
+          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "48_hit_list",
@@ -6286,24 +6317,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: undersøg to ægte Measure-øjebliksbilleder",
+      "title": "Run Compare: compare saved runs",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Sammenlign bevarede Measure-resultater, indstillinger og antal uden at forveksle manglende resultater med en negativ videnskabelig konklusion.",
+      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
       "objectives": [
-        "Åbn Run Compare via Home og Data, og forbered eksemplet til download.",
-        "Sammenlign forskellige historiske kørsler uden at ændre deres metadata.",
-        "Læs indstillinger, antal og advarsler inden for evidensens grænser."
+        "Select baseline and comparison runs.",
+        "Inspect settings and count differences.",
+        "Locate available result comparisons."
       ],
-      "prerequisite": "Pak Run_Compare_real_snapshots.zip ud. Kør prepare_run_compare_download.py i spaCR-miljøet med en NY destinationsmappe, og vælg den med Browse. Dette flytter udtrykkeligt to databaser og historiske poster; det er ikke GUI-import, en ny analyse eller et komplet projektarkiv. De fulde SHA-256-værdier matcher originalerne. Kun projekt, stier og flyttenote ændres. De ægte kørsler blev lavet med spaCR 1.5.0.5 den 11. september 2026 kl. 03:37:56 og 04:05:56 UTC. Hver har 601 celler, 622 kerner, 373 patogenobjekter, 601 cytoplasmaobjekter og 601 png_list-rækker: én plade, fire brønde, seksten billedfelter. Identiteter og indstillinger matcher; databasebytes er forskellige. Ingen garanti for alle egenskabsværdier, nøjagtighed eller forbedring. Ingen regressionsresultater medfølger. API: spacr.run_compare.runs_in og compare_runs med spacr.artifacts.Registry. Ingen GPU, AI-udbyder, ny analyse eller offentliggørelse.",
+      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Åbn Home, vælg Data og derefter Run Compare. Det er et hovedmodul, ikke et indlejret værktøj i Regression. Det læser registrerede output fra to kørsler. Eksemplet bruger to ægte Measure-øjebliksbilleder fra arbejdsgangen med data til download; der opfindes ikke en ændring for at gøre sammenligningen spændende.",
+          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
           "focus_modules": [
             "run_compare"
           ],
@@ -6315,17 +6346,17 @@
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Hent og udpak det tilhørende arkiv. Kør forberedelsesscriptet i dit spaCR-miljø med en ny destinationsmappe efter readme-vejledningen. Det flytter udtrykkeligt to uændrede databaser og deres historiske poster. Det er hverken en automatisk importknap, en ny analyse eller en fuldstændig kopi af de oprindelige projekter.",
+          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Klik Browse, og vælg den forberedte sammenligningsmappe. Scriptet bevarer oprindelige kørsels-id'er, indstillinger, versioner, tidspunkter og indholdshash. Kun adresserne i det kopierede indeks og flyttenoten ændres. Bevar originalprojekterne: En historisk post, der peger på en senere overskrevet database, er ikke et bevaret øjebliksbillede.",
+          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
           "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Vælg den tidligere Measure-kørsel som reference A og den senere som B, og klik Compare. Begge blev lavet med spaCR-version 1.5.0.5. En nyere fremviser ændrer ikke historikken. Her matcher indstillinger og antal; det demonstrerer konsistens, ikke at en model er blevet bedre.",
+          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
           "focus": [
             350,
             235,
@@ -6336,7 +6367,7 @@
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Slå Show unchanged settings til for at undersøge registrerede værdier. Nullet på Settings betyder ingen forskelle, ikke at ingen indstillinger blev gemt. Fold poster ud, og sammenlign værdierne. De to kørsler brugte identiske registrerede indstillinger; eksemplet kan derfor ikke vise virkningen af at ændre en parameter.",
+          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
           "focus": [
             350,
             360,
@@ -6347,7 +6378,7 @@
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Counts viser 601 celler og 622 kerner pr. kørsel fordelt på seksten billedfelter og fire brønde. Delta er B minus A; alle viste deltaer er nul. Den uafhængige kontrol sammenlignede også objektidentiteter. Ens totaler alene beviser ikke, at objekterne eller alle målte egenskabsværdier er identiske.",
+          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
           "focus": [
             350,
             425,
@@ -6358,7 +6389,7 @@
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Hits siger, at ingen regressionsresultater blev registreret. Disse øjebliksbilleder indeholder kun målinger, så der er ingen rangordnet hitliste at sammenligne. Det betyder ikke, at en regression ikke fandt signifikante hits: Resultatet er slet ikke til stede her. Se Regression og Run History for at spore de nødvendige output.",
+          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
           "focus": [
             350,
             405,
@@ -6373,7 +6404,7 @@
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "At vælge samme kørsel på begge sider giver en advarsel. Læs den frem for at opfatte sammenligningen som automatisk validering. Vælg igen to forskellige kørsler, og undersøg kilde, version og omfang før konklusioner. En advarsel er grund til at undersøge, ikke til at gennemtvinge et resultat.",
+          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
           "focus": [
             350,
             235,
@@ -6384,14 +6415,19 @@
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Parret af forskellige kørsler er genoprettet, og originalfilerne er uændrede. Run Compare læser og sammenligner; det genkører ikke Measure og kræver hverken GPU eller AI-udbyder. Python har runs_in og compare_runs til samme sammenligning. Bevar faktiske outputsnapshots og dokumentér deres oprindelse, før du sammenligner egne kørsler.",
+          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "51_control_charts",
@@ -6401,19 +6437,18 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: undersøg en forsøgsserie med tydelige kontroller og grænser",
-      "description": "Åbn værktøjet i QC, indlæs en klart syntetisk serie med tredive plader, kontrollér den valgte kontrol og referenceperiode, og eksportér uafhængigt efterprøvede datapunkter.",
+      "title": "Control Charts: monitor controls across plates",
+      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
       "objectives": [
-        "Find Control Charts i QC, og indlæs den medfølgende syntetiske CSV.",
-        "Skeln mellem inputrækker for brønde og pladegennemsnit, og vælg præcis én kontrol.",
-        "Sammenlign regelsæt, skift og gendan kontrol og referenceperiode, og læs advarslerne.",
-        "Eksportér den faktiske punkttabel uden at hævde billedeksport eller biologisk validering."
+        "Choose the measurement and control population.",
+        "Set the baseline and alert rules.",
+        "Inspect alerts and export chart points."
       ],
-      "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv er helt syntetisk og tilpasset fra en apptest med fast seed: tredive fiktive plader, tre brønde pr. kontroltype pr. plade og en programmeret opadgående drift efter plade tyve. Datoerne er illustrative rækkefølgemærker, ikke optagelsesdata. Specialpanelet har aktuelt ingen Load test data-knap; der bruges ingen mikroskopidownloads, modeller, GPU-analyse eller AI-forespørgsler. Den gamle optagelse med to plader blev afvist, fordi appen ikke ville estimere grænser. Den smalle indstillingskolonne afkorter lange lukkede valg; de åbne rullemenuer viser hele navnet. Z-prime og genestimering afprøves ikke her.",
+      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Åbn QC og derefter knappen Control Charts. Dette specialværktøj viser gentagne kontroller gennem en forsøgsserie. Den medfølgende CSV er udtrykkeligt syntetisk, også dens drift. Den demonstrerer softwaren, ikke et faktisk målt eksperiment eller et valideret assay.",
+          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
@@ -6421,7 +6456,7 @@
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Vælg Load table, og åbn eksempel-CSV'en. Den indeholder to hundrede og halvfjerds rækker på brøndniveau: tredive plader med hver tre negative kontrolbrønde, tre positive kontrolbrønde og tre prøvebrønde. Grafen viser ét gennemsnit for den valgte kontrol pr. plade, ikke ét punkt pr. celle.",
+          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -6432,7 +6467,7 @@
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Kontrollér Plate, Run order, Measurement og Control column mod de viste navne. Vælg kun neg i Control is. Listen tillader flere valg; hvis intet niveau er valgt, bruges alle rækker. Antag derfor aldrig, at indlæsningen allerede har valgt den ønskede kontrol.",
+          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -6443,7 +6478,7 @@
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Åbn Sigma from for at læse alle valgmuligheder. Auto vælger undergruppeestimatoren her, fordi hver plade har tre valgte brønde. Grænserne bruger variationen inden for referenceperiodens plader, justeret efter gennemsnittets stikprøvestørrelse, ikke standardafvigelsen for hele serien med drift.",
+          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -6454,7 +6489,7 @@
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Rules tilbyder de sædvanlige fire regler, alle otte eller Limits only. Flere regler giver også flere muligheder for falske alarmer. Vi vælger Limits only for at isolere tre-sigma-reglen. Ændring af rullemenuen genberegner grafen uden en særskilt Run-knap.",
+          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -6465,7 +6500,7 @@
         },
         {
           "visual": "06_limits_only",
-          "narration": "Baseline plates er tyve: P nul ét til P tyve bestemmer grænserne, som anvendes på de resterende plader. Ni punkter, P toogtyve til P tredive, ligger over den øvre grænse. Rapporten og regeltabellen identificerer dem; de programmerede signaler er ikke biologiske opdagelser.",
+          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
           "hold_after": 0.7,
           "focus": [
             1010,
@@ -6476,12 +6511,12 @@
         },
         {
           "visual": "07_positive_control",
-          "narration": "Fravælg neg, og vælg kun pos. Grafen viser nu den anden kontrols gennemsnit og egne referencegrænser, uden brud på regel ét i dette eksempel. En rolig graf beviser ikke i sig selv, at et assay er gyldigt. Gendan neg, før du fortsætter.",
+          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
           "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Skift Baseline plates til tolv, se centrum og grænser ændre sig, og gendan derefter tyve. Appen kræver mindst otte referenceplader, men minimumskravet er ikke en anbefaling. Planlæg og begrund referenceperioden; tilpas den ikke blot for at fjerne uønskede alarmer.",
+          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -6492,7 +6527,7 @@
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Når den oprindelige kontrol og referenceperioden på tyve plader er gendannet, vælg Export points og gem en separat CSV. De tredive rækker indeholder pladeidentitet, rækkefølge, gennemsnit, undergruppestørrelse og spredning, grænser, standardiseret afstand, tilhørsforhold til referenceperioden og udløste regler. Det er hverken et grafbillede eller en fuld konfigurationseksport.",
+          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -6503,14 +6538,22 @@
         },
         {
           "visual": "12_exported",
-          "narration": "Alle eksporterede identiteter og talfelter er kontrolleret mod kilde-CSV'en, også regel-ét-markeringerne. Det oprindelige input er uændret. Til scripts tilbyder kontrolkortets widgetmodul ControlChartSpec og control_chart; resultatet har points_frame. Opbevar input, indstillinger og optagelsesnoter samlet, når du undersøger virkelige alarmer.",
+          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "Control_Charts_SYNTHETIC_campaign.csv"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "52_pipeline_graph",
@@ -6519,19 +6562,18 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: undersøg faktisk oprindelse og manglende artefakter",
-      "description": "Læs faktiske artefaktposter, skeln mellem manglende filer og udokumenteret oprindelse, filtrer grafen og kopiér hele Graphviz-repræsentationen uden at gentage analysen.",
+      "title": "Pipeline Graph: inspect outputs and dependencies",
+      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
       "objectives": [
-        "Åbn Pipeline graph under Help, og vælg et eksisterende projekt.",
-        "Sammenlign registreret oprindelse med de tilstedeværende filer, og forstå ikke-registrerede afhængigheder.",
-        "Brug Current, Stale og Missing uden at forveksle skjulte knuder med manglende poster.",
-        "Genindlæs med Redraw, kopiér hele grafen, og undersøg videre i den relevante arbejdsgang."
+        "Open the artifact graph for a project.",
+        "Inspect paths, states and dependencies.",
+        "Copy the diagram and refresh its records."
       ],
-      "prerequisite": "Brug det faktiske External Masks-projekt og den afsluttede oprydningsdemonstration i Data Manager. Optagelsen læser en bytekontrolleret kopi af det arkiverede øjebliksbillede efter oprydning på projektets historiske sti i et isoleret miljø; originaldata og registerposter omskrives ikke. En separat, faktisk Batch Runner-konvertering viser manglende dokumentation af oprindelse, ikke et ubehandlet eksperiment. Alle 131 originalfiler, 26 arkivfiler og syv konverteringsfiler er uændrede. Tre historiske poster har ingen registrerede indgående kanter; den fjerde hører til en anden projektsti. Her udføres ingen sletning, analyse, særskilt download, direkte billedvisning, Plot-betjening, AI-forespørgsel eller gendannelseskørsel.",
+      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Åbn Help og derefter Pipeline graph. Dette skærmbillede undersøger registrerede resultater og deres afhængigheder; det kører ikke pipelinen. Vi bruger private kopier af resultater fra indsamlede data i External Masks og det faktiske oprydningseksempel i Data Manager. Følg de lektioner for at producere og håndtere data sikkert.",
+          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -6540,7 +6582,7 @@
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Vælg først mappen med konverterede billeder via Browse. Dens Batch Runner-konvertering blev afsluttet, men ingen outputartefakt blev registreret her, så grafen er tom. Det er manglende dokumentation, ikke bevis for, at ingen behandling fandt sted. Declared order beskriver mulige modulafhængigheder, ikke historikken over afsluttede kørsler.",
+          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6555,7 +6597,7 @@
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Vælg måleprojektets øjebliksbillede efter oprydning. Tre historiske poster vises: måledatabase, billedudsnit og ressourcelog. To stier findes stadig, mens mappen med billedudsnit faktisk blev fjernet under den tidligere private oprydning. Denne optagelse fjerner intet, og det oprindelige forsøgsprojekt er intakt.",
+          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6566,7 +6608,7 @@
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Klik på måledatabasens boks, og udvid detaljerne med skillelinjen. Læs sti, rolle, kørselsidentifikator, produktionstidspunkt, spaCR-version og indstillingsdigest. En digest er et fingeraftryk, ikke de fulde indstillinger eller en gendannelsesknap. Current dokumenterer hverken videnskabelig gyldighed eller fuldstændig oprindelse.",
+          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -6577,7 +6619,7 @@
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Vælg den røde boks med billedudsnit. Missing betyder, at den registrerede sti mangler. Den registrerede størrelse er stadig cirka tre komma fire megabyte fordelt på hundrede og fire filer: hundrede og tre billedudsnit og deres formatpost. Det er historisk størrelse, ikke dagens diskforbrug og heller ikke hundrede og fire celler.",
+          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -6588,7 +6630,7 @@
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Ressourceloggen er en separat artefakt uden for projektmappen. Dens sti findes stadig, men den blev ikke flyttet til arkivet. Denne graf har ingen registrerede indgående kanter. Nothing was derived from this betyder, at ingen efterfølgende afhængighed blev registreret her, ikke at de videnskabelige resultater var uafhængige.",
+          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -6599,7 +6641,7 @@
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Slå Current fra for at isolere den manglende artefakt med billedudsnit. Current, Stale og Missing er visningsfiltre, ikke filhandlinger. Stale er en advarsel om registreret oprindelse; dette eksempel indeholder ingen forældet artefakt. Skærmbilledet har ingen særskilte filtre for modul, artefakttype eller arbejdsgangsgren.",
+          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6610,7 +6652,7 @@
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "Slå også Missing fra. Ingen bokse er tilbage, men banneret melder stadig, at én af tre artefakter mangler. I denne version siger det tomme lærred fejlagtigt, at intet er registreret, og de tidligere detaljer kan blive stående. Kontrollér filtrene, før du fortolker beskederne: skjult betyder ikke slettet.",
+          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6621,7 +6663,7 @@
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Copy Graphviz lægger hele grafen i udklipsholderen, også skjulte knuder. Vi kontrollerede, at alle tre faktiske artefaktidentifikatorer er med, og at ingen afhængighedspile er opdigtede. Det er Graphviz DOT-tekst til brug andre steder, ikke et gemt billede eller en eksport af kun det synlige udvalg.",
+          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6632,7 +6674,7 @@
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Slå Current og derefter Missing til igen: først vender to bokse tilbage, så alle tre. Vælg en boks igen, så detaljerne passer til den synlige graf. Visningsfiltre reparerer ikke manglende filer, ændrer ikke oprindelse og vælger ikke et modul til genkørsel. Undersøg den registrerede sti og den forudgående arbejdsgang, før du handler.",
+          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6643,7 +6685,7 @@
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Redraw læser registeret igen og kontrollerer artefakterne på ny. Vores poster og filernes byteindhold forbliver uændret. Brug Run History til gemte indstillinger og kørselslogger eller Data Manager til udtrykkelig oprydning. I Python tilbyder spacr.pipeline_graph build_graph og to_dot. Denne gennemgang udfører hverken gendannelse af resultater eller videnskabelig validering.",
+          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -6652,30 +6694,35 @@
             "45_project_browser"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "53_prediction_profiler",
       "number": 53,
       "slug": "prediction_profiler",
-      "title": "Prædiktionsprofil",
+      "title": "Prediction Profiler: explore a fitted model",
       "series": 5,
       "app_key": "profiler",
       "section": "Explore",
-      "description": "Importér en model tilpasset syntetiske data, og undersøg hvordan fastholdte værdier og grafvalg påvirker prædiktionerne.",
+      "description": "Load model coefficients, vary one input while holding others fixed, and inspect predicted responses.",
       "objectives": [
-        "Åbn Prediction Profiler i Regression og importér egnede koefficienter.",
-        "Skeln mellem modeltilpasning, invers linkfunktion, antagne intervaller og grafopløsning.",
-        "Sammenlign begge input, ændr faste værdier og gendan midtpunkterne."
+        "Load coefficients with the correct model link.",
+        "Sweep one input and adjust held values.",
+        "Inspect response curves and sensitivity."
       ],
       "example_files": [
         "SYNTHETIC_profiler_example.zip"
       ],
-      "prerequisite": "Pak SYNTHETIC-eksemplet ud i en ny mappe. Det indeholder 121 konstruerede observationer, koefficienter fra en faktisk OLS-tilpasning med statsmodels, manifest og reproducerbart script. Der hævdes ingen biologisk validering eller validering på tilbageholdte data. GUI importerer feature/coefficient og Intercept, men tilpasser ikke modellen og læser ikke observationerne. Behold identity. Filimport antager to rækker med intervaller 0..1 og faste værdier 0.5. Rangeringen bruger 0.05..0.95; kurven dækker 0..1. 338 kurveværdier og tolv rangeringsværdier er kontrolleret uafhængigt. Separate marginale permutationseffekter erstatter ikke en samlet tilpasset prædiktionsmodel. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design er programmeringsgrænseflader, ikke filvælgere. Ingen konfidensintervaller, kausale konklusioner, offentliggørelse eller godkendelse efter gennemlytning hævdes.",
+      "prerequisite": "Download the synthetic coefficient example, or use coefficients from a suitable fitted model. Match its link and input encoding. The coefficient-file route assumes input ranges of zero to one; separate marginal effects are not substitutes for a jointly fitted prediction model.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Åbn Regression og derefter Prediction Profiler blandt de indlejrede værktøjer. Lektionen bruger et tydeligt mærket syntetisk undervisningseksempel, ikke biologiske screeningsresultater. Vi undersøger en tilpasset model ved at variere ét input og holde det andet fast. Profilværktøjet læser modellen; det træner ikke en ny.",
+          "narration": "Open Regression, then Prediction Profiler to explore predicted responses from a fitted model. The linked example uses synthetic data.",
           "focus": [
             460,
             45,
@@ -6689,7 +6736,7 @@
         },
         {
           "visual": "03_explicit_synthetic_coefficients_picker",
-          "narration": "Hent og udpak det vedlagte eksempel, og brug Browse til at åbne filen med syntetiske OLS-koefficienter. Den indeholder et konstantled og to tilpassede inputkoefficienter. Arkivet indeholder også observationerne og forberedelsesscriptet. Koefficienterne kommer fra en faktisk mindste-kvadraters-tilpasning til konstruerede data, ikke opdigtede regressionsresultater.",
+          "narration": "Download and unzip the example, then Browse to the synthetic OLS coefficients CSV. Include the intercept when supplying your own fitted coefficients.",
           "focus": [
             890,
             390,
@@ -6700,7 +6747,7 @@
         },
         {
           "visual": "05_link_options_keep_identity",
-          "narration": "Behold Link på identity, da eksemplet blev tilpasset med ordinær mindste kvadraters metode. Andre linkfunktioner hører til andre modelfamilier; vælgeren konverterer eller genoptræner ikke originalmodellen. En plausibel kurve på forkert responsskala er stadig forkert. Brug altid linkfunktionen fra tilpasningen.",
+          "narration": "Set Link to the function used by the fitted model. Keep identity for this ordinary least-squares example.",
           "focus": [
             2910,
             465,
@@ -6711,7 +6758,7 @@
         },
         {
           "visual": "04_loaded_identity_model",
-          "narration": "Læs statusmeddelelsen: Ingen designmatrix er angivet, så filimporten antager, at alle input går fra nul til én. Vores syntetiske input har dette interval, men dine har det ikke nødvendigvis. Rangeringen bruger 5. og 95. percentil; Moves by er ikke forskellen mellem hele kurvens endepunkter.",
+          "narration": "Check the range information after loading. The coefficient-file route assumes each input spans zero to one. Confirm that this matches your intended use before interpreting the curves.",
           "focus": [
             470,
             530,
@@ -6722,7 +6769,7 @@
         },
         {
           "visual": "06_hold_b_at_one",
-          "narration": "Input A er valgt til gennemløbet. Flyt skyderen for B fra midtpunktet til én. Den forudsagte respons falder, fordi B har en negativ tilpasset koefficient. Det ændrer scenariet med faste værdier, ikke træningsdata eller koefficienter. Læs de numeriske endepunkter sammen med linjens form.",
+          "narration": "Select Input A for the sweep. Move the held Input B slider to one and inspect the resulting response curve.",
           "focus": [
             1480,
             590,
@@ -6733,7 +6780,7 @@
         },
         {
           "visual": "07_hold_b_at_zero",
-          "narration": "Flyt B til nul og sammenlign igen. Responsen stiger. Grafen skalerer sin lodrette akse om, så tilsyneladende parallelle linjer kan repræsentere forskellige responsniveauer. Det er prædiktioner inden for en antaget model, ikke bevis for at en ændring af B ville forårsage en eksperimentel effekt.",
+          "narration": "Move B to zero and compare the response values. Watch the axis scale as well as the line, because the plot may rescale.",
           "focus": [
             1480,
             590,
@@ -6744,7 +6791,7 @@
         },
         {
           "visual": "08_reset_midpoints",
-          "narration": "Reset held values fører skyderne tilbage til midtpunkterne i de antagne intervaller, her en halv. Modellen tilpasses ikke igen. Når kun koefficientfilen importeres, er midtpunktet ikke en median målt i originaldataene: De data blev aldrig indlæst i profilværktøjet.",
+          "narration": "Click Reset held values to return the sliders to the midpoints of their assumed ranges, one half in this example.",
           "focus": [
             1470,
             1435,
@@ -6755,7 +6802,7 @@
         },
         {
           "visual": "09_sweep_second_input",
-          "narration": "Vælg B i den rangerede liste. Nu varierer B langs den vandrette akse, mens A holdes på en halv. Den faldende kurve svarer til Bs negative koefficient. Listen rangerer modellens følsomhed; den er ikke en signifikanstest, et konfidensinterval eller en liste over validerede biologiske fund.",
+          "narration": "Select Input B in the ranked list to sweep B while holding A fixed. The ranking summarizes model sensitivity over its configured input ranges.",
           "focus": [
             470,
             590,
@@ -6766,7 +6813,7 @@
         },
         {
           "visual": "10_eleven_grid_points",
-          "narration": "Skift Points fra enogtres til elleve. Det vælger antallet af positioner, der beregnes til kurven; det ændrer ikke stikprøvestørrelse eller tilpasningskvalitet. Vores lineære eksempel beholder endepunkterne. Flere grafpunkter tilføjer ikke observationer, reducerer ikke usikkerhed og forbedrer ikke en allerede tilpasset model.",
+          "narration": "Change Points to choose the number of positions evaluated along the plotted curve. Eleven gives a coarser grid than sixty-one without changing the fitted model.",
           "focus": [
             1480,
             465,
@@ -6777,7 +6824,7 @@
         },
         {
           "visual": "11_hold_a_at_one",
-          "narration": "Med B stadig valgt flyttes A til én, og de nye responsendepunkter undersøges. Nulstil derefter værdierne. Brug koefficienter fra en egnet tilpasset model til egne analyser, og kontrollér linkfunktion, konstantled, kodning og intervaller. Erstat ikke en samlet tilpasset prædiktionsmodel med separate effekter fra permutationstest.",
+          "narration": "Adjust the held values to explore further scenarios, then reset when finished. Interpret the curves as model predictions and assess real experimental effects with appropriate data.",
           "focus": [
             1480,
             590,
@@ -6791,7 +6838,12 @@
           "hold_after": 0.7
         }
       ],
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "54_qc_dashboard",
@@ -6800,24 +6852,23 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: læs grundlaget, ikke kun overskriften",
-      "description": "Læs ægte downloadede og beregnede kvalitetsrapporter, skeln mellem manglende kontroller, advarsler og fejl, og find de tre underordnede QC-værktøjer.",
+      "title": "QC: inspect project quality reports",
+      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
       "objectives": [
-        "Finde QC og dets underordnede værktøjer.",
-        "Vælge den præcise projektmappe eller mappe for en afgrænset kørsel og gennemgå alle fem kategorier.",
-        "Skelne mellem manglende resultater, advarsler og fejl uden at antage, at oversigten validerer hele analysen.",
-        "Opdatere visningen af eksisterende grundlag uden at genberegne eller ændre kildefiler."
+        "Choose the intended project or run.",
+        "Read available, missing and outdated reports.",
+        "Investigate findings and refresh the view."
       ],
-      "prerequisite": "Download først eksemplerne til Annotate og Mask. Optagelsen genbruger Annotates måledatabase, de oprindelige vurderingsrapporter fra Mask-eksemplet og den ægte vejledningskørsel i plate1/test: to billedfelter i Mask og ét i Measure. QC downloader intet og beregner ingen nye vurderinger. Den overordnede mappe og test har forskelligt omfang, ikke et før/efter-forsøg med forbedring.",
+      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åbn QC i kategorien Data på Home. Oversigten læser kvalitetsrapporter, som allerede ligger på disken. Den genererer ikke masker, måler ikke billeder og træner ikke en klassifikator. Overskriften opsummerer det tilgængelige grundlag; den garanterer ikke, at hele analysen er korrekt.",
+          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "Topfeltet samler Layer Viewer, Control Charts og Outliers under QC. Deres speciallektioner findes stadig i Submodules under dette hovedmodul. Brug værktøjerne til at undersøge en observation, ikke til at erstatte manglende grundlag med en beroligende farve.",
+          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -6828,7 +6879,7 @@
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Brug Browse til at vælge den faktiske projektmappe. Først åbner vi det downloadede Annotate-eksempel, som har målinger, men ingen segmenteringsrapporter i denne mappe. QC har ikke sin egen eksempeldownload; genbrug det virkelige projekt fra den tidligere arbejdsgang.",
+          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -6836,12 +6887,12 @@
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Missing betyder, at læseren ikke har en brugbar rapport til kontrollen. Det er hverken bestået eller bevis for en fejl. En beregning i en anden visning kan være udført uden at gemme en rapport, som denne oversigt kan læse. Kontrollér altid den angivne kilde og dens omfang.",
+          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
           "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Vælg nu undermappen test med de ægte resultater fra vores afgrænsede Mask- og Measure-kørsler. At vælge den overordnede mappe er ikke det samme. Populationer og resultatfiler er forskellige, så vurderingerne må ikke præsenteres som en kontrolleret før/efter-sammenligning.",
+          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -6850,7 +6901,7 @@
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Delmængden viser en segmenteringsadvarsel: Ét cellebilledfelt har en heterogen størrelsesfordeling. Læs vejledningen og undersøg billederne. Et størrelsesbaseret flag beviser hverken to biologiske celletyper eller at alle objektgrænser er forkerte.",
+          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -6865,12 +6916,12 @@
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Enhedskortet rapporterer intern konsistens i fire måletabeller. Det er snævrere end uafhængig validering af kalibreringen eller hver egenskab. Her mangler stadig rapporter om lækage mellem træning og test, pladeeffekter og annotatoroverensstemmelse; det grønne kort får ikke disse kontroller til at bestå.",
+          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
           "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Læs alle fem kategorier, også vejledningen under kort uden rapport. Bevar de oprindelige rapporter og undersøg den relevante arbejdsgang. En lækagevurdering afhænger især af korrekte prøveidentiteter og grupperinger; en godkendelse fra softwaren alene beviser ikke biologisk uafhængighed.",
+          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -6880,7 +6931,7 @@
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "De downloadede vurderingsrapporter for hele pladen viser både fejl og advarsler. Overskriften nævner et patogenbilledfelt med få objekter, og detaljerne oplister andre flag. Det er eksisterende rapporter fra det større eksempel, ikke nye vurderinger beregnet ved at åbne QC eller bevis for, at vores lille kørsel forbedrede pladen.",
+          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -6891,7 +6942,7 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Tryk Refresh efter at have gennemgået kilden. Her siger status, at intet på disken er ændret, så det eksisterende grundlag genbruges. Refresh er ikke Run: Maskerne er ikke vurderet igen, og ingen advarsel er rettet. Databasernes og rapporternes hashværdier er uændrede.",
+          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -6902,12 +6953,12 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "En markering af forældede resultater kræver, når den vises, opmærksomhed på rapporten og dens input. Oversigten er vejledende og blokerer ikke kørsler. Kortene er forklarende tekst, ikke knapper, der automatisk åbner eller reparerer hver mislykket analyse.",
+          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
           "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Til læsning fra et script tilbyder spacr.qt.widgets.qc_summary read_dashboard og format_dashboard. De samler eksisterende grundlag i stedet for at køre nye kontroller. Opbevar kilderapporterne sammen med projektet, og vend tilbage til den relevante analyse eller speciallektion for selve undersøgelsen.",
+          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -6916,7 +6967,12 @@
             "66_outliers"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "55_image_scatter",
@@ -6926,18 +6982,18 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: rigtige målinger og billedet bag hvert punkt",
-      "description": "Udforsk Image Scatter i Image UMAP med downloadede cellemålinger, kontrollerede forhåndsvisninger og præcis overførsel af én celle til Annotate.",
+      "title": "Image Scatter: inspect measurements and their crops",
+      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
       "objectives": [
-        "Find Image Scatter i Image UMAP og indlæs den rigtige cell-tabel.",
-        "Undersøg rå målepar og forstå manglende eller konstante koordinater.",
-        "Knyt et punkt til dets cellebillede uden at ændre etiketter eller kildedata."
+        "Load measurements and choose axes.",
+        "Inspect the crop behind a point.",
+        "Send a selected object to Annotate."
       ],
-      "prerequisite": "Brug Annotates eksempel med måledatabase, celleudsnit og billedformatmarkører. Den private, byteidentiske kopi indeholder 2.341 celler og alle 2.341 PNG-filer. Uafhængig SQLite-kontrol omfatter hver kildeværdi, fuld celleidentitet med billedfelt og hver billedsti; skærmkoordinater og miniaturebilledernes RGB-pixel kontrolleres også. Kun celleudsnit er valideret, ikke kerne- eller patogenbilleder. Et usædvanligt punkt beviser hverken fænotype, infektion, behandling eller segmenteringsnøjagtighed. Ingen UMAP-tilpasning, træning, GPU-beregning, eksport eller etiketændring. Skærmen har ingen egen download, billedkolonnevælger, farve- eller gruppeindstillinger, aksetransformation, eksport eller AI-konsol. Plot indlæser tabellen; aksevalg tegner den igen. Grænsen på 200.000 rækker er ikke tilfældig stikprøvetagning eller garanti mod informationstab. Fælles filtre er ikke valideret her. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame og ScatterCanvas.point_position.",
+      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Åbn Image UMAP fra Home, og vælg Image Scatter. Denne underordnede visning tegner to eksisterende målinger; den tilpasser ikke en UMAP-indlejring. Vi genbruger Annotates rigtige eksempel og holder måledatabasen og celleudsnittene samlet. Annotate-vejledningen viser, hvor du henter det.",
+          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -6946,17 +7002,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Vælg Browse, og åbn den kopierede måledatabase. Bevar mappen data og billedformatmarkørerne, når du flytter et projekt, for en tabel indeholder ikke selve billederne. Eksemplet bruger private kopier; oprindelige målinger og billedpixel er uændrede.",
+          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
           "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Vælg cell i tabellisten og derefter Plot. Plot læser tabellen; det er ikke segmentering eller træning. Eksemplet har 2.341 celler med tilhørende udsnit. En anden tabel kræver Plot igen; det er ikke nok blot at ændre tabelvælgeren.",
+          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
           "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Sæt x til cell_area og y til cell_channel_1_mean_intensity. Akseændringer gentegner straks de indlæste rækker. Dette er rå målinger, ikke transformerede indlejringskoordinater. Punkterne er enkelte celler, ikke uafhængige forsøgsreplikater, og et visuelt mønster er ikke en statistisk test.",
+          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -6970,7 +7026,7 @@
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Lad markøren hvile på cellen yderst til højre. Dens udsnit vises ved siden af grafen med fuld identitet for plade, række, kolonne, billedfelt og celle. Det er et gemt udsnit, ikke hele mikroskopfeltet eller en ny segmentering. Et usædvanligt udseende fastslår ikke i sig selv en fænotype.",
+          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -6981,7 +7037,7 @@
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Flyt markøren væk fra grafen: den midlertidige visning forsvinder. Vend tilbage til samme punkt, og det cachelagrede billede vises uden ny afkodning. Hover er midlertidig billedinspektion, ikke annotering eller vedvarende udvælgelse. Ingen kildeetiketter ændres.",
+          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -6992,7 +7048,7 @@
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Byt de to målinger mellem x og y. Cellen beholder identitet og billede, selv om dens placering ændres. Vælg meningsfulde akser i stedet for automatisk at acceptere de første numeriske kolonner; vælgerne tilbyder også numeriske identifikatorer og optagelsesmetadata.",
+          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -7003,7 +7059,7 @@
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Gendan cell_area på x, og vælg cell_channel_0_homogeneity_distance_32 på y. Syv celler mangler denne måling, så kun 2.334 koordinatpar kan tegnes. Antallet af indlæste rækker er stadig 2.341. Manglende værdier er ikke nuller, og skjulte koordinater ændrer ikke objekternes identiteter.",
+          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -7014,7 +7070,7 @@
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "Vælg measurement_ndim på y. Alle rækker har værdien to, så punkterne ligger på en vandret linje. Det er en konstant metadatakolonne, ikke biologisk overensstemmelse. Gendan cell_channel_1_mean_intensity, før du undersøger en anden celle.",
+          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -7025,7 +7081,7 @@
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "For at undersøge et klikket udsnit i Annotate skal du først åbne Annotate og indlæse det samme kopierede projekt. Vend tilbage via Home, Image UMAP og den eksisterende Image Scatter-fane. Annoteringssiden skal kende det rigtige projekt; en graf og et uvedkommende datasæt giver ikke en gyldig overførsel.",
+          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -7033,7 +7089,7 @@
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Klik på selve punktet, og skift derefter til Annotate. Hover alene viser kun billedet. Klikket sender den præcise cellenøgle og begge aksenavne til annoteringsvisningen. Det skifter ikke side automatisk, tildeler ikke en etiket og beviser ikke, at objektet er en afviger.",
+          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -7044,7 +7100,7 @@
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Annotate viser nu præcis den klikkede celle med det samme gemte udsnit. Undersøg billedet, før du beslutter at annotere; her er alle etiketter uændrede. Image Scatter har ingen særskilt eksport af graf eller udvalg. Brug Database Browser til tabeludtræk eller PCA-vejledningen til komponentanalyse og de dokumenterede CSV-filer.",
+          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -7058,7 +7114,12 @@
             410
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "56_lineage",

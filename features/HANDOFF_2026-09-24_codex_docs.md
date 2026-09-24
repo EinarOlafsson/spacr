@@ -70,6 +70,23 @@ branch `candidate-data-tools-20260924-8vaimbg8` and tag
 `tutorials-data-tools-20260924-8vaimbg8`. Inspect receipts before any retry;
 never overwrite or reuse an existing media branch.
 
+The data candidate is now accepted:3290/3290 hosted files SHA256matched
+revision948fd55c6d13ee107b8bce22c26957178e7415dd (3,742,683,994bytes).
+All84 hosted playback cases and14 placeholder-language views passed; the
+checkpoint hold is lifted. It contains1603 source-compatible narration tracks.
+47 of the53 rewritten existing lessons now have matching prepared media;
+the six listed capture gaps remain. Four new organism guides are also ready.
+
+Docs run35948635800 built both branches successfully but failed assembly:
+1,081,843,213bytes exceeded the950MiB Pages budget. The publisher now uses
+immutable full-resolution video URLs only when local renditions match the
+manifest and the corresponding hosted recordings have complete readback
+evidence. Other media remains locally deduplicated.
+This avoids dropping either documentation channel or weakening the size limit.
+The real main build plus current nightly site assembles to682,878,218bytes
+(651MiB); all15 focused publisher checks pass. The source trees retain their
+local videos; only disposable Pages artifacts use the hosted recordings.
+
 New example downloads: `Align_Stitch_nine_tiles.zip` (nine original pixel crops,
 row-major3x3,overlap0.25,reference channel1) and
 `Control_Charts_SYNTHETIC_campaign.csv` (synthetic fixture values, LF newlines).
@@ -84,11 +101,14 @@ respective current lesson sources.
 Model Zoo CPU receipt records149 labels from three unchanged uint16 fields.
 These are execution examples, not biological accuracy claims. Source evidence
 is in `tools/tutorials/evidence/2026-09-24-*`.
+The final strict English Sphinx build passed with11,520 API entries;73 actual
+rendered module tutorial links preserve both channels. English runtime/API
+audits pass. Translation incompatibilities remain report-only; per-locale
+issue counts are in `features/data/411_release_translation_register_2026-09-24.json`.
 
 Frozen API translation drafting runs in a separate checkout at3ee2a1809.
-Seven languages have complete private drafts. Korean reached3355/3355 batches in
-`api-full-draft-20260923-ko-continuation.log`; confirm its final output receipt
-before counting it complete. Icelandic follows. These drafts
+Eight languages have complete private drafts. Korean completed11,387documents
+in `api-full-draft-20260923-3ee2a1809-ko.json`; Icelandic follows. These drafts
 contain known semantic errors and are NOT approved translations. Do not
 promote a full machine-generated catalog. Review and rebind to current source.
 

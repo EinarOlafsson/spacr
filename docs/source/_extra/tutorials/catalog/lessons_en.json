@@ -4057,29 +4057,28 @@
       "series": 4,
       "app_key": "align",
       "section": "Tools",
-      "title": "Align & Stitch: inspect a real plan and verify the written mosaic",
-      "description": "Run the current stitching interface on preserved real microscopy pixels, inspect the solved layout, write bounded image bands and verify both the mosaic and its coordinate records.",
+      "title": "Align & Stitch: plan and write an image mosaic",
+      "description": "Choose image tiles, set their acquisition layout, inspect the registration plan, and write the mosaic with its coordinates.",
       "objectives": [
-        "Distinguish this known-geometry crop example from an independently acquired tiled experiment.",
-        "Set grid, overlap, order and reference channel through the current GUI.",
-        "Inspect registration before writing and distinguish the band-buffer budget from total memory use.",
-        "Keep the stitched image, coordinate records and source provenance together."
+        "Choose tiles and set the grid, overlap and registration channel.",
+        "Inspect the planned positions and registration quality.",
+        "Write the mosaic and retain its coordinate database."
       ],
-      "prerequisite": "For your own run, prepare tiles with known order, overlap and a useful registration channel; your counts and results will differ. The recording reuses nine preserved exact 800 × 800 × 4 crops from one real 2,000 × 2,000 × 4 field, with a 600-pixel step. These emulate a 3 × 3 acquisition, not nine independently acquired fields. The tutorial_A01 names are demonstration coordinates, not the original plate and well. Align & Stitch has no separate example-download button.",
+      "prerequisite": "Download and unzip the nine-tile example below, or prepare image tiles with known acquisition order, overlap and a useful registration channel. The example uses overlapping crops from one microscopy field to provide a practice layout.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Align and Stitch in Home's Tools category. Planning and writing are separate actions, so you can inspect a layout before creating its mosaic. This screen shows a tile layout and a textual report; the coloured rectangles are not a microscopy-image preview.",
+          "narration": "From Home’s Tools category, open Align and Stitch. Choose the tiles, review their layout with Plan, then use Write stack to create the mosaic.",
           "hold_after": 0.7
         },
         {
           "visual": "02_preserved_real_pixel_tiles",
-          "narration": "Choose the preserved tutorial tile folder. Its nine tiles are exact crops from one real four-channel image, deliberately arranged to emulate an acquisition with known geometry. They are not nine independent fields, and their tutorial plate and well names are demonstration identifiers.",
+          "narration": "Download and unzip the example below, then select its tiles folder. It contains nine overlapping crops arranged in a three-by-three grid. For your own acquisition, keep the original tile order and stage metadata available.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Set a three-by-three grid, row-major order and overlap zero point two five. These eight-hundred-pixel tiles step by six hundred pixels. For your own data, use the actual acquisition order and nominal overlap; a serpentine scan must not be described as row-major.",
+          "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4090,7 +4089,7 @@
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Set reference channel one, the second plane in this zero-based example. Registration uses that plane's structure and applies one placement to all four channels. Choose a meaningful registration channel; this operation is not independent chromatic alignment of each channel.",
+          "narration": "Set Reference channel to the image plane used for registration. This example uses channel one, the second plane with zero-based numbering. Choose a channel with visible structure across overlaps; the resulting placement applies to all image channels.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4101,7 +4100,7 @@
         },
         {
           "visual": "03_actual_layout_and_budget",
-          "narration": "Use minimum confidence zero point three, neighbour radius one and feather blending. Set the band-buffer budget to eight megabytes for this bounded example. That setting limits the writer's image bands; it does not cap every allocation or the application's total memory use.",
+          "narration": "Set Minimum confidence for accepting a registration and Neighbour radius for the nearby tiles to compare. The example uses zero point three and one, with feather blending across overlaps. The band-buffer budget controls memory used by the image writer.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4112,7 +4111,7 @@
         },
         {
           "visual": "04_registered_plan_not_yet_written",
-          "narration": "Press Plan. All nine example tiles register, with no nominal-position fallback, and the proposed canvas is two thousand by two thousand pixels with four channels. No output image has been written yet. Inspect the registered, nominal and unplaced counts rather than treating any completed plan as acceptable.",
+          "narration": "Press Plan. Inspect the registered, nominal and unplaced tile counts and the proposed canvas size. The layout shows tile positions. Review any nominal fallback or unplaced tiles before writing the mosaic.",
           "hold_after": 0.7,
           "focus": [
             1700,
@@ -4123,12 +4122,12 @@
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "Click the middle tile to inspect its coordinates, confidence, residual and contributing pairs. Here its origin is six hundred pixels in each direction, matching the known crop layout. Perfectly matching overlaps in this constructed example do not predict registration quality on a new acquisition.",
+          "narration": "Click a tile to inspect its coordinates, confidence, residual and contributing pairs. Use these details to investigate unexpected positions, then adjust the registration settings and plan again if needed.",
           "hold_after": 0.7
         },
         {
           "visual": "05_actual_tile_detail",
-          "narration": "Choose a new output folder and a separate coordinate database, leaving Overwrite off. Write stack is enabled only after a plan exists and a destination is supplied. Keep source tiles unchanged; assigning an output path is not a substitute for reviewing the registration.",
+          "narration": "Choose an output folder and a coordinate-database path. Leave Overwrite off when creating a new result. Once the plan and destination are ready, press Write stack.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4139,7 +4138,7 @@
         },
         {
           "visual": "06_real_stitch_complete",
-          "narration": "Press Write stack. The actual output contains all nine tiles, and every pixel in all four channels matches the original field in this example. The result reports the output path and band-buffer use. This is a measured result for these known crops, not a promise of lossless registration for arbitrary images.",
+          "narration": "Wait for the completion summary and open the output stack. Inspect the overlaps and object boundaries in the mosaic. Keep the coordinate database and source tiles with it so downstream locations can be traced back to the acquisition.",
           "hold_after": 0.7,
           "focus": [
             1700,
@@ -4147,29 +4146,16 @@
             2100,
             1100
           ]
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "The coordinate database contains nine records. We check each source file, demonstration plate and well, field identifier, canvas position and output stack path, not just the row count. Preserve those records with the image and source manifest so downstream coordinates remain interpretable.",
-          "hold_after": 0.7,
-          "focus": [
-            450,
-            1990,
-            3370,
-            140
-          ]
-        },
-        {
-          "visual": "06_real_stitch_complete",
-          "narration": "In Python, spacr.align.scan_tiles reads the tile layout and estimate_offsets builds the plan. write_stack creates the mosaic; save_coordinates and read_coordinates write and recover its coordinate table. The separate OPS workflow is not validated by this small stitch. Review real acquisition geometry before using either workflow for scientific conclusions.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "36_import",
-            "74_import_images"
-          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Align_Stitch_nine_tiles.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "33_plate_viewer",
@@ -4250,75 +4236,72 @@
       "id": "34_database",
       "number": 34,
       "slug": "database",
-      "title": "Database Browser",
+      "title": "Database Browser: filter and export measurements",
       "series": 4,
       "app_key": "db_browser",
       "section": "Data",
-      "description": "Browse, filter, and export spaCR measurement databases without a command line.",
+      "description": "Open a measurement database, select columns and rows, and export the result.",
       "objectives": [
-        "Open and page through a database safely.",
-        "Filter a complete table without confusing it with the preview.",
-        "Export a traceable subset."
+        "Open and browse a measurement table.",
+        "Select columns and filter rows.",
+        "Export the matching records."
       ],
-      "prerequisite": "Have a spaCR SQLite database or run folder available.",
+      "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
       "scenes": [
         {
-          "narration": "Database Browser inspects large spaCR databases in a bounded, read-only view.",
+          "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
           "visual": "01_overview",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Database Browser inspects large spacer databases in a bounded, read-only view."
+          "focus_key": "screen"
         },
         {
-          "narration": "Choose a measurements database or its run folder and open it.",
+          "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
           "visual": "02_open",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "Choose a measurements database or its run folder and open it."
+          "focus_key": "source"
         },
         {
-          "narration": "Select a table after reviewing its purpose and read-only status.",
+          "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
           "visual": "03_tables",
           "hold_after": 0.7,
-          "focus_key": "tables",
-          "speech_text": "Select a table after reviewing its purpose and read-only status."
+          "focus_key": "tables"
         },
         {
-          "narration": "The preview loads a bounded page while reporting the complete row and column counts separately.",
+          "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
           "visual": "04_cell_table",
           "hold_after": 0.7,
-          "focus_key": "preview",
-          "speech_text": "The preview loads a bounded page while reporting the complete row and column counts separately."
+          "focus_key": "preview"
         },
         {
-          "narration": "Search columns to make wide feature tables readable without changing the underlying rows.",
+          "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
           "visual": "05_column_search",
           "hold_after": 0.7,
-          "focus_key": "column_search",
-          "speech_text": "Search columns to make wide feature tables readable without changing the underlying rows."
+          "focus_key": "column_search"
         },
         {
-          "narration": "Build a structured filter. Column names and operators are validated, and values are bound safely.",
+          "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
           "visual": "08_filter",
           "hold_after": 0.7,
-          "focus_key": "filter",
-          "speech_text": "Build a structured filter. Column names and operators are validated, and values are bound safely."
+          "focus_key": "filter"
         },
         {
-          "narration": "The exact filtered count describes the full query even though only one page is drawn.",
+          "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
           "visual": "09_filtered",
           "hold_after": 0.7,
-          "focus_key": "status",
-          "speech_text": "The exact filtered count describes the full query even though only one page is drawn."
+          "focus_key": "status"
         },
         {
-          "narration": "Export the complete current filter and visible-column selection. The source database remains unchanged.",
+          "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
           "visual": "10_export",
           "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "Export the complete current filter and visible-column selection. The source database remains unchanged."
+          "focus_key": "export"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "35_converter",
@@ -4328,19 +4311,18 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: review identities before writing real images",
-      "description": "Reach Format Converter through Import, preview two real image mappings, write a separate destination and verify checkpoint reuse without changing the originals.",
+      "title": "Format Converter: preview and convert image files",
+      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
       "objectives": [
-        "Distinguish image-format conversion from importing measurements and label masks.",
-        "Review source, target and acquisition identities before writing.",
-        "Preserve the source images, mapping CSV and field checkpoint together.",
-        "Interpret a zero-write Resume correctly without treating it as a pixel-integrity guarantee."
+        "Choose source and destination folders with the correct acquisition layout.",
+        "Preview target names, fields and channel assignments.",
+        "Convert the files and use Resume for completed fields."
       ],
-      "prerequisite": "Reuse the two single-channel TIFFs prepared from real measured images in the Import Project tutorial. Each is the exact second image plane from its original array; the neutral fov01_C1.tif and fov02_C1.tif filenames no longer contain the original plate or well identities. This deliberately bounded example demonstrates two-dimensional TIFF conversion, not vendor readers, multichannel acquisition, Z projection or time series. There is no separate example-download, Plot, Live preview or AI control in Format Converter.",
+      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Import from Home's Data category, then choose Format Converter in its nested tools. This converts image formats and filenames. Import Project handles the different task of bringing images, label masks and measurement tables together; do not mix the parent screen's controls with the converter inside it.",
+          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
@@ -4349,7 +4331,7 @@
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The Format Converter tab has its own Source, Destination, Preview and Convert controls. Its preview is a source-to-target table, not a live microscopy image or segmentation preview. The parent Import destination and Import button below the tab belong to the other workflow.",
+          "narration": "Use the converter’s Source, Destination, Preview and Convert controls. Preview displays the planned source-to-target mapping so you can inspect the assignments before writing files.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4360,7 +4342,7 @@
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose a source folder, not an individual image. This example reuses the two real single-channel TIFFs from the Import lesson. Their pixels come from measured microscopy images, but the neutral field names are demonstration names, not the original acquisition coordinates.",
+          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
@@ -4368,12 +4350,12 @@
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new, empty destination folder separate from the source. Keep the original images and their provenance unchanged. Conversion creates new TIFFs and a mapping file; it does not reconstruct experimental metadata that was removed when these demonstration files were named.",
+          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
           "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to images directly in source, because both files sit in one folder. Use indexed plate names and leave Resume off for this first run. For a real plate-and-well directory tree, select the matching layout and check the resulting assignments rather than copying this flat-folder choice.",
+          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4384,7 +4366,7 @@
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Keep every Z plane. Max projection and first-plane-only options deliberately discard Z information; neither is demonstrated here. These inputs each contain one two-dimensional channel, so this recording does not establish how a particular vendor file, time series or multichannel acquisition will be interpreted.",
+          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4395,7 +4377,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press the converter's Preview button. The actual plan lists two outputs from two source files, and the destination remains empty. Inspect the complete source-to-target mapping before Convert; a finished preview is not evidence that its well and channel assignments match your experiment.",
+          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4405,19 +4387,8 @@
           ]
         },
         {
-          "visual": "05_preview_no_output_written",
-          "narration": "Here the generated names use plate one, well A zero one, fields one and two, and channel one. Those are assigned demonstration identities. The source images originally came from different acquired wells, so this mapping must not be presented as recovered plate metadata or used to combine their treatments.",
-          "hold_after": 0.7,
-          "focus": [
-            465,
-            1020,
-            1950,
-            180
-          ]
-        },
-        {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Check the From field and From channel columns alongside the generated names. The TIFF's only plane has array index zero, although its preserved pixels were extracted from channel index one in the original seven-plane array. The output filename's channel one is one-based; these three numbering contexts are not interchangeable.",
+          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4428,7 +4399,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "The preview table is read-only. If identities are wrong, fix the source layout or conversion settings and preview again; there are no per-row edits or separate series and time selectors in this screen. Keep the original metadata available when reviewing automatic assignments.",
+          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4439,7 +4410,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read its summary. This actual run writes two new TIFFs with no failed or skipped mappings. We independently compare every output pixel, shape and data type with its source, and verify the source, field and channel identities in the mapping file. The originals remain unchanged.",
+          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4450,7 +4421,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion underscore map dot C S V with the converted images and the original acquisition manifest. The map preserves source and target paths, assigned identities, source-channel metadata and conversion status. A separate run-status file records the operation, and a hidden field checkpoint supports later Resume.",
+          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4461,7 +4432,7 @@
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "Enable Resume and press Convert again with the same source, plan and destination. The application checks the compatible field checkpoint and readable TIFF metadata before reusing completed fields. It does not compare every pixel with the original source; do not describe Resume as a complete corruption audit.",
+          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
           "hold_after": 0.7,
           "focus": [
             2700,
@@ -4469,67 +4440,38 @@
             1130,
             190
           ]
-        },
-        {
-          "visual": "09_completed_fields_reused",
-          "narration": "The second run says zero files converted and two targets already existed. That is expected here: both planned outputs are present and unchanged. The table still displays the preview's planned status, so read the operation summary and mapping file for the actual result, not that table column alone.",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ]
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "Scroll the summary to see that two completed fields were resumed. The latest run-ledger entry reports empty because no source needed conversion; the first complete entry remains preserved. We accept this specific zero-write result only after verifying both reused outputs and their exact identities independently.",
-          "hold_after": 0.7,
-          "focus": [
-            460,
-            1580,
-            3370,
-            210
-          ]
-        },
-        {
-          "visual": "10_resume_checkpoint_summary",
-          "narration": "In Python, spacr.convert.scan reads source descriptions, plan builds the reviewed mappings, and convert writes the outputs. convert_folder is the settings-dictionary entry point. Keep conversion separate from segmentation and measurement, and validate your own acquisition dimensions before passing its images to Mask or Measure.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "07_mask",
-            "08_measure",
-            "36_import"
-          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "36_import",
       "number": 36,
       "slug": "import",
       "series": 5,
-      "title": "Import Project: review real masks, measurements and provenance",
+      "title": "Import Project: bring images, masks and measurements into spaCR",
       "app_key": "foreign",
       "section": "Data",
-      "description": "Import an actual two-field microscopy subset, review object joins and column names before writing, and distinguish imported measurements from a fresh spaCR measurement run.",
+      "description": "Choose matching images, instance masks and measurement tables, review their mapping, and create a spaCR project.",
       "objectives": [
-        "Find Import Project and its three nested input tools.",
-        "Pair images, instance masks and a measurement table, with explicit units and object identities.",
-        "Review inferred names, demonstrate and resolve a reserved-name conflict, and save and reload the mapping.",
-        "Verify imported pixels, per-object values and provenance without claiming that import remeasures the data."
+        "Match images, masks and measurement rows.",
+        "Review and save the column mapping.",
+        "Import the project and inspect its outputs."
       ],
-      "prerequisite": "Download Measure's example first. prepare_inputs in tools/tutorials/capture_foreign.py extracts unchanged ER intensity plane 1 and cell-label plane 4 from plate1_E01_1_1 and plate1_L02_9_1. It recomputes exact pixel areas and raw mean intensities from those same labels, producing 103 real measurement rows. Neutral fov01/fov02 TIFF names deliberately require the saved source manifest to recover original acquisition wells; they do not preserve plate layout automatically. No physical pixel calibration is asserted.",
+      "prerequisite": "Prepare corresponding image files, instance-label masks and a measurement CSV. Keep each field’s original plate and well identity, and use documented measurement units.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Import in Home's Data category. This parent workflow adopts existing images, instance masks and measurements. It is different from starting with raw microscope files and generating new masks and measurements in spaCR.",
+          "narration": "From Home’s Data category, open Import. Use this screen to bring existing images, instance masks and measurements into a spaCR project.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_import_images",
-          "narration": "The header now hosts Import Images, Format Converter and External Masks. Use Import Images for raw acquisitions, Format Converter for supported format conversion, and External Masks for existing segmentation labels. Their specialist lessons remain under Import in the Submodules section.",
+          "narration": "The header also opens Import Images, Format Converter and External Masks. Choose the tool that matches your starting files; this walkthrough uses images, masks and an existing measurement table together.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -4540,7 +4482,7 @@
         },
         {
           "visual": "03_choose_images",
-          "narration": "This recording reuses two real fields from Measure's downloaded example. Separate TIFF copies preserve the original intensity and label pixels. Our preparation recipe measures pixel area and mean intensity from those exact labels, instead of mixing masks with an independently versioned measurement table.",
+          "narration": "Choose the image folder. The example uses two microscopy fields with one intensity channel and matching cell labels. Keep a record of each file’s original plate, well and field.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -4548,17 +4490,17 @@
         },
         {
           "visual": "04_choose_masks",
-          "narration": "Choose the image folder, then the Cell mask folder and press Add. These are instance labels, not a binary foreground image. Our example contains one intensity channel and one mask class. Add other classes only when they genuinely describe the corresponding fields.",
+          "narration": "Choose the Cell mask folder and press Add. Each object needs its own integer label. Add further mask classes when you have corresponding labels for the same fields.",
           "hold_after": 0.7
         },
         {
           "visual": "05_choose_table",
-          "narration": "Choose the actual measurement CSV. ImageNumber identifies each prepared image, and ObjectNumber identifies its label inside that field. A label number alone is not unique across images. The table contains one hundred and three measured objects, not synthetic rows added to make a join pass.",
+          "narration": "Choose the measurement CSV. Match ImageNumber to each field and ObjectNumber to its mask label. Use both identifiers to distinguish objects across fields.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inputs_unknown_calibration",
-          "narration": "Leave micrometres per pixel blank when calibration is unknown. Our area column explicitly uses pixels squared, and intensity is a raw image mean. Do not enter an invented scale. Physical-unit columns require separate review; an uncalibrated value must not be described as a converted pixel measurement.",
+          "narration": "Enter micrometres per pixel when you know the calibration; otherwise leave it blank. Check that area and intensity columns retain their documented units.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4569,7 +4511,7 @@
         },
         {
           "visual": "06b_safe_inferred_names",
-          "narration": "Preview writes no project data. The current importer conservatively proposes foreign-prefixed column names, including foreign_cell_area for a source already called cell_area. Its note is not a blocking error: inference has avoided overwriting a spaCR feature, but the scientific meaning still needs your review.",
+          "narration": "Press Preview to inspect the proposed column mapping and joins before creating the project. Review the suggested foreign-prefixed names and their scientific meaning.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4580,12 +4522,12 @@
         },
         {
           "visual": "07_conflict_refused",
-          "narration": "Select a target cell and press F two to edit it. Here we deliberately change the area target to the reserved name cell_area. With Refuse the import selected, this actual conflicting edit disables Import. Nothing has been written; do not treat the demonstration target as a recommended mapping.",
+          "narration": "Select a target cell and press F two to edit its name. A reserved-name conflict disables Import when Refuse the import is selected; choose a distinct target name or use the Rename policy.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_join_report",
-          "narration": "Choosing the Rename policy resolves the conflict without overwriting spaCR's feature. Read the join report: all one hundred and three table rows match real mask objects, with no unmeasured objects in this subset. Row counts alone would not detect values assigned to the wrong field or label.",
+          "narration": "Read the join report and resolve unmatched rows or objects. In the example, all one hundred and three measurement rows match mask objects.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4596,7 +4538,7 @@
         },
         {
           "visual": "09_mapping_edited",
-          "narration": "Give the area an explicit reviewed target, foreign_reviewed_area_px2. The mapping updates in place. Review the source, target, transform and units together: renaming a column does not establish that two laboratories measured the same biological quantity.",
+          "narration": "Give the imported area a clear name, such as foreign reviewed area pixels squared. Review the source, target, transform and units together.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4607,22 +4549,22 @@
         },
         {
           "visual": "10_save_mapping",
-          "narration": "Save mapping writes the reviewed column definitions to a CSV. It is not a backup of your images or a complete acquisition manifest. Keep the source files and their identity records as well as the mapping, so the decisions can be audited later.",
+          "narration": "Use Save mapping to keep the reviewed column definitions as a CSV. Keep the mapping with your images, masks, measurement table and acquisition identities.",
           "hold_after": 0.7
         },
         {
           "visual": "12_mapping_reloaded",
-          "narration": "Load mapping reads those definitions back into the current plan. We first make a temporary unsaved target change; selecting the saved CSV then restores the reviewed name. Check the plan again when source files, labels or units differ. A reusable mapping is not automatic approval of a new experiment.",
+          "narration": "Use Load mapping to reuse saved definitions. Review the resulting plan whenever source columns, labels or units differ.",
           "hold_after": 0.7
         },
         {
           "visual": "13_imported",
-          "narration": "Press Import for the reviewed plan and inspect the actual report. This run converts two image files, writes two masks and two merged arrays, and stores one hundred and three rows in each of two object tables. The status total of two hundred and six counts both tables, not twice as many distinct objects.",
+          "narration": "Press Import and read the completion report. The example writes two image files, two masks and two merged arrays, with one hundred and three rows in each of two object tables.",
           "hold_after": 0.7
         },
         {
           "visual": "14_import_scope",
-          "narration": "The summary explicitly says spaCR did not re-extract measurements. The foreign_columns table records which values came from this import. Our checks confirm original pixels, labels, and each object's area and mean intensity survive the conversion; that is different from validating the biological interpretation.",
+          "narration": "Open the project and inspect the imported measurements. The foreign columns table records their origin. Use Measure when you want spaCR to calculate new features from the images.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -4636,7 +4578,7 @@
         },
         {
           "visual": "14_import_scope",
-          "narration": "Our neutral fov names become new fields in A zero one; they do not reconstruct the original acquisition wells. Retain the preparation manifest and conversion map. For a real plate experiment, resolve acquisition identities before downstream analysis instead of treating newly assigned coordinates as original metadata.",
+          "narration": "Keep the conversion map with the project and check its plate, well and field assignments. Generic file names may receive new coordinates, so resolve their original identities before plate-level analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "74_import_images"
@@ -4644,14 +4586,19 @@
         },
         {
           "visual": "14_import_scope",
-          "narration": "In Python, spacr.foreign provides plan_import, save_column_map, load_column_map and run_import for the same review-and-apply boundary. Keep the reviewed mapping with the completed project. Use Measure when you actually want spaCR to compute new features, rather than assuming an import already did so.",
+          "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "37_batch",
@@ -4660,19 +4607,18 @@
       "series": 5,
       "app_key": "batch",
       "section": "Data and batch runs",
-      "title": "Batch Runner: validated jobs, dependencies and separate logs",
-      "description": "Use the real threaded interface and file pickers to configure three channel-preserving conversions, check dependency order, save and reload the queue, then stop and continue real subprocess jobs.",
+      "title": "Batch Runner: configure and run a queue",
+      "description": "Add module settings, arrange dependencies, run jobs, and inspect their separate logs.",
       "objectives": [
-        "Find Batch runner under Help and add module settings with explicit dependencies and overrides.",
-        "Observe an invalid dependency order, restore it and save the validated plan.",
-        "Reload the plan, stop between real jobs and continue without repeating completed work.",
-        "Inspect separate logs and independently verified pixels, channel identities and conversion records."
+        "Add jobs with their settings and dependencies.",
+        "Save, run and continue the queue.",
+        "Inspect each job’s log and outputs."
       ],
-      "prerequisite": "Use the three acquired four-channel fields from the tutorial test dataset and separate source and destination folders per job. The tutorial helper tools/tutorials/batch_data.py copies the originals byte-for-byte into explicit fov01_C1 through fov01_C4 TIFF names. Each converted example uses the demonstration coordinate A01; original plate/well coordinates are not reconstructed. The older recording incorrectly mapped its original filenames to four separate C01 fields, so it is not evidence of preserved channel metadata. This lesson executes only convert, not a full Mask-to-Classify chain. No model, AI request or biological finding is claimed. The queue has no dedicated Load test data, live image preview or plotting panel; use the Format Converter lesson for its Preview and Resume controls. Failure policies are shown but failing analyses, hard-crash recovery and GPU-driver isolation are not tested here.",
+      "prerequisite": "Prepare the input data and exported settings JSON for each job. The example runs three image conversions into separate output folders.",
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Open Help, then Batch runner. This shared menu tool combines headless module jobs, settings files, dependencies and separate logs. It runs its own jobs sequentially; that does not prevent another application or queue from using the same computer's resources.",
+          "narration": "Open Help, then Batch runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -4680,7 +4626,7 @@
         },
         {
           "visual": "03_choose_settings_1",
-          "narration": "Choose convert and use Choose settings to open the first JSON file. We prepared three real microscopy fields in separate folders, each with four explicitly named channel files. Their pixels are unchanged, but A zero one is a demonstration coordinate, not a recovered original well.",
+          "narration": "Choose the module and click Choose settings. For this example, select convert and the JSON settings for the first microscopy field.",
           "hold_after": 0.7,
           "related_lessons": [
             "35_converter"
@@ -4688,7 +4634,7 @@
         },
         {
           "visual": "04_configure_job_1",
-          "narration": "The settings specify source, destination and actual conversion, with preview and resume disabled. Add a descriptive label, then choose Add job. The first identifier is convert one. Validate the conversion and channel mapping on a small example before scheduling a larger batch.",
+          "narration": "Check the source and destination in the settings, add a descriptive label, then click Add job. Use a separate output folder for each conversion.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4699,7 +4645,7 @@
         },
         {
           "visual": "04_configure_job_2",
-          "narration": "For the second job, After names convert one. The override plate naming equals name changes its plate-name convention without rewriting the saved settings file. This dependency controls eligibility and order; it does not automatically make the second job consume the first job's output.",
+          "narration": "For the second job, enter convert one in After to make it depend on the first. Add a setting override when this job needs a different value. Set any input paths explicitly; a dependency controls order.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4710,7 +4656,7 @@
         },
         {
           "visual": "05_added_job_3",
-          "narration": "Add the third job with no dependency or override. All three use different output folders. The table shows their identifiers, labels, dependencies and pending state. Selecting a row loads its configuration into the editor; the displayed table is not an editable spreadsheet.",
+          "narration": "Add further jobs and review their identifiers, labels and dependencies. Select a row to load its configuration into the editor.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4721,7 +4667,7 @@
         },
         {
           "visual": "06b_dependency_error_scrolled",
-          "narration": "Move the second job above its prerequisite. Validation reports the later dependency and disables Run queue. The small problem pane may require scrolling to read the explanation and suggested fix. This verifies an actual refusal, not just a claim that the validator protects you.",
+          "narration": "Use the move controls to arrange jobs. A dependency must appear before the job that needs it; read any validation message and correct the order.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4732,7 +4678,7 @@
         },
         {
           "visual": "07_valid_reordered_queue",
-          "narration": "Move it back below convert one, then move the independent third job above it. The valid order is now one, three, two. Choose Validate again: no problems remain. Ordering constraints are satisfied, but validation cannot establish whether an analysis answers your scientific question.",
+          "narration": "Click Validate after arranging the queue. Resolve the listed problems until Run queue becomes available.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4743,7 +4689,7 @@
         },
         {
           "visual": "09_continue_policy",
-          "narration": "On failure offers continuation for independent jobs or stopping at the first failure. We inspected both and restored continuation. Stop after is three consecutive failures here; it counts failures, not proof that their causes are identical. This successful example does not exercise either failure outcome.",
+          "narration": "Choose On failure to continue with independent jobs or stop at the first failure. Set Stop after to limit consecutive failures.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4754,12 +4700,12 @@
         },
         {
           "visual": "10_save_queue_picker",
-          "narration": "Use Save queue to preserve the ordered plan as JSON. We then removed the third job from this disposable in-memory queue and used Load queue to restore the saved three-job plan. The project folders were not deleted. Keep the settings files and inputs with that plan.",
+          "narration": "Click Save queue to store the plan as JSON. Use Load queue to reopen it later, keeping the referenced settings files and inputs available.",
           "hold_after": 0.7
         },
         {
           "visual": "14_stopped_between_jobs",
-          "narration": "After Run queue starts the first real subprocess, press Stop. It finishes the active job before stopping: the first row says success and the other two say not run. This is not an immediate kill, and this controlled stop does not prove recovery from a computer crash.",
+          "narration": "Click Run queue. To pause between jobs, press Stop; the current job finishes and the remaining jobs stay unrun.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4770,7 +4716,7 @@
         },
         {
           "visual": "15_completed_real_queue",
-          "narration": "Choose Run queue again. Only the two remaining jobs execute, in the saved order; the first job's timestamps stay unchanged. All three now show success. Separate subprocesses isolate ordinary job execution, but this demonstration does not guarantee protection against a system-wide GPU or memory failure.",
+          "narration": "Click Run queue again to continue with the remaining jobs. Watch each row’s status as the queue progresses.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4781,7 +4727,7 @@
         },
         {
           "visual": "16_log_convert-2",
-          "narration": "Select each row to read its own log. Here the converter reports one well, one field and four channel identifiers, then four converted files and exit code zero. The name override appears in the second job's outputs. Logs provide evidence to inspect, not automatic proof of correct scientific results.",
+          "narration": "Select a row to read its log and inspect errors or output paths. For the conversion example, check the reported field and channel identifiers.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -4792,7 +4738,7 @@
         },
         {
           "visual": "16_log_convert-1",
-          "narration": "Across all three jobs, twelve output images matched every original pixel and the intended channel identities. Each conversion record also reports four attempts, four successes and no failures. Originals remain unchanged. For scripting, spacr.batch provides Job, Queue and run_queue; see the API lesson and the converter's dedicated preview tutorial.",
+          "narration": "Open each output folder and inspect the converted images and conversion record. Keep the queue JSON, settings and logs with the results.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -4800,27 +4746,32 @@
             "30_plate_queue"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "38_distributed_jobs",
       "number": 38,
       "slug": "distributed_jobs",
-      "title": "Distributed Jobs",
+      "title": "Distributed Jobs: configure an execution target",
       "series": 5,
       "app_key": "distributed_jobs",
       "section": "Data and batch runs",
-      "description": "Prepare a real execution profile from Help, understand backend and path choices, and distinguish saved configuration from verified remote execution.",
+      "description": "Create an execution profile and prepare a module job for another workstation or cluster.",
       "objectives": [
-        "Find Distributed Jobs in Help and save a reusable execution profile.",
-        "Distinguish path mapping from copying data and credentials from profile settings.",
-        "Prepare SSH, Slurm or custom-command settings without claiming an untested remote run."
+        "Create a profile for your execution target.",
+        "Configure paths and backend options.",
+        "Prepare submission and inspect job status."
       ],
-      "prerequisite": "This lesson records configuration only, with an isolated local profile store and no submitted job or remote connection. researcher@workstation.invalid and the displayed local/shared directories are illustrative, not working targets. Before submission, arrange authorised access, compatible spaCR/dependencies and existing data on the target. Use the actual module's exported settings, not this example profile as an experiment configuration. API: spacr.remote_execution.ExecutionProfile, ProfileStore and RemoteJobManager. Profiles do not store passwords; authenticate outside spaCR. Dataset roots rewrite matching absolute path prefixes; images are not automatically copied. The recording proves save/reopen and cancelled-edit preservation, not scheduler success, remote outputs or model validity.",
+      "prerequisite": "Arrange access to a target with spaCR, its dependencies and your input data. Export the module settings you intend to run. Replace the illustrative host and paths shown here with your own.",
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Open Help, then Distributed jobs. This utility is reached from Help, not a separate core Home tile. We prepare a real execution profile and inspect the current controls. No remote connection or submitted job is demonstrated; saving a profile does not prove that its target works.",
+          "narration": "Open Help, then Distributed jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
           "focus": [
             80,
             0,
@@ -4834,7 +4785,7 @@
         },
         {
           "visual": "02_empty_actual_workbench",
-          "narration": "Use this workbench to send a module's settings to another execution target. Before submitting, arrange authorised access, a compatible spaCR installation and data available on that target. Profiles store connection settings, not passwords. Configure SSH keys or your cloud command-line authentication outside spaCR.",
+          "narration": "Install compatible spaCR dependencies on the target and make the input data available there. Set up SSH keys or your provider’s command-line authentication outside spaCR.",
           "focus": [
             455,
             155,
@@ -4849,7 +4800,7 @@
         },
         {
           "visual": "03_empty_profile_refused",
-          "narration": "Choose New profile. Saving an empty form is refused with an inline message. Give the profile a clear name and choose its backend. Our example is explicitly named NOT CONNECTED, so it cannot be mistaken for a tested workstation or a successful job.",
+          "narration": "Choose New profile. Enter a descriptive name and select the backend. Complete the required fields shown by the form.",
           "focus": [
             695,
             195,
@@ -4860,7 +4811,7 @@
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "For SSH, enter the host, remote work directory and spaCR runner. The displayed dot-invalid host and directories are examples, not usable credentials or verified locations. We saved this profile and reopened it; the visible values match the stored configuration exactly.",
+          "narration": "For SSH, enter your host, remote work directory and spaCR runner. Save the profile, then reopen it whenever you need to update these settings.",
           "focus": [
             695,
             380,
@@ -4871,7 +4822,7 @@
         },
         {
           "visual": "06_saved_profile_reopened",
-          "narration": "Local and remote dataset roots describe the same data through different absolute path prefixes. Set both, or leave both blank when paths are identical. This maps settings paths; it does not copy an image collection to the server. Arrange the actual shared storage or transfer separately.",
+          "narration": "Set the local and remote dataset roots when the same data has different absolute paths on the two machines. This rewrites settings paths; arrange shared storage or copy the files separately.",
           "focus": [
             695,
             595,
@@ -4882,7 +4833,7 @@
         },
         {
           "visual": "07_slurm_controls_not_submitted",
-          "narration": "Choosing Slurm enables scheduler options while keeping the host and path controls. Partition names, time limits and accelerator requests must match your cluster's allocation. The displayed partition is a placeholder. Changing this selector neither reserves a GPU nor verifies that the scheduler is reachable.",
+          "narration": "For Slurm, choose the partition, time limit and accelerator request supported by your cluster. Keep the host and directory settings appropriate for its login environment.",
           "focus": [
             695,
             450,
@@ -4893,7 +4844,7 @@
         },
         {
           "visual": "08_custom_argument_templates",
-          "narration": "Cloud or custom command enables separate submit, status and cancel argument templates, with optional log retrieval. Use the required settings and external-ID placeholders. These are tokenised arguments, not a shell script. The greyed connection controls belong to the other backends; no custom command runs in this lesson.",
+          "narration": "For a cloud or custom command, enter submit, status and cancel argument templates, plus log retrieval if needed. Include the required settings and external-ID placeholders shown by the controls.",
           "focus": [
             695,
             805,
@@ -4904,7 +4855,7 @@
         },
         {
           "visual": "05_profile_saved_not_connected",
-          "narration": "Cancel closes our unsaved backend changes and preserves the original SSH profile byte for byte. Save is for changes you intend to retain. Poll interval controls suggested monitoring frequency, not computation speed. A saved execution target is still only configuration until a real, authorised job has been checked.",
+          "narration": "Save the changes you want to retain, or use Cancel to leave the profile unchanged. Poll interval sets how frequently to check job status.",
           "focus": [
             455,
             220,
@@ -4915,7 +4866,7 @@
         },
         {
           "visual": "09_submission_controls_no_job",
-          "narration": "For an actual run, select the matching module and its exported settings before Submit. Begin with a small authorised check, then inspect job status, logs and the local record. Cancel job targets a selected job; deleting a profile is different. Our table stays empty because we submit nothing and claim no remote outputs.",
+          "narration": "Select the profile, module and its exported settings, then use Submit when the target is ready. Monitor status and logs in the job table. Use Cancel job to stop a selected job, and inspect its results at the configured output location.",
           "focus": [
             455,
             220,
@@ -4929,31 +4880,36 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "39_classifier_evaluation",
       "number": 39,
       "slug": "classifier_evaluation",
-      "title": "Classifier evaluation",
+      "title": "Classifier Evaluation: inspect predictions and errors",
       "series": 3,
       "app_key": "classifier_evaluation",
       "section": "Tools",
       "host_app_key": "classify_merged",
-      "description": "Inspect real saved classifier predictions inside Classify, use live table filters, and recognise a test split with known well overlap.",
+      "description": "Load a saved evaluation bundle, inspect leakage and confusion counts, and filter predictions for review.",
       "objectives": [
-        "Open Classify’s nested evaluation inspector with the downloadable saved-results bundle.",
-        "Read confusion counts, confidence lists, per-plate metrics and calibration without rerunning a model.",
-        "Distinguish an interactive results view from independent validation or evidence of incorrect labels."
+        "Load a bundle and review leakage.",
+        "Inspect confusion counts and confidence groups.",
+        "Filter predictions and locate saved figures."
       ],
       "example_files": [
         "REAL_evaluation_known_overlap.zip"
       ],
-      "prerequisite": "Extract REAL_evaluation_known_overlap.zip into a new folder and select the extracted root containing evaluation_manifest.json. This inspection-only archive contains 234 actual one-epoch test predictions and the native saved tables/PNGs, not a trained model, crops or an annotation database. The two inherited class names infected_1 and infected_2 do not establish infection status. Standard spacr.classifier_evaluation.evaluate_predictions and write_evaluation_bundle prepared the results from the original saved probabilities; load_evaluation_bundle is the inspector reader. Database identities expose all three test wells in the training split; no retraining or correction of that split occurred. Generic out-of-fold file names and plot titles do not turn a single test split into cross-validation. Counts [[104,11],[8,111]] give 215/234 correct; confidence threshold 0.75 -> 0.95 changes the selected eleven-disagreement cell from high/low 6/5 to 2/9 without altering class calls. The Predictions filter r5_c2 gives 234 -> 128 -> 234 rows after clearing. Calibration method none and five bins per class were fixed when the bundle was prepared, not entered in this GUI. Every numeric cell is preserved; only sample display paths became explicit crops-not-included references. The matching original experiment must already be open in Annotate for crop routing; this standalone example does not demonstrate that route. One plate cannot establish whether a disagreement is caused by the model, plate, well or a wrong annotation. Native calibration PNG is readable, but the confusion PNG has weak dark-on-blue number contrast; neither generic-OOF export is endorsed as publication-ready. No model inference, GPU benchmark or spaCR AI request occurs during inspection. Native-speaker/listening approval and publication remain separate from these technical checks.",
+      "prerequisite": "Download and unzip the linked saved-results example. It contains predictions, tables and figures; crops require your matching experiment in Annotate. The example shares wells between training and test data, so use it to learn the inspector rather than estimate independent-well accuracy.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Open Classify, then its Classifier Evaluation shortcut. This is a nested results inspector, not a separate Home module or a model-training form. The Classify lesson covers producing predictions; here we inspect an existing saved bundle.",
+          "narration": "Open Classify, then Classifier Evaluation. Use this inspector to explore a saved evaluation bundle after producing predictions.",
           "focus": [
             3510,
             105,
@@ -4967,7 +4923,7 @@
         },
         {
           "visual": "03_actual_bundle_folder",
-          "narration": "Download the saved-results example linked below and extract it into a new folder. Click Browse and choose the folder containing evaluation manifest dot json. This small archive includes real saved predictions and tables, but no crops, annotation database or trained model.",
+          "narration": "Download and unzip the example below. Click Browse and choose the folder containing evaluation manifest dot json.",
           "focus": [
             1563,
             798,
@@ -4978,7 +4934,7 @@
         },
         {
           "visual": "04_actual_summary",
-          "narration": "Summary reports two hundred thirty-four test predictions from a one-epoch run. The names infected one and infected two are inherited dataset labels, not newly verified infection states. Loading this bundle reads saved results; it does not train, predict or repair the dataset.",
+          "narration": "Read Summary for the number of predictions and the recorded class names. The example contains two hundred thirty-four predictions across two classes.",
           "focus": [
             475,
             650,
@@ -4989,7 +4945,7 @@
         },
         {
           "visual": "05_actual_leakage_requires_review",
-          "narration": "Check Leakage audit before interpreting accuracy. All three test wells also occur in training, so the audit fails. Database identities revealed overlap that the older filename audit missed. These numbers demonstrate the inspector, not performance on independent wells or biological validation.",
+          "narration": "Open Leakage audit before interpreting accuracy. This example flags wells shared between training and test data. For an independent-well evaluation, prepare a split with separate wells and rerun training and evaluation.",
           "focus": [
             475,
             650,
@@ -5000,7 +4956,7 @@
         },
         {
           "visual": "06_actual_confusion_counts",
-          "narration": "In Confusion matrix, rows are the recorded classes and columns are predictions. The diagonal counts are one hundred four and one hundred eleven. The other cells contain eleven and eight disagreements: nineteen in total. Agreement with these labels is not proof that the labels are correct.",
+          "narration": "Open Confusion matrix. Rows are recorded classes and columns are predictions. The diagonal shows agreement; off-diagonal cells identify disagreements to review.",
           "focus": [
             475,
             600,
@@ -5011,7 +4967,7 @@
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "Click the eleven-count cell: recorded infected one, predicted infected two. At confidence zero point seven five, six disagreements enter the high-confidence list and five the low-confidence list. These are two inspection queues for the same selected cell, not new classification results.",
+          "narration": "Click a disagreement cell to list its examples. The selected cell contains eleven disagreements, grouped by confidence.",
           "focus": [
             475,
             1090,
@@ -5022,7 +4978,7 @@
         },
         {
           "visual": "08_actual_confidence_threshold",
-          "narration": "Raise the confidence threshold to zero point nine five. The high list now contains two crops and the low list nine. Probabilities, class calls and the eleven-count cell remain unchanged. This live control partitions the queue; it does not recalibrate the model or rerun inference.",
+          "narration": "Change Confidence threshold to choose which disagreements enter the high-confidence list. Raising it from zero point seven five to zero point nine five leaves two in the high list and nine in the low list.",
           "focus": [
             475,
             1090,
@@ -5033,7 +4989,7 @@
         },
         {
           "visual": "07_actual_error_cell",
-          "narration": "Treat the automatic explanations cautiously. A confident disagreement does not prove a wrong annotation, and one plate cannot establish a plate-level cause. The displayed model-versus-well suggestions are hypotheses. Review acquisition, labels and genuinely independent data before deciding what needs correction.",
+          "narration": "Review the selected examples alongside their images and annotations. Use the displayed explanations as prompts for investigation, and check the evidence before changing labels.",
           "focus": [
             475,
             1170,
@@ -5044,7 +5000,7 @@
         },
         {
           "visual": "09_actual_per_plate",
-          "narration": "Per-plate metrics contains one row with all two hundred thirty-four predictions. It helps locate results by plate, but this example cannot compare plates or estimate a plate effect. The high accuracy does not remove the shared-well problem shown in Leakage audit.",
+          "narration": "Open Per-plate metrics to compare results by plate. This example has one plate; a multi-plate bundle provides separate rows for comparison.",
           "focus": [
             475,
             595,
@@ -5055,7 +5011,7 @@
         },
         {
           "visual": "10_actual_calibration_table",
-          "narration": "Calibration compares mean predicted probability with observed class frequency in five bins per class. The count column matters: sparse bins are uncertain. This saved bundle used no calibration correction. There is no calibration-fitting control on this tab; the table describes results prepared earlier.",
+          "narration": "Open Calibration to compare predicted probability with observed class frequency. Check each bin’s count when interpreting the differences.",
           "focus": [
             475,
             595,
@@ -5066,7 +5022,7 @@
         },
         {
           "visual": "12_actual_prediction_filter",
-          "narration": "In Predictions, type r five underscore c two to inspect that well. The table narrows from two hundred thirty-four to one hundred twenty-eight rows. This is a live text filter over saved records, not image filtering, segmentation or a change to the underlying result files.",
+          "narration": "Open Predictions and type a sample or well identifier to filter the records. In the example, r five underscore c two selects one well’s predictions.",
           "focus": [
             475,
             595,
@@ -5077,7 +5033,7 @@
         },
         {
           "visual": "13_actual_filter_cleared",
-          "narration": "Clear the filter and all two hundred thirty-four rows return. The sample paths explicitly say crops not included. To open disagreement crops in your own project, first open its matching experiment in Annotate. This archive cannot supply that database, and its disabled buttons are not a demonstrated crop workflow.",
+          "narration": "Clear the filter to restore all records. To open crops in your own project, first load the matching experiment in Annotate; the downloadable results example contains no crops.",
           "focus": [
             475,
             595,
@@ -5091,7 +5047,7 @@
         },
         {
           "visual": "04_actual_summary",
-          "narration": "The download also preserves the native calibration and confusion figures. Inspect their contrast before reporting them. Generic out-of-fold titles and filenames do not make this one test split cross-validated. The saved probabilities and counts are unchanged; only private sample paths were replaced by explicit references.",
+          "narration": "Find the saved calibration and confusion figures in the bundle folder. Check labels and readability before using them in a report.",
           "focus": [
             475,
             650,
@@ -5102,7 +5058,7 @@
         },
         {
           "visual": "14_actual_final_leakage",
-          "narration": "Finish by keeping the leakage warning with any exported metrics. The API reference explains bundle preparation and loading; Training Runs covers comparing saved progress logs. spaCR AI may help explain terminology, but it cannot certify labels or independence. No provider request was needed for this example.",
+          "narration": "Keep the leakage audit with reported metrics. Use Training Runs to compare saved training progress, and return to Annotate when image or label review is needed.",
           "focus": [
             475,
             650,
@@ -5114,7 +5070,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "40_run_history",
@@ -5123,19 +5084,18 @@
       "series": 5,
       "app_key": "run_history",
       "section": "Data and batch runs",
-      "title": "Run History: inspect real journals and restore available settings",
-      "description": "Find recorded jobs through Help, check settings, file inventories, warnings and failures, and reopen a real Recruitment configuration without rerunning or deleting anything.",
+      "title": "Run History: inspect past jobs and restore settings",
+      "description": "Find saved runs, inspect settings and logs, and load a previous configuration into its module.",
       "objectives": [
-        "Find Run history under Help and combine module, status and text filters.",
-        "Distinguish recorded file inventories and successful execution from scientific validation.",
-        "Read saved settings, environment details, warnings and an actual failure traceback.",
-        "Copy the journal path and restore available Recruitment controls without running analysis."
+        "Find runs using filters and search.",
+        "Inspect saved settings, files and problems.",
+        "Restore settings for a new run."
       ],
-      "prerequisite": "Use journals from your own completed example runs. This recording reads an isolated copy of the normal local journal location, ~/.spacr/runs, containing real tutorial jobs rather than fabricated results. The Batch Runner and Recruitment lessons explain the acquired test inputs; Regression supplies actual recorded warnings, and an earlier Model Zoo attempt supplies a real failure. Run History has no dedicated dataset download, live image preview, plotting or AI panel. No analysis, deletion or external file-manager launch is performed here. All 496 journal files remain byte-identical. The example restores 27 exposed Recruitment settings; the recorded hash_inputs key is not represented in that GUI. Recorded hashes describe the past run, not a fresh verification of today's project files.",
+      "prerequisite": "Complete a spaCR job to create a local run record. The example browses records from conversion, Recruitment and Regression runs.",
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Open Help, then Run history. This shared tool reads the local run journal, not every project folder on your computer. We use genuine records from the other tutorial runs. You do not need to repeat those analyses just to inspect their history.",
+          "narration": "Open Help, then Run history to browse the run records saved on this computer.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -5144,12 +5104,12 @@
         },
         {
           "visual": "02_loaded_history",
-          "narration": "Refresh loads the available journal records. The table shows module, status, duration, CPU time and recorded file counts and sizes. Drag the divider to enlarge the detail area. These are saved execution measurements, not a live performance monitor or an independent assessment of scientific quality.",
+          "narration": "Click Refresh to load available records. Select a run to inspect its details, and drag the divider if you need more room.",
           "hold_after": 0.7
         },
         {
           "visual": "03_batch_search",
-          "narration": "Choose convert and Success, then search for the shared example-folder name. Three actual Batch Runner jobs remain. Module, status and text filters work together; text search can find settings, paths, versions or recorded problems. There are no separate date or resource filters on this screen.",
+          "narration": "Choose a module and status, then enter a search term to narrow the list. For example, select convert and Success to find completed conversions.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -5160,7 +5120,7 @@
         },
         {
           "visual": "04_batch_empty_inventory",
-          "narration": "Files and models is empty for these successful conversions because their journal skipped file hashing. That does not mean they produced no images. The Batch Runner lesson separately checked all twelve outputs. Treat a missing inventory as missing evidence, not as proof of missing data.",
+          "narration": "Open Files and models for recorded input and output details. Runs that skipped file hashing can have an empty inventory; use the output paths in settings or logs to find their results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5174,12 +5134,12 @@
         },
         {
           "visual": "05_no_match",
-          "narration": "An unmatched search leaves an empty table, clears the detail panes and disables selected-run actions. Restoring the previous search brings back the same three records. Check your filters before concluding that a run disappeared; this search does not delete journal files.",
+          "narration": "Clear or adjust the filters if the table is empty. Search terms and status selections work together.",
           "hold_after": 0.7
         },
         {
           "visual": "07_recruitment_overview",
-          "narration": "Now select the real Recruitment run. Overview shows about eighteen seconds elapsed and forty-five seconds of process CPU time; those are different measurements. Six input and six output file records are available. These counts describe recorded files, not cell numbers or a guarantee of complete inventory.",
+          "narration": "Select a Recruitment run and read Overview for its elapsed time and recorded file counts. These summarize that saved execution.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5193,7 +5153,7 @@
         },
         {
           "visual": "09_settings_source",
-          "narration": "Settings displays the saved configuration, including source, channels, object filters and Plot enabled. Scroll to read the full snapshot. The source is the tutorial's private example project. These historical values do not automatically change if you edit the project or the current module settings later.",
+          "narration": "Open Settings to inspect its source folder, channels and object filters. Scroll through the saved configuration before deciding to reuse it.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5204,7 +5164,7 @@
         },
         {
           "visual": "10_recorded_files",
-          "narration": "Files and models lists recorded paths, sizes and hashes when available. Inspect both inputs and outputs, and remember that the same database may have different before-and-after hashes. Opening history reads those saved records; it does not recompute every current file's hash or validate the biological result.",
+          "narration": "Open Files and models to inspect recorded paths, sizes and hashes. Keep the referenced project files available when you need to revisit the analysis.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5215,7 +5175,7 @@
         },
         {
           "visual": "12_hashes_and_seeds",
-          "narration": "Environment includes recorded software versions, seed information and snapshot hashes. These help investigate differences between runs, but do not alone guarantee reproducibility. Copy path places this run's journal-folder path on the clipboard. Preserve its settings and manifest together with the separate project inputs and results.",
+          "narration": "Open Environment for recorded software versions and seeds. Use Copy path to locate the run’s journal folder.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5226,7 +5186,7 @@
         },
         {
           "visual": "14_recorded_warning",
-          "narration": "A successful Regression record still has warnings about saved-figure contrast and missing provenance files. Warnings and failure separates those messages from a traceback. Success means execution finished; it does not certify readable figures, complete provenance or a valid statistical design. Read the dedicated Regression lesson for those checks.",
+          "narration": "Open Warnings and failure to read warnings attached to a completed run. Investigate relevant warnings before using its results.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5240,7 +5200,7 @@
         },
         {
           "visual": "16_failure_exception",
-          "narration": "The Failed filter exposes a genuine earlier Model Zoo attempt. Its traceback ends with an unsupported invert argument to Cellpose, which identifies a compatibility problem, not a segmentation result. We inspect the recorded failure without repeating it. Share relevant versions and error details when reporting a problem.",
+          "narration": "Choose Failed to find unsuccessful jobs. Read the traceback and software versions when diagnosing a problem or preparing a bug report.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5251,7 +5211,7 @@
         },
         {
           "visual": "18_restored_recruitment",
-          "narration": "Return to Recruitment and choose Load settings in module. All twenty-seven available controls match the saved values, and no analysis starts. The journal also contains hash inputs, which is not represented in this form. Review restored settings and current inputs before running; this is not an exact replay guarantee.",
+          "narration": "Return to the desired run and choose Load settings in module. Review the restored controls and current input paths before pressing Run.",
           "hold_after": 0.7,
           "related_lessons": [
             "25_recruitment"
@@ -5259,14 +5219,19 @@
         },
         {
           "visual": "17_ready_to_restore",
-          "narration": "Clear all deletes journal records; it is not a filter reset. We used neither that button nor the row menu's delete action, and every journal file stayed unchanged. For programmatic searches, use search_runs in spacr.run_journal. For a project report, use the separate Report lesson.",
+          "narration": "Keep the journals you need with your project records. Use Clear all only when you intend to delete run records. Open Report to create a project summary.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "29_report"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "41_classify",
@@ -5434,7 +5399,7 @@
       "id": "42_curate",
       "number": 42,
       "slug": "curate",
-      "title": "Curate: practice edits and preserve their history",
+      "title": "Curate: edit masks and tracks",
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
@@ -5442,18 +5407,17 @@
       "example_files": [
         "Curate_SYNTHETIC_practice.zip"
       ],
-      "description": "Practice reversible mask and track edits in the nested Curate tool, with explicitly synthetic data and external checkpoints for the current mask-history limitation.",
+      "description": "Practise brush edits, track splitting and joining, and save the corrected files.",
       "objectives": [
-        "Find Curate inside Make Masks and open unchanged copies of the teaching mask and tracks.",
-        "Paint, undo and save a mask without treating a practice mark as a biological correction.",
-        "Preserve saved masks and sidecars outside the application before reopening.",
-        "Split and join tracks, save their history and discard an unsaved deletion."
+        "Edit a label mask with the brush and undo controls.",
+        "Split, join and save tracks.",
+        "Preserve source files and curation history."
       ],
-      "prerequisite": "Extract Curate_SYNTHETIC_practice.zip and work on copies. The TIFF preserves label plane 2 of the recorded synthetic Timelapse output: 256 by 256 pixels, sixteen labels numbered 2 through 17. The CSV has sixteen tracks and 128 rows across eight frames. These are not acquired biological data. The current NPY picker path failed to load; this example uses exact integer TIFF labels. Brush radius 8, New label 18 and an empty-area click are practice settings, not biological corrections. Independent array checks verify every pixel after paint, undo, save and reload. Save mask writes the selected file and its .curation.json sidecar. The native mask reload loses its three-entry in-memory log, and the next save replaces the sidecar with one new entry. This defect remains unfixed. Before reopening, run the separate companion curate_checkpoint.py with the saved mask path and a NEW backup folder; it preserves both files byte-for-byte and refuses overwrite. Keep separate checkpoints and notes; it does not restore app history or merge ledgers. Reopening adds a second viewer mask layer, so changed colour intensity is not changed label identity. Track 2 split at frame 4 creates track 18; joining the non-overlapping halves restores all 128 rows. Joining tracks 2 and 3 is refused because frames overlap. A saved split/join log survives reloading after an unsaved deletion of track 3. All CSV values and original source hashes are checked. No accuracy claim, new segmentation, GPU, AI request, app modification or publication. API: spacr.curation.MaskCuration and TrackCuration; GUI persistence differs as disclosed.",
+      "prerequisite": "Download the synthetic practice archive and work on copies. Keep separate backups of masks and their .curation.json sidecars before reopening: saving a reopened mask currently replaces its earlier edit log.",
       "scenes": [
         {
           "visual": "02_actual_curate_page",
-          "narration": "Open Make Masks, then its nested Curate tool. Curate belongs under Make Masks in the submodule section, not on a separate Home tile. It edits label masks and tracks. This lesson uses synthetic teaching outputs from Timelapse, not acquired biological observations or evidence that manual edits improve accuracy.",
+          "narration": "Open Make Masks, then Curate to edit label masks and tracks. Download the synthetic practice example below and keep an untouched copy.",
           "related_lessons": [
             "14_make_masks",
             "17_timelapse"
@@ -5462,12 +5426,12 @@
         },
         {
           "visual": "04_original_sixteen_label_mask",
-          "narration": "Download the linked practice archive and work on copies. Browse to its integer mask TIFF: sixteen original labels occupy this two hundred fifty-six pixel square. The picker also advertises NPY, but that route failed in this build. The TIFF preserves the exact label plane; do not replace labels with a coloured screenshot.",
+          "narration": "Browse to the example’s integer-label TIFF. Each object has its own label, with zero reserved for background. Use the TIFF example for this walkthrough.",
           "hold_after": 0.7
         },
         {
           "visual": "05_practice_disk_not_a_real_object",
-          "narration": "Set brush radius to eight and click New to select label eighteen. Paint once in the empty practice area. This disk is deliberately invented to learn the control; it is not a missing cell. The brush changes label pixels in memory, while the saved file remains unchanged until Save mask.",
+          "narration": "Set Brush radius to eight and click New to select a new label. Click an empty part of the practice image to paint a small region.",
           "focus": [
             355,
             470,
@@ -5478,7 +5442,7 @@
         },
         {
           "visual": "06_undo_restores_every_original_pixel",
-          "narration": "Undo stroke restores every original pixel in this exercise. Paint again, then inspect the result before saving. The recorded ledger contains paint, undo and paint; undo is itself part of the history. Your precise mouse position may change the painted pixel count, so do not treat our practice footprint as a biological target.",
+          "narration": "Click Undo stroke to remove the last brush edit. Paint again and inspect the result before saving.",
           "focus": [
             3380,
             480,
@@ -5489,7 +5453,7 @@
         },
         {
           "visual": "07_saved_mask_and_ledger",
-          "narration": "Save mask writes back to the selected working TIFF and saves its curation sidecar. Before reopening, run the separate checkpoint script supplied with the download, specifying this saved mask and a new backup folder. It copies both files exactly. This is an explicit external backup step, not a hidden application feature.",
+          "narration": "Click Save mask to write the working TIFF and its curation sidecar. Before reopening, preserve both files in a new backup folder; the download includes a checkpoint script for this step.",
           "focus": [
             3380,
             480,
@@ -5500,12 +5464,12 @@
         },
         {
           "visual": "10_second_session_saved_history",
-          "narration": "Here is the current limitation: reopening the mask resets its in-memory log, and another save replaces the sidecar with the new session's edit. Our earlier checkpoint still preserves the original three entries. Keep separate backups and notes; the script does not repair or restore app history. Reopening also adds a viewer layer, so colour brightness is not label identity.",
+          "narration": "Keep each session’s backup and edit notes. Reopening a mask starts a new in-memory log, and another save replaces its sidecar with that session’s history.",
           "hold_after": 0.7
         },
         {
           "visual": "13_overlapping_tracks_cannot_join",
-          "narration": "Browse to the working tracks CSV. It has sixteen tracks over eight frames, with one hundred twenty-eight rows. Selecting tracks two and three and pressing Join is refused because both exist in the same frames. Read that message; forcing unrelated trajectories together would not be a valid correction.",
+          "narration": "Browse to the tracks CSV and select tracks to review. Join accepts tracks with non-overlapping frame ranges; an overlap produces a message to resolve first.",
           "focus": [
             3380,
             480,
@@ -5516,7 +5480,7 @@
         },
         {
           "visual": "14_split_tail_starts_at_frame_four",
-          "narration": "Select track two, set Split at frame to four, and click Split. Frames four through seven move to new track eighteen, while frames zero through three remain in track two. Coordinates and original labels stay unchanged. This is a controlled editing exercise, not evidence of a real cell division.",
+          "narration": "Select track two, set Split at frame to four, and click Split. The later frames move to a new track while the earlier frames retain the original identifier.",
           "focus": [
             3380,
             480,
@@ -5527,7 +5491,7 @@
         },
         {
           "visual": "16_saved_tracks_and_history",
-          "narration": "Select tracks two and eighteen together and click Join. Their non-overlapping halves combine, restoring all original rows. Click Save tracks to write the CSV and its own sidecar. The independent check compares every frame, identifier and coordinate, not just the number of tracks. Keep the mask and track histories distinct.",
+          "narration": "Select the two non-overlapping halves and click Join to combine them. Click Save tracks to write the CSV and its separate curation sidecar.",
           "focus": [
             3380,
             480,
@@ -5538,7 +5502,7 @@
         },
         {
           "visual": "17_unsaved_delete_removes_eight_rows",
-          "narration": "Deleting track three removes its eight rows in memory. Do not save this demonstration deletion. Reopen the saved CSV to discard that unsaved change. This illustrates the difference between current edits and disk contents; deleting a trajectory in real data requires a documented reason, not simply an unwanted result.",
+          "narration": "Use Delete only for tracks you intend to remove. To discard an unsaved change, reopen the last saved CSV.",
           "focus": [
             3380,
             480,
@@ -5549,35 +5513,40 @@
         },
         {
           "visual": "19_saved_tracks_and_two_actions_return",
-          "narration": "All one hundred twenty-eight rows and the saved split-and-join history return. Unlike mask reopening in this build, track reopening retains that history in our test. Preserve original data, checkpoints and reasons for edits. Python provides MaskCuration and TrackCuration; this workflow needs neither a GPU nor an AI provider, and successful editing is not scientific validation.",
+          "narration": "Inspect the reopened tracks and saved history. Keep originals and reasons for edits, and rerun any downstream analysis affected by corrected masks or trajectories.",
           "related_lessons": [
             "06_api",
             "17_timelapse"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination",
+      "title": "Illumination: estimate and inspect a correction model",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Estimate a flat-field from downloaded images through Measure’s Illumination page, inspect its actual exported QC, and keep numerical improvement separate from biological validation.",
+      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
       "objectives": [
-        "Open the nested Illumination page and select real merged-field intensity channels.",
-        "Compare correction off and on, and inspect the saved model and exported QC image.",
-        "Reuse a reviewed model deliberately without confusing in-sample diagnostics with independent validation."
+        "Select representative fields and intensity channels.",
+        "Estimate and inspect an illumination model.",
+        "Reuse the model in Mask or Measure."
       ],
-      "prerequisite": "This lesson uses new byte-identical copies of all sixteen downloaded plate1 merged fields, each 1994 by 1994 pixels with seven stored planes. Channel zero is a persisted intensity-axis index, not a claimed stain identity; label planes must not be used as intensities. The native off/on runs preserve all originals and copies. An independent formula checks 7,952,072 corrected pixels through the public API after the GUI run, not as substituted GUI output. The model and QC are estimated from the same sixteen fields: the diagnostics are in-sample, not biological or optical ground truth. Dark zero is the demonstration setting, not a measured camera calibration. The current embedded Figures panel remains empty; the real saved PNG is opened in the separate system image viewer. No application code, generated measurements or original images are modified. The old five-scene in-memory simulation does not demonstrate the current nested page and is replaced, not merely relocated.",
+      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then its Illumination button. This nested page estimates a correction model before a larger analysis. It is different from simply enabling correction inside a measurement run, and it does not turn the whole application into an automatically corrected session.",
+          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
           "focus": [
             3625,
             65,
@@ -5591,7 +5560,7 @@
         },
         {
           "visual": "05_setting_src",
-          "narration": "Point Source at the merged folder containing the image arrays, not the measurements database. We use new copies of all sixteen fields from the downloadable plate example. The originals remain unchanged, and the saved illumination model goes beside this merged folder.",
+          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
           "focus": [
             363,
             375,
@@ -5606,7 +5575,7 @@
         },
         {
           "visual": "05_setting_channels",
-          "narration": "The Channels setting names positions in the stored intensity array. Here we select channel zero. Check your own acquisition mapping instead of assuming that zero always means the same stain, and never select a label-mask plane as if it were fluorescence intensity.",
+          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
           "focus": [
             374,
             475,
@@ -5617,7 +5586,7 @@
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "First, correction is off. Run finishes, but the console explicitly says that no field was estimated. We verified that no model was created. A successful completion message alone therefore does not prove that correction happened.",
+          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
           "focus": [
             1518,
             405,
@@ -5628,7 +5597,7 @@
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Turn Illumination correction on. This example uses the polynomial estimator with degree four and leaves Illumination model empty to estimate a new field. More flexibility is not automatically better: a correction that follows cells or treatment patterns can remove the biology you wanted to measure.",
+          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
           "focus": [
             363,
             550,
@@ -5639,7 +5608,7 @@
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Keep acquisition groups separate with Illumination per plate. We sample all sixteen available fields here. Representative coverage matters more than increasing a number blindly; a model fitted from one crowded corner can confuse biological structure with uneven illumination.",
+          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
           "focus": [
             363,
             858,
@@ -5650,7 +5619,7 @@
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Illumination dark is an additive camera offset in raw counts, not a learned biological background. Zero is the setting used for this demonstration, not a calibration result. Choose the offset from appropriate acquisition controls rather than adjusting it until a desired phenotype disappears.",
+          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
           "focus": [
             374,
             775,
@@ -5661,7 +5630,7 @@
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Keep Illumination QC enabled and check the missing-model policy. We use error so an unavailable plate correction stops the operation instead of silently mixing corrected and uncorrected fields. These checks do not replace examining the estimated field.",
+          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
           "focus": [
             363,
             1020,
@@ -5672,7 +5641,7 @@
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Run again with correction enabled. The console now reports the fitted field, the diagnostic slopes and the saved model path. This standalone step leaves the image files unchanged; it has not rerun segmentation or produced new cell measurements.",
+          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
           "focus": [
             1518,
             405,
@@ -5683,7 +5652,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "In this build, the QC image is saved but does not appear in the embedded Figures panel. Open illumination underscore QC underscore plate one dot PNG from the illumination folder in your image viewer. This is the actual exported figure in a separate viewer, not a simulated spaCR panel.",
+          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
           "focus": [
             200,
             100,
@@ -5694,7 +5663,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "The left panel shows the estimated, mean-one illumination field. Correction subtracts the camera offset and divides by this field. Although the title calls it gain, do not multiply intensities by that displayed map: the correction uses its reciprocal. Check for biological structures leaking into the estimate.",
+          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
           "focus": [
             400,
             680,
@@ -5705,7 +5674,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "The radial slope changes from approximately minus zero point one eight one to plus zero point zero two six. The reported eighty-five point four percent reduction matches our independent calculation, but the after curve is not flat. These are the same fields used to fit the model, so this is not independent validation.",
+          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
           "focus": [
             1270,
             680,
@@ -5716,7 +5685,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "For later reuse, provide the saved model path and explicitly enable correction in the intended Mask or Measure workflow. Preserve the model, channel mapping, plate identities and settings together. Review independent fields and avoid applying correction twice to already corrected intensities before interpreting biological differences.",
+          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
           "focus": [
             363,
             370,
@@ -5729,7 +5698,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "44_data_manager",
@@ -5738,19 +5712,18 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect, prune and archive a real example safely",
-      "description": "Inspect registered and unregistered files, cancel and confirm an exact crop cleanup, then move a private example project with its archive records.",
+      "title": "Data Manager: inspect usage, clean up and archive",
+      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
       "objectives": [
-        "Find Data manager under Help and inspect actual project usage.",
-        "Read the exact deletion plan, kept reasons and complete confirmation list.",
-        "Distinguish irreversible cleanup from archiving and verify Cancel preserves files.",
-        "Rescan the archive and retain its manifest, origin ledger and original backup."
+        "Inspect project disk usage.",
+        "Review and apply a cleanup plan.",
+        "Move and rescan an archived project."
       ],
-      "prerequisite": "Follow External Masks to obtain the genuine two-field example with 103 measured objects and saved figures. This recording uses an isolated, byte-verified copy of that completed project; its original absolute registry paths resolve only to the disposable copy inside the recording process. All 131 original files remain unchanged. Data Manager has no separate dataset download, live image preview, Plot control or AI panel. Its displayed sizes count bytes on disk, not scientific quality. Cleanup removes 103 PNG crops and their format JSON from the copy only, retains the measured database and recorded recipe, and does not demonstrate regeneration. Archiving moves the remaining project; it is not a backup or a guarantee that every historical absolute path has been rewritten. External resource logs stay outside this whole-project move.",
+      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. This shared tool manages project files; it does not run image analysis. We use a disposable copy of the real External Masks example, including its measurements and saved figures. Keep an independent backup before trying cleanup yourself.",
+          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -5758,7 +5731,7 @@
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Choose project selects the project root. Usage shows about ninety-one megabytes in one hundred twenty-nine files after scanning. Registered and Unregistered are different: files can exist without a registry record. Folder-based category labels are estimates, not proof of the files' scientific content.",
+          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5769,7 +5742,7 @@
         },
         {
           "visual": "04_prune_choices",
-          "narration": "On Prune, choose which kinds to consider. A selected switch does not itself authorize deletion. Leave measurement databases and model weights unchecked here, then choose Show what can be deleted. Read both the proposed files and the reasons other artifacts are kept.",
+          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5780,7 +5753,7 @@
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "This plan contains only the data crop folder: one hundred three object images and one format file, not one hundred four cells. It proposes freeing about three point four megabytes. Get it back by names Measure, but regeneration still requires the original inputs, settings and suitable software.",
+          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5791,17 +5764,17 @@
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Delete opens a second confirmation with the actual file list. It cannot be undone. Resize the dialog and scroll through the paths before acknowledging them. The final Delete button starts disabled; enabling the acknowledgment is a separate action from deleting anything.",
+          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
           "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "The acknowledgment enables Delete. Turning it off disables Delete again. In this first demonstration we choose Cancel instead, and every project file remains unchanged. Cancel is the correct choice whenever the paths, file counts or expected recovery procedure are uncertain.",
+          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
           "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "We reopen the same verified plan and confirm deletion only on our disposable copy. The result reports three point four megabytes freed in one hundred four files. All twenty-four other non-registry files remain byte-identical, including the measurement database and saved figures.",
+          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5812,7 +5785,7 @@
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "The automatic rescan now reports one registered artifact missing from disk: the deliberately removed crop folder. Its recipe remains in the registry with cleanup metadata. That record is not an undo buffer, and we have not rerun Measure to regenerate the crops.",
+          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5823,22 +5796,22 @@
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Archive is different: it moves the remaining project. Choose an empty destination outside the source, then Show what would move. After cleanup, this plan contains twenty-five files totaling about eighty-eight megabytes. Read the source and destination carefully; this screen plans the whole project.",
+          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
           "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Move asks for confirmation, with No selected by default. First we choose No and verify that the source remains unchanged and the destination empty. A plan and a cancelled confirmation move nothing. Do not treat the archive destination as an extra backup copy.",
+          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
           "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "We confirm Yes only for this private example. The remaining files move to the destination. A manifest is written there and an archive log remains at the origin. The original project used to create our disposable copy stays completely unchanged.",
+          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
           "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Choose the destination as the project and scan again. The archived measurement database is registered at its new path, and every non-registry file matches its pre-move bytes. The extra manifest explains the new file count. Historical records and external logs are not automatically rewritten or relocated.",
+          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5849,7 +5822,7 @@
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "For Python automation, spacr.data_manager exposes scan_project, plan_prune, prune, plan_archive and archive. Inspect the plan before supplying its confirmation token. For browsing measurements use Database Browser; for a readable project summary use Report. Keep the separate backup and archive records together with your research documentation.",
+          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -5857,7 +5830,12 @@
             "29_report"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "45_project_browser",
@@ -5866,19 +5844,18 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: discover real projects and interpret their evidence",
-      "description": "Find registered and unregistered example projects, control search depth, sort actual disk usage and read recorded evidence without launching analysis or deleting files.",
+      "title": "Project Browser: find and inspect projects",
+      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
       "objectives": [
-        "Open Project browser under Help and choose bounded search folders.",
-        "Use Depth and Scan to discover projects and sort by real byte counts.",
-        "Distinguish missing provenance and declared-output stages from actual run history.",
-        "Read details, remove only search roots and use the separate tools for journals and data."
+        "Discover projects using roots and search depth.",
+        "Inspect artifacts and recorded stages.",
+        "Choose the next relevant tool."
       ],
-      "prerequisite": "Use completed examples from External Masks and Batch Runner. The recording compares a byte-verified private copy of the two-field measured project with a private copy of one four-channel conversion output, including its hidden checkpoint and two other conversion records. These are different examples, not a before-and-after comparison. All 131 original measured-project files and seven original conversion files remain unchanged. The original artifact paths resolve to the measured copy only inside the recording namespace; provenance is not rewritten. Project Browser has no dedicated download, live image preview, Plot control or AI panel. Scan reads project evidence, not every journal. Sorting, depth and root removal use real controls; no analysis, deletion, external file-manager launch or automatic handoff is performed. Normal SQLite access removes only the private registry's empty WAL and 32768-byte SHM. The original databases and other files remain byte-identical.",
+      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser. This shared screen finds project folders and summarizes what is recorded or present on disk. We use real outputs from External Masks and Batch Runner on private copies. It is an inventory tool, not an image-analysis run.",
+          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -5887,7 +5864,7 @@
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Add folder selects a place to search. At Depth zero, only that folder itself is checked. Our chosen parent contains a project one level below, so the table is empty. An empty result at this depth does not mean the project or its images are missing.",
+          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5898,7 +5875,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and choose Scan. The converted image folder appears: about thirty-two megabytes in seven files. Those are four acquired channel images, a conversion map, a status record and a hidden checkpoint. File counts are not counts of cells or independent experiments.",
+          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5909,7 +5886,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "State says unknown, nothing recorded, because this folder has no artifact registry. Stage says nothing run and Last run says never, even though the conversion genuinely completed. These columns reflect declared workflow outputs and recorded artifacts, not every conversion history. Unknown is not evidence that the data are clean or unprocessed.",
+          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5924,7 +5901,7 @@
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add the measured project as a second search root. Its row shows Measure, about ninety-one megabytes, one hundred twenty-nine files and a registry timestamp. If rescan leaves a selected row's details blank, select another row and return. We demonstrate that workaround without changing the application.",
+          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5935,7 +5912,7 @@
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Select the measured project and drag the divider to widen its details. Three artifact records are current here, but roughly eighty-seven megabytes remain unregistered. Current describes the recorded comparison, not complete provenance or scientific validity. The Last run detail explicitly says that its timestamp comes from the registry.",
+          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -5946,7 +5923,7 @@
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Read Stages before interpreting a completion label. This example reports Mask outputs complete because imported arrays, counts and masks exist; it does not prove that Mask segmentation ran. What could run next lists workflow suggestions, not buttons or validation that every suggested analysis suits these experimental data.",
+          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -5960,7 +5937,7 @@
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click the Size header to change sort order. We checked both ascending and descending order against actual byte counts, and row selection still points to the correct project. This screen has no separate stage, age, module-status or stale-result filter controls; use its actual sortable columns and search roots.",
+          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5971,7 +5948,7 @@
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "With both roots present, Depth zero still finds the directly selected measured project, but not the conversion nested under its parent. Returning to Depth one restores both rows. Depth changes the search scope; it does not remove data or change how much analysis has been completed.",
+          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -5982,12 +5959,12 @@
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Remove stops searching the selected root; it does not delete that folder. We remove the measured root, then add the unchanged project back. Double-clicking its row in this build emits its selection but stays on Project Browser, so do not expect a project or latest-run window to open automatically.",
+          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
           "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "For actual journal details use Run History, for measurement tables use Database Browser, and for cleanup or archiving use Data Manager. In Python, spacr.projects provides discover, scan and browse. All original files remain unchanged; no new analysis was launched. Follow the relevant workflow lesson before acting on a suggested next step.",
+          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -5996,31 +5973,36 @@
             "44_data_manager"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit, import and reopen safely",
+      "title": "Napari Bridge: edit and return a label mask",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Practise a pixel-checked round trip with synthetic image and label files, explicit backups, native Fill and Undo controls, and close/reopen between imported edits.",
+      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
       "objectives": [
-        "Open Napari Bridge inside Make Masks with separate image and label files.",
-        "Distinguish viewer edits, Undo, importing to disk and the correction history.",
-        "Close and reopen between imports, then verify both saved corrections without claiming the same-viewer defect is fixed."
+        "Open corresponding image and label files.",
+        "Edit and undo changes in napari.",
+        "Return and inspect the saved mask."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Extract the supplied explicitly SYNTHETIC example into a NEW folder and retain an untouched backup. It contains a 256x256 uint16 image and label mask with sixteen objects; no biological corrections or segmentation accuracy are validated. The optional napari dependency is required; the recording uses napari 0.9.1 and its supported font-size preference of 20. Choose mask.tif and image.tif in Napari Bridge, nested inside Make Masks. Use native Fill to replace label 2 with 18, Undo, repeat and Take the mask back. This overwrites the working mask and records 2,197 changed pixels in mask.tif.curation.json. CLOSE and REOPEN the viewer before the next edit: an earlier check showed that a second edit in the same viewer was falsely reported unchanged and not saved. The application defect is NOT claimed fixed. After reopening, replace label 4 with 20 and import; 1,288 pixels change and both history entries remain. Both saved masks were checked across all 65,536 pixels; original synthetic source and image intensities were preserved. Added/removed label IDs do not imply an extra or missing cell. API: spacr.napari_bridge.load_handoff, open_in_napari and write_back. No model training, biological validation, unrestricted repeated-edit acceptance, publication or listening approval is claimed.",
+      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Napari Bridge inside Make Masks. It passes an image and label mask to the optional napari viewer, then imports corrected labels. This lesson uses a clearly marked synthetic practice example, not a biological experiment. Keep an untouched backup: importing corrections overwrites the selected working mask.",
+          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
           "focus": [
             460,
             235,
@@ -6034,7 +6016,7 @@
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download the example and extract it into a new folder. Browse to mask dot tif, then image dot tif, and press Open in napari. These are different inputs: integer object labels belong in Mask, while the intensity image is the visual reference. The example contains sixteen synthetic objects.",
+          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
           "focus": [
             460,
             365,
@@ -6045,12 +6027,12 @@
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Napari opens with an image layer and a mask Labels layer. Select the mask layer for editing; leave the image intensities unchanged. Label zero is background. The colours distinguish object identities, not biological classes or confidence. We enlarged the real interface font for this recording, not the source image.",
+          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
           "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and click Take the mask back before changing anything. The status reports that the mask is unchanged, and nothing is written. Importing is a separate action from editing in the viewer. This unchanged check does not prove that a later correction was saved; inspect that result too.",
+          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
           "focus": [
             460,
             445,
@@ -6061,17 +6043,17 @@
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "In napari, select label eighteen, choose Fill, and click the practice object labelled two. Only that object's label changes. This is a controlled relabelling exercise, not an improvement to a biological segmentation. The working file on disk has not changed yet.",
+          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to restore the original label; this recording uses Control Z. Then repeat the same Fill operation before importing. Undo acts on the viewer's edit history. Do not confuse it with recovering an earlier file after an import: keep backups for that purpose.",
+          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
           "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back. The status reports two thousand one hundred ninety-seven changed pixels and a correction-history file. One label was added and one removed because two became eighteen; there are still sixteen objects. Verify the saved mask and history, not just the colour displayed in napari.",
+          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
           "focus": [
             460,
             445,
@@ -6082,7 +6064,7 @@
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer now, before making another edit, then reopen it. This step is essential in the tested version: a second edit in the same viewer could be reported unchanged and lost. We demonstrate the verified close-and-reopen workflow, not a fix for that application defect.",
+          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
           "focus": [
             460,
             445,
@@ -6093,7 +6075,7 @@
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After reopening, replace label four with twenty and import again. This changes one thousand two hundred eighty-eight pixels, and the earlier history entry remains. Close the viewer when finished. Keep the original image and corrected mask with their provenance, and rerun affected measurements rather than reusing results tied to old labels.",
+          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
           "focus": [
             460,
             445,
@@ -6106,29 +6088,33 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: real counts, threshold trade-offs and saved plots",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Inspect the published count-table example, run Barcode QC, compare read depth and threshold trade-offs, and open its verified saved plots in a real image viewer.",
+      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
       "objectives": [
-        "Find Barcode QC inside Map Barcodes and choose a real mapped-count table.",
-        "Distinguish an illustrative target from an experimentally justified setting.",
-        "Inspect console warnings, actual saved plots and independently checked tables.",
-        "Separate low-read wells, over-target wells and barcode-sequence collisions."
+        "Choose count inputs and QC settings.",
+        "Inspect coverage and positional effects.",
+        "Compare thresholds and keep the resulting tables and plots."
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data shown in the Regression tutorial. The source is an existing published count table, NOT output from this tutorial session's unsuccessful raw FASTQ mapping attempt. Its manifest specifies 4325565 bytes and SHA256 9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13. Use a private copy and a new output directory. Barcode QC is nested inside Map Barcodes. This real run has 172756 input rows, 49464341 mapped reads in the table, 384 wells and 1379 observed guides. Target 5 with median is demonstration only; other settings are min_reads_per_well=0, starved_read_fraction=0.1, exclude_starved_wells=True, position_effect_ratio=2, sweep_span=4, sweep_points=25, Plot/Save/Verbose on. Optional qc_data and guide/row/column reference files are omitted. Therefore no unmapped-rate, missing-reference-guide or barcode-sequence-collision conclusion is supported. The worker succeeds and independent CSV comparisons check 2884 fields with zero numeric error; original inputs and saved outputs stay unchanged. This build still emits an incorrect src preflight error despite accepting count_data, and its Figures card stays empty. We explicitly show both saved PNGs in the real external system viewer, NOT repaired GUI plotting. There is no live preview control or GPU calculation here. No AI provider is contacted. API: spacr.sequencing_qc.barcode_qc, derive_threshold and threshold_sweep. No biological validation or publication is claimed.",
+      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then its nested Barcode QC tool. This workflow examines counts after mapping; it does not remap FASTQ reads. We use the published count-table example from the linked Regression lesson. It is not output from our earlier unsuccessful raw-read mapping attempt.",
+          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
@@ -6137,59 +6123,64 @@
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Under Count data, select a copy of plate one unique combinations. Check the selected file rather than leaving a placeholder path. This actual table contains about forty-nine point five million mapped reads across three hundred eighty-four wells. Keep the original unchanged and choose a new destination for the QC outputs.",
+          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
           "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Target gRNAs per well expresses the target used to derive a read-abundance cutoff. Here we leave the illustrative value five and use the median. That is not a recommended experimental design or proof of single-guide attribution. Choose your own target from the design and inspect the resulting trade-offs, not just the suggested number.",
+          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
           "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "The starved-read fraction identifies wells with unusually few reads relative to the plate median. Here it is zero point one, and none of the three hundred eighty-four wells fall below the resulting cutoff. This is a read-depth flag, not a guarantee that every well, guide or biological measurement is trustworthy.",
+          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
           "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, keep the destination explicit, and press Run. This is a small table analysis, not a GPU segmentation task, and this screen has no live-preview control. We leave the optional mapping-QC and barcode-reference inputs empty; conclusions requiring those files cannot be inferred from the count table alone.",
+          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
           "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the actual console, including its warnings. The worker finishes, but this build incorrectly complains that src is missing even though the module uses Count data. We verified the real input and saved tables; we did not repair the preflight. Do not generalize this diagnosed mismatch into permission to ignore other errors.",
+          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "The current build also leaves its Figures panel empty although two PNG plots were saved. Open barcode underscore qc dot png and threshold underscore sweep dot png from your output folder in an image viewer. The next scenes show the real system viewer, not figures inserted into spaCR or a claim that the GUI is fixed.",
+          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
           "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and the observed library distribution. The dashed depth cutoff identifies low-read wells; the position bars compare row or column medians with the plate median. The library curve shows unequal read representation among observed guides. Without a reference library, it cannot tell you which expected guides are entirely missing.",
+          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the sweep rather than accepting a cutoff blindly. Here the derived threshold is about zero point zero one two one, or one point two one percent of a well's reads. It gives a median of five guides, retains all wells and about fifty-eight percent of mapped reads, while roughly forty percent of wells still exceed the target.",
+          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "The red curve counts wells over the five-guide target. It is not a measurement of barcode-sequence similarity, and being below that target does not establish single-guide attribution. Loosening the cutoff raises the over-target fraction without gaining wells here. Compare the saved sweep table, and justify a choice for your analysis rather than treating this example as a universal threshold.",
+          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
           "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the source counts, settings, console log, recommendation, tables and plots together. Independent checks reproduced the saved well, position and sweep statistics with no numerical discrepancy. That verifies this computation, not its biological interpretation. AI assistance is optional and no request was submitted here; any later advice must be checked against the actual data and API.",
+          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "48_hit_list",
@@ -6387,24 +6378,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: inspect two real Measure snapshots",
+      "title": "Run Compare: compare saved runs",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Compare two preserved real Measure outputs, inspect equal settings and counts, and distinguish missing results from a negative scientific finding.",
+      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
       "objectives": [
-        "Open Run Compare from the Home Data section and prepare the downloadable real-snapshot example.",
-        "Compare distinct historical runs without changing their recorded versions or settings.",
-        "Read settings, object counts and missing-result warnings without overstating the evidence."
+        "Select baseline and comparison runs.",
+        "Inspect settings and count differences.",
+        "Locate available result comparisons."
       ],
-      "prerequisite": "Use Run_Compare_real_snapshots.zip and its README. In a spaCR environment run the included prepare_run_compare_download.py with a NEW destination folder, then Browse to that folder. This explicit helper transports only two selected, unchanged measurements databases and their historical artifact rows; it is not a GUI importer, new analysis or full project archive. The original full SHA-256 fingerprints match. Only project/path and a relocation note change: run IDs, artifact IDs, settings, versions and timestamps are retained. Runs d86c136e7261 and caa0bf7ca2ce were actually produced by spaCR 1.5.0.5 on 2026-09-11 at 03:37:56 and 04:05:56 UTC. Both contain 601 cells, 622 nuclei, 373 pathogen objects, 601 cytoplasm objects and 601 png_list rows across one plate, four wells and sixteen fields; all object identities match. Recorded settings are equal. Database hashes differ; no full-feature equality, segmentation accuracy, improved model or biological significance is claimed. No regression result is included. API: spacr.run_compare.runs_in and compare_runs with spacr.artifacts.Registry. No GPU, AI provider or new analysis is used. Original data are unchanged; nothing is published.",
+      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Open Home, choose Data, then Run Compare. This is a main module, not a tool nested inside Regression. It reads recorded outputs from two runs. Our example uses two real Measure snapshots from the downloaded-data workflow; it does not invent a change just to make the comparison look interesting.",
+          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
           "focus_modules": [
             "run_compare"
           ],
@@ -6416,17 +6407,17 @@
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and extract the companion snapshot archive. In your spaCR environment, run its preparation script with a new destination folder, following the included readme. This explicitly relocates two unchanged databases and their historical records. It is not an automatic import button, a new analysis, or a complete copy of either original project.",
+          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. The helper preserves the original run identifiers, settings, versions, times and content hashes. Only the copied index's addresses and relocation note change. Keep original projects untouched; a historical run entry pointing at a database that has since been overwritten is not a preserved snapshot.",
+          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
           "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose the earlier Measure run as baseline A and the later run as B, then Compare. Both were produced by spaCR version one point five point zero point five. A newer viewer does not change that history. Here settings and counts match; this is a consistency demonstration, not evidence that a model improved.",
+          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
           "focus": [
             350,
             235,
@@ -6437,7 +6428,7 @@
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to inspect the recorded values. The zero on the Settings tab means no differences, not that no settings were saved. Expand the entries and compare the values themselves. These two runs used identical recorded settings; this example therefore cannot show the effect of changing a parameter.",
+          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
           "focus": [
             350,
             360,
@@ -6448,7 +6439,7 @@
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Counts shows six hundred one cells and six hundred twenty-two nuclei in each run, across sixteen fields and four wells. Delta is B minus A; every displayed delta is zero. The independent check also matched object identities. Equal totals alone would not prove that the same objects or all measured feature values were identical.",
+          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
           "focus": [
             350,
             425,
@@ -6459,7 +6450,7 @@
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Hits says no regression results were registered. These snapshots contain measurements only, so there is no ranked hit comparison to display. This does not mean that a regression found no significant hits: no regression result is present here. Use the Regression and Run History tutorials to trace the required outputs.",
+          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
           "focus": [
             350,
             405,
@@ -6474,7 +6465,7 @@
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Selecting the same run on both sides produces a warning. Read it rather than treating a comparison result as automatic validation. Return to two distinct runs and check their source, version and scope before drawing conclusions. A warning is a reason to investigate, not an instruction to force a result.",
+          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
           "focus": [
             350,
             235,
@@ -6485,14 +6476,19 @@
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "The distinct pair is restored, and the original files remain unchanged. Run Compare is a read-and-compare workflow; it does not rerun Measure or need a GPU or AI provider. Python exposes runs_in and compare_runs for the same comparison. Preserve actual output snapshots and document their provenance before comparing your own runs.",
+          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "51_control_charts",
@@ -6502,19 +6498,18 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: inspect a campaign with explicit controls and limits",
-      "description": "Open the specialist tool inside QC, load a clearly synthetic thirty-plate campaign, check the selected control and baseline, and export independently verified chart points.",
+      "title": "Control Charts: monitor controls across plates",
+      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
       "objectives": [
-        "Find Control Charts inside QC and load the supplied synthetic CSV.",
-        "Distinguish well-level input rows from plate-level means and select exactly one control.",
-        "Compare rule sets, change and restore the control and baseline, and read the resulting warnings.",
-        "Export the actual points table without claiming an image export or biological validation."
+        "Choose the measurement and control population.",
+        "Set the baseline and alert rules.",
+        "Inspect alerts and export chart points."
       ],
-      "prerequisite": "The CSV at tools/tutorials/fixtures/control_chart_campaign.csv is entirely synthetic, adapted from the application's seeded test campaign: thirty fictitious plates, three wells per control type per plate, and a programmed upward drift after plate twenty. The dates are illustrative order labels, not acquisition records. This specialist panel currently has no Load test data button; no microscopy download, model, GPU analysis or AI request is used. The old two-plate recording was rejected because the application refused to estimate limits. The current narrow settings column clips long choices when closed; the real open dropdowns expose their full names. The optional Z-prime and re-estimation modes are not exercised here.",
+      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then its Control Charts button. This specialist workflow charts repeated controls across a campaign. Our supplied CSV is explicitly synthetic, including the drift: it demonstrates the software, not an acquired experiment or a validated assay.",
+          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
@@ -6522,7 +6517,7 @@
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Choose Load table and open the example CSV. It contains two hundred and seventy well-level rows: thirty plates, each with three negative-control, three positive-control and three sample wells. The chart will show one selected-control mean per plate, not one point per cell.",
+          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -6533,7 +6528,7 @@
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Check Plate, Run order, Measurement and Control column against the displayed names. Select only neg in Control is. This list allows multiple selections; leaving every level unselected charts all rows, so never assume that loading the file has already selected your intended control.",
+          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -6544,7 +6539,7 @@
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Open Sigma from to read its full choices. Auto chooses the subgroup estimator here because each plate has three selected wells. The limits use baseline within-plate variation, adjusted for the mean's sample size, rather than the standard deviation of the whole drifting series.",
+          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -6555,7 +6550,7 @@
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Rules offers the usual four, all eight, or Limits only. More rules also create more opportunities for false alarms. We choose Limits only to isolate the three-sigma rule; changing this dropdown recomputes the chart without a separate Run button.",
+          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -6566,7 +6561,7 @@
         },
         {
           "visual": "06_limits_only",
-          "narration": "Baseline plates is twenty: P zero one through P twenty set the limits, which are applied to the remaining plates. Nine points, P twenty-two through P thirty, exceed the upper limit. The report and rule table identify them; these programmed signals are not biological discoveries.",
+          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
           "hold_after": 0.7,
           "focus": [
             1010,
@@ -6577,12 +6572,12 @@
         },
         {
           "visual": "07_positive_control",
-          "narration": "Untick neg and select only pos. The chart now shows the other control's means and its own baseline limits, with no rule-one violations in this example. A quiet chart alone does not prove an assay is valid. Restore neg before continuing.",
+          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
           "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Change Baseline plates to twelve and watch the centre and limits change, then restore twenty. The app requires at least eight baseline plates, but that minimum is not a recommendation. Plan and justify the baseline; do not tune it simply to remove unwanted alerts.",
+          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -6593,7 +6588,7 @@
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "With the original control and twenty-plate baseline restored, choose Export points and save a separate CSV. It contains thirty rows with plate identity, order, mean, subgroup size and spread, limits, standardized distance, baseline membership and fired rules. This is not a chart-image or full-configuration export.",
+          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -6604,14 +6599,22 @@
         },
         {
           "visual": "12_exported",
-          "narration": "Every exported identity and numeric field was checked against the source CSV, including rule-one flags. The original input is unchanged. For scripted use, the control chart widget module exposes ControlChartSpec and control_chart; its result provides points_frame. Keep your input, settings and acquisition notes together when investigating real alerts.",
+          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "Control_Charts_SYNTHETIC_campaign.csv"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "52_pipeline_graph",
@@ -6620,19 +6623,18 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect real provenance and missing artifacts",
-      "description": "Read actual artifact records, distinguish missing files from missing provenance, filter the graph and copy its full Graphviz representation without rerunning analysis.",
+      "title": "Pipeline Graph: inspect outputs and dependencies",
+      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
       "objectives": [
-        "Open Pipeline graph under Help and choose an existing project.",
-        "Compare recorded provenance with actual file presence and understand unrecorded dependencies.",
-        "Use Current, Stale and Missing filters without mistaking hidden nodes for absent records.",
-        "Redraw safely and copy the full graph, then use the appropriate workflow to investigate."
+        "Open the artifact graph for a project.",
+        "Inspect paths, states and dependencies.",
+        "Copy the diagram and refresh its records."
       ],
-      "prerequisite": "Use the real External Masks project and the completed Data Manager cleanup demonstration. This recording reads a byte-verified copy of that archived, post-cleanup snapshot at the historical project path inside an isolated namespace; original data and registry records are not rewritten. A separate real Batch Runner conversion illustrates absent provenance, not an unprocessed experiment. All 131 original project files, 26 archive files and seven conversion files remain unchanged. Three historical project records have no recorded input edges; the archive's fourth record belongs to another project path. No deletion, analysis, dedicated download, live image preview, Plot control, AI request or recovery run occurs here.",
+      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph. This screen inspects recorded outputs and their dependencies; it does not execute the pipeline. We use acquired-data outputs from External Masks and the genuine Data Manager cleanup example, on private copies. Follow those lessons for producing and safely managing the data.",
+          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -6641,7 +6643,7 @@
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the converted-image folder first. Its Batch Runner conversion completed, but no artifact output was registered here, so this graph is empty. That is missing provenance, not proof that no processing happened. Declared order describes possible module dependencies; it is not a history of completed runs.",
+          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6656,7 +6658,7 @@
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project's post-cleanup snapshot. Three historical records appear: a measurement database, crops and a resource log. Two paths still exist, while the cropped-image folder really was removed in the earlier private cleanup. This recording removes nothing, and the original experimental project remains intact.",
+          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6667,7 +6669,7 @@
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click the measurement-database box and widen the details with the divider. Read its path, role, run identifier, production time, spaCR version and settings digest. A digest is a fingerprint, not the full settings or a restore button. Current does not establish scientific validity or complete provenance.",
+          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -6678,7 +6680,7 @@
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select the red crops box. Missing means its registered path is absent. Its recorded size still says about three point four megabytes in one hundred four files: one hundred three crop images and their format record. That is historical size, not disk usage now, and not one hundred four cells.",
+          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -6689,7 +6691,7 @@
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "The resource log is a separate artifact outside the project folder. Its path still exists, but it was not moved into the archive. This graph has no recorded input edges. Nothing was derived from this means no downstream dependency was recorded here, not that the scientific outputs were independent.",
+          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -6700,7 +6702,7 @@
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Turn off Current to isolate the missing crop artifact. Current, Stale and Missing are display filters, not operations on the files. Stale is a recorded-provenance warning; this example contains no stale artifact. There are no separate module, artifact-type or workflow-branch filters in this screen.",
+          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6711,7 +6713,7 @@
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "Turn off Missing too. No boxes remain, although the banner still reports one missing artifact out of three. In this build, the empty canvas incorrectly says nothing is registered, and the previous detail can remain visible. Check the filters before interpreting either message; hidden is not deleted.",
+          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6722,7 +6724,7 @@
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Copy Graphviz puts the full graph on the clipboard, including hidden nodes. We checked that all three actual artifact identifiers are present and no dependency arrows were invented. This is Graphviz DOT text for use elsewhere, not a saved image or an export of only the visible selection.",
+          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6733,7 +6735,7 @@
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore Current, then Missing: two boxes return, then all three. Choose a box again to align its detail with the visible graph. Display filters do not repair missing files, change provenance or select a module to rerun. Investigate the actual recorded path and upstream workflow before taking action.",
+          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -6744,7 +6746,7 @@
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Redraw rereads the registry and checks the artifacts again. Our records and file bytes remain unchanged. Use Run History for saved settings and journals, or Data Manager for explicit cleanup. In Python, spacr.pipeline_graph provides build_graph and to_dot. No regeneration or scientific validation is performed by this inspection.",
+          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -6753,30 +6755,35 @@
             "45_project_browser"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "53_prediction_profiler",
       "number": 53,
       "slug": "prediction_profiler",
-      "title": "Prediction Profiler",
+      "title": "Prediction Profiler: explore a fitted model",
       "series": 5,
       "app_key": "profiler",
       "section": "Explore",
-      "description": "Import a fitted synthetic model, sweep one input, and verify how held values and plotting choices affect its displayed predictions.",
+      "description": "Load model coefficients, vary one input while holding others fixed, and inspect predicted responses.",
       "objectives": [
-        "Open Prediction Profiler inside Regression and import a suitable coefficient table.",
-        "Distinguish model fitting, inverse link, assumed input ranges and plot resolution.",
-        "Compare both inputs, move held values and restore the default midpoint."
+        "Load coefficients with the correct model link.",
+        "Sweep one input and adjust held values.",
+        "Inspect response curves and sensitivity."
       ],
       "example_files": [
         "SYNTHETIC_profiler_example.zip"
       ],
-      "prerequisite": "Extract the supplied explicitly SYNTHETIC example into a new folder. It includes 121 constructed observations, a genuine statsmodels OLS fit saved as feature/coefficient CSV, its manifest and a reproducible preparation script. No biological or held-out validation claim is made. The native GUI imports only coefficients, including the Intercept; it does not fit the model or load these observations. Keep the identity link. The file route assumes a two-row 0..1 design and midpoint held values. Ranking uses the 5th/95th quantiles, hence 0.05..0.95 here; plotted curves span 0..1. All 338 recorded curve values and twelve ranking values were checked independently against the saved fitted coefficients. Permutation-test marginal effects are not interchangeable with a jointly fitted predictive model. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design accept an existing fitted model/design programmatically, but those are not file-picker controls. No confidence intervals, causal effects, publication or listening approval are claimed.",
+      "prerequisite": "Download the synthetic coefficient example, or use coefficients from a suitable fitted model. Match its link and input encoding. The coefficient-file route assumes input ranges of zero to one; separate marginal effects are not substitutes for a jointly fitted prediction model.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Open Regression, then Prediction Profiler in its nested tools. This lesson uses a clearly labelled synthetic teaching example, not biological screening results. We inspect a fitted model by moving one input while holding the other fixed. The profiler reads the model; it does not train another one.",
+          "narration": "Open Regression, then Prediction Profiler to explore predicted responses from a fitted model. The linked example uses synthetic data.",
           "focus": [
             460,
             45,
@@ -6790,7 +6797,7 @@
         },
         {
           "visual": "03_explicit_synthetic_coefficients_picker",
-          "narration": "Download and extract the accompanying example, then Browse to its synthetic OLS coefficients file. It contains an intercept and two fitted input coefficients. The archive also supplies the observations and preparation script. These coefficients came from an actual least-squares fit to constructed data, not invented regression output.",
+          "narration": "Download and unzip the example, then Browse to the synthetic OLS coefficients CSV. Include the intercept when supplying your own fitted coefficients.",
           "focus": [
             890,
             390,
@@ -6801,7 +6808,7 @@
         },
         {
           "visual": "05_link_options_keep_identity",
-          "narration": "Keep Link at identity because this example was fitted by ordinary least squares. Other links belong to different model families; changing this selector does not convert or retrain your original model. A plausible curve on the wrong response scale is still wrong. Always use the link from the fit.",
+          "narration": "Set Link to the function used by the fitted model. Keep identity for this ordinary least-squares example.",
           "focus": [
             2910,
             465,
@@ -6812,7 +6819,7 @@
         },
         {
           "visual": "04_loaded_identity_model",
-          "narration": "Read the status message: no design matrix was supplied, so the file route assumes every input ranges from zero to one. Our synthetic inputs have that range, but yours may not. The ranking uses the fifth and ninety-fifth percentiles; its Moves by value is not the full plotted endpoint difference.",
+          "narration": "Check the range information after loading. The coefficient-file route assumes each input spans zero to one. Confirm that this matches your intended use before interpreting the curves.",
           "focus": [
             470,
             530,
@@ -6823,7 +6830,7 @@
         },
         {
           "visual": "06_hold_b_at_one",
-          "narration": "Input A is selected for the sweep. Move the Input B slider from its midpoint to one. The predicted response shifts downward because B has a negative fitted coefficient. This changes the held scenario, not the training data or coefficients. Read the numeric endpoints as well as the line's shape.",
+          "narration": "Select Input A for the sweep. Move the held Input B slider to one and inspect the resulting response curve.",
           "focus": [
             1480,
             590,
@@ -6834,7 +6841,7 @@
         },
         {
           "visual": "07_hold_b_at_zero",
-          "narration": "Move B to zero and compare again. The response shifts upward. The plot rescales its vertical axis, so parallel-looking lines can represent different response levels. These are predictions within one assumed model, not evidence that changing B would cause an experimental effect.",
+          "narration": "Move B to zero and compare the response values. Watch the axis scale as well as the line, because the plot may rescale.",
           "focus": [
             1480,
             590,
@@ -6845,7 +6852,7 @@
         },
         {
           "visual": "08_reset_midpoints",
-          "narration": "Reset held values returns the sliders to the midpoint of the assumed ranges, one half here. It does not refit the model. For this file-only route, the midpoint is not a median measured from your original dataset: that dataset was never loaded into the profiler.",
+          "narration": "Click Reset held values to return the sliders to the midpoints of their assumed ranges, one half in this example.",
           "focus": [
             1470,
             1435,
@@ -6856,7 +6863,7 @@
         },
         {
           "visual": "09_sweep_second_input",
-          "narration": "Select Input B in the ranked list. Now B is swept across the horizontal axis and A is held at one half. The descending curve matches B's negative coefficient. The list is a model-sensitivity ranking, not a significance test, a confidence interval or a list of validated biological hits.",
+          "narration": "Select Input B in the ranked list to sweep B while holding A fixed. The ranking summarizes model sensitivity over its configured input ranges.",
           "focus": [
             470,
             590,
@@ -6867,7 +6874,7 @@
         },
         {
           "visual": "10_eleven_grid_points",
-          "narration": "Change Points from sixty-one to eleven. This chooses how many positions are evaluated for the plotted curve; it does not change the sample size or fit quality. Our linear example keeps the same endpoints. More plotting points cannot add observations, reduce uncertainty or improve an already fitted model.",
+          "narration": "Change Points to choose the number of positions evaluated along the plotted curve. Eleven gives a coarser grid than sixty-one without changing the fitted model.",
           "focus": [
             1480,
             465,
@@ -6878,7 +6885,7 @@
         },
         {
           "visual": "11_hold_a_at_one",
-          "narration": "With B still selected, move A to one and inspect the new response endpoints, then reset when finished. For your own work, supply coefficients from a suitable fitted model and check its link, intercept, encoding and ranges. Do not substitute separate permutation-test effects for a jointly fitted predictive model.",
+          "narration": "Adjust the held values to explore further scenarios, then reset when finished. Interpret the curves as model predictions and assess real experimental effects with appropriate data.",
           "focus": [
             1480,
             590,
@@ -6892,7 +6899,12 @@
           "hold_after": 0.7
         }
       ],
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "54_qc_dashboard",
@@ -6901,24 +6913,23 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: read the evidence, not just the headline",
-      "description": "Read genuine downloaded and computed quality reports, distinguish missing checks from warnings and failures, and find the three nested QC tools.",
+      "title": "QC: inspect project quality reports",
+      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
       "objectives": [
-        "Find QC and its nested tools.",
-        "Select the exact project or bounded-run folder and inspect all five evidence categories.",
-        "Distinguish missing, warning and failure results without assuming a dashboard validates an entire analysis.",
-        "Refresh existing evidence without recomputing or changing the source files."
+        "Choose the intended project or run.",
+        "Read available, missing and outdated reports.",
+        "Investigate findings and refresh the view."
       ],
-      "prerequisite": "Download the Annotate and Mask examples first. This recording reuses Annotate's measurement database, the original Mask example scorecards, and the genuine two-field Mask/one-field Measure tutorial run in plate1/test. QC itself downloads nothing and performs no new scoring. The parent and test folders represent different evidence scopes, not a before/after improvement experiment.",
+      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC in Home's Data category. This dashboard reads quality reports already on disk. It does not generate masks, measure images or train a classifier. The headline summarises available evidence; it is not a certificate that an entire analysis is correct.",
+          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header groups Layer Viewer, Control Charts and Outliers under QC. Their specialist lessons remain in the Submodules section beneath this parent. Use those tools to investigate an observation, not to replace missing evidence with a reassuring dashboard colour.",
+          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -6929,7 +6940,7 @@
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Use Browse to select the actual project folder. We first open Annotate's downloaded example, which contains measurements but no segmentation scorecards in this folder. QC has no separate example downloader; reuse the real project from the earlier workflow.",
+          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -6937,12 +6948,12 @@
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Missing means the reader has no usable report for that check. It is neither a pass nor proof that a check failed. A calculation performed in another view may not have saved a report this dashboard can read. Always inspect the named source and scope.",
+          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
           "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Now choose the test subfolder containing our genuine bounded Mask and Measure outputs. Selecting the parent folder is not equivalent. These are different populations and artifacts, so their verdicts must not be presented as a controlled before-and-after comparison.",
+          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -6951,7 +6962,7 @@
         },
         {
           "visual": "04_computed_subset",
-          "narration": "The subset reports a segmentation warning: one cell field has a heterogeneous size distribution. Read the guidance and inspect the images. A size-based flag does not establish two biological cell types or prove that every object boundary is wrong.",
+          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -6966,12 +6977,12 @@
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "The units card reports internal consistency across four measurement tables. That is narrower than independently validating calibration or every feature. Leakage, plate effects and annotator agreement still lack reports here; the green units card does not make those missing checks pass.",
+          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
           "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories, including the guidance below missing cards. Retain the original reports and investigate the relevant workflow. In particular, a leakage verdict depends on correct sample identities and grouping; a software pass alone cannot establish biological independence.",
+          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -6981,7 +6992,7 @@
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "The downloaded full-plate scorecards show failures as well as warnings. The headline names a low-count pathogen field, and the detail lists other flags. These are existing reports from the broader example, not new scores computed by opening QC or evidence that our smaller run improved the plate.",
+          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -6992,7 +7003,7 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Press Refresh after reviewing the source. Here the status says nothing on disk has changed, so the existing evidence is reused. Refresh is not Run: it neither rescored the masks nor repaired a warning. Our database and report hashes remain unchanged.",
+          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -7003,12 +7014,12 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "An out-of-date label, when present, needs attention to the underlying report and its inputs. This dashboard is advisory and does not block a run. Its cards are explanatory text, not buttons that automatically open or repair every failing analysis.",
+          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
           "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "For a scripted read, spacr.qt.widgets.qc_summary provides read_dashboard and format_dashboard. They assemble existing evidence rather than running new checks. Keep the source reports with the project, and return to the relevant analysis or specialist lesson for the investigation itself.",
+          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7017,7 +7028,12 @@
             "66_outliers"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "55_image_scatter",
@@ -7027,18 +7043,18 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: real measurements and the crop behind each point",
-      "description": "Explore the Image Scatter submodule inside Image UMAP with real downloaded cell measurements, checked hover previews and an exact one-cell handoff to Annotate.",
+      "title": "Image Scatter: inspect measurements and their crops",
+      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
       "objectives": [
-        "Find Image Scatter inside Image UMAP and load the correct cell table.",
-        "Inspect raw measurement pairs and understand missing or constant coordinates.",
-        "Connect a plotted cell to its real crop without changing labels or source data."
+        "Load measurements and choose axes.",
+        "Inspect the crop behind a point.",
+        "Send a selected object to Annotate."
       ],
-      "prerequisite": "Reuse the downloadable Annotate example, including its measurements database, cell crops and crop-format markers. This lesson uses a private byte-identical copy of 2,341 cells and all 2,341 source PNGs. The independent SQLite checks cover every source value, full-field cell identity and crop path; displayed coordinates and RGB thumbnail pixels are checked. These are cell-only crop mappings: nucleus/pathogen mappings are not validated. Inspecting an unusual point is not evidence of phenotype, infection, treatment or segmentation accuracy. No UMAP fit, training, GPU computation, file export or source label edit is performed. Image Scatter has no dedicated downloader, image-column picker, colour/grouping controls, axis transform, export control or AI console. Its Plot button loads the selected table; axis choices redraw it. The loader caps tables at 200,000 rows, which is not random sampling or proof that larger tables lose no information. Shared filtering is not established by this lesson. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame and ScatterCanvas.point_position.",
+      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP from Home, then choose Image Scatter. This nested view plots two existing measurements; it does not fit a UMAP embedding. We reuse the real downloadable Annotate example, with its measurements database and cell crops kept together. The Annotate tutorial shows where to obtain it.",
+          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7047,17 +7063,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Choose Browse and open the copied measurements database. Keep the data folder and crop-format markers when moving a project, because a table alone does not contain the images. The displayed example uses private copies; the original measurements and crop pixels remain unchanged.",
+          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
           "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Choose cell in the table selector, then Plot. Plot reads this table; it is not a segmentation or training job. Our example has two thousand three hundred forty-one cells with matching cell crops. Selecting a different table requires Plot again; a changed selector alone does not load its rows.",
+          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
           "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell_area and y to cell_channel_1_mean_intensity. Axis changes redraw the loaded rows immediately. These are raw measurements, not transformed embedding coordinates. The dots describe individual cells, not independent experimental replicates, and a pattern in this picture is not a statistical test.",
+          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7071,7 +7087,7 @@
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Rest the pointer on the far-right cell. Its crop appears beside the scatter, with the full plate, row, column, field and cell identity. This thumbnail is a saved crop, not the full microscope field or a new segmentation. Looking unusual does not by itself establish a phenotype.",
+          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -7082,7 +7098,7 @@
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move away from the canvas: the temporary preview clears. Return to the same point and the cached crop appears again without another decode. Hover is temporary image inspection, not an annotation or a persistent selection. No source labels are changed.",
+          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -7093,7 +7109,7 @@
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the two measurements between x and y. The same cell keeps its identity and crop even though its screen position changes. Choose meaningful axes rather than accepting the first numeric columns automatically; numeric identifiers and acquisition metadata are also offered in these selectors.",
+          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -7104,7 +7120,7 @@
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Restore cell_area on x and choose cell_channel_0_homogeneity_distance_32 on y. Seven cells lack this measurement, so only two thousand three hundred thirty-four coordinate pairs can be drawn. The loaded row count still says two thousand three hundred forty-one. Missing values are not zeros, and hidden coordinates do not renumber object identities.",
+          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -7115,7 +7131,7 @@
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "Choose measurement_ndim on y. Every row has the value two, so the points sit on a horizontal line. This is a constant metadata column, not biological agreement. Restore cell_channel_1_mean_intensity before inspecting another cell.",
+          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -7126,7 +7142,7 @@
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a clicked crop in Annotate, first open Annotate and load this same copied project. Return through Home, Image UMAP and its existing Image Scatter tab. The annotation page must know the correct project; a plot and an unrelated open dataset are not a valid handoff.",
+          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -7134,7 +7150,7 @@
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself, then switch to Annotate. Hover alone only previews the image. The click sends the exact cell key, together with the two axis names, to the annotation view. It does not automatically switch pages, assign a label or prove that the object is an outlier.",
+          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -7145,7 +7161,7 @@
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Annotate now shows exactly the clicked cell, with the same saved crop. Inspect its image before deciding whether to annotate it; this demonstration leaves every label unchanged. Image Scatter has no dedicated plot or selection export. Use Database Browser for table exports, or the PCA tutorial for component analysis and its documented CSV outputs.",
+          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -7159,7 +7175,12 @@
             410
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "56_lineage",

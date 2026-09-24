@@ -11,6 +11,71 @@ from publish_docs_channels import assemble, prepare
 from report_translation_compatibility import api_issues, audit_record, runtime_issues
 
 
+def hosted_checkpoint(tmp_path, content, commit='a' * 40, hosted_content=None):
+    import hashlib
+    from publish_docs_channels import MEDIA_ROOT
+    checkpoint = tmp_path / ('checkpoint-' + commit)
+    checkpoint.mkdir()
+    hosted_content = content if hosted_content is None else hosted_content
+    manifest = checkpoint / 'release-manifest.json'
+    manifest.write_text(json.dumps({'files': [
+        {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data),
+         'path': prefix + 'lesson/video.mp4'}
+        for prefix, data in (('web/production/', content), ('media_host/', hosted_content))]}))
+    (checkpoint / 'publication-receipt.json').write_text(json.dumps({
+        'commit': commit, 'media_root': MEDIA_ROOT + commit,
+        'manifest_sha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
+        'readback': {'passed': True, 'commit': commit, 'files_expected': 1,
+                     'downloaded_sha256_matched': 1, 'metadata_matched': 1}}))
+    return checkpoint
+
+
+@pytest.mark.parametrize('hosted_content', [None, b'full-resolution recording'])
+def test_verified_hosted_videos_reduce_size_and_preserve_each_channel_revision(tmp_path, hosted_content):
+    from publish_docs_channels import MEDIA_ROOT
+    main = site(tmp_path, 'main', b'old video')
+    nightly = site(tmp_path, 'nightly', b'new video')
+    report = tmp_path / 'report.json'
+    report.write_text('{"api": {}}')
+    for branch, root, content, revision in (
+            ('main', main, b'old video', 'a' * 40),
+            ('nightly', nightly, b'new video', 'b' * 40)):
+        prepare(root, report, branch, branch + '-sha',
+                hosted_checkpoint(tmp_path, content, revision, hosted_content))
+    output = tmp_path / 'pages'
+    receipt = assemble(main, nightly, output)
+    assert receipt['media_files'] == 1
+    for root, revision in ((output, 'a' * 40), (output / 'nightly', 'b' * 40)):
+        manifest = json.loads((root / 'tutorials/published-media.json').read_text())
+        assert manifest['lesson/video.mp4'] == MEDIA_ROOT + revision + '/lesson/video.mp4'
+        assert not (root / 'tutorials/production/lesson/video.mp4').exists()
+        assert (root / 'tutorials' / manifest['lesson/poster.jpg']).read_bytes() == b'poster'
+
+
+def test_unverified_or_changed_video_stays_local(tmp_path):
+    from publish_docs_channels import verified_video_hosts
+    root = site(tmp_path, 'main', b'changed video')
+    checkpoint = hosted_checkpoint(tmp_path, b'original video')
+    assert verified_video_hosts(root, checkpoint) == {}
+    video = root / 'tutorials/production/lesson/video.mp4'
+    video.write_bytes(b'original video')
+    assert verified_video_hosts(root, checkpoint)
+    receipt_path = checkpoint / 'publication-receipt.json'
+    receipt = json.loads(receipt_path.read_text())
+    receipt['readback']['downloaded_sha256_matched'] = 0
+    receipt_path.write_text(json.dumps(receipt))
+    assert verified_video_hosts(root, checkpoint) == {}
+    assert video.exists()
+
+
+def test_tampered_host_proof_cannot_redirect_a_video(tmp_path):
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
+    proof = {'lesson/video.mp4': {'sha256': 'wrong', 'url': 'https://wrong.example/video'}}
+    (nightly / 'tutorials/verified-video-hosts.json').write_text(json.dumps(proof))
+    with pytest.raises(ValueError, match='hosted video proof differs'):
+        assemble(main, nightly, tmp_path / 'pages')
+
+
 def site(tmp_path, branch, video=b'same recording'):
     root = tmp_path / branch
     root.mkdir()
