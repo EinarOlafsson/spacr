@@ -2,6 +2,39 @@
   "repo": "EinarOlafsson/spacr",
   "releases": [
     {
+      "tag": "v1.5.1.0",
+      "name": "spaCR 1.5.1.0",
+      "published": "2026-09-24",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.1.0",
+      "body": "**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.5.0.6...v1.5.1.0",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/compare/v1.5.0.6...v1.5.1.0"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.5.0.9",
+      "name": "spaCR 1.5.0.9",
+      "published": "2026-09-22",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.0.9",
+      "body": "**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.5.0.8...v1.5.0.9",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/compare/v1.5.0.8...v1.5.0.9"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.5.0.8",
+      "name": "spaCR 1.5.0.8",
+      "published": "2026-09-16",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.0.8",
+      "body": "**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.5.0.7...v1.5.0.8",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/compare/v1.5.0.7...v1.5.0.8"
+      ],
+      "prerelease": false
+    },
+    {
       "tag": "v1.5.0.7",
       "name": "spaCR 1.5.0.7",
       "published": "2026-09-12",
