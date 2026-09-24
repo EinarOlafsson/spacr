@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "ca2209221af49ad3d71da8b2a3f905f0d8f3851a",
+  "source_commit": "2b2b9871204e1e352622d6a5094a9875ba8b10b1",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
@@ -15,8 +15,8 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/anndata-fixed-translation-compatibility.json",
-  "full_report_sha256": "b8c59642820c0e3653b0ae1246fbb33c8b817e52799634e02fcd711ada4657d6",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/final-private-translation-compatibility.json",
+  "full_report_sha256": "2501fcc9dab5fea116aa1c1b2d90fb61d9f7575cc55db05cc8b22dcc6d4b9437",
   "locales": {
     "api": {
       "sv": {

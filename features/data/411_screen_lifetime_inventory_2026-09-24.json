@@ -84,5 +84,29 @@
     "log": "/mnt/firecuda2/codex/workflow-authoring-20260922/screen-lifetime-api-tests.log",
     "sha256": "5d3d283780a3be10830b59d1eeb16020e9700c8691ae930ad589c61e1bccc7f0"
   },
-  "publication_status": "English source and Help refreshed; next documentation workflow builds and publishes this delta. Last directly verified live API has11526entries."
+  "publication_status": "English source and Help refreshed; next documentation workflow builds and publishes this delta. Last directly verified live API has11526entries.",
+  "post_merge_validation": {
+    "source_commit": "2b2b9871204e1e352622d6a5094a9875ba8b10b1",
+    "private_helpers": [
+      "spacr.io._mask_batch_manifest",
+      "spacr.io._inspect_normalized_archive"
+    ],
+    "public_inventory_unchanged": true,
+    "public_callables": 9527,
+    "english_api_entries": 11527,
+    "guards_passed": 2,
+    "log_sha256": "4245146d2531c7384877390a5667410cdfcbafd1dd13ee64f18584d714c0bf50",
+    "english_audits": {
+      "api": {
+        "status": "compatible",
+        "exit_code": 0,
+        "diagnostics": "verified API catalogs: languages=0 symbols=11527\n"
+      },
+      "runtime": {
+        "status": "compatible",
+        "exit_code": 0,
+        "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+      }
+    }
+  }
 }

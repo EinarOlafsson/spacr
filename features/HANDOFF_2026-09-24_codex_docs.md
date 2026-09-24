@@ -64,10 +64,9 @@ at3295e3d747743e67517bd0a13a1a80fef74a5619. Earlier candidates are historical.
 organism guides. Latest eight source rewrites:48HitList,56Lineage,64GateEditor,
 65FeatureExplorer,66Outliers,67ExperimentDesign,68PowerDesign,69DoseResponse.
 Their capture sequences/hashes match the originals. Matching English media
-is rendering/checking in exploration-media.log, design-dose-media.log and
-outliers-power-media.log. Inspect terminal results; do not publish new prose
-with old audio. Prior prepared matching media covers55rewritten existing
-lessons; last verified live also covers55. Audit:
+passed all per-lesson and hosted checks and is accepted in candidate J below.
+Prepared matching media covers63rewritten existing lessons; last directly
+verified live covers55. Audit:
 `tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`.
 
 Twelve sources remain for review/rewrite:33PlateViewer,70ExplainCV,
@@ -75,8 +74,9 @@ Twelve sources remain for review/rewrite:33PlateViewer,70ExplainCV,
 75RegressionDiagnostics,77Embeddings,78Screens,79InputsOutputs,
 80ImagePathways,81SequencingPathways.78–81are generated: edit the shared map
 or generator, not only their JSON.71is the sole unavailable catalog lesson.
-Six fresh-capture gaps remain:02Conda,03PyPI,04installers,17Timelapse,19Train,
-76OPS. OPS has introductory/alignment media; full native OPS and Train remain
+Seven fresh-capture follow-ups remain:02Conda,03PyPI,04installers,17Timelapse,
+19Train,59normalAnnDataExport and76OPS. OPS has introductory/alignment media;
+full native OPS and Train remain
 queued with Claude. Restoration tutorial/animation work remains owed.
 
 AnnData's normal writer is repaired by b2dac1bc3/9863c8b7f. The new written

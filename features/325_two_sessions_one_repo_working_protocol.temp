@@ -16857,3 +16857,18 @@ semantic errors/unresolved English blocks and are NOT accepted translations.
 review remain.872tutorial reviews are stale and registered. No main/version
 operation or full-CI success is claimed. Incoming493private-helper groundwork
 is next to integrate before the final push; it has no public API/UI delta.
+
+2026-09-24 — CODEX: FINAL MEDIA/API CHECKPOINT READY TO PUSH
+Rebased through241ff9622. The private493helpers leave public API/counts
+unchanged:9527callables,11527English APIentries. Both merged-source inventory
+guards and English API/runtime audits pass; the final compatibility register
+is current. Code/media commits:2b2b98712(eight videos/current AnnData guide),
+3acb4a45b(display-lifetime API),2aa042e4c(live table proof/host metadata).
+Strict Sphinx passes; eight publication guards pass. Candidate J's hold is
+lifted at5fef816b732a14df2654c5eda9610baa071a080c. No re-upload is needed.
+Last direct live verification remains I/605aeb67a until the next deployment.
+
+All nine API drafts are private/unreviewed. Remaining scope:12scripts,seven
+capture follow-ups,restoration tutorial/animation and locale/narration review.
+The maintainer owns1.5.1.0/main. No additional release approval is needed for
+these docs changes, and translation incompleteness remains nonblocking.
