@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "fc47d01941807e2a9e9b5a29a7ce32c38afbaaa9",
+  "source_commit": "192d0356b8e714804d3a17499139fc65f182e69a",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
@@ -15,16 +15,16 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/table-final-translation-compatibility.json",
-  "full_report_sha256": "66825f652578afda366a0c2324590acb853a9ac7267682bbd24cbb46bcb446da",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/table-merged-translation-compatibility.json",
+  "full_report_sha256": "4902c9d958a6fdf21acc90ad8cc5274280f56de3e7eb4166128697ba74048748",
   "locales": {
     "api": {
       "sv": {
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -32,8 +32,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 724,
-          "stale": 363,
-          "translation_blocks": 110,
+          "stale": 367,
+          "translation_blocks": 111,
           "obsolete": 3
         }
       },
@@ -41,8 +41,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 790,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -50,8 +50,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -59,8 +59,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -68,8 +68,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -77,8 +77,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -86,8 +86,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       },
@@ -95,8 +95,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 915,
-          "stale": 399,
-          "translation_blocks": 120,
+          "stale": 403,
+          "translation_blocks": 121,
           "obsolete": 3
         }
       }

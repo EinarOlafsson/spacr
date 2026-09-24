@@ -16680,3 +16680,17 @@ locale/narration review. H/32e760991 remains the last verified live version.
 Strict English Sphinx passed atfc47d0194 with11526APIentries; no full CI claim.
 I am integrating the latest conversion/stream/external-mask documentation
 before pushing this checkpoint. The maintainer owns version/main promotion.
+
+2026-09-24 — CODEX: CURRENT API RECONCILED; SIX MORE PRACTICAL SCRIPTS
+Merged through738fb293b. API conversion/stream documentation is current at
+11526entries; English API/runtime audits pass. Help now includes both Toggle
+methods. Source receipt:411_conversion_stream_api_2026-09-24.json. Translation
+incompatibilities remain registered and nonblocking. Accepted table media is
+192d0356b, wrapping API7c2692ec3, documentation CI/source fixes266203de0.
+
+48HitList,56Lineage,64GateEditor,65FeatureExplorer,67ExperimentDesign and
+69DoseResponse now focus on inputs, controls and outputs. Required companion,
+missing-crop and statistical cautions remain. Original capture sequences/hashes
+are retained. English rendering/checks underway; no new capture or publication
+claimed for these six. Source rewrites67of81;14remain, plus six capture gaps,
+restoration tutorial and full locale/narration review (846stale reviews).

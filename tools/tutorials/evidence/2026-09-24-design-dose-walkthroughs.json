@@ -1,0 +1,20 @@
+{
+  "scope": "Practical planning and fitting walkthroughs; preserve input requirements and current operational limitations.",
+  "lessons": [
+    {
+      "lesson": "67_experiment_design",
+      "old_spoken_words": 570,
+      "new_spoken_words": 350,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "69_dose_response",
+      "old_spoken_words": 783,
+      "new_spoken_words": 468,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Source rewrite; matching narration and publication pending."
+}

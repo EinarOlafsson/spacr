@@ -19,10 +19,10 @@ is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
 workflow pages use this same map.
 
-61 of the original 81 scripts have practical walkthrough rewrites; four more
+67 of the original 81 scripts have practical walkthrough rewrites; four more
 organism guides were authored. See the exact per-lesson audit in
 `tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`. Rewritten
-source does not imply new native screenshots or publication. 768 older
+source does not imply new native screenshots or publication. 846 older
 translation review records are currently incompatible with their English
 sources; they remain registered work, not accepted translations.
 
@@ -228,3 +228,12 @@ strict English Sphinx build passed at fc47d0194 with 11,526 API entries
 The last directly verified deployed baseline is H/32e760991, recorded in
 358_live_practical_guides_2026-09-24.json; older live-baseline notes above are
 historical. Candidate I is accepted locally and awaits its nightly deployment.
+
+Latest follow-up: current conversion/stream docstrings are reflected in the
+11,526-entry English API and history; Help includes both Toggle methods.
+English API/runtime audits pass; updated locale debt is report-only.
+Six more scripts (48,56,64,65,67,69) are now practical walkthroughs with
+retained capture hashes. English media rendering is in exploration-media.log
+and design-dose-media.log. This brings source rewrites to67of81 (14remain),
+with846stale translation reviews. Prepared matching media remains55until this
+new batch passes its checks. Do not publish new prose over mismatched audio.

@@ -21892,10 +21892,11 @@
         "4dcbef8b52f02ce8e8149c58c1a7f4a92559b628340dbb4a75a14afdb052a36e",
         "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
         "9d7c5158f38c1bef4871ff465bc1684e1b4e04cabbbdd5cdabf727da2fdc4b95",
-        "4416dd8ebed297ed009042c78a4e4b30cb42a8333b63104f4ce680cff03cfca3"
+        "4416dd8ebed297ed009042c78a4e4b30cb42a8333b63104f4ce680cff03cfca3",
+        "4c799cea55327dd59541243ef22cab8f8b69c1e2adf36e4f465701ea8af70dda"
       ],
-      "source_sha256": "6d54991c5d14d5d1670ccf9657c17b3320e18aa4a9347cf89687a47927401e00",
-      "text": "Convert every image in ``folder`` to Yokogawa-style naming with a MIP.\n\nND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by\nextension, max-projected over Z, and written out as\n``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``\nrecords the original-to-new mapping.\n\nA file that cannot be read is skipped so the rest of the folder\nstill converts — but the skip is recorded on a\n:class:`spacr.errors.RunLedger`, printed as a loud summary at the\nend, and **stamped into a sibling** ``rename_log.run_status.json``.\nThat sidecar is what lets a later reader (or\n:func:`spacr.errors.run_is_complete`) tell that the converted\nfolder is missing inputs, instead of quietly analysing a subset.\n\n:param folder: Directory of raw images, converted in place.\n:returns: the :class:`spacr.errors.RunLedger` for the conversion."
+      "source_sha256": "e02ba1a27517c25d1952814482a77ff390955ef787f4b5c992705cbfc2dda555",
+      "text": "Convert every image in ``folder`` to Yokogawa-style naming with a MIP.\n\nND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by\nextension, max-projected over Z, and written out as\n``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``\nrecords the original-to-new mapping.\n\nA file that cannot be read is skipped so the rest of the folder\nstill converts — but the skip is recorded on a\n:class:`spacr.errors.RunLedger`, printed as a loud summary at the\nend, and **stamped into a sibling** ``rename_log.run_status.json``.\nThat sidecar is what lets a later reader (or\n:func:`spacr.errors.run_is_complete`) tell that the converted\nfolder is missing inputs, instead of quietly analysing a subset.\n\n:param folder: Directory of raw images, converted in place.\n:returns: the :class:`spacr.errors.RunLedger` for the conversion.\n:raises ValueError: If the folder already contains Yokogawa-named\n    converted images or a previous ``rename_log.csv``. The check runs\n    before writing any image or log, including after the converted\n    images have been moved into ``orig/``. Read an already\n    converted folder with ``metadata_type='cellvoyager'``, or retry raw\n    conversion in a separate folder containing only the original inputs."
     },
     "spacr.io.crop_object_type": {
       "source_blocks_sha256": [
@@ -105580,14 +105581,14 @@
     "spacr.stream_dataset.stream": {
       "source_blocks_sha256": [
         "922411e5b40bfb34266a8667dcb890222f8498488018cd8543cb23d47d7903b9",
-        "723ee13484b106aae3e1fde21d35fc0526f67b0ba67c50762478917c8dfc170b",
+        "9b6fc7664f0614f6a9150230560849ff5474c766405334d110a6edc55424cf22",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "b9fbd879317b7e53819ad2b027d90f5a76f8a3f3c975fe04fe98134a791154e8",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "70ccd2f03a8357b08e61c91eb9df0ad5f22e594936ad51bbbfb7d5fb27503d66"
       ],
-      "source_sha256": "28d2a9dc3e6affc77828f74b1e0245b7284f717707f540f528ffa97ab30aab7f",
-      "text": "Write crops described by a saved selection table.\n\nEach merged field is loaded once and all selected objects from that field\nare extracted before advancing.\n\nParameters\n----------\nselection : pandas.DataFrame\n    Selection produced by :func:`build_selection`.\nmerged_folder : str\n    Directory containing merged ``.npy`` arrays.\ndst : str\n    Destination for split-specific crop directories.\nchannel_arrays : sequence of int, default=(0, 1, 2)\n    Image channels to retain.\nmask_index : int, optional\n    Mask plane index. The final plane is used when omitted.\nbounding_box : bool, default=True\n    Whether crops retain every pixel in the object bounding box.\ncrop_mode : str, default=\"cell\"\n    Object type used for crop naming.\nwrite : callable, optional\n    Function accepting ``(path, array)``. The default writes NumPy arrays.\n\nReturns\n-------\ndict\n    Written and missing crop counts, processed field count, destination\n    folders, and per-field problems."
+      "source_sha256": "136e6f31f7baf00ce04a918a44657bcb5e3d5195ab4d273c5dcdff7292b65546",
+      "text": "Write crops described by a saved selection table.\n\nEach merged field is loaded once and all selected objects from that field\nare extracted before advancing. Missing or ambiguous field matches are\nreported as missing crops; a different field is never used as a fallback.\n\nParameters\n----------\nselection : pandas.DataFrame\n    Selection produced by :func:`build_selection`.\nmerged_folder : str\n    Directory containing merged ``.npy`` arrays.\ndst : str\n    Destination for split-specific crop directories.\nchannel_arrays : sequence of int, default=(0, 1, 2)\n    Image channels to retain.\nmask_index : int, optional\n    Mask plane index. The final plane is used when omitted.\nbounding_box : bool, default=True\n    Whether crops retain every pixel in the object bounding box.\ncrop_mode : str, default=\"cell\"\n    Object type used for crop naming.\nwrite : callable, optional\n    Function accepting ``(path, array)``. The default writes NumPy arrays.\n\nReturns\n-------\ndict\n    Written and missing crop counts, processed field count, destination\n    folders, and per-field problems."
     },
     "spacr.stream_dataset.stream_dataset": {
       "source_blocks_sha256": [

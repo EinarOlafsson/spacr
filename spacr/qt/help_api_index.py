@@ -9628,6 +9628,8 @@ API_ENTRIES = (
     ('spacr.qt.widgets.timelapse_preview.track_stats', 'Summarise a track table into the numbers that drive a tuning decision.'),
     ('spacr.qt.widgets.toggle', 'Toggle — QCheckBox styled as an iOS-style switch.'),
     ('spacr.qt.widgets.toggle.Toggle', 'A compact switch that can be clicked or dragged between states. Initialize the switch with an optional trailing label.'),
+    ('spacr.qt.widgets.toggle.Toggle.heightForWidth', 'Return enough height to paint the complete wrapped caption.'),
+    ('spacr.qt.widgets.toggle.Toggle.minimumSizeHint', 'Allow wrapped captions to shrink without making their text a width floor.'),
     ('spacr.qt.widgets.toggle.Toggle.mouseMoveEvent', 'Move the knob with the pointer while the left button is held.'),
     ('spacr.qt.widgets.toggle.Toggle.mousePressEvent', 'Begin a click or drag without delegating a second toggle to Qt.'),
     ('spacr.qt.widgets.toggle.Toggle.mouseReleaseEvent', 'Toggle on a tap, or select the side where a drag was released.'),

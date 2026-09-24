@@ -1,0 +1,30 @@
+{
+  "source_commit": "192d0356b8e714804d3a17499139fc65f182e69a",
+  "entries": 11526,
+  "added": [],
+  "removed": [],
+  "changed": [
+    "spacr.io.convert_to_yokogawa",
+    "spacr.stream_dataset.stream"
+  ],
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11526\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "strict_sphinx": {
+    "source_commit": "fc47d0194",
+    "passed": true,
+    "log": "/mnt/firecuda2/codex/workflow-authoring-20260922/table-toggle-sphinx.log",
+    "sha256": "5fd795fcd84402d6ba4f5974632ef2f62ea4c3d217ac255122f285805196862d",
+    "scope": "11526-entry Toggle build before incoming docstring-only changes"
+  },
+  "translation_policy": "Incompatible locales registered; English publishing remains required and unblocked."
+}

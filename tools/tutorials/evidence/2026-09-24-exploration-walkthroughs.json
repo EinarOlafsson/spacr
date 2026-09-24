@@ -1,0 +1,34 @@
+{
+  "scope": "Practical inputs, controls and outputs; retain required companion, crop and statistical cautions without test-process narration.",
+  "lessons": [
+    {
+      "lesson": "48_hit_list",
+      "old_spoken_words": 484,
+      "new_spoken_words": 319,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "56_lineage",
+      "old_spoken_words": 645,
+      "new_spoken_words": 390,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "64_gate_editor",
+      "old_spoken_words": 954,
+      "new_spoken_words": 608,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "65_feature_explorer",
+      "old_spoken_words": 682,
+      "new_spoken_words": 401,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Source rewrite; matching narration and publication pending."
+}

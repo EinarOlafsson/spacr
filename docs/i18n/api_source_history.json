@@ -286,6 +286,18 @@
       "source_sha256": "27f801065f6bfce391fde9cdbed5b72d128123122e29932c8965cb7a8f268373",
       "text": "One model the zoo knows about, wherever it lives.\n\nFrozen because an entry is a *record of a file at a moment* — the hash, the\nsize and the provenance describe those bytes. Changing one in place would\nsilently invalidate the other two; :func:`dataclasses.replace` makes the\nnew record explicit.\n\n:param key: stable id, unique within a listing. For a local file this is\n    derived from the filename; for a catalogue entry it is whatever the\n    catalogue declared.\n:param name: the filename (or the published name) — what a human reads.\n:param kind: ``'cellpose'`` or ``'classifier'``; see :data:`KINDS`.\n:param source: ``'bundled'`` (ships with spaCR), ``'local'`` (found on this\n    machine) or ``'remote'`` (declared in a catalogue, not yet fetched).\n:param path: absolute path on this machine, or ``''`` for a remote entry.\n:param uri: where a remote entry is fetched from, or ``''``.\n:param version: the zoo's own version number for a filename. ``'1'`` for a\n    plain name, ``'2'`` for ``foo_v2.CP_model`` (see\n    :func:`versioned_path`), or whatever a catalogue declared.\n:param sha256: hex digest. For a downloaded model this is the digest of the\n    bytes that were actually written; for a catalogue entry it is the\n    published digest to check against; ``''`` means \"no checksum known\",\n    which :func:`fetch` treats as a refusal rather than a pass.\n:param size_bytes: file size, ``0`` when unknown.\n:param trained_on: what data produced this model, in prose, or\n    :data:`UNKNOWN`. Never ``''``.\n:param trained_by: who produced it, or :data:`UNKNOWN`. Never ``''``.\n:param metrics: whatever numbers came with it — for a classifier, the\n    best/last epoch metrics :func:`spacr.train_compare.load_run` recovered.\n    Excluded from equality: two records of the same bytes are the same\n    model whether or not somebody attached numbers to one of them.\n:param notes: everything the reader needs to know that is not a field:\n    missing provenance, an unverified download, a file that does not look\n    like a checkpoint.\n:param verified: True only when :attr:`sha256` was checked against a\n    published digest. A downloaded file whose hash was merely *recorded* is\n    not verified, and says so.\n:param settings_path: where the provenance came from, for the reader who\n    wants to go and look at it."
     },
+    "28d2a9dc3e6affc77828f74b1e0245b7284f717707f540f528ffa97ab30aab7f": {
+      "source_blocks_sha256": [
+        "922411e5b40bfb34266a8667dcb890222f8498488018cd8543cb23d47d7903b9",
+        "723ee13484b106aae3e1fde21d35fc0526f67b0ba67c50762478917c8dfc170b",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "b9fbd879317b7e53819ad2b027d90f5a76f8a3f3c975fe04fe98134a791154e8",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "70ccd2f03a8357b08e61c91eb9df0ad5f22e594936ad51bbbfb7d5fb27503d66"
+      ],
+      "source_sha256": "28d2a9dc3e6affc77828f74b1e0245b7284f717707f540f528ffa97ab30aab7f",
+      "text": "Write crops described by a saved selection table.\n\nEach merged field is loaded once and all selected objects from that field\nare extracted before advancing.\n\nParameters\n----------\nselection : pandas.DataFrame\n    Selection produced by :func:`build_selection`.\nmerged_folder : str\n    Directory containing merged ``.npy`` arrays.\ndst : str\n    Destination for split-specific crop directories.\nchannel_arrays : sequence of int, default=(0, 1, 2)\n    Image channels to retain.\nmask_index : int, optional\n    Mask plane index. The final plane is used when omitted.\nbounding_box : bool, default=True\n    Whether crops retain every pixel in the object bounding box.\ncrop_mode : str, default=\"cell\"\n    Object type used for crop naming.\nwrite : callable, optional\n    Function accepting ``(path, array)``. The default writes NumPy arrays.\n\nReturns\n-------\ndict\n    Written and missing crop counts, processed field count, destination\n    folders, and per-field problems."
+    },
     "29ad7863ba376e8d3949b950a84d966d87b3888c04df68fcb4fc8f7e79d9eb05": {
       "source_blocks_sha256": [
         "43ef95f7d4e99afb7dd373fd6b0395d4eb82dfbe49d255339dd730b80259b6db",
@@ -1030,6 +1042,17 @@
       ],
       "source_sha256": "6c01ca3aa7809b200caf42c80357389b5d0207bcb6d7f1d671ebc65db532fa8c",
       "text": "Open the fields a curation session offers, in the order it offers.\n\nThe session decides WHICH fields and in WHAT ORDER -- reviewed ones\nalready dropped, ``--limit`` already applied -- and this screen shows\nthem. Only the nested layout is opened: this editor reads a draft\nfrom ``<folder>/masks/<stem>.tif`` and saves back to the same place,\nso a sibling or ``_seg.npy`` set would be read and written somewhere\nother than where its masks are. ``spacr-make-masks`` refuses those\nbefore Qt is imported; this is the second half of the same refusal,\nfor anything that reaches the screen another way.\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: whether the editor is now on that session."
+    },
+    "6d54991c5d14d5d1670ccf9657c17b3320e18aa4a9347cf89687a47927401e00": {
+      "source_blocks_sha256": [
+        "b4b4f561a08e130a243893ec4722d2ecac7ad9e3757863509350dc28e36c0a7f",
+        "4dcbef8b52f02ce8e8149c58c1a7f4a92559b628340dbb4a75a14afdb052a36e",
+        "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
+        "9d7c5158f38c1bef4871ff465bc1684e1b4e04cabbbdd5cdabf727da2fdc4b95",
+        "4416dd8ebed297ed009042c78a4e4b30cb42a8333b63104f4ce680cff03cfca3"
+      ],
+      "source_sha256": "6d54991c5d14d5d1670ccf9657c17b3320e18aa4a9347cf89687a47927401e00",
+      "text": "Convert every image in ``folder`` to Yokogawa-style naming with a MIP.\n\nND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by\nextension, max-projected over Z, and written out as\n``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``\nrecords the original-to-new mapping.\n\nA file that cannot be read is skipped so the rest of the folder\nstill converts — but the skip is recorded on a\n:class:`spacr.errors.RunLedger`, printed as a loud summary at the\nend, and **stamped into a sibling** ``rename_log.run_status.json``.\nThat sidecar is what lets a later reader (or\n:func:`spacr.errors.run_is_complete`) tell that the converted\nfolder is missing inputs, instead of quietly analysing a subset.\n\n:param folder: Directory of raw images, converted in place.\n:returns: the :class:`spacr.errors.RunLedger` for the conversion."
     },
     "700bc42a61ea78113f162b038d615dbf8f17891deb165410d94ad4d2a6283d4f": {
       "source_blocks_sha256": [
