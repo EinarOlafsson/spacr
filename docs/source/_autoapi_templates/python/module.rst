@@ -7,6 +7,11 @@
 
 .. py:module:: {{ obj.name }}
 
+      {% if spacr_workflow_includes is defined and obj.id in spacr_workflow_includes %}
+.. include:: {{ spacr_workflow_includes[obj.id] }}
+
+      {% endif %}
+
       {% if obj.docstring and not obj.obj.get("spacr_helpers_only", false) %}
 .. autoapi-nested-parse::
 

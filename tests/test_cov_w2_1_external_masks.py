@@ -19,6 +19,48 @@ from spacr import external_masks as em
 from spacr.errors import ConfigurationError
 
 
+def test_array_publish_never_exposes_a_temporary_field(tmp_path, monkeypatch):
+    path = tmp_path / "field.npy"
+    np.save(path, np.zeros((4, 4), dtype=np.uint16))
+    replacement = np.full((4, 4), 8, dtype=np.uint16)
+    replace = os.replace
+    observed = []
+
+    def inspect_then_replace(source, destination):
+        observed.append(source)
+        assert sorted(p.name for p in tmp_path.glob("*.npy")) == ["field.npy"]
+        assert os.path.basename(source).startswith(".")
+        assert str(source).endswith(".partial")
+        np.testing.assert_array_equal(np.load(source), replacement)
+        np.testing.assert_array_equal(np.load(path), np.zeros((4, 4), dtype=np.uint16))
+        replace(source, destination)
+
+    monkeypatch.setattr(os, "replace", inspect_then_replace)
+    assert em._save_npy(str(path), replacement) == str(path)
+    assert len(observed) == 1
+    np.testing.assert_array_equal(np.load(path), replacement)
+    assert list(tmp_path.iterdir()) == [path]
+
+
+@pytest.mark.parametrize("stage", ["save", "replace"])
+def test_failed_array_publish_preserves_destination_and_cleans_scratch(tmp_path, monkeypatch, stage):
+    path = tmp_path / "field.npy"
+    np.save(path, np.zeros((4, 4), dtype=np.uint16))
+    before = path.read_bytes()
+    save = np.save
+
+    def fail(*args, **kwargs):
+        if stage == "save":
+            save(*args, **kwargs)
+        raise OSError("simulated full disk")
+
+    monkeypatch.setattr(np if stage == "save" else os, stage, fail)
+    with pytest.raises(OSError, match="simulated full disk"):
+        em._save_npy(str(path), np.ones((4, 4), dtype=np.uint16))
+    assert path.read_bytes() == before
+    assert list(tmp_path.iterdir()) == [path]
+
+
 def _write(path, array):
     path.parent.mkdir(parents=True, exist_ok=True)
     tifffile.imwrite(path, np.asarray(array), photometric="minisblack")

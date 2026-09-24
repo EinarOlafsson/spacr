@@ -122,6 +122,10 @@ def test_the_crop_path_is_merged_back_on_when_the_join_dropped_it(db,
 
 
 def test_an_image_type_narrows_the_crops_after_the_merge(db, monkeypatch):
+    import sqlite3
+
+    with sqlite3.connect(db) as connection:
+        _png_list().reset_index().to_sql('png_list', connection, index=False)
     _patch_readers(monkeypatch, _measurements(), _png_list())
 
     rows = AE.fetch_filtered_paths(db, "test", ["cell_area"], [10.0],

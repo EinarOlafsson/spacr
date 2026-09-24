@@ -80,13 +80,6 @@
       "translation": "ऐसा फ़ोल्डर चुनें जिसमें `measurements/measurements.db` हो। किसी छवि पर बायाँ क्लिक करके वर्ग 1 दें, दायाँ क्लिक करके वर्ग 2 दें, और साफ़ करने के लिए फिर क्लिक करें — या केवल कीबोर्ड का उपयोग करें: 1–9 से लेबल दें और अगले क्रॉप पर जाएँ। एनोटेशन पृष्ठभूमि में सहेजे जाते हैं।"
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "आरंभ से अंत तक (मास्क → मापन → एनोटेशन) वास्तविक डेटासेट…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

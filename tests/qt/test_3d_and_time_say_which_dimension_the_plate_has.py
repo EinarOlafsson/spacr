@@ -7,8 +7,9 @@ Mask generation and measure."
 
 What these tests pin:
 
-  * the two switches sit in the action row in that order, immediately left
-    of Live, on Mask Generation and on Measure;
+  * the two dimension switches keep their order in the action row; item
+    471's later request moves Live beside the Actions heading when closed
+    and onto the preview card when open so folding cannot hide it;
   * each reveals ITS OWN settings and only those -- asserted as a set read
     back off the driven form, never by eye;
   * they are STATES: pressing one leaves it lit, and it stays lit across the
@@ -112,23 +113,20 @@ def _visible(screen: AppScreen, keys) -> set:
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("app_key", sorted(INSTALL_FOLDS))
-def test_the_switches_sit_in_that_order_immediately_left_of_live(
+def test_dimension_order_survives_live_moving_to_the_reachable_heading(
         qtbot, qt_theme_applied, app_key):
-    """3D, then Time, then Live -- with nothing between them.
-
-    Read off the built row rather than off the construction order, because
-    the row is assembled by several unrelated blocks (preview, GPU,
-    hyperparameter search, AI) and only the finished order is the promise.
-    """
+    """Keep 3D then Time while Live remains reachable with Actions folded."""
     screen = _screen(qtbot, app_key)
-
     labels = _action_row_labels(screen)
-
-    assert "Live" in labels, (
-        f"{app_key} has no Live toggle, so 'left of Live' means nothing")
-    live = labels.index("Live")
-    assert labels[live - 2:live + 1] == ["3D", "Time", "Live"], (
-        f"{app_key} action row reads {labels}, not 3D, Time, Live")
+    dimension = labels.index("3D")
+    assert labels[dimension:dimension + 2] == ["3D", "Time"]
+    assert labels.index("Time") < labels.index("AI")
+    switch = screen._preview_switch
+    assert switch.text() == "Live"
+    assert screen._actions_heading_row.indexOf(switch) >= 0
+    assert not screen._actions_body.isAncestorOf(switch)
+    screen._actions_folder.set_shut(True, by_user=False)
+    assert switch.isVisible()
 
 
 def test_a_module_that_is_neither_mask_nor_measure_carries_no_switch(

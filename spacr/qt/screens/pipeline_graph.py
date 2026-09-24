@@ -62,7 +62,6 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QScrollArea,
-    QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -95,6 +94,7 @@ APP_TRANSLATIONS = _ROW.translations
 
 
 
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
 
 #: Box geometry, in device-independent pixels. Named because the layout
@@ -391,7 +391,12 @@ class PipelineGraphScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Picker, verdict strip, then the canvas beside the detail pane."""
+        """Picker, verdict strip, then the canvas beside the detail pane.
+
+        Item 471: the graph ("Pipeline graph") and the detail pane
+        ("Details") fold by their headings and share a draggable edge in a
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -467,14 +472,17 @@ class PipelineGraphScreen(QWidget):
         filters.addWidget(self._declared, 2)
         outer.addLayout(filters)
 
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = CollapsibleSplitter(Qt.Horizontal,
+                                       persist_key="pipeline_graph::body")
         self._scroll = QScrollArea()
         self._scroll.setObjectName("PipelineGraphCanvasArea")
         self._scroll.setWidgetResizable(False)
         self._canvas = GraphCanvas()
         self._canvas.node_clicked.connect(self._on_node_clicked)
         self._scroll.setWidget(self._canvas)
-        splitter.addWidget(self._scroll)
+        splitter.add_section(self._scroll, "Pipeline graph",
+                             persist_key="pipeline_graph/Pipeline graph",
+                             stretch=3)
 
         self._details = QTextEdit()
         self._details.setReadOnly(True)
@@ -483,9 +491,9 @@ class PipelineGraphScreen(QWidget):
             "Click a box for the run that produced it, its settings digest, "
             "and what re-running it would invalidate.")
         mark_surface(self._details)
-        splitter.addWidget(self._details)
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 2)
+        splitter.add_section(self._details, "Details",
+                             persist_key="pipeline_graph/Details", stretch=2)
+        self._body_splitter = splitter
         outer.addWidget(splitter, 1)
 
 

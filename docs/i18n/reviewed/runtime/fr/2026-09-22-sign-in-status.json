@@ -1,0 +1,14 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Signing in to {label}…",
+      "source": "Signing in to {label}…",
+      "source_sha256": "f46524a477333bffbe911ff367d4093c69bf82618e40eebb7224391fc3100949",
+      "table": "ui",
+      "translation": "Connexion à {label}…"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic review; no native-speaker sign-off",
+  "schema": 1
+}

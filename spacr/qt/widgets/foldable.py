@@ -93,9 +93,15 @@ class Folder:
         self.body = body
         self.name = name or heading.text().strip()
         self._on_change = on_change
+        self._listeners = []
+        #: Whether the last fold was the user's own, which is what decides
+        #: whether it is remembered. An automatic fold -- the console making
+        #: room for a live preview -- is not a choice the user made, and
+        #: storing it would fold the console on their next launch.
+        self.last_change_by_user = True
         self._shut = False
         self._alert = ""
-        heading.setCursor(Qt.PointingHandCursor)
+        heading.unsetCursor()
         self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
         heading.installEventFilter(self._filter)
@@ -112,19 +118,40 @@ class Folder:
         """
         return self._shut
 
-    def toggle(self) -> bool:
-        """Fold if open, unfold if shut. Returns the new shut state."""
-        return self.set_shut(not self._shut)
+    def toggle(self, *, by_user: bool = True) -> bool:
+        """Fold if open, unfold if shut. Returns the new shut state.
 
-    def set_shut(self, shut: bool) -> bool:
+        :param by_user: whether a person asked for it; see :meth:`set_shut`.
+        """
+        return self.set_shut(not self._shut, by_user=by_user)
+
+    def add_listener(self, callback: Callable[[bool, bool], None]) -> None:
+        """Call ``callback(shut, by_user)`` after every fold from now on.
+
+        A second audience beside ``on_change``: the splitter that gives the
+        released room away, and the bookkeeping that keeps an automatic fold
+        from undoing a fold the user chose, both need to hear about it without
+        taking the callback the panel's owner already holds.
+
+        :param callback: called with the new shut state and whether the user
+            asked for it.
+        """
+        if callable(callback) and callback not in self._listeners:
+            self._listeners.append(callback)
+
+    def set_shut(self, shut: bool, *, by_user: bool = True) -> bool:
         """Open or close the fold, reporting whether anything moved.
 
         :param shut: True to close it.
-        :returns: True when the state changed.
+        :param by_user: False when the program folds it on the user's behalf
+            (item 471: a live preview opening). Such a fold is not
+            remembered across a restart, and the listeners are told so.
+        :returns: the new shut state.
         """
         shut = bool(shut)
         if shut == self._shut:
             return shut
+        self.last_change_by_user = bool(by_user)
         self._shut = shut
         self.body.setVisible(not shut)
         if not shut:
@@ -135,6 +162,11 @@ class Folder:
                 self._on_change(shut)
             except Exception:                                # noqa: BLE001
                 LOG.debug("fold callback failed", exc_info=True)
+        for listener in list(self._listeners):
+            try:
+                listener(shut, bool(by_user))
+            except Exception:                                # noqa: BLE001
+                LOG.debug("fold listener failed", exc_info=True)
         return shut
 
     def alert(self, note: str = "!") -> None:
@@ -210,8 +242,12 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
             LOG.debug("could not read the folded panels", exc_info=True)
 
     def remember(shut: bool) -> None:
-        """Store the fold state, if this section has a key to store it under."""
-        if key:
+        """Store the fold state, if this section has a key to store it under.
+
+        Only a fold the user made is stored: see
+        :attr:`Folder.last_change_by_user`.
+        """
+        if key and folder.last_change_by_user:
             try:
                 from ..preferences import set_folded_panel
 

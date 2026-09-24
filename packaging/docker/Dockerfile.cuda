@@ -50,8 +50,9 @@ RUN apt-get update \
         ca-certificates \
         gnupg \
         software-properties-common \
- && add-apt-repository -y ppa:deadsnakes/ppa \
- && apt-get update \
+ && if [ "${PYTHON_VERSION}" != "3.10" ]; then \
+        add-apt-repository -y ppa:deadsnakes/ppa && apt-get update; \
+    fi \
  && apt-get install -y --no-install-recommends \
         build-essential \
         "python${PYTHON_VERSION}" \
@@ -115,8 +116,9 @@ RUN apt-get update \
         ca-certificates \
         gnupg \
         software-properties-common \
- && add-apt-repository -y ppa:deadsnakes/ppa \
- && apt-get update \
+ && if [ "${PYTHON_VERSION}" != "3.10" ]; then \
+        add-apt-repository -y ppa:deadsnakes/ppa && apt-get update; \
+    fi \
  && apt-get install -y --no-install-recommends \
         "python${PYTHON_VERSION}" \
         libgomp1 \

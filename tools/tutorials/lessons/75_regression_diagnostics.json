@@ -2,73 +2,86 @@
   "id": "75_regression_diagnostics",
   "number": 75,
   "slug": "regression_diagnostics",
-  "title": "Regression Diagnostics: read the evidence behind the results",
+  "title": "Regression Diagnostics: inspect the saved analysis reports",
   "series": 2,
   "app_key": "regression_diagnostics",
   "host_app_key": "regression",
   "section": "spaCR",
-  "description": "Open the diagnostic files produced by a real example-screen analysis, distinguish design warnings from permutation results, and recognize the limits of a short demonstration run.",
+  "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
   "objectives": [
-    "Open Diagnostics inside Regression and verify the output folder being inspected.",
-    "Interpret design identifiability, guide support and inference panels in the context of the selected analysis.",
-    "Recognize missing fitted-residual panels and limited permutation resolution without inventing a model fit."
+    "Open the diagnostic folder for the intended Regression run.",
+    "Read design support, identifiability and inference summaries.",
+    "Keep diagnostics with their settings and rerun after changing an analysis."
   ],
-  "prerequisite": "Complete the Regression example using its four downloadable score/count pairs. This recording inspects a bounded nonparametric run with 199 permutations, a minimum of two wells, and both guide and gene results. It demonstrates the software and diagnostic interpretation, not final discovery-quality inference.",
+  "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
   "scenes": [
     {
       "visual": "02_diagnostics_button",
-      "narration": "Inside Regression, hover over Diagnostics and open it after an analysis has completed. This button reads saved output; it does not fit another model. It opens the newest diagnostics folder found in the project, so verify the path when several runs exist.",
+      "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
       "hold_after": 0.7,
       "focus_buttons": "FoldButton",
-      "related_lessons": ["13_regression"]
+      "related_lessons": [
+        "13_regression"
+      ]
     },
     {
       "visual": "03_diagnostics_folder",
-      "narration": "The system file manager shows the actual files from our downloaded example-screen analysis. Here the figure preference was PNG. The folder contains design identifiability, design diagnostics, inference diagnostics, a summary table, and a table of collinear guide pairs.",
+      "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
       "hold_after": 0.7,
-      "focus": [535, 230, 1420, 285]
+      "focus": [
+        535,
+        230,
+        1420,
+        285
+      ]
     },
     {
       "visual": "04_design_identifiability",
-      "narration": "The design has six hundred and six wells, seven hundred and ninety-three parameters, and rank five hundred and ninety-nine. It cannot identify a unique simultaneous coefficient for every guide. This warning explains why we used a permutation analysis; it does not mean a simultaneous model was fitted successfully.",
+      "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
       "hold_after": 0.7
     },
     {
       "visual": "04_design_identifiability",
-      "narration": "Guide support is uneven: three hundred and fifty-five guides occur in just one well in this design. Sparse support limits what the experiment can establish. Inspect coverage before interpreting effects, and distinguish the full design from the filtered family of guides actually tested.",
+      "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
       "hold_after": 0.7
     },
     {
       "visual": "05_design_diagnostics",
-      "narration": "The design panel helps locate poor support and dependencies between guide predictors. Guides that always occur together are hard to distinguish statistically. Use the collinear-pairs table to inspect specific pairs rather than treating a warning badge as a complete explanation.",
+      "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
       "hold_after": 0.7
     },
     {
       "visual": "06_inference_diagnostics",
-      "narration": "The inference panel summarizes four hundred and thirty-four guide tests: their p-value distribution, comparison with a uniform null, and discoveries across adjusted thresholds. This short run has no discoveries at the displayed threshold. A calibration warning is a prompt to investigate, not proof of biological effects.",
+      "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
       "hold_after": 0.7
     },
     {
       "visual": "06_inference_diagnostics",
-      "narration": "We used only one hundred and ninety-nine permutations to keep the demonstration short. The minimum attainable empirical p-value is therefore zero point zero zero five. That resolution can be inadequate after multiple-testing correction; use an appropriately planned permutation count for the real analysis.",
+      "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
       "hold_after": 0.7
     },
     {
       "visual": "03_diagnostics_folder",
-      "narration": "There is no fitted-residual panel for this permutation run because it did not fit the simultaneous regression model. The p-value comparison we just viewed is not a residual diagnostic. Other analysis modes can write residual panels when they supply observed and fitted values.",
+      "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
       "hold_after": 0.7
     },
     {
       "visual": "03_diagnostics_folder",
-      "narration": "The summary records individual panel assessments and the worst assessment for the suite. Read each assessment in context rather than interpreting the overall badge as a software error. The Python regression diagnostics API writes the same kinds of panels from the inputs it is given.",
+      "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
       "hold_after": 0.7,
-      "related_lessons": ["06_api"]
+      "related_lessons": [
+        "06_api"
+      ]
     },
     {
       "visual": "07_back_to_regression",
-      "narration": "Return to Regression to investigate the inputs or change an analysis choice deliberately. A change needs a new run and new diagnostics; opening this folder never updates old results. Use the Regression tutorial for the full dataset, console, interactive results, and assistance workflow.",
+      "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
       "hold_after": 0.7,
-      "related_lessons": ["13_regression", "48_hit_list", "72_volcano_explorer"]
+      "related_lessons": [
+        "13_regression",
+        "48_hit_list",
+        "72_volcano_explorer"
+      ]
     }
   ]
 }

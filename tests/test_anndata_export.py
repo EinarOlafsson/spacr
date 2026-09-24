@@ -903,6 +903,40 @@ def test_the_written_file_reads_back_identically(fresh_project):
     assert set(back.obs["condition"]) == {"neg", "pos"}
 
 
+@pytest.mark.parametrize("single_table", ["", "cell"])
+@pytest.mark.parametrize("infer_strings", [False, True])
+def test_empty_calibration_metadata_survives_the_run_button_export(
+        fresh_project, single_table, infer_strings, monkeypatch):
+    """Unknown calibration is missing metadata, not an unwritable string."""
+    from pathlib import Path
+
+    monkeypatch.setattr(pd.options.future, "infer_string", infer_strings)
+    root, db = fresh_project
+    with sqlite3.connect(db) as connection:
+        connection.execute("ALTER TABLE cell ADD COLUMN voxel_size_z_um REAL")
+        connection.execute("ALTER TABLE cell ADD COLUMN voxel_size_xy_um REAL")
+        connection.execute(
+            "UPDATE cell SET voxel_size_xy_um=0.25 WHERE object_label=1")
+    before = Path(db).read_bytes()
+    expected, _ = ax.build_anndata(
+        db, single_table=single_table or None, verbose=False)
+    result = ax.run_anndata_export({
+        "src": root, "anndata_single_table": single_table,
+        "anndata_register_artifact": False,
+    })
+    saved = anndata.read_h5ad(result.path)
+    assert Path(db).read_bytes() == before
+    assert list(saved.obs_names) == list(expected.obs_names)
+    assert list(saved.var_names) == list(expected.var_names)
+    np.testing.assert_array_equal(saved.X, expected.X)
+    assert saved.obs["voxel_size_z_um"].isna().all()
+    assert saved.obs["voxel_size_xy_um"].notna().any()
+    for name in expected.obs:
+        actual, original = saved.obs[name], expected.obs[name]
+        np.testing.assert_array_equal(actual.isna(), original.isna())
+        assert list(actual.dropna()) == list(original.dropna())
+
+
 def test_an_uncompressed_write_round_trips_too(fresh_project):
     root, db = fresh_project
     out = os.path.join(root, "results", "plain.h5ad")

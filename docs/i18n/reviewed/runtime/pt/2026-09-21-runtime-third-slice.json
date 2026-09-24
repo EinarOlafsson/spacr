@@ -319,13 +319,6 @@
     },
     {
       "table": "ui",
-      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "translation": "Segmenta o campo aberto com um modelo. Ambos os limiares começam com os valores padrão do Cellpose.",
-      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
-    },
-    {
-      "table": "ui",
       "key": "Sending the approved report to GitHub…",
       "source": "Sending the approved report to GitHub…",
       "translation": "Enviando o relatório aprovado ao GitHub…",
@@ -501,13 +494,6 @@
     },
     {
       "table": "ui",
-      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "translation": "A lupa ao vivo também usa estas configurações: o modo Cellpose usa o modelo, os dois limiares, o diâmetro e a normalização; DINOCell usa a probabilidade da célula. O modo Otsu usa as configurações da categoria Otsu.",
-      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
-    },
-    {
-      "table": "ui",
       "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "translation": "O comando que spaCR executa. Copie-o se preferir executá-lo em um terminal.",
@@ -519,6 +505,30 @@
       "source": "The file table decides this. Change the table's channels or mask columns and this follows.",
       "translation": "A tabela de arquivos determina este valor. Ao alterar os canais ou as colunas de máscaras da tabela, este valor também muda.",
       "source_sha256": "5e8542d02349eb9df6700d23af00616f11ea97db0bc9d8300ec9a301c746d63b"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "translation": "Segmenta o campo aberto com um modelo. Ambos os limiares começam com os valores padrão do Cellpose.",
+        "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "translation": "A lupa ao vivo também usa estas configurações: o modo Cellpose usa o modelo, os dois limiares, o diâmetro e a normalização; DINOCell usa a probabilidade da célula. O modo Otsu usa as configurações da categoria Otsu.",
+        "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
+      }
     }
   ]
 }

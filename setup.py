@@ -31,13 +31,39 @@ on a missing ``cmake``. ``install_spacr_unix.sh`` applies the identical pair;
 it is declared here too so a developer install from git gets wheels as well.
 """
 import sys
+import re
 
 from setuptools import setup, find_packages
 
+def pypi_readme(source):
+    """Preserve the GitHub README while resolving its repository-relative URLs.
+
+    PyPI serves package metadata without the repository's files. Use the
+    public nightly tree, which also carries images not yet promoted to main.
+    No network access or spaCR imports are needed during isolated builds.
+    """
+    def absolute(value, image=False):
+        if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
+            return value
+        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/"
+                if image else "https://github.com/EinarOlafsson/spacr/blob/nightly/")
+        return base + value.removeprefix("./")
+
+    source = re.sub(
+        r"(?m)^(\s*\.\. (?:\|[^|]+\| )?(?:image|figure)::\s+)(\S+)",
+        lambda match: match[1] + absolute(match[2], image=True), source)
+    source = re.sub(
+        r"(?m)^(\s*:target:\s+)(\S+)",
+        lambda match: match[1] + absolute(match[2]), source)
+    return re.sub(r"<([^<>\s]+)>(?=`_)",
+                  lambda match: "<" + absolute(match[1]) + ">", source)
+
+
 with open("README.rst", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+    long_description = pypi_readme(fh.read())
 
 dependencies = [
+    'packaging>=21.3',
     'numpy>=1.26.4,<3.0',
     'pandas>=2.2.1,<4.0',
     'scipy>=1.12.0,<2.0',
@@ -101,7 +127,7 @@ dependencies = [
     'protobuf>=5.28.3',
 ]
 
-VERSION = "1.5.0.9"
+VERSION = "1.5.1.0"
 name = "spacr"
 
 setup(
@@ -112,7 +138,7 @@ setup(
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
     data_files=(
         [
             ('share/applications', [

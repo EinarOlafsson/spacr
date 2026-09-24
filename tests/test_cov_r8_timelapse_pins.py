@@ -23,53 +23,39 @@ from spacr import timelapse as T
 
 
 # ---------------------------------------------------------------------------
-# _npz_to_movie -- a two-channel frame is the only thing the elif can see
+# _npz_to_movie -- every accepted channel count reaches a three-channel writer
 # ---------------------------------------------------------------------------
 
 class TestPackingAFrameForTheWriter:
 
-    def test_the_two_channel_arm_is_the_only_way_past_the_one_channel_arm(
-            self):
-        """THE PIN.
+    @pytest.mark.parametrize("channels,expected_bgr", [
+        (None, [17, 17, 17]), (1, [17, 17, 17]),
+        (2, [0, 34, 17]), (3, [51, 34, 17]), (4, [51, 34, 17]),
+    ])
+    def test_frames_reach_the_writer_as_three_channels(
+            self, monkeypatch, tmp_path, channels, expected_bgr):
+        """Grayscale expands, two stains keep a zero blue plane, and RGB trims."""
+        from types import SimpleNamespace
 
-        The outer test admits a 3-D frame only when ``shape[2]`` is 1 or
-        2, and the arm above has already taken the 1 -- so ``shape[2] ==
-        2`` always holds by the time the elif asks.
-
-        Run as arithmetic rather than argued: every shape the outer test
-        admits is enumerated and checked against the two arms, so a third
-        channel count added to the outer list without an arm of its own
-        would fall through to the writer as an unpacked frame.
-        """
-        import re
-
-        source = inspect.getsource(T._npz_to_movie)
-        outer = re.search(r"frame\.shape\[2\] in (\[[^\]]*\])", source)
-        assert outer is not None, (
-            "the outer channel test changed shape; the two arms below it "
-            "no longer follow from it")
-        admitted = ast.literal_eval(outer.group(1))
-        assert admitted == [1, 2], (
-            f"the outer test now admits {admitted}; the two arms below it "
-            f"handle 1 and 2 only")
-
-        # ANCHORED ON THE MATCH THIS TEST ALREADY MADE. The slice used to
-        # start at "# Handling 1-channel", which made a pin on control flow
-        # depend on a comment surviving -- and comments do not survive.
-        # `outer` is the outer channel test itself, already located and
-        # already asserted on above, so the block cannot drift from it.
-        block = source[outer.start():]
-        block = block[:block.index("elif frame.shape[2] >= 3:")]
-        assert "elif frame.shape[2] == 2:" not in block
-        assert "\n            else:\n" in block
-
-    def test_a_two_channel_frame_becomes_red_and_green(self):
-        """The live side: the arm that IS taken, and what it produces."""
-        source = inspect.getsource(T._npz_to_movie)
-        assert "rgb_frame[..., 0] = frame[..., 0]" in source
-        assert "rgb_frame[..., 1] = frame[..., 1]" in source
-        assert "rgb_frame[..., 2]" not in source, (
-            "the blue channel is now written; it is meant to stay zero")
+        written, released = [], []
+        writer = SimpleNamespace(
+            isOpened=lambda: True,
+            write=lambda frame: written.append(frame.copy()),
+            release=lambda: released.append(True))
+        monkeypatch.setattr(T.cv2, "VideoWriter", lambda *args: writer)
+        monkeypatch.setattr(T.cv2, "putText", lambda frame, *args: frame)
+        frame = (np.full((8, 8), 17, dtype=np.uint8) if channels is None else
+                 np.broadcast_to(np.arange(1, channels + 1, dtype=np.uint8) * 17,
+                                 (8, 8, channels)).copy())
+        original = frame.copy()
+        T._npz_to_movie([frame], ["field"], tmp_path / "channels.avi")
+        assert released == [True]
+        assert len(written) == 1
+        assert written[0].shape == (8, 8, 3)
+        assert written[0].dtype == np.uint8
+        np.testing.assert_array_equal(written[0],
+                                     np.broadcast_to(expected_bgr, (8, 8, 3)))
+        np.testing.assert_array_equal(frame, original)
 
 
 # ---------------------------------------------------------------------------

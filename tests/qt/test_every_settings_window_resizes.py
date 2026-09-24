@@ -1087,7 +1087,14 @@ class TestEverySettingsWindow:
         being read as the filter's doing. Building until two consecutive
         sizes agree measures the size the dialog actually opens at,
         which is what the claim is about.
+
+        Each warm-up owns its window until it closes and deletes it.
+        qtbot tracks weak references; handing a temporary dialog straight
+        to _size let a still-visible window reach cycle collection during
+        the next constructor. Under Qt 6.11.2 this crashed in the offscreen
+        platform's cursor lookup while QDialog's destructor hid the window.
         """
+        from PySide6.QtCore import QEvent
         from PySide6.QtWidgets import QApplication
 
         from spacr.qt import dialogs
@@ -1098,8 +1105,17 @@ class TestEverySettingsWindow:
             """The size this dialog opens at, once the caches are warm."""
             last = None
             for _ in range(6):
-                size = _size(_open(qtbot, build()))
-                QApplication.processEvents()
+                dialog = build()
+                try:
+                    dialog.show()
+                    qtbot.waitExposed(dialog)
+                    QApplication.processEvents()
+                    size = _size(dialog)
+                    QApplication.processEvents()
+                finally:
+                    dialog.close()
+                    dialog.deleteLater()
+                    QApplication.sendPostedEvents(dialog, QEvent.DeferredDelete)
                 if size == last:
                     return size
                 last = size

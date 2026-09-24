@@ -241,6 +241,8 @@ def test_double_clicking_asks_for_the_object_to_be_opened(qtbot,
     row, column = world.pixel_at({"y": 25.0, "x": 25.0})
     QTest.mouseDClick(viewer.canvas, Qt.LeftButton, Qt.NoModifier,
                       QPoint(int(column) + 1, int(row) + 1))
+    QTest.mouseRelease(viewer.canvas, Qt.LeftButton, Qt.NoModifier,
+                      QPoint(int(column) + 1, int(row) + 1))
     # `has_object_opener` asks the PROCESS-WIDE registry, so a double click
     # with only this test's private opener registered must be a no-op rather
     # than a NoObjectOpener out of a mouse handler.
@@ -540,6 +542,7 @@ def test_clicks_on_an_empty_canvas_and_with_other_buttons_do_nothing(
     canvas.activated.connect(lambda *a: picked.append(a))
     QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(10, 10))
     QTest.mouseDClick(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(10, 10))
+    QTest.mouseRelease(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(10, 10))
     canvas.mouseMoveEvent(_move(canvas, 10, 10))
     assert picked == []
 
@@ -547,6 +550,7 @@ def test_clicks_on_an_empty_canvas_and_with_other_buttons_do_nothing(
     canvas._ensure_canvas()
     QTest.mouseClick(canvas, Qt.RightButton, Qt.NoModifier, QPoint(10, 10))
     QTest.mouseDClick(canvas, Qt.RightButton, Qt.NoModifier, QPoint(10, 10))
+    QTest.mouseRelease(canvas, Qt.RightButton, Qt.NoModifier, QPoint(10, 10))
     assert picked == []
 
 
@@ -662,6 +666,8 @@ def test_an_opener_that_fails_does_not_escape_the_double_click(
     row, column = world.pixel_at({"y": 25.0, "x": 25.0})
     with caplog.at_level("ERROR"):
         QTest.mouseDClick(viewer.canvas, Qt.LeftButton, Qt.NoModifier,
+                          QPoint(int(column) + 1, int(row) + 1))
+        QTest.mouseRelease(viewer.canvas, Qt.LeftButton, Qt.NoModifier,
                           QPoint(int(column) + 1, int(row) + 1))
     assert "Could not open plate1_A_1_1_17" in caplog.text
 

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI-assisted linguistic and technical review against watershed, per-seed intensity ratio, shared threshold scope and cleanup order; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+      "source": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+      "source_sha256": "7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198",
+      "translation": "Fraction du pic : chaque bassin de la segmentation par ligne de partage des eaux est limité à la fraction choisie de l’intensité de son germe. Il s’agit d’un rapport d’intensités, pas d’un percentile ; les décalages du niveau de fond influencent le résultat. Les trois autres règles limitent la segmentation par un seuil commun au champ ou à la région traités. Le comblement des trous et le filtrage par aire minimale suivent ensuite."
+    }
+  ]
+}

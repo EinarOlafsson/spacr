@@ -3,7 +3,7 @@ First-launch tour — one-time coach-marks over the home screen.
 
 Fires the first time ``spacr`` boots (state stored in QSettings). A
 translucent full-window overlay dims the app; a numbered card walks
-the user through: sidebar → Demos menu → home tiles → hint bar. The
+the user through: sidebar → test data → home tiles → hint bar. The
 user can dismiss at any point via Skip / Esc; the "seen" flag is
 saved on skip OR after the last step so the tour never fires twice
 unless they hit "Reset" in Preferences.
@@ -31,9 +31,9 @@ from dataclasses import dataclass
 from typing import Callable, List, Optional
 
 from PySide6.QtCore import QEvent, QPoint, QRect, Qt
-from PySide6.QtGui import QColor, QKeyEvent, QPainter, QPen
+from PySide6.QtGui import QColor, QKeyEvent, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
-    QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget,
+    QLabel, QMainWindow, QPushButton, QScrollArea, QVBoxLayout, QWidget,
 )
 
 LOG = logging.getLogger("spacr.qt.first_run")
@@ -138,11 +138,11 @@ DEFAULT_TOUR: List[TourStep] = [
         highlight=lambda w: getattr(w, "_sidebar", None),
     ),
     TourStep(
-        title="Demos menu",
-        body="Load a synthetic demo dataset for a selected core workflow "
-             "in one click — no data of your own required. Use it to try "
-             "spaCR before loading an experiment.",
-        highlight=lambda w: find_menu(w, "Demos"),
+        title="Test data and walkthroughs",
+        body="Use Load test data in a module to load its example dataset "
+             "and settings. Pipeline overviews on Home explains the inputs "
+             "and outputs and opens the matching walkthrough.",
+        highlight=None,
     ),
     TourStep(
         title="Drag & drop",
@@ -204,7 +204,8 @@ class _TourOverlay(QWidget):
     """Translucent overlay + step card. Owns the tour lifecycle."""
 
     def __init__(self, window: QMainWindow, steps: List[TourStep],
-                 on_finish: Optional[Callable[[], None]] = None):
+                 on_finish: Optional[Callable[[], None]] = None,
+                 *, translated: bool = False):
         """
         :param window: the main window the overlay covers.
         :param steps: the narrated coach-marks, in order.
@@ -214,6 +215,8 @@ class _TourOverlay(QWidget):
             per-module tour without its own copy of the rendering — a second
             dimmed card would be a second thing to keep looking like this
             one.
+        :param translated: the caller already translated and formatted the
+            step text. Preserve it instead of translating it a second time.
         """
         super().__init__(window)
         self._window = window
@@ -239,29 +242,42 @@ class _TourOverlay(QWidget):
             "  padding: 20px;"
             "}"
         )
-        self._card.setFixedWidth(420)
 
         col = QVBoxLayout(self._card)
         col.setContentsMargins(20, 20, 20, 20)
         col.setSpacing(8)
 
         from .i18n import tr
+        self._step_text = str if translated else tr
         self._step_lbl = QLabel(tr("Step {n} / {total}", n=1,
                                    total=len(steps)))
         self._step_lbl.setObjectName("TourStep")
         self._step_lbl.setStyleSheet("color: #4A9EFF;")
         col.addWidget(self._step_lbl)
 
-        self._title_lbl = QLabel(tr(steps[0].title))
+        self._title_lbl = QLabel(self._step_text(steps[0].title))
+        self._title_lbl.setProperty("i18nSkipText", translated)
         self._title_lbl.setObjectName("TourTitle")
         self._title_lbl.setStyleSheet("color: #e5e5e5;")
-        col.addWidget(self._title_lbl)
+        self._title_lbl.setWordWrap(True)
+        content = QWidget()
+        text_layout = QVBoxLayout(content)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.addWidget(self._title_lbl)
 
-        self._body_lbl = QLabel(tr(steps[0].body))
+        self._body_lbl = QLabel(self._step_text(steps[0].body))
+        self._body_lbl.setProperty("i18nSkipText", translated)
         self._body_lbl.setObjectName("TourBody")
         self._body_lbl.setWordWrap(True)
         self._body_lbl.setStyleSheet("color: #a1a6ad;")
-        col.addWidget(self._body_lbl)
+        text_layout.addWidget(self._body_lbl)
+        self._text_scroll = QScrollArea()
+        self._text_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._text_scroll.setWidgetResizable(True)
+        self._text_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._text_scroll.setWidget(content)
+        self._text_scroll.setMinimumSize(0, 0)
+        col.addWidget(self._text_scroll, 1)
 
         btn_row = QWidget()
         from PySide6.QtWidgets import QHBoxLayout
@@ -289,17 +305,18 @@ class _TourOverlay(QWidget):
     def paintEvent(self, event) -> None:
         """Dim the window and cut a lit ring around this step's target.
 
-        The dimming is CLEARED inside the ring rather than merely outlined, so
-        the widget being pointed at is seen in its own colours -- a highlight
-        that leaves its subject dimmed points at something the viewer still
-        cannot read. A target that cannot be resolved leaves the dim intact
-        rather than failing: a tour missing one ring is better than no tour.
+        The highlighted rectangle is excluded from the painted shade. Clearing
+        the shared backing store can punch a transparent hole through the main
+        window on macOS, so the target's existing pixels must remain intact.
+        Missing targets leave the dimming intact.
 
         :param event: the paint event.
         """
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
-        p.fillRect(self.rect(), QColor(0, 0, 0, 170))
+        shade = QPainterPath()
+        shade.addRect(self.rect())
+        rect = None
 
         highlight_fn = self._steps[self._idx].highlight
         if highlight_fn is not None:
@@ -308,16 +325,16 @@ class _TourOverlay(QWidget):
                 if target is not None:
                     rect = _widget_rect_in_window(target, self._window)
                     if rect is not None:
-                        p.setBrush(Qt.transparent)
-                        pen = QPen(QColor("#4A9EFF"), 3)
-                        p.setPen(pen)
-                        expanded = rect.adjusted(-4, -4, 4, 4)
-                        p.drawRoundedRect(expanded, 6, 6)
-                        p.setCompositionMode(
-                            QPainter.CompositionMode_Clear)
-                        p.fillRect(rect, Qt.transparent)
+                        hole = QPainterPath()
+                        hole.addRect(rect)
+                        shade = shade.subtracted(hole)
             except Exception:
                 pass
+        p.fillPath(shade, QColor(0, 0, 0, 170))
+        if rect is not None:
+            p.setBrush(Qt.NoBrush)
+            p.setPen(QPen(QColor("#4A9EFF"), 3))
+            p.drawRoundedRect(rect.adjusted(-4, -4, 4, 4), 6, 6)
         p.end()
 
     def resizeEvent(self, event) -> None:
@@ -328,14 +345,25 @@ class _TourOverlay(QWidget):
         self._update_card_position()
 
     def _update_card_position(self) -> None:
-        """Keep the card bottom-centre as the overlay resizes."""
-        w = self.width()
-        h = self.height()
-        cw = self._card.width()
-        ch = self._card.sizeHint().height()
-        self._card.setGeometry(
-            (w - cw) // 2, h - ch - 60, cw, ch,
-        )
+        """Fit text and actions within the visible part of the application."""
+        if not hasattr(self, '_text_scroll'):
+            return
+        from .hidpi import screen_for_widget
+        from .preferences import scaled_px
+        available = screen_for_widget(self).availableGeometry()
+        visible = self.rect().intersected(QRect(
+            self.mapFromGlobal(available.topLeft()), available.size()))
+        area = visible.adjusted(12, 12, -12, -12)
+        if area.isEmpty():
+            return
+        width = min(scaled_px(480), area.width())
+        text_width = max(1, width - 60)
+        layout = self._text_scroll.widget().layout()
+        text_height = layout.totalHeightForWidth(text_width)
+        footer = self._next_btn.sizeHint().height()
+        height = min(area.height(), max(160, text_height + footer + 90))
+        self._card.setGeometry(area.center().x() - width // 2,
+                               area.bottom() - height + 1, width, height)
 
     def eventFilter(self, obj, event):
         """Follow the window's size, so the overlay always covers it.
@@ -350,8 +378,9 @@ class _TourOverlay(QWidget):
         # reaches the filter.
         window = getattr(self, "_window", None)
         if window is not None and obj is window \
-                and event.type() == QEvent.Resize:
+                and event.type() in (QEvent.Resize, QEvent.Move):
             self.setGeometry(window.rect())
+            self._update_card_position()
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -378,8 +407,8 @@ class _TourOverlay(QWidget):
         step = self._steps[self._idx]
         self._step_lbl.setText(tr("Step {n} / {total}", n=self._idx + 1,
                                   total=len(self._steps)))
-        self._title_lbl.setText(tr(step.title))
-        self._body_lbl.setText(tr(step.body))
+        self._title_lbl.setText(self._step_text(step.title))
+        self._body_lbl.setText(self._step_text(step.body))
         if self._idx == len(self._steps) - 1:
             self._next_btn.setText(tr("Finish"))
         self._update_card_position()
@@ -417,6 +446,17 @@ def _widget_rect_in_window(widget: QWidget,
                              window: QMainWindow) -> Optional[QRect]:
     """Return ``widget``'s bounding rectangle in the window's coord space."""
     try:
+        from PySide6.QtWidgets import QMenu
+        if isinstance(widget, QMenu):
+            bar = window.menuBar()
+            if bar.isNativeMenuBar() or not bar.isVisible():
+                return None
+            local = bar.actionGeometry(widget.menuAction())
+            if local.isEmpty():
+                return None
+            return QRect(bar.mapTo(window, local.topLeft()), local.size())
+        if not widget.isVisibleTo(window) or widget.window() is not window:
+            return None
         top_left = widget.mapTo(window, QPoint(0, 0))
         return QRect(top_left, widget.size())
     except Exception:
@@ -472,6 +512,8 @@ def maybe_show_tour(window: QMainWindow,
     :returns: the overlay widget (already visible) or None if the
         tour was skipped because it had been seen.
     """
+    if getattr(window, "_pathway_walkthrough_active", False):
+        return None
     if not force and was_tour_shown():
         return None
     overlay = _TourOverlay(window, DEFAULT_TOUR)

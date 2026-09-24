@@ -1,6 +1,6 @@
-|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Platforms| |Python| |Qt| |Tests| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
-.. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
+.. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
    :alt: 문서
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
@@ -142,15 +142,15 @@ The installers bundle their own Python. Conda is not required.
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11용 spaCR 1.5.0.9 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Windows-Online-Setup.exe
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel 및 Apple Silicon)용 spaCR 1.5.0.9 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-macOS-Universal-Online.pkg
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64비트 Linux용 spaCR 1.5.0.9 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Linux-x86_64-Online.run
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: 이전 spaCR 설치 프로그램
@@ -249,7 +249,7 @@ conda-forge 설치
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-전체 클론은 1186 MB 크기의 체크아웃을 위해 5.8 GB를 내려받습니다. 이 클론에 ``--filter=blob:none`` 옵션을 추가해도 절약되는 것은 없습니다. 체크아웃 과정에서 어차피 blob을 모두 가져오기 때문입니다.
+2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1607 MB를 차지합니다(2026-09-24 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
 
 
 명령줄 진입점
@@ -322,7 +322,7 @@ embedding, draw a gate, build a plot, check quality.
 
 Quantitative readouts for biological assays.
 
-| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+| |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -414,25 +414,20 @@ Quantitative readouts for biological assays.
    :alt: Graph Builder API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
    :width: 16.0%
-   :alt: Plaque Assay API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :alt: Toxoplasma API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
    :align: middle
-.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
    :width: 16.0%
-   :alt: Recruitment API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :alt: Plasmodium spp. API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
    :align: middle
-.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
    :width: 16.0%
-   :alt: Invasion Assay API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
-   :align: middle
-.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.0%
-   :alt: Replication Assay API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :alt: Candida spp. API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
    :align: middle
 
 .. spacr-workflow-end
@@ -562,7 +557,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 **F1**은 두 가지를 결합하고 각각 삼각형으로 재생되어 있기 때문에 인용됩니다 - 거의 완벽한 정확도를위한 하나의 혼동 할 수없는 플레이트를보고, 또는 거의 완전한 추억을위한 모든 어두운 블로브.당신이 잃어 버리는 것은 추측에 따라 달라집니다, 그리고 계산은 일반적으로 더 나은 과도한 호출에 의해 제공됩니다 : 플레크 모델은 0.858의 정확도에서 0.811의 이전 라운드에서 0.939 및 0.631의 추억으로 받아 들여졌습니다.
 
-**IoU**, 연합 위의 교차점은 예측된 개체와 실제 하나가 서로 덮는 영역에 의해 분할되는 양입니다. 그것은 나머지는 반대로 읽을 수있는 통치자입니다, 그래서 점수는 그것의 한계없이 아무것도 의미하지 않습니다 : "F1 0.864에서 IoU 0.5"는 두 출력 라인이 결합 된 영역의 절반 이상에 동의 할 때 발견 된 바구니를 계산합니다.
+**IoU**(교집합 대 합집합 비율)는 예측 객체와 참조 객체가 겹치는 면적을 두 객체의 합집합 면적으로 나눈 값입니다. 점수는 임계값과 함께 해석하세요. “IoU 0.5에서 F1 0.864”는 겹치는 면적이 합집합 면적의 절반 이상이면 해당 액포를 검출한 것으로 센다는 뜻입니다.
 
 **mAP50** 및 **map50-95**은 탐지기에 속합니다. 첫 번째는 풀이 발견되었는지 물어보며, 두 번째는 0.5에서 0.95까지의 10 개의 경계선을 통해 반복하므로 각 상자가 얼마나 밀접하게 끌어 들이는지도 물어보고 있습니다.
 
@@ -674,7 +669,7 @@ If spaCR contributed to published work, a citation is appreciated and is not a c
 튜토리얼
 ~~~~~~~~~
 
-`대화형 spaCR 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_\ 에는 설치 및 각 애플리케이션 워크플로를 설명하는 음성·자막 안내가 있으며, 8개 언어의 50개 음성으로 제작된 73개 강의가 포함되어 있습니다.
+`spaCR 대화형 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_는 설치와 모듈 사용을 단계별로 안내합니다. 각 강의에는 사용 가능한 내레이션과 언어가 표시됩니다.
 
 spaCR 인용
 ~~~~~~~~~~~~

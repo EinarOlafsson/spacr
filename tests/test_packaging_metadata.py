@@ -1724,7 +1724,8 @@ def test_the_conda_recipe_names_the_version_this_repo_ships():
     assert declared.group(1) == shipped, (
         f"the conda-forge recipe builds {declared.group(1)!r} but this repo "
         f"ships {shipped!r}. Bump the recipe and replace its sha256 with the "
-        f"new sdist's, or conda-forge publishes the older release as current.")
+        f"new sdist's so this reference mirror describes the current release. "
+        "The independently maintained feedstock controls conda publication.")
 
     # To end-of-line, not \S+: the URL contains "${{ version }}", whose
     # spaces would truncate the match and make this assertion fail on a

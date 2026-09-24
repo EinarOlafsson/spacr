@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Organism annotation joined to regression results. 'toxoplasma' uses bundled Toxoplasma gondii tables without a network. Other organism names or NCBI taxon IDs fetch UniProt entries; a single accession such as P04637 fetches that entry. Results are cached beside the outputs for offline reuse. An unrecognised name leaves results unannotated and suggests similar names. Leave empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "51e99dde4b4c7188b918d5b48d0f89b1b4310d7332fd345908a6d6886a2c7921",
+      "translation": "Annotation de l'organisme jointe aux résultats de régression. 'toxoplasma' utilise les tables fournies de Toxoplasma gondii sans réseau. Les autres noms d'organismes ou identifiants taxonomiques NCBI récupèrent les entrées UniProt ; un numéro d'accès comme P04637 récupère cette seule entrée. Les résultats sont mis en cache à côté des sorties pour être réutilisés hors ligne. Un nom inconnu laisse les résultats sans annotation et suggère des noms proches. Laissez vide pour ne pas annoter. Par défaut 'toxoplasma'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
+      "source_sha256": "da585a654be3db66be5a0e082e9423e5deb7d95d16b56f46cc545386e87cd173",
+      "translation": "Convention de nommage des images brutes, regroupée par fabricant de microscope. Par défaut 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' utilise custom_regex ; 'auto' renomme d'abord les fichiers selon la convention Yokogawa, avec custom_regex s'il est fourni, sinon par détection automatique. Les conventions provisoires viennent de noms de fichiers de jeux publics, pas de la documentation du fabricant. Un mauvais choix peut attribuer incorrectement les identifiants de plaque, puits, champ ou canal et les dossiers de canaux. Utilisez “Tester sur mon dossier” avant l'exécution."
+    }
+  ]
+}

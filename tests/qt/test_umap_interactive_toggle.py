@@ -92,3 +92,58 @@ def test_payload_defaults_to_static_until_interactive_is_enabled(
     assert screen._umap_explorer.isHidden()
     assert not screen._figure_queue.isHidden()
     assert screen._figure_queue.count() == 1
+
+
+def test_opening_toggling_and_closing_umap_without_a_payload_builds_no_explorer(
+        qtbot, qt_theme_applied):
+    from matplotlib.figure import Figure
+
+    screen = AppScreen("umap")
+    qtbot.addWidget(screen)
+    screen.show()
+    qtbot.wait(20)
+    assert screen._if_built("_umap_explorer") is None
+    screen._interactive_switch.setChecked(True)
+    screen._interactive_switch.setChecked(False)
+    screen._on_figure_ready(Figure(figsize=(2, 2)))
+    assert screen._figure_queue.count() == 1
+    assert screen._if_built("_umap_explorer") is None
+    screen.close()
+    assert screen._if_built("_umap_explorer") is None
+
+
+def test_the_first_payload_builds_one_explorer_and_later_payloads_reuse_it(
+        qtbot, qt_theme_applied):
+    screen = AppScreen("umap")
+    qtbot.addWidget(screen)
+    assert screen._if_built("_umap_explorer") is None
+    screen._interactive_switch.setChecked(True)
+    screen._on_figure_ready(_payload_figure())
+    explorer = screen._if_built("_umap_explorer")
+    assert explorer is not None
+    assert not explorer.isHidden()
+    screen._on_figure_ready(_payload_figure())
+    assert screen._if_built("_umap_explorer") is explorer
+    assert screen._figure_queue.count() == 2
+    assert screen._umap_payload_ready
+    np.testing.assert_array_equal(explorer._embedding, [[0, 0], [1, 1]])
+    assert [row["display_name"] for row in explorer._records] == [
+        "cell-1", "cell-2"]
+
+
+def test_the_deferred_explorer_uses_current_language_and_display_settings(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr.qt.i18n import retranslate_widget_tree, tr
+
+    screen = AppScreen("umap")
+    qtbot.addWidget(screen)
+    assert screen._if_built("_umap_explorer") is None
+    monkeypatch.setenv("SPACR_LANGUAGE", "sv")
+    retranslate_widget_tree(screen)
+    assert screen._settings_model.set_value_for_key("figuresize", 11)
+    explorer = screen._umap_explorer
+    assert explorer._display_btn.text() == tr("Display settings…", "sv")
+    assert explorer._display_btn.text() != "Display settings…"
+    assert explorer._settings_getter()["figuresize"] == 11
+    explorer._propagate_cb({"figuresize": 12})
+    assert screen._settings_model.collect()["figuresize"] == 12

@@ -1712,8 +1712,9 @@ def check_mask_folder(src, mask_fldr, resume=False):
     :param resume: accepted for the callers that pass it. Only structurally
         complete mask arrays are counted whether or not it is set, so an
         empty or truncated array left by an interrupted run is re-queued.
-    :returns: ``True`` when the mask folder is missing or has fewer valid
-        ``.npy`` files than the stack folder.
+    :returns: ``True`` when the mask folder is missing or any expected stack
+        filename lacks a complete mask. Unrelated masks cannot substitute
+        for a missing field and do not force complete fields to run again.
     """
     from .io import _listdir_visible
     from .resume import validate_merged_field
@@ -1724,15 +1725,10 @@ def check_mask_folder(src, mask_fldr, resume=False):
     if not os.path.exists(mask_folder):
         return True
     
-    mask_paths = [
-        os.path.join(mask_folder, file)
-        for file in _listdir_visible(mask_folder) if file.endswith('.npy')
-    ]
-    mask_count = sum(
-        1 for path in mask_paths if validate_merged_field(path)[0])
-    stack_count = sum(1 for file in _listdir_visible(stack_folder) if file.endswith('.npy'))
-    
-    if mask_count == stack_count:
+    expected = [file for file in _listdir_visible(stack_folder)
+                if file.endswith('.npy')]
+    if all(validate_merged_field(os.path.join(mask_folder, file))[0]
+           for file in expected):
         print(f'All masks have been generated for {mask_fldr}')
         return False
     else:
@@ -3443,6 +3439,14 @@ def _split_data(df, group_by, object_type):
 def _calculate_recruitment(df, channel):
     """Add pathogen-to-compartment recruitment ratio columns for the given intensity channel.
 
+    Each output identifies its channel, compartment and numerator statistic,
+    e.g. ``pathogen_channel_2_cytoplasm_mean_ratio``. Repeated calls preserve
+    previously computed channels. No spatial slope is inferred or fabricated.
+
+    :param df: measurement frame, augmented in place.
+    :param channel: intensity channel to compare within each compartment.
+    :returns: the input frame with fifteen channel-specific ratio columns.
+
     The frame is canonicalised first, so a table written before the ring
     percentiles were renamed (``outside_75_percentile``) divides correctly
     rather than raising ``KeyError`` on the new name. A database read through
@@ -3450,34 +3454,16 @@ def _calculate_recruitment(df, channel):
     not.
     """
     canonicalize_measurement_columns(df)
-    df['pathogen_cell_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_cell_q75_mean'] = df[f'pathogen_channel_{channel}_percentile_75']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_cytoplasm_q75_mean'] = df[f'pathogen_channel_{channel}_percentile_75']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_nucleus_q75_mean'] = df[f'pathogen_channel_{channel}_percentile_75']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_outside_cell_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_outside_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_outside_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_outside_cell_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_outside_cytoplasm_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_outside_nucleus_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_periphery_cell_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_periphery_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_periphery_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    channels = [0,1,2,3]
-    object_type = 'pathogen'
-    for chan in channels:
-        df[f'{object_type}_slope_channel_{chan}'] = 1
-
-    object_type = 'nucleus'
-    for chan in channels:
-        df[f'{object_type}_slope_channel_{chan}'] = 1
+    statistics = {
+        'mean': 'mean_intensity', 'q75': 'percentile_75',
+        'outside_mean': 'outside_mean', 'outside_q75': 'outside_percentile_75',
+        'periphery_mean': 'periphery_mean',
+    }
+    for compartment in ('cell', 'cytoplasm', 'nucleus'):
+        denominator = df[f'{compartment}_channel_{channel}_mean_intensity']
+        for name, source in statistics.items():
+            output = f'pathogen_channel_{channel}_{compartment}_{name}_ratio'
+            df[output] = df[f'pathogen_channel_{channel}_{source}'] / denominator
 
     return df
     
@@ -6407,7 +6393,13 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
 
     kwargs = cellpose_kwargs()
     if device is not None:
+        resolved_cpu = str(kwargs.get("device")).split(":", 1)[0] == "cpu"
         kwargs["device"] = device
+        if str(device).split(":", 1)[0] == "cpu":
+            kwargs.update(gpu=False, use_bfloat16=False)
+        elif resolved_cpu:
+            kwargs["gpu"] = True
+            kwargs.pop("use_bfloat16", None)
     return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
 
 class SelectChannels:
@@ -8829,8 +8821,13 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
     return out.astype(np.uint16)
 
 def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold=5, perimeter_threshold=30):
-    """Merge cells that share a parasite/nucleus or a large fraction of perimeter."""
-    labeled_cells = label(cell_mask)
+    """Merge cells that share a parasite/nucleus or a large fraction of perimeter.
+
+    Overlap and perimeter decisions use the mask's current object IDs, including
+    nonconsecutive labels. Cell IDs are compacted only for the returned mask;
+    intermediate component IDs must never be used to index the original mask.
+    """
+    labeled_cells = cell_mask
     labeled_parasites = label(parasite_mask)
     labeled_nuclei = label(nuclei_mask)
     num_parasites = np.max(labeled_parasites)
@@ -8867,7 +8864,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
                 for other_label in overlapping_cell_labels[1:]:
                     cell_mask[cell_mask == other_label] = first_label
 
-    labeled_cells = label(cell_mask)
+    labeled_cells = cell_mask.copy()
     cell_regions = regionprops(labeled_cells)
     for region in cell_regions:
         cell_label = region.label
@@ -8899,7 +8896,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     return relabeled_cell_mask.astype(np.uint16)
 
 
-def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30):
+def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, *, output_folder=None):
     """Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.
 
     :param file_name: mask file name (must exist in all folders).
@@ -8912,6 +8909,9 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     :param organelle_folder: optional folder of organelle masks.
     :param overlap_threshold: fractional overlap threshold used by the merger.
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
+    :param output_folder: optional separate destination for adjusted masks.
+        None retains in-place adjustment. An explicit destination must differ
+        from every source mask folder, including through directory symlinks.
     :returns: elapsed seconds.
     :raises ValueError: if the matching cell or nuclei mask file is missing,
         or a mask file holds pickled objects: masks are plain arrays, and
@@ -8922,6 +8922,11 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     parasite_path = os.path.join(parasite_folder, file_name)
     cell_path = os.path.join(cell_folder, file_name)
     nuclei_path = os.path.join(nuclei_folder, file_name)
+    if output_folder is not None and any(
+            os.path.realpath(output_folder) == os.path.realpath(folder)
+            for folder in (parasite_folder, cell_folder, nuclei_folder, organelle_folder)
+            if folder is not None):
+        raise ValueError('The adjusted-mask output folder must differ from all source folders')
 
     if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
@@ -8940,12 +8945,16 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
 
     from .io import _save_array_atomic
 
-    _save_array_atomic(cell_path, merged_cell_mask)
+    output_path = cell_path
+    if output_folder is not None:
+        os.makedirs(output_folder, exist_ok=True)
+        output_path = os.path.join(output_folder, file_name)
+    _save_array_atomic(output_path, merged_cell_mask)
 
     end = time.perf_counter()
     return end - start
 
-def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None, *, output_folder=None):
     """Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.
 
     :param parasite_folder: folder of parasite masks.
@@ -8956,8 +8965,18 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
     :param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and
         values below two run inline without starting a child process.
+    :param output_folder: optional separate folder for adjusted masks. None
+        preserves the historical in-place behavior. A separate folder keeps
+        all source masks byte-identical, and every selected field is rebuilt
+        from its source on each invocation, including after interrupted work.
     :returns: None.
-    :raises ValueError: if the three folders contain different numbers of files.
+    :raises ValueError: if the three folders contain different numbers of files
+        or mismatched filenames, or a mask is truncated, nonnumeric, empty,
+        not two-dimensional or has different dimensions from its partners.
+        Available organelle masks are checked too. Header-only validation of
+        every field finishes before any mask is changed or workers are started.
+        An explicit output folder must differ from every source folder and
+        must not contain masks outside the selected field set.
     """
     from .io import _listdir_visible
 
@@ -8968,12 +8987,55 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
         raise ValueError("The number of files in the folders do not match.")
 
+    if parasite_files != cell_files or parasite_files != nuclei_files:
+        groups = [set(parasite_files), set(cell_files), set(nuclei_files)]
+        unmatched = set.union(*groups) - set.intersection(*groups)
+        raise ValueError(
+            "Mask filenames do not match across parasite, cell and nuclei folders: "
+            f"{', '.join(sorted(unmatched)[:5])}. No cell masks were changed.")
+
     if organelle_folder is not None and os.path.exists(organelle_folder):
         organelle_files = sorted([f for f in _listdir_visible(organelle_folder) if f.endswith('.npy')])
         if len(organelle_files) != len(parasite_files):
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
         organelle_folder = None
+
+    if output_folder is not None:
+        if any(os.path.realpath(output_folder) == os.path.realpath(folder)
+               for folder in (parasite_folder, cell_folder, nuclei_folder, organelle_folder)
+               if folder is not None):
+            raise ValueError('The adjusted-mask output folder must differ from all source folders')
+        if os.path.isdir(output_folder):
+            extra = {name for name in _listdir_visible(output_folder)
+                     if name.endswith('.npy')} - set(parasite_files)
+            if extra:
+                raise ValueError(f'Adjusted-mask output folder contains unrelated fields: '
+                                 f'{", ".join(sorted(extra)[:5])}')
+
+    from .cancellation import checkpoint
+    from .resume import read_npy_header
+
+    for name in parasite_files:
+        checkpoint()
+        paths = [os.path.join(folder, name)
+                 for folder in (parasite_folder, cell_folder, nuclei_folder)]
+        if organelle_folder is not None:
+            candidate = os.path.join(organelle_folder, name)
+            if os.path.exists(candidate):
+                paths.append(candidate)
+        expected_shape = None
+        for path in paths:
+            header = read_npy_header(path)
+            shape = header['shape']
+            if (len(shape) != 2 or min(shape) <= 0
+                    or header['expected_bytes'] is None
+                    or header['actual_bytes'] < header['expected_bytes']):
+                raise ValueError(f'Invalid or incomplete two-dimensional mask: {path}')
+            if expected_shape is not None and shape != expected_shape:
+                raise ValueError(f'Mask dimensions do not match for {name}: '
+                                 f'{path} has {shape}, expected {expected_shape}')
+            expected_shape = shape
 
     if n_jobs is None:
         n_jobs = max(1, cpu_count() - 2)
@@ -8988,7 +9050,8 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                          nuclei_folder=nuclei_folder,
                          organelle_folder=organelle_folder,
                          overlap_threshold=overlap_threshold,
-                         perimeter_threshold=perimeter_threshold)
+                         perimeter_threshold=perimeter_threshold,
+                         **({'output_folder': output_folder} if output_folder is not None else {}))
 
     if n_jobs == 1:
         durations = map(process_fn, parasite_files)

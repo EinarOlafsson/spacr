@@ -239,7 +239,8 @@ def test_the_submenu_lands_at_the_end_when_there_is_no_separator(qtbot,
     submenu = W.install_help_menu(window)
     assert submenu is not None
     assert help_menu.actions()[-1] is submenu.menuAction()
-    assert [a.text() for a in submenu.actions()][:1] == ["Mask"]
+    module_actions = [a for a in submenu.actions() if a.property("moduleAppKey")]
+    assert [a.text() for a in module_actions][:1] == ["Mask"]
 
 
 def test_a_registry_that_cannot_be_read_still_leaves_a_reset_entry(qtbot,
@@ -250,7 +251,8 @@ def test_a_registry_that_cannot_be_read_still_leaves_a_reset_entry(qtbot,
     monkeypatch.setitem(sys.modules, "spacr.qt.app", None)
 
     submenu = W.install_help_menu(window)
-    assert [a.text() for a in submenu.actions()] == [
+    assert [a.text() for a in submenu.actions()
+            if not a.property("workflowPathway") and not a.isSeparator()] == [
         "Show all walkthroughs again"]
 
 

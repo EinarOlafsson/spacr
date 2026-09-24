@@ -1,13 +1,18 @@
 {
   "language": "sv",
-  "records": [
+  "records": [],
+  "schema": 1,
+  "superseded_records": [
     {
-      "key": "Controls",
-      "source": "Controls",
-      "source_sha256": "799c269135742a36ae48dddf3a69c47c7d2a428a34e351f6da93ae6490101b47",
-      "table": "ui",
-      "translation": "Kontroller"
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "key": "Controls",
+        "source": "Controls",
+        "source_sha256": "799c269135742a36ae48dddf3a69c47c7d2a428a34e351f6da93ae6490101b47",
+        "table": "ui",
+        "translation": "Kontroller"
+      }
     }
-  ],
-  "schema": 1
+  ]
 }

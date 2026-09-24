@@ -158,7 +158,8 @@ def _open_at_the_measured_width(window) -> bool:
         from .preferences import (_get_layout_decision,
                                   _set_layout_decision, get_font_scale)
 
-        handle = window.screen() or QApplication.primaryScreen()
+        from .hidpi import screen_for_widget
+        handle = screen_for_widget(window)
         if handle is None:
             return False
         available = handle.availableGeometry()
@@ -785,6 +786,7 @@ SECTIONS = _LiveSections()
 #: pipeline that names one still resolves it. What changed is what Home
 #: OFFERS, not what exists.
 TILELESS_APPS = frozenset({
+    "analyze_plaques", "recruitment", "invasion", "replication", 'host_pathogen',
     "feature_dict",
     "run_history",
     "pipeline_graph",
@@ -1059,8 +1061,12 @@ _BUILTIN_APPS = [
     ("make_masks",     "Make Masks",     "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",  SECTION_TOOLS),
     ("plate_view",     "Plate Viewer",   "Visualize measurements as plate heatmaps and detect edge effects",  SECTION_TOOLS),
     ("umap",           "Image UMAP",     "Visualize UMAP embeddings with image glyphs",                  SECTION_TOOLS),
+    ("toxoplasma", "Toxoplasma", "Image-analysis assays for Toxoplasma gondii", SECTION_ASSAYS),
+    ("plasmodium", "Plasmodium spp.", "Image-analysis modules for malaria parasites", SECTION_ASSAYS),
+    ("candida", "Candida spp.", "Image-analysis modules for Candida species", SECTION_ASSAYS),
     ("analyze_plaques", "Plaque Assay",  "Quantify plaque assay measurements",                          SECTION_ASSAYS),
     ("recruitment",    "Recruitment",    "Quantify molecular recruitment measurements",                 SECTION_ASSAYS),
+    ('host_pathogen', 'Host–Pathogen Analysis', 'Link vacuole recruitment and replication to host infection measurements', SECTION_ASSAYS),
     ("invasion",       "Invasion Assay", "Quantify attached and invaded parasites using two-colour differential staining and calculate invasion efficiency per well", SECTION_ASSAYS),
     ("replication",    "Replication Assay", "Quantify parasites per vacuole and calculate replication rates by condition", SECTION_ASSAYS),
 ]
@@ -1107,7 +1113,18 @@ APP_STAGE = {
 }
 
 for _row in _BUILTIN_APPS:
-    register_app(*_row)
+    if _row[0] == 'host_pathogen':
+        register_app(*_row, stage=STAGE_ALPHA, api_module='host_pathogen',
+                     entry='spacr.host_pathogen:analyze_host_pathogen')
+    elif _row[0] in {"toxoplasma", "plasmodium", "candida"}:
+        register_app(
+            *_row,
+            factory=LazyScreenFactory("spacr.qt.screens.organism_screen", "OrganismScreen"),
+            stage=STAGE_ALPHA,
+            cli_note="Open the organism page in the spaCR GUI; run its assays by their module keys.",
+            api_module="qt/screens/organism_screen")
+    else:
+        register_app(*_row)
 del _row
 
 
@@ -1526,8 +1543,7 @@ SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
                    "qc_dashboard"),
     SECTION_TOOLS: ("make_masks", "align", "umap", "gate_editor",
                     "graph_builder"),
-    SECTION_ASSAYS: ("analyze_plaques", "recruitment", "invasion",
-                     "replication"),
+    SECTION_ASSAYS: ("toxoplasma", "plasmodium", "candida"),
 }
 
 
@@ -1645,45 +1661,16 @@ def make_home_page(parent=None):
         stages=home_stages())
 
 
-#: demo key → the label its entry carries in the Demos menu.
-#:
-#: Module level rather than inline in ``_build_menus`` because the menu is
-#: not the only thing that names a demo: an app screen with no ``src`` set
-#: offers the user the demo that would fill it, and it has to name the
-#: same one. That hint used to read "use Demos → Mask demo…" on EVERY
-#: screen, so Measure, Timelapse, Classify and Sequencing each pointed at
-#: a dataset that would not open them.
-#:
-#: Labels are kept verbatim: :mod:`spacr.qt.i18n` keys its catalog on the
-#: English string, so renaming one drops its translation in nine
-#: languages.
 DEMO_LABELS = {
-    "mask":         "Mask demo…",
-    "measure":      "Measure demo…",
-    "crop":         "Crop demo…",
-    "classify":     "Classify demo…",
-    "timelapse":    "Timelapse demo…",
-    "map_barcodes": "Sequencing demo…",
+    "mask":         "Mask fixture…",
+    "measure":      "Measure fixture…",
+    "crop":         "Crop fixture…",
+    "classify":     "Classify fixture…",
+    "timelapse":    "Timelapse fixture…",
+    "map_barcodes": "Sequencing fixture…",
 }
 
 
-def demo_label_for_app(app_key: str) -> Optional[str]:
-    """The Demos-menu label of the demo that opens in app ``app_key``.
-
-    ``None`` when no demo lands there, which is most of the registry —
-    the caller says something generic rather than naming a demo that
-    would take the user somewhere else.
-
-    Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target
-    app) rather than a second table, so a demo that is re-pointed at a
-    different app moves its hint with it. The first match wins: two demos
-    land on ``measure`` (Measure and Crop) and the one named after the
-    app is the one it lists first.
-    """
-    for demo_key, (target, _generator) in MainWindow.DEMO_TARGETS.items():
-        if target == app_key and demo_key in DEMO_LABELS:
-            return DEMO_LABELS[demo_key]
-    return None
 
 
 _ICON_OVERRIDES = {
@@ -2297,8 +2284,8 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     # FIRST, before anything below can change a pixel.
     pixels, scale = None, (1.0, 1.0)
     try:
-        app = QApplication.instance()
-        display = window.screen() or app.primaryScreen()
+        from .hidpi import screen_for_widget
+        display = screen_for_widget(window)
         pixmap = display.grabWindow(window.winId())
         image = pixmap.toImage()
         report["screenshot"] = {
@@ -2479,6 +2466,17 @@ def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
     except Exception:                                        # noqa: BLE001
         LOG.warning("paint diagnostic: could not write to the console",
                     exc_info=True)
+
+
+def _opened_module_screen(window, requested: str, host: str):
+    """Return the requested form, including OPS inside its Mask Generation host."""
+    screen = getattr(window, "_screens", {}).get(host)
+    if requested == "ops" and screen is not None:
+        from .screens.mask import ops_page
+
+        installed = ops_page(screen)
+        return installed.page if installed else None
+    return screen
 
 
 class MainWindow(QMainWindow):
@@ -3026,11 +3024,17 @@ class MainWindow(QMainWindow):
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
         from .widgets.fold_strip import folded_modules
+        from .organisms import ORGANISMS
 
         folded = folded_children()
         catalogue = folded_modules()
+        module_titles = {row[0]: row[1] for row in APPS}
+        organism_children = {entry[0] for guide in ORGANISMS.values()
+                             for entry in guide['modules'] if entry[0]}
+        self._organism_menus = {}
         for section in SECTION_ORDER:
-            members = [row for row in APPS if row[3] == section]
+            members = sorted((row for row in APPS if row[3] == section
+                              and row[0] not in organism_children), key=tile_sort_key)
             if not members:
                 continue
             submenu = QMenu(section, self)
@@ -3045,7 +3049,31 @@ class MainWindow(QMainWindow):
                 act.triggered.connect(
                     lambda checked=False, k=key: self._on_nav_selected(k))
                 kids = folded.get(key, ())
-                if not kids:
+                if key in ORGANISMS:
+                    host_menu = QMenu(name, self)
+                    host_menu.setProperty("moduleAppKey", key)
+                    host_menu.setProperty("moduleNameSource", name)
+                    submenu.addMenu(host_menu)
+                    self._organism_menus[key] = host_menu
+                    host_menu.addAction(act)
+                    host_menu.addSeparator()
+                    for child, title, summary, _icon in ORGANISMS[key]['modules']:
+                        title = module_titles.get(child, title)
+                        child_action = QAction(tr(title), self)
+                        child_action.setToolTip(tr(summary))
+                        child_action.setStatusTip(tr(summary))
+                        if child:
+                            child_action.setProperty("moduleAppKey", child)
+                            child_action.setProperty("moduleNameSource", title)
+                            child_action.setProperty("moduleSummarySource", summary)
+                            child_action.triggered.connect(
+                                lambda checked=False, k=child: self._open_organism_module(k))
+                            self._app_actions[child] = child_action
+                        else:
+                            child_action.setText(tr("{name} — Coming soon", name=tr(title)))
+                            child_action.setEnabled(False)
+                        host_menu.addAction(child_action)
+                elif not kids:
                     submenu.addAction(act)
                 else:
                     host_menu = QMenu(name, self)
@@ -3128,29 +3156,13 @@ class MainWindow(QMainWindow):
         #: a menu entry that says so.
         self._act_all_apps = act_all
 
-        demo_menu = QMenu("&Demos", mb)
-        self._demo_menu = demo_menu
-        self._demo_actions: dict[str, QAction] = {}
-        for app_key, label in DEMO_LABELS.items():
-            act = QAction(label, self)
-            act.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
-            act.triggered.connect(
-                lambda checked=False, k=app_key: self._on_load_demo(k))
-            demo_menu.addAction(act)
-            target = self.DEMO_TARGETS.get(app_key, (app_key, ""))[0]
-            self._demo_actions[app_key] = act
-            act.setVisible(app_is_visible(target))
-        demo_menu.addSeparator()
-        act_e2e = QAction("End-to-end (Mask → Measure → Annotate) real dataset…", self)
-        act_e2e.setStatusTip(
-            "Download the toxo_mito HF demo dataset + settings pack, "
-            "then chain Mask → Measure → Annotate on it.")
-        act_e2e.triggered.connect(self._on_e2e_demo)
-        demo_menu.addAction(act_e2e)
-
         help_menu = mb.addMenu("&Help")
-        help_menu.addMenu(demo_menu)
-        help_menu.addSeparator()
+        from .widgets.workflow_diagram import show_spacr_flowchart
+
+        act_flowchart = QAction(tr("spaCR flowchart"), self)
+        act_flowchart.setObjectName("SpacrFlowchartAction")
+        act_flowchart.triggered.connect(lambda: show_spacr_flowchart(self))
+        help_menu.addAction(act_flowchart)
         act_keys = QAction("Keyboard shortcuts", self)
         act_keys.setStatusTip(
             "Every key spaCR binds, what it does, and where it works.")
@@ -3264,7 +3276,7 @@ class MainWindow(QMainWindow):
         control at all. A menu entry does not depend on a corner widget
         landing where the platform expects one.
 
-        PARENTED TO THE MENU BAR, like Demos, because ``first_run.find_menu``
+        PARENTED TO THE MENU BAR because ``first_run.find_menu``
         reaches menus through ``menuBar().findChildren(QMenu)`` and a menu
         parented elsewhere is invisible to it.
 
@@ -3403,165 +3415,6 @@ class MainWindow(QMainWindow):
         "timelapse": ("mask",       "generate_timelapse_demo"),
         "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
-
-    #: Status tip shown for every Demos entry. A template with a placeholder
-    #: rather than a sentence built by an f-string: interpolating the app key
-    #: BEFORE the lookup asks the catalog for a sentence it can never hold,
-    #: which is why all six tips stayed English in every language.
-    DEMO_STATUS_TIP = ("Generate a synthetic {app} dataset and open it in "
-                       "the matching app.")
-
-    def _on_load_demo(self, demo_key: str) -> None:
-        """Generate a synthetic demo dataset, save its settings, then
-        navigate to the matching app and pre-populate it."""
-        from pathlib import Path
-
-        from PySide6.QtWidgets import QFileDialog
-
-        target_app, gen_name = self.DEMO_TARGETS[demo_key]
-
-        default = str(Path.home() / "spacr-demos" / demo_key)
-        dst = QFileDialog.getExistingDirectory(
-            self, f"Choose destination for {demo_key} demo",
-            default,
-            QFileDialog.ShowDirsOnly | QFileDialog.DontConfirmOverwrite,
-        )
-        if not dst:
-            return
-        try:
-            layout = self._run_demo_generator(demo_key, dst)
-        except Exception as e:
-            QMessageBox.warning(self, "Demo generation failed", str(e))
-            return
-
-        self._on_nav_selected(target_app)
-        widget = self._screens.get(target_app)
-        if widget is None:
-            return
-        try:
-            self._apply_demo_to_screen(widget, layout)
-            self.statusBar().showMessage(
-                f"Loaded {demo_key} demo from {layout.src}", 5000)
-        except Exception as e:
-            QMessageBox.warning(self, "Demo load failed", str(e))
-
-    def _on_e2e_demo(self) -> None:
-        """Confirm, prompt for a folder, download the HF demo dataset,
-        then chain Mask -> Measure -> Annotate on it.
-
-        Flow (matches the spec agreed with the user):
-          1. Yes/No modal: "do you want to test mask -> Measure ->
-             Annotate on a real dataset?"
-          2. Folder picker for the local download destination.
-          3. QProgressDialog while the toxo_mito + spacr_settings repos
-             download in a background thread.
-          4. On success, kick off Mask -> Measure -> Annotate. Users
-             see the run inside each app's normal console.
-        """
-        from pathlib import Path
-
-        from PySide6.QtWidgets import QFileDialog, QMessageBox
-
-        answer = QMessageBox.question(
-            self, "End-to-end demo",
-            "Do you want to test Mask → Measure → Annotate on a real "
-            "dataset?\n\n"
-            "This will download the toxo_mito demo dataset "
-            "(~a few hundred MB) plus the matching settings pack from "
-            "Hugging Face, then run the pipeline chain against it.",
-            QMessageBox.Yes | QMessageBox.No,
-        )
-        if answer != QMessageBox.Yes:
-            return
-
-        default = str(Path.home() / "spacr-demos" / "toxo_mito_e2e")
-        dst = QFileDialog.getExistingDirectory(
-            self, "Choose folder for the demo dataset",
-            default,
-            QFileDialog.ShowDirsOnly | QFileDialog.DontConfirmOverwrite,
-        )
-        if not dst:
-            return
-
-        from .hf_download import download_toxo_mito_demo
-
-        def _on_download_done(result, error):
-            """Warn if the demo download failed, else run the chain."""
-            if result is None:
-                QMessageBox.warning(self, "Download",
-                    f"The download did not complete:\n{error or 'unknown error'}")
-                return
-            self.statusBar().showMessage(
-                f"Downloaded demo dataset to {result.dataset_path}", 6000)
-            self._run_e2e_chain(result.dataset_path,
-                                    result.settings_path)
-
-        download_toxo_mito_demo(self, dst, _on_download_done)
-
-    def _run_e2e_chain(self, dataset_path, settings_path) -> None:
-        """Open Mask Generation on the downloaded dataset, ready to run.
-
-        IT DOES NOT RUN ANYTHING. The user imports, and then chooses live
-        preview or run themselves.
-
-        This used to be a Mask -> Measure -> Annotate chain that started
-        each pipeline itself, behind a Continue/Stop prompt per stage.
-        Two things were wrong with that. A demo dataset exists to be
-        LOOKED at -- the first thing anyone wants is Live Preview on one
-        field, to see what the settings do, and the chain went straight
-        past that to a full run. And a Continue prompt before work the
-        user did not ask to start is a dialog whose safe answer is No,
-        which is a strange thing to greet somebody with.
-
-        So: the settings land in the form, the screen opens, and the
-        user presses Live Preview or Run. Measure and Annotate are one
-        click away on the same screen when the masks exist.
-        """
-        from pathlib import Path
-
-        from PySide6.QtWidgets import QMessageBox
-
-        dataset_path  = Path(dataset_path)
-        settings_path = Path(settings_path)
-
-        from .settings_pack import settings_from_pack
-
-        settings, report = settings_from_pack(
-            "mask", settings_path, src=dataset_path)
-        if report.source:
-            LOG.info("settings pack for %s: %s", "mask", report.summary())
-        else:
-            LOG.warning("No settings pack found for mask in %s; using defaults.",
-                        settings_path)
-        self._on_nav_selected("mask")
-        widget = self._screens.get("mask")
-        if widget is None:
-            QMessageBox.warning(
-                self, "Demo dataset",
-                "The dataset downloaded, but Mask Generation would not "
-                "open. Point it at the folder yourself:\n"
-                f"{dataset_path}")
-            return
-        try:
-            if hasattr(widget, "apply_settings_dict"):
-                widget.apply_settings_dict(settings)
-        except Exception as error:                          # noqa: BLE001
-            LOG.exception("Could not apply the demo settings")
-            QMessageBox.warning(
-                self, "Demo settings",
-                "The dataset downloaded and Mask Generation is open, but "
-                "its settings could not be filled in automatically:\n"
-                f"{type(error).__name__}: {error}")
-            return
-        if report.source:
-            self.statusBar().showMessage(
-                tr("Demo dataset loaded with its settings. Press Live Preview to "
-                   "see one field, or Run to process the plate."), 12000)
-        else:
-            self.statusBar().showMessage(
-                tr("Demo dataset loaded without a settings pack; using defaults. "
-                   "Press Live Preview to see one field, or Run to process the "
-                   "plate."), 12000)
 
     def _run_demo_generator(self, demo_key: str, dst: str):
         """Isolated for tests — invoke the named generator function
@@ -3824,30 +3677,26 @@ class MainWindow(QMainWindow):
             retranslate_widget_tree(self)
         except Exception:
             LOG.exception("Could not apply the selected UI language")
-        self._refresh_demo_status_tips()
 
-    def _refresh_demo_status_tips(self) -> None:
-        """Re-render the Demos status tips in the current language.
 
-        The retranslation pass caches whatever text a status tip already
-        holds and looks THAT up, which cannot work for a tip built from a
-        template: the cached sentence has the app key baked into it. These
-        six are rebuilt from :attr:`DEMO_STATUS_TIP` instead, so a language
-        chosen after the window opened reaches them like any other caption.
+    def _open_organism_module(self, key: str) -> None:
+        """Open an organism assay or its separate Starplast application.
+
+        :param key: a module route from the organism catalogue.
         """
-        for app_key, action in getattr(self, "_demo_actions", {}).items():
-            try:
-                action.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
-            except RuntimeError:
-                pass
+        if key == 'starplast':
+            from .starplast import open_starplast
+
+            open_starplast(self)
+        else:
+            self.open_module(key)
 
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
-            action.setVisible(app_is_visible(key))
-        for demo_key, action in getattr(self, "_demo_actions", {}).items():
-            target = self.DEMO_TARGETS.get(demo_key, (demo_key, ""))[0]
-            action.setVisible(app_is_visible(target))
+            action.setVisible(key == 'starplast' or app_is_visible(key))
+        for key, menu in getattr(self, '_organism_menus', {}).items():
+            menu.menuAction().setVisible(app_is_visible(key))
 
     def _rebuild_startup_page(self):
         """Recreate the Home page (e.g. after a font-scale change)."""
@@ -3871,6 +3720,13 @@ class MainWindow(QMainWindow):
         Both the network call and an accepted ``pip`` upgrade run on
         :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
+        worker = getattr(self, "_update_worker", None)
+        try:
+            if worker is not None and worker.isRunning():
+                self.statusBar().showMessage(tr("An update operation is already running."), 4000)
+                return
+        except RuntimeError:
+            pass
         try:
             from spacr.updater import check_for_updates
         except Exception as e:
@@ -3908,10 +3764,30 @@ class MainWindow(QMainWindow):
                 f"You're on {info.installed_version}. No updates.")
             return
 
+        try:
+            from spacr.updater import editable_install_location
+        except ImportError as exc:
+            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=str(exc)))
+            return
+        checkout = editable_install_location()
+        if checkout:
+            QMessageBox.information(
+                self, tr("Source checkout"),
+                tr("This spaCR runs from the source checkout at {path}. "
+                   "Update that checkout with git pull to receive source changes. "
+                   "No package upgrade was performed.", path=checkout))
+            return
+        from .bridge import registry
+        if registry().is_busy():
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("Finish or stop the active analyses before updating spaCR."))
+            return
+
         msg = (f"A new version is available.\n\n"
                f"Installed: {info.installed_version}\n"
                f"Latest:    {info.latest_release}\n\n"
-               f"Run pip install --upgrade spacr now?")
+               f"{tr('Install this update and restart spaCR?')}")
         if QMessageBox.question(
                 self, "Update available", msg) != QMessageBox.Yes:
             return
@@ -3946,9 +3822,7 @@ class MainWindow(QMainWindow):
         else:
             return_code, output = result, ""
         if return_code == 0:
-            QMessageBox.information(
-                self, "Updates",
-                "Upgrade finished. Restart spaCR to use it.")
+            self._restart_after_package_upgrade()
             return
         lines = [line for line in (output or "").splitlines() if line.strip()]
         detail = "\n".join(lines[-6:]) if lines else "No output was captured."
@@ -3961,6 +3835,35 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(
             self, "Updates",
             f"pip returned exit code {return_code}.\n\n{detail}")
+
+    def _restart_after_package_upgrade(self) -> None:
+        """Save the visible module and request a normal, cooperative restart."""
+        from spacr import restart_state
+
+        screen = self._stack.currentWidget()
+        module = str(getattr(screen, "app_key", "") or "__home__")
+        model = getattr(screen, "_settings_model", None)
+        try:
+            settings = model.collect() if model is not None else {}
+            saved = restart_state.save(module=module, settings=settings)
+        except Exception:
+            LOG.exception("Could not save the interface for an update restart")
+            saved = None
+        if saved is None:
+            QMessageBox.warning(
+                self, tr("Updates"),
+                tr("The update is installed, but the current settings could not "
+                   "be saved for restart. Keep this window open until you have "
+                   "saved your work, then restart spaCR."))
+            return
+        self._restart_after_update = True
+        if self.close() is False:
+            self._restart_after_update = False
+            restart_state.discard()
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("The update is installed. Restart was deferred while work "
+                   "finishes shutting down; restart spaCR after it stops."))
 
     def _on_old_installs_found(self, records) -> None:
         """Show what step 1 found, then run steps 2 and 3 in that order.
@@ -4005,7 +3908,8 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "upgrade",
             lambda: install_cleanup.run_update_sequence(
-                updater.run_pip_upgrade, records=records, ticked=ticked),
+                lambda: updater.run_pip_upgrade(target_version=version),
+                records=records, ticked=ticked),
             self._on_update_sequence_done)
 
     def _confirm_old_installs(self, records):
@@ -4420,8 +4324,9 @@ class MainWindow(QMainWindow):
         if not key:
             return ""
         try:
+            requested = key
             key = self.open_module(key)
-            screen = self._screens.get(key) if hasattr(self, "_screens") else None
+            screen = _opened_module_screen(self, requested, key)
             settings = state.get("settings")
             if screen is not None and isinstance(settings, dict) and settings:
                 applied = screen.apply_settings_dict(settings)
@@ -4462,13 +4367,24 @@ class MainWindow(QMainWindow):
     def _switch_a_fold_on(self, host_key: str, folded_key: str) -> None:
         """Press ``host_key``'s switch for ``folded_key``, if it has one.
 
-        Driven through the button so the strip shows the state the form
-        has. A host that carries no switch for the key costs a lookup:
-        the fold may be a page rather than a category, and a page opens
-        when the user presses it rather than on arrival.
+        Driven through the button so the control shows the state the form
+        has. OPS uses its actions-row switch; category folds use the masthead
+        strip. A host without a corresponding switch is left unchanged.
         """
         screen = self._screens.get(host_key)
         if screen is None:
+            return
+        if host_key == "mask" and folded_key == "ops":
+            switch = getattr(screen, "_ops_switch", None)
+            if switch is not None:
+                if switch.isChecked():
+                    from .screens.mask import ops_page
+
+                    installed = ops_page(screen)
+                    if installed is not None:
+                        installed.set_shown(True)
+                else:
+                    switch.setChecked(True)
             return
         try:
             from .screens.mask import fold_set
@@ -4497,6 +4413,7 @@ class MainWindow(QMainWindow):
         """Instantiate the Home page and add it to the stack."""
         self._startup = make_home_page()
         self._startup.tile_clicked.connect(self._on_nav_selected)
+        self._startup.sample_project_requested.connect(self._start_a_sample_project)
         self._startup.update_check_requested.connect(self._check_for_updates)
         try:
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
@@ -4755,6 +4672,66 @@ class MainWindow(QMainWindow):
                     LOG.debug("could not restore %s workspace", key,
                               exc_info=True)
 
+    def _start_a_sample_project(self) -> str:
+        """Ask which kind of experiment, then open it with example data.
+
+        GitHub #130: "I would like to open a sample project that is similar
+        to a project I may have and see the platform in action." Home lists
+        every module and says nothing about where to begin; this begins.
+
+        :returns: the module key opened, or ``""`` when nothing was chosen.
+        """
+        from .widgets.sample_project import offer_a_sample_project
+
+        def open_it(key):
+            """Open the actual module, including its page inside a host screen."""
+            host = self.open_module(key)
+            return _opened_module_screen(self, key, host)
+
+        return offer_a_sample_project(self, open_it)
+
+    def _say_a_module_would_not_open(self, key, exc) -> str:
+        """Tell the person a module did not open, and what stopped it.
+
+        GitHub #130, 2026-09-22: "When I look at the tiles, I can click them
+        and nothing seems to happen". A screen that raises while it is built
+        raises inside a Qt slot, and Qt prints the traceback to a terminal
+        nobody is reading and carries on: the tile stays a tile and the
+        window never says a word. A missing optional package -- the Import
+        screen needs pylibCZIrw for Zeiss files -- looks exactly like a dead
+        button.
+
+        :param key: the module that would not open.
+        :param exc: what stopped it.
+        :returns: the sentence shown, for the tests.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        from .i18n import tr
+
+        try:
+            from .screens.app_screen import APP_TITLES
+
+            name = APP_TITLES.get(key, key)
+        except Exception:                                     # noqa: BLE001
+            name = key
+        missing = getattr(exc, "name", "") if isinstance(exc, ImportError) else ""
+        if missing:
+            said = tr("{module} needs the Python package {package}, which is "
+                      "not installed here.", module=name, package=missing)
+        else:
+            said = tr("{module} could not open: {reason}",
+                      module=name, reason=f"{type(exc).__name__}: {exc}")
+        try:
+            self.statusBar().showMessage(said, 8000)
+        except Exception:                                     # noqa: BLE001
+            LOG.debug("no status bar to say it in", exc_info=True)
+        box = QMessageBox(QMessageBox.Warning, tr("That module did not open"),
+                          said, QMessageBox.Ok, self)
+        box.setDetailedText(f"{type(exc).__name__}: {exc}")
+        box.exec()
+        return said
+
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
         interaction_started = _timing.interval_started("navigation", key)
@@ -4774,11 +4751,16 @@ class MainWindow(QMainWindow):
             return
         if key in self._screens and self._screen_scale_is_stale(key):
             self._rebuild_for_scale(key)
-        if key not in self._screens:
+        built_now = key not in self._screens
+        if built_now:
             card = self._show_preparing(key)
             try:
                 self._screens[key] = self._build_screen(key)
                 self._screen_scales[key] = _current_font_scale()
+            except Exception as exc:                          # noqa: BLE001
+                LOG.exception("Could not open the %s screen", key)
+                self._say_a_module_would_not_open(key, exc)
+                return
             finally:
                 self._hide_preparing(card)
             try:
@@ -4799,6 +4781,14 @@ class MainWindow(QMainWindow):
             retarget_field_tooltips(self._screens[key])
         except Exception:
             LOG.exception("Could not retarget help on the %s screen", key)
+        detach = getattr(self._screens[key], "_detach_what_the_form_hides",
+                         None)
+        if built_now and callable(detach):
+            try:
+                detach()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not detach the hidden settings",
+                          exc_info=True)
         self._stack.setCurrentWidget(self._screens[key])
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
@@ -5327,11 +5317,27 @@ class MainWindow(QMainWindow):
     def _build_screen(self, key: str) -> QWidget:
         """Build one module's screen, timed.
 
+        A settings screen built here leaves each closed category unbuilt
+        until it is opened; see ``AppScreen._build_a_waiting_heading``.
+        Fold controls are attached before the first stylesheet is applied,
+        so their registered rules do not restyle an already visible page.
+
         :param key: the module to build.
         :returns: the screen widget.
         """
-        with _timing.span("build screen", key):
-            return self._build_screen_timed(key)
+        from . import screens as _screens_package
+
+        waited = _screens_package._categories_wait_to_be_opened
+        _screens_package._categories_wait_to_be_opened = True
+        try:
+            with _timing.span("build screen", key):
+                screen = self._build_screen_timed(key)
+                from .screens.map_barcodes import install_folds_on
+
+                install_folds_on(screen)
+                return screen
+        finally:
+            _screens_package._categories_wait_to_be_opened = waited
 
     def _build_screen_timed(self, key: str) -> QWidget:
         """Return a freshly-built screen widget for the given app ``key``.
@@ -5488,8 +5494,9 @@ class MainWindow(QMainWindow):
         saved before the fold reopens on Mask Generation with tracking
         switched on, which is where its settings now live.
         """
+        requested = target_key
         target_key = self.open_module(target_key)
-        widget = self._screens.get(target_key)
+        widget = _opened_module_screen(self, requested, target_key)
         if widget is None:
             return
         seeder = getattr(widget, "apply_seed", None)
@@ -5701,6 +5708,31 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     return tuple(installed)
 
 
+def _start_settings_prewarm() -> threading.Thread:
+    """Own the path-notification QObject on the GUI thread before importing.
+
+    Settings imports reach ``path_probe`` through the file-list widgets.
+    Its process-wide signal source must outlive the temporary import thread
+    and deliver redraw callbacks on the GUI thread. Only its lightweight
+    initialization runs here; the slow settings imports remain background work.
+    """
+    _importlib.import_module("spacr.qt.path_probe")
+
+    def warm():
+        """Import the remaining settings dependencies without building widgets."""
+        try:
+            for mod in ("spacr.settings",
+                        "spacr.qt.screens.settings_model",
+                        "spacr.qt.imagery"):
+                _importlib.import_module(mod)
+        except Exception:
+            LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
+
+    thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
+    thread.start()
+    return thread
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
@@ -5732,6 +5764,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
     try:
+        from .gui_scale import install_scaling_layer
+        install_scaling_layer()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not install the GUI scale", exc_info=True)
+
+    try:
         if "matplotlib" in sys.modules:
             import matplotlib
 
@@ -5748,6 +5786,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication(sys.argv[:1])
+    try:
+        from .gui_scale import apply_saved_gui_scale
+        apply_saved_gui_scale()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the saved GUI scale", exc_info=True)
     try:
         from .theme import use_a_style_that_honours_the_palette
         use_a_style_that_honours_the_palette(app)
@@ -5858,28 +5901,10 @@ def launch(argv: Optional[list[str]] = None) -> int:
     except Exception:                                        # noqa: BLE001
         LOG.exception("the live zoom gesture could not be installed")
 
-    def _prewarm():
-        """Import the slow settings module off the GUI thread.
-
-        Runs on a daemon thread while the user looks at the home screen, so
-        opening a module finds the import cached instead of paying for it.
-        Importing modules creates no Qt objects and is safe off-thread; a
-        failure is logged and ignored, because a cold import is slow rather
-        than broken.
-        """
-        try:
-            import importlib
-            for mod in ("spacr.settings",
-                        "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery"):
-                importlib.import_module(mod)
-        except Exception:
-            LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
     from .preferences import in_safe_mode
 
     if not in_safe_mode():
-        threading.Thread(target=_prewarm, name="spacr-prewarm",
-                         daemon=True).start()
+        _start_settings_prewarm()
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.
@@ -5921,6 +5946,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
             note_a_clean_shutdown()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not record a clean shutdown", exc_info=True)
+        if getattr(win, "_restart_after_update", False):
+            from spacr.updater import launch_updated_app
+            try:
+                launch_updated_app()
+            except OSError:
+                LOG.exception("The update is installed but spaCR could not restart")
+                return 1
         return code
     finally:
         written = _timing.write_report()

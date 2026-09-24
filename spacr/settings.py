@@ -961,6 +961,17 @@ def set_default_plot_merge_settings():
     settings.setdefault('verbose', True)
     return settings
 
+def _set_psf_defaults(settings):
+    """Populate dormant calibrated PSF settings without loading imaging code."""
+    settings.setdefault('psf_operation', 'none')
+    settings.setdefault('psf_source', 'gaussian')
+    settings.setdefault('psf_path', None)
+    settings.setdefault('psf_image_sampling_um', None)
+    settings.setdefault('psf_kernel_sampling_um', None)
+    settings.setdefault('psf_fwhm_um', None)
+    settings.setdefault('psf_iterations', 20)
+
+
 def set_default_settings_preprocess_generate_masks(settings=None):
     """Populate default settings for the preprocess/generate-masks pipeline.
 
@@ -974,6 +985,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
         settings = {}
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
+    _set_psf_defaults(settings)
+    from .image_quality import DEFAULTS as image_quality_defaults
+    for key, value in image_quality_defaults.items():
+        settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
     settings.setdefault('segmentation_backend', 'cellpose')
     settings.setdefault('batch_fields', 8)
     settings.setdefault('keep_npz', False)
@@ -1585,6 +1600,8 @@ def get_measure_crop_settings(settings=None):
     if settings is None:
         settings = {}
     _fold_renamed_settings(settings)
+    _set_psf_defaults(settings)
+    settings.setdefault('psf_measurement_source', 'original')
     _requested_organelle_count = organelle_count(settings)
     import ast as _ast
     for _k, _v in list(settings.items()):
@@ -2227,6 +2244,9 @@ def deep_spacr_defaults(settings):
     settings.setdefault('sample',None)
     settings.setdefault('experiment','experiment')
     settings.setdefault('score_threshold',0.5)
+    from .inference_augmentation import DEFAULTS as inference_defaults
+    for key, value in inference_defaults.items():
+        settings.setdefault(key, value)
     settings.setdefault('dataset','')
     settings.setdefault('model_path','')
     settings.setdefault('file_type','cell_png')
@@ -2425,23 +2445,17 @@ def get_train_cellpose_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    settings.setdefault('model_name','new_model')
-    settings.setdefault('model_type','cpsam')
-    settings.setdefault('base_model','cpsam')
-    settings.setdefault('Signal_to_noise',10)
-    settings.setdefault('background',200)
-    settings.setdefault('remove_background',False)
-    settings.setdefault('learning_rate',0.2)
-    settings.setdefault('weight_decay',1e-05)
-    settings.setdefault('batch_size',8)
-    settings.setdefault('n_epochs',10000)
-    settings.setdefault('from_scratch',False)
-    settings.setdefault('diameter',30)
-    settings.setdefault('resize',False)
-    settings.setdefault('width_height',[1000,1000])
-    settings.setdefault('target_size', 1000)
-    settings.setdefault('augment', False)
-    settings.setdefault('verbose',True)
+    defaults = dict(
+        src='', mask_src='', test_src='', test_mask_src='', save_path='',
+        model_name='new_model', base_model='cpsam', learning_rate=1e-5,
+        weight_decay=0.1, batch_size=1, n_epochs=100,
+        normalize=True, percentiles=[1, 99], channels=None, channel_axis=None,
+        min_train_masks=5, max_train_images=None, nimg_per_epoch=None,
+        nimg_test_per_epoch=None, scale_range=0.5, save_every=100,
+        save_each=False,
+    )
+    for key, value in defaults.items():
+        settings.setdefault(key, value)
     return settings
 
 def set_generate_dataset_defaults(settings):
@@ -3019,6 +3033,12 @@ descriptions = {
 
 
 expected_types = {
+    "psf_measurement_source": str,
+    "psf_operation": str, "psf_source": str,
+    "psf_path": (str, type(None)),
+    "psf_image_sampling_um": (list, type(None)),
+    "psf_kernel_sampling_um": (list, type(None)),
+    "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
     "src": (str, list),
     "illumination_correction": bool,
     "illumination_per_plate": bool,
@@ -3064,6 +3084,11 @@ expected_types = {
     "well_pad": int,
     "plate_format": (str, type(None)),
     "well_diameter_mm": (float, int, type(None)),
+    "plaque_estimate_growth": bool,
+    "plaque_growth_reference_um": (float, int),
+    "plaque_growth_reference_hours": (float, int),
+    "plaque_pixels_per_um": (float, int, type(None)),
+    "plaque_formation_hours": (float, int, type(None)),
     "nucleus_channel": (int, type(None)),
     "nucleus_background": int,
     "nucleus_signal_to_noise": float,
@@ -3276,6 +3301,18 @@ expected_types = {
     "target_intensity_min": int,
     "model_type": str,
     "base_model": str,
+    "mask_src": str,
+    "test_src": str,
+    "test_mask_src": str,
+    "save_path": str,
+    "channel_axis": (int, type(None)),
+    "min_train_masks": int,
+    "max_train_images": (int, type(None)),
+    "nimg_per_epoch": (int, type(None)),
+    "nimg_test_per_epoch": (int, type(None)),
+    "scale_range": float,
+    "save_every": int,
+    "save_each": bool,
     "heatmap_feature": str,
     "grouping": str,
     "min_max": str,
@@ -3394,6 +3431,13 @@ expected_types = {
     'model_path':str,
     'dataset':str,
     'score_threshold':float,
+    'tta_enabled':bool,
+    'tta_rotations':bool,
+    'tta_horizontal_flip':bool,
+    'tta_vertical_flip':bool,
+    'tta_aggregation':str,
+    'tta_min_agreement':float,
+    'tta_max_std':float,
     'sample':(int, list, type(None)),
     'file_metadata':(str, type(None), list),
     "train":bool,
@@ -3432,6 +3476,7 @@ expected_types = {
     "parasite_table": str,
     "compartment": str,
     "vacuole_key": str,
+    'replication_method': str,
     "vacuole_link_distance": (int, float, type(None)),
     "vacuole_link_factor": (int, float),
     "parasite_count_column": (str, type(None)),
@@ -3513,6 +3558,12 @@ expected_types = {
     "pathogen_diameter":int,
     "diameter_estimate_n_fields":int,
     "seg_qc":str,
+    'image_qc_mode':str,
+    'image_qc_channels':list,
+    'image_qc_min_focus':dict,
+    'image_qc_max_saturation':dict,
+    'image_qc_saturation_level':dict,
+    'image_qc_max_nonfinite':float,
     "seg_qc_min_objects":int,
     "seg_qc_count_ratio":float,
     "seg_qc_size_ratio":float,
@@ -3867,6 +3918,14 @@ def _outlier_criteria():
 
 
 tooltips = {
+    'psf_measurement_source': "(str) - original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
+    'psf_operation': "(str) - Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
+    'psf_source': "(str) - gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+    'psf_path': "(str or None) - Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
+    'psf_image_sampling_um': "(list or None) - Default None (unset). Explicit image pixel spacing [Y, X] in micrometers. Required when PSF processing is on; neither magnification nor pixel spacing is guessed. Both numbers must be positive and finite.",
+    'psf_kernel_sampling_um': "(list or None) - Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
+    'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers. Required for a Gaussian approximation. Both values must be positive and finite; these are user supplied approximation parameters, not measured resolution.",
+    'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
     'image_source':
         "(str) - Source of classification images. 'load_images' reads "
         "previously exported object crops; 'stream_images' generates crops "
@@ -3962,16 +4021,13 @@ tooltips = {
         "centroid. False measures geometry only. Ignored when "
         "object_distances is off. Default True.",
     'annotation_source':
-        "(str) - Which organism's annotation to join onto the regression "
-        "results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, "
-        "which need no network and are the default. Any other "
-        "organism name or NCBI taxon id -- 'human', 'Plasmodium "
-        "falciparum', 'Neospora caninum', '9606' -- pulls that organism's "
-        "entries from UniProt, and a single accession such as P04637 retrieves "
-        "that entry. The result is cached beside the outputs, so a "
-        "rerun needs no network. A name spaCR does not recognise leaves the "
-        "results unannotated and says which names were close. Leave it "
-        "empty for no annotation. Default 'toxoplasma'.",
+        "(str) - Organism annotation joined to regression results. "
+        "'toxoplasma' uses bundled Toxoplasma gondii tables without a network. "
+        "Other organism names or NCBI taxon IDs fetch UniProt entries; a "
+        "single accession such as P04637 fetches that entry. Results are "
+        "cached beside the outputs for offline reuse. An unrecognised name "
+        "leaves results unannotated and suggests similar names. Leave empty "
+        "for no annotation. Default 'toxoplasma'.",
     'cell_area_outlier_mads':
         "(float | None) - Optionally remove objects whose cell area exceeds "
         "this many scaled "
@@ -4068,6 +4124,12 @@ tooltips = {
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
+    'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
+    'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
+    'image_qc_min_focus': '(dict) - Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.',
+    'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
+    'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
+    'image_qc_max_nonfinite': '(float) - Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.',
     "seg_qc": "(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
     "seg_qc_min_objects": "(int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
     "seg_qc_count_ratio": "(float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.",
@@ -4096,7 +4158,7 @@ tooltips = {
     "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_cellprob_threshold used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
     "FT": "(float) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
     "circularize": "(bool) - Replace each detected mask with an equal-area circle centred on its centroid before measurement. This can reduce boundary variation for approximately circular objects with noisy segmentation outlines. Do not enable it when shape is an outcome, because circularization removes elongation and other morphological differences. Default False.",
-    "class_column": "(str) - Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'.",
+    "class_column": "(str) - Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'. Replication starts with the predictions column instead.",
     "class_metadata": "(list of lists) - One inner list per training class, holding the metadata values that select that class's objects, for example [['c1'],['c2']] for a two-class run keyed on column. Order fixes the class indices the model learns, so reordering the inner lists relabels the whole training set. Values that occur in no row make the generator select nothing and stop. Default [['c1'], ['c2']].",
     "fill_na": "(bool) - When a barcode does not match any entry in its reference CSV, count it under its raw sequence instead of dropping it. When disabled, grouping discards unmatched reads without warning; a reference in the incorrect orientation can therefore produce a reduced table rather than an empty one. Enable this setting to quantify the unmapped fraction. Default False.",
     "group_by_class": "(bool) - Whether the endodyogeny condition labels are split by class before proportions are computed: on, the condition string has the class_column value appended, so each condition-class combination becomes its own group; off, classes are pooled within a condition. It changes what the bars count, not how the statistics are weighted. Default False.",
@@ -4147,11 +4209,16 @@ tooltips = {
     "well_confidence": "(float) - Minimum YOLO confidence, from 0 to 1, for keeping a detected well when well_detection is enabled. Raising it removes uncertain boxes but can lose an entire condition; lowering it retains more candidates and can create spurious well crops. Default 0.25.",
     "well_pad": "(int) - Extra image pixels retained on every side of a detected well crop, clipped at the source-image boundary. Increase it when the detector box trims the well edge; excessive padding can include neighbouring wells or background. Default 0.",
     "plate_format": "(str or None) - Standard culture-plate format used as the physical ruler for detected wells: '6-well', '12-well', '24-well', '48-well' or '96-well'. It converts plaque areas from pixels to square millimetres; None leaves physical-area columns empty unless well_diameter_mm is supplied. Default None.",
+    "plaque_estimate_growth": "(bool) - Optional experimental plaque time/scale suggestions, saved separately from measurements. Uses the largest quarter of plaques and an assumed linear growth relation. Defaults off. The RH/HFF seven-day reference has about 40 hours held-out endpoint error and has not been validated across times or other conditions. Without a known scale or time, the reference duration is explicitly assumed.",
+    "plaque_growth_reference_um": "(float) - Reference median equivalent diameter in micrometers of the largest 25 percent of plaques. Default 893.8178699548309, derived from three independent RH/HFF vehicle-control experiments in Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Replace with a matched local reference when available.",
+    "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
+    "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
+    "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
-    "metadata_type": "(str) - Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
+    "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
     "normalize_by": "(str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'.",
-    "nuclei_limit": '(int, bool, or None) - Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells.',
+    "nuclei_limit": '(int, bool, or None) - Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.',
     "pathogen_limit": "(int, bool, or None) - Maximum pathogens per cell. True or 1 = single pathogen only; None or False = no limit; int = custom limit. Default varies by module (1, 3, 10 or 1000 depending on the factory that fills it), so check the module's own settings rather than assuming one value.",
     "masks": "(bool) - Run Cellpose segmentation for every configured object channel (cell, nucleus, pathogen, organelle) and write label stacks to masks/<object>_mask_stack. False performs preprocessing only, producing normalized arrays without label masks; downstream measurement therefore requires a subsequent segmentation step. Default True.",
     "delete_intermediate": "(bool) - Legacy force-cleanup switch. True overrides keep_intermediate and keep_original_images, removing stack/, masks/, the numeric per-channel folders, and the orig/ raw backup after merged/ is built. Cleanup is already the default; enable this setting only when cleanup must override those retention settings. Deletion is skipped unless every field of view reached merged/. Default False.",
@@ -4212,7 +4279,7 @@ tooltips = {
     "cell_types": "(list) - Names of the host cell lines in the experiment, e.g. ['HeLa']. Each name is written into the host_cells column and folded into the combined condition label used for grouping and plotting; the list is positionally paired with cell_plate_metadata, which says which wells hold each one. Default ['HeLa'].",
     "cells": "(list) - Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default_* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.",
     "cells_per_well": "(int) - Minimum cells a well must contribute to survive recruitment analysis; wells below it, and every cell in them, are dropped before the by-well plots and CSVs are produced. Raise it to suppress noisy, sparsely populated wells at the cost of losing those wells. Default 0, which keeps every well.",
-    "channel_dims": '(list) - Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].',
+    "channel_dims": '(list) - Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, each auxiliary recruitment ratio records its channel explicitly, so measurements from different channels remain separate. Default [0, 1, 2, 3].',
     "channel_of_interest": "(int, list, or str) - Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere.",
     "chunk_size": "(int) - Number of FASTQ reads read into memory and handed to each worker batch. Larger chunks cut per-batch overhead and make the progress bar coarser but raise peak RAM per job; smaller chunks stream more gently on low-memory machines. Also sets how many reads are processed when test is True. Default 100000.",
     "classes": "(dict) - Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
@@ -4323,6 +4390,18 @@ tooltips = {
     "min_samples": "(int) - Meaning depends on 'clustering': for DBSCAN it is how many points must fall within eps for a point to count as a core point, so raising it yields fewer, denser clusters and more noise; for KMeans this same value is reused as n_clusters, the exact number of clusters produced. Lower it (or raise eps) when no clusters are found. Default 100.",
     "mix": "(str) - Plate column ID whose wells hold a mixed positive/negative population; rows with this columnID are labelled cond='mix' for the image UMAP, so they can be coloured separately or dropped via exclude_conditions. Any column matching none of pos, neg or mix is labelled 'screen'. Default 'c3'.",
     "model_name": "(str) - Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'.",
+    'mask_src': '(str) - Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training. Default blank.',
+    'test_src': '(str) - Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields. Default blank.',
+    'test_mask_src': '(str) - Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder. Default blank.',
+    'save_path': '(str) - Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too. Default blank.',
+    'channel_axis': '(int or None) - Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic).',
+    'min_train_masks': '(int) - Minimum labeled objects required per training image. Cellpose excludes fields below this count. Default 5. Lower it for deliberately sparse training fields.',
+    'max_train_images': '(int or None) - Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size. Default None (automatic).',
+    'nimg_per_epoch': '(int or None) - Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM. Default None (automatic).',
+    'nimg_test_per_epoch': '(int or None) - Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source. Default None (automatic).',
+    'scale_range': "(float) - Range of Cellpose's random training scale augmentation, from 0 to 2. Default 0.5. Cellpose also applies its native rotation, flip and crop augmentation; no eight-fold duplicate dataset is created.",
+    'save_every': '(int) - Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.',
+    'save_each': '(bool) - Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.',
     "base_model": "(str) - Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
     "model_type": "(str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' passes validation and then raises NotImplementedError. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'.",
     "model_type_ml": "(str) - Classifier fitted by ml_analysis to separate positive- from negative-control wells and rank per-object features by permutation importance. Options are xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm and mlp; lightgbm and catboost require their optional packages. reg_alpha, reg_lambda and learning_rate affect only boosted models; logistic_regression provides a linear reference model.",
@@ -4421,7 +4500,14 @@ tooltips = {
     "file_type": "(str) - Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
     "model_path": "(str) - Path to a trained spaCR classifier saved as a whole PyTorch object (loaded with torch.load(weights_only=False), not a state_dict). Used when applying a model to a dataset tar and when generating activation maps. deep_spacr overwrites it with the freshly trained model whenever train is True, so set it only to score with an existing model. Default ''.",
     "dataset": "(str) - Path to the .tar archive of single-object PNG crops produced by generate_dataset, which the activation-map step opens with TarImageDataset. The plate folder is inferred two levels above it and CAM outputs are written next to it under <tar_name>/<cam_type>/. Provide an absolute or directory-qualified path rather than a filename alone. Default ''.",
-    "score_threshold": "(float) - Probability cutoff (0-1) applied to the model's positive-class score when deriving the binary cv_predictions column: pred >= threshold becomes 1. The raw probability is always saved alongside it, so this only changes the hard call, not the score. Lower it to catch more positives at the cost of false positives; raise it for precision. Default 0.5.",
+    "score_threshold": "(float) - Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5.",
+    'tta_enabled': '(bool) - Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.',
+    'tta_rotations': '(bool) - With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.',
+    'tta_horizontal_flip': '(bool) - With test-time augmentation enabled, include horizontal reflections of the selected rotations. Each distinct reflected view is classified before aggregation; equivalent orientations are evaluated once. Disable when horizontal direction has biological meaning in the assay. Default False.',
+    'tta_vertical_flip': '(bool) - With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False.',
+    'tta_aggregation': '(str) - Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.',
+    'tta_min_agreement': '(float) - Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.',
+    'tta_max_std': '(float) - Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.',
     "sample": "(int, list or None) - Randomly draw this many PNG crops from the database when building the dataset tar instead of using all of them; a list uses its first element, and values above the total are clamped. Use it to build a quick trial dataset or to cap a huge screen. None uses every crop, shuffled. Default None.",
     "file_metadata": "(str, list, or None) - Substring filter applied to png_path when retrieving crops from the database. Only paths containing the supplied string are included; a list matches any entry rather than requiring all entries. Use this setting to restrict a dataset to one plate, well, or object type, for example 'plate1_' or 'cell_png'. None includes every crop. Default None.",
     "apply_model_to_dataset": "(bool) - After training (or straight away when reusing a saved model_path), pack the object PNGs into a tar, run inference over it, copy the n_top_examples most confident images per class into top_examples/, and merge the per-object scores back into measurements.db. Turn it off to only train and evaluate a model without scoring the screen. Default True.",
@@ -4526,7 +4612,7 @@ tooltips = {
     'number_of_organelles': "(int) - How many organelle slots this run has, "
         "from 0 to 26. Each slot is an independent object with its own "
         "channel, its own type preset and its own copy of every detection "
-        "setting, named organelle_*, organelleb_*, organellec_* and so on; "
+        "setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; "
         "raising the number generates another slot's settings and lowering "
         "it hides the slots above the new number without deleting them. A "
         "hidden slot keeps its values, is still written to the settings "
@@ -4635,6 +4721,7 @@ tooltips = {
     'outside_threshold_method': "(str) - Method used to derive the outside-stain threshold from each field when neither a fixed value nor control wells are supplied: 'otsu', 'triangle', 'li', 'yen', or 'mean'. These methods identify a partition but do not test whether the distribution is bimodal; that evaluation is performed separately. 'triangle' is appropriate for a strongly skewed distribution with a small stained minority, whereas 'otsu' is appropriate for a more balanced distribution. Default 'otsu'.",
     'parasite_table': "(str) - Table in measurements/measurements.db holding one row per segmented parasite. It is read directly rather than through the usual merge, because that merge collapses pathogen rows onto their host cell and would sum several parasites' stain intensities into a single row. Change it only if measure_crop wrote the parasite objects under a non-standard name. Default 'pathogen'.",
     'vacuole_key': "(str) - Rule used to group individually segmented parasites into vacuoles. 'auto' prefers an explicit vacuole-ID column, otherwise spatially clusters centroids, then falls back to host cell or one parasite per vacuole with a warning. Set 'spatial', 'cell_id', 'object', or an explicit column name to make that biological assumption reproducible. Default 'auto'.",
+    'replication_method': '(str) - Readout for spacr.submodules.analyze_replication. direct_count counts individually segmented parasites per assigned vacuole. size_proxy delegates to the existing area-derived endodyogeny analysis, which aggregates pathogen area per host cell and assumes one vacuole per host for a vacuole interpretation; it does not count parasites or measure volume. deep_learning_coming_soon is reserved for the forthcoming whole-vacuole classification model and cannot run yet. Default direct_count.',
     'vacuole_link_distance': "(float or None) - Maximum centroid-to-centroid distance in pixels for spatially linking parasites into the same vacuole. None derives the distance from median parasite diameter times vacuole_link_factor; set a calibrated value when magnification or segmentation scale varies between plates. Too large merges separate vacuoles and too small splits one rosette. Default None.",
     'vacuole_link_factor': "(float) - Multiplier applied to the median segmented-parasite diameter when vacuole_link_distance is derived automatically. Increasing it joins wider rosettes but also raises the risk of merging nearby vacuoles; decreasing it does the reverse. It is ignored when an explicit link distance or vacuole-ID column is used. Default 1.5.",
     'parasite_count_column': "(str or None) - Optional column that already stores the number of parasites represented by each segmented row. When set, the assay sums that column per vacuole instead of counting rows, which is required if one row can represent several parasites. None treats every retained row as one parasite. Default None.",
@@ -4829,11 +4916,13 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 
 
 categories = {
-    "Paths": ["src", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
+    "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
-    "Cellpose": ["base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
+    "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
+        "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",
+        "save_every", "save_each", "base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
     "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity", "cell_remove_border_objects", "cell_perimeter_fraction"],
@@ -4845,6 +4934,18 @@ categories = {
     "Organelle": organelle_basic_settings,
     "Organelle advanced": organelle_advanced_settings,
 
+    "Host–Pathogen Analysis": ["hp_vacuole_table", "hp_vacuole_prefix",
+        "hp_reference_table", "hp_reference_prefix", "hp_marker_channels",
+        "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
+        "hp_count_column"],
+
+    "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_path",
+                              "psf_image_sampling_um", "psf_kernel_sampling_um",
+                              "psf_fwhm_um", "psf_iterations"],
+
+    "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
+                      'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],
+
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
 
     "Timelapse": timelapse_settings,
@@ -4855,7 +4956,7 @@ categories = {
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
-    "Plate Layout & Controls": ["plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
 
 
@@ -4870,6 +4971,8 @@ categories = {
         "n_top_examples"],
 
     "Computer Vision Optimization and Regularization": ["use_checkpoint", "dropout_rate", "weight_decay"],
+    "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
+                               'tta_vertical_flip', 'tta_aggregation', 'tta_min_agreement', 'tta_max_std'],
 
     "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds",
                          "cv_group_by", "holdout_plate", "nested_cv_inner_folds"],
@@ -4930,6 +5033,7 @@ categories = {
 
     "Plot": ["cmap", "figuresize", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
     "Replication Assay": [
+        'replication_method',
         "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
         "parasite_count_column", "max_parasites_per_vacuole",
         "require_host_cell", "non_power_of_two_warn",
@@ -5916,6 +6020,11 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('well_pad', 0)
     settings.setdefault('plate_format', None)
     settings.setdefault('well_diameter_mm', None)
+    settings.setdefault('plaque_pixels_per_um', None)
+    settings.setdefault('plaque_formation_hours', None)
+    settings.setdefault('plaque_estimate_growth', False)
+    settings.setdefault('plaque_growth_reference_um', 893.8178699548309)
+    settings.setdefault('plaque_growth_reference_hours', 168.0)
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
@@ -6039,6 +6148,11 @@ def set_analyze_replication_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    settings.setdefault('replication_method', 'direct_count')
+    for key, value in set_analyze_endodyogeny_defaults({}).items():
+        if key in ('tables', 'min_area_bin', 'max_area', 'max_bins', 'um_per_px',
+                   'pathogen_limit', 'nuclei_limit', 'group_by_class', 'class_column'):
+            settings.setdefault(key, value)
     settings.setdefault('src', 'path')
     settings.setdefault('parasite_table', 'pathogen')
     settings.setdefault('compartment', 'pathogen')
@@ -6440,3 +6554,21 @@ def _set_organelle_defaults(settings):
 
 from . import illumination as _illumination  # noqa: E402,F401
 from . import ops_settings as _ops_settings  # noqa: E402,F401
+
+expected_types.update({
+    'hp_vacuole_table': str, 'hp_vacuole_prefix': str,
+    'hp_reference_table': str, 'hp_reference_prefix': str,
+    'hp_marker_channels': list, 'hp_marker_thresholds': dict,
+    'hp_parasite_table': str, 'hp_parasite_parent': str, 'hp_count_column': str,
+})
+tooltips.update({
+    'hp_vacuole_table': '(str) - Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.',
+    'hp_vacuole_prefix': '(str) - Select the measured intensity column family used as the numerator of each recruitment ratio, for example pathogen_channel_0_mean_intensity. Match the prefix in the selected vacuole table; changing it does not change masks or infer a different object type. Default pathogen. API: spacr.host_pathogen.summarize_tables.',
+    'hp_reference_table': '(str) - Select the per-host compartment used for recruitment-ratio denominators. Its object_label must identify the host cell so each vacuole is compared with its own host reference. Missing or invalid reference intensities produce unknown marker calls rather than negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.',
+    'hp_reference_prefix': '(str) - Prefix of reference-channel mean intensities. Missing or nonpositive reference values yield unknown ratios, never infinity or negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.',
+    'hp_marker_channels': '(list) - Zero-based intensity channels whose vacuole-to-host-reference ratios are reported. Each selected channel needs matching intensity columns in both compartments; its threshold is configured separately. Adding a channel adds a marker result without changing host infection denominators. Default [0]. API: spacr.host_pathogen.summarize_tables.',
+    'hp_marker_thresholds': '(dict) - Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.',
+    'hp_parasite_table': '(str) - Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.',
+    'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
+    'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
+})

@@ -1,0 +1,399 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-assisted review of twelve complete API descriptions and their parameter/return blocks. Corrected plate identifiers, dropped-file assignment, morphological applicability, vector flow, figure captions and inference image sizes. Existing identical-source reviews retained. No native-speaker sign-off.",
+  "records": [
+    {
+      "label": "spacr.crop_loader.plates#0",
+      "source": "Every plate the crop table names, sorted.",
+      "source_sha256": "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
+      "context": "Every plate the extracted-image-region table names, sorted.",
+      "translation": "Alle in der Bildausschnitttabelle genannten Platten, sortiert."
+    },
+    {
+      "label": "spacr.crop_loader.plates#1",
+      "source": "the ``measurements.db``.",
+      "source_sha256": "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+      "context": "the ``measurements.db``.",
+      "translation": "die ``measurements.db``."
+    },
+    {
+      "label": "spacr.crop_loader.plates#2",
+      "source": "the crop table; ``'png_list'``.",
+      "source_sha256": "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+      "context": "the extracted-image-region table; ``'png_list'``.",
+      "translation": "die Tabelle mit den Bildausschnitten; ``'png_list'``."
+    },
+    {
+      "label": "spacr.crop_loader.plates#3",
+      "source": "plate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before plate keys existed reads rather than an error.",
+      "source_sha256": "1d3d2b4ee16c630697b2c277204f7ea8ab39e1dbf7bdb24780522e92d571ec49",
+      "context": "laboratory microplate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before laboratory microplate structured-data names existed reads rather than an error.",
+      "translation": "Plattenkennungen als Zeichenfolgen. Leer, wenn die Tabelle keine ``plateID``-Spalte hat. So können ältere Datenbanken ohne Plattenkennungen ohne Fehler gelesen werden."
+    },
+    {
+      "label": "spacr.measure.TableAssignment#0",
+      "source": "What one regex did to one set of dropped files.",
+      "source_sha256": "37ebbf8a0d8809790b764fea3afb32e65f6f247c57104b4ff1ded7c07f15d945",
+      "context": "What one regex did to one set of dropped files.",
+      "translation": "Ergebnis der Zuordnung abgelegter Dateien anhand eines regulären Ausdrucks."
+    },
+    {
+      "label": "spacr.measure.TableAssignment#1",
+      "source": "the table the files were assigned into.",
+      "source_sha256": "ce9bb1f07474b336d65737ae574ced27dd4a8a40cb831b28858989e23791241f",
+      "context": "the table the files were assigned into.",
+      "translation": "die Tabelle, der die Dateien zugeordnet wurden."
+    },
+    {
+      "label": "spacr.measure.TableAssignment#2",
+      "source": "``(path, row label, column caption)`` for every file that landed somewhere, in the order the paths were given.",
+      "source_sha256": "7316d3595465a6fbac9a79c59c9f01bbcafc4a81add23b736df0cf1e11817f9f",
+      "context": "``(path, row label, column caption)`` for every file that landed somewhere, in the order the paths were given.",
+      "translation": "``(path, row label, column caption)`` für jede zugeordnete Datei, in der Reihenfolge der übergebenen Pfade."
+    },
+    {
+      "label": "spacr.measure.TableAssignment#3",
+      "source": "``(path, reason)`` for every file that did not. The window lists these, because a file that silently vanishes is the one failure a drag-and-drop table cannot afford.",
+      "source_sha256": "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873",
+      "context": "``(path, reason)`` for every file that did not. The window lists these, because a file that silently vanishes is the one failure a drag-and-drop table cannot afford.",
+      "translation": "``(path, reason)`` für jede nicht zugeordnete Datei. Das Fenster zeigt diese Einträge an, damit beim Ablegen in der Tabelle keine Datei unbemerkt verschwindet."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#0",
+      "source": "Adapt a count regressor to the object-head prediction interface.",
+      "source_sha256": "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
+      "context": "Adapt a count regressor to the object-head prediction interface.",
+      "translation": "Passt einen Regressor zur Anzahlvorhersage an die Vorhersageschnittstelle für Objektklassifikationsköpfe an."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#1",
+      "source": "model with ``predict(crops)`` returning one finite, nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The caller selects this model's stain through ``classify_objects``'s ``channels`` argument; separate models can use the same labels.",
+      "source_sha256": "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d",
+      "context": "model with ``predict(crops)`` returning one finite, nonnegative count per extracted image region, shaped ``(N,)`` or ``(N, 1)``. The caller selects this model's stain through ``classify_objects``'s ``channels`` argument; separate models can use the same labels.",
+      "translation": "Modell mit ``predict(crops)``, das pro Bildausschnitt eine endliche, nichtnegative Anzahl in der Form ``(N,)`` oder ``(N, 1)`` zurückgibt. Der Aufrufer wählt die Färbung dieses Modells in ``classify_objects`` über dessen Argument ``channels`` aus; getrennte Modelle können dieselben Objektkennungen verwenden."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#2",
+      "source": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability.",
+      "source_sha256": "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528",
+      "context": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability.",
+      "translation": "Die Anzahlen behalten ihre Regressionswerte. Die angezeigten Klassen werden mit :func:`bin_parasite_count` bestimmt; ein Regressor liefert keine Klassenwahrscheinlichkeit."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#0",
+      "source": "Return unrounded counts and display classes for a crop batch.",
+      "source_sha256": "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4",
+      "context": "Return unrounded counts and display classes for an extracted image region batch.",
+      "translation": "Gibt ungerundete Anzahlen und Anzeigeklassen für einen Stapel Bildausschnitte zurück."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#1",
+      "source": "channel-selected crops in object order.",
+      "source_sha256": "cb7de26fdc328bc9c54b8f5c3729d7988410d3d3132181233cd0cc0220ead1ec",
+      "context": "channel-selected extracted image regions in object order.",
+      "translation": "Bildausschnitte mit ausgewählten Kanälen in der Reihenfolge der Objekte."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#2",
+      "source": "one count, display class and absent probability per crop.",
+      "source_sha256": "4ad3e812878a50fd6dcc9e80d2d2a65d15e97b18ec44b3b2ba69c068f62e9b07",
+      "context": "one count, display class and absent probability per extracted image region.",
+      "translation": "pro Bildausschnitt eine Anzahl, eine Anzeigeklasse und keine Wahrscheinlichkeit."
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#3",
+      "source": "predictions have the wrong shape or invalid counts.",
+      "source_sha256": "8718d2158b5b298da83cb7b2f7f8f446e5caddfe80b49a52e717bcfa01421fb5",
+      "context": "predictions have the wrong shape or invalid counts.",
+      "translation": "die Vorhersagen haben die falsche Form oder enthalten ungültige Anzahlen."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#0",
+      "source": "Join each pair into one object, keeping the lower id.",
+      "source_sha256": "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
+      "context": "Join each pair into one object, keeping the lower id.",
+      "translation": "Führt jedes Paar zu einem Objekt zusammen und behält die kleinere Kennung bei."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#1",
+      "source": "The lower id survives so that a merge is stable however the pairs are ordered, and so the object keeps the id that measurements and tracks already know it by wherever that is the lower one.",
+      "source_sha256": "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
+      "context": "The lower id survives so that a merge is stable however the pairs are ordered, and so the object keeps the id that measurements and tracks already know it by wherever that is the lower one.",
+      "translation": "Die kleinere Kennung bleibt erhalten, damit das Ergebnis unabhängig von der Reihenfolge der Paare ist. So behält das Objekt die bereits in Messwerten und Objektspuren verwendete Kennung, sofern diese die kleinere ist."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#2",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "context": "the label image.",
+      "translation": "das Bild der Objektkennungen."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#3",
+      "source": "pairs of ids, as :func:`split_candidates` returns them.",
+      "source_sha256": "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
+      "context": "pairs of ids, as :func:`split_candidates` returns them.",
+      "translation": "Kennungspaare, wie sie :func:`split_candidates` zurückgibt."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#4",
+      "source": "a NEW mask; the one passed in is not touched.",
+      "source_sha256": "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb",
+      "context": "a NEW mask; the one passed in is not touched.",
+      "translation": "eine NEUE Maske; die übergebene Maske bleibt unverändert."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#5",
+      "source": "a pair names background, an absent id, or a noninteger.",
+      "source_sha256": "66f07fb9777f4334c03c941cfe80b72e994a48e8301c51fb7356d9af8e955d67",
+      "context": "a pair names background, an absent id, or a noninteger.",
+      "translation": "ein Paar enthält den Hintergrund, eine nicht vorhandene Kennung oder einen nicht ganzzahligen Wert."
+    },
+    {
+      "label": "spacr.organelle_types.method_guidance#0",
+      "source": "What ``method`` suits, as one sentence a picker can show.",
+      "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
+      "context": "What ``method`` suits, as one sentence a picker can show.",
+      "translation": "Beschreibt in einem Satz für ein Auswahlfeld, wofür ``method`` geeignet ist."
+    },
+    {
+      "label": "spacr.organelle_types.method_guidance#1",
+      "source": "an ``organelle_method`` value.",
+      "source_sha256": "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+      "context": "an ``organelle_method`` value.",
+      "translation": "ein Wert für ``organelle_method``."
+    },
+    {
+      "label": "spacr.organelle_types.method_guidance#2",
+      "source": "an English sentence naming the shapes the method is legal for, or a sentence saying it belongs to no morphology. Not translated: a caller showing it passes it through ``tr``.",
+      "source_sha256": "5c5851cde60e02f4922dbd97e6444fdfcc0fad59b7d7628f9b247d71041a1be4",
+      "context": "an English sentence naming the shapes the method is legal for, or a sentence saying it belongs to no morphology. Not translated: a caller showing it passes it through ``tr``.",
+      "translation": "ein englischer Satz mit den Formen, für die die Methode zulässig ist, oder dem Hinweis, dass sie keiner Morphologie zugeordnet ist. Der Satz ist nicht übersetzt; aufrufender Code übergibt ihn vor der Anzeige an ``tr``."
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#0",
+      "source": "The shapes ``method`` is a legal detector for.",
+      "source_sha256": "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
+      "context": "The shapes ``method`` is a legal detector for.",
+      "translation": "Die Formen, für die ``method`` als Detektor zulässig ist."
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#1",
+      "source": "Read out of :data:`LEGAL_METHODS`, so this answer and the validator's cannot come apart.",
+      "source_sha256": "4d19ec217ae5b94f6be4c57d2b9357673165b5d11419a2aa97e824e2c72042cf",
+      "context": "Read out of :data:`LEGAL_METHODS`, so this answer and the validator's cannot come apart.",
+      "translation": "Wird aus :data:`LEGAL_METHODS` gelesen, damit das Ergebnis mit der Validierung übereinstimmt."
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#2",
+      "source": "an ``organelle_method`` value.",
+      "source_sha256": "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+      "context": "an ``organelle_method`` value.",
+      "translation": "ein Wert für ``organelle_method``."
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#3",
+      "source": "the morphology names, in :data:`LEGAL_METHODS` order; empty for a method no morphology allows.",
+      "source_sha256": "5b8ae676ad4999461bc716d6b375db20ffeaa5f2f0a4b84633d4afefb6be3392",
+      "context": "the morphology names, in :data:`LEGAL_METHODS` order; empty for a method no morphology allows.",
+      "translation": "die Morphologienamen in der Reihenfolge von :data:`LEGAL_METHODS`; leer, wenn die Methode für keine Morphologie zulässig ist."
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#0",
+      "source": "The flow picture and cell probability out of a Cellpose result.",
+      "source_sha256": "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
+      "context": "The flow picture and cell probability out of a Cellpose result.",
+      "translation": "Flussdarstellung und Zellwahrscheinlichkeit aus einem Cellpose-Ergebnis."
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#1",
+      "source": "Cellpose's ``eval`` returns ``(masks, flows, styles)``, and ``flows`` is a list whose first entry is the flow field already drawn as an RGB image (direction as hue, strength as brightness, the picture the Cellpose GUI shows) and whose third is the cell-probability map, in logits. Either can be a torch tensor on the device the model ran on, so both go through :func:`_host_array`. A result that has no flows -- a stub, or a model that returned only masks -- gives ``None`` for both.",
+      "source_sha256": "63d07741c51f4e84d99b8470ca25486536fe64c8950fbad7f6f0d4ec5d0a533c",
+      "context": "Cellpose's ``eval`` returns ``(masks, flows, styles)``, and ``flows`` is a list whose first entry is the flow microscope field of view already drawn as an RGB image (direction as hue, strength as brightness, the picture the Cellpose GUI shows) and whose third is the cell-probability map, in logits. Either can be a torch tensor on the device the model ran on, so both go through :func:`_host_array`. A result that has no flows -- a stub, or a model that returned only masks -- gives ``None`` for both.",
+      "translation": "Die Funktion ``eval`` von Cellpose gibt ``(masks, flows, styles)`` zurück. Der erste Eintrag der Liste ``flows`` ist das bereits als RGB-Bild dargestellte Flussfeld: Die Richtung bestimmt den Farbton, die Stärke die Helligkeit, wie in der Cellpose-GUI. Der dritte Eintrag enthält die Zellwahrscheinlichkeitskarte als Logits. Beide können torch-Tensoren auf dem Gerät der Modellausführung sein und werden deshalb durch :func:`_host_array` überführt. Enthält das Ergebnis keine Flussdaten, etwa bei einem Platzhalter oder einem Modell mit reiner Maskenausgabe, wird für beide ``None`` zurückgegeben."
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#2",
+      "source": "what ``model.eval`` returned.",
+      "source_sha256": "05e76fd90d82aa3e6e48ed7d8edb8327972f7fcf6113ca223115f34271c77fa5",
+      "context": "what ``model.eval`` returned.",
+      "translation": "der Rückgabewert von ``model.eval``."
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#3",
+      "source": "``{'flow_rgb': H x W x 3 uint8 or None, 'cellprob': H x W float32 or None}``.",
+      "source_sha256": "ecc5e739f57f213875eb32d4207b0672aceb38f29726bd3bc5509007e81a3eff",
+      "context": "``{'flow_rgb': H x W x 3 uint8 or None, 'cellprob': H x W float32 or None}``.",
+      "translation": "``{'flow_rgb': H x W x 3 uint8 or None, 'cellprob': H x W float32 or None}``."
+    },
+    {
+      "label": "spacr.plaque_papers.Figure#0",
+      "source": "One figure image and its legend.",
+      "source_sha256": "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
+      "context": "One figure image and its legend.",
+      "translation": "Ein Abbildungsbild mit seiner Legende."
+    },
+    {
+      "label": "spacr.plaque_papers.Figure#1",
+      "source": "the image file on disk.",
+      "source_sha256": "53b3c302590046b7acfc95e6094367b339503435db07ad39698fd5f2028f91d5",
+      "context": "the image file on disk.",
+      "translation": "die Bilddatei auf dem Datenträger."
+    },
+    {
+      "label": "spacr.plaque_papers.Figure#2",
+      "source": "the figure's name in the paper, e.g. ``'Fig 7'``.",
+      "source_sha256": "bb5f638ca223f0088076aef31fad2541c433b0ed173a6db00c95f68f8ef0dd91",
+      "context": "the figure's name in the paper, e.g. ``'Fig 7'``.",
+      "translation": "die Bezeichnung der Abbildung in der Publikation, z. B. ``'Fig 7'``."
+    },
+    {
+      "label": "spacr.plaque_papers.Figure#3",
+      "source": "the legend, or ``''`` when none was found.",
+      "source_sha256": "6a451c0ecd1c1eb27e68f112dfe7d862b61367afb21f3488c34fc0359645af54",
+      "context": "the legend, or ``''`` when none was found.",
+      "translation": "die Legende oder ``''``, wenn keine gefunden wurde."
+    },
+    {
+      "label": "spacr.plaque_papers.Figure#4",
+      "source": "where ``caption`` came from: ``'europepmc'``, ``'pdf'``, ``'pasted'`` or ``'none'``.",
+      "source_sha256": "597ef002571a104ae92b967616b4546f10f48a3397e781b5444f8608d2dff299",
+      "context": "where ``caption`` came from: ``'europepmc'``, ``'pdf'``, ``'pasted'`` or ``'none'``.",
+      "translation": "die Herkunft von ``caption``: ``'europepmc'``, ``'pdf'``, ``'pasted'`` oder ``'none'``."
+    },
+    {
+      "label": "spacr.plaque_papers.Figure#5",
+      "source": "text already known with coordinates, e.g. a PDF's text layer; OCR fills this when it is empty.",
+      "source_sha256": "af2c67bf5eee01646ef430fed2dd715219069381a95273ac49008fce79bf75db",
+      "context": "text already known with coordinates, e.g. a PDF's text layer; OCR fills this when it is empty.",
+      "translation": "bereits erkannter Text mit Koordinaten, etwa aus der Textebene einer PDF-Datei; OCR füllt diese Angaben, wenn sie leer sind."
+    },
+    {
+      "label": "spacr.plaque_papers.Paper#0",
+      "source": "One paper, however it was named.",
+      "source_sha256": "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
+      "context": "One paper, however it was named.",
+      "translation": "Eine Publikation, unabhängig von ihrer Benennung."
+    },
+    {
+      "label": "spacr.plaque_papers.Paper#1",
+      "source": "the identifier rows are filed under: the DOI when there is one, else the PMC id, else the PDF's sha256.",
+      "source_sha256": "d9680d7d6554e0b48add134e850003d8b4353575ea8fe10a0332f170305c0821",
+      "context": "the identifier rows are filed under: the DOI when there is one, else the PMC id, else the PDF's sha256.",
+      "translation": "die Kennung, unter der die Zeilen gespeichert werden: die DOI, falls vorhanden, sonst die PMC-Kennung, andernfalls der sha256-Wert der PDF-Datei."
+    },
+    {
+      "label": "spacr.plaque_papers.Paper#2",
+      "source": "``'europepmc'``, ``'pdf'`` or ``'folder'``.",
+      "source_sha256": "159303052998bcac8e17198cfc4370a9fdbd12d6b59dba6f325d2ccad0e039bb",
+      "context": "``'europepmc'``, ``'pdf'`` or ``'folder'``.",
+      "translation": "``'europepmc'``, ``'pdf'`` oder ``'folder'``."
+    },
+    {
+      "label": "spacr.plaque_papers.Paper#3",
+      "source": "where the DOI was read: ``'europepmc'``, ``'pdf metadata'`` or ``'pdf text'``; None when there is no DOI.",
+      "source_sha256": "83661438683c3d5f8fe8dc15707aea6c258e830719349b443d50c5731e831081",
+      "context": "where the DOI was read: ``'europepmc'``, ``'pdf metadata'`` or ``'pdf text'``; None when there is no DOI.",
+      "translation": "die Quelle der DOI: ``'europepmc'``, ``'pdf metadata'`` oder ``'pdf text'``; None, wenn keine DOI vorliegt."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#0",
+      "source": "One plaque image the detector found inside a figure.",
+      "source_sha256": "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
+      "context": "One plaque image the detector found inside a figure.",
+      "translation": "Ein vom Detektor innerhalb einer Abbildung gefundenes Plaque-Bild."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#1",
+      "source": "left edge of the box, in figure pixels.",
+      "source_sha256": "72178127496d5a8a09d0cf90f98863d4802d09d1e4718351881c132f5b0d41be",
+      "context": "left edge of the box, in figure pixels.",
+      "translation": "linker Rand des Begrenzungsrahmens, in Pixeln der Abbildung."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#2",
+      "source": "top edge of the box.",
+      "source_sha256": "e16bf7a23c94fa67be85b60af4d6bafd1a6eeb36209f95fa8ef12fa4c8b11bc2",
+      "context": "top edge of the box.",
+      "translation": "Oberkante des Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#3",
+      "source": "right edge of the box.",
+      "source_sha256": "f1fb5703b6e8a54dd4b54d82a880651956df78e34500859c763d0de58cf91783",
+      "context": "right edge of the box.",
+      "translation": "rechte Kante des Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#4",
+      "source": "bottom edge of the box.",
+      "source_sha256": "3e82b27f69232f1079e770b9b3a71233a17447fc545ca518a3e91f20567ecf44",
+      "context": "bottom edge of the box.",
+      "translation": "untere Kante des Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#5",
+      "source": "the detector's confidence, 0 to 1.",
+      "source_sha256": "ce6d803403f59f80abcd005a058a3f24206ea876de6cdae3ef7c43a9e2691c17",
+      "context": "the detector's confidence, 0 to 1.",
+      "translation": "Der Konfidenzwert des Detektors, von 0 bis 1."
+    },
+    {
+      "label": "spacr.plaque_papers.Region#6",
+      "source": "every inference size that found it, so a run records which size a region depended on.",
+      "source_sha256": "2493e0c61a525cd736844815718f5a0bc48a275d2c86f7fb3ddb99b9ffdb3791",
+      "context": "every inference size that found it, so a processing-session records which size a region depended on.",
+      "translation": "alle Inferenzbildgrößen, bei denen die Region gefunden wurde, damit der Lauf ihre Abhängigkeit von der Bildgröße dokumentiert."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#0",
+      "source": "One piece of text in a figure, in image pixels.",
+      "source_sha256": "7c992c5f9307ed699a42d4e402661477a0c898337735d5735669ee0047f0f0da",
+      "context": "One piece of text in a figure, in image pixels.",
+      "translation": "Ein Textstück in einer Abbildung mit seiner Position in Bildpixeln."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#1",
+      "source": "the text as read.",
+      "source_sha256": "f2fa03feb72740337cd7de81198cbde1b5eeef317d6117ba6ebc24252bf46e95",
+      "context": "the text as read.",
+      "translation": "der gelesene Text."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#2",
+      "source": "left edge of its box.",
+      "source_sha256": "dbd2da076d222a1939a3abd1ea21563c3508dbe383c4bbc07df15c384c14f2c1",
+      "context": "left edge of its box.",
+      "translation": "linke Kante seines Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#3",
+      "source": "top edge of its box.",
+      "source_sha256": "1d7ee675c87c9aa3ecb53b35b401c4b0d8b307895ae378c044f6a7a0b93d2933",
+      "context": "top edge of its box.",
+      "translation": "Oberkante seines Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#4",
+      "source": "right edge of its box.",
+      "source_sha256": "744bb8eddce6a3da76be02ba7bab8edd6f97dff5c1c2ca9c0883bc9a78446552",
+      "context": "right edge of its box.",
+      "translation": "rechte Kante seines Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#5",
+      "source": "bottom edge of its box.",
+      "source_sha256": "67bc68526f07a76f5899f624f9a525fcd318fd8a9b0b73f633cef4526d30d687",
+      "context": "bottom edge of its box.",
+      "translation": "untere Kante seines Begrenzungsrahmens."
+    },
+    {
+      "label": "spacr.plaque_papers.Word#6",
+      "source": "the reader's confidence in the text, 0 to 1.",
+      "source_sha256": "0ad1e3ab589103bae54a810372431eb98f855c1760919ed0fbbda052201699e7",
+      "context": "the reader's confidence in the text, 0 to 1.",
+      "translation": "Konfidenzwert der Texterkennung von 0 bis 1."
+    }
+  ]
+}

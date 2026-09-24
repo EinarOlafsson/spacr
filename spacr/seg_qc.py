@@ -9,13 +9,14 @@ segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a
 confluent monolayer that fused into slabs — costs exactly the same hours and
 then produces a measurement table that has to be thrown away. The failure is
 obvious from the masks alone; nobody looks, because looking means opening a
-thousand ``.npy`` files by hand.
+thousand ``.npy`` files by hand. Mask statistics can highlight suspicious
+fields, but cannot establish their cause or validate biological interpretation.
 
 So this module looks. It reads the label masks that
 :mod:`spacr.object` has just written, scores every field against a handful of
-robust statistics, and prints a scorecard naming the fields that are wrong and
-why. It changes nothing: ``seg_qc='report'`` (the default) surfaces the
-problem, it does not silently drop fields. Deciding which fields to keep is the
+robust statistics, and prints a scorecard naming fields that exceed configured
+thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the
+flags, it does not silently drop fields. Deciding which fields to keep is the
 user's call and it needs the evidence, not a filter.
 
 Design constraint: this runs right after segmentation on every field of the
@@ -34,13 +35,12 @@ Every threshold below is a keyword argument with a default in
 confluent assay can move it.
 
 ``object count`` and its deviation from the plate median
-    A field with 3 objects on a plate whose median field holds 300 is not a
-    data point, it is a broken field. ``count_ratio`` is
+    ``count_ratio`` is
     ``n_objects / plate_median``; outside
     ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the field
-    is flagged. Seeding density across a plate varies with a CV of 10-30% and
-    even edge-effect wells rarely fall below half the median, so a four-fold
-    departure is not biology.
+    is flagged. Such a difference may reflect treatment, infection, seeding,
+    acquisition or segmentation. Inspect the experimental layout and images;
+    the count ratio alone cannot distinguish those explanations.
 
 ``under-segmentation`` (fused objects)
     Detected the way :mod:`spacr.diameter` detects it, and for the same
@@ -50,8 +50,7 @@ confluent assay can move it.
     ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the
     same question), *and* the mask must under-count what the pixels support:
     either one label covers more than ``seg_qc_max_object_fraction`` of the
-    field (0.25, again diameter.py's number — a component covering a quarter of
-    a field is not a cell), or the Euclidean distance transform of the
+    field (0.25, again diameter.py's number), or the Euclidean distance transform of the
     foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle
     maxima per mask object. Requiring both matters in each direction: a dense
     but correctly separated field reaches 35% foreground and is fine, while an
@@ -60,13 +59,14 @@ confluent assay can move it.
     it compares against raw Otsu components, where a confluent monolayer is one
     blob; here the comparison is against a Cellpose mask that already separates
     most objects, and the smallest fusion worth catching — every object being a
-    welded pair — is exactly 2.
+    welded pair — is exactly 2. Large, irregular or confluent biological objects
+    can also trigger the heuristic; confirm boundaries against the raw images.
 
 ``over-segmentation`` (shattered objects)
     Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the
     field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's
-    diameter estimator already discards components below 4 px as debris, and
-    nothing 5 px across survives a crop-and-measure as an object. Relative to
+    diameter estimator already discards components below 4 px as debris, but
+    these defaults must be adapted for genuinely small objects. Relative to
     the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the
     plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob
     defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have
@@ -79,8 +79,7 @@ confluent assay can move it.
     and their areas understate the truth. For objects of diameter *d* on a
     *W*-wide field the geometric expectation is about ``2*d/W`` — 8% for 60 px
     cells on a 1400 px field. ``seg_qc_border_fraction`` defaults to 0.30:
-    well above anything geometry explains, and the level at which a third of
-    the crops going into Measure are fragments.
+    a configurable review threshold, not a universal geometric limit.
 
 ``size outliers``
     The fraction of objects whose equivalent diameter falls outside
@@ -91,7 +90,8 @@ confluent assay can move it.
     deliberately loose — real size distributions are lognormal and heavier
     tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good
     field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of
-    objects are out there, which a tail cannot do; only a second population can.
+    objects are out there. Heavy tails, mixed populations and segmentation
+    defects can all trigger it; the flag does not identify which is present.
     Border objects are excluded from every size statistic, exactly as
     ``diameter._region_diameters`` excludes them, because a truncated object's
     area is a lie.
@@ -132,8 +132,8 @@ act on, without scoring a single mask again:
 
 ``FLAG_GUIDANCE`` / ``explain_flag(flag)``
     Every flag in :data:`FLAGS` in plain language: what it means for the
-    measurements, what usually causes it, and what to do. Where uneven
-    illumination is one of the usual causes, the entry says so and points at
+    measurements, possible explanations, and what to inspect. Where uneven
+    illumination is one possible cause, the entry says so and points at
     :mod:`spacr.illumination`, which estimates the lamp profile from the
     plate's own fields and divides it out.
 ``parse_field_name(name)`` / ``FieldAddress``
@@ -144,8 +144,8 @@ act on, without scoring a single mask again:
     Per-plate, per-flag findings that name the plate and the wells, plus the
     positional ones no single field can see: a plate whose object count or
     object size steps between one half of the rows (or columns) and the
-    other, which is the signature of uneven illumination rather than of
-    biology.
+    other. These patterns warrant checking illumination, experimental layout,
+    treatment and biology; they do not establish a cause.
 ``read_digest(src)`` → ``QCDigest``
     The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project,
     parse it, roll it up, diagnose it, and compare each card's mtime against
@@ -909,18 +909,18 @@ def summarize_qc(
     elif fail_fraction >= limit:
         verdict = "fail"
         message = (
-            f"{len(failing)} of {n_fields} fields failed ({fail_fraction * 100:.0f}%): "
-            f"fix the segmentation before running Measure"
+            f"{len(failing)} of {n_fields} fields exceed QC failure thresholds "
+            f"({fail_fraction * 100:.0f}%): review masks against raw images and assay controls"
         )
     elif failing or warning:
         verdict = "warn"
         message = (
             f"{len(failing)} of {n_fields} fields failed and {len(warning)} need a look; "
-            f"the plate as a whole is usable"
+            f"review flagged fields; unflagged fields are not a validation of the assay"
         )
     else:
         verdict = "ok"
-        message = f"all {n_fields} fields are clean"
+        message = f"no configured QC threshold was exceeded in {n_fields} fields"
 
     return {
         "object_type": object_types[0] if len(object_types) == 1 else ",".join(object_types),
@@ -1205,25 +1205,19 @@ class FlagGuidance:
         causes = " ".join(
             f"({i}) {cause}." for i, cause in enumerate(self.causes, start=1)
         )
-        return f"{self.means} Usually: {causes} {self.fix}"
+        return f"{self.means} Possible explanations: {causes} {self.fix}"
 
 
 #: The setting that decides whether Measure divides the lamp profile out.
 ILLUMINATION_SETTING = "illumination_correction"
 
-#: What to say when a flag's cause is the optics rather than the biology.
-#: :mod:`spacr.illumination` estimates the field from the plate's own images;
-#: the correction is applied in the *measurement* path, so it removes the
-#: position bias from every intensity feature Measure is about to write, while
-#: the object counts themselves only move if the masks are made again on
-#: corrected images. Saying that plainly is the point — a user who switches
-#: the setting on and expects the counts to change has been misled.
 ILLUMINATION_ADVICE = (
-    f"spacr.illumination estimates the lamp profile from this plate's own "
-    f"fields and divides it out; switch {ILLUMINATION_SETTING} on and every "
-    f"intensity feature Measure writes loses its position bias. The object "
-    f"counts only change if the masks are generated again on corrected "
-    f"images, so correct first, then re-mask if the count step survives."
+    f"If raw images or calibration controls support an illumination artifact, "
+    f"spacr.illumination can estimate a correction field using "
+    f"{ILLUMINATION_SETTING}. Validate the correction on controls; it does not "
+    f"guarantee removal of position effects and must not erase intended plate "
+    f"layout or biological differences. Existing mask counts only change after "
+    f"re-segmentation or mask edits, not by correcting Measure's intensities."
 )
 
 FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
@@ -1259,16 +1253,16 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
             "the object channel index points at a channel that does not hold "
             "this stain (cell_channel / nucleus_channel / pathogen_channel "
             "are 0-based indices into the sorted channel IDs)",
-            "a diameter far enough off that Cellpose found nothing: it "
-            "rescales the image by 30/diameter, so a two-fold error moves "
-            "objects out of the size range the network works at",
+            "an unsuitable diameter for a model that uses diameter rescaling "
+            "(legacy Cellpose models rescale by 30/diameter); this advice "
+            "does not apply to backends that ignore diameter",
             "an empty, unseeded or badly out-of-focus well",
         ),
         fix=(
             "Open one named field beside its raw image. Objects in the raw "
-            "image and none in the mask means the channel index or the "
-            "diameter is wrong — measure the diameter from your own images "
-            "rather than guessing it."
+            "image and none in the mask warrants checking the channel, model, "
+            "thresholds and diameter where supported. An expected negative "
+            "control or uninfected field may correctly have no objects."
         ),
     ),
     FLAG_NEAR_EMPTY: FlagGuidance(
@@ -1276,8 +1270,9 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         severity=_FLAG_SEVERITY[FLAG_NEAR_EMPTY],
         headline="too few objects to carry a distribution",
         means=(
-            "under ten objects, so the per-field size checks were not run at "
-            "all: these fields are not clean, they are unchecked."
+            "too few objects for the configured per-field distribution checks. "
+            "Those size checks were not run; this is limited evidence, not "
+            "proof that a sparse field is defective."
         ),
         causes=(
             "genuinely sparse seeding or a low-MOI pathogen channel — when "
@@ -1295,49 +1290,51 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
     FLAG_UNDER: FlagGuidance(
         flag=FLAG_UNDER,
         severity=_FLAG_SEVERITY[FLAG_UNDER],
-        headline="objects are welded together",
+        headline="mask geometry suggests possible merged objects",
         means=(
-            "one mask covers what should be several objects, so every "
-            "per-object row from these fields is a sum over several cells: "
-            "area, integrated intensity and object count are all wrong, and "
-            "all wrong in the same direction."
+            "shape or size statistics exceeded a configured merge heuristic. "
+            "A mask may cover several objects, but large or irregular biological "
+            "objects can also trigger this flag. Confirm boundaries in the raw "
+            "image before interpreting per-object measurements."
         ),
         causes=(
             "a confluent monolayer — the foreground fraction on the card says "
             "how dense the field actually is",
-            "a diameter set too large: Cellpose rescales by 30/diameter, so a "
-            "diameter twice the truth shrinks the image and merges neighbours",
+            "a diameter set too large for a model that uses diameter rescaling "
+            "(legacy Cellpose models rescale by 30/diameter), potentially "
+            "shrinking neighbouring objects until they merge",
             "a cellprob or flow threshold permissive enough to bridge "
             "touching objects",
         ),
         fix=(
-            "Measure the diameter from your own images and set "
-            "<object>_diameter, then re-mask one plate and read this card "
-            "again. If the field really is confluent, counts from it should "
-            "not be compared with counts from sparse wells."
+            "Inspect boundaries and the selected model's settings. If it uses "
+            "diameter, measure it from your own images and set <object>_diameter. "
+            "Try revised settings on representative fields and inspect the "
+            "new masks before applying them to the plate."
         ),
     ),
     FLAG_OVER: FlagGuidance(
         flag=FLAG_OVER,
         severity=_FLAG_SEVERITY[FLAG_OVER],
-        headline="objects are shattered into fragments",
+        headline="mask geometry suggests possible object fragmentation",
         means=(
-            "one object has become several, so counts are inflated and every "
-            "size and intensity feature is measured on a piece of a cell "
-            "rather than on a cell."
+            "size or count statistics exceeded a configured fragmentation "
+            "heuristic. Splitting can inflate counts, but genuinely smaller "
+            "objects or different cell populations can produce similar "
+            "statistics. Inspect image boundaries before changing masks."
         ),
         causes=(
-            "a diameter set too small: Cellpose rescales by 30/diameter, so a "
-            "diameter half the truth blows the image up and splits one object "
-            "into several",
+            "a diameter set too small for a model that uses diameter rescaling "
+            "(legacy Cellpose models rescale by 30/diameter), potentially "
+            "magnifying texture until an object is split",
             "a noisy or out-of-focus channel, where the network follows "
             "texture instead of the object boundary",
             "debris and specks passing the minimum-area filter",
         ),
         fix=(
-            "Measure the diameter from your own images; raise "
-            "<object>_min_area so specks are dropped; check that the channel "
-            "is in focus in the fields named here."
+            "Inspect raw images and boundaries; check focus and model settings. "
+            "Measure diameter if the backend uses it. Adjust <object>_min_area "
+            "only after confirming that excluded specks are not real objects."
         ),
     ),
     FLAG_LOW_COUNT: FlagGuidance(
@@ -1345,22 +1342,21 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         severity=_FLAG_SEVERITY[FLAG_LOW_COUNT],
         headline="far fewer objects than the rest of the plate",
         means=(
-            "a quarter or less of the plate's median object count. Wells like "
-            "this pull every per-well average toward whichever few objects "
-            "survived, and they do it without anything looking broken "
-            "downstream."
+            "the count is below the configured fraction of the plate median. "
+            "This may reflect an intended treatment, low infection, cell loss "
+            "or a segmentation/acquisition problem. A count difference alone "
+            "does not distinguish these possibilities."
         ),
         causes=(
-            "an empty, dead or badly seeded well",
+            "an intended control, treatment response, low infection, cell loss or sparse seeding",
             "a field out of focus, or blocked by a bubble or by debris",
             "uneven illumination: a dim corner or a dim half of the plate "
             "loses objects a bright one keeps, which shows up as a count that "
             "steps by row or by column rather than scattering at random",
         ),
         fix=(
-            "If the low counts step by row or column, the optics are the "
-            f"suspect: {ILLUMINATION_ADVICE} If they are scattered, open the "
-            "named fields — that pattern is wells, not physics."
+            "Compare the named wells with the experimental layout and inspect "
+            f"their raw images and masks. {ILLUMINATION_ADVICE}"
         ),
         illumination=True,
     ),
@@ -1369,12 +1365,13 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         severity=_FLAG_SEVERITY[FLAG_HIGH_COUNT],
         headline="far more objects than the rest of the plate",
         means=(
-            "four-fold or more above the plate median. Either these fields "
-            "hold something that is not a cell, or one cell has been counted "
-            "as several — both inflate every per-well count."
+            "the count exceeds the configured multiple of the plate median. "
+            "A denser well or stronger infection can be real; debris and "
+            "over-segmentation are alternative explanations. Counts alone "
+            "cannot establish which explanation applies."
         ),
         causes=(
-            "debris, dust or fluorescent precipitate counted as objects",
+            "genuinely denser wells, stronger infection, or debris counted as objects",
             "over-segmentation, i.e. one object split into several — the "
             "median diameter on the card will be smaller here too",
             "uneven illumination, or a threshold set too low: a bright region "
@@ -1383,9 +1380,8 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         ),
         fix=(
             "Compare the median diameter of the flagged fields with the "
-            "plate's on the card. Smaller objects at a higher count is "
-            "splitting; the same size at a higher count is debris or a "
-            f"genuinely denser well. If the count steps across the plate: "
+            "plate's on the card and inspect matched raw images. Size and "
+            "count changes are clues, not a diagnosis of splitting or debris. "
             f"{ILLUMINATION_ADVICE}"
         ),
         illumination=True,
@@ -1416,11 +1412,12 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
     FLAG_OUTLIERS: FlagGuidance(
         flag=FLAG_OUTLIERS,
         severity=_FLAG_SEVERITY[FLAG_OUTLIERS],
-        headline="the size distribution holds a second population",
+        headline="the size distribution exceeds the configured outlier threshold",
         means=(
-            "more than 15% of objects fall outside median +/- 5 robust sigma, "
-            "which one population cannot do. Any per-well mean of a size or "
-            "intensity feature here is an average over two different things."
+            "an unusually large fraction of sizes lies outside the configured "
+            "median/MAD band. Skewed or heavy-tailed distributions, biological "
+            "heterogeneity and segmentation errors can all do this. This "
+            "heuristic does not prove a second population exists."
         ),
         causes=(
             "debris measured alongside cells",
@@ -1430,8 +1427,9 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
             "bright end measure systematically larger — uneven illumination",
         ),
         fix=(
-            "Set <object>_min_area / <object>_max_area to cut the population "
-            f"you do not want. If it looks positional instead: "
+            "Review raw images and assay controls before changing "
+            "<object>_min_area / <object>_max_area; filtering may remove a "
+            "real biological population. "
             f"{ILLUMINATION_ADVICE}"
         ),
         illumination=True,
@@ -1558,10 +1556,6 @@ def _column_range(columns: Sequence[int]) -> str:
 
 
 
-#: Ratio between the two halves of a plate at which a positional step stops
-#: being seeding variation. Seeding density across a plate varies with a CV of
-#: 10-30%, and even edge-effect wells rarely halve the median, so a two-fold
-#: step between one half of the rows and the other is not the pipette.
 GRADIENT_RATIO = 2.0
 
 #: Fewest fields a half-plate needs before its median is worth comparing.
@@ -1651,7 +1645,7 @@ def _flag_findings(
                 f"{len(members)} {object_type or 'object'} field(s) on {where}: "
                 f"{guidance.headline}"
             ),
-            detail=guidance.means + " Usually: " + " ".join(
+            detail=guidance.means + " Possible explanations: " + " ".join(
                 f"({i}) {cause}." for i, cause in enumerate(guidance.causes, 1)
             ),
             fix=guidance.fix,
@@ -1764,20 +1758,17 @@ def _gradient_findings(
                         f"({hi:.0f} vs {lo:.0f} objects per field)"
                     ),
                     detail=(
-                        f"An object count that steps from one side of a plate "
-                        f"to the other is rarely biology: seeding varies with "
-                        f"a CV of 10-30% and scatters, it does not sort itself "
-                        f"by {label}. The two usual causes are uneven "
-                        f"illumination — a lamp profile or a vignette makes "
-                        f"one region brighter, so more of it passes the "
-                        f"segmentation threshold — and a threshold set too low "
-                        f"for the dimmer half."
+                        "The count difference exceeds the configured spatial "
+                        "QC threshold. Treatment layout, seeding, infection or "
+                        "other biology may explain it. Uneven illumination and "
+                        "segmentation thresholds are also possibilities; a "
+                        "count pattern alone cannot establish the cause."
                     ),
                     fix=(
-                        f"{ILLUMINATION_ADVICE} If the raw images look evenly "
-                        f"lit, the threshold is the other suspect: check "
-                        f"<object>_cellprob_threshold and <object>_min_area, and measure "
-                        f"the diameter from your own images before re-masking."
+                        f"Compare the experimental layout and controls first. "
+                        f"{ILLUMINATION_ADVICE} Inspect raw images with their "
+                        f"mask overlays before adjusting <object>_cellprob_threshold, "
+                        f"<object>_min_area or the model's diameter setting."
                     ),
                     plate=plate,
                     object_type=object_type,
@@ -1799,13 +1790,11 @@ def _gradient_findings(
                         f"in {axis} {lo_name} ({hi:.1f} vs {lo:.1f} px)"
                     ),
                     detail=(
-                        "The same object type measuring systematically larger "
-                        "on one side of a plate means the segmentation is "
-                        "drawing bigger outlines there, not that the cells "
-                        "grew. An intensity gradient does exactly this: a "
-                        "brighter region pushes more of each object's halo "
-                        "over the threshold. Every size feature on this plate "
-                        "then carries a position term."
+                        "Measured object sizes differ across the plate. "
+                        "Biological growth, treatment layout, mixed populations "
+                        "and acquisition or segmentation effects are possible. "
+                        "The mask statistics alone cannot separate these causes; "
+                        "compare raw images and appropriate assay controls."
                     ),
                     fix=ILLUMINATION_ADVICE,
                     plate=plate,
@@ -1950,7 +1939,7 @@ class QCDigest:
         with its plate and its number in it. What a banner puts in bold.
     :param subhead: the counts behind it: how many fields, how many failed.
     :param scorecards: one per object type found.
-    :param findings: what :func:`diagnose` made of every card together.
+    :param findings: what :func:`diagnose` made of current, readable cards.
     :param stale: True when any card is older than its masks.
     :param checked_at: when this digest was built (``time.time()``).
     :param blocks_run: always ``False``; segmentation QC advises the user but
@@ -1974,8 +1963,9 @@ class QCDigest:
 
     @property
     def n_fields(self) -> int:
-        """Fields scored across every card."""
-        return sum(len(card.field_qcs) for card in self.scorecards)
+        """Fields scored in current, readable cards; stale rows are excluded."""
+        return sum(len(card.field_qcs) for card in self.scorecards
+                   if not card.stale and not card.error)
 
     @property
     def object_types(self) -> Tuple[str, ...]:
@@ -1984,10 +1974,10 @@ class QCDigest:
 
     @property
     def failing_fields(self) -> Tuple[str, ...]:
-        """Every field any card scored ``'fail'``."""
+        """Fields scored ``'fail'`` in current, readable cards."""
         return tuple(
             q.field for card in self.scorecards for q in card.field_qcs
-            if q.severity == "fail"
+            if not card.stale and not card.error and q.severity == "fail"
         )
 
     @property
@@ -2223,16 +2213,19 @@ def mask_stack_mtime(folder: str) -> float:
 def _subhead(digest: "QCDigest") -> str:
     """The counts behind the verdict, in one line."""
     n_fields = digest.n_fields
-    types = ", ".join(t for t in digest.object_types if t) or "object"
-    plates = len(digest.plates)
+    from .schema import object_type_summary
+
+    current = [c for c in digest.scorecards if not c.stale and not c.error]
+    types = object_type_summary([c.object_type for c in current if c.object_type]) or "object"
+    plates = len({_plate_of(q) for c in current for q in c.field_qcs})
     where = f" across {plates} plates" if plates > 1 else ""
-    n_fail = sum(int(c.summary.get("n_fail", 0)) for c in digest.scorecards)
-    n_warn = sum(int(c.summary.get("n_warn", 0)) for c in digest.scorecards)
+    n_fail = sum(int(c.summary.get("n_fail", 0)) for c in current)
+    n_warn = sum(int(c.summary.get("n_warn", 0)) for c in current)
     if not n_fail and not n_warn:
         if digest.findings:
             return (
                 f"{n_fields} {types} field(s){where} scored; no single field "
-                f"was flagged — what is wrong is the pattern across the plate."
+                f"was flagged; review the pattern across the plate against the assay layout."
             )
         return f"{n_fields} {types} field(s){where} scored, none flagged."
     return (
@@ -2244,6 +2237,8 @@ def _subhead(digest: "QCDigest") -> str:
 def _headline(digest: "QCDigest") -> str:
     """The one sentence worth putting in bold."""
     if digest.verdict == "missing":
+        if digest.stale:
+            return "The saved QC is out of date. Score the current masks before interpreting their quality."
         return (
             "Nothing has scored these masks. That is not the same as clean — "
             "run the mask step with seg_qc on, or score the masks from here."
@@ -2260,22 +2255,21 @@ def _headline(digest: "QCDigest") -> str:
 def _digest_from_cards(root: str, cards: List[Scorecard], **kwargs) -> QCDigest:
     """Roll a set of read cards up into one digest.
 
-    The verdict is the worst of what the *fields* say (the per-card verdict
-    `summarize_qc` produced at mask time) and what the *plate* says (the
-    positional findings). Both directions matter: a plate can fail on its
-    fields with no gradient at all, and — the case that motivated this — a
-    plate can have no flagged field whatever and still step four-fold in
-    object count between one half of its rows and the other, which is a
-    failure nothing per-field can see.
+    Only current, readable cards contribute fields or spatial findings.
+    Their configured threshold severities are retained; these are review
+    signals, not proof of a particular biological or imaging cause. Missing
+    coverage cannot turn an otherwise unflagged subset into a complete pass.
     """
     digest = QCDigest(root=root, scorecards=cards, checked_at=time.time())
-    readable = [c for c in cards if not c.error]
+    readable = [c for c in cards if not c.error and not c.stale]
     digest.findings = diagnose(
         [q for card in readable for q in card.field_qcs], **kwargs)
     if not cards:
         digest.verdict = "missing"
-    elif not readable:
+    elif all(c.error for c in cards):
         digest.verdict = "error"
+    elif not readable:
+        digest.verdict = "missing"
     else:
         levels = [c.verdict for c in readable if c.verdict in _SEVERITY_ORDER]
         levels += [f.severity for f in digest.findings]
@@ -2284,8 +2278,14 @@ def _digest_from_cards(root: str, cards: List[Scorecard], **kwargs) -> QCDigest:
         else:
             digest.verdict = max(levels, key=_SEVERITY_ORDER.index)
     digest.stale = any(c.stale for c in cards)
+    if digest.verdict == 'ok' and (digest.stale or any(c.error for c in cards)):
+        digest.verdict = 'warn'
     digest.subhead = _subhead(digest)
+    if digest.stale:
+        digest.subhead += " Out-of-date cards are excluded from current counts and findings; score those masks again."
     digest.headline = _headline(digest)
+    if digest.verdict == 'warn' and not digest.findings:
+        digest.headline = "Some masks have no current readable QC. Review the incomplete coverage before interpreting results."
     return digest
 
 
@@ -2327,7 +2327,7 @@ def read_digest(src: Any, **kwargs) -> QCDigest:
             summary=summary,
             mtime=mtime,
             masks_mtime=masks_mtime,
-            stale=bool(masks_mtime and mtime and masks_mtime > mtime + 1.0),
+            stale=not mtime or bool(masks_mtime and masks_mtime > mtime + 1.0),
             error=error,
         ))
     return _digest_from_cards(root, cards, **kwargs)
@@ -2385,6 +2385,7 @@ def format_digest(digest: QCDigest) -> str:
     :param digest: completed segmentation-QC digest to render.
     """
     lines = [f"Segmentation QC: {digest.verdict.upper()} — {digest.headline}"]
+    lines.append("  QC flags are threshold-based review signals, not a program error or proof of a biological or imaging defect.")
     if digest.subhead:
         lines.append(f"  {digest.subhead}")
     if digest.root:
@@ -2393,6 +2394,9 @@ def format_digest(digest: QCDigest) -> str:
         state = " [OUT OF DATE: masks are newer than this card]" if card.stale else ""
         if card.error:
             lines.append(f"  {card.object_type}: {card.error}{state}")
+            continue
+        if card.stale:
+            lines.append(f"  {card.object_type}: score the current masks; previous results are excluded{state}")
             continue
         lines.append(
             f"  {card.object_type}: {card.summary.get('message', '')}{state}"

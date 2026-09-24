@@ -282,11 +282,11 @@ def test_a_one_dimensional_crop_matches_no_panel_layout():
 # ---------------------------------------------------------------------------
 
 _RECRUITMENT_EXTRA = [
-    "pathogen_cytoplasm_mean_mean",
-    "pathogen_cytoplasm_q75_mean",
-    "pathogen_periphery_cytoplasm_mean_mean",
-    "pathogen_outside_cytoplasm_mean_mean",
-    "pathogen_outside_cytoplasm_q75_mean",
+    "pathogen_channel_1_cytoplasm_mean_ratio",
+    "pathogen_channel_1_cytoplasm_q75_ratio",
+    "pathogen_channel_1_cytoplasm_periphery_mean_ratio",
+    "pathogen_channel_1_cytoplasm_outside_mean_ratio",
+    "pathogen_channel_1_cytoplasm_outside_q75_ratio",
 ]
 
 

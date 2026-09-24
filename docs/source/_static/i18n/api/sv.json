@@ -58,6 +58,130 @@
         "61659d518158cd45fd362395495703aabf93d09715e297a1bce00179c5213537"
       ]
     },
+    "spacr._starplast": {
+      "source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ],
+      "source_sha256": "eced2ad5a7cee86848df1f1111914f766d0e7c5832f4b6c4db75313c8b9f9273",
+      "text": "Installera och starta det separata skrivbordsprogrammet Starplast.\n\nStarplast använder PyQt6 och importeras aldrig i spaCR:s PySide6-process. Dess miljö ligger under ``~/.spacr/apps`` (eller ``SPACR_APPS_DIR``). Installationen återanvänder segmenteringsinstallerarnas tolksökning, isolerade kommandomiljö och avbrytbara körning av underprocesser, utan att registrera någon detektor.",
+      "translation_source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ]
+    },
+    "spacr._starplast.REPOSITORY": {
+      "source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ],
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "text": "Standardkälla när varken en angränsande arbetskopia eller en uttrycklig källa finns.",
+      "translation_source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ]
+    },
+    "spacr._starplast.apps_root": {
+      "source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ],
+      "source_sha256": "76bf447eb5b3bb88c0493d01426284b464fef6f7d6c79c4d6c88d03abe40e72f",
+      "text": "Returnera mappen för externa program utan att skapa den.\n\n:param root: uttryckligen angiven mapp, annars ``SPACR_APPS_DIR`` eller ``~/.spacr/apps``.\n:returns: absolut rotsökväg för program.",
+      "translation_source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ]
+    },
+    "spacr._starplast.default_source": {
+      "source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ],
+      "source_sha256": "e06e469a99925b64bfe439a2cbdef785316d3338e04c81ff070d45e4536f3833",
+      "text": "Välj i första hand en uttrycklig källa eller en angränsande Starplast-arbetskopia, därefter GitHub.\n\n:returns: ``SPACR_STARPLAST_SOURCE``, en lokal Git-arbetskopia eller en arkivadress.",
+      "translation_source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ]
+    },
+    "spacr._starplast.install_starplast": {
+      "source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ],
+      "source_sha256": "5400178b2dee7e05ffed2233f94a0bbcd0d34e0fac7a925070631d6c134c7085",
+      "text": "Skapa en isolerad miljö, installera Starplast och kontrollera medföljande data.\n\nLokala Git-källor arkiveras från incheckad HEAD till tillfällig lagring; pip skriver aldrig byggfiler i den ursprungliga arbetskopian. En misslyckad installation tar endast bort den miljö som skapats här och behåller ``starplast-install.log``.\n\n:param source: lokal Git-arbetskopia eller arkivadress för pip; annars default_source.\n:param root: mapp för externa program.\n:param progress: återanropsfunktion ``(step, steps, text)``; anropas utanför GUI-tråden.\n:param cancel: threading.Event; avbryter kommandon och deras underordnade processer.\n:param runner: valfri ersättning för underprocessköraren vid riktade tester.\n:param preflight: valfri ersättning för tolkens förkontroll vid riktade tester.\n:returns: sökväg till den färdiginstallerade miljön.\n:raises RuntimeError: installationen misslyckades, avbröts eller mappen tillhör inte programmet.\n:raises ValueError: den valda källan är varken en lämplig lokal Git-arbetskopia eller en tillåten officiell arkivadress.",
+      "translation_source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "10c0ccfb82f3bf7cf4b34ccefe5498be92e365d26298919d02445b613cb84f49",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ]
+    },
+    "spacr._starplast.is_installed": {
+      "source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ],
+      "source_sha256": "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
+      "text": "Om en egen miljö har klarat importkontrollen och kontrollen av medföljande data.\n\n:param root: mapp för externa program.\n:returns: sant endast om en slutförandepost och miljöns tolk finns.",
+      "translation_source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ]
+    },
+    "spacr._starplast.launch_starplast": {
+      "source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ],
+      "source_sha256": "bbbcf044ee71764ed6ff3473b7040a473bcf075baf653efcc79c846210b4c3b9",
+      "text": "Starta Starplast som en separat process och logga utdata bredvid dess miljö.\n\n:param root: mapp för externa program.\n:param popen: valfri ersättning för subprocess.Popen vid riktade tester.\n:returns: barnprocess som UI övervakar för startfel.\n:raises RuntimeError: ingen färdiginstallerad miljö finns.",
+      "translation_source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ]
+    },
+    "spacr._starplast.process_environment": {
+      "source_blocks_sha256": [
+        "d7bd8cb8f372ad37e63619756cef63b92eeda9bb6b16d3568c578c4110f7b940",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ],
+      "source_sha256": "f48fdf84b6ce238f46b381208925776df203b0784165ac2573ef278e0b7a0dee",
+      "text": "Isolera sökningen efter Python, pip och Qt-insticksmoduler från den körande spaCR-processen.\n\n:param env: Starplasts virtuella miljö.\n:returns: underprocessvariabler som behåller skrivbordets visning och användarinställningar.",
+      "translation_source_blocks_sha256": [
+        "b3242dc58c9441ed202916b831a70b7863ba0630a08aa81b666f18e4ee584250",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ]
+    },
     "spacr._version": {
       "source_blocks_sha256": [
         "5f19a0a5b02289864de1c76c59530587b17fd7f915361ef26bcc78ff097f7141",
@@ -41548,7 +41672,7 @@
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
       "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "Träna en klassisk ML-klassificerare (XGBoost / logistic / RF) på egenskaper per objekt och poängsätt varje brunn i en screening.\n\nLäser ``measurements.db`` som skapats av :func:`spacr.measure.measure_crop`, slår samman egenskapstabeller för cell/kärna/patogen/cytoplasma, använder brunnarna märkta ``positive_control`` / ``negative_control`` (eller en annoteringskolumn) som träningsetiketter, delegerar anpassningen till :func:`ml_analysis` och skriver prediktioner per objekt, permutations- och egenskapsviktstabeller samt en värmekarta över plattan till ``results/`` bredvid källans DB.\n\n:param settings: Inställningsmappning, kanoniserad via :func:`spacr.settings.set_default_analyze_screen`. Viktiga poster:\n\n    - ``src`` (str eller lista) – mappar som innehåller ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.\n    - ``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — egenskap som visas i plattans värmekarta.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte.\n:raises ValueError: om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSe även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn.",
+      "text": "Träna en klassisk ML-klassificerare (XGBoost / logistic / RF) på egenskaper per objekt och poängsätt varje brunn i en screening.\n\nLäser ``measurements.db`` som skapats av :func:`spacr.measure.measure_crop`, slår samman egenskapstabeller för cell/kärna/patogen/cytoplasma, använder brunnarna märkta ``positive_control`` / ``negative_control`` (eller en annoteringskolumn) som träningsetiketter, delegerar anpassningen till :func:`ml_analysis` och skriver prediktioner per objekt, permutations- och egenskapsviktstabeller samt en värmekarta över plattan till ``results/`` bredvid källans DB.\n\n:param settings: Inställningsmappning, kanoniserad via :func:`spacr.settings.set_default_analyze_screen`. Viktiga poster:\n\n    - ``src`` (str eller lista) – mappar som innehåller ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.\n    - ``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå.\n    - ``location_column`` — ``'columnID'`` eller ``'rowID'``.\n    - ``heatmap_feature`` — egenskap som visas i plattans värmekarta.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte.\n:raises ValueError: om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSe även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -45700,6 +45824,16 @@
         "bf88156b86d98b776bac448350915cceab2805a8cd57b5627f50a1f49073c11d"
       ]
     },
+    "spacr.object._cellpose_z_segment_fn._segment": {
+      "source_blocks_sha256": [
+        "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12"
+      ],
+      "source_sha256": "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12",
+      "text": "Returnera etiketter från ett Cellpose-anrop i 3-D, med en lista av plan eller med ett enda plan.",
+      "translation_source_blocks_sha256": [
+        "3352ce416d49aa833f9c28dd8c21bdf4793dd6022379f5f931b7269d2c535f60"
+      ]
+    },
     "spacr.object.display": {
       "source_blocks_sha256": [
         "44ad2f40babdb517f86f263b1d0d2bc2c78807d715c4b6dd1a88cde4900b9da7"
@@ -45800,6 +45934,26 @@
         "d0f3340abaf6946224b67872a905818aaf4ca2f1e49b7ffd6d58426c6b767b45",
         "a2c4408f704ee4b390e685cedb28e86c17c3f5f654eee0731bcc4b87c583f950",
         "c43e00e51f647b00d283f99462d98e814d2a53d3f7bf18f7cc2ee7a1990b1a55"
+      ]
+    },
+    "spacr.object.merge_split_filter_masks._progress": {
+      "source_blocks_sha256": [
+        "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b"
+      ],
+      "source_sha256": "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b",
+      "text": "Registrera tidsåtgången för varje synfält (FOV) och skriv ut den gemensamma förloppsraden.",
+      "translation_source_blocks_sha256": [
+        "8bab9a562f5c7de68d87baff88e564b76d7d73ea6d1886a28c524f725578a5b9"
+      ]
+    },
+    "spacr.object.merge_split_filter_masks._run_one": {
+      "source_blocks_sha256": [
+        "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c"
+      ],
+      "source_sha256": "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c",
+      "text": "Kör den konfigurerade filterkedjan på masken för ett enda synfält (FOV).",
+      "translation_source_blocks_sha256": [
+        "5db807fbd6959c95de1b857c1f407ff6d8d0b384f2e000d34eec709d616d29ae"
       ]
     },
     "spacr.object_distances": {
@@ -58866,6 +59020,18 @@
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
       ]
     },
+    "spacr.qt.ai.pty_sign_in.PtySession.stop": {
+      "source_blocks_sha256": [
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
+      ],
+      "source_sha256": "0f99e7bc45c78eb8337f8310a79843758172f23d1f7b73a8e05baea88466dfaa",
+      "text": "Invänta och hämta kommandots avslutningsstatus, stoppa dess processgrupp och stäng terminalen.\n\nStartprogram kan lämna kvar en underprocess som håller terminalen öppen efter att de själva har avslutats. Gruppen tillhör den här sessionen, så avbrott avslutar även dessa underprocesser. Upprepad stängning kan inte stänga en återanvänd filbeskrivare.",
+      "translation_source_blocks_sha256": [
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
+      ]
+    },
     "spacr.qt.ai.settings": {
       "source_blocks_sha256": [
         "29e1b6ed1606dd00f3e589667761ec3f05aec331fc5a1100a5148d4fbe5cce78",
@@ -62662,6 +62828,50 @@
       "text": "Dela upp det markerade spåret vid ramen i spinnaren.",
       "translation_source_blocks_sha256": [
         "450d041bbbd8c4ac967155068554c11a4dfd8a5327490c8b4fe8e0d32bf41526"
+      ]
+    },
+    "spacr.qt.detect_chain": {
+      "source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+        "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+        "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
+      ],
+      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
+      "text": "Valfri bildförbättring före detektering och rensning av objektetiketter efteråt.\n\nI Make Masks aktiverar Tillämpa den konfigurerade kedjan för detektering och visning; Jämför förhandsvisar den utan att aktivera den. Bearbetningen använder kopior: filer på disk och de ursprungliga värden som visas när pekaren hålls över bilden förblir oförändrade.\n\n:data:`CHAIN_ORDER` fastställer ordningen::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nDen valfria percentilsträckningen hör till Make Masks, utanför :class:`Chain`. Nivåerna beräknas från hela bildfältet innan luppens område beskärs, så att flytta rutan ändrar inte percentilnivåerna.\n\nBakgrundssubtraktion kommer före brusreducering. Brusreducering före kontrast hindrar att brus förstärks; kontrast före skärpning hindrar att dess haloeffekter sträcks ut. Morfologi kommer före uppdelning eftersom den ändrar vilka pixlar som hänger ihop. :func:`prepare` kör bakgrund, brusreducering, kontrast och skärpning; :func:`finish` kör morfologi och uppdelning efter den valda detektorn.\n\nInaktiverade steg returnerar indata oförändrade. :func:`heavy_steps` identifierar aktiverade steg som behöver en förloppsvarning; icke-lokala medelvärden kan ta minuter på ett bildfält på 2 000 px. Körningar på hela bilden behåller förloppsvisning och Avbryt. Att välja bakgrundsmetod aktiverar inte brusreducering.\n\nMask-flödet har separat förbehandling. :func:`spacr.object._preprocess_batch` använder rullande klot följt av CLAHE på organellbatcher med ``organelle_rolling_ball`` och ``organelle_clahe``. Mask-inställningarna ``remove_background``, ``background`` och ``signal_to_noise`` använder i stället intensitetsgolv per kanal. Den här Make Masks-kedjan konfigurerar ingen av dessa vägar.\n\nBildförbättring ändrar de objekt som föreslås för granskning. Modeller tränade på förbättrade bilder behöver motsvarande förbehandling vid inferens; den här modulen konfigurerar inte tränings- eller inferensflödet.",
+      "translation_source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "b5b6f7f372749ddaf4e1bcb6be17517f0371ecd8866fb0607290761191241e9f",
+        "a8959f71850fca57fe251a14717b90ba4c6b3ac3ff53565652377925f9324e73",
+        "54c9b22855c5c41e6563d4a28b5371038e8d069b478796aa3911da40e2e57707"
+      ]
+    },
+    "spacr.qt.detect_chain.background_surface": {
+      "source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
+      ],
+      "source_sha256": "18f3c26fde78b43287b0feb206e108c9a311554005e65cb31c4280061cd8f885",
+      "text": "Den långsamt varierande bakgrunden under ``image``, med samma storlek som ``image``.\n\nUppskatta bakgrunden på en mindre kopia med :attr:`Chain.background_scale` och skala sedan ytan till indatas form. Radien krymper med bilden så att dess relativa utbredning bevaras. Detta approximerar långsamt varierande belysning och minskar både antalet pixlar och grannskapets storlek.\n\nVid skala 1.0 anropas ``rolling_ball`` eller ``white_tophat`` med full upplösning och det exakta resultatet returneras. Mindre bilder använder också full upplösning om nedskalningen skulle passera :data:`MIN_BACKGROUND_SIDE`. Uppskattning med full upplösning kan vara långsam: för ett uint16-bildfält på 1 994 px konverterat till float32 var CPU-tiderna för rullande klot 0.3 s vid radie 5, 0.9 s vid 10, 4.1 s vid 25 och 14.5 s vid 50. Med standardradien 50 och skala 0.5 tog samma fält ungefär en sekund. Tiderna beror på maskinvara och bild; anropare bör köra detta utanför GUI-tråden.\n\n:param image: Bildfältet eller området, som flyttal.\n:param chain: Kedjan, med dess bakgrundsmetod, radie och skala.\n:returns: Bakgrunden, med samma form som ``image``; nollor när kedjan inte subtraherar någon bakgrund.",
+      "translation_source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "5aa40f6c7124c591d1ec09c21194feaa7e81d26a71691e044376c48d5acd885f",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
       ]
     },
     "spacr.qt.dialogs": {
@@ -69638,6 +69848,30 @@
         "0dfbab99bd95d60ff7a672078b6f898b08f3a22726280fa058d372a73d481f87"
       ]
     },
+    "spacr.qt.organisms": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "Källbelagda organismintroduktioner och förslag till bildanalysmoduler.\n\nAnalysnycklarna är befintliga identifierare för analysflöden. Ett förslag har ingen navigeringsväg, så organismsidorna kan inte av misstag köra en analys som ännu inte är implementerad. Illustrationernas ursprung, licenser och kontrollsummor levereras i organism_sources.json.",
+      "translation_source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "a8526113789fa2f43d38f7f6cd91ccb0c4456c6eef7fc1134bd60c86908dabad"
+      ]
+    },
+    "spacr.qt.organisms.ORGANISMS": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693"
+      ],
+      "source_sha256": "6f757c3332b2308287f372c85b9f108da2547e4c625606a9057694ac66ecbfa7",
+      "text": "Organismguider med nycklarna ``toxoplasma``, ``plasmodium`` och ``candida``.\n\nVarje post innehåller visningsnamn, beskrivning, den biologiska källans URL, filnamn för det medföljande diagrammet och en diagramanmärkning. ``sections`` innehåller tripplar med rubrik, text och länkade analysnycklar; ``links`` innehåller par med visningstext och URL. ``modules`` innehåller tupler med vägnyckel, titel, beskrivning och ikonnyckel. En väg med ``None`` anger en planerad analys vars ruta inte kan starta någon analys. ``starplast`` startar ett externt program från Toxoplasma-sidan; det är varken en nyckel i spaCR:s analysregister eller en segmenteringsmotor. Visningstext översätts vid användning; vägnycklar, URL:er och resursnamn förblir oförändrade.",
+      "translation_source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "11bf38e1f5333b42512f0140a0a12df3ff35aaf2f242f640564295ab78a07ca7"
+      ]
+    },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
         "9002c454672a4e0768085406ccef866b571a12f0dc09958f02638bd98643a2f7",
@@ -72500,6 +72734,22 @@
       "text": "Kom ihåg per-fil kopia gräns, och tryck ner det med läget.",
       "translation_source_blocks_sha256": [
         "b0610695ce3d521debc78edce188bbba9de1fbe531bb45a9fe341ddc70fc8414"
+      ]
+    },
+    "spacr.qt.preferences.sound_is_offered": {
+      "source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
+      ],
+      "source_sha256": "c06ca102736b683ae5ea877b7237022540f30afb9d24c134728c236853d60ec8",
+      "text": "Om processen alls erbjuder ljud: endast i spaceout-läge.\n\nVanlig spaCR har ljud avstängt och döljer dess inställningsflik. Spaceout är lokalt för processen (:func:`spacr.qt.theme.enable_spaceout`, anropad endast av startprogrammet ``spaceout``), så tillståndet läses direkt och lagras aldrig.\n\nImporterar inte :mod:`spacr.qt.theme`: en process som inte har importerat modulen kan inte ha aktiverat spaceout, och frågan ställs på kodvägar som måste förbli fria från QtGui.\n\n:returns: ``True`` i spaceout-läge, ``False`` i vanlig spaCR.",
+      "translation_source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
       ]
     },
     "spacr.qt.preferences.spacr_mode_for_level": {
@@ -80594,6 +80844,22 @@
         "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
       ]
     },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel": {
+      "source_blocks_sha256": [
+        "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
+        "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
+      ],
+      "source_sha256": "0651e4ed8fbfd09e47956db18d0910244475ec988c5b0f460016f4b3d85bac8d",
+      "text": "Rikta in sidan Filter / Sök mot diagrammet och gate-tabellen.\n\nInställningarna ovanför diagrammet delar en rad. Flikarna i panelen till höger ligger i höjd med raden, och behållarna under båda börjar på samma höjd. Raden är diagrampanelens egen verktygsrad, dit tabellbrickorna och X / Y / Z-väljarna har flyttats, så flikarna ligger redan i nivå med den. Skillnaden är var varje behållare börjar under sin rad. Fliksidan flyttas ned med denna skillnad, som mäts varje gång, så att sidan följer radens ökade höjd, exempelvis från 3D-plankontrollerna under den.\n\nEn fast höjd på flikraden flyttar inte sidan under den: QTabWidget placerar sidan utifrån radens storleksförslag. Därför ställs sidans egen förskjutning in.\n\n:returns: Förskjutningen som tillämpas på sidan, i pixlar.",
+      "translation_source_blocks_sha256": [
+        "c6d7cd5791676de33f2f87202508cf59982f07f0897e6ab9c6cfbd43c39f6724",
+        "b030c1fb13895cc8187c0ed86d79d91a7dd73600c0a0d4f9136b9e2a5c7d6844",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
+      ]
+    },
     "spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates": {
       "source_blocks_sha256": [
         "b42df08a92ec9012ef457c1cb141dedbbc169d84c647ce598c7004caff39666f",
@@ -83274,26 +83540,38 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+        "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+        "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+        "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "Interaktiv redigering och kurering av segmenteringsmasker.\n\nMake Masks arkiveras under **Verktyg** på hemapplikationsvyn och är den manuella halvan av segmenteringen: det korrigerar masker en modell blev fel, ett mikroskopfält i taget, och dess masthead öppnar de arbetsflöden Cellpose som skapade dem. :class:`MakeMasksScreen` laddar bilder och märkta masker från ``<folder>/masks`` och sparar redigerade etiketter som ``uint16`` TIFF filer.\n\nDe nio verktygen, i ordningen :data:`TOOL_MODES`, eftersom detta ordförråd är vad en läsare behöver innan programmet öppnas:\n\n**Brush** och **Erase** färg och avmåla den aktiva etiketten en pixel åt gången. **Radera objekt** tar bort en hel etikett med ett klick. **Wand +** och **Wand −** odla en region från pixel klickade och lägga till den i etiketten eller ta ut den ur den; toleransen är i förhållande till bildens intensitetsintervall som standard, se :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** spårar en fri-form kontur som stänger och fyller som ett objekt – verktyget en pensel är inte, eftersom en penslar diskar längs vägen, så att spåra en fälg med det märker fälgen och lämnar den mellersta bakgrunden. **Divide** drar en linje över ett sammanslaget objekt och gör den två, behåller den ursprungliga identifieraren på den större komponenten och ger den mindre en ny, med varje annat objekt orört; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` är den klippta bredden. **Zoom** rektangel-drager vyn och ändrar inga etiketter alls.\n\n**Recrop** är den nionde och är den enda som ändrar vilket fält som visas på applikationsvyn snarare än vad som är målat på den. En iscensatt extraherad bildregion med flera celler är inte ett övningsexempel, och att kurera det som en lär ett nätverk att två objekt är en bild -- så en ruta runt ett objekt skriver att regionen av både bilden och masken som ett fält av sin egen (:func:`spacr.qt.mask_engine.write_recrop`), köad rakt efter det aktuella fältet, och multi-objekt originalet är pensionerad till ``recropped_originals/`` snarare än kurat (:func:`spacr.qt.mask_engine.retire_recropped_original`). En låda som är kortare än :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` på en sida, eller som upprepar ett snitt som redan gjorts tidigare än :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, avvisas; objekt som rutan skär igenom släpps, eftersom ett objekt vars gräns är där musen släpptes inte är det objektet; och etiketterna som överlever numreras om från ett.\n\nVarje mikroskopfält av vy har en :class:`spacr.curation.CurationLog`, initierad från någon befintlig sidvagn. :func:`spacr.qt.mask_engine.save_mask` skriver etiketter och liggare tillsammans, så att :func:`spacr.curation.is_curated` kan skilja manuellt korrigerade masker från arbetsflödesutmatning. En enda gest producerar en liggarpost och ett ångra steg.\n\n:meth:`MakeMasksScreen.run_cellpose` tillämpar arbetsflödets upplösning Cellpose- SAM-modellen på det öppna mikroskopfältet och visar masken, cellsannolikhetens karta och flödesmikroskopets synfält. De mellanliggande utgångarna stöder utvärdering av :data:`CELLPROB_THRESHOLD` när upptäckter saknas eller är ofullständiga.\n\nRedaktörsläget är monterat från :func:`tool_row_entries` och :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` infogar icke-lägesåtgärder i samma verktygsrad. Inställningspanelen bär åtgärderna som inte är gester -- objektfyllning och ommärkning, inversion, storleksfiltrering och Otsu-detektion, med ångra och gör om över dem alla -- vid sidan av pensel-, stav- och visningskontrollerna, och kan döljas för att returnera dess bredd till duken.\n\nYtterligare segmenteringsverktyg öppnas från masthuvudet i :data:`FOLD_ORDER` genom :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Skriv in hela mappen** gäller Cellpose för varje bild i den valda mappen, medan **Spara mask** på Curate-sidans anrop :meth:`spacr.curation.MaskCuration.save_mask`. Vikbara moduler behåller sina befintliga widgetar inne i :class:`FoldedModulePanel`.\n\nTid-serie spårning är integrerad med Mask Generation som Timelapse inställningar kategori; se :mod:`spacr.qt.screens.mask`. Motility Assay istället tillhör Mät eftersom det konsumerar befintliga masker och skriver mättabeller snarare än att generera masker.",
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "Interaktiv redigering och kurering av segmenteringsmasker.\n\nMake Masks arkiveras under **Verktyg** på hemapplikationsvyn och är den manuella halvan av segmenteringen: det korrigerar masker en modell blev fel, ett mikroskopfält i taget, och dess masthead öppnar de arbetsflöden Cellpose som skapade dem. :class:`MakeMasksScreen` laddar bilder och märkta masker från ``<folder>/masks`` och sparar redigerade etiketter som ``uint16`` TIFF filer.\n\nDE TIO VERKTYGEN, i ordningen i :data:`TOOL_MODES`, eftersom läsaren behöver detta ordförråd innan skärmen öppnas:\n\n**Brush** och **Erase** färg och avmåla den aktiva etiketten en pixel åt gången. **Radera objekt** tar bort en hel etikett med ett klick. **Wand +** och **Wand −** odla en region från pixel klickade och lägga till den i etiketten eller ta ut den ur den; toleransen är i förhållande till bildens intensitetsintervall som standard, se :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** spårar en fri-form kontur som stänger och fyller som ett objekt – verktyget en pensel är inte, eftersom en penslar diskar längs vägen, så att spåra en fälg med det märker fälgen och lämnar den mellersta bakgrunden. **Divide** drar en linje över ett sammanslaget objekt och gör den två, behåller den ursprungliga identifieraren på den större komponenten och ger den mindre en ny, med varje annat objekt orört; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` är den klippta bredden. **Zoom** rektangel-drager vyn och ändrar inga etiketter alls.\n\n**Recrop** är den nionde och är den enda som ändrar vilket fält som visas på applikationsvyn snarare än vad som är målat på den. En iscensatt extraherad bildregion med flera celler är inte ett övningsexempel, och att kurera det som en lär ett nätverk att två objekt är en bild -- så en ruta runt ett objekt skriver att regionen av både bilden och masken som ett fält av sin egen (:func:`spacr.qt.mask_engine.write_recrop`), köad rakt efter det aktuella fältet, och multi-objekt originalet är pensionerad till ``recropped_originals/`` snarare än kurat (:func:`spacr.qt.mask_engine.retire_recropped_original`). En låda som är kortare än :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` på en sida, eller som upprepar ett snitt som redan gjorts tidigare än :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, avvisas; objekt som rutan skär igenom släpps, eftersom ett objekt vars gräns är där musen släpptes inte är det objektet; och etiketterna som överlever numreras om från ett.\n\n**Linjal** är det tionde verktyget. Dra mellan bildpixlar för att läsa av en längd utan att redigera etiketter. Zoomning och panorering bevarar den; högerklick med Linjal vald rensar den. Samma linjal finns på de två bildytorna för liveförhandsvisning.\n\nVarje mikroskopfält av vy har en :class:`spacr.curation.CurationLog`, initierad från någon befintlig sidvagn. :func:`spacr.qt.mask_engine.save_mask` skriver etiketter och liggare tillsammans, så att :func:`spacr.curation.is_curated` kan skilja manuellt korrigerade masker från arbetsflödesutmatning. En enda gest producerar en liggarpost och ett ångra steg.\n\n:meth:`MakeMasksScreen.run_cellpose` tillämpar arbetsflödets upplösning Cellpose- SAM-modellen på det öppna mikroskopfältet och visar masken, cellsannolikhetens karta och flödesmikroskopets synfält. De mellanliggande utgångarna stöder utvärdering av :data:`CELLPROB_THRESHOLD` när upptäckter saknas eller är ofullständiga.\n\nRedigeringslägena sätts samman från :func:`tool_row_entries` och :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` lägger till åtgärder som inte är lägen i samma verktygsfält. Inställningspanelen innehåller operationerna som inte utförs med gester —fyllning och ommärkning av objekt, byte av objekt och bakgrund, storleksfiltrering och Otsu-detektering, alla med ångra och gör om— tillsammans med kontroller för pensel, trollstav och visning. Den kan döljas så att bildytan får tillbaka bredden.\n\nBildinvertering och byte av objekt och bakgrund är separata operationer. Den första ändrar bilden som detektorn ser; den andra ändrar etiketter.\n\n**Invertera bild**, i kategorin Visning, är den gemensamma inverteringen. Den ritar bildfältet som sitt negativ och ger detektorerna samma negativ: båda detekteringsknapparna och liveförstoringsglaset segmenterar :meth:`MakeMasksScreen._detector_image`, så att en tröskel för ljusa objekt hittar mörka. En banderoll ovanför bilden visar detta så länge funktionen är på. Pixelintensiteten i hörnets avläsning följer den inverterade bilden. Objektens medelintensiteter och objektfiltret läser fortfarande de inlästa pixlarna. Vid sparande skrivs etikettmasker utan att källbilden ändras.\n\nTIDIGARE FANNS TVÅ REGLAGE SOM KUNDE MOTSÄGA VARANDRA. Ett visningsbegränsat \"Invert image\" (Invertera bild) ritade ett negativ utan att påverka detekteringen; \"Invert for detection\" (Invertera för detektering) inverterade detektorernas indata utan att rita något. Det ena kunde vara på utan det andra, och det förstas statusrad kunde motsäga det andras banderoll. Nu finns ett reglage eftersom avsikten är en: att invertera ett bildfält med mörka objekt så att Otsu och förstoringsglaset kan detektera dem. ``_cp_invert`` är nu samma widgetobjekt som ``_invert_display`` under sitt gamla namn, så de kan inte längre skilja sig åt.\n\n**Byt objekt och bakgrund**, under Objektoperationer, är det gamla \"Invert mask\" (Invertera mask) med ett beskrivande namn: det inverterar ETIKETTBILDEN, vilket på ett vanligt bildfält lämnar ett objekt som täcker hela ramen. Det är inte bildinvertering och kallas därför avsiktligt inte det.\n\nBERÄKNINGEN. :func:`~spacr.qt.mask_engine.invert_normalized` normaliserar bildfältet till 0..1 utifrån dess eget intervall och beräknar ``1 - v``. Normaliseringen är väsentlig: Otsu-korrigeringen är en MULTIPLIKATOR på en absolut nivå, så normalisering först gör att ett korrigeringsvärde betyder samma sak på nästa bild. :func:`~spacr.qt.mask_engine.invert_intensity` (datatypens komplement) och :func:`~spacr.qt.mask_engine.invert_for_detection` (spegling kring bildfältets intervall) användes tidigare på denna skärm och behålls för andra anropare. :func:`~spacr.qt.mask_engine.invert_mask` inverterar etiketter.\n\nYtterligare segmenteringsverktyg öppnas från masthuvudet i :data:`FOLD_ORDER` genom :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Skriv in hela mappen** gäller Cellpose för varje bild i den valda mappen, medan **Spara mask** på Curate-sidans anrop :meth:`spacr.curation.MaskCuration.save_mask`. Vikbara moduler behåller sina befintliga widgetar inne i :class:`FoldedModulePanel`.\n\nTid-serie spårning är integrerad med Mask Generation som Timelapse inställningar kategori; se :mod:`spacr.qt.screens.mask`. Motility Assay istället tillhör Mät eftersom det konsumerar befintliga masker och skriver mättabeller snarare än att generera masker.",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
-        "2fe8b75b72216fa1b7e47c4f62c7d8480c7d784edc4f9c5f02ced343b2b654d8",
+        "969cad596cc2cfef69edf6c4a0188b89650abd06464521d7463bfae34c983b84",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "3c9dca0358ac160f8d9789401e7e3d1b5a5e9b383d918bc1c88a9ff2a78c33ec",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "2b2215c8913b5448f80671cf78cc88af8e72e471164592c44f481cf8a16c4b34",
         "6bb4e99446e63282835ea5163108ec3f9519bdb3a4c884be7c24397428ed5b97",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "edc4f65be8e4b90ae9569581aade15923cf2ecbc10af22089b664a96e457f0af",
+        "0973abc64b13e9497185a2741b196c15c36b4fa4df0db34384386a4c74ab872e",
+        "9bf0b71b754b29971e492e7286673bde96579193d8492e5a1308a7d65de6f498",
+        "aae3a5f4d4c761acce16583f8b69bd8eff5d9a8a7f97198e435fc7ac66ce42ed",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ]
@@ -86050,6 +86328,52 @@
         "db54dba312eb79784a111a5088547be2af50c7d67af49bfe64b70d2e9ccf6485",
         "47a5bdcb1bae198fb83deacbfeb142cbfad9d187c58185b07c1a05d1295d9525",
         "c045a10f5c08e471aa42625d636a222453a22a313db96cde8fb704023d4f88e9"
+      ]
+    },
+    "spacr.qt.screens.organism_screen": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "Källbelagda organismguider, interaktiva celldiagram och analysnavigering.\n\nInformations- och modulpanelerna rullas oberoende av varandra och delar en horisontell avdelare. Befintliga analyser behåller sina registernycklar; förslag kan inte köras.",
+      "translation_source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "a344a9ce5604e2bcdbb408548388f6e79ad54c24382d26c5b48c5eaba6618da8"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen": {
+      "source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ],
+      "source_sha256": "727476824306a130836c8a825163ad1e2e05e6e53958285b4d760ad71f8a97d4",
+      "text": "Visa en organism och dess befintliga eller föreslagna bildanalysmoduler.\n\n:param app_key: ``toxoplasma``, ``plasmodium`` eller ``candida``.\n:param host: valfritt huvudfönster som tar emot begäranden om modulnavigering.\n:param parent: ägande Qt-widget.\nBygg introduktionen och rutnätet med Home-rutor med oberoende rullning.",
+      "translation_source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
+      ],
+      "source_sha256": "6bca4c89af480f2e5bf25139b8871c487330a36d170e934559093ec92886ef53",
+      "text": "Ordna om efter att visningsytan ändrat storlek, även när den vertikala rullningslisten ändras.\n\n:param watched: Qt-objektet som tog emot händelsen.\n:param event: Qt-händelse som granskas innan den lämnas vidare till basklassens filter.\n:returns: resultatet från basklassens händelsefilter.",
+      "translation_source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
       ]
     },
     "spacr.qt.screens.outliers": {
@@ -91826,27 +92150,35 @@
       "source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-        "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
+        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
         "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
+        "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
+        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "69dd903a0901e2f7be6385182c0d0f03a27af9fe7e358476c4b9dd4521ce0e33",
-      "text": "Tangentbordscentrerade genvägar för spaCR:s Qt-GUI.\n\nRegistrerar globala :class:`QShortcut`-bindningar i huvudfönstret så att hela appen kan användas utan mus:\n\n    Ctrl+H        Gå till startsidan\n    Ctrl+1..9     Byt till Nth-appen i sidofältet\n    Ctrl+K        Öppna kommandopaletten\n    F1  / ?       Visa snabbguiden för genvägar\n    Ctrl+P        Öppna inställningar\n    Ctrl+/        Öppna AI-konsolen\n    Ctrl+End Hoppa till den senaste konsolraden F11 Växla helskärmsläge Esc Stäng alla öppna dialogrutor / popup-fönster\n\n:func:`install` anropas en gång från ``MainWindow.__init__``. Varje bindning dokumenteras i :data:`SHORTCUTS` så att dialogrutan med snabbguiden hålls synkroniserad med det som faktiskt är inkopplat.",
+      "source_sha256": "2c0016cbca6016b11b4609e193345a383022b9aecdfe783ff2cdea1217fb1641",
+      "text": "Tangentbordscentrerade genvägar för spaCR:s Qt-GUI.\n\nRegistrerar globala :class:`QShortcut`-bindningar i huvudfönstret så att hela appen kan användas utan mus:\n\n    Ctrl+0        Gå till startsidan (Cmd+H döljer programmet i macOS)\n    Ctrl+1..9     Byt till Nth-appen i sidofältet\n    Ctrl+K        Öppna kommandopaletten\n    Ctrl+Shift+H  Sök i spaCR via fältet bredvid Hjälp-menyn\n    F1  / ?       Visa snabbguiden för genvägar\n    Ctrl+P        Öppna inställningar\n    Ctrl+Alt+0    Återställ gränssnittets (GUI), teckensnittets och förhandsvisningarnas skalor till 100 %\n    Ctrl+/        Öppna AI-konsolen\n    Ctrl+End      Hoppa till den senaste konsolraden\n    F11           Växla helskärmsläge\n    Esc           Stäng öppna dialogrutor eller popup-fönster\n\n:func:`install` anropas en gång från ``MainWindow.__init__``. Varje bindning dokumenteras i :data:`SHORTCUTS` så att dialogrutan med snabbguiden hålls synkroniserad med det som faktiskt är inkopplat.",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-        "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
+        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
         "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "d65a0add9677b70d6bd84a21fb592d982bfa33f878074d8b872aa36a41bf050e",
+        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
+        "63c7624f5ce53bc4193451cf13af672420ca216ccda339640281608f02cbfb1e",
+        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ]
     },
@@ -92582,6 +92914,84 @@
         "9793459ab08ed94b2c5dccd9a5467fcbb905a543bdee595f54e40a64632005e4",
         "84f5e7326f0f91ae6ff7ef0e35ff5424197865d8b8ae7e1a1d3cfa716f44a6da",
         "83b5dc563aedee7b5385b34a22e7d734bd50c7d4deb7a7a7c1a4e75f343db1d4"
+      ]
+    },
+    "spacr.qt.starplast": {
+      "source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ],
+      "source_sha256": "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6",
+      "text": "Installera Starplast separat och starta och övervaka sedan dess skrivbordsprocess.",
+      "translation_source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "Förklara alfaprogrammet och nedladdningsstorleken före installationen i dess egen miljö.\n\n:param parent: organismsidan som äger dialogen.\n:param root: valfri rotmapp för externa program.\n:param job: valfri ersättning för installeraren vid tester.\nSkapa kontrollerna för samtycke och förlopp; ingenting installeras när dialogen öppnas.",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "Håll dialogen öppen tills dess installationstråd har stannat.\n\n:param event: Qt-stängningshändelse; ignoreras medan avbrottet väntar på att slutföras.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "Avbryt aktiva underprocesser och skjut upp stängningen tills bakgrundsarbetet har avslutats.",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "Starta installationen efter det uttryckliga knapptrycket och låt Qt fortsätta svara.",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.starplast.open_starplast": {
+      "source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d",
+      "text": "Erbjud installation en gång och starta sedan det fristående programmet Starplast.\n\n:param parent: organismsidan som begär starten.\n:param root: valfri mapp för externa program.\n:returns: barnprocess, eller None om starten avbröts eller misslyckades.",
+      "translation_source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
       ]
     },
     "spacr.qt.startup_benchmark": {
@@ -121288,6 +121698,134 @@
         "930f4ca8abdeda9e0f260b828e9fc2e582d41c29fb886cdd6b6765b012f25bc8"
       ]
     },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "En gemensam linjal som mäter bildkoordinater utan att ändra pixlar.",
+      "translation_source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Behåll en linje i bildpixlar och rita den med värdens transformation.\n\n:param parent: ägande bildyta eller vy; standardvärdet är None.\n\nVärdar skickar sin mappning från widget till bild till :meth:`handle` och den omvända mappningen till :meth:`paint`. Zoomning och panorering ändrar aldrig den uppmätta längden. Pixelenheter visas alltid. Fysiska enheter kräver uttrycklig, validerad kalibrering via :meth:`set_spacing`; kameraförstoring gissas aldrig. Högerklick rensar linjen när verktyget är aktivt. Börja utan linje eller kalibrering och med ritning avstängd.",
+      "translation_source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "Ta bort linjen utan att ändra verktygets aktivering eller kalibrering.\n\n:returns: None; skickar ``changed`` även om ingen linje fanns.",
+      "translation_source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "Hantera linjalens musgester; returnera False för navigeringsgester.\n\n:param event: tryck, rörelse eller släpp med musen från värdens bildyta.\n:param to_image: widgetens QPointF -> bild (x, y), eller None utanför bilden.\n:returns: True för hanterade linjalgester; False när värden ska hantera händelsen. Koordinater utanför bilden flyttar inte ändpunkterna.",
+      "translation_source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "Returnera längden i pixlar och, endast med kalibrering, den fysiska längden.\n\n:returns: text med längder till två decimaler; tom innan en linje finns.",
+      "translation_source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "Returnera linjens längd, eller None innan en linje finns.\n\n:param physical: False (standard) använder bildpixlar; True använder kalibrerat avstånd per axel, även med olika horisontella och vertikala värden.\n:returns: euklidisk längd som float i pixlar eller ``unit``; None om ingen linje finns eller fysisk längd begärs utan kalibrering.",
+      "translation_source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "Rita ändpunkter, linje och mätvärde i widgetens koordinater.\n\n:param painter: aktiv ritare för värdens bildyta eller visningsområde.\n:param to_widget: bild (x, y) -> widgetens QPointF eller QPoint, eller None.\n:returns: None; ritar inget om linjen eller någon av de mappade ändpunkterna saknas.",
+      "translation_source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "Aktivera ritning; avstängning bevarar den färdiga linjen.\n\n:param active: om vänsterdrag utan modifierartangenter mäter i stället för att redigera.\n:returns: None; skickar ``changed`` efter uppdatering av aktiveringen.",
+      "translation_source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "Ange fysiskt avstånd per bildpixel eller rensa kalibreringen.\n\n:param x: positivt ändligt avstånd per horisontell bildpixel i ``unit``; standardvärdet None rensar kalibreringen och ignorerar ``y``.\n:param y: positivt ändligt avstånd per vertikal bildpixel i ``unit``; standardvärdet None använder ``x`` för båda axlarna.\n:param unit: beteckning för fysisk enhet; standardvärdet är ``'µm'``. Anroparen anger avståndet i denna enhet; metoden konverterar inte enheter.\n:raises ValueError: om avståndet inte är positivt eller inte är ändligt.\n:returns: None; skickar ``changed`` efter uppdatering av kalibreringen.",
+      "translation_source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ]
+    },
     "spacr.qt.widgets.import_workbench": {
       "source_blocks_sha256": [
         "12afa151cd67c2c9d39247b3585fa8011bd90e73f35e4db9f83fc8a61a0687a3",
@@ -125822,6 +126360,122 @@
         "1e64fc4198624eccb8c0e25af3d1a4bd56cf8a61accd51a601667f847001b2cf"
       ]
     },
+    "spacr.qt.widgets.organism_diagram": {
+      "source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ],
+      "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
+      "text": "SwissBioPics-celler utan nätanslutning, med valbara UniProt-kompartmentetiketter.\n\nKopplingen från Toxoplasma hyperLOPIT till SL följer Einar Olafssons Starplast ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Illustrationerna är gjorda av Philippe Le Mercier, SIB, CC BY 4.0; källuppgifter följer med SVG-filerna. Dold metadata och logotypen för upphovsuppgifter tas bara bort ur den renderade kopian; originalresursen och den synliga upphovsangivelsen bevaras. Ingen import av PyQt6, nätverksbegäran eller uppmätt lokaliseringsdata används.",
+      "translation_source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
+      "source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ],
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "text": "Gemensamma apikomplexa kompartmentetiketter kopplade till UniProt SL-identifierare.",
+      "translation_source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL": {
+      "source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ],
+      "source_sha256": "73c1554655fd3d72d268c318ffceee3bbca24d093546eebbc53d26e0ea9b84ec",
+      "text": "Visningsetiketter för Toxoplasma hyperLOPIT kopplade till UniProt SL-identifierare.\n\nFlera etiketter delar en plats. Etiketten för mitokondriemembran behåller ``SL0171`` som identifierare och använder konturen för ``SL0173`` när den ritas.",
+      "translation_source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
+      "source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
+      ],
+      "source_sha256": "46967dcf6ce7f43739f6c2c7fd0c991c513c0d0b2b96a3009dc654612f2d4e99",
+      "text": "En cellillustration och en kompartmentväljare som kan användas med tangentbordet.\n\n:param app_key: organismnyckel; endast Toxoplasma använder hyperLOPIT-etiketter.\n:param path: sökväg till medföljande SVG; ingen extern resurs hämtas.\n:param parent: ägande Qt-widget.\nSkapa en upprätt illustration, en legend med flerval och kompartmentbeskrivningar.",
+      "translation_source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent": {
+      "source_blocks_sha256": [
+        "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+        "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "d4b9370619ba261053b1aaa0a49878ae34be123b9c838e708e1ec60367ffaae2",
+      "text": "Beräkna om det reserverade textutrymmet efter en uttrycklig ändring av teckensnitt eller språk.\n\n:param event: Ändringshändelse i Qt; ändringar av teckensnitt och språk gör layouten ogiltig.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+        "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components": {
+      "source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ],
+      "source_sha256": "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e",
+      "text": "Rensa alla bestående val och den tillfälliga markeringen av kompartmentet.",
+      "translation_source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter": {
+      "source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ],
+      "source_sha256": "3ef33a4ee51bb98fd7e06b673a3b50ec878400657f0c881765303600fb27f665",
+      "text": "Avsluta legendens tillfälliga markering när pekaren lämnar den.\n\n:param watched: objektet som tar emot händelsen; endast legendens visningsyta utlöser borttagning av markeringen.\n:param event: Qt-händelse som undersöks för en avisering om att pekaren lämnar området.\n:returns: resultatet från den överordnade widgetens händelsefilter.",
+      "translation_source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent": {
+      "source_blocks_sha256": [
+        "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+        "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "ad6126ef71b86972528a1a9ed756cb479e386bdf077090667f770ffd80368142",
+      "text": "Reservera utrymme för den längsta bildtexten en gång per bredd; hovring ändrar aldrig geometrin.\n\n:param event: Qt-händelse för storleksändring som vidarebefordras till den överordnade widgeten.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+        "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
+      "source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ],
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "text": "Generiska kompartmentetiketter för knoppande jäst kopplade till UniProt SL-identifierare.",
+      "translation_source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ]
+    },
     "spacr.qt.widgets.outlier_model": {
       "source_blocks_sha256": [
         "888d80f988246807e6a95b845e5d0512f6d257fd80b3a7bf865bfa8bc5984a5a",
@@ -127520,6 +128174,66 @@
       "text": "Returnerade förvalda värden för varje inställning som erbjuds i dialogrutan.",
       "translation_source_blocks_sha256": [
         "ab62ded73a83d9419c4a9e6086a1aa37dd609f1ce23a3044301db4096d7e4681"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details": {
+      "source_blocks_sha256": [
+        "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3"
+      ],
+      "source_sha256": "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3",
+      "text": "Beständiga, valbara förklaringar av varje element i en pipeline.",
+      "translation_source_blocks_sha256": [
+        "d47b19148b144616bb5c634405b952f982577ee2f61d332500487d0886450a94"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails": {
+      "source_blocks_sha256": [
+        "58d11fd96f30c2b5b2ecc76cd58fcdd02ff6e3ef5f90ce30d033dd8e0d94df88",
+        "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+        "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138"
+      ],
+      "source_sha256": "08ab39ee94726f536f77c91d83a66dc1ec0c5d8a9410b3844185f7c236b8f895",
+      "text": "Visa en pipelines beroendesteg som modul- och anslutningskort.\n\n:param parent: Ägande dialogruta. Korten fyller dess tillgängliga bredd och texten radbryts när fönstrets bredd ändras. När ett grafelement väljs ändras bara dess ram; texten byggs aldrig om och panelen rullas inte.\nSkapa en rundad, genomskinlig panel med stabil rullningsposition.",
+      "translation_source_blocks_sha256": [
+        "d2ea3f1867724feec80d788782ccf16f39765e93b067c22917403de708ea83e2",
+        "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+        "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element": {
+      "source_blocks_sha256": [
+        "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+        "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4"
+      ],
+      "source_sha256": "4db96d6f09b74335474d0c6951ac5bd4b7c8d8de5f67802c7ddfc90eaddbe248",
+      "text": "Rama in motsvarande modul eller anslutning utan att flytta texten.\n\n:param identifier: Modulnyckel, eller källa och mål sammanfogade med →.",
+      "translation_source_blocks_sha256": [
+        "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+        "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline": {
+      "source_blocks_sha256": [
+        "470b2916eea05beeb8e95a23104e9060a6891cfc1e9529aa54ca5575aba381e4",
+        "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+        "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74"
+      ],
+      "source_sha256": "bcb12aece7bf363717f21d4a25d633b183b07e2125357aedb7dba148b6489231",
+      "text": "Bygg kort en gång för en nyvald pipeline, i beroendeordning.\n\n:param entry: Metadata för flödet, inklusive titel och sammanfattning.\n:param diagram: Motsvarande WorkflowView med noder, positioner och kanter.",
+      "translation_source_blocks_sha256": [
+        "4b154293af980d3abe73f7c5201851d1c6e685c26028ab3d301d3b7dbc54f954",
+        "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+        "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText": {
+      "source_blocks_sha256": [
+        "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0"
+      ],
+      "source_sha256": "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0",
+      "text": "Returnera all synlig förklaringstext för tillgänglighet och granskning.",
+      "translation_source_blocks_sha256": [
+        "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0"
       ]
     },
     "spacr.qt.widgets.pivot_builder": {
@@ -129293,16 +130007,18 @@
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
       ],
-      "source_sha256": "315663779ea36f4e2dbe26e434024fea0649876f49cfefbc76cf11e3ca1d2a6a",
-      "text": "Bygga Cellpose modellen en live vy segment med.\n\n``model_type=`` accepteras och IGNORED av Cellpose 4 – den loggar \"inte används i v4.0.1+\" och tappar den, vilket lämnar ``pretrained_model`` på sin ``cpsam`` standard. Passerar användarens val där segmenteras därför med ``cpsam`` vad de valde, inklusive en kontrollpunkt de hade just tränat i spaCR egen Train Cellpose-modul. :func:`spacr.utils._resolve_cellpose_pretrained` är vad arbetsflödet använder: det kartor de äldre pre-SAM namn på ``cpsam`` och säger så en gång, och returnerar en väg oförändrad när namnet är en finjusterad kontrollpunkt.\n\nCellpose och torch importeras inne i anropet, så att importera en förhandsgranskningsmodul kall – som testsviten gör – behöver ingen CUDA-kapabel stack.\n\n:param model_name: Modellnamn eller kontrollpunktssökväg som användaren valt.\n:param gpu: tvinga anordningen att välja; ``None`` frågar torch.\n:returns: a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "27ebb95286c0721ad43537e6547a9f9b5bb360291b8a87c954b54df973bc2fcb",
+      "text": "Skapar Cellpose-modellen som används för segmentering i livevyn.\n\nCellpose 4 accepterar ``model_type=`` men ignorerar värdet: det loggar \"not used in v4.0.1+\" och förkastar värdet, så att ``pretrained_model`` behåller standardvärdet ``cpsam``. När användarens val skickades dit skedde segmenteringen därför med ``cpsam`` oavsett vad användaren valde, även om valet var en kontrollpunkt som precis tränats i spaCR:s egen modul Train Cellpose. Arbetsflödet använder :func:`spacr.utils._resolve_cellpose_pretrained`: funktionen kopplar äldre modellnamn från tiden före SAM till ``cpsam`` och meddelar detta en gång. Om namnet avser en finjusterad kontrollpunkt returnerar den sökvägen oförändrad.\n\nCellpose och torch importeras inne i anropet. Därför kräver en första import av en förhandsvisningsmodul, som i testsviten, ingen mjukvarumiljö med CUDA-stöd.\n\nFörhandsvisningar på CPU använder ``use_bfloat16=False``, både vid ett uttryckligt val av ``gpu=False`` och vid återgång till CPU om detekteringen av en accelerator misslyckas. Om Cellpose 4 avvisar en Cellpose 3-kontrollpunkt utlöses ett kompatibilitetsmeddelande för förhandsvisningen, med det ursprungliga undantaget bevarat som orsak.\n\n:param model_name: modellnamnet eller sökvägen till kontrollpunkten som användaren valde.\n:param gpu: tvingar fram enhetsvalet; ``None`` frågar torch.\n:returns: a ``cellpose.models.CellposeModel``.",
       "translation_source_blocks_sha256": [
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "472b8b4e45187f2ec5eecd988cda5497a89dd95441e0f61a25bc680395810979",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
@@ -131660,6 +132376,54 @@
       "translation_source_blocks_sha256": [
         "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a"
+      ]
+    },
+    "spacr.qt.widgets.sample_project": {
+      "source_blocks_sha256": [
+        "b38450bf202eaf7daedc959d3ae8e3b2a3ead2d523d2d2f059450425fadacdee",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ],
+      "source_sha256": "cbd5722eacde19541f2c7f24f275a54d529ce7067b62777f50dccca5c7b62f15",
+      "text": "Utforska flödesscheman och starta ett exempel från Hem om du vill.\n\nDialogen öppnar den första modulen i det valda arbetsflödet med exempeldata och inställningar. En genomgångsknapp i statusfältet håller flödet tillgängligt efter att exemplet har öppnats.\n\nArbetsflödena kommer från ``spacr/resources/module_workflows.json``, som delas med handledningar, genomgångar och API-sidor. Tre reservflöden finns om den medföljande kartan saknas.",
+      "translation_source_blocks_sha256": [
+        "88ec6a5ebfb58ea504c92f060e285f104f2542083038ba990abeb7f3017db3c8",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.pathway_graph": {
+      "source_blocks_sha256": [
+        "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+        "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+        "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+        "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+        "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068"
+      ],
+      "source_sha256": "f918be074f571f19b89b2966a77125358dc855eea7f118ca823292ffa70eaa0a",
+      "text": "Lägg till externa indata i en visningskopia utan att ändra körbara steg.\n\n:param entry: Metadata för flödet med valfria poster för externa indata.\n:param data: Delad modul-/artefaktkarta, som lämnas oförändrad.\n:param steps: Beroenden mellan körbara moduler, som lämnas oförändrade.\n:returns: Visningskarta, nodnycklar och beroenden inklusive indatanoder.",
+      "translation_source_blocks_sha256": [
+        "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+        "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+        "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+        "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+        "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.start_example": {
+      "source_blocks_sha256": [
+        "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+        "bb63595b656f6a664a114f703ed8fc68a1102f33ce4c778649017d2789424dba",
+        "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
+      ],
+      "source_sha256": "e7b246c5356bafda18063dba2b8d19eef7373a970298416e3cf1195ca0c60a6a",
+      "text": "Läs in exempeldata för modulen som ``screen`` visar.\n\nVarje modul vet redan hur dess eget exempel hämtas: Annotate frågar vilken halva som behövs och OPS har sitt exempel med sekvenseringscykler. Därför anropas modulens befintliga funktion i stället för en andra nedladdare.\n\n:param screen: modulvyn som just öppnades.\n:returns: det som startades: ``\"chooser\"``, ``\"test data\"`` eller ``\"\"``.",
+      "translation_source_blocks_sha256": [
+        "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+        "a5db3d2bbae4dbed032b3ab10e09841befb48c7442d967607e66fc345186faf7",
+        "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
       ]
     },
     "spacr.qt.widgets.save_figure_dialog": {
@@ -137128,6 +137892,34 @@
       "translation_source_blocks_sha256": [
         "a2bc4b2e817feebd003f8169ed4e1d8b947ead3c7916430538a88b920b32f271",
         "1885637af52d9e125f45699295ec8cb58b7daa38745f66506ba0212375b7ce01"
+      ]
+    },
+    "spacr.qt.widgets.workflow_diagram.details_box": {
+      "source_blocks_sha256": [
+        "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a"
+      ],
+      "source_sha256": "c40644f3cb5d93a1878a990e1686cee5fcdba04317ed257fa0687925f808fec2",
+      "text": "Skapa en rullningsbar förklaringsyta med ändringsbar storlek som delas av diagram.\n\n:param parent: Ägande widget; standardvärdet är None.\n:returns: QTextBrowser med aktiverade externa API-länkar och introduktionstext. Minsta höjd är sex rader med brödtextens typsnitt; paneldelaren bestämmer höjden.",
+      "translation_source_blocks_sha256": [
+        "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a"
+      ]
+    },
+    "spacr.qt.widgets.workflow_diagram.diagram_splitter": {
+      "source_blocks_sha256": [
+        "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+        "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+        "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
+      ],
+      "source_sha256": "a5bf230a1906e43101ab2134c62f82b2db22b00d597b7df6a9d0c9dde32f6387",
+      "text": "Skapa en lodrät paneldelning med ett tunt blått, dragbart handtag.\n\n:param parent: Ägande dialogruta eller behållare.\n:returns: QSplitter som inte kan fällas ihop; anroparen lägger till diagrammet och detaljerna.",
+      "translation_source_blocks_sha256": [
+        "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+        "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+        "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
       ]
     },
     "spacr.read_background": {
@@ -154190,6 +154982,346 @@
         "c9196885e8b0db48db15ee681fa0647c1b5fe15da513adacf9af9301e6b94b77",
         "c91a57c95fc0f830ea2677e94998d14523598f9c3c3210b0f9d700918e1e0c83",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
+      "source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ],
+      "source_sha256": "a4cb7e2b82abe12ef51cac69c08048338e7e0ad275a5256346831ecf79372e5d",
+      "text": "Registrerar basnätverket och bygger huvudet och uppsamplingsdelen.\n\nBasnätverket, eller dess ``net``, registreras som ``encoder`` när det är en modul, så att dess vikter tränas och flyttas tillsammans med nätverket.",
+      "translation_source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.forward": {
+      "source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ],
+      "source_sha256": "24aa50c47bfe401075b622b32babde16d77b9e1b23ce37479e954dae0c2042ea",
+      "text": "Sammanfogar basnätverkets egenskaper för båda bildrutorna och förutsäger tidskartorna.\n\n:param frame_t: bildruta ``t``, ``(B, 3, H, W)``.\n:param frame_t1: bildruta ``t+1``, med samma form.\n:returns: ``(B, 3, H, W)``: vektorn ``(dy, dx)`` och logiten för en efterföljare.",
+      "translation_source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.head_parameters": {
+      "source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ],
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "text": "De nya lagrens parametrar: huvudet och uppsamplingsdelen.",
+      "translation_source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ]
+    },
+    "spacr.timeflows_model.augment_pair.apply": {
+      "source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ],
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "text": "Tillämpar detta anrops kvartsvarvsrotationer och valfria spegling på ``array``.",
+      "translation_source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs": {
+      "source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ],
+      "source_sha256": "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611",
+      "text": "Träningspar av på varandra följande bildrutor från en Cell Tracking Challenge-film.\n\nBilder från ``<movie>/<seq>/t*.tif``, fullständiga masker från silversegmenteringen ``<movie>/<seq>_ST/SEG/man_seg*.tif`` ommärkta med spårmarkörerna ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). En bild som saknar någon av de tre indatafilerna hoppas över, och ett par bildas endast av två efterföljande bildnummer. Filnamn för snittmasker ignoreras och dubbla bildnummer avvisas. Med ``segmentation='GT'`` läses fullständiga masker från ``<seq>_GT/SEG``. En källa vars markör i nästa bild saknar en entydig fullständig mask utesluts för det paret i stället för att märkas som ett försvinnande.\n\n:param movie: Filmens mapp (t.ex. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` eller ``'02'``.\n:param max_pairs: Högst så många par, jämnt fördelade genom filmen och valda innan någon fil läses. Gränsen begränsar vilka bildrutor som läses in från långa filmer; att läsa in hela samlingar kan kräva tiotals gigabyte minne.\n:param segmentation: ``'ST'`` för silvermasker (standard vid träning), eller ``'GT'`` för tillhandahållna fullständiga referensmasker vid validering.\n:returns: Paren, i tidsordning.\n:raises ValueError: sekvensen eller gränsen, dubbla bildidentiteter eller annoteringsarrayer är ogiltiga.",
+      "translation_source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs.indexed": {
+      "source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ],
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "text": "Kopplar bildnummer till sökvägar för filerna ``prefix*.tif`` i ``folder``.",
+      "translation_source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ]
+    },
+    "spacr.timeflows_model.link_by_timeflows": {
+      "source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ],
+      "source_sha256": "4fb3cb63a37bc6d1b66e917c301e28d6dc57f1930b00f794016f42e79233db7f",
+      "text": "Vilket objekt i ``t+1`` varje objekt i ``t`` motsvarar enligt modellen.\n\nVarje objekts pixlar röstar genom de predikterade vektorerna på dess nästa centrum. Deras medelprediktioner tilldelas gemensamt till objektcentrum i ``t+1`` med den ungerska metoden. Objekt under ``min_successor`` eller utan en tillåten tilldelning förblir olänkade. Avstånd mäts i källobjektets diametrar, med en minsta diameter på en pixel.\n\nAvståndsgränsen tillämpas före tilldelningen. Tillåtna avstånd skalas till högst ett; ett alternativ utan matchning kostar strax över ett. En avståndsgräns på noll tillåter endast exakta centrummatchningar, med kostnaden noll. Därmed kan en omöjlig kant inte tränga undan en giltig länk. Målet minimerar avstånd plus kostnader för uteblivna matchningar; det maximerar inte antalet länkar.\n\nTröskelvärden måste vara ändliga, med ``min_successor`` i ``[0, 1]`` och ``max_distance`` icke-negativt. Om någon av bildrutorna saknar objekt är resultatet tomt utan att prediktionerna granskas. Annars måste prediktionernas former motsvara källbildrutan, förgrundsvektorerna vara ändliga och förgrundens sannolikheter för en efterföljare ligga i ``[0, 1]``. Bakgrundsvärden ignoreras. Beräknade objektcentrum måste också vara ändliga.\n\n:param labels_t: Objekten i bildruta ``t``, med valfria ID:n.\n:param labels_t1: Objekten i bildruta ``t+1``, med valfria ID:n.\n:param prediction: Från :func:`predict_pair`.\n:param min_successor: Den sannolikhet för en efterföljare som ett objekt behöver.\n:param max_distance: Det längsta länkavståndet, i objektets diametrar.\n:returns: ``{id in t: id in t+1}``.\n:raises ValueError: Ogiltiga tröskelvärden, prediktionsformer, förgrundsvärden eller beräknade objektcentrum.",
+      "translation_source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "0b85dff8c2dab34212bbb914f99fbf4ca35518edce022f2ffcad6689b33b8c7b",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
+    "spacr.timeflows_model.main.record_validation": {
+      "source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ],
+      "source_sha256": "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5",
+      "text": "Töm bufferten för varje kontroll omedelbart; slutförandet registreras först efter att allt har sparats.",
+      "translation_source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ]
+    },
+    "spacr.timeflows_model.predict_pair.starts": {
+      "source_blocks_sha256": [
+        "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"
+      ],
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "text": "Startpunkter för bildutsnitt som täcker ``extent`` med en fjärdedels bildutsnitt i överlappning.",
+      "translation_source_blocks_sha256": [
+        "ef84c5c36db7702b09bc2d52eeb2cb2841578ab22aa142cf408b20f299eee01f"
+      ]
+    },
+    "spacr.timeflows_model.track_masks_from_ctc": {
+      "source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ],
+      "source_sha256": "5ed2059c473f15002794182a63f6e2807cc36acbcebb0675439ca169ca773775",
+      "text": "Fullständiga objektmasker märkta med sina TRACK-identiteter.\n\nCell Tracking Challenge publicerar spårningsreferensen som MARKERS: små områden inuti varje cell, märkta med cellens spåridentitet i varje bildruta. Fullständiga konturer publiceras separat som silvermaskerna ``ST/SEG``, märkta per bildruta. Endast entydiga en-till-en-tilldelningar behålls: objektet innehåller exakt en marköridentitet och den markören överlappar inget annat segmenterat objekt. Omarkerade, sammanslagna och delade tilldelningar utesluts i stället för att gissas.\n\n:param segmentation: instansetiketter för en bildruta, med valfria identiteter.\n:param markers: TRA-markörer för samma bildruta, märkta med spåridentitet.\n:returns: ``segmentation`` som int64, ommärkt med spåridentitet, med 0 på övriga platser.\n:raises ValueError: annoteringarna är inte matchande icke-negativa heltalsarrayer i 2-D, eller marköridentiteterna ryms inte i int64.",
+      "translation_source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows": {
+      "source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
+      ],
+      "source_sha256": "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6",
+      "text": "Tränar först tidshuvudet och sedan hela nätverket på par märkta med spåridentiteter.\n\nTräning i två steg: basnätverkets segmentering är redan inlärd, så det hålls fryst medan det nya huvudet lär sig. Därefter tränas hela nätverket med låg inlärningstakt. Båda bildrutorna i varje par får identisk dataaugmentering innan målvärdena beräknas.\n\nEtt träningsutsnitt behåller övervakning endast för fullständiga källmasker och, när de finns i hela målbilden, fullständiga efterföljarmasker. En efterföljare utanför bildutsnittet är inte ett försvinnande. Frånvaro i de tillhandahållna etiketterna för hela bilder förblir övervakad; detta validerar inte annoteringarna. Oanvändbara utsnitt samplas om upp till 32 gånger per steg. Uteslutningen förhindrar felaktiga mål vid utsnittsgränser men tar bort vissa exempel med snabba rörelser; den visar inte noggrannhet över hela rörelseintervallet.\n\n:param net: från :func:`TimeflowsNet`.\n:param pairs: träningsparen.\n:param head_steps: steg med fryst basnätverk.\n:param full_steps: steg där alla parametrar kan tränas.\n:param lr_head: inlärningstakt för huvudets träningsfas.\n:param lr_full: inlärningstakt för den fullständiga träningsfasen.\n:param weights: samplingsvikt per par (:func:`pair_sampling_weights`); likformig vid None.\n:param seed: slumpfröet.\n:param device: ``'cpu'`` eller ``'cuda'``.\n:param log: ``fn(line)`` för förloppsmeddelanden.\n:param validation_pairs: Valfria undanhållna helbildspar. Exakt överlappning av indata med träningen avvisas före den första optimeraruppdateringen.\n:param validation_every: Uppdateringar mellan kontroller på undanhållna data; standard är en epok med ``len(pairs)`` samplade uppdateringar. Inledande kontroller och kontroller vid stegens slut ingår alltid. Måste vara positivt om det anges.\n:param on_validation: Återanropsfunktion som tar emot varje stratifierad valideringsrapport, inklusive steg, antal uppdateringar och aktuell träningsförlust. Valfri validering ändrar aldrig kontraktet för den returnerade förlustlistan.\n:returns: förlusten i varje steg.\n:raises ValueError: ingen användbar övervakning återstår efter 32 samplade utsnitt för ett steg; inspektera hela maskerna och rörelsen i förhållande till utsnittet.",
+      "translation_source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "edcd27fa0e5d61f7c6e2cf5aab0c1ba0f8e9c8f5beb82a1fd7c9b54afc4716fd",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.report_validation": {
+      "source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ],
+      "source_sha256": "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3",
+      "text": "Rapportera en kontroll på undanhållna data och bevara träningstillståndet.",
+      "translation_source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.run": {
+      "source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ],
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "text": "Tränar ``params`` under ``steps`` steg med fryst eller träningsbart basnätverk.",
+      "translation_source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ]
+    },
+    "spacr.timeflows_validation": {
+      "source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ],
+      "source_sha256": "a80b2b02caacd7445544e2e50d33ce9e8d60d75a4fc48b3997130f2e7f8b9e71",
+      "text": "Gemensamma länkningsmått med tillhandahållna masker och kontroller på undanhållna data för Timeflows-träning.\n\nDessa mätningar förutsätter den tillhandahållna segmenteringen och spårmärkningen. De mäter inte noggrannheten för hela segmenteringskedjan eller spårning av hela filmer.",
+      "translation_source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ]
+    },
+    "spacr.timeflows_validation.check_pair_holdout": {
+      "source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ],
+      "source_sha256": "ace9ea46bc7f3fe5a25f999b242f6a02dbd9fceb859e2115a9967398c8752618",
+      "text": "Avvisa valideringsbilder som är identiska med någon normaliserad träningsindata.\n\nBåda ändpunkterna ingår. Kanalutfyllnad, kanalbegränsning och float32-konvertering följer modellens egen indataadapter. Detta hittar identiska indata över sökvägar eller datatyper, men inte nästan identiska bilder eller olika bilder från samma biologiska film; CLI avvisar gemensamma filmsökvägar separat. Returnera valideringsindatas fingeravtryck för att dokumentera ursprunget.\n\n:param training_pairs: Par vars indatabilder deltar i träningen.\n:param validation_pairs: Icke-tomma undanhållna par med båda indataändpunkterna.\n:returns: Två SHA-256-fingeravtryck av normaliserade indata per valideringspar.\n:raises ValueError: Valideringen är tom eller indata förekommer även i träningen.",
+      "translation_source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ]
+    },
+    "spacr.timeflows_validation.score_pair": {
+      "source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e5d18e910494ef6e5fea2f8bfc035aca3701d61548e1c20790737fd6bdb7af48",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ],
+      "source_sha256": "58049ad9083df64e2ba6dd9e5a8c94a52b27a3c39d730caca8edca5dab02cc59",
+      "text": "Utvärdera källobjekt efter att uttryckligen okända efterföljare har uteslutits.\n\nGemensamma spåridentiteter definierar de sanna länkarna innan målidentiteterna blandas om. En saknad målidentitet betyder att ingen efterföljare finns, om inte källan ingår i ``unknown_successors``; saknade annoteringar upptäcks inte automatiskt. En IoU-kontroll läggs till de tillhandahållna prediktionsvarianterna.\n\n:param labels_t: Källmasker med positiva spåridentiteter och noll som bakgrund.\n:param labels_t1: Målmasker med samma spåridentiteter.\n:param predictions: Namngivna prediktionsordböcker som godtas av :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` är reserverat.\n:param seed: Slumpfrö för att blanda om målidentiteterna.\n:param unknown_successors: Källidentiteter som utelämnas från samtliga mått.\n:returns: Facit, prediktioner, korrekthet samt rörelse- och täthetsstrata per objekt.",
+      "translation_source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e2e301feea6a1e076c48a2a29ab175df87b3e3bf06212cb3e496ea0a1d5e6724",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ]
+    },
+    "spacr.timeflows_validation.scramble": {
+      "source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ],
+      "source_sha256": "a02cecb481b946016a854203843c45e8f9af602a6a72bd1ac32eff8cd7025818",
+      "text": "Märk om målobjekt utan att ändra deras form eller position.\n\n:param labels: Array med målmärkningar där noll är reserverat för bakgrunden.\n:param seed: Slumpfrö för att permutera identiteter som inte är noll.\n:returns: Den ommärkta arrayen och avbildningen från ursprungliga till omblandade identiteter.",
+      "translation_source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ]
+    },
+    "spacr.timeflows_validation.summarise": {
+      "source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ],
+      "source_sha256": "15b886b22ab832957c8d0eb59b23c486ef245d976c570f72804195ec077c12e1",
+      "text": "Sammanställ objektviktade resultat med uttryckliga nämnare för saknade data.\n\n:param rows: Objektvisa poster från :func:`score_pair`.\n:returns: Sammanfattningar totalt, efter rörelse, täthet och kombinerade strata. Efterföljarnoggrannheten är ``None`` när sanna efterföljare saknas; felaktiga länkar och avståenden är antal med bevarade populationsstorlekar.",
+      "translation_source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ]
+    },
+    "spacr.timeflows_validation.temporal_assignment_policy": {
+      "source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ],
+      "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
+      "text": "Beskriv standardavkodaren som används av båda valideringsingångarna.",
+      "translation_source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ]
+    },
+    "spacr.timeflows_validation.validate_timeflows": {
+      "source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
+      ],
+      "source_sha256": "7761284c52d1cf433407c0b9fe0881b3a2a61fcade93f8da300e39a129b43d13",
+      "text": "Utvärdera undanhållna par och kontroller utan att ändra träningstillståndet.\n\n``pairs`` innehåller normaliserade bilder och fullständiga masker med spårmärkningar. Anropa :func:`check_pair_holdout` före träningen för att kontrollera att indata är exakt åtskilda. Resultatet innehåller objektvisa rader och förskjutnings-/täthetsstrata för den aktuella modellen, IoU-, nollrörelse- och orakelkontroller samt en kontroll med kopierad bild. Valfria ``initial_head`` är en fullständig ögonblicksbild av head/up-parametrar och buffertar vid träningsstart. Den kallas ``initial_head`` eftersom det ursprungliga huvudet i en återupptagen modell inte nödvändigtvis är otränat.\n\nModulernas tränings-/utvärderingslägen, huvudets aktuella vikter och slumptillstånd för CPU och vald CUDA återställs även om utvärderingen kastar ett undantag. Ingen optimerare ändras. De returnerade måtten gäller tillhandahållna masker, inte segmenteringsprestanda, cellhärstamning eller spårning av hela filmer.\n\n:param net: Timeflows-nätverk som utvärderas i sitt aktuella tillstånd.\n:param pairs: Icke-tomma helbildspar med motsvarande spåridentiteter.\n:param device: Enhet som används för inferens och bevarande av slumptillstånd.\n:param seed: Ursprungligt slumpfrö för omblandning av målidentiteter, ökat för varje par.\n:param initial_head: Valfri fullständig ögonblicksbild av head/up-parametrar och buffertar.\n:returns: Objektvisa rader, stratifierade sammanfattningar, kontroller med kopierad bild och metadata för temporal tilldelning.\n:raises ValueError: Paren är tomma eller det ursprungliga huvudets nycklar eller former skiljer sig.",
+      "translation_source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
       ]
     },
     "spacr.timelapse": {

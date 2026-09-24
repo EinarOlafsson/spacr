@@ -18,6 +18,7 @@ the output page is resized.
 import logging
 from typing import Optional
 
+from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
                                QDoubleSpinBox, QFileDialog, QFormLayout,
                                QHBoxLayout, QLabel, QPushButton,
@@ -469,6 +470,9 @@ class SaveFigureDialog(QDialog):
         size.addWidget(self._size_note, 1)
         form.addRow("size", size)
         layout.addLayout(form)
+        self._page_notes = (self._resolution_note, self._size_note)
+        for page_note in self._page_notes:
+            page_note.installEventFilter(self)
 
         self._holder = QVBoxLayout()
         layout.addLayout(self._holder, 1)
@@ -492,6 +496,33 @@ class SaveFigureDialog(QDialog):
 
         self.resize(760, 760)
         self._format_changed()
+
+    def eventFilter(self, watched, event) -> bool:
+        """Reserve the actual wrapped height of the page explanation labels.
+
+        Parameters
+        ----------
+        watched : PySide6.QtCore.QObject
+            Label receiving a width, font or style change.
+        event : PySide6.QtCore.QEvent
+            Qt notification forwarded unchanged to the parent implementation.
+
+        Returns
+        -------
+        bool
+            Parent event-filter result; resizing a note never consumes input.
+        """
+        if watched in self._page_notes and event.type() in (
+                QEvent.Resize, QEvent.FontChange, QEvent.StyleChange):
+            self._fit_page_notes()
+        return super().eventFilter(watched, event)
+
+    def _fit_page_notes(self) -> None:
+        """Fit both raster/vector explanations to their current text and width."""
+        for note in self._page_notes:
+            height = max(0, note.heightForWidth(note.width())) if note.text() else 0
+            if note.minimumHeight() != height:
+                note.setMinimumHeight(height)
 
 
     def _colour_box(self, choices, tooltip: str) -> QComboBox:
@@ -646,6 +677,7 @@ class SaveFigureDialog(QDialog):
         if self._suffix() in VECTOR_FORMATS:
             self._resolution_note.setText(_RESOLUTION_REASON)
             self._resolution_note.setToolTip(_RESOLUTION_REASON)
+            self._fit_page_notes()
             return
         pixels = self._raster_pixels()
         if not pixels:
@@ -656,6 +688,7 @@ class SaveFigureDialog(QDialog):
             shown = f"{pixels[0]} × {pixels[1]} pixels"
         self._resolution_note.setText(_with_reason(shown, _PIXELS_REASON))
         self._resolution_note.setToolTip(_PIXELS_REASON)
+        self._fit_page_notes()
 
     def _raster_pixels(self) -> Optional[tuple]:
         """``(width, height)`` in pixels, with height None when it follows.

@@ -116,13 +116,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
-      "translation": "Factor de corrección del umbral: el nivel de Otsu se multiplica por este valor antes de utilizarlo. Por encima de 1 es más estricto: los objetos se reducen y los tenues desaparecen; por debajo de 1 incluye píxeles más oscuros; 1 conserva el nivel original de Otsu. Lo utilizan tanto la detección con Otsu como el modo Otsu de la lupa en vivo cuando una región contiene dos poblaciones claramente diferenciadas."
-    },
-    {
-      "table": "ui",
       "key": "Add a model",
       "source": "Add a model",
       "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c",
@@ -207,13 +200,6 @@
     },
     {
       "table": "ui",
-      "key": "Channels",
-      "source": "Channels",
-      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
-      "translation": "Canales"
-    },
-    {
-      "table": "ui",
       "key": "Choose a database or a folder first",
       "source": "Choose a database or a folder first",
       "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db",
@@ -295,6 +281,29 @@
       "source": "Could not open {name}.",
       "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0",
       "translation": "No se pudo abrir {name}."
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Channels",
+        "source": "Channels",
+        "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+        "translation": "Canales"
+      }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+        "translation": "Factor de corrección del umbral: el nivel de Otsu se multiplica por este valor antes de utilizarlo. Por encima de 1 es más estricto: los objetos se reducen y los tenues desaparecen; por debajo de 1 incluye píxeles más oscuros; 1 conserva el nivel original de Otsu. Lo utilizan tanto la detección con Otsu como el modo Otsu de la lupa en vivo cuando una región contiene dos poblaciones claramente diferenciadas."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

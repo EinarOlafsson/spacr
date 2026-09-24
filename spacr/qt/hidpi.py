@@ -52,7 +52,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Optional, Tuple, Union
 
-from PySide6.QtCore import QEvent, QObject, QSize, Qt
+from PySide6.QtCore import QEvent, QObject, QPoint, QSize, Qt
 from PySide6.QtGui import QGuiApplication
 
 #: Ratios outside this are a broken or hostile environment variable, not a
@@ -64,10 +64,43 @@ SizeLike = Union[int, float, QSize, Tuple[int, int]]
 __all__ = [
     "MAX_RATIO",
     "device_ratio",
+    "screen_for_widget",
     "scaled_for",
     "logical_size",
     "follow_device_ratio",
 ]
+
+
+def screen_for_widget(widget: Any = None):
+    """Find a display without making its Python wrapper a child of a window.
+
+    PySide can associate ``QWidget.screen()``'s shared QScreen wrapper with
+    that widget. Closing it then invalidates the wrapper; cyclic collection
+    can even destroy the display object still used by QApplication. Static
+    QGuiApplication lookups leave display lifetime with Qt.
+
+    :param widget: QWidget or QWindow whose center selects the display, or
+        None for the primary display. An unshown child uses its parent.
+        Non-Qt stand-ins may supply their own ``screen()`` accessor.
+    :returns: QScreen at that position, the primary display as fallback,
+        or None when there is no GUI application/display.
+    """
+    if QGuiApplication.instance() is None:
+        return None
+    if widget is not None:
+        if not isinstance(widget, QObject):
+            screen = widget.screen()
+            return screen if screen is not None else QGuiApplication.primaryScreen()
+        try:
+            parent = getattr(widget, "parentWidget", lambda: None)()
+            anchor = parent if parent is not None and not widget.isVisible() else widget
+            point = anchor.mapToGlobal(QPoint(anchor.width() // 2, anchor.height() // 2))
+            screen = QGuiApplication.screenAt(point)
+            if screen is not None:
+                return screen
+        except (AttributeError, RuntimeError, TypeError):
+            pass
+    return QGuiApplication.primaryScreen()
 
 
 def _ratio_of(source: Any) -> float:
@@ -109,7 +142,11 @@ def device_ratio(target: Any = None) -> float:
         if getter is None:
             continue
         try:
-            ratio = _ratio_of(getter())
+            if (name == "screen" and isinstance(target, QObject)
+                    and (target.isWidgetType() or target.isWindowType())):
+                ratio = _ratio_of(screen_for_widget(target))
+            else:
+                ratio = _ratio_of(getter())
         except Exception:                                # noqa: BLE001
             continue
         if ratio:

@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-assisted technical and German-language review against the current object classifier; no native-speaker sign-off",
+  "records": [
+    {
+      "label": "spacr.object_classifier#5",
+      "source": "WHAT A HEAD IS. A head is a trained classifier: it is handed a batch of crops and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
+      "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
+      "translation": "WAS EIN KLASSIFIKATIONSKOPF IST. Ein Klassifikationskopf ist ein trainierter Klassifikator: Er erhält einen Stapel Bildausschnitte und gibt für jeden eine Klasse und eine Wahrscheinlichkeit zurück. Er ist als Protokoll statt als Basisklasse definiert; deshalb kann ein Adapter um ein torch-Modul oder einen scikit-learn-Schätzer diese Schnittstelle anbieten. Geplant sind zwei Anwendungen: Parasiten pro Vakuole und die Bestimmung der Objektart. Die PV-Anwendung verwendet in der Praxis drei getrennt mit Hoechst, der Parasitenfärbung und CellMask trainierte Klassifikationsköpfe, damit eine Platte anhand ihrer verfügbaren Färbung ausgezählt werden kann.",
+      "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe"
+    },
+    {
+      "label": "spacr.object_classifier#6",
+      "source": "Geometry reports border contact and suggests pairs that may have been split by a segmenter. A shared boundary is a heuristic, not proof that two labels belong to one biological object. Border contact and split candidates are reported separately; automatic merging excludes either object touching the field edge. Merge accuracy still requires independently labelled examples.",
+      "context": "Geometry reports border contact and suggests pairs that may have been split by a segmenter. A shared boundary is a heuristic, not proof that two labels belong to one biological object. Border contact and split candidates are reported separately; automatic merging excludes either object touching the microscope field of view edge. Merge accuracy still requires independently labelled examples.",
+      "translation": "Die Geometrie erfasst Randkontakt und schlägt Objektpaare vor, die möglicherweise durch einen Segmentierer getrennt wurden. Eine gemeinsame Grenze ist eine Heuristik und kein Beweis dafür, dass zwei Objektkennungen zu einem biologischen Objekt gehören. Randkontakt und mögliche Teilungsartefakte werden getrennt gemeldet. Die automatische Zusammenführung schließt Paare aus, sobald eines der Objekte den Bildfeldrand berührt. Die Genauigkeit der Zusammenführung muss noch anhand unabhängig annotierter Beispiele bestimmt werden.",
+      "source_sha256": "129ed0b73a6f49367bd70f620441e8069dfd5dfc0119699c1032dced1f839b0f"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#0",
+      "source": "Adapt a count regressor to the object-head prediction interface.",
+      "context": "Adapt a count regressor to the object-head prediction interface.",
+      "translation": "Passt einen Regressor zur Anzahlvorhersage an die Vorhersageschnittstelle für Objektklassifikationsköpfe an.",
+      "source_sha256": "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#1",
+      "source": "model with ``predict(crops)`` returning one finite, nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The caller selects this model's stain through ``classify_objects``'s ``channels`` argument; separate models can use the same labels.",
+      "context": "model with ``predict(crops)`` returning one finite, nonnegative count per extracted image region, shaped ``(N,)`` or ``(N, 1)``. The caller selects this model's stain through ``classify_objects``'s ``channels`` argument; separate models can use the same labels.",
+      "translation": "Modell mit ``predict(crops)``, das pro Bildausschnitt eine endliche, nichtnegative Anzahl in der Form ``(N,)`` oder ``(N, 1)`` zurückgibt. Der Aufrufer wählt die Färbung dieses Modells in ``classify_objects`` über dessen Argument ``channels`` aus; getrennte Modelle können dieselben Objektkennungen verwenden.",
+      "source_sha256": "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#2",
+      "source": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability.",
+      "context": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability.",
+      "translation": "Die Anzahlen behalten ihre Regressionswerte. Die angezeigten Klassen werden mit :func:`bin_parasite_count` bestimmt; ein Regressor liefert keine Klassenwahrscheinlichkeit.",
+      "source_sha256": "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#0",
+      "source": "Return unrounded counts and display classes for a crop batch.",
+      "context": "Return unrounded counts and display classes for an extracted image region batch.",
+      "translation": "Gibt ungerundete Anzahlen und Anzeigeklassen für einen Stapel Bildausschnitte zurück.",
+      "source_sha256": "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#1",
+      "source": "channel-selected crops in object order.",
+      "context": "channel-selected extracted image regions in object order.",
+      "translation": "Bildausschnitte mit ausgewählten Kanälen in der Reihenfolge der Objekte.",
+      "source_sha256": "cb7de26fdc328bc9c54b8f5c3729d7988410d3d3132181233cd0cc0220ead1ec"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#2",
+      "source": "one count, display class and absent probability per crop.",
+      "context": "one count, display class and absent probability per extracted image region.",
+      "translation": "pro Bildausschnitt eine Anzahl, eine Anzeigeklasse und keine Wahrscheinlichkeit.",
+      "source_sha256": "4ad3e812878a50fd6dcc9e80d2d2a65d15e97b18ec44b3b2ba69c068f62e9b07"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#3",
+      "source": "predictions have the wrong shape or invalid counts.",
+      "context": "predictions have the wrong shape or invalid counts.",
+      "translation": "die Vorhersagen haben die falsche Form oder enthalten ungültige Anzahlen.",
+      "source_sha256": "8718d2158b5b298da83cb7b2f7f8f446e5caddfe80b49a52e717bcfa01421fb5"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#3",
+      "source": "finite, nonnegative count, including fractional predictions.",
+      "context": "finite, nonnegative count, including fractional predictions.",
+      "translation": "endliche, nichtnegative Anzahl, einschließlich nicht ganzzahliger Vorhersagen.",
+      "source_sha256": "e41691590f9d9f184a8bd552290beb1f77a5b6f61c77eca82dd0d1b14c6dd4eb"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#5",
+      "source": "the count is negative or not finite.",
+      "context": "the count is negative or not finite.",
+      "translation": "die Anzahl ist negativ oder nicht endlich.",
+      "source_sha256": "991a0729433e5f7596ebf142a790f353413cb27e3ed6dc013c8be2a200fa63da"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#3",
+      "source": "something with ``predict(crops)`` returning a class per crop, ``(class, probability)`` pairs, or dictionaries containing ``class``, optional ``probability`` and optional regression ``count``. None reports geometry and crops without making predictions.",
+      "context": "something with ``predict(crops)`` returning a class per extracted image region, ``(class, probability)`` pairs, or key-value mappings containing ``class``, optional ``probability`` and optional regression ``count``. None reports geometry and extracted image regions without making predictions.",
+      "translation": "ein Objekt mit ``predict(crops)``, das eine Klasse pro Bildausschnitt, Paare ``(class, probability)`` oder Wörterbücher mit ``class``, optionaler ``probability`` und optionalem Regressionswert ``count`` zurückgibt. Bei None werden Geometrie und Bildausschnitte ohne Vorhersagen ausgegeben.",
+      "source_sha256": "947ec5d89ff2a68da266ef787f2a462e2eb73e59249729a048fdd6fb77caaebc"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#9",
+      "source": "merge pairs :func:`split_candidates` finds, excluding any pair with either object touching the field edge. This optional geometry rule can mistake adjacent objects for a segmentation split.",
+      "context": "merge pairs :func:`split_candidates` finds, excluding any pair with either object touching the microscope field of view edge. This optional geometry rule can mistake adjacent objects for a segmentation split.",
+      "translation": "die von :func:`split_candidates` gefundenen Paare zusammenführen; Paare, bei denen eines der Objekte den Bildfeldrand berührt, werden ausgeschlossen. Diese optionale geometrische Regel kann benachbarte Objekte fälschlich als Segmentierungsteilung einstufen.",
+      "source_sha256": "9bc661d2036dad4a77d730f453b1634ada97aad4d87f9af4640f37bb17b4094b"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#11",
+      "source": "dictionary containing ``objects`` (per-label rows), ``crops`` (label-keyed arrays), a new ``mask``, ``merged`` pairs, ``removed`` ids and ``removed_count``. Rows and crops describe objects after merging but before removal, retaining evidence for deleted objects. ``label_map`` maps every original id to its final surviving id, or zero for a removed object. Default mask values and dtype are unchanged. Geometry candidates are not validated biological splits.",
+      "context": "key-value mapping containing ``objects`` (per-label rows), ``crops`` (label-keyed arrays), a new ``mask``, ``merged`` pairs, ``removed`` ids and ``removed_count``. Rows and extracted image regions describe objects after merging but before removal, retaining evidence for deleted objects. ``label_map`` maps every original id to its final surviving id, or zero for a removed object. Default mask values and dtype are unchanged. Geometry candidates are not validated biological splits.",
+      "translation": "Wörterbuch mit ``objects`` (Zeilen pro Objektkennung), ``crops`` (nach Objektkennung indizierte Arrays), einer neuen ``mask``, ``merged``-Paaren, ``removed``-Kennungen und ``removed_count``. Zeilen und Bildausschnitte beschreiben die Objekte nach der Zusammenführung, aber vor der Entfernung und bewahren damit die Nachweise zu gelöschten Objekten. ``label_map`` ordnet jede ursprüngliche Kennung ihrer endgültig verbleibenden Kennung zu; bei einem entfernten Objekt ist der Wert null. Standardmäßig bleiben Maskenwerte und Datentyp unverändert. Geometrische Kandidaten sind keine validierten biologischen Teilungen.",
+      "source_sha256": "79a254eed21e83033f5c890823cd8a78d0d2aecaa6a9a6c4e3c7b787539dba94"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#12",
+      "source": "invalid image/mask geometry, crop settings or head output, or artifact removal requested without a head.",
+      "context": "invalid image/mask geometry, extracted-image-region settings or head output, or artifact removal requested without a head.",
+      "translation": "ungültige Bild- oder Maskengeometrie, Einstellungen für Bildausschnitte oder Ausgabe des Klassifikationskopfs; oder eine angeforderte Artefaktentfernung ohne Klassifikationskopf.",
+      "source_sha256": "db295d18127249c3fe247f0502d71a650b6f0ada8567066c4e63a3b36d2e0154"
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#5",
+      "source": "a pair names background, an absent id, or a noninteger.",
+      "context": "a pair names background, an absent id, or a noninteger.",
+      "translation": "ein Paar enthält den Hintergrund, eine nicht vorhandene Kennung oder einen nicht ganzzahligen Wert.",
+      "source_sha256": "66f07fb9777f4334c03c941cfe80b72e994a48e8301c51fb7356d9af8e955d67"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#1",
+      "source": "The rule is a geometry heuristic: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
+      "context": "The rule is a geometry heuristic: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
+      "translation": "Die Regel ist eine geometrische Heuristik: Zwei Objektkennungen bilden ein Kandidatenpaar, wenn sich ihre Flächen berühren und ihre gemeinsame Grenze mindestens den Anteil ``share`` des Umfangs des kleineren Objekts ausmacht. Eine an eine andere Zelle angrenzende Zelle teilt nur einen kleinen Teil ihres Randes; bei einer vom Segmentierer mittig geteilten Zelle ist es ein großer Teil.",
+      "source_sha256": "f4ed0019ec49b1b9944bea1a58b86072d739acc1897fb3ae4a0c5036dd9e89ca"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#4",
+      "source": "fraction of the smaller perimeter that must be shared, between zero and one. Shared pixels are counted on the lower-id label, with orthogonal adjacency. The default 0.25 has synthetic checks but no measured biological merge precision.",
+      "context": "fraction of the smaller perimeter that must be shared, between zero and one. Shared pixels are counted on the lower-id label, with orthogonal adjacency. The default 0.25 has synthetic checks but no measured biological merge precision.",
+      "translation": "der gemeinsam verlaufende Mindestanteil am kleineren Umfang, zwischen null und eins. Gemeinsame Pixel werden auf der Objektfläche mit der kleineren Kennung gezählt, wobei nur orthogonale Nachbarschaft berücksichtigt wird. Die Vorgabe 0.25 wurde an synthetischen Daten geprüft; die Präzision der Zusammenführung biologischer Objekte wurde jedoch nicht gemessen.",
+      "source_sha256": "c8750570bc5ffb0606d0e43498088387f9a8f109b3beb3530ed6dd42fcbfabfd"
+    }
+  ]
+}

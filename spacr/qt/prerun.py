@@ -238,9 +238,13 @@ class _ShowFilter(QObject):
 
 
 def _widgets(screen) -> Dict[str, QWidget]:
-    """The screen's settings widgets, keyed by settings key."""
+    """The screen's settings widgets, keyed by settings key.
+
+    The model's own mapping, not a copy: copying it reads every control,
+    and a control in a category not opened yet is built by being read.
+    """
     model = getattr(screen, "_settings_model", None)
-    return dict(getattr(model, "_widgets", {}) or {})
+    return getattr(model, "_widgets", None) or {}
 
 
 def _widget_value(widget) -> Any:
@@ -803,13 +807,12 @@ class SegQCBanner(_JobMixin, QFrame):
         self._headline.setText(digest.headline)
         sub = digest.subhead
         if digest.stale:
+            from .i18n import tr
             names = ", ".join(
                 card.object_type for card in digest.scorecards if card.stale)
-            sub += (
-                f" These masks have been written again since the {names} card "
-                f"was scored, so what follows describes the previous masks. "
-                f"Score them again to be sure."
-            )
+            sub += " " + tr(
+                "The {names} masks need fresh QC; their old cards are excluded from current findings.",
+                names=names)
         self._sub.setText(sub)
         self._sub.setVisible(bool(sub))
 
@@ -1413,6 +1416,12 @@ def _insert_above_actions(screen, widget) -> bool:
     if wrap is None or actions is None:
         return False
     layout = wrap.layout()
+    holder = actions.parentWidget()
+    if (holder is not None and holder is not wrap
+            and wrap.isAncestorOf(holder)
+            and holder.layout() is not None
+            and holder.layout().indexOf(actions) >= 0):
+        layout = holder.layout()
     if layout is None:
         return False
     index = layout.indexOf(actions)

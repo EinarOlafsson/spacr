@@ -594,12 +594,12 @@ def test_object_module_reads_the_timelapse_flag_defensively():
         "no longer supplies that key, so it must be read with .get()")
 
 
-def test_inline_motility_hook_is_still_gated_on_both_flags():
+def test_motility_is_not_run_inside_segmentation_batches():
+    """Only the pipeline may analyze movement after all roles are merged."""
     import inspect
     import spacr.object as obj
     src = inspect.getsource(obj)
-    assert src.count(
-        'if timelapse and settings.get("motility_analysis", False):') == 2
+    assert 'automated_motility_assay' not in src
 
 
 # ---------------------------------------------------------------------------

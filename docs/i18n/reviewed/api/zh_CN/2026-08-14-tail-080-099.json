@@ -75,7 +75,7 @@
       "translation": "``\"gene\"``（合并各向导，与真实分析和 spaCRPower 的做法相同）或 ``\"guide\"``（每个构建体作为独立文库单元）。"
     },
     {
-      "label": "spacr.qt.widgets.preview_controls#46",
+      "label": "spacr.qt.widgets.preview_controls#47",
       "source_sha256": "8118e3353a26aa6492cc19d41c89445bc17fdd067970f0112979deca94c70176",
       "source": ":func:`enumerate_image_sets` replaces it. It reads **file names only**, via ``os.scandir`` and the project's own acquisition regex (``spacr.utils._get_regex``), and groups them into :class:`ImageSet` records keyed by ``(plate, well, field)`` with the channel files hanging off each. No image is opened, decoded or stacked to build that list. :func:`sample_image_sets` then draws a bounded random sample — 20 sets by default, adjustable from the :class:`FlatSpinBox` that sits immediately left of the sets dropdown.",
       "context": ":func:`enumerate_image_sets` replaces it. It reads **file names only**, via ``os.scandir`` and the project's own acquisition regex (``spacr.utils._get_regex``), and groups them into :class:`ImageSet` records keyed by ``(plate, well, field)`` with the image data channel files hanging off each. No image is opened, decoded or stacked to build that list. :func:`sample_image_sets` then draws a bounded random sample — 20 sets by default, adjustable from the :class:`FlatSpinBox` that sits immediately left of the sets dropdown.",
@@ -121,7 +121,9 @@
       "source_sha256": "205452c8bed26fccbbe5b2a8d1f7349b401bd8eec2ec9a495144249c764a2aff",
       "source": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand.",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand.",
-      "translation": "``measure_crop`` 是 spaCR 中成本最高的步骤：它打开每个掩模，从每个图像数据通道中切出每个对象，为每个对象计算数百项特征，并写入 SQLite。对完整微孔板，这需要数小时。若分割已经崩坏——图像数据通道失焦、直径偏差两倍、汇合单层融合成大片——仍会消耗同样的数小时，最终却只能丢弃测量表。仅查看掩模就能明显发现失败；但没人会检查，因为那意味着手工打开一千个 ``.npy`` 文件。"
+      "translation": "``measure_crop`` 是 spaCR 中成本最高的步骤：它打开每个掩模，从每个图像数据通道中切出每个对象，为每个对象计算数百项特征，并写入 SQLite。对完整微孔板，这需要数小时。若分割已经崩坏——图像数据通道失焦、直径偏差两倍、汇合单层融合成大片——仍会消耗同样的数小时，最终却只能丢弃测量表。仅查看掩模就能明显发现失败；但没人会检查，因为那意味着手工打开一千个 ``.npy`` 文件。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     }
   ]
 }

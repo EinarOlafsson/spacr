@@ -86,12 +86,13 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.collapsible_splitter import (CollapsibleSplitter,
+                                           FoldSection)
 from ..widgets.toggle import Toggle
 
 from ... import model_zoo as zoo
@@ -207,6 +208,9 @@ _BENCH_HEADERS = ("field", "objects", "seg_qc", "flags")
 #: container on this page needed one; none of them had any.
 ZOO_QSS_NAME = "ModelZoo"
 GROUP_NAME = "ModelZooGroup"
+
+#: Where the screen's folds and dragged sizes are remembered (item 471).
+FOLD_KEY = "model_zoo"
 TABLE_NAME = "ModelZooTable"
 DETAIL_NAME = "ModelZooDetail"
 PREVIEW_NAME = "ModelZooPreview"
@@ -491,7 +495,9 @@ class ModelZooScreen(QWidget):
         # A click on an uninstalled backend offers to install it, the same as
         # the Make Masks Mode box and the Model Zoo button.
         self._table.itemClicked.connect(self._row_clicked)
-        outer.addWidget(self._table, 1)
+        self.models_section = FoldSection(
+            self._table, "Models", self, persist_key=f"{FOLD_KEY}/Models")
+        outer.addWidget(self.models_section, 1)
 
         self._detail = QPlainTextEdit(self)
         self._detail.setObjectName(DETAIL_NAME)
@@ -579,7 +585,9 @@ class ModelZooScreen(QWidget):
         row.addWidget(self._btn_compare)
         tl.addLayout(row)
 
-        split = QSplitter(Qt.Horizontal, test)
+        split = CollapsibleSplitter(Qt.Horizontal, test,
+                                    persist_key=f"{FOLD_KEY}::benchmark")
+        self._bench_split = split
         self._bench_table = QTableWidget(0, len(_BENCH_HEADERS), split)
         install_sorting(self._bench_table)
         self._bench_table.setHorizontalHeaderLabels(list(_BENCH_HEADERS))
@@ -590,15 +598,18 @@ class ModelZooScreen(QWidget):
         self._bench_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._bench_table.currentCellChanged.connect(
             lambda row, *_: self.select_field(row))
-        split.addWidget(self._bench_table)
+        self.bench_section = split.add_section(
+            self._bench_table, "Benchmark",
+            persist_key=f"{FOLD_KEY}/Benchmark", stretch=1, extent=700)
 
         self._preview = QLabel("", split)
         self._preview.setAlignment(Qt.AlignCenter)
         self._preview.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         self._preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._preview.setObjectName(PREVIEW_NAME)
-        split.addWidget(self._preview)
-        split.setSizes([700, 400])
+        self.preview_section = split.add_section(
+            self._preview, "Mask preview",
+            persist_key=f"{FOLD_KEY}/Mask preview", stretch=1, extent=400)
         tl.addWidget(split, 1)
 
         self._summary = QLabel("", test)

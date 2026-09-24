@@ -37,6 +37,21 @@ LABELS = {
 }
 
 
+ORIENTATION_LABELS = {
+    'en': 'Home and pipelines', 'es': 'Inicio y flujos de trabajo',
+    'fr': 'Accueil et parcours', 'hi': 'होम और कार्यप्रवाह',
+    'it': 'Home e flussi di lavoro', 'pt-BR': 'Início e fluxos de trabalho',
+    'ja': 'ホームとワークフロー', 'zh-CN': '主页与工作流程',
+    'da': 'Hjem og arbejdsgange', 'de': 'Startseite und Arbeitsabläufe',
+    'is': 'Heim og verkferlar', 'ko': '홈 및 워크플로',
+    'nb': 'Hjem og arbeidsflyter', 'sv': 'Hem och arbetsflöden',
+}
+SETUP_ORDER = ('01_pypi_github', '03_pip_install', '02_conda_install',
+               '04_platform_installers')
+ORIENTATION_ORDER = ('05_home', '78_spacr_screens', '80_image_analysis_pathways',
+                     '81_sequencing_pathways', '79_module_inputs_outputs')
+
+
 def build(catalog: dict) -> dict:
     os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
     sys.path.insert(0, str(REPO))
@@ -63,8 +78,10 @@ def build(catalog: dict) -> dict:
         for child in children:
             parents[KEY_ALIASES.get(child, child)] = host
     parents.update(HOSTED_MODES)
+    identities = {lesson['id'] for lesson in lessons}
     intro = {'id': 'getting-started', 'kind': 'intro', 'label_index': 2,
-             'lessons': [l['id'] for l in lessons if not l.get('app_key')]}
+             'lessons': [key for key in SETUP_ORDER if key in identities]}
+    orientation = [key for key in ORIENTATION_ORDER if key in identities]
     groups = []
     for section, rows in app.home_bands(tiles):
         groups.append({'id': section.lower(), 'title': section,
@@ -95,11 +112,17 @@ def build(catalog: dict) -> dict:
                               'host_lesson': by_key.get(host, {}).get('id'),
                               'help_host': host not in tile_keys,
                               'lessons': members})
-    utilities = [l['id'] for l in lessons if routes.get(l['id'], {}).get('kind') == 'help']
+    utilities = [l['id'] for l in lessons
+                 if routes.get(l['id'], {}).get('kind') == 'help'
+                 or (not l.get('app_key')
+                     and l['id'] not in (*intro['lessons'], *orientation))]
     if utilities:
         subgroups.append({'id': 'help', 'kind': 'help', 'label_index': 3,
                           'lessons': utilities})
-    sections = [{'id': 'main', 'label_index': 0, 'groups': groups},
+    sections = [{'id': 'orientation', 'label_index': 4,
+                 'groups': [{'id': 'orientation', 'title': '', 'kind': 'intro',
+                             'lessons': orientation}]},
+                {'id': 'main', 'label_index': 0, 'groups': groups},
                 {'id': 'submodules', 'label_index': 1, 'groups': subgroups}]
     assigned = intro['lessons'] + [identity for section in sections for group in section['groups']
                                   for identity in group['lessons']]
@@ -112,7 +135,9 @@ def build(catalog: dict) -> dict:
                  for k in sorted(expected - set(by_key))]
     return {'schema': 1, 'source_commit': subprocess.check_output(
                 ['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
-            'labels': LABELS, 'intro': intro, 'sections': sections, 'routes': routes,
+            'labels': {language: labels + [ORIENTATION_LABELS[language]]
+                       for language, labels in LABELS.items()},
+            'intro': intro, 'sections': sections, 'routes': routes,
             'missing_tutorials': uncovered,
             'preserved_lesson_ids': [l['id'] for l in lessons]}
 

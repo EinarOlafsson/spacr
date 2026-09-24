@@ -39,7 +39,6 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
-    QSplitter,
     QVBoxLayout,
     QWidget,
 )
@@ -51,6 +50,7 @@ from ...measure import (
 )
 from ..job_runner import JobRunner
 from ..widgets.card import Card
+from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
 from ..widgets.collapsible_section import CollapsibleSection
 from ..widgets.measure_input_table import MeasureInputTable
 
@@ -60,6 +60,11 @@ LOG = logging.getLogger(__name__)
 #: is what makes "the same settings as Measure" checkable rather than a
 #: claim in a docstring.
 SETTINGS_APP_KEY = "measure"
+
+#: Where this window remembers its folds and its dragged heights (item 471).
+#: Its own key rather than :data:`SETTINGS_APP_KEY`, so folding the file
+#: table here does not fold anything on the Measure module itself.
+FOLD_KEY = "measure_inputs"
 
 
 def write_setting_value(widget, value) -> bool:
@@ -162,7 +167,9 @@ class MeasureInputsScreen(QWidget):
         outer.setContentsMargins(12, 12, 12, 12)
         outer.setSpacing(8)
 
-        splitter = QSplitter(Qt.Vertical, self)
+        splitter = CollapsibleSplitter(Qt.Vertical, self,
+                                       persist_key=f"{FOLD_KEY}::body")
+        self._body = splitter
 
         table_card = Card(
             "The files",
@@ -172,7 +179,11 @@ class MeasureInputsScreen(QWidget):
         self.inputs = MeasureInputTable(table_card, threaded=threaded)
         self.inputs.table_changed.connect(self._on_table_changed)
         table_card.body_layout.addWidget(self.inputs)
-        splitter.addWidget(table_card)
+        self.table_folder = fold_card(table_card, "The files",
+                                      persist_key=f"{FOLD_KEY}/The files")
+        self.table_card = table_card
+        splitter.add_pane(table_card, "The files", folder=self.table_folder,
+                          stretch=1)
 
         settings_host = QWidget(self)
         settings_layout = QVBoxLayout(settings_host)
@@ -181,9 +192,7 @@ class MeasureInputsScreen(QWidget):
         self._settings_area.setWidgetResizable(True)
         self._settings_area.setFrameShape(QScrollArea.NoFrame)
         settings_layout.addWidget(self._settings_area)
-        splitter.addWidget(settings_host)
-        splitter.setStretchFactor(0, 1)
-        splitter.setStretchFactor(1, 2)
+        splitter.add_pane(settings_host, "Settings", stretch=2)
         outer.addWidget(splitter, 1)
 
         self.settings = self._build_settings_form()

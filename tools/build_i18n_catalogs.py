@@ -166,6 +166,7 @@ _TEXT_METHODS = {
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
     "set_translatable_text", "tr",
+    "addRow", "insertRow", "add_section",
     # A ONE-LINE WRAPPER HIDES ITS TEMPLATES FROM THIS EXTRACTOR ENTIRELY.
     # `map_barcodes._set_status(text, **values)` forwards to
     # `set_translatable_text(self.status, text, **values)`, so the literal sits
@@ -198,6 +199,7 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Labels & Classes",
     "Evaluation & Results",
     "Classifier",
+    "Test-time augmentation",
     # Preferences tabs, resource controls, and colour-vision choices.
     "Modules",
     "Logging",
@@ -216,6 +218,7 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # linger here and new filter captions cannot silently miss translation.
     "Signal to noise",
     "Remove background",
+    "Swap object and background",
     "Outline colour",
     "Upper percentile",
     # Figure-settings rows. QFormLayout.addRow is intentionally not treated
@@ -263,9 +266,16 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
+    # Scientific genus names and the Latin plural abbreviation stay exact
+    # on organism Home tiles; they are not untranslated English prose.
+    "Candida spp.", "Plasmodium spp.",
+    "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "Starplast",
+    "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
+    "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc", "ER 2",
+    "ER", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
-    "NaN", "PDF", "SAMCell",
+    "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -289,6 +299,11 @@ _IDENTITY_TEXT = {
     # The plaque scale caption contains only runtime fields and a scientific
     # unit. Translating px/mm would change the displayed calibration unit.
     "{source}: {ppm} px/mm",
+    # Ruler readouts contain only formatted measurements and unit symbols.
+    "{length:.2f} px", "· {length:.2f} {unit}",
+    # The relationship name is already translated before formatting; the
+    # remaining fields are a count and object IDs, with no English prose.
+    "{name}: {count} ({ids})",
 }
 
 _KNOWN_CONTAMINATION_MARKERS = (
@@ -410,8 +425,8 @@ _SHORT_QUOTED_LITERAL_RE = re.compile(
     r"(?: [A-Za-z0-9_.:/…-]+){0,3}'(?![A-Za-z0-9_])"
 )
 _SINGLE_QUOTED_LITERAL_RE = re.compile(
-    r"(?<!\w)'[A-Za-z][A-Za-z0-9_.:/-]*'(?![A-Za-z0-9_])|"
-    r'(?<!\w)"[A-Za-z][A-Za-z0-9_.:/-]*"'
+    r"(?<!\w)'[A-Za-z][A-Za-z0-9_.:/,-]*'(?![A-Za-z0-9_])|"
+    r'(?<!\w)"[A-Za-z][A-Za-z0-9_.:/,-]*"'
 )
 _TRAILING_SPACE_LITERAL_RE = re.compile(
     r"(?<!\w)'[A-Za-z][A-Za-z0-9_.:/ -]*\s+'(?![A-Za-z0-9_])|"
@@ -501,6 +516,10 @@ _PROTECT_PATTERNS = (
         # not a numpydoc declaration, and may be translated normally.
         r"(?<![:\w])(?<!:param )(?<!:type )(?<!:return )"
         r"(?<!:ivar )(?<!:cvar )(?<!:var )"
+        # "settings dictionary: iterable sweep values" is narrative prose,
+        # not a declaration of a parameter called dictionary. Keep a real
+        # standalone "dictionary: iterable" declaration protected below.
+        r"(?<!settings )"
         r"[A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*\s*:\s*(?:"
         # Choice declarations contain quoted literal values. Requiring the
         # quote prevents prose such as ``missing module: {module}`` from being
@@ -1181,6 +1200,11 @@ _EXCEPTION_RAISE_SOURCE = (
 # Source-conditioned repairs for common scientific false friends.  These are
 # deliberately narrower than CONTEXT_REPLACEMENTS: for example, Chinese 门 is
 # ordinary in navigation prose but means the wrong thing for a cytometry gate.
+_DOCUMENTATION_GUIDE_SOURCE = (
+    r"\b(?:organism|user|installation|setup|tutorial|reference|"
+    r"troubleshooting|getting[- ]started)\s+guides?\b"
+)
+
 SOURCE_CONTEXT_REPLACEMENTS: Mapping[
     str, tuple[tuple[str, str, str], ...]
 ] = {
@@ -2754,6 +2778,18 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # These scientific labels are also correctly spelt English words in
+    # the listed languages. Keep the actual terminology rather than adding
+    # artificial qualifiers solely to make an exact-copy audit pass.
+    # Other languages still need their ordinary translated targets.
+    "Median": {"sv": "Median", "de": "Median"},
+    "Minimum": {"sv": "Minimum", "de": "Minimum", "fr": "Minimum"},
+    "Diameter": {"sv": "Diameter"},
+    "Plaque": {"de": "Plaque", "fr": "Plaque"},
+    "Detector": {"es": "Detector", "pt": "Detector"},
+    "Voxels": {"pt": "Voxels", "fr": "Voxels"},
+    "Triangle": {"fr": "Triangle"},
+    "Percentiles": {"es": "Percentiles", "fr": "Percentiles"},
     # THE SAME DECISION FOR THE GRID'S "Doses" HEADER, in two locales: the
     # plural of dose is "doses" in French and in Portuguese, so the correct
     # header equals the English and the exact-English gate would refuse it.
@@ -3324,8 +3360,29 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
     if name == "addTab" and len(node.args) >= 2:
         yield node.args[1]
         return
+    if name == "add_section":
+        yield from node.args[1:2]
+        for keyword in node.keywords:
+            if keyword.arg in {"name", "title"}:
+                yield keyword.value
+        return
+    if name in {"addRow", "insertRow"}:
+        position = 1 if name == "insertRow" else 0
+        if len(node.args) > position:
+            yield node.args[position]
+        for keyword in node.keywords:
+            if keyword.arg == "labelText":
+                yield keyword.value
+        return
     if name == "addItem":
         # QComboBox.addItem(text, data) or addItem(icon, text, data).
+        # A translated caption already occupies the text position. Its
+        # literal source is collected from the nested tr() call; the next
+        # string is userData, even when it looks like an English word.
+        if (node.args and isinstance(node.args[0], ast.Call)
+                and _call_name(node.args[0]) == "tr"):
+            yield node.args[0]
+            return
         for arg in node.args[:2]:
             if _literal(arg) is not None:
                 yield arg
@@ -3416,6 +3473,8 @@ _HELPER_CAPTION_RULES: dict[
     # sentence under it (item 417).
     ("screens/make_masks.py", "_settings_category"):
         ("screens/make_masks.py", ((0, "title"), (1, "subtitle"))),
+    ("screens/make_masks.py", "row"):
+        ("screens/make_masks.py", ((1, "caption"), (3, "tip"))),
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("screens/make_masks.py", "say"):
         ("screens/make_masks.py", ((0, "text"),)),
@@ -3423,6 +3482,10 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
     ("screens/methods_export.py", "_set_provenance"):
         ("screens/methods_export.py", ((0, "text"),)),
+    ("screens/organism_screen.py", "_paragraph"):
+        ("screens/organism_screen.py", ((0, "text"),)),
+    ("screens/organism_screen.py", "_link"):
+        ("screens/organism_screen.py", ((0, "label"),)),
     ("screens/pipeline_graph.py", "_set_verdict"):
         ("screens/pipeline_graph.py", ((0, "text"),)),
     ("screens/run_compare.py", "_set_verdict"):
@@ -3555,6 +3618,89 @@ def _has_prose_outside_protected_literals(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", _PROTECT_RE.sub(" ", text)))
 
 
+def _starplast_progress_sources() -> set[str]:
+    """Read installer phase labels forwarded dynamically to Qt's translator.
+
+    The installer stays unexecuted: only literal progress arguments and the
+    labels in its command-step tuples are read from its syntax tree.
+    """
+    tree = ast.parse((ROOT / "spacr/_starplast.py").read_text(encoding="utf-8"))
+    installer = next(node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "install_starplast")
+    found = set()
+    for node in ast.walk(installer):
+        candidate = None
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "report" and len(node.args) == 3):
+            candidate = node.args[2]
+        elif (isinstance(node, ast.Tuple) and len(node.elts) == 2
+              and isinstance(node.elts[1], (ast.List, ast.BinOp))):
+            candidate = node.elts[0]
+        if isinstance(candidate, ast.Constant) and isinstance(candidate.value, str):
+            found.add(candidate.value)
+    return found
+
+
+def _organism_description_sources() -> set[str]:
+    """Read only SVG descriptions reachable through registered compartment labels."""
+    import xml.etree.ElementTree as ET
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.widgets.organism_diagram import (
+        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
+    )
+
+    found = set()
+    for app_key, organism in ORGANISMS.items():
+        labels = (COMPARTMENT_SL if app_key == "toxoplasma" else
+                  YEAST_LABELS if app_key == "candida" else APICOMPLEXAN_LABELS)
+        root = ET.parse(ROOT / "spacr/resources/images" / organism["diagram"]).getroot()
+        for node in root.iter():
+            if node.get("id") not in labels.values():
+                continue
+            for text in node.findall("{http://www.w3.org/2000/svg}text"):
+                if text.get("property") == "description":
+                    description = " ".join(text.itertext()).strip()
+                    if description:
+                        found.add(description)
+    return found
+
+
+def _make_masks_shortcut_sources() -> set[str]:
+    """Read both labels in each Make Masks shortcut row without importing Qt."""
+    path = ROOT / "spacr" / "qt" / "screens" / "make_masks.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if (isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name)
+                        and target.id == "SHORTCUT_HINTS" for target in node.targets)):
+            rows = ast.literal_eval(node.value)
+            return {str(value) for row in rows for value in row}
+    return set()
+
+
+def _workflow_ui_sources() -> set[str]:
+    """Read the prose shown by pathway dialogs and interactive flowcharts."""
+    path = ROOT / "spacr" / "resources" / "module_workflows.json"
+    workflow = json.loads(path.read_text(encoding="utf-8"))
+    found = set()
+    for route in workflow["pathways"].values():
+        found.add(route["title"])
+        found.update(step["action"] for step in route["steps"])
+        if route.get("description"):
+            found.add(route["description"])
+        for source in route.get("inputs", []):
+            found.update((source["title"], source["description"]))
+        if route.get("note"):
+            found.add(route["note"])
+    for module in workflow["modules"].values():
+        found.update((module["name"], module["guidance"]))
+    for artifact in workflow["artifacts"].values():
+        found.update((artifact["title"], artifact["location"]))
+    found.update(edge["handoff"] for edge in workflow["connections"])
+    return found
+
+
 def _indirect_runtime_ui_sources() -> set[str]:
     """Return presentation prose exposed through runtime data structures.
 
@@ -3571,6 +3717,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
         PREFERENCE_TIPS,
     )
     from spacr.qt.preview_registry import PREVIEWS
+    from spacr.qt import cpu_modes, organelle_modes
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.widgets.organism_diagram import (
+        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
+    )
     from spacr.qt.screens.annotate import AnnotateScreen
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
@@ -3642,6 +3793,24 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.import_examples import IMPORT_VARIANTS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    found.update(_starplast_progress_sources())
+    found.update(_organism_description_sources())
+    found.update(_make_masks_shortcut_sources())
+    for detector_modes in (cpu_modes, organelle_modes):
+        found.update(detector_modes.MODE_LABELS.values())
+        found.update(detector_modes.guidance(mode)
+                     for mode in detector_modes.MODE_LABELS)
+    found.update(cpu_modes.GUIDANCE.values())
+    for organism in ORGANISMS.values():
+        found.update(organism[field]
+                     for field in ("name", "description", "diagram_note"))
+        for heading, prose, _routes in organism["sections"]:
+            found.update((heading, prose))
+        for _route, title, description, _icon in organism["modules"]:
+            found.update((title, description))
+        found.update(label for label, _url in organism["links"])
+    for compartment_labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
+        found.update(compartment_labels)
     # Hover explanations are class data, passed to Qt through loop variables.
     # Keep their exact English sources separate from runtime-translated text.
     chooser_sources = {TestDataChooser.RESTING_TEXT, ImportTestDataChooser.RESTING_TEXT}
@@ -3719,9 +3888,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
             if keyword.arg not in {"title", "subtitle", "cta_label"}:
                 continue
             found.update(_literal_strings(keyword.value, {}))
+    preview_sources: set[str] = set()
     for spec in PREVIEWS.values():
-        found.add(str(spec.title))
-        found.add(
+        preview_sources.add(str(spec.title))
+        preview_sources.add(
             str(spec.tooltip)
             if str(spec.tooltip).strip()
             else "Show a preview of what these settings produce."
@@ -3738,7 +3908,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
-    return {value.strip() for value in chooser_sources} | {
+    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources()
+            if value.strip()} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 
@@ -3756,7 +3927,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     import spacr.qt.widgets.setup_slides  # noqa: F401
 
     found: set[str] = set()
-    for path in sorted((ROOT / "spacr" / "qt").rglob("*.py")):
+    paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
+    paths.add(ROOT / "spacr" / "model_compare.py")
+    for path in sorted(paths):
         if "i18n_catalogs" in path.parts:
             continue
         try:
@@ -3857,7 +4030,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 continue
             name = _call_name(node)
             for argument in _helper_caption_arguments(
-                node, path.relative_to(ROOT / "spacr" / "qt").as_posix(), name,
+                node, path.relative_to(ROOT / "spacr").as_posix().removeprefix("qt/"), name,
             ):
                 for value in _literal_strings(argument, constants):
                     if _looks_translatable(value):
@@ -3892,8 +4065,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     found.update(_indirect_runtime_ui_sources())
 
     # The compact catalog already owns these and has stronger human review.
-    from spacr.qt.i18n import _ROWS
-    return tuple(sorted(found - set(_ROWS)))
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+    return tuple(sorted(found - set(_ROWS) - set(_TERM_ROWS)))
 
 
 def canonical_sources() -> dict[str, object]:
@@ -3917,13 +4090,14 @@ def canonical_sources() -> dict[str, object]:
     import spacr.qt.widgets.setup_slides  # noqa: F401
     from spacr.gene_tile import _GENE_TILE_UI_SOURCES
     from spacr.qt.app import _SECTION_NOTE_LIBRARY, APPS
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
     from spacr.qt.screens.app_screen import (
         APP_INTROS,
         APP_TITLES,
         DEFAULT_INSTRUCTION,
     )
     from spacr.qt.screens.settings_model import (
+        _APP_CATEGORY_SPECS,
         _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
         _REGRESSION_MENU_UI_SOURCES,
@@ -4058,6 +4232,18 @@ def canonical_sources() -> dict[str, object]:
             if actual != generic:
                 labels[f"{app_key}.{key}"] = actual
     ui_sources = set(extract_static_ui_sources())
+    ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
+                      for title, _keys in sections)
+    # Backend prose lives outside spacr/qt and reaches the install dialog
+    # and model card through registry fields, not literal widget arguments.
+    from spacr._segmentation_backends import _SPECS as backend_specs
+
+    for spec in backend_specs.values():
+        ui_sources.update(value for value in
+                          (spec.blurb, spec.licence_note, spec.published)
+                          if value.strip())
+        if _looks_translatable(spec.label):
+            ui_sources.add(spec.label)
     ui_sources.update(_GENE_TILE_UI_SOURCES)
     ui_sources.update(_SETTINGS_MODEL_UI_SOURCES)
     # THE REGRESSION-MODEL MENU, which is composed at run time from
@@ -4098,6 +4284,10 @@ def canonical_sources() -> dict[str, object]:
     # wins for the complete assembled UI set as well: one visible caption has
     # one authoritative translation layer, never two drifting translations.
     ui_sources.difference_update(_ROWS)
+    # Exact term matches also precede generated UI text in tr(). Their
+    # translations already have a compact owner, including legitimate
+    # same-spelling terms such as German "Clustering" and French "Classes".
+    ui_sources.difference_update(_TERM_ROWS)
     return {
         "setting_labels": dict(sorted(labels.items())),
         "setting_tooltips": dict(sorted(tooltips.items())),
@@ -4837,6 +5027,12 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     for source_pattern, wrong, right in SOURCE_CONTEXT_REPLACEMENTS.get(
         language, ()
     ):
+        # Documentation guides are not molecular guides. In a paragraph that
+        # names both, leave the choice of target occurrences to its reviewer.
+        if "RNA" in right and re.search(
+            _DOCUMENTATION_GUIDE_SOURCE, str(source), re.IGNORECASE,
+        ):
+            continue
         if (language == "zh_CN" and wrong == "单元格"
                 and str(source) in _TABLE_CELL_UI_SOURCES):
             continue
@@ -5030,7 +5226,8 @@ def _syntax_preserved(
         # ``CSVs`` -> ``CSV-filer``).  Preserve the acronym itself exactly and
         # normalize only this explicit reviewed set; product names in general
         # retain the strict byte-for-byte contract.
-        for plural, singular in (("CSVs", "CSV"), ("PNGs", "PNG"), ("UMAPs", "UMAP")):
+        for plural, singular in (("CSVs", "CSV"), ("PNGs", "PNG"),
+                                 ("TIFFs", "TIFF"), ("UMAPs", "UMAP")):
             count = products.pop(plural, 0)
             if count:
                 products[singular] += count
@@ -7122,7 +7319,12 @@ def main() -> int:
               f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
-    parser.add_argument("--audit", action="store_true")
+    audit_mode = parser.add_mutually_exclusive_group()
+    audit_mode.add_argument("--audit", action="store_true")
+    audit_mode.add_argument(
+        "--audit-english", action="store_true",
+        help="validate the current English runtime manifest without requiring translations",
+    )
     parser.add_argument(
         "--repair-untranslated",
         action="store_true",
@@ -7146,8 +7348,8 @@ def main() -> int:
     args = parser.parse_args()
 
     sources = canonical_sources()
-    if args.audit:
-        return audit(sources, args.languages)
+    if args.audit or args.audit_english:
+        return audit(sources, () if args.audit_english else args.languages)
 
     path = write_english(sources)
     print(

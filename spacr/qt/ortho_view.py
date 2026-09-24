@@ -545,12 +545,31 @@ class OrthoView(LinkedView, QWidget):
         self._repaint()
 
     def wheelEvent(self, event) -> None:
-        """Step through slices along the axis under the pointer.
+        """Zoom all planes around the image position beneath the pointer.
 
         :param event: the Qt wheel event.
         """
-        self._zoom(1.2 if event.angleDelta().y() > 0 else 1 / 1.2)
-        event.accept()
+        from dataclasses import replace
+
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        if self._views is None or not delta:
+            event.ignore()
+            return
+        for panel in self.panels.values():
+            point = panel.mapFromGlobal(event.globalPosition().toPoint())
+            canvas = panel.canvas
+            if (canvas is None or not 1 <= point.x() <= canvas.width
+                    or not 1 <= point.y() <= canvas.height):
+                continue
+            world = canvas.world_at(point.y() - 1, point.x() - 1)
+            factor = 1.2 if delta > 0 else 1 / 1.2
+            moved = {name: view.zoomed(factor, centre=view.pixel_at(world))
+                     for name, view in self._views.canvases().items()}
+            self._views = replace(self._views, **moved)
+            self._repaint()
+            event.accept()
+            return
+        event.ignore()
 
     def _repaint(self) -> None:
         """Redraw all three panels, with the crosshair where the views put it.

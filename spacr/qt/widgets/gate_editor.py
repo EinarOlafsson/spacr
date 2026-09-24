@@ -146,6 +146,14 @@ GATE_COLOURS: Tuple[str, ...] = (
 #: Key the gate tree's stylesheet is registered under.
 QSS_NAME = "GateHierarchy"
 
+#: Where the graph | gate table split remembers the widths the user dragged
+#: it to (item 471): the graph and the gate table each fold by their heading
+#: and trade width by the handle between them.
+GRAPH_SPLIT_KEY = "gate_editor::graph"
+
+#: Prefix of the fold keys of the graph and the gate table sections.
+FOLD_KEY = "gate_editor"
+
 
 def _gate_tree_qss(palette, opacity=None) -> str:
     """Colours for the gate list.
@@ -3248,8 +3256,10 @@ class GateEditorPanel(QWidget):
         outer.addLayout(tools)
         outer.addLayout(volume_tools)
 
-        self.body = QSplitter(Qt.Horizontal, self)
-        self.body.setChildrenCollapsible(False)
+        from .collapsible_splitter import CollapsibleSplitter
+
+        self.body = CollapsibleSplitter(Qt.Horizontal, self,
+                                        persist_key=GRAPH_SPLIT_KEY)
 
         self.canvas = GateCanvas(self, link=link, source=source)
         self.canvas.set_volume_shape(self.volume_shape())
@@ -3258,7 +3268,6 @@ class GateEditorPanel(QWidget):
         self.canvas.depth_requested.connect(self._status.setText)
         self.canvas.gate_edited.connect(self._on_gate_edited)
         self.canvas.polygon_changed.connect(self._on_polygon_changed)
-        self.body.addWidget(self.canvas)
 
         self.tree = GateTree(self)
         self.tree.setMinimumWidth(220)
@@ -3266,10 +3275,11 @@ class GateEditorPanel(QWidget):
         self.tree.gates_changed.connect(self._on_tree_changed)
         self.tree.enabled_changed.connect(self.canvas.set_gate_enabled)
         self.tree.set_colour_source(self.canvas.gate_colour)
-        self.body.addWidget(self.tree)
-
-        self.body.setStretchFactor(0, 1)
-        self.body.setStretchFactor(1, 0)
+        self.canvas_section = self.body.add_section(
+            self.canvas, "Graph", persist_key=f"{FOLD_KEY}/Graph", stretch=1)
+        self.tree_section = self.body.add_section(
+            self.tree, "Gate table", persist_key=f"{FOLD_KEY}/Gate table",
+            stretch=0)
         outer.addWidget(self.body, 1)
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)

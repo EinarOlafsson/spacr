@@ -152,6 +152,9 @@ RESOURCE_SOURCES = {
 }
 
 APP_ICON_OVERRIDES = {
+    "toxoplasma": "replication.png",
+    "plasmodium": "organism_plasmodium.svg",
+    "candida": "organism_candida.svg",
     "analyze_plaques": "plaque.png",
     "train_cellpose": "cellpose_masks.png",
     "agreement": "annotate.png",
@@ -356,7 +359,15 @@ def _app_icon(key: str, size: int) -> Image.Image:
     path = ICON_DIR / filename
     if not path.is_file():
         path = ICON_DIR / "run.png"
-    source = _fit(Image.open(path).convert("RGBA"), size)
+    if path.suffix.lower() == ".svg":
+        from spacr.qt.iconset import _load_rgba
+
+        pixels = _load_rgba(str(path))
+        if pixels is None:
+            raise ValueError(f"Unreadable module icon: {path}")
+        source = _fit(Image.fromarray(pixels.round().astype("uint8")), size)
+    else:
+        source = _fit(Image.open(path).convert("RGBA"), size)
     # Home-screen icons are monochrome masks that Qt re-inks for the theme.
     alpha = source.getchannel("A")
     white = Image.new("RGBA", source.size, WHITE)
@@ -1160,10 +1171,10 @@ def _documentation_folds() -> str:
         "Modules reached from another screen",
         "-----------------------------------",
         "",
-        "These do not have a tile on the home screen. Each one answers a",
-        "question about a run its host produced rather than starting a run",
-        "of its own, so it opens as a page beside that host's settings,",
-        "already pointed at the same project.",
+        "These modules open from another screen. Most appear beside their",
+        "host's settings and use the same project. The five Toxoplasma",
+        "assays instead open from tiles on the Toxoplasma organism page;",
+        "each assay still reads its own required images or measurements.",
         "",
         "They are not second-class: each is shipped, translated and",
         "documented like any other module, and the ones that are pipelines",
@@ -1171,8 +1182,8 @@ def _documentation_folds() -> str:
         "also be reached from the command palette, which is the only route",
         "that covers all of them.",
         "",
-        "Opened from a host's masthead",
-        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "Opened from a host screen",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~",
         "",
     ]
     by_host: "dict[str, list[str]]" = {}

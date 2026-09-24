@@ -58,12 +58,13 @@ if TYPE_CHECKING:
     from ..widgets.fold_strip import FoldStrip
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
     QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.measurements_example import (
@@ -252,17 +253,18 @@ class GraphBuilderScreen(QWidget):
         head.addWidget(self._to_annotate)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
-        self.builder = GraphBuilderPanel(self, link=link)
-        body.addWidget(self.builder)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key=f"{APP_KEY}::body")
+        self.builder = GraphBuilderPanel(self, link=link, fold_key=APP_KEY)
+        body.add_pane(self.builder, "Graph builder", stretch=1)
 
         self.filters = DataFilterPanel(self, link=link)
         from ..preferences import scaled_px
         self.filters.setMaximumWidth(scaled_px(320))
-        body.addWidget(self.filters)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
+        self.filters_section = body.add_section(
+            self.filters, "Filter", persist_key=f"{APP_KEY}/Filter",
+            stretch=0)
+        self._body = body
         outer.addWidget(body, 1)
 
         self.builder.canvas.rendered.connect(self._on_rendered)

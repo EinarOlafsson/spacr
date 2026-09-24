@@ -10,20 +10,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
-      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
-      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
-      "translation": "Demodata har lästs in med sina inställningar. Välj Live Preview för att se ett synfält eller Run för att bearbeta plattan."
-    },
-    {
-      "table": "ui",
-      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
-      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
-      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
-      "translation": "Demodata har lästs in utan något inställningspaket; standardvärden används. Välj Live Preview för att se ett synfält eller Run för att bearbeta plattan."
-    },
-    {
-      "table": "ui",
       "key": "[example] Dropped {count} unknown or retired settings: {keys}",
       "source": "[example] Dropped {count} unknown or retired settings: {keys}",
       "source_sha256": "a2ce4d5c7bb78b45f367a059440d82df3e5549962aaa808f9ac4bfaff5ce07b3",
@@ -56,6 +42,22 @@
       "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
       "source_sha256": "bf3e16003a8ca5391dcf9cfb76d1539e18b7a19a554705d47ea00f6ee60b0f73",
       "translation": "[example] {applied} inställningar från {name} tillämpades i formuläret; {accepted} CSV-nycklar godtogs."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "translation": "Demodata har lästs in med sina inställningar. Välj Live Preview för att se ett synfält eller Run för att bearbeta plattan."
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "translation": "Demodata har lästs in utan något inställningspaket; standardvärden används. Välj Live Preview för att se ett synfält eller Run för att bearbeta plattan."
     }
   ]
 }

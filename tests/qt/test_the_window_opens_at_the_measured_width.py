@@ -39,9 +39,8 @@ def window(qtbot):
 
 def _policy(monkeypatch, width, screen, window, scale=1.0):
     """Point the wire at a stated policy, screen and font scale."""
-    monkeypatch.setattr(qt_app, "QApplication", type(
-        "App", (), {"primaryScreen": staticmethod(lambda: screen)}))
-    monkeypatch.setattr(window, "screen", lambda: screen)
+    monkeypatch.setattr("spacr.qt.hidpi.screen_for_widget",
+                        lambda widget=None: screen)
     monkeypatch.setattr("spacr.qt._layout_policy.recommended_window_size",
                         lambda available, font_scale: (width, 850))
     monkeypatch.setattr("spacr.qt.preferences.get_font_scale", lambda: scale)
@@ -95,18 +94,16 @@ class TestItNeverOpensPastTheEdge:
 class TestItIsNeverWorthFailingALaunchOver:
 
     def test_no_screen_is_not_an_error(self, window, monkeypatch):
-        monkeypatch.setattr(qt_app, "QApplication", type(
-            "App", (), {"primaryScreen": staticmethod(lambda: None)}))
-        monkeypatch.setattr(window, "screen", lambda: None)
+        monkeypatch.setattr("spacr.qt.hidpi.screen_for_widget",
+                            lambda widget=None: None)
         assert qt_app._open_at_the_measured_width(window) is False
 
     def test_a_policy_that_throws_is_swallowed(self, window, monkeypatch):
         def _explode(*_a, **_k):
             raise RuntimeError("no policy here")
 
-        monkeypatch.setattr(qt_app, "QApplication", type(
-            "App", (), {"primaryScreen": staticmethod(
-                lambda: _Screen(2560, 1440))}))
+        monkeypatch.setattr("spacr.qt.hidpi.screen_for_widget",
+                            lambda widget=None: _Screen(2560, 1440))
         monkeypatch.setattr("spacr.qt._layout_policy.recommended_window_size",
                             _explode)
         assert qt_app._open_at_the_measured_width(window) is False
@@ -117,9 +114,7 @@ class TestItIsNeverWorthFailingALaunchOver:
         """Every wheel built before the generator ran is this case."""
         monkeypatch.setattr("spacr.qt._layout_policy.read_policy",
                             lambda refresh=False: {})
-        monkeypatch.setattr(qt_app, "QApplication", type(
-            "App", (), {"primaryScreen": staticmethod(
-                lambda: _Screen(2560, 1440))}))
-        monkeypatch.setattr(window, "screen", lambda: _Screen(2560, 1440))
+        monkeypatch.setattr("spacr.qt.hidpi.screen_for_widget",
+                            lambda widget=None: _Screen(2560, 1440))
         assert qt_app._open_at_the_measured_width(window) is False
         assert window.width() == 1200

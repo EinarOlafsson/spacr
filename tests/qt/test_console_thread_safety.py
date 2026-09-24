@@ -59,6 +59,27 @@ def _restore_console_target():
 
 
 @pytest.fixture
+def forwarder_route(qapp):
+    """Isolate delivery to stand-ins that do not subscribe to the root Qt sink.
+
+    Real ConsolePanels subscribe to both sinks; their duplicate suppression
+    is covered separately. An earlier application setup may leave the root
+    sink installed, which correctly suppresses this route for warning logs.
+    """
+    from spacr.qt.logging_util import get_signal_handler
+
+    root = logging.getLogger()
+    sink = get_signal_handler()
+    was_attached = sink in root.handlers
+    root.removeHandler(sink)
+    try:
+        yield
+    finally:
+        if was_attached:
+            root.addHandler(sink)
+
+
+@pytest.fixture
 def widget_threads(monkeypatch):
     """Record the thread every console entry widget is constructed on."""
     seen: list = []
@@ -208,7 +229,7 @@ def test_a_record_logged_off_thread_reaches_the_console_on_the_gui_thread(
     assert "worker-thread breadcrumb" in text
 
 
-def test_a_record_logged_on_the_gui_thread_is_delivered_synchronously():
+def test_a_record_logged_on_the_gui_thread_is_delivered_synchronously(forwarder_route):
     """Direct connection on the GUI thread — no event-loop round trip.
 
     The console is where a user watches a run; a queued hop for every
@@ -243,7 +264,7 @@ class _Recorder:
         self._sink.append(text)
 
 
-def test_a_collected_console_target_is_dropped_rather_than_resurrected():
+def test_a_collected_console_target_is_dropped_rather_than_resurrected(forwarder_route):
     """The weak reference still holds after the relay was introduced.
 
     Raising from the dead console's ``append_stdout`` would prove
@@ -274,7 +295,7 @@ def test_a_collected_console_target_is_dropped_rather_than_resurrected():
         "a live console got nothing either — the measurement is blind")
 
 
-def test_the_relay_swallows_an_exploding_console(qtbot):
+def test_the_relay_swallows_an_exploding_console(qtbot, forwarder_route):
     """A broken console must never take the logging call down with it.
 
     Asserted through what survives it, because "did not raise" is not

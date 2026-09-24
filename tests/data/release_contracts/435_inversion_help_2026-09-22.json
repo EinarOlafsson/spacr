@@ -1,0 +1,23 @@
+{
+  "item": 435,
+  "date": "2026-09-22",
+  "scope": "English help correction only; detection behavior and catalogs unchanged",
+  "sources": {
+    "warning": {
+      "text": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "characters": 245
+    },
+    "tooltip": {
+      "text": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "characters": 442
+    }
+  },
+  "validation": {
+    "command": "tools/run_capped.sh 4G python -m pytest -q -p no:randomly tests/qt/test_make_masks_filters_splits_and_inverts.py tests/qt/test_make_masks_inverts_the_picture_and_otsu_grew_options.py",
+    "passed": 93,
+    "seconds": 14.6
+  },
+  "remaining": "Translation lane must refresh source inventory and rebind superseded reviews in all nine locales."
+}

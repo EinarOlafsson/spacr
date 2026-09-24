@@ -26,10 +26,11 @@ def public_json(url):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capture-name', default='installation_sources_current')
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     args = parser.parse_args()
     if Path(args.capture_name).name != args.capture_name or args.capture_name in ('.', '..'):
         raise ValueError('Expected one private capture directory name')
-    output = DEFAULT_STAGE / 'captures' / args.capture_name
+    output = args.stage.resolve() / 'captures' / args.capture_name
     if output.exists():
         raise RuntimeError('Preserve the preceding capture; choose a new output identity')
     output.mkdir(parents=True)

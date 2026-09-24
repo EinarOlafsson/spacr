@@ -28,7 +28,7 @@ from typing import List, Optional
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
     QTabWidget, QVBoxLayout, QWidget,
 )
 
@@ -38,6 +38,7 @@ from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.feature_explorer import FeatureExplorerPanel
 from ..widgets.feature_rank import ExplorerSpec
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.formula_editor import FormulaPanel
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
@@ -120,10 +121,10 @@ class FeatureExplorerScreen(QWidget):
         head.addWidget(export)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="feature_explorer::body")
         self.explorer = FeatureExplorerPanel(self)
-        body.addWidget(self.explorer)
+        body.add_pane(self.explorer, "Explorer", stretch=1)
 
         side = QTabWidget(self)
         from ..preferences import scaled_px
@@ -134,10 +135,11 @@ class FeatureExplorerScreen(QWidget):
         self.formulas = FormulaPanel(self)
         self.formulas.formulas_changed.connect(self._on_formulas_changed)
         side.addTab(self.formulas, "Columns")
-        body.addWidget(side)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
+        self._side_section = body.add_section(
+            side, "Filter and columns",
+            persist_key="feature_explorer/Filter and columns", stretch=0)
         outer.addWidget(body, 1)
+        self._body_splitter = body
         from ..dnd import install_for
         install_for(self, "feature_explorer")
         from .settings_model import retarget_field_tooltips

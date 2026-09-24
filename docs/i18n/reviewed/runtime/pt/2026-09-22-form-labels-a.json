@@ -1,0 +1,565 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted linguistic and technical review against the form controls, with existing source-bound terminology retained; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Adaptive threshold",
+      "source": "Adaptive threshold",
+      "source_sha256": "d3e59ff965c8ed309dbb9e7cfabe3f6e58c5180f265963fc082cf35ddde4c6a9",
+      "translation": "Limiar adaptativo"
+    },
+    {
+      "table": "ui",
+      "key": "Adjust cells",
+      "source": "Adjust cells",
+      "source_sha256": "4dcbef0d8cb9734149360fffdb03b8a1177e18ca8def2afda7051de7745969ce",
+      "translation": "Ajustar células"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate as class",
+      "source": "Annotate as class",
+      "source_sha256": "3d08ea72817e238a8a26710fc0831effa7e03d5dbfd7b3667635caea5cdb1c86",
+      "translation": "Anotar como classe"
+    },
+    {
+      "table": "ui",
+      "key": "Annotation column",
+      "source": "Annotation column",
+      "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb",
+      "translation": "Coluna de anotações"
+    },
+    {
+      "table": "ui",
+      "key": "At most",
+      "source": "At most",
+      "source_sha256": "6797626fe47326c49b6b437de7bfd03d6eff87e1e6a512f91e6ea4c2b2db7749",
+      "translation": "No máximo"
+    },
+    {
+      "table": "ui",
+      "key": "Background positive rate",
+      "source": "Background positive rate",
+      "source_sha256": "bb73e656c7127866ec867a9eaaf088b89ca1cc9d941125ba44abbc4daf3d55c9",
+      "translation": "Taxa de positivos de fundo"
+    },
+    {
+      "table": "ui",
+      "key": "Background radius",
+      "source": "Background radius",
+      "source_sha256": "4ec3ecda4cb068727008b9643bd11806a3e841d2aebb017212847f9b35ec2c0e",
+      "translation": "Raio do fundo"
+    },
+    {
+      "table": "ui",
+      "key": "Background scale",
+      "source": "Background scale",
+      "source_sha256": "7487b99a2cb8d82ca25c00436e8606961bfcc4896a3a06a7a0d174671b81e8be",
+      "translation": "Escala do fundo"
+    },
+    {
+      "table": "ui",
+      "key": "Baseline plates",
+      "source": "Baseline plates",
+      "source_sha256": "8ad4c01c1bf7f23063e4b74a6d9e563d50def9dfa33aceab6917d3cb2efedd53",
+      "translation": "Placas de referência"
+    },
+    {
+      "table": "ui",
+      "key": "Bounding-box padding",
+      "source": "Bounding-box padding",
+      "source_sha256": "889b518845dae5adf3f8b028278455ead3aafbfe737123bad1dde4916b1077c2",
+      "translation": "Margem da caixa delimitadora"
+    },
+    {
+      "table": "ui",
+      "key": "CLAHE clip limit",
+      "source": "CLAHE clip limit",
+      "source_sha256": "583cd5396ef445fbac64557e87ce72f36df118747275dfd6d7fbebf6d621b77d",
+      "translation": "Limite de corte do CLAHE"
+    },
+    {
+      "table": "ui",
+      "key": "CLAHE tile",
+      "source": "CLAHE tile",
+      "source_sha256": "1fc592d36d862d2c4a67daaf0aa66b0962232f04a0bd7889f5ad20417e6e8b70",
+      "translation": "Bloco do CLAHE"
+    },
+    {
+      "table": "ui",
+      "key": "Cell channel",
+      "source": "Cell channel",
+      "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca",
+      "translation": "Canal celular"
+    },
+    {
+      "table": "ui",
+      "key": "Cells imaged / well",
+      "source": "Cells imaged / well",
+      "source_sha256": "b23939eb0e8000e1bd13d54f0aa65dad0c8eb416cb1b11cb725859bec75ba828",
+      "translation": "Células fotografadas / poço"
+    },
+    {
+      "table": "ui",
+      "key": "Cells per class",
+      "source": "Cells per class",
+      "source_sha256": "6ffd7fb2a2c148e146d5ce1607baa1efa46b82165fb9745d36a5f73d6534d110",
+      "translation": "Células por classe"
+    },
+    {
+      "table": "ui",
+      "key": "Channel colours",
+      "source": "Channel colours",
+      "source_sha256": "f0a7d86f8404c77999f45c5edff9165b4b95622126ff4f114864bf9542b5ea57",
+      "translation": "Cores dos canais"
+    },
+    {
+      "table": "ui",
+      "key": "Colour by",
+      "source": "Colour by",
+      "source_sha256": "3eb4b56f3a3cd199ab4b2d40e4ebaf5ba377b91fbdd533325577d791d1454db2",
+      "translation": "Colorir por"
+    },
+    {
+      "table": "ui",
+      "key": "Colour map",
+      "source": "Colour map",
+      "source_sha256": "26766e2fd257a82d51f3d4a33474fb99723570d567fe81ad9216d53f1ece254b",
+      "translation": "Mapa de cores"
+    },
+    {
+      "table": "ui",
+      "key": "Confirmation (px)",
+      "source": "Confirmation (px)",
+      "source_sha256": "8bb310ac2e66f211ffa62d22416ada73660fd9392c8e01983768ab3283f0ffed",
+      "translation": "Confirmação (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Constructs / well",
+      "source": "Constructs / well",
+      "source_sha256": "fdb663f2e0823f879d43a9f19571157e2058f3f42d252ba1af1f2f79fcb74f2a",
+      "translation": "Construtos / poço"
+    },
+    {
+      "table": "ui",
+      "key": "Containment",
+      "source": "Containment",
+      "source_sha256": "8011803c077c7457a41d57745d7e1bfaefcdbd4083bd5522ff5638f96bf85c6b",
+      "translation": "Isolamento de recursos"
+    },
+    {
+      "table": "ui",
+      "key": "Control column",
+      "source": "Control column",
+      "source_sha256": "9360b32573b14bb710291066984acaecd61a2339bc6c41bf13fbb0e364fe75f6",
+      "translation": "Coluna de controles"
+    },
+    {
+      "table": "ui",
+      "key": "Control is",
+      "source": "Control is",
+      "source_sha256": "45d719a7b8bb5f426967207e3d006ff3c5d180885dc68b74071db91ddcbe0f17",
+      "translation": "O controle é"
+    },
+    {
+      "table": "ui",
+      "key": "Correction",
+      "source": "Correction",
+      "source_sha256": "ca2f55c8e8509ec0145927194c31ca35f746ecd234050099cbcb8cca3e5c1c63",
+      "translation": "Correção"
+    },
+    {
+      "table": "ui",
+      "key": "Count CSVs",
+      "source": "Count CSVs",
+      "source_sha256": "34f85f67f5c26b19bfd1d07afe3d9561ecd403d2790a4f061be48e695c8e6e0e",
+      "translation": "CSVs de contagens"
+    },
+    {
+      "table": "ui",
+      "key": "Crop path column",
+      "source": "Crop path column",
+      "source_sha256": "6b3dd4f0290fa804dcd51f30df7feb6c86dff7a54ecb1a17b52ca1e86af13fd4",
+      "translation": "Coluna de caminhos dos recortes"
+    },
+    {
+      "table": "ui",
+      "key": "Crop size",
+      "source": "Crop size",
+      "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa",
+      "translation": "Tamanho do recorte"
+    },
+    {
+      "table": "ui",
+      "key": "Crop size (px)",
+      "source": "Crop size (px)",
+      "source_sha256": "5a2bc714100ef0f7bebd24ff8f75bd51038553ab798c48f7974d67872b3f2546",
+      "translation": "Tamanho do recorte (px)"
+    },
+    {
+      "table": "ui",
+      "key": "DB column",
+      "source": "DB column",
+      "source_sha256": "e9682d17935ecebc68c70f2b190316e6e421ed04133b5b06583597a6655ca64c",
+      "translation": "Coluna do DB"
+    },
+    {
+      "table": "ui",
+      "key": "Data resolution",
+      "source": "Data resolution",
+      "source_sha256": "84353b253d1fa18a16b68e9f1e9650c032cc5568f14f75a9751e9efb977b072b",
+      "translation": "Resolução dos dados"
+    },
+    {
+      "table": "ui",
+      "key": "Default tool",
+      "source": "Default tool",
+      "source_sha256": "9308c5525f1f0796166d61598635e7e345a46c665c946110319ede071509cfd9",
+      "translation": "Ferramenta padrão"
+    },
+    {
+      "table": "ui",
+      "key": "Denoise",
+      "source": "Denoise",
+      "source_sha256": "f6a472cd40532137ebfcb05358ce32a433f343a156a30519b7fa5bb85a014d68",
+      "translation": "Reduzir ruído"
+    },
+    {
+      "table": "ui",
+      "key": "Denoise strength",
+      "source": "Denoise strength",
+      "source_sha256": "b5eb5a702ed28630cc816c3ee02c67d2e67f7e22163ddd6742590beddb728d73",
+      "translation": "Intensidade da redução de ruído"
+    },
+    {
+      "table": "ui",
+      "key": "Derive rowID/columnID from well column",
+      "source": "Derive rowID/columnID from well column",
+      "source_sha256": "2ca53caf3811f5d434c7286fc2b6ffb21c39e9df5dd0987b4bb68c23c60f3b49",
+      "translation": "Derivar rowID/columnID da coluna de poços"
+    },
+    {
+      "table": "ui",
+      "key": "Detect at AUROC ≥",
+      "source": "Detect at AUROC ≥",
+      "source_sha256": "4f1401c0e3ddb75b5abc81681636bf57b972b0aed4037eb4daebd48248c756e1",
+      "translation": "Detectar com AUROC ≥"
+    },
+    {
+      "table": "ui",
+      "key": "Diameter (px)",
+      "source": "Diameter (px)",
+      "source_sha256": "50f2159ee049553022fb4290ff84d8d3caabc8bb5212f262611ab6c4b43fdc11",
+      "translation": "Diâmetro (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Dilate crop masks",
+      "source": "Dilate crop masks",
+      "source_sha256": "5c0bf248c410789503600526a7f34b9ad396cd9fa2c23f5afe2a332570de7d79",
+      "translation": "Dilatar máscaras dos recortes"
+    },
+    {
+      "table": "ui",
+      "key": "Dilation ratio",
+      "source": "Dilation ratio",
+      "source_sha256": "c33b166ba5414aa393d41bbf55b20cd79850f15cefe8302dd1327f213b0b6f4c",
+      "translation": "Proporção de dilatação"
+    },
+    {
+      "table": "ui",
+      "key": "Display order",
+      "source": "Display order",
+      "source_sha256": "540fc6ae338e8d283ebe83004aec546950520b60a3f165bad3a32450c0f5cb01",
+      "translation": "Ordem de exibição"
+    },
+    {
+      "table": "ui",
+      "key": "DoG blobs",
+      "source": "DoG blobs",
+      "source_sha256": "ad3feec08b5e2a736f3a73dab4c7d2f7ad210d3e2d596723aa3265b7327ef7e8",
+      "translation": "Manchas DoG"
+    },
+    {
+      "table": "ui",
+      "key": "Edge thickness",
+      "source": "Edge thickness",
+      "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949",
+      "translation": "Espessura da borda"
+    },
+    {
+      "table": "ui",
+      "key": "Edge transparency",
+      "source": "Edge transparency",
+      "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158",
+      "translation": "Transparência da borda"
+    },
+    {
+      "table": "ui",
+      "key": "Effect direction",
+      "source": "Effect direction",
+      "source_sha256": "f396878b6bb1c1cb753b9186d6df7ccbb1a3947f01d58db05f115d27387cb472",
+      "translation": "Direção do efeito"
+    },
+    {
+      "table": "ui",
+      "key": "Effect size (fold)",
+      "source": "Effect size (fold)",
+      "source_sha256": "ee23249d67a65e2def59b0d557aa836046dac6237a67f03307956a3230ab839b",
+      "translation": "Tamanho do efeito (variação relativa)"
+    },
+    {
+      "table": "ui",
+      "key": "Existing CV predictions",
+      "source": "Existing CV predictions",
+      "source_sha256": "511515141820bee93a2536b857e75a5b5b1849ba01d3c21b9aa8e0da0b91433b",
+      "translation": "Previsões CV existentes"
+    },
+    {
+      "table": "ui",
+      "key": "Experiment",
+      "source": "Experiment",
+      "source_sha256": "72bf6e495cc8a5b59d1f64e1f03b3fe6449599adb1e7e1d0b84fe1914376941d",
+      "translation": "Experimento"
+    },
+    {
+      "table": "ui",
+      "key": "Foreground class",
+      "source": "Foreground class",
+      "source_sha256": "5c559dcdb674f5f0de05da26c7bc48cc74863bf9765cc0145fa257cb61cf27a2",
+      "translation": "Classe de primeiro plano"
+    },
+    {
+      "table": "ui",
+      "key": "Foreground inset (px)",
+      "source": "Foreground inset (px)",
+      "source_sha256": "ea557a85362c891322df1e38e432c927d54bd0240c7c038dd04ed62ab7f7cd2a",
+      "translation": "Recuo do primeiro plano (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Frames previewed",
+      "source": "Frames previewed",
+      "source_sha256": "360bcd1453336353a97a4494aa2d948041988a8b075a3054a58d62ecd7b559e2",
+      "translation": "Quadros pré-visualizados"
+    },
+    {
+      "table": "ui",
+      "key": "Gamma",
+      "source": "Gamma",
+      "source_sha256": "a8ab3d5805c9214bc66b794f599cbccd5a5958dc5a6a322ee81e3a68344c6db7",
+      "translation": "Valor gama"
+    },
+    {
+      "table": "ui",
+      "key": "Gate in",
+      "source": "Gate in",
+      "source_sha256": "8ab70d9b8e12f563f6337440219bef0f41235248564aaed978dff9a4882474f9",
+      "translation": "Dimensões da seleção"
+    },
+    {
+      "table": "ui",
+      "key": "Gate line width",
+      "source": "Gate line width",
+      "source_sha256": "b2d16e92dbba7432f87509fa4b91076fa1bdc2674fc817e868979a32e8ad082f",
+      "translation": "Espessura da linha de seleção"
+    },
+    {
+      "table": "ui",
+      "key": "Genes",
+      "source": "Genes",
+      "source_sha256": "adf1a4bb3bd9b411937678bea49e71f8cccaf8f6914e9caf5c6ca73bea318d03",
+      "translation": "Número de genes"
+    },
+    {
+      "table": "ui",
+      "key": "Group cell phenotypes",
+      "source": "Group cell phenotypes",
+      "source_sha256": "7f2ba6406416545333b28d4516fee7f2337e7d6e5555da30ffed397997a1b1ce",
+      "translation": "Agrupar fenótipos celulares"
+    },
+    {
+      "table": "ui",
+      "key": "Growth ratio",
+      "source": "Growth ratio",
+      "source_sha256": "b2a2c91c138cca2a8e8e3a44d8de3d26a0dcca1db34fcedf3f598c0d0e3c8dde",
+      "translation": "Proporção de crescimento"
+    },
+    {
+      "table": "ui",
+      "key": "Guide wells",
+      "source": "Guide wells",
+      "source_sha256": "77524bad9d3d9d20cee78639625b58c7c52da081e6670133c1b552fa4d5ec47d",
+      "translation": "Poços dos guias"
+    },
+    {
+      "table": "ui",
+      "key": "Held-out grouping",
+      "source": "Held-out grouping",
+      "source_sha256": "002acb30e550d921b6e1c5cca389b8e6e80752c45da0b94fb085ef2b808561f0",
+      "translation": "Agrupamento dos dados reservados"
+    },
+    {
+      "table": "ui",
+      "key": "Highest",
+      "source": "Highest",
+      "source_sha256": "d402ef10d054eac21c4aa25165dd01d8cb9a0ab4f43f4841b9f41694cff0b5e3",
+      "translation": "Mais alto"
+    },
+    {
+      "table": "ui",
+      "key": "Hit prevalence",
+      "source": "Hit prevalence",
+      "source_sha256": "75a755c5d1780a93f5eee54a3d174b7c488740d09cfbad1978927a54fc717c16",
+      "translation": "Prevalência de acertos"
+    },
+    {
+      "table": "ui",
+      "key": "Hysteresis",
+      "source": "Hysteresis",
+      "source_sha256": "4572c4627e6445f81a154a8dd2ffeaf3151db3f7038d947271611eddadff6c64",
+      "translation": "Histerese"
+    },
+    {
+      "table": "ui",
+      "key": "Image source",
+      "source": "Image source",
+      "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d",
+      "translation": "Origem das imagens"
+    },
+    {
+      "table": "ui",
+      "key": "Image type filter",
+      "source": "Image type filter",
+      "source_sha256": "e59fef569f12064113314ce73581078782563480751cdf27d07ed716a645bf5b",
+      "translation": "Filtro de tipo de imagem"
+    },
+    {
+      "table": "ui",
+      "key": "Independence level",
+      "source": "Independence level",
+      "source_sha256": "9892edde87d62fad1ffe6fe2be637ddc6334d9bca0b352e7495418d0dbf8a79a",
+      "translation": "Nível de independência"
+    },
+    {
+      "table": "ui",
+      "key": "Independent morphology features",
+      "source": "Independent morphology features",
+      "source_sha256": "055ffe361762ad10b38b0d5cf6c64a9c9ce395d640c52bd65ca87ac994a57b8b",
+      "translation": "Características morfológicas independentes"
+    },
+    {
+      "table": "ui",
+      "key": "Intensity channels",
+      "source": "Intensity channels",
+      "source_sha256": "44e311f134f6b2620bdd33d986bba2370455bba0673107f06586c31a9073b630",
+      "translation": "Canais de intensidade"
+    },
+    {
+      "table": "ui",
+      "key": "IoU threshold",
+      "source": "IoU threshold",
+      "source_sha256": "76a7ac52dbe7939f90ba3c11895ae0e7dffdaaba06ecffaaf13bc8f2c085a02f",
+      "translation": "Limiar de IoU"
+    },
+    {
+      "table": "ui",
+      "key": "IsoData (Ridler-Calvard)",
+      "source": "IsoData (Ridler-Calvard)",
+      "source_sha256": "1dfcd51ba69cad7543e61274f5fd930c4c27d3436600491ef3e14a6ef71652f4",
+      "translation": "Método IsoData (Ridler-Calvard)"
+    },
+    {
+      "table": "ui",
+      "key": "Keep uninfected cells",
+      "source": "Keep uninfected cells",
+      "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03",
+      "translation": "Manter células não infectadas"
+    },
+    {
+      "table": "ui",
+      "key": "Level",
+      "source": "Level",
+      "source_sha256": "1709305c9fa966d14f56f0da3c3614bbc10adcf53d72f90341bb96d24afcfca3",
+      "translation": "Nível"
+    },
+    {
+      "table": "ui",
+      "key": "Li (minimum cross entropy)",
+      "source": "Li (minimum cross entropy)",
+      "source_sha256": "b6e1ee839c597362cd2d7a0bccab5ecc125e9cfc1cd48e94be869ccef394a9bf",
+      "translation": "Li (entropia cruzada mínima)"
+    },
+    {
+      "table": "ui",
+      "key": "LoG blobs",
+      "source": "LoG blobs",
+      "source_sha256": "485f32151c72b9e6b898769b9d6bfff1958fd210a37df3b4cdddba3486a55ca6",
+      "translation": "Manchas LoG"
+    },
+    {
+      "table": "ui",
+      "key": "Local window",
+      "source": "Local window",
+      "source_sha256": "98454ee3d4ca92e0b2cac0b391053c5d3ed2ffc3954950d80729e57543a166ce",
+      "translation": "Janela local"
+    },
+    {
+      "table": "ui",
+      "key": "Lower %",
+      "source": "Lower %",
+      "source_sha256": "ac87c315aea75850a31441fbec3a68f23aeaf8df538044f672754dc4dc2f9203",
+      "translation": "% inferior"
+    },
+    {
+      "table": "ui",
+      "key": "Lower percentile",
+      "source": "Lower percentile",
+      "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580",
+      "translation": "Percentil inferior"
+    },
+    {
+      "table": "ui",
+      "key": "Lowest",
+      "source": "Lowest",
+      "source_sha256": "5c590931c7cc2ade8aa2012cba335dd5d533c6ccbc9fe08030e97ad6dc1dd578",
+      "translation": "Mais baixo"
+    },
+    {
+      "table": "ui",
+      "key": "Manual label",
+      "source": "Manual label",
+      "source_sha256": "ccbb432cbb2d065bf59bc6182b83e67ac545fd56da994e48c8acfc4c6420341c",
+      "translation": "Rótulo manual"
+    },
+    {
+      "table": "ui",
+      "key": "Max area (px)",
+      "source": "Max area (px)",
+      "source_sha256": "0a9de30cab1594bca5504fc4efca84b33b2a238a0048288543ddbf6fb47c9af9",
+      "translation": "Área máxima (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Max displacement",
+      "source": "Max displacement",
+      "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df",
+      "translation": "Deslocamento máximo"
+    }
+  ],
+  "existing_compact_sources": [
+    {
+      "source": "Classes",
+      "translation": "Classes",
+      "owner": "spacr.qt.i18n._TERM_ROWS"
+    },
+    {
+      "source": "Clustering",
+      "translation": "Agrupamento",
+      "owner": "spacr.qt.i18n._TERM_ROWS"
+    }
+  ]
+}

@@ -31,6 +31,8 @@ pytestmark = pytest.mark.qt
 
 @pytest.fixture()
 def screen(qtbot):
+    from spacr.qt.widgets.cursor_policy import install_cursor_policy
+    install_cursor_policy()
     from spacr.qt.screens.app_screen import AppScreen
 
     widget = AppScreen("regression")
@@ -144,8 +146,7 @@ def test_a_tile_is_pressable_by_mouse_not_only_by_signal(screen, qtbot):
         Qt.LeftButton, Qt.NoModifier))
 
     assert seen == [0]
-    assert cell.cursor().shape() == Qt.PointingHandCursor, (
-        "a pressable tile should say so under the pointer")
+    assert cell.cursor().shape() == Qt.ArrowCursor
 
 
 def test_there_is_a_way_back_to_the_grid(screen):

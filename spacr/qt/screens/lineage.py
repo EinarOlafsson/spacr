@@ -33,7 +33,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QFileDialog, QHBoxLayout,
                                QLabel, QLineEdit, QListWidget, QListWidgetItem,
-                               QPushButton, QSplitter, QTreeWidget,
+                               QPushButton, QTreeWidget,
                                QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from ... import lineage as lin
@@ -41,6 +41,7 @@ from ..job_runner import JobRunner
 from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import SPACING, active_palette, mark_surface
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import install_test_data_button
 from ..widgets.sortable_table import install_sorting, tree_item
 from ..app_catalog import declared_app, register_declared
@@ -141,7 +142,9 @@ class LineageScreen(LinkedView, QWidget):
             say=lambda message: self.status.setText(message))
         outer.addLayout(source)
 
-        split = QSplitter(Qt.Horizontal, self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key=f"{APP_KEY}::body")
+        self._body = split
 
         left = QWidget(self)
         left_column = QVBoxLayout(left)
@@ -168,7 +171,9 @@ class LineageScreen(LinkedView, QWidget):
         self._open_button.clicked.connect(self.open_selected)
         buttons.addWidget(self._open_button)
         left_column.addLayout(buttons)
-        split.addWidget(left)
+        self.tree_section = split.add_section(
+            left, "Objects", persist_key=f"{APP_KEY}/Objects", stretch=1,
+            extent=620)
 
         right = QWidget(self)
         right_column = QVBoxLayout(right)
@@ -186,10 +191,10 @@ class LineageScreen(LinkedView, QWidget):
             "segmentation did not. Double-click to open one.")
         self.orphan_list.itemDoubleClicked.connect(self._on_orphan_activated)
         right_column.addWidget(self.orphan_list, 1)
-        split.addWidget(right)
-        split.setStretchFactor(0, 1)
-        split.setStretchFactor(1, 0)
-        split.setSizes([620, 300])
+        self.orphans_section = split.add_section(
+            right, "Unattached children",
+            persist_key=f"{APP_KEY}/Unattached children", stretch=0,
+            extent=300)
         mark_surface(self.tree, self.orphan_list)
         outer.addWidget(split, 1)
 

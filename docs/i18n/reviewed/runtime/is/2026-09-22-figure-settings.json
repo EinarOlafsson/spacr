@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "base_model",
+      "source": "Base model",
+      "source_sha256": "9922fc98cc51cfbfe95d6b00af9ec9418784c4c849170aeabd6367f5d150d05c",
+      "translation": "Grunnlíkan"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confirm_annotations",
+      "source": "Confirm annotations",
+      "source_sha256": "ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12",
+      "translation": "Staðfesta merkingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_confidence",
+      "source": "Figure confidence",
+      "source_sha256": "f37e6544f17a69c0d3f378e8dffc34594314f08a73e68a7d0cca070d8d53140d",
+      "translation": "Öryggismörk skynjara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_detector",
+      "source": "Figure detector",
+      "source_sha256": "f2a338f37de72fa2321927f56900b47b062c275d38d7c5761ce70c0af0f08ee9",
+      "translation": "Skynjari fyrir myndasamstæður"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_imgsz",
+      "source": "Figure imgsz",
+      "source_sha256": "70cbbc06e6235528539ac4d5495130eb5281d94e28bfc4b23eecf71a981be2fa",
+      "translation": "Inntaksstærðir skynjara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_read_text",
+      "source": "Figure read text",
+      "source_sha256": "e5defc31897230668d1f2f5628d949a4ed9cf0474a5f1c63b5e8e4c3fa566736",
+      "translation": "Lesa texta í myndasamstæðum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_mode",
+      "source": "Plaque mode",
+      "source_sha256": "84f94598660e6453d03264a82067ba2c0707aca9f437a4bda6f9b42f9b8a9a6c",
+      "translation": "Skelluhamur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_ignore",
+      "source": "Text ignore",
+      "source_sha256": "207f84635b6ebcf344a8ec8496977594494f16978b86d4f9aa6bcb155426dab6",
+      "translation": "Texti sem á að hunsa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_min_confidence",
+      "source": "Text min confidence",
+      "source_sha256": "464af619516137c86e6e73c7f625e593ea2dd1b936a723a863478d8457212ec5",
+      "translation": "Lágmarksöryggi textagreiningar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_order",
+      "source": "Text order",
+      "source_sha256": "c69361473025889eaea03128a1af6ba6b3b41f6bc411f1c370cdc6fddba6ba4f",
+      "translation": "Röð texta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_panel_reach",
+      "source": "Text panel reach",
+      "source_sha256": "2e2d5b1d0cd3b18fd1a459da09b238ca08e426e0c6afd138dfc321c412005231",
+      "translation": "Leitarfjarlægð að staf myndhluta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_above",
+      "source": "Text reach above",
+      "source_sha256": "ff0b3a0401952ea169f42ea3e8f58ea0e44097985f55b087899862a4c2484697",
+      "translation": "Leitarfjarlægð fyrir ofan"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_below",
+      "source": "Text reach below",
+      "source_sha256": "0172a8aedb7811a0f3d91034a29d91aa01a0c0740fc18fadafc1ffd341edb05b",
+      "translation": "Leitarfjarlægð fyrir neðan"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_left",
+      "source": "Text reach left",
+      "source_sha256": "e285faba23ac0817a70bcd128203563e8c29a1d433bab70ad5b04e5d255f4a88",
+      "translation": "Leitarfjarlægð til vinstri"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reread",
+      "source": "Text reread",
+      "source_sha256": "4815dfc08eb6c8413dc38457e2248dbbdd5746d926ca4685cba6f774256f6207",
+      "translation": "Lesa texta aftur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reread_scale",
+      "source": "Text reread scale",
+      "source_sha256": "99c783c877a4545eb9bf5af20f1618df4885bf2f4784d11b8faf23c608ba34c5",
+      "translation": "Stækkun við endurlestur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_separator",
+      "source": "Text separator",
+      "source_sha256": "a1b4086101600a35f39f621f3e4524d8700c62623aba06caf73d8fbba21a76d6",
+      "translation": "Textaskil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_above",
+      "source": "Text use above",
+      "source_sha256": "ebad8879527dc29bd7942296ea64a1c7cc6d4b8b7f315c69b8110bd81f7a33ca",
+      "translation": "Nota texta fyrir ofan"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_below",
+      "source": "Text use below",
+      "source_sha256": "941bea1abb38906055c2d09f0f9228dac790fe888206916c6be8da64dcb434ea",
+      "translation": "Nota texta fyrir neðan"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_left",
+      "source": "Text use left",
+      "source_sha256": "dd3413558cb5d7a36d004b5cea0133e05f337557d2d1514d45ccebf53f19443a",
+      "translation": "Nota texta til vinstri"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "base_model",
+      "source": "Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
+      "source_sha256": "02df0d545ca4af497d88c2cf7790246e4d258ac618effbc17acc37456abfd057",
+      "translation": "Þjálfa Cellpose: líkanavigtirnar sem þjálfunin byrjar með. 'cpsam' er staðlaða Cellpose-SAM-líkanið; lykill í líkanasafninu, til dæmis 'toxoplasma_plaque_v2', eða slóð að vistuðu líkani heldur áfram frá því líkani. Þannig byggir annað stig fínstillingar á því fyrsta. Upphafslíkanið er skráð með stillingum keyrslunnar. Sjálfgefið 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confirm_annotations",
+      "source": "Figure mode: measure only images whose condition a person approved in the Figure preview (saved to figure_annotations.csv in the source folder); the others are counted as waiting. Default False.",
+      "source_sha256": "c1abdf01536cd38799534d038cbba751891e83e0c1bd82185dd79a0e296f905f",
+      "translation": "Myndasamstæðuhamur: mæla aðeins myndir þar sem einstaklingur hefur samþykkt tilraunaskilyrðið í forskoðun myndasamstæðunnar. Samþykkið er vistað í figure_annotations.csv í upprunamöppunni; aðrar myndir eru taldar bíða. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_confidence",
+      "source": "Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25.",
+      "source_sha256": "e924b788a58c589949a81bf90d955c32fbe40978cbe09a149b4e3c5160385780",
+      "translation": "Myndasamstæðuhamur: lágmarksskor skynjara, frá 0 til 1, til að rammi teljist vera skellumynd. Sjálfgefið 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_detector",
+      "source": "Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
+      "source_sha256": "81adda124c35d2151b43f4dfa22e646eb01a274c7c30b72f277d4d8ec784d68b",
+      "translation": "Myndasamstæðuhamur: lykill í líkanasafni eða slóð að vistuðu líkani YOLO-skynjarans sem finnur skellumyndir innan myndasamstæðu. Sjálfgefið 'toxoplasma_well_detector_v2', sem hefur verið metið við leit að úrskornum skellumyndhlutum í birtum myndasamstæðum."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_imgsz",
+      "source": "Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'.",
+      "source_sha256": "f9cc7de360ffec8cf35085e50911195ac7832e8bb703628844cb31f397f72731",
+      "translation": "Myndasamstæðuhamur: inntaksstærðir skynjara, aðskildar með kommum. Allar stærðir eru notaðar og rammar þeirra sameinaðir. 640 finnur heila daufa myndhluta, 1280 finnur litla bletti úr þynningum; hvorug stærðin finnur hvort tveggja ein og sér. Sjálfgefið '640,1280'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_read_text",
+      "source": "Figure mode: read the text printed around each plaque image (needs RapidOCR, part of spacr[papers]) to annotate it with its panel and condition. False names each image by its figure, row and column only. Default True.",
+      "source_sha256": "ce6b97f8a8b74958687ae5555e4f8fa7a0b66d2f1cd987c08a3587986de9fd86",
+      "translation": "Myndasamstæðuhamur: lesa textann umhverfis hverja skellumynd til að merkja hana með myndhluta og tilraunaskilyrði. Krefst RapidOCR, sem er hluti af spacr[papers]. False nefnir hverja mynd aðeins eftir myndasamstæðu, röð og dálki. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_mode",
+      "source": "What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
+      "source_sha256": "e3523637f364946f0b6f49aa7a328c7b6bcb481dcec98fb03ae1857f36856207",
+      "translation": "Það sem skellugreining (Plaque Assay) les. 'plaque' tekur myndir sem sýna hver sitt skellusvæði, brunn eða útskorna skellumynd, hlutaskiptir skellunum og skrifar töflurnar per_image og per_plaque. 'figure' tekur birtar myndasamstæður: YOLO-skynjarinn finnur skellumyndirnar í hverri samstæðu. Textinn umhverfis þær, þar á meðal bókstafur myndhluta og merkingar dálka og raða, er lesinn og tengdur við myndatextann. Hver mynd fær merkingu með tilraunaskilyrði sínu og skellurnar eru hlutaskiptar; niðurstöður fara í plaque_figures/plaque_figures.db. Sjálfgefið 'plaque'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_ignore",
+      "source": "Figure mode, text detection: Comma-separated regular expressions; a word matching any is not used as a label, for example scale bars and axis numbers: '^\\\\d+$, [uμ]m$'. Default ''.",
+      "source_sha256": "c7e9a0498f07e9524c4f6a88a5875551b0da2208b595d2395df510b60e4ce4e7",
+      "translation": "Myndasamstæðuhamur, textagreining: reglulegar segðir, aðskildar með kommum. Orð sem samsvarar einhverri þeirra er ekki notað sem merking, til dæmis kvarðastikur og tölur á ásum: '^\\\\d+$, [uμ]m$'. Sjálfgefið ''."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_min_confidence",
+      "source": "Figure mode, text detection: Ignore OCR words the reader scored below this (0-1). Raise it when stray specks are read as text. Default 0.0.",
+      "source_sha256": "71b1b9f1aedf3329d9eb254ea5b2e9310fd9d05868ed7e5c753daa7797143eba",
+      "translation": "Myndasamstæðuhamur, textagreining: hunsa orð úr OCR sem fá lægra öryggisskor en þessi mörk (0-1). Hækkaðu gildið ef litlir blettir eru lesnir sem texti. Sjálfgefið 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_order",
+      "source": "Figure mode, text detection: Which labels come first when they are joined into one condition: a comma-separated order of above, left and below. Default 'above,left,below'.",
+      "source_sha256": "88abe3e53f682988c9686cc41f2b665af5d3364392865f87015b553af55e87c1",
+      "translation": "Myndasamstæðuhamur, textagreining: röð merkinga þegar þær eru sameinaðar í eitt tilraunaskilyrði; röð staðsetninganna fyrir ofan, til vinstri og fyrir neðan, aðskilin með kommum. Sjálfgefið 'above,left,below'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_panel_reach",
+      "source": "Figure mode, text detection: How far up and left of a grid's top-left corner the panel letter (A, B, C...) may sit, in image sizes. Raise it when the letter is set far from the images; lower it when another panel's letter is taken. Default 1.0.",
+      "source_sha256": "e14c76b01d94d2dbd290f34fdf904bd21120c17eb05eac888932e547a358dc07",
+      "translation": "Myndasamstæðuhamur, textagreining: hversu langt upp og til vinstri frá efra vinstra horni myndgrindar bókstafur myndhluta (A, B, C...) má vera, mælt í myndstærðum. Hækkaðu gildið ef bókstafurinn er langt frá myndunum; lækkaðu það ef bókstafur annars myndhluta er valinn. Sjálfgefið 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_above",
+      "source": "Figure mode, text detection: How far above the grid of plaque images a column header may sit, in image heights. Raise it when headers are printed well above the images; lower it when the header of a neighbouring panel is picked up. Default 1.0.",
+      "source_sha256": "698b44dff1f5a4a5c4d4c7ec5f25b3d874c66dc7255edfdd5fca03f93abe5731",
+      "translation": "Myndasamstæðuhamur, textagreining: hversu langt fyrir ofan grind skellumynda dálkafyrirsögn má vera, mælt í myndhæðum. Hækkaðu gildið ef fyrirsagnir eru langt fyrir ofan myndirnar; lækkaðu það ef fyrirsögn úr næsta myndhluta er tekin með. Sjálfgefið 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_below",
+      "source": "Figure mode, text detection: How far below the grid text may sit and still count as a label, in image heights. Default 0.5.",
+      "source_sha256": "adba49e07eaae864f743cd8116e55385c372650a039d6e2770af584ca2118a92",
+      "translation": "Myndasamstæðuhamur, textagreining: hversu langt fyrir neðan grindina texti má vera og teljast enn merking, mælt í myndhæðum. Sjálfgefið 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_left",
+      "source": "Figure mode, text detection: How far left of the grid a row label may sit, in image widths. Raise it when row labels are set far to the left; lower it when text from the panel on the left is picked up. Default 1.0.",
+      "source_sha256": "ccb203f755b8316ae4727e034f1b44d09f482d855c8beb23233cb5f735b32fe8",
+      "translation": "Myndasamstæðuhamur, textagreining: hversu langt til vinstri við grindina raðmerking má vera, mælt í myndbreiddum. Hækkaðu gildið ef raðmerkingar eru langt til vinstri; lækkaðu það ef texti úr myndhlutanum vinstra megin er tekinn með. Sjálfgefið 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reread",
+      "source": "Figure mode, text detection: Read the text around each grid of images a second time, enlarged, which finds small or rotated labels the first reading missed. Default True.",
+      "source_sha256": "d451c873f83e4e164194d2e22ec7f4de1fb25d0657464d04fe6c99b76c6cc5a6",
+      "translation": "Myndasamstæðuhamur, textagreining: lesa textann umhverfis hverja myndgrind aftur í stækkun. Það finnur litlar eða snúnar merkingar sem fyrsta lestur missti af. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reread_scale",
+      "source": "Figure mode, text detection: How many times to enlarge the text around each grid for the second reading. Default 3.",
+      "source_sha256": "18f8ea213a4563eab2c7172295c8d48a93056a11f88ac6845b490d465deb094a",
+      "translation": "Myndasamstæðuhamur, textagreining: hversu oft á að stækka textann umhverfis hverja grind fyrir annan lestur. Sjálfgefið 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_separator",
+      "source": "Figure mode, text detection: What joins the labels into one condition. Default ' / '.",
+      "source_sha256": "d7634d92e10e99fda04571f5437d8fbcb601afedf166a25a8c949eab3fc13eb1",
+      "translation": "Myndasamstæðuhamur, textagreining: textinn sem tengir merkingar saman í eitt tilraunaskilyrði. Sjálfgefið ' / '."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_above",
+      "source": "Figure mode, text detection: Use the column header printed above each image as part of its condition. Default True.",
+      "source_sha256": "a0aff21f64e7ba644ca9c3b90346ecdd2bc6723c8d53d2e7cd01823cf6c80562",
+      "translation": "Myndasamstæðuhamur, textagreining: nota dálkafyrirsögnina fyrir ofan hverja mynd sem hluta af tilraunaskilyrði hennar. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_below",
+      "source": "Figure mode, text detection: Use text printed under the images as part of the condition. Turn off when captions or axis labels sit under the images. Default True.",
+      "source_sha256": "9529336b33d40999347ea62510479a48f8681bc9bd56b4999aa9c5316da2dd79",
+      "translation": "Myndasamstæðuhamur, textagreining: nota texta undir myndunum sem hluta af tilraunaskilyrðinu. Slökktu á þessu ef myndatextar eða ásmerkingar eru undir myndunum. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_left",
+      "source": "Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.",
+      "source_sha256": "bbe9791694ee60c254cc9012fb5a148ccd7e39879d273364fa4693ac882f4aed",
+      "translation": "Myndasamstæðuhamur, textagreining: nota raðmerkinguna vinstra megin við hverja mynd sem hluta af tilraunaskilyrði hennar. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
+      "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16",
+      "translation": "Vistað Cellpose-líkan til hlutaskiptingar á skellum: lykill í líkanasafni sækir líkan við fyrstu notkun og sannreynir gátsummu þess. 'toxoplasma_plaque_v2' er cpsam_plaque_r5, þjálfað á yfirförnu v5-gagnasafni. Skráarslóð velur eigið vistað líkan. 'bundled' er eldra líkanið sem fylgdi pakkanum, vistað Cellpose 3-líkan sem þarf Cellpose 3. Breyting getur breytt öllum skellutalningum, svo skráðar keyrslur ættu að varðveita valda gildið. Sjálfgefið 'toxoplasma_plaque_v2'."
+    }
+  ]
+}

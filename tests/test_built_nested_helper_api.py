@@ -120,6 +120,13 @@ def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch):
 def test_sphinx_and_extractor_import_the_same_switch(monkeypatch, fixture_source):
     pytest.importorskip("jinja2")
     from jinja2 import Environment
+    import build_module_workflows
+
+    def fixture_workflows(env, root):
+        assert root == fixture_source
+        env.globals["spacr_workflow_includes"] = {}
+
+    monkeypatch.setattr(build_module_workflows, "prepare_jinja", fixture_workflows)
 
     tree = ast.parse((ROOT / "docs/source/conf.py").read_text())
     hook = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
@@ -166,8 +173,14 @@ def _build_site(fixture_source, enabled, label, *, inventory_root=None):
     (source / "conf.py").write_text(
         f"import sys\nfrom pathlib import Path\nsys.path.insert(0, {str(ROOT / 'tools')!r})\n"
         "import nested_helper_docs as _nested_helper_docs\n"
+        "import api_visibility as _api_visibility\n"
+        # This synthetic package models nested functions, not GUI routes.
+        # The real workflow hook has its own source/map/build tests.
+        "import build_module_workflows\n"
+        "build_module_workflows.prepare_jinja = lambda env, root: env.globals.update(spacr_workflow_includes={})\n"
         f"_nested_helper_docs.ENABLED_MODULES = frozenset({sorted(enabled)!r})\n"
         "spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))\n"
+        "spacr_explicit_api_modules = tuple(sorted(_api_visibility.EXPLICIT_MODULES))\n"
         f"_SOURCE_ROOT = Path({str(inventory_root or fixture_source)!r})\n"
         "project = 'Feature 411 fixture'\nextensions = ['sphinx.ext.napoleon', 'autoapi.extension', 'sphinx_design']\n"
         f"autoapi_dirs = [{str(fixture_source / 'spacr')!r}]\n"
@@ -460,3 +473,72 @@ def test_enabled_helpers_exist_in_the_full_built_site():
         page = output / "api" / Path(*entry.module.split(".")) / "index.html"
         assert page.is_file(), page
         assert page.read_text().count(f'id="{entry.qualified_key}"') == 1
+
+
+@pytest.mark.skipif(not os.environ.get("SPACR_DOCS_BUILT"), reason="requires a fresh full docs build")
+@pytest.mark.parametrize("language", sorted(builder.MODEL_SPECS))
+@pytest.mark.parametrize("catalog_scope", ["full_catalog", "helper_slice"])
+@pytest.mark.parametrize("module, count, hidden", [
+    ("spacr.object", 3, ("_cellpose_z_segment_fn",)),
+    ("spacr.timeflows_model", 9, ("_ctc_track_masks", "_training_window")),
+])
+def test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser(
+    language, catalog_scope, module, count, hidden,
+):
+    """Check helper rendering independently and retain whole-catalog acceptance."""
+    spec = importlib.util.spec_from_file_location(
+        "_feature_411_real_frontend", ROOT / "tests/test_api_i18n_frontend.py",
+    )
+    frontend = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(frontend)
+    active = helpers.active_entries(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
+    keys = [entry.qualified_key for entry in active if entry.module == module]
+    assert len(keys) == count
+    page = (ROOT / "docs/_build/html/api" / Path(*module.split('.')) / "index.html").read_text()
+    for name in hidden:
+        assert f'id="{module}.{name}"' not in page
+    english = json.loads((builder.API_DIR / "en.json").read_text())
+    catalog = json.loads((builder.API_DIR / f"{language}.json").read_text())
+    expected = {key: catalog["symbols"][key]["text"] for key in keys}
+    for key in keys:
+        assert catalog["symbols"][key]["source_sha256"] == english["symbols"][key]["source_sha256"]
+    if catalog_scope == "helper_slice":
+        # Exact shipped records in an explicitly bounded catalog fixture.
+        # The full_catalog cases above still reject unrelated stale entries.
+        english = {**english, "symbols": {key: english["symbols"][key] for key in keys}}
+        catalog = {**catalog, "symbols": {key: catalog["symbols"][key] for key in keys}}
+    harness = r'''
+<script src="/api/api_i18n.js" data-api-catalog-version="feature-411-real"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const expected = EXPECTED;
+    const normalize = value => value.replace(/\s+/g, '');
+    const nodes = Object.entries(expected).map(([key, target]) => {
+      const anchor = document.getElementById(key);
+      const node = anchor && anchor.parentElement.querySelector(':scope > dd > .spacr-api-translation');
+      if (!node) return null;
+      const prose = node.cloneNode(true);
+      const fields = [...target.matchAll(/^:param\s+(\w+):/gm)].map(match => match[1]);
+      const renderedFields = [...prose.querySelectorAll('dt')].map(field => field.textContent);
+      if (!fields.every(field => renderedFields.some(label => label.includes(field)))) return null;
+      prose.querySelectorAll('.spacr-api-translation__label, dt').forEach(element => element.remove());
+      const visibleTarget = target.replace(/``([^`]+)``/g, '$1')
+        .replace(/^:param\s+\w+:\s*/gm, '').replace(/^:returns:\s*/gm, '');
+      return normalize(prose.textContent) === normalize(visibleTarget) ? node : null;
+    });
+    document.body.dataset.realHelpers = nodes.every(Boolean) && new Set(nodes).size === Object.keys(expected).length ? 'pass' : 'fail';
+  }, 900);
+});
+</script>
+'''.replace("EXPECTED", json.dumps(expected, ensure_ascii=False))
+    page = page.replace("</head>", harness + "</head>")
+    files = {
+        "/api/page.html": page.encode(),
+        "/api/api_i18n.js": frontend.SCRIPT.read_bytes(),
+        "/api/i18n/api/en.json": json.dumps(english).encode(),
+        f"/api/i18n/api/{language}.json": json.dumps(catalog).encode(),
+    }
+    with frontend._server(files) as (base, _requests):
+        dom = frontend._dump_dom(f"{base}/api/page.html?lang={language}", budget=2400)
+    assert 'data-real-helpers="pass"' in dom, (catalog_scope, module, language)

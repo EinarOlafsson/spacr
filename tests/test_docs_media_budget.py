@@ -251,7 +251,7 @@ def test_narration_is_the_stable_mobile_clock():
     # The Coming soon player is now integrated here too; existing playable
     # Since 2026-09-15 this tree IS the published candidate 8738b_pd (item 358).
     #
-    #     docs/source/_extra/tutorials/        20260911-narration-captions
+    #     docs/source/_extra/tutorials/        20260923-unicode-captions
     #     tools/tutorials/release_candidate/   20260911-narration-captions
     #
     # `_LIBRARY` is `budget.extra_root(...)` -- the published collection --
@@ -259,7 +259,10 @@ def test_narration_is_the_stable_mobile_clock():
     # it at the candidate to make something else pass: the two are separate
     # while publication is held, and a deployed-site check pointed at the
     # candidate would report a site that has not been updated as updated.
-    assert 'app_v2.js?v=20260911-narration-captions' in index
+    # ee43d8530 added native-script sentence boundaries to the shipped player
+    # and bumped this source key. The frozen release candidate remains older.
+    assert 'app_v2.js?v=20260923-workflow78-learning-order' in index
+    assert 'app_v2.js?v=20260911-narration-captions' not in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index
@@ -580,28 +583,13 @@ def test_the_budget_module_runs_as_a_script():
     assert "OVER" not in report
 
 
-@requires_library
-def test_the_docs_workflow_only_auto_publishes_from_main():
-    """Nightly pushes cannot republish Pages; an explicit dispatch can.
-
-    The push trigger used to run every step on ``nightly`` too, so each
-    nightly push overwrote the public site with unreviewed docs. A deliberate
-    workflow dispatch is allowed only because the same run first audits the
-    exact catalogs and builds the site. Deleting either half is silent.
-    """
-    workflow = (REPO_ROOT / ".github" / "workflows" / "docs.yml")
-    if not workflow.is_file():
-        pytest.skip("no docs workflow in this checkout")
-    text = workflow.read_text()
-    assert text.count("github.ref == 'refs/heads/main'") >= 3, (
-        "every Pages-touching step (configure, upload, deploy) needs the "
-        "automatic main gate")
-    manual_nightly = (
-        "github.event_name == 'workflow_dispatch' && "
-        "github.ref == 'refs/heads/nightly'"
-    )
-    assert text.count(manual_nightly) >= 3, (
-        "the configure, upload and deploy exception must require both an "
-        "explicit dispatch and the nightly ref"
-    )
-    assert "upload-pages-artifact" in text
+def test_docs_workflow_publishes_both_branches_without_overwriting_main():
+    """Both branch builds are required before a combined Pages artifact ships."""
+    workflow = (REPO_ROOT / ".github/workflows/docs.yml").read_text()
+    assert "branches: [main, nightly]" in workflow
+    assert "branch: [main, nightly]" in workflow
+    assert "--main channels/docs-channel-main" in workflow
+    assert "--nightly channels/docs-channel-nightly" in workflow
+    assert "--english-required" in workflow
+    assert "upload-pages-artifact" in workflow
+    assert "needs: build" in workflow

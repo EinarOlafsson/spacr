@@ -1,11 +1,25 @@
 {
-  "lesson": "13_regression", "language": "sv",
-  "english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
-  "review": {"kind": "Editorial caption translation checked against English and the accepted real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish 759 stored results from the displayed 434-guide family.", "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes."]},
+  "lesson": "13_regression",
+  "language": "sv",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "review": {
+    "kind": "Editorial caption translation checked against English and the accepted real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish 759 stored results from the displayed 434-guide family.",
+      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
+      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
+    ]
+  },
   "title": "Regression: ett riktigt exempel från parade tabeller till resultat",
   "description": "Läs in det nedladdningsbara screeningexemplet, konfigurera en begränsad guide-permutationsanalys, granska den verkliga konsolen och figurerna och hitta specialverktygen som nu ligger inuti Regression.",
-  "objectives": ["Läs in fyra par med poäng- och räknetabeller via den synliga testdataknappen och välj en separat utdatamapp.", "Skilj mellan inferensmetod, resultatnivå och analysenhet och återskapa det begränsade exemplet utan att behandla antalet permutationer som en rekommendation för slutanalysen.", "Granska verkliga resultat, figurer och diagnostiska begränsningar; skilj interaktiv granskning från en direkt omberäkning av analysen.", "Hitta Regressions inbyggda verktyg, valfri AI-hjälp och aktuell Python-ingång."],
-  "prerequisite": "Öppna spaCR och välj Regression bland Core-modulerna. Exemplet hämtar poäng- och räknefiler eller återanvänder cacheminnet. Den inspelade analysen kräver ingen mätdatabas, bildutsnitt, extern annoteringstjänst eller AI-prenumeration. Den korta permutationskörningen visar arbetsflödet, inte fastställda biologiska fynd.",
+  "objectives": [
+    "Läs in fyra par med poäng- och räknetabeller via den synliga testdataknappen och välj en separat utdatamapp.",
+    "Skilj mellan inferensmetod, resultatnivå och analysenhet och återskapa det begränsade exemplet utan att behandla antalet permutationer som en rekommendation för slutanalysen.",
+    "Granska verkliga resultat, figurer och diagnostiska begränsningar; skilj interaktiv granskning från en direkt omberäkning av analysen.",
+    "Hitta Regressions inbyggda verktyg, valfri AI-hjälp och aktuell Python-ingång."
+  ],
+  "prerequisite": "Inspelat i spaCR 1.5.0.9. Öppna spaCR och välj Regression bland Core-modulerna. Exemplet hämtar poäng- och räknefiler eller återanvänder cacheminnet. Den inspelade analysen kräver ingen mätdatabas, bildutsnitt, extern annoteringstjänst eller AI-prenumeration. Den korta permutationskörningen visar arbetsflödet, inte fastställda biologiska fynd.",
   "scenes": [
     "Öppna Regression bland Core-modulerna. Modulen kopplar fenotyppoäng till guideförekomst och rapporterar samband med den inferensmetod du väljer. Verktygen längst upp hör nu hemma i modulen; de är inte längre separata rutor på Home.",
     "Välj Load test data under Input Tables. Programmet hämtar screeningexemplet eller återanvänder verifierade cachefiler; inspelningen använder cacheminnet. Konsolen rapporterar fyra poängtabeller och fyra räknetabeller, parade efter platta.",
@@ -19,7 +33,7 @@
     "Regression backend är ingen universell accelerationsknapp. Fältet gäller stödda estimatorer som anpassar modeller; en ändring gör inte denna guide-permutationsdemonstration till GPU-regression. Andra spaCR-moduler har egna enhetsval. Följ kontrollerna och konsolen för den operation som faktiskt körs.",
     "Välj none som annoteringskälla i detta fristående exempel. De statistiska resultaten kräver ingen extern sökning efter genannoteringar. Använd annoteringar som passar organismen och identifiersystemet i din egen screening, i stället för att anta att varje guidebeteckning går att slå upp.",
     "Rensa sökningen, kontrollera utdatamappen och tryck Run. Följ den verkliga konsolen när indata samordnas, valda filter används och resultaten beräknas. Regression skapar diagnostiska figurer direkt; för denna inspelning finns ingen separat Plot-knapp att slå på.",
-    "Det färdiga exemplet gav 434 guideresultat, 325 genresultat och fem figurer. Finished betyder att programmet är klart; det godkänner inte försöksdesignen eller fastställer biologiska fynd. Läs även de diagnostiska varningarna, inte bara slutmeddelandet.",
+    "Det färdiga exemplet gav 434 guideresultat, 325 genresultat och fem figurer. Finished betyder att programmet är klart; det godkänner inte försöksdesignen eller fastställer biologiska fynd. Läs även de diagnostiska varningarna, inte bara slutmeddelandet. Rapporten om utbytbarhet misslyckades i denna körning; permutationstestets antaganden behöver därför fortfarande bedömas oberoende.",
     "Runs identifierar den sparade analysen; Results visar den valda körningen. Kontrollera mapp och inställningar när du jämför körningar. En ändring i formuläret räknar inte om resultatet som visas. Kör analysen igen när du vill testa ett nytt val.",
     "Results innehåller koefficienttabellen och interaktiva vyer bredvid de skapade figurerna. Körningen har totalt 759 rader på båda nivåerna; den här vyn väljer de 434 guideresultaten. Använd Level för att välja testfamilj. Interaktiv granskning av sparade resultat kör inte inferensen på nytt.",
     "Öppna p-values för att granska resultatfördelningen. Tolka den tillsammans med vald testfamilj, permutationsupplösning och diagnostik, inte som automatiskt bevis på en effekt. Den separata Diagnostics-handledningen förklarar de sparade design- och inferenspanelerna i detalj.",

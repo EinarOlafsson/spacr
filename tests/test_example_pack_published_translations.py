@@ -46,8 +46,17 @@ def test_example_pack_runtime_publishes_reviewed_counts_and_losses(language):
 
     path = (ROOT / "docs/i18n/reviewed/runtime" / language /
             "2026-09-16-example-settings-pack.json")
-    records = json.loads(path.read_text(encoding="utf-8"))["records"]
-    assert len(records) == 7
+    review = json.loads(path.read_text(encoding="utf-8"))
+    records, retired = review["records"], review["retired_records"]
+    assert len(records) == 5
+    assert {record["source"] for record in retired} == {
+        "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+    }
+    for record in retired:
+        assert record["source"] not in en.UI_SOURCES
+        assert api._source_hash(record["source"]) == record["source_sha256"]
+        assert record["translation"]
     catalog = importlib.import_module(f"spacr.qt.i18n_catalogs.{language}")
     for record in records:
         assert record["table"] == "ui"

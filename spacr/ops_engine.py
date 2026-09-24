@@ -180,9 +180,16 @@ _PHENOTYPE_ANCHORS = 6
 _PHENOTYPE_CANDIDATES = 18
 
 #: How far either side of a seeded centre the sequencing window reaches, in
-#: well-frame pixels. PART 14-B/C's window: the seed is a grid prediction and
-#: lands within about a tile, so the window has to hold a tile's error.
-_ANCHOR_SEARCH_PX = 1600
+#: well-frame pixels. It has to hold the SEED's error, and no more: every
+#: extra pixel of window adds sequencing nuclei that are not under the field,
+#: and the alignment has to find the field's own among them. PART 14-B/C
+#: used 1,600 px when the seed was a grid index off by up to 1,900 px; the
+#: seed is now the fitted sequencing raster, and on the plate (372,
+#: 2026-09-22) it landed within 256 px of the aligned centre on wells A1 and
+#: A2. At 1,600 px, 4 of A1's 18 candidates aligned and 2 of A2's, so A2
+#: refused; at 800 px, 10 and 9 did, and a field found at both sizes landed
+#: within 0.8 px of itself. 600 px lost fields whose seed was 240 px out.
+_ANCHOR_SEARCH_PX = 800
 
 #: The most sequencing nuclei an anchor alignment is offered. The seed search
 #: is a KD-tree query per trial and the trial count is proportional to the
@@ -1029,7 +1036,7 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool):
     """
     from cellpose import models
 
-    kwargs: Dict[str, Any] = {"gpu": False}
+    kwargs: Dict[str, Any] = {"gpu": False, "use_bfloat16": False}
     if gpu:
         from .accelerator import cellpose_kwargs
 

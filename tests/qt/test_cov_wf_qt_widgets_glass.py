@@ -49,6 +49,11 @@ class _StandInApplication(QObject):
         self.removed = []
         self._refuse_removal = refuse_removal
 
+    @property
+    def glass_filters(self):
+        """The glass installer coexists with the separate native-cursor policy."""
+        return [item for item in self.installed if isinstance(item, glass._GlassInstaller)]
+
     def installEventFilter(self, event_filter):     # noqa: N802 - Qt naming
         self.installed.append(event_filter)
 
@@ -84,7 +89,7 @@ def test_an_old_filter_that_will_not_come_off_does_not_block_the_new_one(
     stubborn = _StandInApplication(refuse_removal=True)
     assert glass.install_glass_everywhere(stubborn) is True
     old_filter = glass._INSTALLED
-    assert stubborn.installed == [old_filter], \
+    assert stubborn.glass_filters == [old_filter], \
         "the first application should have been given a filter of its own"
 
     successor = _StandInApplication()
@@ -94,7 +99,7 @@ def test_an_old_filter_that_will_not_come_off_does_not_block_the_new_one(
     new_filter = glass._INSTALLED
     assert new_filter is not old_filter, \
         "the new application needs a filter of its own, not the dead one"
-    assert successor.installed == [new_filter]
+    assert successor.glass_filters == [new_filter]
     assert glass._INSTALLED_APP is successor
     assert "the old glass filter would not come off" in caplog.text, \
         "the refusal is swallowed, so the debug line is the only record"
@@ -123,7 +128,7 @@ def test_an_install_with_no_remembered_owner_still_yields_to_a_new_one():
         "with no owner recorded there is no application to remove it from"
     assert glass._INSTALLED is not orphaned_filter, \
         "the successor must be given a filter of its own"
-    assert successor.installed == [glass._INSTALLED]
+    assert successor.glass_filters == [glass._INSTALLED]
     assert glass._INSTALLED_APP is successor
 
     # The very same call, this time with an owner remembered, DOES take the
@@ -134,7 +139,7 @@ def test_an_install_with_no_remembered_owner_still_yields_to_a_new_one():
     assert glass.install_glass_everywhere(third) is True
     assert successor.removed == [successors_filter], \
         "a remembered owner is the one the old filter comes off"
-    assert third.installed == [glass._INSTALLED]
+    assert third.glass_filters == [glass._INSTALLED]
 
 
 def test_forgetting_the_filter_needs_no_application_to_take_it_off(
@@ -205,7 +210,7 @@ def test_a_whole_messy_lifecycle_still_ends_on_one_filter_and_one_owner(
         "an orphaned filter must not veto the next application"
     assert first.removed == [], \
         "with the owner forgotten there is no application to remove it from"
-    assert second.installed == [glass._INSTALLED]
+    assert second.glass_filters == [glass._INSTALLED]
 
     # Now the owner IS remembered, and refuses to give the filter back.
     third = _StandInApplication()
@@ -214,7 +219,7 @@ def test_a_whole_messy_lifecycle_still_ends_on_one_filter_and_one_owner(
     assert "the old glass filter would not come off" in caplog.text, \
         "the refusal is swallowed, so the debug line is the only record"
     thirds_filter = glass._INSTALLED
-    assert third.installed == [thirds_filter]
+    assert third.glass_filters == [thirds_filter]
 
     # A cooperating owner does record the removal -- so both empty lists in
     # this test are the seam under test and not a stand-in that never notices.
@@ -237,7 +242,7 @@ def test_a_whole_messy_lifecycle_still_ends_on_one_filter_and_one_owner(
     fifth = _StandInApplication()
     assert glass.install_glass_everywhere(fifth) is True, \
         "an emptied pair must leave the next application installable"
-    assert fifth.installed == [glass._INSTALLED]
+    assert fifth.glass_filters == [glass._INSTALLED]
     assert glass.uninstall_glass_everywhere() is True
-    assert fifth.removed == fifth.installed, \
+    assert fifth.removed == fifth.glass_filters, \
         "a remembered owner still gets the filter taken off at shutdown"

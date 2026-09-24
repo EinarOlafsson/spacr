@@ -43,6 +43,10 @@ Classify trains PyTorch image models or classical and boosted models from
 measurement tables. Checkpoints record their dataset, split rule, class
 balance and held-out metrics.
 
+Classify CV also offers optional rotations and reflections at inference time.
+See :doc:`classifier_evaluation` for the aggregation methods, original and
+mean probabilities, and orientation-stability flags.
+
 Map Barcodes
 ~~~~~~~~~~~~
 
@@ -73,6 +77,15 @@ Planning, quality control and exploration
   without an export/re-import cycle.
 - **Layer and lineage views** connect images, masks and the cell → nucleus →
   pathogen object hierarchy.
+
+In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel
+zoom keeps the image point beneath the pointer in place. This also works when
+the image is smaller than its viewport; **Fit** or opening a new image resets
+the extra navigation space. Linked comparison views update together after the
+zoom. Orthogonal image views zoom around the pointer without moving the
+crosshair's selected position.
+
+For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`.
 
 Reproducibility and interoperability
 ------------------------------------
@@ -133,8 +146,10 @@ Make Masks
 ----------
 
 Make Masks corrects masks by hand and carries the Cellpose loop on its
-masthead. Its canvas has nine tools: Brush, Erase, Erase object, Wand +,
-Wand −, Draw, Divide, Zoom and Recrop.
+masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +,
+Wand −, Draw, Divide, Zoom, Recrop and Ruler. The
+:doc:`Make Masks reference <make_masks>` covers these tools, Levels,
+detection settings, primary/secondary pairing, saving and measurement.
 
 Draw traces a free-form outline that closes and fills as a single object --
 the tool a brush is not, because a brush stamps disks along the path, so

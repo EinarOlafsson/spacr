@@ -198,7 +198,7 @@ def test_the_mask_preview_selects_its_source_from_the_table_not_the_dropdowns(
 
     # The table is the visible selector, and it is shown.
     assert panel._set_table.objectName() == "PreviewSetTable"
-    assert panel._table_split.indexOf(panel._set_table) >= 0
+    assert panel._table_split.isAncestorOf(panel._set_table)
     assert panel._set_table.isVisibleTo(panel)
 
     # ... with the file dialog still beside it as the ungroupable-folder path.

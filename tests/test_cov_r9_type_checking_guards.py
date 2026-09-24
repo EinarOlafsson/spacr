@@ -74,6 +74,9 @@ TYPE_ONLY_RELATIVE = (
     ("spacr.qt.screens.db_browser", "widgets.fold_strip"),
     ("spacr.qt.screens.foreign", "widgets.fold_strip"),
     ("spacr.qt.screens.graph_builder", "widgets.fold_strip"),
+    # HitList is used in annotations; the data layer is imported when a list
+    # is loaded so opening the screen does not import pandas for a type name.
+    ("spacr.qt.screens.hit_list", "hits"),
     ("spacr.qt.screens.qc_dashboard", "widgets.fold_strip"),
 )
 

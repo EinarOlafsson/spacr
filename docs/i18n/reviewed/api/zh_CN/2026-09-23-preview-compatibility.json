@@ -1,0 +1,56 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Build the Cellpose model a live view segments with.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#0",
+      "source": "Build the Cellpose model a live view segments with.",
+      "source_sha256": "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
+      "translation": "构建实时视图用于分割的 Cellpose 模型。"
+    },
+    {
+      "context": "``model_type=`` is accepted-and-IGNORED by Cellpose 4 — it logs \"not used in v4.0.1+\" and drops it, leaving ``pretrained_model`` at its ``cpsam`` default. Passing the user's choice there therefore segmented with ``cpsam`` whatever they picked, including a checkpoint they had just trained in spaCR's own Train Cellpose module. :func:`spacr.utils._resolve_cellpose_pretrained` is what the workflow uses: it maps the legacy pre-SAM names onto ``cpsam`` and says so once, and returns a path unchanged when the name is a fine-tuned checkpoint.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#1",
+      "source": "``model_type=`` is accepted-and-IGNORED by Cellpose 4 — it logs \"not used in v4.0.1+\" and drops it, leaving ``pretrained_model`` at its ``cpsam`` default. Passing the user's choice there therefore segmented with ``cpsam`` whatever they picked, including a checkpoint they had just trained in spaCR's own Train Cellpose module. :func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline uses: it maps the legacy pre-SAM names onto ``cpsam`` and says so once, and returns a path unchanged when the name is a fine-tuned checkpoint.",
+      "source_sha256": "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
+      "translation": "Cellpose 4 接受 ``model_type=``，但会忽略其值：它记录 \"not used in v4.0.1+\" 后丢弃该值，使 ``pretrained_model`` 保持默认值 ``cpsam``。因此，将用户的选择传入该参数时，无论用户选择什么，分割都会使用 ``cpsam``，即使用户选择的是刚在 spaCR 自带的 Train Cellpose 模块中训练的检查点。工作流使用 :func:`spacr.utils._resolve_cellpose_pretrained`：它将 SAM 之前的旧模型名称映射到 ``cpsam``，并只提示一次；如果名称指向微调后的检查点，则原样返回路径。"
+    },
+    {
+      "context": "Cellpose and torch are imported inside the call, so importing a preview module cold — as the test suite does — needs no CUDA-capable stack.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#2",
+      "source": "Cellpose and torch are imported inside the call, so importing a preview module cold — as the test suite does — needs no CUDA-capable stack.",
+      "source_sha256": "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+      "translation": "Cellpose 和 torch 在调用内部才导入，因此像测试套件那样首次导入预览模块时，不需要支持 CUDA 的软件环境。"
+    },
+    {
+      "context": "CPU previews set ``use_bfloat16=False``, including an explicit ``gpu=False`` choice and the CPU fallback when accelerator detection fails. A Cellpose 3 checkpoint rejected by Cellpose 4 raises a preview-specific compatibility message while retaining the original exception as its cause.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#3",
+      "source": "CPU previews set ``use_bfloat16=False``, including an explicit ``gpu=False`` choice and the CPU fallback when accelerator detection fails. A Cellpose 3 checkpoint rejected by Cellpose 4 raises a preview-specific compatibility message while retaining the original exception as its cause.",
+      "source_sha256": "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
+      "translation": "CPU 预览设置 ``use_bfloat16=False``，包括显式选择 ``gpu=False`` 的情况，以及加速器检测失败后回退到 CPU 的情况。若 Cellpose 4 拒绝 Cellpose 3 检查点，则会抛出预览专用的兼容性消息，并保留原始异常作为原因。"
+    },
+    {
+      "context": "the model name or checkpoint path the user picked.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#4",
+      "source": "the model name or checkpoint path the user picked.",
+      "source_sha256": "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
+      "translation": "用户选择的模型名称或检查点路径。"
+    },
+    {
+      "context": "force the device choice; ``None`` asks torch.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#5",
+      "source": "force the device choice; ``None`` asks torch.",
+      "source_sha256": "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
+      "translation": "强制指定设备；``None`` 表示询问 torch。"
+    },
+    {
+      "context": "a ``cellpose.models.CellposeModel``.",
+      "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#6",
+      "source": "a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd",
+      "translation": "a ``cellpose.models.CellposeModel``."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of preview model selection, CPU precision and Cellpose checkpoint compatibility; no native-speaker sign-off",
+  "schema": 1
+}

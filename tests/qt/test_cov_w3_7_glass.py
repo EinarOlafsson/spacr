@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
                                QPushButton, QVBoxLayout, QWidget)
 
 from spacr.qt.widgets import glass
+from spacr.qt.widgets.cursor_policy import arrow_cursor
 
 
 @pytest.fixture(autouse=True)
@@ -152,21 +153,26 @@ def test_each_edge_says_which_way_it_will_move(dialog, point, shape):
     assert glass._cursor_for(glass._edges_at(dialog, QPoint(*point))) == shape
 
 
-def test_hovering_an_edge_changes_the_pointer_and_leaving_puts_it_back(
+def test_hovering_an_edge_shows_a_line_and_leaving_hides_it(
         dialog):
     """A resize you cannot see is one nobody finds."""
     assert glass.let_the_user_resize(dialog) is True
     watcher = dialog._spacr_resizer
 
     watcher.eventFilter(dialog, _move((1, 120)))
-    assert dialog.cursor().shape() == Qt.CursorShape.SizeHorCursor
+    assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor
+    assert watcher._hint.edges == Qt.LeftEdge
 
     watcher.eventFilter(dialog, _move((160, 120)))
-    assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor
+    assert not watcher._hint.edges
+    assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor or (
+        dialog.cursor().pixmap().cacheKey() == arrow_cursor(False).pixmap().cacheKey())
 
     watcher.eventFilter(dialog, _move((1, 120)))
     watcher.eventFilter(dialog, QEvent(QEvent.Type.Leave))
-    assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor
+    assert not watcher._hint.edges
+    assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor or (
+        dialog.cursor().pixmap().cacheKey() == arrow_cursor(False).pixmap().cacheKey())
 
 
 def test_a_press_in_the_middle_does_not_start_a_resize(dialog):
@@ -176,7 +182,7 @@ def test_a_press_in_the_middle_does_not_start_a_resize(dialog):
 
 
 def test_a_press_on_an_edge_is_taken_by_the_resize(dialog, monkeypatch):
-    """Handed to the compositor: computing the geometry here walks away."""
+    """Anchor a non-Wayland resize to the original press and rectangle."""
     glass.let_the_user_resize(dialog)
     watcher = dialog._spacr_resizer
 
@@ -189,7 +195,8 @@ def test_a_press_on_an_edge_is_taken_by_the_resize(dialog, monkeypatch):
         startSystemResize=lambda edges: asked.append(edges))
     monkeypatch.setattr(type(dialog), "windowHandle", lambda self: handle)
     assert watcher.eventFilter(dialog, _press((1, 1))) is True
-    assert asked == [Qt.Edge.LeftEdge | Qt.Edge.TopEdge]
+    assert asked == []
+    assert watcher._grab[0] == Qt.Edge.LeftEdge | Qt.Edge.TopEdge
 
 
 def test_an_event_the_resizer_cannot_read_is_swallowed(dialog):
@@ -243,7 +250,7 @@ def test_dragging_the_background_moves_the_window(dialog):
 
     dragger.eventFilter(dialog, _press((160, 120), glob=(500, 500)))
     assert dragger._grab is not None
-    dragger.eventFilter(dialog, _move((160, 120), glob=(540, 530)))
+    dragger.eventFilter(dialog, _move((160, 120), glob=(540, 530), buttons=Qt.LeftButton))
     assert dialog.pos().x() == 140
     assert dialog.pos().y() == 130
 
@@ -268,7 +275,7 @@ def test_a_drag_that_goes_wrong_forgets_the_grab(dialog, monkeypatch):
     monkeypatch.setattr(type(dialog), "move",
                         lambda self, point: (_ for _ in ()).throw(
                             RuntimeError("no window manager")))
-    dragger.eventFilter(dialog, _move((160, 120), glob=(600, 600)))
+    dragger.eventFilter(dialog, _move((160, 120), glob=(600, 600), buttons=Qt.LeftButton))
     assert dragger._grab is None
 
 

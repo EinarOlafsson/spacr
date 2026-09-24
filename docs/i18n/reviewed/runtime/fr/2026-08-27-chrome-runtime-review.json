@@ -80,13 +80,6 @@
       "translation": "Choisissez un dossier contenant `measurements/measurements.db`. Cliquez avec le bouton gauche sur une image pour attribuer la classe 1, avec le bouton droit pour la classe 2, puis cliquez à nouveau pour retirer l’étiquette — ou utilisez uniquement le clavier : les touches 1–9 attribuent une étiquette et passent à l’extrait d’image suivant. Les annotations sont enregistrées en arrière-plan."
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "Jeu de données réel de bout en bout (Masques → Mesure → Annotation)…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

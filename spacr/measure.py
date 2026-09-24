@@ -1613,6 +1613,14 @@ def _intensity_measurements(
             parent_link['cell_id'] = parent_link['cell_id'].astype(float).replace(0.0, np.nan)
             dfs[idx].append(parent_link.reset_index(drop=True))
 
+    if settings.get('pathogen_mask_dim') is not None:
+        from .host_pathogen import vacuole_links
+        for idx, (role, child_mask) in enumerate(organelle_masks.items(), start=3):
+            if np.max(child_mask) != 0:
+                links = vacuole_links(child_mask, pathogen_mask).rename(
+                    columns={'pathogen_overlap_fraction': f'{role}_pathogen_overlap_fraction'})
+                dfs[idx].append(links)
+
     if calculate_correlation:
         if channel_arrays.shape[-1] >= 2:
             for i in range(channel_arrays.shape[-1]):
@@ -1920,7 +1928,9 @@ def _calculate_homogeneity(label, channel, distances=None):
             distances = [2,4,8,16,32,64]
         homogeneity_values = []
         for region in regionprops(label):
-            region_image = (region.image * channel[region.slice]).astype(int)
+            region_image = region.image * channel[region.slice]
+            if not np.issubdtype(region_image.dtype, np.floating):
+                region_image = region_image.astype(int)
             rescaled_image = rescale_intensity(
                 region_image, out_range=(0, 255)).astype('uint8')
             homogeneity_per_distance = []
@@ -2657,8 +2667,13 @@ def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
 
 
 def _write_intensity_rescale_record(source_folder, file_name, settings,
-                                    record):
-    """Upsert one field's intensity-scale provenance into measurements.db."""
+                                    record, psf_record=None):
+    """Upsert base rescaling and subsequent PSF provenance for one field.
+
+    ``target_dtype`` describes the standard rescaling stage. The separate PSF
+    provenance records the final float dtype, kernel and quantitative source.
+    Older tables gain nullable signature/details and an original-source default.
+    """
     from . import schema
     from .database_concurrency import connect, transaction
 
@@ -2677,12 +2692,16 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'comparable_within_plate': int(
             bool(record.get('comparable_within_plate', False))),
         'target_dtype': 'uint16',
+        'psf_measurement_source': (psf_record or {}).get('source', 'original'),
+        'psf_signature': settings.get('_psf_measurement_signature'),
+        'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
     }
     columns = (
         'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prc', 'prcf',
         'file_name', 'path_name', 'original_dtype', 'original_intensity_max',
         'rescale_factor', 'rescale_scope', 'plate_intensity_max',
         'comparable_within_plate', 'target_dtype',
+        'psf_measurement_source', 'psf_signature', 'psf_provenance',
     )
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
     conn = connect(db_path, timeout=30)
@@ -2707,6 +2726,13 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
                        comparable_within_plate INTEGER NOT NULL,
                        target_dtype TEXT NOT NULL
                    )''')
+            existing = {row[1] for row in conn.execute(
+                'PRAGMA table_info(intensity_rescale)')}
+            for column, declaration in (
+                    ('psf_measurement_source', "TEXT NOT NULL DEFAULT 'original'"),
+                    ('psf_signature', 'TEXT'), ('psf_provenance', 'TEXT')):
+                if column not in existing:
+                    conn.execute(f'ALTER TABLE intensity_rescale ADD COLUMN {column} {declaration}')
             placeholders = ', '.join('?' for _ in columns)
             quoted = ', '.join(f'"{column}"' for column in columns)
             updates = ', '.join(
@@ -2721,28 +2747,28 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         conn.close()
 
 
-def _measure_crop_core(index, time_ls, file, settings):
+def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
-    """
-    Measure and crop the images based on specified settings.
+    """Measure one field using selected standard or PSF-processed intensities.
 
-    Parameters:
-    - index: int
-        The index of the image.
-    - time_ls: list
-        The list of time points.
-    - file: str
-        The file path of the image.
-    - settings: dict
-        The dictionary containing the settings for measurement and cropping.
-
-    Returns:
-    - cropped_images: list
-        A list of cropped images.
+    :param index: position of this field in the run's input list.
+    :param time_ls: shared collection of completed field durations.
+    :param file: merged NPY filename below ``settings['src']``.
+    :param settings: Measure configuration; original PSF intensity choice is
+        the default. Label planes and exported crops keep their source pixels.
+    :param psf_plan: immutable plan captured by the parent. When omitted for
+        a direct processed call, the worker prepares one from its settings.
+    :param psf_cancel: optional process-safe cancellation event.
+    :returns: index, mean duration, surviving cell labels (or failure sentinel
+        zero), figures, and error text. Cancellation propagates to the parent.
     """
     
     from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype, filepaths_to_database
     from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
+
+    from .cancellation import PipelineCancelled
+    from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
+                                  measurement_psf_signature, SIGNATURE_KEY)
 
     figs = {}
     grid = []
@@ -2809,6 +2835,26 @@ def _measure_crop_core(index, time_ls, file, settings):
                     settings=settings,
                     volumetric=volumetric,
                     spacing=spacing))
+
+        if settings.get('psf_measurement_source', 'original') == 'original':
+            psf_plan = None
+        if psf_plan is None:
+            psf_plan = prepare_measurement_psf(settings)
+        settings = dict(settings)
+        settings[SIGNATURE_KEY] = measurement_psf_signature(psf_plan)
+        psf_record = measurement_psf_record(
+            psf_plan, channel_arrays, hooks=[hook.name for hook in preprocessing_hooks()],
+            channels=settings['channels'])
+        if psf_plan is not None:
+            if volumetric and len(psf_plan.sampling_um) == 3:
+                psf_spacing = np.asarray(psf_plan.sampling_um)
+                measure_spacing = np.asarray(spacing)
+                if units_stamp['voxel_size_z_um'] is None:
+                    psf_spacing = psf_spacing / psf_spacing[-1]
+                    measure_spacing = measure_spacing / measure_spacing[-1]
+                if not np.allclose(psf_spacing, measure_spacing, rtol=1e-6, atol=0):
+                    raise ValueError('PSF sampling conflicts with Measure voxel calibration')
+            channel_arrays = psf_plan.apply(channel_arrays, cancel=psf_cancel)
 
         if settings['cell_mask_dim'] is not None:
             cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
@@ -3069,7 +3115,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                     settings['timelapse'], stamp=units_stamp)
 
         _write_intensity_rescale_record(
-            source_folder, file_name, settings, rescale_record)
+            source_folder, file_name, settings, rescale_record, psf_record)
 
         if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
             print(f"3-D field {file_name}: measurements written, but no PNG "
@@ -3200,6 +3246,8 @@ def _measure_crop_core(index, time_ls, file, settings):
 
         cells = np.unique(cell_mask)
         error_text = ""
+    except PipelineCancelled:
+        raise
     except Exception as e:
         cells = 0
         error_text = "".join(
@@ -3243,6 +3291,29 @@ def _record_organelle_caveats(settings, run):
     return caveats
 
 
+def _wait_for_measure_job(result, psf_cancel=None):
+    """Relay Stop, allowing five seconds for a worker's current PSF operation.
+
+    A worker that never answers cannot keep Stop waiting forever. After the
+    grace period, pipeline cancellation exits the owning pool context, which
+    terminates outstanding workers and leaves incomplete fields resumable.
+    """
+    if psf_cancel is None:
+        return result.get()
+    from .cancellation import cancellation_requested, checkpoint
+    cancelled_at = None
+    while True:
+        try:
+            return result.get(timeout=0.2)
+        except mp.TimeoutError:
+            if cancellation_requested():
+                psf_cancel.set()
+                if cancelled_at is None:
+                    cancelled_at = time.monotonic()
+                elif time.monotonic() - cancelled_at >= 5:
+                    checkpoint()
+
+
 def measure_crop(settings):
     """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
 
@@ -3259,6 +3330,12 @@ def measure_crop(settings):
         function reads:
 
         - ``src`` (str or list) — one or more ``…/merged`` folders.
+        - ``psf_measurement_source`` — original (default) uses the normal
+          rescaled/preprocessed intensities; processed adds an explicitly
+          calibrated PSF before quantitative features. The immutable kernel
+          reaches every worker. Source images and exported crops stay unchanged.
+          Field provenance is saved in ``intensity_rescale``; incompatible
+          existing PSF measurements are refused before any rows are appended.
         - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``
           — channel index of each mask stack; ``None`` disables that
           object type.
@@ -3371,6 +3448,13 @@ def measure_crop(settings):
                     prepare_illumination_correction,
                     validate_measurement_illumination_inputs,
                 )
+                from .psf_measurement import (
+                    prepare_measurement_psf, measurement_psf_signature,
+                    validate_measurement_psf_history, SIGNATURE_KEY)
+                psf_plan = prepare_measurement_psf(settings)
+                settings[SIGNATURE_KEY] = measurement_psf_signature(psf_plan)
+                validate_measurement_psf_history(
+                    settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
 
@@ -3447,6 +3531,10 @@ def measure_crop(settings):
                 _save_settings_to_db(settings)
 
                 files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                from .image_quality import excluded_fields, ensure_no_retained_measurements
+                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
+                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
+                files = [name for name in files if name not in rejected_quality]
                 _full_rescale_plan = build_plate_plan(
                     settings['src'], files, settings)
                 settings[PLAN_SETTINGS_KEY] = {
@@ -3553,6 +3641,7 @@ def measure_crop(settings):
                 try:
                     with _start_manager(ctx) as manager:
                         time_ls = manager.list()
+                        psf_cancel = manager.Event() if psf_plan is not None else None
                         completed_jobs = set()
 
                         with ctx.Pool(pool_jobs) as pool:
@@ -3564,7 +3653,9 @@ def measure_crop(settings):
                                     file = files[index]
                                     result = pool.apply_async(
                                         _measure_crop_core,
-                                        args=(index, time_ls, file, settings),
+                                        args=((index, time_ls, file, settings, psf_plan, psf_cancel)
+                                              if psf_plan is not None else
+                                              (index, time_ls, file, settings)),
                                     )
                                     pending.append((file, index, result))
                                 for file, index, async_result in pending:
@@ -3573,12 +3664,15 @@ def measure_crop(settings):
                                         with attempt:
                                             try:
                                                 if attempt.number == 1:
-                                                    job_callback(async_result.get())
+                                                    job_callback(_wait_for_measure_job(
+                                                        async_result, psf_cancel))
                                                 else:
-                                                    job_callback(pool.apply_async(
+                                                    retried = pool.apply_async(
                                                         _measure_crop_core,
-                                                        args=(index, time_ls, file,
-                                                              settings)).get())
+                                                        args=((index, time_ls, file, settings, psf_plan, psf_cancel)
+                                                              if psf_plan is not None else
+                                                              (index, time_ls, file, settings)))
+                                                    job_callback(_wait_for_measure_job(retried, psf_cancel))
                                             except PipelineCancelled:
                                                 raise
                                             except Exception as exc:

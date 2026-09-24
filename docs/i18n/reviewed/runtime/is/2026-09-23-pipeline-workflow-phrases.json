@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted source-context review of pipeline annotation handoffs, external image and mask import routes, and parasite assay pathway titles. Seven shared phrases match the generated workflow tutorial banks. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Toxoplasma and parasite imaging assays",
+      "source": "Toxoplasma and parasite imaging assays",
+      "source_sha256": "be0aa19bd2abd30b969eaa6418cb304235d465f0abc206fea610a9279fc59d33",
+      "translation": "Myndgreiningarpróf á Toxoplasma og sníkjudýrum"
+    }
+  ]
+}

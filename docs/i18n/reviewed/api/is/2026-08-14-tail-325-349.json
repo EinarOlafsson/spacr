@@ -153,7 +153,7 @@
     },
     {
       "context": ":func:`sibling_sources` returns **every** comparable file in the folder. The panels previously sent that complete list directly to their field-of-view selector. We measured this behavior on a 384-well plate with 16 fields and 4 channels (24 576 files), and on another plate four times larger (98 304 files):",
-      "label": "spacr.qt.widgets.preview_controls#9",
+      "label": "spacr.qt.widgets.preview_controls#10",
       "source": ":func:`sibling_sources` lists **every** comparable file in the folder, and the panels fed that straight into their field-of-view dropdown. Measured on a 384-well plate at 16 fields and 4 channels (24 576 files) and on one four times larger (98 304 files):",
       "source_sha256": "0492878f3259ba4bf18bfaeb053df18c90eefa5d8f2ff95bced8f8bace87bfc9",
       "translation": ":func:`sibling_sources` skilar **hverju** samanburðarhæfu skrá í möppunni. Húsgluggarnir sem sendu áður þá fullkomnu skrá beint til sjónsviðsvalkvarðans síns. Við mældum þessa hegðun á 384-gataplötu með 16 sviðum og 4 rásum (24 576 skrár), og á annarri plötu fjórum sinnum stærri (98 304 skrár):"

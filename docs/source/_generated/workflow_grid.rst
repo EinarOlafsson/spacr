@@ -31,7 +31,7 @@ Assays
 
 Quantitative readouts for biological assays.
 
-| |DocModule_analyze_plaques|\ |DocModule_recruitment|\ |DocModule_invasion|\ |DocModule_replication|
+| |DocModule_toxoplasma|\ |DocModule_plasmodium|\ |DocModule_candida|
 
 .. |DocModule_mask| image:: /_static/workflow/mask.png
    :width: 16.0%
@@ -123,23 +123,18 @@ Quantitative readouts for biological assays.
    :alt: Open the Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |DocModule_analyze_plaques| image:: /_static/workflow/apps/analyze_plaques.png
+.. |DocModule_toxoplasma| image:: /_static/workflow/apps/toxoplasma.png
    :width: 16.0%
-   :alt: Open the Plaque Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :alt: Open the Toxoplasma API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
    :align: middle
-.. |DocModule_recruitment| image:: /_static/workflow/apps/recruitment.png
+.. |DocModule_plasmodium| image:: /_static/workflow/apps/plasmodium.png
    :width: 16.0%
-   :alt: Open the Recruitment API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :alt: Open the Plasmodium spp. API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
    :align: middle
-.. |DocModule_invasion| image:: /_static/workflow/apps/invasion.png
+.. |DocModule_candida| image:: /_static/workflow/apps/candida.png
    :width: 16.0%
-   :alt: Open the Invasion Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
-   :align: middle
-.. |DocModule_replication| image:: /_static/workflow/apps/replication.png
-   :width: 16.0%
-   :alt: Open the Replication Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :alt: Open the Candida spp. API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
    :align: middle

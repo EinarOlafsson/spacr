@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Organism annotation joined to regression results. 'toxoplasma' uses bundled Toxoplasma gondii tables without a network. Other organism names or NCBI taxon IDs fetch UniProt entries; a single accession such as P04637 fetches that entry. Results are cached beside the outputs for offline reuse. An unrecognised name leaves results unannotated and suggests similar names. Leave empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "51e99dde4b4c7188b918d5b48d0f89b1b4310d7332fd345908a6d6886a2c7921",
+      "translation": "Organismens annotering som kopplas till regressionsresultaten. 'toxoplasma' använder medföljande tabeller för Toxoplasma gondii utan nätverk. Andra organismnamn eller NCBI-taxon-ID:n hämtar poster från UniProt; ett enskilt accessionsnummer som P04637 hämtar just den posten. Resultaten cachas bredvid utdata för återanvändning utan nätverk. Ett okänt namn lämnar resultaten oannoterade och ger förslag på liknande namn. Lämna tomt för ingen annotering. Standard 'toxoplasma'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
+      "source_sha256": "da585a654be3db66be5a0e082e9423e5deb7d95d16b56f46cc545386e87cd173",
+      "translation": "Filnamnskonvention för råbilder, grupperad efter mikroskoptillverkare. Standard 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' använder custom_regex; 'auto' byter först namn på filer enligt konventionen från Yokogawa, med custom_regex om det anges, annars automatisk identifiering. Provisoriska konventioner bygger på filnamn i offentliga datamängder, inte tillverkardokumentation. Fel val kan ge fel ID för platta, brunn, bildfält eller kanal och fel kanalmappar. Använd “Testa på min mapp” före körning."
+    }
+  ]
+}

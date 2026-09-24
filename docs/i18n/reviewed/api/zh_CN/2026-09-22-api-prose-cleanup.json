@@ -1,0 +1,232 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Optional image enhancement before detection and label cleanup afterward.",
+      "label": "spacr.qt.detect_chain#0",
+      "source": "Optional image enhancement before detection and label cleanup afterward.",
+      "source_sha256": "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+      "translation": "检测前可选的图像增强，以及检测后的对象标签清理。"
+    },
+    {
+      "context": "In Make Masks, Apply enables the configured chain for detection and display; Compare previews it without enabling it. Processing uses copies: files on disk and the original values reported by the hover readout remain unchanged.",
+      "label": "spacr.qt.detect_chain#1",
+      "source": "In Make Masks, Apply enables the configured chain for detection and display; Compare previews it without enabling it. Processing uses copies: files on disk and the original values reported by the hover readout remain unchanged.",
+      "source_sha256": "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+      "translation": "在 Make Masks 中，“应用”启用配置的处理链，用于检测和显示；“比较”仅预览该配置，不启用处理链。处理使用副本：磁盘文件和悬停读数显示的原始值均保持不变。"
+    },
+    {
+      "context": ":data:`CHAIN_ORDER` fixes the sequence",
+      "label": "spacr.qt.detect_chain#2",
+      "source": ":data:`CHAIN_ORDER` fixes the sequence",
+      "source_sha256": "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+      "translation": ":data:`CHAIN_ORDER` 固定处理顺序"
+    },
+    {
+      "context": "The optional percentile stretch belongs to Make Masks, outside :class:`Chain`. Its levels come from the whole field before a magnifier region is cropped, so moving the box does not redefine the percentile levels.",
+      "label": "spacr.qt.detect_chain#3",
+      "source": "The optional percentile stretch belongs to Make Masks, outside :class:`Chain`. Its levels come from the whole field before a magnifier region is cropped, so moving the box does not redefine the percentile levels.",
+      "source_sha256": "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+      "translation": "可选的百分位拉伸属于 Make Masks，不在 :class:`Chain` 内。其阈值在裁剪放大镜区域前根据整个视野计算，因此移动选框不会重新定义百分位阈值。"
+    },
+    {
+      "context": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "label": "spacr.qt.detect_chain#4",
+      "source": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "translation": "先扣除背景，再去噪。去噪先于对比度调整，以免放大噪声；对比度调整先于锐化，以免拉伸锐化产生的光晕。形态学处理先于分割拆分，因为它会改变像素的连通关系。:func:`prepare` 执行背景处理、去噪、对比度调整和锐化；:func:`finish` 在所选检测器之后执行形态学处理和拆分。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
+    },
+    {
+      "context": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px microscope field of view. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",
+      "label": "spacr.qt.detect_chain#5",
+      "source": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px field. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",
+      "source_sha256": "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+      "translation": "禁用的步骤原样返回输入。:func:`heavy_steps` 标识需要进度警告的已启用步骤；非局部均值在 2,000 px 视野上可能耗时数分钟。整图运行保留进度和取消控件。选择背景方法不会启用去噪。"
+    },
+    {
+      "context": "The Mask workflow has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-image data channel intensity floors. This Make Masks chain configures neither route.",
+      "label": "spacr.qt.detect_chain#6",
+      "source": "The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-channel intensity floors. This Make Masks chain configures neither route.",
+      "source_sha256": "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+      "translation": "Mask 流程使用独立的预处理。:func:`spacr.object._preprocess_batch` 通过 ``organelle_rolling_ball`` 和 ``organelle_clahe`` 对细胞器图像批次先应用滚球算法，再应用 CLAHE。Mask 设置 ``remove_background``、``background`` 和 ``signal_to_noise`` 则按通道应用强度下限。此 Make Masks 处理链不配置这两种流程。"
+    },
+    {
+      "context": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference workflow.",
+      "label": "spacr.qt.detect_chain#7",
+      "source": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference pipeline.",
+      "source_sha256": "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87",
+      "translation": "图像增强会改变供人工审核的候选对象。使用增强图像训练的模型在推理时需要匹配的预处理；此模块不配置训练或推理流程。"
+    },
+    {
+      "context": "The slowly varying background under ``image``, at ``image``'s size.",
+      "label": "spacr.qt.detect_chain.background_surface#0",
+      "source": "The slowly varying background under ``image``, at ``image``'s size.",
+      "source_sha256": "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+      "translation": "``image`` 下方缓慢变化的背景，尺寸与 ``image`` 相同。"
+    },
+    {
+      "context": "Estimate the background on a smaller copy at :attr:`Chain.background_scale`, then resize the surface to the input shape. The radius shrinks with the image to preserve its relative extent. This approximates slowly varying illumination while reducing both the pixel count and neighbourhood size.",
+      "label": "spacr.qt.detect_chain.background_surface#1",
+      "source": "Estimate the background on a smaller copy at :attr:`Chain.background_scale`, then resize the surface to the input shape. The radius shrinks with the image to preserve its relative extent. This approximates slowly varying illumination while reducing both the pixel count and neighbourhood size.",
+      "source_sha256": "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+      "translation": "在按 :attr:`Chain.background_scale` 缩小的副本上估计背景，再将曲面调整为输入形状。半径随图像一起缩小，以保持相对作用范围。这样可近似缓慢变化的照明，同时减少像素数量和邻域大小。"
+    },
+    {
+      "context": "At scale 1.0, call ``rolling_ball`` or ``white_tophat`` at full resolution and return its exact result. Smaller images also use full resolution when downsampling would cross :data:`MIN_BACKGROUND_SIDE`. Full-resolution estimation can be slow: on a 1,994 px uint16 microscope field of view converted to float32, CPU rolling-ball timings were 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50. At the default radius 50 and scale 0.5, the same microscope field of view took about a second. Timings depend on the hardware and image; callers should run this outside the main GUI execution path.",
+      "label": "spacr.qt.detect_chain.background_surface#2",
+      "source": "At scale 1.0, call ``rolling_ball`` or ``white_tophat`` at full resolution and return its exact result. Smaller images also use full resolution when downsampling would cross :data:`MIN_BACKGROUND_SIDE`. Full-resolution estimation can be slow: on a 1,994 px uint16 field converted to float32, CPU rolling-ball timings were 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50. At the default radius 50 and scale 0.5, the same field took about a second. Timings depend on the hardware and image; callers should run this outside the GUI thread.",
+      "source_sha256": "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
+      "translation": "当缩放系数为 1.0 时，以完整分辨率调用 ``rolling_ball`` 或 ``white_tophat``，并返回其精确结果。若缩小后会低于 :data:`MIN_BACKGROUND_SIDE`，较小的图像也使用完整分辨率。完整分辨率估计可能较慢：在一个从 uint16 转换为 float32 的 1,994 px 视野上，CPU 滚球算法在半径 5、10、25、50 时分别耗时 0.3 s、0.9 s、4.1 s、14.5 s。使用默认半径 50 和缩放系数 0.5 时，同一视野约耗时一秒。耗时取决于硬件和图像；调用方应在 GUI 线程之外运行此操作。"
+    },
+    {
+      "context": "the field or region, as float.",
+      "label": "spacr.qt.detect_chain.background_surface#3",
+      "source": "the field or region, as float.",
+      "source_sha256": "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+      "translation": "视野或区域，使用浮点数。"
+    },
+    {
+      "context": "the chain, for its background method, radius and scale.",
+      "label": "spacr.qt.detect_chain.background_surface#4",
+      "source": "the chain, for its background method, radius and scale.",
+      "source_sha256": "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+      "translation": "处理链，提供背景方法、半径和缩放系数。"
+    },
+    {
+      "context": "the background, the same shape as ``image``; zeros when the chain subtracts no background.",
+      "label": "spacr.qt.detect_chain.background_surface#5",
+      "source": "the background, the same shape as ``image``; zeros when the chain subtracts no background.",
+      "source_sha256": "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206",
+      "translation": "背景，形状与 ``image`` 相同；若处理链不扣除背景，则为全零。"
+    },
+    {
+      "context": "Whether this process offers sound at all: only in spaceout mode.",
+      "label": "spacr.qt.preferences.sound_is_offered#0",
+      "source": "Whether this process offers sound at all: only in spaceout mode.",
+      "source_sha256": "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+      "translation": "此进程是否提供声音：仅在 spaceout 模式下提供。"
+    },
+    {
+      "context": "Ordinary spaCR leaves sound off and hides its preferences tab. Spaceout is process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by the ``spaceout`` launcher), so this is read live and never stored.",
+      "label": "spacr.qt.preferences.sound_is_offered#1",
+      "source": "Ordinary spaCR leaves sound off and hides its preferences tab. Spaceout is process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by the ``spaceout`` launcher), so this is read live and never stored.",
+      "source_sha256": "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+      "translation": "普通 spaCR 关闭声音并隐藏声音偏好设置选项卡。Spaceout 状态仅属于当前进程（:func:`spacr.qt.theme.enable_spaceout` 仅由 ``spaceout`` 启动器调用），因此每次读取当前状态，且从不保存。"
+    },
+    {
+      "context": "Does not import :mod:`spacr.qt.theme`: a process that has not imported it cannot have enabled spaceout, and this is asked on paths that must stay free of QtGui.",
+      "label": "spacr.qt.preferences.sound_is_offered#2",
+      "source": "Does not import :mod:`spacr.qt.theme`: a process that has not imported it cannot have enabled spaceout, and this is asked on paths that must stay free of QtGui.",
+      "source_sha256": "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+      "translation": "不导入 :mod:`spacr.qt.theme`：未导入该模块的进程不可能启用 spaceout，而此查询也用于必须保持不依赖 QtGui 的执行路径。"
+    },
+    {
+      "context": "``True`` in spaceout mode, ``False`` in ordinary spaCR.",
+      "label": "spacr.qt.preferences.sound_is_offered#3",
+      "source": "``True`` in spaceout mode, ``False`` in ordinary spaCR.",
+      "source_sha256": "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521",
+      "translation": "spaceout 模式下为 ``True``，普通 spaCR 中为 ``False``。"
+    },
+    {
+      "context": "Line the Filter / Search page up with the graph and data-selection boundary table.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#0",
+      "source": "Line the Filter / Search page up with the graph and gate table.",
+      "source_sha256": "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
+      "translation": "将“筛选 / 搜索”页面与图表和门控表对齐。"
+    },
+    {
+      "context": "Settings above the graph share one row. The tabs of the panel on the right sit level with that row, and the containers under both start at the same height. The row is the graph panel's own tool row -- the table chips and the X / Y / Z pickers were moved into it -- so the tabs already start level with it; what differs is where each container begins below its row. The tab page is moved down by that difference, measured each time, so whatever the row gains (the 3D image layer controls under it) the page follows.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#1",
+      "source": "Settings above the graph share one row. The tabs of the panel on the right sit level with that row, and the containers under both start at the same height. The row is the graph panel's own tool row -- the table chips and the X / Y / Z pickers were moved into it -- so the tabs already start level with it; what differs is where each container begins below its row. The tab page is moved down by that difference, measured each time, so whatever the row gains (the 3D plane controls under it) the page follows.",
+      "source_sha256": "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
+      "translation": "图表上方的设置共用一行。右侧面板的选项卡与该行平齐，两侧下方的容器也从同一高度开始。这一行是图表面板自己的工具行，表格选择标签和 X / Y / Z 选择器已移至其中，因此选项卡本身已对齐；差异在于各容器在其行下方的起始位置。每次测量该差值，并将选项卡页面向下移动相应距离，因此当工具行增加高度（例如下方出现三维平面控件）时，页面也会随之调整。"
+    },
+    {
+      "context": "A tab bar given a fixed height does not move the page under it -- QTabWidget places the page from the bar's size hint -- so the page's own offset is what is set.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#2",
+      "source": "A tab bar given a fixed height does not move the page under it -- QTabWidget places the page from the bar's size hint -- so the page's own offset is what is set.",
+      "source_sha256": "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+      "translation": "为选项卡栏设置固定高度不会移动下方页面：QTabWidget 根据选项卡栏的建议尺寸放置页面。因此需要设置页面自身的偏移量。"
+    },
+    {
+      "context": "the offset applied to the page, in pixels.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#3",
+      "source": "the offset applied to the page, in pixels.",
+      "source_sha256": "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb",
+      "translation": "应用于页面的偏移量，以像素为单位。"
+    },
+    {
+      "context": "Open an example project from Home for the chosen experiment type.",
+      "label": "spacr.qt.widgets.sample_project#0",
+      "retired": true,
+      "retired_reason": "2026-09-23: upstream 483 changed the sample-project introduction to foreground pipeline flowcharts; original source and target retained. Replacement in 2026-09-23-flowchart-chrome.json.",
+      "source": "Open an example project from Home for the chosen experiment type.",
+      "source_sha256": "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+      "translation": "从主页打开所选实验类型的示例项目。"
+    },
+    {
+      "context": "The dialog opens the first module in the selected pathway with example data and settings supplied. A status-bar walkthrough button keeps the route available after the example opens.",
+      "label": "spacr.qt.widgets.sample_project#1",
+      "source": "The dialog opens the first module in the selected pathway with example data and settings supplied. A status-bar walkthrough button keeps the route available after the example opens.",
+      "source_sha256": "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+      "translation": "对话框打开所选流程的第一个模块，并提供示例数据和设置。示例打开后，仍可通过状态栏中的操作指南按钮查看该流程。"
+    },
+    {
+      "context": "Pathways come from ``spacr/resources/module_workflows.json``, shared with tutorials, walkthroughs and API pages. Three fallback pathways are available if the bundled map is missing.",
+      "label": "spacr.qt.widgets.sample_project#2",
+      "source": "Pathways come from ``spacr/resources/module_workflows.json``, shared with tutorials, walkthroughs and API pages. Three fallback pathways are available if the bundled map is missing.",
+      "source_sha256": "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da",
+      "translation": "流程来自 ``spacr/resources/module_workflows.json``，与教程、操作指南和 API 页面共用。若随软件提供的映射文件缺失，则提供三条备用流程。"
+    },
+    {
+      "context": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "label": "spacr.timeflows_model.ctc_pairs#0",
+      "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+      "translation": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。"
+    },
+    {
+      "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",
+      "label": "spacr.timeflows_model.ctc_pairs#1",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
+      "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",
+      "source_sha256": "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+      "translation": "帧来自 ``<movie>/<seq>/t*.tif``；完整掩膜来自银标准分割 ``<movie>/<seq>_ST/SEG/man_seg*.tif``，并根据跟踪标记 ``<movie>/<seq>_GT/TRA/man_track*.tif`` 重新标注（:func:`track_masks_from_ctc`）。任一帧若缺少这三项中的任何一项，就会被跳过；只有帧编号连续的两帧才能组成一对。"
+    },
+    {
+      "context": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "label": "spacr.timeflows_model.ctc_pairs#2",
+      "source": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "source_sha256": "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+      "translation": "序列文件夹（例如 ``.../ctc_dic_hela_timelapse``）。"
+    },
+    {
+      "context": "``'01'`` or ``'02'``.",
+      "label": "spacr.timeflows_model.ctc_pairs#3",
+      "source": "``'01'`` or ``'02'``.",
+      "source_sha256": "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+      "translation": "``'01'`` 或 ``'02'``。"
+    },
+    {
+      "context": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "label": "spacr.timeflows_model.ctc_pairs#4",
+      "source": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "source_sha256": "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+      "translation": "最多返回此数量的帧对，沿序列均匀分布，并在读取任何文件前选定。设置该限制可约束从长序列加载的帧数；加载整个集合可能需要数十 GB 内存。"
+    },
+    {
+      "context": "the pairs, in time order.",
+      "label": "spacr.timeflows_model.ctc_pairs#5",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
+      "source": "the pairs, in time order.",
+      "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+      "translation": "按时间顺序排列的帧对。"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against current API sources: enhancement order and scope, background scale and timings, process-local sound, panel alignment, sample pathways and CTC sampling before I/O. No native-speaker sign-off.",
+  "schema": 1
+}

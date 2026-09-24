@@ -633,16 +633,43 @@ def _scaled_call_sites() -> dict:
         except SyntaxError as exc:
             unreadable.append(f"{path.relative_to(QT_ROOT)}: {exc}")
             continue
-        lines = [node.lineno for node in ast.walk(tree)
+        calls = [node for node in ast.walk(tree)
                  if isinstance(node, ast.Call)
                  and isinstance(node.func, ast.Attribute)
                  and node.func.attr == "scaled"]
+        lines = []
+        for node in calls:
+            receiver = node.func.value
+            svg_size = (path.name == 'iconset.py'
+                        and isinstance(receiver, ast.Call)
+                        and isinstance(receiver.func, ast.Attribute)
+                        and receiver.func.attr == 'defaultSize')
+            if not svg_size:
+                lines.append(node.lineno)
         if lines:
             found[str(path.relative_to(QT_ROOT))] = sorted(lines)
     assert not unreadable, (
         "a file under spacr/qt does not parse, so this sweep cannot say"
         " whether it scales a picture: " + "; ".join(unreadable))
     return found
+
+
+def test_svg_icon_decode_bounds_geometry_before_rasterization(qapp):
+    """QSvgRenderer.defaultSize() is QSize geometry, not a scaled pixmap.
+
+    The decoded master has 256 physical pixels on its longest side, enough
+    for a64px tile at200% UI scale and2x screen density. Host rendering still
+    goes through the existing device-ratio helper.
+    """
+    from spacr.qt import iconset
+
+    for key in ('plasmodium', 'candida'):
+        path = iconset.bundled_icon_path(key)
+        assert path.endswith('.svg')
+        rgba = iconset._load_rgba(path)
+        assert rgba.ndim == 3 and rgba.shape[2] == 4
+        assert max(rgba.shape[:2]) == iconset.MAX_WORK_SIZE
+        assert np.any(rgba[..., 3] > 0)
 
 
 def test_every_scaled_site_goes_through_the_helper_or_is_named():

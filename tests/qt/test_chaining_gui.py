@@ -531,7 +531,7 @@ def test_the_strip_sits_immediately_above_the_run_button(qapp, tmp_path,
                                                          pins):
     """Where the user is about to act, not in a panel they would have to open."""
     screen, bar = screen_for(qapp, "measure", pins)
-    layout = screen._runtime_wrap.layout()
+    layout = screen._actions_row.parentWidget().layout()
 
     assert layout.indexOf(bar) == layout.indexOf(screen._actions_row) - 1
     assert screen._btn_run.parent() is screen._actions_row

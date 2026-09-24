@@ -1,23 +1,92 @@
 {
-  "id": "58_graph_builder", "number": 58, "slug": "graph_builder",
-  "series": 5, "app_key": "graph_builder", "section": "Explore",
-  "title": "Graph Builder: real measurements, live filters and an explicit handoff limit",
-  "description": "Drag actual measurement columns into graphs, split by acquisition metadata, filter reversibly and recognize the current annotation-selection defect.",
-  "objectives": ["Load the real example database and choose the cell table.", "Build a histogram, scatter plot, colour grouping and row facets.", "Verify changing populations while filtering and restoring the chart.", "Distinguish internal brush publication from a working annotation handoff."],
-  "prerequisite": "Download and unzip the linked real measurement database, or use the downloaded Annotate example. The archive contains measurements, not image crops; no new model run is needed.",
-  "example_files": ["Graph_Builder_real_measurements.zip"],
+  "id": "58_graph_builder",
+  "number": 58,
+  "slug": "graph_builder",
+  "series": 5,
+  "app_key": "graph_builder",
+  "section": "Explore",
+  "title": "Graph Builder: plot measurements and filter objects",
+  "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+  "objectives": [
+    "Load an example measurement table.",
+    "Build a histogram, scatter plot and grouped panels.",
+    "Filter objects and choose a follow-up view."
+  ],
+  "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+  "example_files": [
+    "Graph_Builder_real_measurements.zip"
+  ],
   "scenes": [
-    {"visual":"01_module", "narration":"Graph Builder explores an existing table. Open it from Home; this is a main module, with Plate Viewer and Small Multiples nested inside it. We will use actual example measurements, not train a model or ask an AI service to generate results.", "hold_after":0.7},
-    {"visual":"03_choose_database", "narration":"Choose Load table and open measurements dot db from the linked archive or the downloaded Annotate example. Select the cell table: two thousand three hundred forty-one rows. The archive preserves the recorded database exactly. It does not include the images referenced by other tables.", "hold_after":0.7,"related_lessons":["09_annotate","34_database"]},
-    {"visual":"05_area_histogram", "narration":"Search for cell_area and drag that column onto X. Automatic plotting makes a thirty-bin histogram. Each bar counts cell rows in an area interval; it is not a treatment comparison or a significance test. The values retain their stored units, without new physical calibration.", "hold_after":0.7},
-    {"visual":"06_real_scatter", "narration":"Drag cell_channel_1_mean_intensity onto Y. Now each point represents a cell's area and channel-one mean intensity. Overlapping points can hide one another visually, although all rows are represented here. Inspect the row-count notice; larger datasets may use a different drawing policy.", "hold_after":0.7},
-    {"visual":"07_well_column_colour", "narration":"Put columnID on Colour and read the legend. The colours distinguish acquisition columns, not inferred classes or known treatments. A visual separation is descriptive evidence to investigate, not proof of an effect. We checked the plotted coordinates and colour assignments against the source rows.", "hold_after":0.7},
-    {"visual":"08_acquisition_row_facets", "narration":"Put rowID on the downward facet channel to split the chart into plate-row panels. Their counts are one thousand one hundred forty and one thousand two hundred one. Shared axes help comparison, but cells within a well are not independent experimental replicates.", "hold_after":0.7},
-    {"visual":"09_live_area_filter", "narration":"In the right-hand filter panel, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The chart updates immediately to one thousand one hundred seventy-one rows. This rounded median illustrates the filter; it is not a recommended biological threshold. Notice that the axis limits also change.", "hold_after":0.7},
-    {"visual":"10_filter_cleared", "narration":"Choose Clear all in the filter panel to restore all two thousand three hundred forty-one cells. This is different from Clear all channels on the left, which removes plot mappings. Recheck the count and axes after filtering; a changed population is not a new measurement.", "hold_after":0.7},
-    {"visual":"11_actual_brush_state", "narration":"Remove the row facet with its small cross, then drag a rectangle on the scatter. This build has a defect: the recorded gesture publishes six hundred fifty-three object keys internally, but shows zero selected and leaves Open selection in Annotate disabled. Do not assume annotations were opened or created.", "hold_after":0.7},
-    {"visual":"12_selection_cleared", "narration":"A plain click clears that internal selection too. The tutorial verifies this recovery but does not repair the handoff. Filtering and pointing at objects are different operations, and other views may share their state. Always check the active population rather than treating a graph as the full database automatically.", "hold_after":0.7},
-    {"visual":"02_fold_trellis", "narration":"Use the header shortcuts for the nested Plate Viewer and Small Multiples workflows; their separate tutorials cover those tools. This screen has no chart or specification export button. The linked database archive is an external tutorial download, not a Graph Builder export.", "hold_after":0.7,"related_lessons":["33_plate_viewer","63_small_multiples"]},
-    {"visual":"12_selection_cleared", "narration":"For Python work, read_table loads the data, GraphSpec describes plot channels and facets, and the selection API distinguishes filters from explicit object keys. Save the source, settings and version with your interpretation. These APIs neither validate a biological conclusion nor fix the annotation handoff.", "hold_after":0.7,"related_lessons":["06_api"]}
+    {
+      "visual": "01_module",
+      "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_choose_database",
+      "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "34_database"
+      ]
+    },
+    {
+      "visual": "05_area_histogram",
+      "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_real_scatter",
+      "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_well_column_colour",
+      "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_acquisition_row_facets",
+      "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_live_area_filter",
+      "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_filter_cleared",
+      "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_actual_brush_state",
+      "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_selection_cleared",
+      "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_fold_trellis",
+      "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "33_plate_viewer",
+        "63_small_multiples"
+      ]
+    },
+    {
+      "visual": "12_selection_cleared",
+      "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api"
+      ]
+    }
   ]
 }

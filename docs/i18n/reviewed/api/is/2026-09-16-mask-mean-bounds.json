@@ -247,11 +247,14 @@
       "translation": "valfrjálst :class:`spacr.illumination.SegmentationIlluminationSession`. Leiðréttirinn vinnur með eigin afrit af völdum rásum rétt fyrir normaliseringu/Cellpose; vistuð styrkmyndplön og NPZ-bráðabirgðaskrár haldast óbreytt hrá gögn, og lok vinnslu eru aðeins skráð eftir að samsetta staflanum hefur verið skipt út í einu ódeilanlegu skrefi."
     },
     {
-      "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#11",
       "source": "the same list, with each :class:`StackFile.shape` / ``.channels`` updated to reflect the appended mask channel.",
       "source_sha256": "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05",
       "context": "the same list, with each :class:`StackFile.shape` / ``.channels`` updated to reflect the appended mask image data channel.",
-      "translation": "sami listi, með :class:`StackFile.shape` / ``.channels`` uppfært fyrir hverja færslu til að endurspegla grímurásina sem bætt var við."
+      "translation": "sami listi, með :class:`StackFile.shape` / ``.channels`` uppfært fyrir hverja færslu til að endurspegla grímurásina sem bætt var við.",
+      "previous_labels": [
+        "spacr.pipeline_v2.stream_masks_from_stack#10"
+      ]
     },
     {
       "label": "spacr.setting_animations.animation_for_setting#0",

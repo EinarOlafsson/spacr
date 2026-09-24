@@ -3562,6 +3562,17 @@ def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
 
 
 REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
+_CURRENT_README_PROSE = re.sub(r"\s+", " ", (ROOT / "README.rst").read_text(encoding="utf-8"))
+RETIRED_README_EVIDENCE_BLOCKS = {
+    source: translations
+    for source, translations in REVIEWED_README_EVIDENCE_BLOCKS.items()
+    if source not in _CURRENT_README_PROSE
+}
+REVIEWED_README_EVIDENCE_BLOCKS = {
+    source: translations
+    for source, translations in REVIEWED_README_EVIDENCE_BLOCKS.items()
+    if source not in RETIRED_README_EVIDENCE_BLOCKS
+}
 for _source, _translations in REVIEWED_README_EVIDENCE_BLOCKS.items():
     REVIEWED_README_BLOCKS.setdefault(_source, {}).update(_translations)
 
@@ -3826,8 +3837,10 @@ _CODE_DEFINITION_RE = re.compile(
 _ALIGNED_LITERAL_DEFINITION_RE = re.compile(
     r"^(?P<prefix>(?:"
     r"[012]|"
-    r"(?:Ctrl\+(?:[A-Za-z0-9]|1\.\.9|[,/]))|"
-    r"F\d+\s+/\s+\?|Esc|"
+    r"(?:(?:Ctrl|Alt|Shift|Meta|Cmd)\+)+(?:"
+    r"[A-Za-z0-9]|1\.\.9|[,/]|F\d+|End|Home|Tab|Enter|Return|Space|"
+    r"Backspace|Delete|Insert|PageUp|PageDown|Up|Down|Left|Right)|"
+    r"F\d+(?:\s+/\s+\?)?|Esc|"
     r"!?pathogen|NOT\s+pathogen|"
     r"cell\s+(?:AND\s+(?:NOT\s+)?pathogen|AND\s+nucleus|OR\s+nucleus)"
     r")\s{2,})(?P<prose>.+)$"
@@ -4965,10 +4978,10 @@ def _api_block_requires_translation(source: str) -> bool:
     # enter this function because ``translatable_blocks`` keeps them literal.
     return bool(
         re.search(r"[A-Za-z]{3,}", residual)
-        # The preview contract exposes bare yes/no cells. ``no`` is a complete
-        # visible answer even though it is only two letters; quoted/code forms
+        # Bare ``no`` answers and ``or`` between API references are visible
+        # prose even though they have only two letters. Quoted/code forms
         # have already been removed by the protection pass above.
-        or re.search(r"(?<![A-Za-z])no(?![A-Za-z])", residual, re.IGNORECASE)
+        or re.search(r"(?<![A-Za-z])(?:no|or)(?![A-Za-z])", residual, re.IGNORECASE)
     )
 
 
@@ -6033,13 +6046,72 @@ def _committed_english_api_symbols() -> dict[str, object]:
     return symbols if isinstance(symbols, dict) else {}
 
 
+def _archived_english_api_records() -> dict[str, object]:
+    """Read hash-addressed English sources retained across manifest commits.
+
+    These are source records, not translation reviews. Historical targets
+    still have to pass all source, layout, context and language checks.
+    """
+    path = Path(ROOT) / "docs/i18n/api_source_history.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema") != 1 or not isinstance(payload.get("sources"), dict):
+        raise ValueError(f"Invalid API source history: {path}")
+    records = payload["sources"]
+    for digest, record in records.items():
+        if not isinstance(record, dict) or not isinstance(record.get("text"), str):
+            raise ValueError(f"Invalid API source history record: {digest}")
+        source = record["text"]
+        if (digest != _source_hash(source)
+                or record.get("source_sha256") != digest
+                or record.get("source_blocks_sha256") != _source_block_hashes(source)):
+            raise ValueError(f"API source history hash mismatch: {digest}")
+    return records
+
+
+def _write_english_api_manifest(docs: Mapping[str, str]) -> None:
+    """Advance English without losing the sources of unfinished locales.
+
+    HEAD ceases to be a useful fallback as soon as a source-only refresh is
+    committed. Retain only old English records still referenced by a locale
+    and absent from the new manifest. Archive before publishing the manifest;
+    never infer an old source from the current paragraph positions.
+    """
+    manifest = _english_manifest(docs)
+    current_hashes = {record["source_sha256"] for record in manifest["symbols"].values()}
+    needed = set()
+    for language in MODEL_SPECS:
+        path = API_DIR / f"{language}.json"
+        if path.exists():
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            needed.update(record.get("source_sha256") for record in payload["symbols"].values())
+    needed.difference_update(current_hashes)
+    archived = _archived_english_api_records()
+    old_path = API_DIR / "en.json"
+    if old_path.exists():
+        old_records = json.loads(old_path.read_text(encoding="utf-8"))["symbols"]
+        for record in old_records.values():
+            digest = record.get("source_sha256")
+            if digest in needed and digest == _source_hash(record["text"]):
+                archived[digest] = {
+                    field: record[field]
+                    for field in ("source_sha256", "source_blocks_sha256", "text")
+                }
+    retained = {digest: archived[digest] for digest in sorted(needed & archived.keys())}
+    history_path = Path(ROOT) / "docs/i18n/api_source_history.json"
+    if retained or history_path.exists():
+        _write_json(history_path, {"schema": 1, "sources": retained})
+    _write_json(old_path, manifest)
+
+
 def _proven_api_history(
     docs: Mapping[str, str], language: str,
 ) -> tuple[dict[str, object], dict[str, dict[str, str]], int, int]:
     """Read existing targets and prove historical blocks separately per symbol.
 
-    Ordinary builds and repairs use the same working-manifest/HEAD selection
-    and the same source, layout, context and target gates. The returned block
+    Ordinary builds and repairs try the working manifest, HEAD, then archived
+    sources with the same source, layout, context and target gates. The returned block
     mappings are not flattened by English source: different symbols may have
     different valid committed translations of an identical paragraph.
 
@@ -6062,6 +6134,7 @@ def _proven_api_history(
         old_english_symbols = {}
     historical_by_key: dict[str, dict[str, str]] = {}
     committed_english_symbols: dict[str, object] | None = None
+    archived_english_records: dict[str, object] | None = None
     history_from_head = 0
     history_unproven = 0
 
@@ -6088,7 +6161,13 @@ def _proven_api_history(
                 english_record = committed_record
                 history_from_head += 1
             else:
-                history_unproven += 1
+                if archived_english_records is None:
+                    archived_english_records = _archived_english_api_records()
+                archived_record = archived_english_records.get(translated_hash, {})
+                if archived_record:
+                    english_record = archived_record
+                else:
+                    history_unproven += 1
         historical_by_key[key] = _historical_api_block_translations(
             english_record,
             record,
@@ -6763,7 +6842,12 @@ def main() -> int:
               f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
-    parser.add_argument("--audit", action="store_true")
+    audit_mode = parser.add_mutually_exclusive_group()
+    audit_mode.add_argument("--audit", action="store_true")
+    audit_mode.add_argument(
+        "--audit-english", action="store_true",
+        help="validate the current English API manifest without requiring translations",
+    )
     parser.add_argument(
         "--repair-api-blocks",
         action="store_true",
@@ -6790,12 +6874,12 @@ def main() -> int:
     args = parser.parse_args()
 
     docs = public_docstrings()
-    if args.audit:
-        return audit(docs, args.languages)
+    if args.audit or args.audit_english:
+        return audit(docs, () if args.audit_english else args.languages)
 
     if args.sources_only:
         if not args.rebuild_readme:
-            _write_json(API_DIR / "en.json", _english_manifest(docs))
+            _write_english_api_manifest(docs)
             print(f"wrote English API manifest: symbols={len(docs)}")
         return 0
     if args.repair_api_blocks:
@@ -6806,7 +6890,7 @@ def main() -> int:
                 docs, language, args.model_root, args
             )
             write_language(docs, language, translated)
-        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        _write_english_api_manifest(docs)
         print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
 
@@ -6990,13 +7074,9 @@ def main() -> int:
         return 0
     # Every locale needs the previous English to prove unchanged paragraphs.
     # Publish the new manifest only after all locale writes have succeeded.
-    _write_json(API_DIR / "en.json", _english_manifest(docs))
+    _write_english_api_manifest(docs)
     print(f"wrote English API manifest: symbols={len(docs)}")
     return audit(docs, args.languages)
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
 
 
 # ============================================================================
@@ -7122,3 +7202,38 @@ REVIEWED_README_BLOCKS_ARCHIVE.update({
     for source in _SUPERSEDED_README_BLOCKS_2026_09_04
     if source in REVIEWED_README_BLOCKS
 })
+
+_SUPERSEDED_README_BLOCKS_2026_09_23 = (
+    'spaCR in slides',
+    'spaCR in slides: every module and the trained models, in 51 slides',
+    'A tour of every module and the trained models in 51 slides. Flip through them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_ (arrow keys or swipe), or page through the `PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.',
+    'slide viewer',
+    'PDF on GitHub',
+    'See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions.',
+    _TUTORIAL_LIBRARY_SOURCE,
+)
+REVIEWED_README_BLOCKS_ARCHIVE.update({
+    source: REVIEWED_README_BLOCKS.pop(source)
+    for source in _SUPERSEDED_README_BLOCKS_2026_09_23
+    if source in REVIEWED_README_BLOCKS
+})
+
+_CURRENT_TUTORIAL_LIBRARY_SOURCE = (
+    'The `interactive spaCR tutorial library <https://einarolafsson.github.io/spacr/tutorials/>`_ '
+    'provides installation and module walkthroughs. Available narration and languages are listed for each lesson.'
+)
+REVIEWED_README_BLOCKS[_CURRENT_TUTORIAL_LIBRARY_SOURCE] = {
+    'sv': 'Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ visar installation och användning av moduler steg för steg. Tillgänglig berättarröst och språk anges för varje lektion.',
+    'de': 'Die `interaktive spaCR-Tutorialbibliothek <https://einarolafsson.github.io/spacr/tutorials/>`_ führt durch die Installation und die Verwendung der Module. Verfügbare Vertonungen und Sprachen werden für jede Lektion angegeben.',
+    'es': 'La `biblioteca de tutoriales interactivos de spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ ofrece guías de instalación y uso de los módulos. Cada lección indica la narración y los idiomas disponibles.',
+    'zh_CN': '`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。',
+    'pt': 'A `biblioteca de tutoriais interativos do spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ oferece guias de instalação e uso dos módulos. Cada aula indica a narração e os idiomas disponíveis.',
+    'hi': '`spaCR की इंटरैक्टिव ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में इंस्टॉलेशन और मॉड्यूल के उपयोग की चरण-दर-चरण जानकारी है। हर पाठ में उपलब्ध नैरेशन और भाषाएँ दी गई हैं।',
+    'ko': '`spaCR 대화형 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_는 설치와 모듈 사용을 단계별로 안내합니다. 각 강의에는 사용 가능한 내레이션과 언어가 표시됩니다.',
+    'is': '`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ leiðir þig í gegnum uppsetningu og notkun eininganna. Hver kennslustund tilgreinir hvaða upplestur og tungumál eru í boði.',
+    'fr': 'La `bibliothèque de tutoriels interactifs spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ guide l’installation et l’utilisation des modules. Chaque leçon indique les narrations et les langues disponibles.',
+}
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

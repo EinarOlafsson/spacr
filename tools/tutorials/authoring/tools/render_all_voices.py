@@ -375,6 +375,10 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
         # encodes. Fingerprint extra headroom for this measured track only;
         # the decoded -1 dBFS acceptance gate still decides the result.
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("79_module_inputs_outputs", "en", "af_heart"):
+        # The current 80-scene reference reached -0.0 dBFS after all normal
+        # AAC encodes. Keep the decoded peak gate and fingerprint this repair.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     return result
 
 

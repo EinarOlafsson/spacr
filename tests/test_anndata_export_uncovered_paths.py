@@ -181,6 +181,41 @@ def test_an_export_that_cannot_be_registered_still_leaves_a_complete_file(
 # ---------------------------------------------------------------------------
 
 @requires_anndata
+@pytest.mark.parametrize("operation", ["export", "parent_stamp"])
+def test_a_failed_write_preserves_the_completed_export(
+        tmp_path, monkeypatch, operation):
+    """A writer failing after opening its target must not destroy old data."""
+    from pathlib import Path
+
+    import anndata as ad
+
+    db = _write_db(tmp_path / "m.db", {"cell": _cell_table()})
+    target = tmp_path / "cell.h5ad"
+    ax.export_anndata(db, target, single_table="cell", register=False,
+                      verbose=False)
+    original = target.read_bytes()
+    entries = set(tmp_path.iterdir())
+    registered = []
+    monkeypatch.setattr(ax, "_register", lambda *args: registered.append(args))
+
+    def fail_after_opening(self, path, **kwargs):
+        Path(path).write_bytes(b"incomplete HDF5 output")
+        raise OSError("simulated write failure")
+
+    monkeypatch.setattr(ad.AnnData, "write_h5ad", fail_after_opening)
+    if operation == "export":
+        with pytest.raises(OSError, match="simulated write failure"):
+            ax.export_anndata(db, target, single_table="cell", verbose=False)
+    else:
+        with pytest.warns(RuntimeWarning, match="simulated write failure"):
+            ax._stamp_parent_file(str(target), "parent.h5ad", "cell_id")
+    assert target.read_bytes() == original
+    assert ad.read_h5ad(target).shape == (4, 2)
+    assert set(tmp_path.iterdir()) == entries
+    assert not registered
+
+
+@requires_anndata
 def test_a_child_file_that_will_not_reopen_warns_and_is_left_untouched(
         tmp_path):
     """``_stamp_parent_file`` re-opens a file the set export has already

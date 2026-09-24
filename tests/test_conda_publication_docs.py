@@ -60,7 +60,14 @@ def test_conda_and_pypi_are_separate_install_routes(path: Path):
     text = path.read_text(encoding="utf-8")
 
     assert text.count(CONDA_COMMAND) == 1
-    assert text.count(PIP_COMMAND) == 1
+    assert text.count(PIP_COMMAND) == (2 if path == README else 1)
+    if path == README:
+        quick_start = text.split("Try spaCR\n", 1)[1].split("Hardware support\n", 1)[0]
+        assert quick_start.count(PIP_COMMAND) == 1
+        assert CONDA_COMMAND not in quick_start
+        pypi = text.split("PyPI installation\n", 1)[1].split("Conda-forge installation\n", 1)[0]
+        assert pypi.count(PIP_COMMAND) == 1
+        assert CONDA_COMMAND not in pypi
     # PIP FIRST, CONDA SECOND, since the README restructure of 2dfbbe874 on
     # 2026-09-01 moved the PyPI section above the conda-forge one. This
     # assertion had the old order and failed on all 32 READMEs -- the English

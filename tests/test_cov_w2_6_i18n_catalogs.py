@@ -188,26 +188,31 @@ def test_a_scientific_tooltip_is_translated_while_its_prose_matches():
     assert cat.setting_tooltip(key, source + " Extra sentence.", "sv") is None
 
 
-def test_an_app_scoped_tooltip_does_not_replace_the_shared_key():
-    canonical = getattr(cat._english(), "SETTING_TOOLTIPS", {})
-    scoped_key = next(
-        (key for key in canonical if "." in key),
-        None,
-    )
-    if scoped_key is None:
-        pytest.skip("no app-scoped tooltip is materialized")
-    app_key, key = scoped_key.split(".", 1)
+def test_an_app_scoped_tooltip_does_not_replace_the_shared_key(monkeypatch):
+    """Lookup isolation must hold independently of translation-corpus freshness."""
+    import hashlib
+    from functools import lru_cache
+    from types import SimpleNamespace
+
+    app_key, key = 'mask', 'threshold'
+    scoped_key = 'mask.threshold'
+    canonical = {key: 'Shared threshold help.', scoped_key: 'Mask-specific threshold help.'}
+    translations = {key: 'Gemensam tröskelhjälp.', scoped_key: 'Maskspecifik tröskelhjälp.'}
+    module = SimpleNamespace(SETTING_TOOLTIPS=translations, SOURCE_HASHES={
+        ('SETTING_TOOLTIPS', name): hashlib.sha256(source.encode()).hexdigest()
+        for name, source in canonical.items()})
+    monkeypatch.setattr(cat, '_english', lambda: SimpleNamespace(SETTING_TOOLTIPS=canonical))
+    monkeypatch.setattr(cat, '_module', lru_cache(maxsize=None)(lambda language: module))
     scoped_source = canonical[scoped_key]
     shared_source = canonical.get(key)
 
     scoped = cat.setting_tooltip(key, scoped_source, "sv", app_key=app_key)
-    assert isinstance(scoped, str) and scoped.strip()
+    assert scoped == translations[scoped_key]
     assert cat.setting_tooltip(
         key, scoped_source + " changed", "sv", app_key=app_key
     ) is None
-    if shared_source is not None:
-        assert cat.setting_tooltip(key, shared_source, "sv", app_key=app_key) \
-            == cat.setting_tooltip(key, shared_source, "sv")
+    assert cat.setting_tooltip(key, shared_source, "sv", app_key=app_key) \
+        == cat.setting_tooltip(key, shared_source, "sv") == translations[key]
 
 
 def test_a_category_blurb_is_translated_only_for_prose_english_declares():

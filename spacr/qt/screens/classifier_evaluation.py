@@ -49,7 +49,6 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QPlainTextEdit,
     QPushButton,
-    QSplitter,
     QTabWidget,
     QTableWidget,
     QTableWidgetItem,
@@ -66,6 +65,7 @@ from ..linked_selection import (DEFAULT_OPEN_KIND, has_object_opener,
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
@@ -319,7 +319,10 @@ class ClassifierEvaluationScreen(QWidget):
             (tr("Leakage audit"), self._leakage),
         ):
             self._tabs.addTab(widget, label)
-        outer.addWidget(self._tabs, 1)
+        self._tabs_section = FoldSection(
+            self._tabs, "Evaluation results",
+            persist_key="classifier_evaluation/Evaluation results")
+        outer.addWidget(self._tabs_section, 1)
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")
@@ -353,15 +356,18 @@ class ClassifierEvaluationScreen(QWidget):
         self._confusion_ranking.setWordWrap(True)
         layout.addWidget(self._confusion_ranking)
 
-        split = QSplitter(Qt.Vertical, page)
+        split = CollapsibleSplitter(
+            Qt.Vertical, page,
+            persist_key="classifier_evaluation::confusion")
 
         self._confusion = self._table()
         self._confusion.setSelectionBehavior(QAbstractItemView.SelectItems)
         self._confusion.setSelectionMode(QAbstractItemView.SingleSelection)
         self._confusion.cellClicked.connect(self._on_confusion_cell)
-        split.addWidget(self._confusion)
+        split.add_section(self._confusion, "Confusion table",
+                          persist_key="classifier_evaluation/Confusion table")
 
-        inspector = QWidget(page)
+        inspector = QWidget()
         column = QVBoxLayout(inspector)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(SPACING["sm"])
@@ -406,10 +412,10 @@ class ClassifierEvaluationScreen(QWidget):
         lists.addLayout(self._low_head)
         column.addLayout(lists, 1)
 
-        split.addWidget(inspector)
-        split.setStretchFactor(0, 1)
-        split.setStretchFactor(1, 1)
+        split.add_section(inspector, "Error inspector",
+                          persist_key="classifier_evaluation/Error inspector")
         layout.addWidget(split, 1)
+        self._confusion_splitter = split
         return page
 
     def _error_column(self, parent: QWidget, title: str, tip: str,

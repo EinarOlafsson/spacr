@@ -175,8 +175,8 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
 # ---------------------------------------------------------------------------
 
 CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
-              "Object operations", "Otsu", "Object detection",
-              "Live magnifier")
+              "Object operations", "Detection method",
+              "Image enhancement", "Live magnifier")
 
 
 def _categories(made):
@@ -207,8 +207,8 @@ def test_every_category_is_the_core_applications_folding_section(
             "Display": made._norm_hi,
             "Filter": made._filter_min_area,
             "Object operations": made._btn_otsu,
-            "Otsu": made._otsu_correction,
-            "Object detection": made._cp_flow,
+            "Detection method": made._otsu_correction,
+            "Image enhancement": made._enh_gamma,
             "Live magnifier": made._mag_size,
         }
         for title, section in categories.items():
@@ -512,33 +512,42 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
     assert spy.calls[-1][2] == dict(wanted, flow_threshold=1.2)
 
     screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("region"))
+    before = len(spy.calls)
     screen.run_cellpose()
-    image, used, kwargs = spy.calls[-1]
+    full_image_calls = [call for call in spy.calls[before:]
+                        if call[0].shape == screen._canvas.image.shape]
+    assert len(full_image_calls) == 1
+    # Applying the full result may also refresh the active magnifier crop.
+    image, used, kwargs = full_image_calls[0]
     assert used is model
     assert kwargs == dict(wanted, flow_threshold=1.2), (
         "Object detection is handed the very same values")
     np.testing.assert_array_equal(image, screen._canvas.image)
 
 
-def test_the_thresholds_live_in_the_object_detection_category(screen):
-    """Item 419 point 5 renamed this category and moved Otsu's settings out.
+def test_the_thresholds_live_in_the_detection_method_category(screen):
+    """Item 419 point 5 moved Otsu's settings out of Cellpose's category;
+    item 473 folded the two categories back into one.
 
-    The Cellpose controls stay where 417 put them; the threshold correction
-    went to the Otsu category of its own, with the five settings item 419
-    added, because it is not a Cellpose setting and never was.
+    They are still two GROUPS, shown one at a time by the chosen method
+    (:meth:`MakeMasksScreen._sync_method_controls`), which is what the
+    separation was for: a Cellpose setting and a threshold setting are not
+    read by the same run, and only the ones being read are on screen.
     """
     categories = dict(screen._settings_categories)
-    cellpose = categories["Object detection"]
+    detection = categories["Detection method"]
     for control in (screen._cp_model, screen._cp_model_zoo_btn,
                     screen._cp_flow, screen._cp_cellprob,
                     screen._cp_diameter, screen._cp_normalize):
-        assert cellpose.isAncestorOf(control)
-    otsu = categories["Otsu"]
+        assert detection.isAncestorOf(control)
     for control in (screen._otsu_correction, screen._otsu_smoothing,
                     screen._otsu_bright, screen._otsu_fill_holes,
                     screen._otsu_split, screen._otsu_exclude_border):
-        assert otsu.isAncestorOf(control)
-    assert not cellpose.isAncestorOf(screen._otsu_correction)
+        assert detection.isAncestorOf(control)
+    groups = screen._method_groups
+    assert groups["cellpose"].isAncestorOf(screen._cp_flow)
+    assert groups["threshold"].isAncestorOf(screen._otsu_correction)
+    assert not groups["cellpose"].isAncestorOf(screen._otsu_correction)
     assert screen._cp_flow.value() == pytest.approx(mm.FLOW_THRESHOLD)
     assert screen._cp_cellprob.value() == pytest.approx(mm.CELLPROB_THRESHOLD)
     # Cellpose's own GUI offers -6..6 and 0..3; both fit inside these.
@@ -709,8 +718,12 @@ def test_dinocell_and_samcell_are_offered_where_installed(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
-        assert [made._mag_mode.itemText(i) for i in range(8)][2:] == [
+        assert _modes(made) == ["otsu", *mm.cpu_modes.modes(),
+                                *mm.organelle_modes.modes(),
+                                "cellpose", *_BACKEND_MODES]
+        backends = _modes(made).index("cellpose3:cyto3")
+        assert [made._mag_mode.itemText(i)
+                for i in range(backends, made._mag_mode.count())] == [
             "Cellpose 3 · cyto3", "Cellpose 3 · cyto2", "Cellpose 3 · cyto",
             "Cellpose 3 · nuclei", "DINOCell", "SAMCell"]
         assert made._mag_uninstalled == set()
@@ -740,7 +753,9 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
+        assert _modes(made) == ["otsu", *mm.cpu_modes.modes(),
+                                *mm.organelle_modes.modes(),
+                                "cellpose", *_BACKEND_MODES]
         assert made._mag_uninstalled == set(_BACKEND_MODES)
         for mode in _BACKEND_MODES:
             index = made._mag_mode.findData(mode)

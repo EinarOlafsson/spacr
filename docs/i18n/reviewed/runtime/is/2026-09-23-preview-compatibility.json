@@ -1,0 +1,14 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.",
+      "source": "{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.",
+      "source_sha256": "6641509e13ed273dff5260063c789c03e95cefd48358db39b42fd8328dff53dd",
+      "table": "ui",
+      "translation": "{model} er Cellpose 3-vistunarpunktur og Cellpose 4 getur ekki hlaðið honum inn. Veldu vistunarpunkt sem er samhæfur við Cellpose 4 fyrir þessa forskoðun."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of Cellpose checkpoint compatibility preview caption; format field preserved. No native-speaker sign-off.",
+  "schema": 1
+}

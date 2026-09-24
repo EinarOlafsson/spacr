@@ -1,0 +1,84 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
+      "label": "spacr.timeflows_model.link_by_timeflows#0",
+      "source": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
+      "source_sha256": "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+      "translation": "मॉडल के अनुसार ``t+1`` में कौन-सी वस्तु ``t`` की प्रत्येक वस्तु से मेल खाती है।"
+    },
+    {
+      "context": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",
+      "label": "spacr.timeflows_model.link_by_timeflows#1",
+      "source": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",
+      "source_sha256": "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+      "translation": "हर वस्तु के पिक्सेल अनुमानित वेक्टरों के माध्यम से उसके अगले केंद्र के लिए वोट देते हैं। उनके औसत पूर्वानुमानों को हंगेरियन विधि से ``t+1`` के वस्तु केंद्रों को संयुक्त रूप से आवंटित किया जाता है। ``min_successor`` से नीचे की या बिना किसी अनुमत आवंटन वाली वस्तुएँ असंबद्ध रहती हैं। दूरियाँ स्रोत वस्तु के व्यास की इकाइयों में मापी जाती हैं, और न्यूनतम व्यास एक पिक्सेल होता है।"
+    },
+    {
+      "context": "The distance data-selection boundary is applied before assignment. Allowed distances are scaled to at most one; an unmatched choice costs just above one. A zero distance limit permits only exact centre matches, with zero cost. Thus an impossible edge cannot displace a valid link. The objective minimizes distance plus unmatched costs; it does not maximize the number of links.",
+      "label": "spacr.timeflows_model.link_by_timeflows#2",
+      "source": "The distance gate is applied before assignment. Allowed distances are scaled to at most one; an unmatched choice costs just above one. A zero distance limit permits only exact centre matches, with zero cost. Thus an impossible edge cannot displace a valid link. The objective minimizes distance plus unmatched costs; it does not maximize the number of links.",
+      "source_sha256": "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+      "translation": "आवंटन से पहले दूरी सीमा लागू की जाती है। अनुमत दूरियों को अधिकतम एक तक स्केल किया जाता है; बेमेल रहने के विकल्प की लागत एक से थोड़ी अधिक होती है। शून्य दूरी सीमा पर केवल केंद्रों का सटीक मिलान अनुमत है, जिसकी लागत शून्य होती है। इसलिए कोई असंभव किनारा वैध लिंक को विस्थापित नहीं कर सकता। उद्देश्य दूरी और बेमेल विकल्पों की लागत के योग को न्यूनतम करना है; यह लिंक की संख्या को अधिकतम नहीं करता।"
+    },
+    {
+      "context": "Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and ``max_distance`` non-negative. If either frame has no objects, the result is empty without inspecting predictions. Otherwise prediction shapes must match the source frame, foreground vectors must be finite and foreground successor probabilities must lie in ``[0, 1]``. Background values are ignored. Derived object centres must also be finite.",
+      "label": "spacr.timeflows_model.link_by_timeflows#3",
+      "source": "Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and ``max_distance`` non-negative. If either frame has no objects, the result is empty without inspecting predictions. Otherwise prediction shapes must match the source frame, foreground vectors must be finite and foreground successor probabilities must lie in ``[0, 1]``. Background values are ignored. Derived object centres must also be finite.",
+      "source_sha256": "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+      "translation": "थ्रेशोल्ड परिमित होने चाहिए, ``min_successor`` का मान ``[0, 1]`` में और ``max_distance`` का मान गैर-ऋणात्मक होना चाहिए। यदि किसी भी फ़्रेम में कोई वस्तु नहीं है, तो पूर्वानुमानों की जाँच किए बिना खाली परिणाम लौटता है। अन्यथा पूर्वानुमान ऐरे के आकार स्रोत फ़्रेम से मेल खाने चाहिए, अग्रभूमि वेक्टर परिमित होने चाहिए और अग्रभूमि की उत्तरवर्ती वस्तु की प्रायिकताएँ ``[0, 1]`` में होनी चाहिए। पृष्ठभूमि के मानों को अनदेखा किया जाता है। गणना किए गए वस्तु केंद्र भी परिमित होने चाहिए।"
+    },
+    {
+      "context": "frame ``t``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#4",
+      "source": "frame ``t``'s objects, any ids.",
+      "source_sha256": "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+      "translation": "फ़्रेम ``t`` की वस्तुएँ, किन्हीं भी ID के साथ।"
+    },
+    {
+      "context": "frame ``t+1``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#5",
+      "source": "frame ``t+1``'s objects, any ids.",
+      "source_sha256": "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+      "translation": "फ़्रेम ``t+1`` की वस्तुएँ, किन्हीं भी ID के साथ।"
+    },
+    {
+      "context": "from :func:`predict_pair`.",
+      "label": "spacr.timeflows_model.link_by_timeflows#6",
+      "source": "from :func:`predict_pair`.",
+      "source_sha256": "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+      "translation": ":func:`predict_pair` से प्राप्त।"
+    },
+    {
+      "context": "the successor probability an object needs.",
+      "label": "spacr.timeflows_model.link_by_timeflows#7",
+      "source": "the successor probability an object needs.",
+      "source_sha256": "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+      "translation": "किसी वस्तु के लिए आवश्यक उत्तरवर्ती वस्तु की प्रायिकता।"
+    },
+    {
+      "context": "the furthest link, in the object's diameters.",
+      "label": "spacr.timeflows_model.link_by_timeflows#8",
+      "source": "the furthest link, in the object's diameters.",
+      "source_sha256": "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+      "translation": "वस्तु के व्यास की इकाइयों में अधिकतम लिंक दूरी।"
+    },
+    {
+      "context": "``{id in t: id in t+1}``.",
+      "label": "spacr.timeflows_model.link_by_timeflows#9",
+      "source": "``{id in t: id in t+1}``.",
+      "source_sha256": "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+      "translation": "``{id in t: id in t+1}``."
+    },
+    {
+      "context": "invalid thresholds, prediction shapes, foreground values or derived object centres.",
+      "label": "spacr.timeflows_model.link_by_timeflows#10",
+      "source": "invalid thresholds, prediction shapes, foreground values or derived object centres.",
+      "source_sha256": "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1",
+      "translation": "अमान्य थ्रेशोल्ड, पूर्वानुमान ऐरे के आकार, अग्रभूमि मान या गणना किए गए वस्तु केंद्र।"
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of gated temporal assignment, unmatched costs and prediction validation; no native-speaker or accuracy sign-off",
+  "schema": 1
+}

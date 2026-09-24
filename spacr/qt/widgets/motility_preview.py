@@ -152,15 +152,16 @@ def resolve_merged_dir(path) -> str:
 def group_merged_files(merged_dir: str) -> "Dict[tuple, List[dict]]":
     """Group ``merged/*.npy`` by (plate, well, field) and sort each by time.
 
-    Reuses :func:`spacr.timelapse._parse_merged_filename` so the preview and
-    the assay agree about what a filename means.
+    Shares the lightweight parser behind
+    :func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with
+    the assay without importing plotting or model dependencies.
     """
-    from spacr.timelapse import _parse_merged_filename
+    from spacr._merged_names import parse_merged_filename
     groups: "Dict[tuple, List[dict]]" = {}
     for name in sorted(os.listdir(merged_dir)):
         if not name.endswith(".npy"):
             continue
-        meta = _parse_merged_filename(name)
+        meta = parse_merged_filename(name)
         key = (meta["plateID"], meta["wellID"], meta["fieldID"])
         groups.setdefault(key, []).append(meta)
     for metas in groups.values():
@@ -645,6 +646,11 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         diverging.
     """
 
+    #: Where this preview's section folds and sizes are remembered (item
+    #: 471): the settings groups, the plot and the summary each fold by their heading and trade height by their
+    #: edge.
+    SECTION_KEY = "motility_preview"
+
     preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load a plate folder first."
@@ -839,11 +845,20 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._unit_label.setWordWrap(True)
         cform.addRow(self._unit_label)
 
-        groups = QHBoxLayout()
+        groups_host = QWidget(self)
+        groups = QHBoxLayout(groups_host)
+        groups.setContentsMargins(0, 0, 0, 0)
         groups.addWidget(layout_group, 1)
         groups.addWidget(metric_group, 1)
         groups.addWidget(cal_group, 1)
-        root.addLayout(groups)
+        from .collapsible_splitter import CollapsibleSplitter
+        key = self.SECTION_KEY
+        self._section_split = CollapsibleSplitter(
+            Qt.Vertical, self, persist_key=f"{key}::sections")
+        self._sections = {}
+        self._sections["Preview settings"] = self._section_split.add_section(
+            groups_host, "Preview settings", stretch=0,
+            persist_key=f"{key}/Preview settings")
 
         for w in (self._min_len, self._max_disp, self._straightness,
                   self._pixels_per_um, self._seconds_per_frame):
@@ -875,19 +890,25 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._cancel_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "motility", act)
         root.addLayout(act)
 
         self._plot = QLabel(self)
         self._plot.setAlignment(Qt.AlignCenter)
         self._plot.setMinimumHeight(240)
         self._plot.setStyleSheet("background: #161719;")
-        root.addWidget(self._plot, 1)
+        self._sections["Plot"] = self._section_split.add_section(
+            self._plot, "Plot", stretch=1, persist_key=f"{key}/Plot")
 
         self._stats_label = QLabel(
             "Load a plate folder and run the preview.", self)
         self._stats_label.setWordWrap(True)
         self._stats_label.setStyleSheet("font-family: monospace;")
-        root.addWidget(self._stats_label)
+        self._sections["Summary"] = self._section_split.add_section(
+            self._stats_label, "Summary", stretch=0,
+            persist_key=f"{key}/Summary")
+        root.addWidget(self._section_split, 1)
 
         self._refresh_unit_label()
 

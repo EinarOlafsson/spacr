@@ -37,7 +37,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QHeaderView, QLabel, QSpinBox,
-    QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ..theme import SPACING, active_palette, mark_surface
@@ -46,6 +46,7 @@ from .feature_rank import (
     ExplorerError, ExplorerResult, ExplorerSpec, candidate_labels,
     distributions, rank_features,
 )
+from .collapsible_splitter import CollapsibleSplitter
 from .toggle import Toggle
 from .graph_builder import (_canvas_class, _page_surface_axes,
                             categorical_colours)
@@ -140,9 +141,9 @@ class FeatureExplorerPanel(QWidget):
         self._blind.setWordWrap(True)
         outer.addWidget(self._blind)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
-        self.table = QTableWidget(self)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="feature_explorer::panel")
+        self.table = QTableWidget()
         install_sorting(self.table)
         self.table.setObjectName("ExplorerTable")
         self.table.setColumnCount(6)
@@ -154,19 +155,20 @@ class FeatureExplorerPanel(QWidget):
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.currentCellChanged.connect(self._on_row_changed)
         mark_surface(self.table)
-        body.addWidget(self.table)
+        body.add_section(self.table, "Feature ranking",
+                         persist_key="feature_explorer/Feature ranking")
 
-        self._figure_holder = QWidget(self)
+        self._figure_holder = QWidget()
         holder = QVBoxLayout(self._figure_holder)
         holder.setContentsMargins(0, 0, 0, 0)
         from matplotlib.figure import Figure
         self._figure = Figure(figsize=(5.0, 6.0))
         self._canvas = _canvas_class()(self._figure)
         holder.addWidget(self._canvas, 1)
-        body.addWidget(self._figure_holder)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 1)
+        body.add_section(self._figure_holder, "Distributions",
+                         persist_key="feature_explorer/Distributions")
         outer.addWidget(body, 1)
+        self._body_splitter = body
 
         self._summary = QLabel("no table loaded", self)
         self._summary.setObjectName("ExplorerSummary")

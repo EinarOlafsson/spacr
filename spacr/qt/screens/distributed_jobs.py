@@ -27,7 +27,6 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -46,6 +45,7 @@ from ..i18n import tr
 from ..iconset import icon
 from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .settings_model import attach_api_tooltip
 from ..widgets.sortable_table import install_sorting, table_item
 
@@ -557,8 +557,9 @@ class DistributedJobsScreen(QWidget):
         actions.addStretch(1)
         outer.addLayout(actions)
 
-        splitter = QSplitter(Qt.Vertical, self)
-        self._table = QTableWidget(0, len(_COLUMNS), splitter)
+        splitter = CollapsibleSplitter(Qt.Vertical, self,
+                                       persist_key="distributed_jobs::body")
+        self._table = QTableWidget(0, len(_COLUMNS))
         install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(_COLUMNS))
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -570,16 +571,18 @@ class DistributedJobsScreen(QWidget):
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
         self._table.itemSelectionChanged.connect(self._show_selection)
-        splitter.addWidget(self._table)
+        splitter.add_section(self._table, "Jobs",
+                             persist_key="distributed_jobs/Jobs", stretch=2)
 
-        self._detail = QPlainTextEdit(splitter)
+        self._detail = QPlainTextEdit()
         self._detail.setReadOnly(True)
         self._detail.setLineWrapMode(QPlainTextEdit.NoWrap)
         self._detail.setAccessibleName("Distributed job details and log")
-        splitter.addWidget(self._detail)
-        splitter.setStretchFactor(0, 2)
-        splitter.setStretchFactor(1, 1)
+        splitter.add_section(self._detail, "Job details and log",
+                             persist_key="distributed_jobs/Job details and log",
+                             stretch=1)
         outer.addWidget(splitter, 1)
+        self._body_splitter = splitter
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")

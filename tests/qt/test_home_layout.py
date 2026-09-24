@@ -222,8 +222,10 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     # Embeddings screen 386 added in 067a0a5a7 -- the self-supervised
     # feature source, registered from its own module. It is staged because
     # it is new, which is exactly what this count is for.
-    assert len(staged) == 30, (
-        f"{len(staged)} apps staged, not 30 — if that is intended, say so "
+    # Item 474 adds three organism directories; their rollout remains alpha.
+    # Host–Pathogen adds an alpha assay under Toxoplasma.
+    assert len(staged) == 34, (
+        f"{len(staged)} apps staged, not 34 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

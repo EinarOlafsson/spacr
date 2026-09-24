@@ -705,7 +705,29 @@ class TestTheAudioThread:
         assert not any(_same(t, audio) for t in threads)
 
     def test_quitting_ends_the_thread_and_lets_go_of_every_effect(
-            self, make_engine, sink, qtbot):
+            self, make_engine, sink, qtbot, monkeypatch):
+        # Exercise real queued rendering, analysis and shutdown without making
+        # thread cleanup depend on synthesizing a whole music bed in 20 seconds.
+        # Synthesis has its own tests; these short WAVs still cross the worker
+        # boundary and create every requested GUI-owned effect.
+        def short_files(theme, names, *, root, should_stop):
+            import wave
+
+            root.mkdir(parents=True, exist_ok=True)
+            paths = {}
+            for name in names:
+                if should_stop():
+                    break
+                path = root / f"{name}.wav"
+                with wave.open(str(path), "wb") as output:
+                    output.setnchannels(1)
+                    output.setsampwidth(2)
+                    output.setframerate(24000)
+                    output.writeframes(b"\0\0" * 2400)
+                paths[name] = path
+            return paths
+
+        monkeypatch.setattr(snd, "ensure_rendered", short_files)
         engine = make_engine(threaded=True)
         engine.apply(snd.SoundSettings(enabled=True, bed=True))
         qtbot.waitUntil(lambda: engine.available is not None, timeout=20000)

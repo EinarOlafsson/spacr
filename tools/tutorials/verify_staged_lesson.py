@@ -28,6 +28,18 @@ def check_related_links(actual, expected):
         raise ValueError(f'Related lesson links differ: {actual!r} != {expected!r}')
 
 
+def find_host_lesson(lessons, navigation, host_key):
+    """Allow an absent parent lesson only when navigation records that gap."""
+    hosts = [item for item in lessons
+             if item.get('app_key') == host_key and not item.get('host_app_key')]
+    if len(hosts) == 1:
+        return hosts[0]
+    missing = {item['app_key'] for item in navigation['missing_tutorials']}
+    if hosts or host_key not in missing:
+        raise ValueError(f'Unexpected parent tutorial coverage for {host_key}')
+    return None
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     web_lesson = None
 
@@ -102,11 +114,15 @@ def main():
     parser.add_argument('--language', default='en')
     parser.add_argument('--voice', default='af_heart')
     parser.add_argument('--caption-language', help='Independently test a staged caption language with this voice')
+    parser.add_argument('--sentence-cues', action='store_true',
+                        help='Check every native English caption at its recorded speech midpoint')
     parser.add_argument('--retained-media', action='store_true',
                         help='Require unchanged original catalogs and media, with no staged override')
     parser.add_argument('--web-rendition', action='store_true',
                         help='Check the verified private 1440p copy, preserving original browser reports')
     args = parser.parse_args()
+    if args.sentence_cues and (args.language != 'en' or args.caption_language):
+        parser.error('--sentence-cues requires English narration and its native captions')
     DEFAULT_STAGE = args.stage.resolve()
     WORKSPACE = DEFAULT_STAGE.parent
     retained = None
@@ -146,6 +162,8 @@ def main():
     tag = f'{args.language}-{args.voice}'
     if args.caption_language:
         tag += f'-captions-{args.caption_language}'
+    if args.sentence_cues:
+        tag += '-sentence-cues'
     output = DEFAULT_STAGE / ('browser-web' if args.web_rendition else 'browser') / args.lesson / tag
     output.mkdir(parents=True, exist_ok=True)
     errors = []
@@ -196,8 +214,15 @@ def main():
             if host_key:
                 assert page.locator('#lesson-content').get_attribute('data-app-key') == host_key
                 assert page.locator(f'#curriculum [data-host="{host_key}"] [data-lesson="{args.lesson}"]').count() == 1
-                host = next(item for item in english['lessons'] if item.get('app_key') == host_key)
-                assert host['title'] in page.locator('#lesson-route').inner_text()
+                host = find_host_lesson(english['lessons'], navigation, host_key)
+                if host is not None:
+                    assert host['title'] in page.locator('#lesson-route').inner_text()
+                else:
+                    expected_title = navigation['routes'][args.lesson]['host_title']
+                    heading = page.locator(f'#curriculum [data-host="{host_key}"] .module-group-heading')
+                    assert heading.inner_text() == expected_title
+                    assert page.locator('#lesson-route').is_hidden()
+                evidence['host_has_tutorial'] = host is not None
                 evidence['host_app_key'] = host_key
             page.wait_for_function('elements.video.readyState >= 2 && elements.audio.readyState >= 2', timeout=60000)
             page.select_option('#language-select', args.language)
@@ -239,6 +264,11 @@ def main():
                             'audio' / args.language / f'{args.voice}.m4a').read_bytes()).hexdigest()
             assert audio_hash == expected_hash, (audio_hash, expected_hash)
             evidence['loaded_audio_sha256'] = audio_hash
+            if args.language != 'en' and not args.caption_language:
+                translated_lesson = next(item for item in localized['lessons'] if item['id'] == args.lesson)
+                texts = page.evaluate('chapterData.map(chapter => chapter.text)')
+                assert texts == [scene['narration'] for scene in translated_lesson['scenes']], texts
+                evidence['narration_language_scenes_match_staging'] = True
             if caption_lesson is not None:
                 page.locator('#caption-settings-button').click()
                 page.select_option('#caption-language-select', args.caption_language)
@@ -261,14 +291,34 @@ def main():
                 '(nodes) => [...new Set(nodes.map(n => n.dataset.relatedLesson))].sort()')
             check_related_links(actual, expected)
             page.evaluate('elements.audio.muted = true; elements.video.muted = true')
-            page.locator('.chapter-button').nth(5).click()
+            seek_index = min(5, len(lesson['scenes']) - 1)
+            page.locator('.chapter-button').nth(seek_index).click()
             try:
-                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > chapterData[5].start + 1', timeout=15000)
+                page.wait_for_function('(index) => !elements.audio.paused && elements.audio.currentTime > chapterData[index].start + 1', arg=seek_index, timeout=15000)
             except Exception:
-                diagnostic = page.evaluate('({audio: {time: elements.audio.currentTime, paused: elements.audio.paused, ready: elements.audio.readyState, src: elements.audio.currentSrc, error: elements.audio.error?.message}, video: {time: elements.video.currentTime, paused: elements.video.paused, ready: elements.video.readyState, src: elements.video.currentSrc, error: elements.video.error?.message}, voice: elements.voice.value, available: narrationAudioAvailable, status: elements.status.textContent, chapter: chapterData[5]})')
+                diagnostic = page.evaluate('(index) => ({audio: {time: elements.audio.currentTime, paused: elements.audio.paused, ready: elements.audio.readyState, src: elements.audio.currentSrc, error: elements.audio.error?.message}, video: {time: elements.video.currentTime, paused: elements.video.paused, ready: elements.video.readyState, src: elements.video.currentSrc, error: elements.video.error?.message}, voice: elements.voice.value, available: narrationAudioAvailable, status: elements.status.textContent, chapter: chapterData[index]})', seek_index)
                 write(output / 'playback-failure.json', diagnostic)
                 print(json.dumps(diagnostic, indent=2), flush=True)
                 page.screenshot(path=str(output / 'playback-failure.png'))
+                raise
+            try:
+                page.wait_for_function('''!videoClockCorrectionPending &&
+                    !elements.video.seeking && !elements.audio.seeking &&
+                    Math.abs(elements.video.currentTime -
+                        videoTimeFromAudio(elements.audio.currentTime)) < .5''',
+                    timeout=1000, polling=50)
+            except Exception:
+                diagnostic = page.evaluate('''({
+                    correctionPending: videoClockCorrectionPending,
+                    audio: {time: elements.audio.currentTime, seeking: elements.audio.seeking,
+                        ready: elements.audio.readyState, paused: elements.audio.paused},
+                    video: {time: elements.video.currentTime, seeking: elements.video.seeking,
+                        ready: elements.video.readyState, paused: elements.video.paused},
+                    expectedVideo: videoTimeFromAudio(elements.audio.currentTime),
+                    mediaError: elements.video.error?.message || elements.audio.error?.message || null
+                })''')
+                write(output / 'clock-failure.json', diagnostic)
+                print(json.dumps(diagnostic, indent=2), flush=True)
                 raise
             clock = page.evaluate('({audio: elements.audio.currentTime, video: elements.video.currentTime, expectedVideo: videoTimeFromAudio(elements.audio.currentTime), audioDuration: elements.audio.duration, videoDuration: elements.video.duration, mediaError: elements.video.error?.message || elements.audio.error?.message || null})')
             assert not clock['mediaError'], clock
@@ -285,13 +335,27 @@ def main():
                 assert [video['width'], video['height']] == [2560, 1440], video
                 evidence['checked_web_rendition'] = video
             page.evaluate('elements.audio.pause(); elements.video.pause()')
+            # Chapter navigation can leave the viewport halfway down the page.
+            # Reset it before capturing fixed navigation in a full-page image.
+            page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
             page.screenshot(path=str(output / 'desktop.png'), full_page=True)
             page.locator('#transcript-tab').click()
             transcript_links = page.locator('#transcript-list [data-related-lesson]').evaluate_all(
                 '(nodes) => nodes.map(n => n.dataset.relatedLesson)')
             check_related_links(transcript_links, expected)
             evidence['chapter_and_transcript_links'] = expected
+            if args.sentence_cues:
+                from verify_release_candidate import check_sentence_cues
+
+                evidence['sentence_cue_checks'] = check_sentence_cues(page)
             page.set_viewport_size({'width': 390, 'height': 844})
+            # The mobile sidebar slides offscreen on resize. Measure its final
+            # position, rather than accepting a frame halfway through that slide.
+            page.wait_for_function('''() => {
+                const sidebar = document.querySelector('#sidebar');
+                return sidebar.inert && sidebar.getBoundingClientRect().right <= 1;
+            }''')
+            page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
             mobile_geometry = page.evaluate('''() => ({
                 viewport: window.innerWidth, width: document.documentElement.scrollWidth,
                 overflowing: [...document.querySelectorAll('body *')].filter(node => {

@@ -678,7 +678,7 @@ def test_a_settings_file_written_before_the_fold_still_fills_the_form(
     train = workbench.train_screen
     assert train.app_key == "train_cellpose"
     before = train._settings_model.collect()
-    assert {"n_epochs", "learning_rate", "model_type", "batch_size"} <= set(
+    assert {"n_epochs", "learning_rate", "base_model", "batch_size", "src", "mask_src"} <= set(
         before), (
         f"the training form collapsed to {sorted(before)}; a settings file "
         f"written before the fold names keys it no longer has a control for")

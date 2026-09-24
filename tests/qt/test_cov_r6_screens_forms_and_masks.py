@@ -171,6 +171,9 @@ def test_a_settings_fold_never_remembers_a_zero_width(qtbot, qt_theme_applied):
     qtbot.addWidget(screen)
     try:
         screen.resize(900, 600)
+        screen._body_stack.setCurrentWidget(screen._body_splitter)
+        screen.show()
+        qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
         laid_out = screen._body_splitter.sizes()
         assert len(laid_out) > 1 and laid_out[0] > 0
 
@@ -412,6 +415,7 @@ def test_the_merged_classifier_rebuild_finds_every_group_it_names():
                 SM._family_heading("Computer Vision", "Images & Cropping"),
                 SM._family_heading("Computer Vision", "Model & Regularization"),
                 SM._family_heading("Computer Vision", "Training & Loss"),
+                SM._family_heading("Computer Vision", "Test-time augmentation"),
                 SM._family_heading("Machine Learning", "Model & Features"),
                 SM._family_heading("Machine Learning",
                                    "Plate & Batch Correction"),

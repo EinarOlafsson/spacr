@@ -51,14 +51,24 @@ def _close_figures():
 
 
 @pytest.fixture
-def cp_stub(monkeypatch):
+def cp_stub(monkeypatch, tmp_path):
     """Replace the two cellpose seams with recording fakes.
 
     ``rec['preds']`` is the queue of predicted masks handed back by
     ``model.eval`` in dataset order; tests fill it before calling the
     function under test.
     """
+    from types import SimpleNamespace
+    from spacr import model_zoo
+
+    cached = tmp_path / "cached-cpsam"
+    cached.write_bytes(b"recording model; never loaded")
+    entry = SimpleNamespace(key="cpsam", path=str(cached), uri="")
+    monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    monkeypatch.setattr(model_zoo, "fetch",
+                        lambda *a, **k: pytest.fail("stock weights must not be fetched"))
     rec = {
+        "training_base": str(cached),
         "models": [],
         "eval_calls": [],
         "eval_configured": [],
@@ -216,21 +226,21 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     # -- the model was built for the SAM checkpoint on the GPU path
     assert len(cp_stub["models"]) == 1
     assert cp_stub["models"][0].gpu is True
-    assert cp_stub["models"][0].pretrained_model == "cpsam"
+    assert cp_stub["models"][0].pretrained_model == cp_stub["training_base"]
 
     # -- train_seg got the resolved settings
     assert len(cp_stub["train_calls"]) == 1
     call = cp_stub["train_calls"][0]
     assert call["net"] is _NET_SENTINEL
-    assert call["channel_axis"] is None
+    assert call["channel_axis"] == 0
     assert call["rescale"] is False
     assert call["n_epochs"] == 20
     assert call["batch_size"] == 2
     assert call["learning_rate"] == 0.05
     assert call["weight_decay"] == 1e-4
-    assert call["save_every"] == 2                     # n_epochs // 10
+    assert call["save_every"] == 100
     # train_cellpose fine-tunes cpsam; `_cyto_` was a Cellpose-3 leftover.
-    assert call["model_name"] == "mymodel_cpsam_e20_X16_Y16.CP_model"
+    assert call["model_name"] == "mymodel_cpsam_e20.CP_model"
     assert call["save_path"] == os.path.join(str(tmp_path), "models", "cellpose_model")
     assert os.path.isdir(call["save_path"])
 
@@ -243,31 +253,26 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     assert len(call["train_data"]) == 3
     assert len(call["train_labels"]) == 3
     for img in call["train_data"]:
-        assert img.shape == (16, 16)
+        assert img.shape == (32, 32)
         assert img.dtype == np.float32
-        assert 0.0 <= float(img.min()) and float(img.max()) <= 1.0 + 1e-6
+        assert np.isfinite(img).all()
+        assert call["normalize"] == dict(normalize=True, percentile=[1, 99])
     for lbl in call["train_labels"]:
-        assert lbl.shape == (16, 16)
+        assert lbl.shape == (32, 32)
         assert lbl.dtype == np.uint16
 
     # -- the resolved settings were snapshotted next to the data
-    saved = tmp_path / "settings" / "mymodel_cpsam_e20_X16_Y16.CP_model.csv"
+    saved = tmp_path / "settings" / "mymodel_cpsam_e20.CP_model.csv"
     assert saved.exists()
     saved_df = pd.read_csv(saved)
     assert set(saved_df["Key"]) >= {"src", "model_name", "n_epochs", "target_size",
                                     "learning_rate", "weight_decay", "batch_size"}
     # Defaults that get_train_cellpose_default_settings injects.
-    assert dict(zip(saved_df["Key"], saved_df["Value"]))["model_type"] == "cpsam"
+    assert dict(zip(saved_df["Key"], saved_df["Value"]))["base_model"] == "cpsam"
 
 
-def test_train_cellpose_augment_expands_every_base_image_to_eight(tmp_path, cp_stub):
-    """augment=True turns EVERY base image into its 8 dihedral variants.
-
-    Formerly ``..._expands_one_base_image_to_eight``: with batch_size=1 it
-    asserted 8 patches, because ``min(batch_size, ...)`` threw away the
-    second of the two annotated images. Both images are kept now, so the
-    fan-out is 2 x 8 = 16.
-    """
+def test_train_cellpose_uses_native_online_augmentation(tmp_path, cp_stub):
+    """Legacy augmentation requests no longer multiply RAM usage by eight."""
     from spacr.submodules import train_cellpose
 
     # Deliberately asymmetric so the 8 variants are genuinely different.
@@ -290,21 +295,21 @@ def test_train_cellpose_augment_expands_every_base_image_to_eight(tmp_path, cp_s
     train_cellpose(settings)
 
     call = cp_stub["train_calls"][0]
-    assert call["save_every"] == 1
+    assert call["save_every"] == 100
     assert call["batch_size"] == 1          # still the optimizer minibatch
-    assert len(call["train_data"]) == 16    # 2 base images x 8 variants
-    assert len(call["train_labels"]) == 16
+    assert len(call["train_data"]) == 2
+    assert len(call["train_labels"]) == 2
 
     distinct = {lbl.tobytes() for lbl in call["train_labels"]}
-    assert len(distinct) >= 4, "augmentation produced near-identical labels"
+    assert len(distinct) == 2
     # Every variant keeps the object count of its base image.
     for lbl in call["train_labels"]:
         assert lbl.shape == (32, 32)
         assert len(np.unique(lbl)) == 3      # background + 2 objects
 
 
-def test_train_cellpose_uses_only_filenames_present_in_both_folders(tmp_path, cp_stub):
-    """Unpaired TIFFs and non-TIFF junk are dropped by the set intersection."""
+def test_train_cellpose_reports_unpaired_images_before_starting_training(tmp_path, cp_stub):
+    """Unpaired images are reported rather than silently discarded."""
     from spacr.submodules import train_cellpose
 
     labels = [_label_image(32, [(1, (4 + i, 14 + i, 4, 14))]) for i in range(3)]
@@ -325,11 +330,9 @@ def test_train_cellpose_uses_only_filenames_present_in_both_folders(tmp_path, cp
         "learning_rate": 0.2,
         "weight_decay": 1e-5,
     }
-    train_cellpose(settings)
-
-    call = cp_stub["train_calls"][0]
-    assert len(call["train_data"]) == 3, "unpaired / non-tif files leaked into training"
-    assert len(call["train_labels"]) == 3
+    with pytest.raises(ValueError, match='Missing masks.*orphan_image'):
+        train_cellpose(settings)
+    assert cp_stub['train_calls'] == []
 
 
 def test_train_cellpose_survives_a_failing_batch_plot(tmp_path, cp_stub, monkeypatch,
@@ -360,7 +363,7 @@ def test_train_cellpose_survives_a_failing_batch_plot(tmp_path, cp_stub, monkeyp
     out = capsys.readouterr().out
     assert "could not print batch images" in out
     assert len(cp_stub["train_calls"]) == 1, "training was skipped after a plot failure"
-    assert cp_stub["train_calls"][0]["save_every"] == 3
+    assert cp_stub["train_calls"][0]["save_every"] == 100
 
 
 def test_train_cellpose_plots_the_batch_it_trains_on(tmp_path, cp_stub, monkeypatch):

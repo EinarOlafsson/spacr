@@ -52,7 +52,7 @@ def prepare_fields(stage):
 
 
 def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout,
-                  *, detect=False, readouts_only=False):
+                  *, detect=False, readouts_only=False, include_readouts=False):
     import numpy as np
     import tifffile
     from PySide6.QtCore import Qt, QTimer, QUrl
@@ -128,11 +128,22 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     if not np.array_equal(original, tifffile.imread(evidence[0]['mask'])):
         raise RuntimeError('The editor did not load the actual companion labels')
     capture('03_real_labels')
-    if readouts_only:
+    if readouts_only or include_readouts:
         from capture_mask_readouts import record_readouts
 
-        record_readouts(app, window, screen, captures, capture, settle, write_json, timeout)
-        return
+        # Record the readouts before editing or recropping this same field.
+        # Prefix their frame names so a complete lesson cannot overwrite an
+        # editor frame with the readouts tour's independently numbered scenes.
+        def readout_capture(name, **kwargs):
+            return capture(f'readouts_{name}', **kwargs)
+
+        record_readouts(app, window, screen, captures,
+                       readout_capture if include_readouts else capture,
+                       settle, write_json, timeout)
+        if not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):
+            raise RuntimeError('The readouts tour changed the field before editing')
+        if readouts_only:
+            return
     original_count = int(np.count_nonzero(np.unique(original)))
     steps = []
 

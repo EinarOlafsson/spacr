@@ -1,0 +1,20 @@
+{
+  "source_field": "plate1_E01_1_1",
+  "image_plane": 1,
+  "mask_plane": 4,
+  "shape": [
+    1994,
+    1994
+  ],
+  "dtype": "uint16",
+  "labels": 44,
+  "physical_calibration": null,
+  "provenance": "tools/tutorials/evidence/2026-09-10_layer_viewer_current_workflow.json",
+  "files": {
+    "fov01_C1.tif": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+    "fov01_cell_mask.tif": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee"
+  },
+  "archive": "Layer_Viewer_real_image_mask.zip",
+  "archive_sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81",
+  "original_files_unchanged": true
+}

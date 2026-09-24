@@ -33,6 +33,24 @@ def test_labelling_no_terms_at_all_returns_an_empty_label_array():
     assert labels.dtype == object
 
 
+def test_family_precedence_preserves_malformed_and_legacy_terms():
+    """Fast classification must keep the original correction families."""
+    terms = [
+        "Intercept", "C(condition)[T.nc]", "rowID[A]", "columnID[2]",
+        "fraction:grna[]", "fraction:GRNA[TGGT1_231640]",
+        "fraction:grna[1_2]:gene[3_4]", "fraction:GENE[1_2]",
+        "fraction[T.TGGT1_231640_3]", "fraction[TGGT1_231640]",
+        "fraction[233460_1]", "fraction[T.233460]", "fraction[]",
+        "fraction[broken\n_1]", "fraction[rowID_1]", None, np.nan, 123,
+    ]
+    expected = [
+        "", "", "", "", "grna", "grna", "gene", "gene", "grna",
+        "gene", "grna", "gene", "gene", "gene", "grna", "gene",
+        "gene", "gene",
+    ]
+    assert family_labels(iter(terms)).tolist() == expected
+
+
 def test_an_empty_bracket_names_no_gene():
     """``gene[]`` is a malformed term, not a gene called the empty string.
 

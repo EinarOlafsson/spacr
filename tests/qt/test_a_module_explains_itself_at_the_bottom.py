@@ -46,8 +46,9 @@ def window(qapp, qt_theme_applied):
     win.show()
     qapp.processEvents()
     yield win
-    win.hide()
-    qapp.processEvents()
+    win.close()
+    win.deleteLater()
+    qapp.sendPostedEvents(win, QEvent.Type.DeferredDelete)
 
 
 @pytest.fixture
@@ -217,15 +218,25 @@ def test_the_router_is_silent_on_a_page_that_cannot_show_help(window):
 # The links themselves
 # ---------------------------------------------------------------------------
 
-def test_every_registry_module_has_a_lesson_to_link_to():
-    """Measured 36 of 36 on 2026-09-03. A new module must not silently
-    lose its Tutorial word -- if this fails, add the lesson or accept that
-    the word is dropped for that module and say so here."""
+def test_every_registry_module_has_a_lesson_or_a_registered_gap():
+    """Missing lessons stay explicit and do not acquire misleading links."""
+    import json
+    from pathlib import Path
     from spacr.qt.app import APPS
     from spacr.qt.tutorials import has_tutorial
 
-    missing = sorted(key for key, *_ in APPS if not has_tutorial(key))
-    assert not missing, f"these modules have no lesson: {missing}"
+    source = (Path(__file__).resolve().parents[2] /
+              'docs/source/_extra/tutorials/module_navigation.js').read_text()
+    navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
+    gaps = navigation['missing_tutorials']
+    registered = {row['app_key'] for row in gaps}
+    assert registered == set()
+    assert all(has_tutorial(key) for key in
+               ('candida', 'host_pathogen', 'plasmodium', 'toxoplasma'))
+    assert len(registered) == len(gaps)
+    assert all(row['status'] == 'needs_tutorial' for row in gaps)
+    missing = {key for key, *_ in APPS if not has_tutorial(key)}
+    assert missing == registered
 
 
 def test_a_module_with_no_lesson_simply_loses_the_word(qtbot):
@@ -275,7 +286,7 @@ def test_a_dock_hover_reaches_a_module_screen_s_own_strip(window, qapp):
 # The strip itself: what it does NOT do, and the signal it exists to emit
 # ---------------------------------------------------------------------------
 
-def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot, monkeypatch):
+def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot):
     """The one widget in the window that may never show a popup.
 
     Its whole reason for existing is to replace popups; a QLabel whose text
@@ -285,18 +296,20 @@ def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot, monkeypatch):
     """
     from PySide6.QtWidgets import QLabel
 
-    bar = ModuleHintBar()
+    reached_qlabel = []
+
+    class RecordedLabel(QLabel):
+        def event(self, event):
+            reached_qlabel.append(event.type())
+            return super().event(event)
+
+    class RecordedBar(ModuleHintBar, RecordedLabel):
+        """Observe this bar's super call without patching every native QLabel."""
+
+    bar = RecordedBar()
     qtbot.addWidget(bar)
     bar.show_module("mask", "Segment cells and nuclei.")
-
-    reached_qlabel = []
-    real_event = QLabel.event
-
-    def record(self, event):
-        reached_qlabel.append(event.type())
-        return real_event(self, event)
-
-    monkeypatch.setattr(QLabel, "event", record)
+    reached_qlabel.clear()
 
     tooltip = QEvent(QEvent.Type.ToolTip)
     assert bar.event(tooltip) is True
@@ -373,15 +386,21 @@ def test_an_api_lookup_that_raises_costs_the_link_and_nothing_else(
     paint.
     """
     import spacr.qt.screens.settings_model as settings_model
+    from PySide6.QtCore import QTimer
 
     def explode(_key):
         raise RuntimeError("the settings registry is not built yet")
 
-    monkeypatch.setattr(settings_model, "api_docs_url", explode)
-
     bar = ModuleHintBar()
     qtbot.addWidget(bar)
+    pending_help = []
+    QTimer.singleShot(0, lambda: pending_help.append(
+        settings_model.plain_tooltip("Input directory.", "mask", "src")))
 
-    assert bar._api_url("mask") == ""
-    bar.show_module("mask", "Segment cells and nuclei.")
-    assert "Segment cells and nuclei." in bar.text()
+    with monkeypatch.context() as lookup:
+        lookup.setattr(settings_model, "api_docs_url", explode)
+        assert bar._api_url("mask") == ""
+        bar.show_module("mask", "Segment cells and nuclei.")
+        assert "Segment cells and nuclei." in bar.text()
+    qtbot.waitUntil(lambda: bool(pending_help))
+    assert "Input directory." in pending_help[0]

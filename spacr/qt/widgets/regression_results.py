@@ -31,7 +31,7 @@ from typing import Dict, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QHBoxLayout, QLabel, QPushButton, QSplitter, QTabWidget,
+    QComboBox, QHBoxLayout, QLabel, QPushButton, QTabWidget,
     QVBoxLayout, QWidget,
 )
 
@@ -741,19 +741,21 @@ class RegressionResultsPanel(QWidget):
             self._volcano_tab, self._volcano_tab_name = self.table, "Coefficients"
             self.tabs.addTab(self.table, "Coefficients")
         else:
-            split = QSplitter(Qt.Vertical)
-            split.setChildrenCollapsible(False)
-            split.addWidget(self.volcano)
+            from .collapsible_splitter import CollapsibleSplitter
+            split = CollapsibleSplitter(Qt.Vertical,
+                                        persist_key="regression::volcano")
+            split.add_section(self.volcano, "Volcano plot", stretch=3,
+                              extent=340,
+                              persist_key="regression/Volcano plot")
             self._model_line = QLabel("")
             self._model_line.setObjectName("Muted")
             self._model_line.setWordWrap(True)
             self._model_line.setVisible(False)
-            split.addWidget(self._model_line)
-            split.addWidget(self.table)
-            split.setStretchFactor(0, 3)
-            split.setStretchFactor(1, 2)
+            split.add_pane(self._model_line, "Model", stretch=0)
+            split.add_section(self.table, "Coefficient table", stretch=2,
+                              extent=220,
+                              persist_key="regression/Coefficient table")
             self.volcano.setMinimumHeight(240)
-            split.setSizes([340, 20, 220])
             self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
 
@@ -827,15 +829,17 @@ class RegressionResultsPanel(QWidget):
 
         self.agreement = GuideAgreementPlot()
         self.support = ResultsTable()
-        agreement_split = QSplitter(Qt.Vertical)
-        agreement_split.setChildrenCollapsible(False)
-        agreement_split.addWidget(self.agreement)
-        agreement_split.addWidget(self.support)
-        agreement_split.setStretchFactor(0, 3)
-        agreement_split.setStretchFactor(1, 2)
+        from .collapsible_splitter import CollapsibleSplitter
+        agreement_split = CollapsibleSplitter(
+            Qt.Vertical, persist_key="regression::guide_support")
+        agreement_split.add_section(
+            self.agreement, "Guide agreement", stretch=3, extent=340,
+            persist_key="regression/Guide agreement")
+        agreement_split.add_section(
+            self.support, "Guide support table", stretch=2, extent=220,
+            persist_key="regression/Guide support table")
         self.agreement.setMinimumHeight(240)
         self.support.setMinimumHeight(150)
-        agreement_split.setSizes([340, 220])
         self._support_tab = agreement_split
         self.tabs.addTab(agreement_split, "Guide support")
 

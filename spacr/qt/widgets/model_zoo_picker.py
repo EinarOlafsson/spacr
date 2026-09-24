@@ -48,6 +48,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QDialog,
                                QVBoxLayout, QWidget)
 
 from .sortable_table import install_sorting, table_item
+from ..i18n import tr
 
 #: Where checkpoints land unless the user says otherwise.
 DEFAULT_MODEL_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
@@ -515,7 +516,16 @@ class BackendInstallDialog(QDialog):
 
         spec = backends._spec(name)
         self._name = spec.name
-        self._label = spec.label
+        self._label = tr(spec.label)
+        self._progress_labels = {
+            "Checking this computer can install it": tr("Checking this computer can install it"),
+            "Create the environment": tr("Create the environment"),
+            "Update pip": tr("Update pip"),
+            "Install PyTorch": tr("Install PyTorch"),
+            f"Install {spec.label}": tr("Install {name}", name=self._label),
+            "Check it loads": tr("Check it loads"),
+            f"{spec.label} is installed": tr("{name} is installed", name=self._label),
+        }
         self._uninstall = bool(uninstall)
         self._cancel = threading.Event()
         self._thread = None
@@ -537,25 +547,28 @@ class BackendInstallDialog(QDialog):
         self._job = job
 
         state = backends._backend_state(spec.name)
-        verb = "Uninstall" if self._uninstall else "Install"
-        self.setWindowTitle(f"{verb} {spec.label}")
+        verb = tr("Uninstall") if self._uninstall else tr("Install")
+        self.setWindowTitle(tr("Uninstall {name}", name=self._label)
+                            if self._uninstall else tr("Install {name}", name=self._label))
         self.setMinimumWidth(scaled_px(560))
         layout = QVBoxLayout(self)
 
         if self._uninstall:
-            text = (f"Uninstalling {spec.label} deletes its environment, "
-                    f"{state.env}, and everything downloaded into it. "
-                    "spaCR's own environment is not touched, and you can "
-                    "install it again at any time.")
+            text = tr("Uninstalling {name} deletes its environment, {environment}, "
+                      "and everything downloaded into it. spaCR's own environment "
+                      "is not touched, and you can install it again at any time.",
+                      name=self._label, environment=state.env)
         else:
             packages = ", ".join(spec.torch + spec.requirements)
-            text = (f"{spec.blurb}\n\nIt installs into an environment of its "
-                    f"own, {state.env}, and spaCR's own environment is not "
-                    f"changed. pip downloads {packages} from PyPI: about "
-                    f"{spec.size_gb:.0f} GB with a CPU PyTorch, several more "
-                    "with a CUDA one. It can take several minutes; the "
-                    "window keeps responding, and Cancel stops it and "
-                    f"removes what it built.\n\nLicence: {spec.licence_note}")
+            text = "\n\n".join((tr(spec.blurb), tr(
+                "It installs into an environment of its own, {environment}, and "
+                "spaCR's own environment is not changed. Downloads: {packages}. Allow about "
+                "{size_gb:.0f} GB with CPU PyTorch and several more with CUDA. "
+                "Installation can take several minutes. The window remains "
+                "responsive; Cancel stops installation and removes the "
+                "unfinished environment.", environment=state.env,
+                packages=packages, size_gb=spec.size_gb),
+                tr("Licence: {licence}", licence=tr(spec.licence_note))))
         self.blurb = QLabel(text, self)
         self.blurb.setWordWrap(True)
         self.blurb.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -587,19 +600,20 @@ class BackendInstallDialog(QDialog):
         self.start_button = buttons.addButton(verb, QDialogButtonBox.AcceptRole)
         self.start_button.clicked.connect(self.start)
         self.cancel_button = buttons.addButton(QDialogButtonBox.Cancel)
+        self.cancel_button.setText(tr("Cancel"))
         self.cancel_button.clicked.connect(self.reject)
         layout.addWidget(buttons)
 
         blocked = (not self._uninstall
                    and state.state == backends._UNAVAILABLE)
         if blocked:
-            self.reason.setText(f"Not installable here: {state.reason}")
+            self.reason.setText(tr("Not installable here: {reason}", reason=tr(state.reason)))
             if not state.reason.startswith("no network"):
                 self.start_button.setEnabled(False)
             else:
-                self.start_button.setText("Try anyway")
+                self.start_button.setText(tr("Try anyway"))
         elif not self._uninstall and state.state == backends._INSTALLING:
-            self.reason.setText(f"{spec.label} is {state.reason}")
+            self.reason.setText(tr("{name} is {reason}", name=self._label, reason=tr(state.reason)))
             self.start_button.setEnabled(False)
 
     @property
@@ -619,7 +633,7 @@ class BackendInstallDialog(QDialog):
         self.progress.setRange(0, 0)
         self.start_button.setEnabled(False)
         self.cancel_button.setEnabled(not self._uninstall)
-        self.status.setText("Removing…" if self._uninstall else "Starting…")
+        self.status.setText(tr("Removing…") if self._uninstall else tr("Starting…"))
         self._thread = QThread(self)
         self._worker = _BackendJob(self._job, self._cancel)
         self._worker.moveToThread(self._thread)
@@ -635,8 +649,14 @@ class BackendInstallDialog(QDialog):
         if steps > 1:
             self.progress.setRange(0, steps)
             self.progress.setValue(max(0, min(step, steps)))
-            self.progress.setFormat(f"step {min(step + 1, steps)} of {steps}")
-        self.status.setText(text[:300])
+            self.progress.setFormat(tr("step {step} of {steps}",
+                                       step=min(step + 1, steps), steps=steps))
+        shown = text
+        for source, translated in self._progress_labels.items():
+            if text == source or text.startswith(source + ': '):
+                shown = translated + text[len(source):]
+                break
+        self.status.setText(shown[:300])
 
     def _join(self) -> None:
         """Retire the worker thread."""
@@ -655,32 +675,33 @@ class BackendInstallDialog(QDialog):
         self.installed = bool(getattr(state, "ready", False))
         self.removed = self._uninstall
         self.status.setText(
-            f"{self._label} was uninstalled." if self._uninstall
-            else f"{self._label} is installed and ready.")
+            tr("{name} was uninstalled.", name=self._label) if self._uninstall
+            else tr("{name} is installed and ready.", name=self._label))
         self.accept()
 
     def _on_failed(self, message: str) -> None:
         """Show the failure verbatim and offer to try again."""
         self._join()
         self.status.setText(
-            f"{'Uninstalling' if self._uninstall else 'Installing'} "
-            f"{self._label} failed. Nothing was left half-built.")
+            tr("Uninstalling {name} failed. Nothing was left half-built.", name=self._label)
+            if self._uninstall else
+            tr("Installing {name} failed. Nothing was left half-built.", name=self._label))
         self.details.setPlainText(message)
         self.details.setVisible(True)
-        self.start_button.setText("Try again")
+        self.start_button.setText(tr("Try again"))
         self.start_button.setEnabled(True)
         self.cancel_button.setEnabled(True)
-        self.cancel_button.setText("Close")
+        self.cancel_button.setText(tr("Close"))
         if self._close_when_done:
             super().reject()
 
     def _on_cancelled(self) -> None:
         """Cancelled: the half-built environment is already gone."""
         self._join()
-        self.status.setText("Cancelled. Nothing was left behind.")
+        self.status.setText(tr("Cancelled. Nothing was left behind."))
         self.start_button.setEnabled(True)
         self.cancel_button.setEnabled(True)
-        self.cancel_button.setText("Close")
+        self.cancel_button.setText(tr("Close"))
         if self._close_when_done:
             super().reject()
 
@@ -692,7 +713,7 @@ class BackendInstallDialog(QDialog):
             self._close_when_done = True
             self._cancel.set()
             self.cancel_button.setEnabled(False)
-            self.status.setText("Cancelling…")
+            self.status.setText(tr("Cancelling…"))
             return
         super().reject()
 
@@ -1315,8 +1336,12 @@ class ModelZooPicker(QDialog):
         self.download_button.setEnabled(
             bool(entry) and not local and not backend_row or installs)
         self.uninstall_button.setEnabled(_removable(entry))
+        self.use_button.setToolTip(
+            _where_a_backend_is_chosen(entry) if backend_row else "")
         self._show_card(entry)
-        if installs or backend_row:
+        if backend_row:
+            self.status.setText(_where_a_backend_is_chosen(entry))
+        elif installs:
             self.status.setText("")
         elif entry is not None and not getattr(entry, "sha256", ""):
             self.status.setText(
@@ -1338,7 +1363,10 @@ class ModelZooPicker(QDialog):
         if entry is None:
             self.card.setHtml("")
             return
+        backend_row = getattr(entry, "kind", "") == "backend"
         html = model_zoo.scorecard_html(entry)
+        if backend_row:
+            html += _backend_card(entry)
         if not html:
             # The stock model is a SimpleNamespace, not a ModelEntry, so it has
             # no describe(); fall back to what any entry-shaped object has.
@@ -1354,9 +1382,7 @@ class ModelZooPicker(QDialog):
 
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
                      "</b></p>")
-        if getattr(entry, "kind", "") == "backend":
-            html += _backend_card(entry)
-        elif getattr(entry, "kind", "") == "cellpose3":
+        if getattr(entry, "kind", "") == "cellpose3":
             html += _cellpose3_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
@@ -1547,6 +1573,24 @@ class ModelZooPicker(QDialog):
         self._stop_any_download()
         super().reject()
 
+    def done(self, result: int) -> None:
+        """Retire catalogue callbacks and probe polling on every dialog exit.
+
+        :param result: dialog result passed unchanged to Qt.
+
+        A network request may still be running. Its thread is retained by
+        the shared drain mechanism until it finishes. Retiring catalogue
+        work never waits for HTTP, and discarded results cannot refresh
+        this dialog.
+        """
+        runner = getattr(self, "_catalogue_job", None)
+        if runner is not None:
+            runner.shutdown(timeout_ms=0)
+        timer = getattr(self, "_probe_timer", None)
+        if timer is not None:
+            timer.stop()
+        super().done(result)
+
     def chosen_path(self) -> Optional[str]:
         """The path the user accepted, or ``None`` if they cancelled."""
         return self._chosen_path
@@ -1576,6 +1620,44 @@ def _status_text(entry, local) -> str:
     return "on this machine" if local else "not downloaded"
 
 
+def _where_a_backend_is_chosen(entry) -> str:
+    """Why "Use this model" is grey for a backend, and what to do instead.
+
+    The button fills a checkpoint path. A backend is an environment with
+    its own models, selected by name through the detection controls. The
+    explanation names those controls or identifies a backend that performs
+    another operation, such as spot detection rather than segmentation.
+
+    :param entry: the selected catalogue entry.
+    :returns: the sentence for the status line and the button's tooltip.
+    """
+    from .. import i18n
+
+    name = str(getattr(entry, "name", "") or "this backend")
+    backend = str(getattr(entry, "uri", "") or "").partition("backend:")[2]
+    try:
+        from ..._segmentation_backends import _SPECS
+
+        spec = _SPECS.get(backend)
+    except Exception:                                        # noqa: BLE001
+        spec = None
+    installed = str(getattr(entry, "source", "")) == "installed"
+    if spec is not None and not spec.segments:
+        return i18n.tr(
+            "{name} is not a segmentation model, so no model field takes it. "
+            "It is installed and used where its own kind of result is asked "
+            "for.", name=name)
+    if not installed:
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then choose it in Make Masks' Mode box or set "
+            "segmentation_backend in Mask generation.", name=name)
+    return i18n.tr(
+        "{name} is installed. It is a backend rather than a checkpoint file, "
+        "so choose it in Make Masks' Mode box, or set segmentation_backend "
+        "in Mask generation; this field takes a checkpoint.", name=name)
+
+
 def _needs_install(entry) -> bool:
     """Whether choosing this row should offer a backend install first.
 
@@ -1603,15 +1685,27 @@ def _removable(entry) -> bool:
 def _backend_card(entry) -> str:
     """A backend row's card: its state and why, and its licence."""
     import html as _html
+    from ..._segmentation_backends import _SPECS
 
     notes = [str(n) for n in (getattr(entry, "notes", ()) or ())]
     state = notes[0] if notes else str(getattr(entry, "source", ""))
-    out = f"<p><i>Segmentation backend — {_html.escape(state)}</i></p>"
+    key = str(getattr(entry, "uri", "") or "").partition('backend:')[2]
+    spec = _SPECS.get(key)
+    name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
+    out = f"<p><b>{_html.escape(tr(str(name)))}</b></p>"
+    description = str(getattr(entry, "trained_on", "") or "")
+    if description:
+        out += f"<p>{_html.escape(tr(description))}</p>"
+    heading = (tr("Segmentation backend — {state}", state=tr(state))
+               if spec is not None and spec.segments else tr("Backend — {state}", state=tr(state)))
+    out += '<p><i>' + _html.escape(heading) + '</i></p>'
     licence = getattr(entry, "licence", "")
     if len(notes) > 1:
-        out += f"<p>Licence: {_html.escape(notes[1])}</p>"
+        out += '<p>' + _html.escape(tr("Licence: {licence}", licence=tr(notes[1]))) + '</p>'
     elif licence:
-        out += f"<p>Licence: {_html.escape(licence)}</p>"
+        out += '<p>' + _html.escape(tr("Licence: {licence}", licence=licence)) + '</p>'
+    for note in notes[2:]:
+        out += f"<p>{_html.escape(tr(note))}</p>"
     return out
 
 

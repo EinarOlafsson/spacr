@@ -8,7 +8,7 @@ import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFileDialog, QFormLayout, QHBoxLayout,
-    QHeaderView, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QSplitter,
+    QHeaderView, QLabel, QLineEdit, QPlainTextEdit, QPushButton,
     QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -17,9 +17,11 @@ from ...hit_investigation import investigate_hit
 from ...surrogate import (MODEL_FAMILIES, available_backends,
                           explain_classifier, write_surrogate_result)
 from ..job_runner import JobRunner
+from ..i18n import tr
 from ..linked_selection import has_object_opener, open_objects
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.sortable_table import install_sorting, table_item
 
 APP_KEY = "explain_cv"
@@ -238,7 +240,9 @@ class ExplainCvPanel(QWidget):
         self.results.addTab(self.held_out, "Held-out cells")
         self.importance.itemSelectionChanged.connect(
             self._show_selected_feature_distribution)
-        outer.addWidget(self.results, 1)
+        self.results_section = FoldSection(
+            self.results, "Results", persist_key="explain_cv/Results")
+        outer.addWidget(self.results_section, 1)
 
     def _refresh_prediction_columns(self) -> None:
         """Populate column dropdowns from the selected prediction artifact."""
@@ -298,7 +302,7 @@ class ExplainCvPanel(QWidget):
         """
         database, predictions = self.database.text(), self.predictions.text()
         if not database or not predictions:
-            self._failed("Choose a measurements database and predictions CSV.")
+            self._failed(tr("Choose a measurements database and predictions CSV."))
             return
         self.run_button.setEnabled(False)
         self.status.setText("Joining predictions to measured objects and fitting held-out surrogate…")
@@ -374,7 +378,7 @@ class ExplainCvPanel(QWidget):
         :param message: the failure text from the job runner.
         """
         self.run_button.setEnabled(True)
-        self.status.setText(f"Could not explain model: {message}")
+        self.status.setText(tr("Could not explain model: {message}", message=tr(message)))
 
     def open_held_out_objects(self) -> None:
         """Show the held-out objects the explanation was scored on.
@@ -501,7 +505,9 @@ class InvestigateHitPanel(QWidget):
         self.tabs.addTab(self.cell_table, "Candidate cells")
         self.tabs.addTab(self.embedding_table, "Control-fitted embedding")
         self.tabs.addTab(self.gallery_table, "Blinded review gallery")
-        outer.addWidget(self.tabs, 1)
+        self.results_section = FoldSection(
+            self.tabs, "Results", persist_key="investigate_hit/Results")
+        outer.addWidget(self.results_section, 1)
 
     def configure_hit(self, *, folder: str = "", gene: str = "",
                       effect: float = 0.0, guides: Sequence[str] = (),
@@ -609,9 +615,9 @@ class InvestigateHitPanel(QWidget):
                     self.regression_folder.text(), self.gene.text().strip(),
                     self.score.currentText().strip()]
         if not all(required) or not guides:
-            self._failed(
+            self._failed(tr(
                 "Choose database, prediction/fraction tables, regression "
-                "folder, gene, guides and score column.")
+                "folder, gene, guides and score column."))
             return
         self.run_button.setEnabled(False); self.status.setText("Cross-fitting candidate cells…")
         kwargs = {
@@ -664,7 +670,8 @@ class InvestigateHitPanel(QWidget):
 
         :param message: the failure text from the job runner.
         """
-        self.run_button.setEnabled(True); self.status.setText(f"Could not investigate hit: {message}")
+        self.run_button.setEnabled(True)
+        self.status.setText(tr("Could not investigate hit: {message}", message=tr(message)))
 
     def open_candidates(self) -> None:
         """Show the candidate cells this investigation found."""

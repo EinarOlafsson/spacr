@@ -2404,7 +2404,8 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         fig.tight_layout()
         plt.show()
 
-        columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
+        columns = columns + [f'pathogen_channel_{channel_of_interest}_cytoplasm_{stat}_ratio'
+                             for stat in ('mean', 'q75', 'periphery_mean', 'outside_mean', 'outside_q75')]
 
         width = figuresize*2
         columns_per_row = math.ceil(len(columns) / 2)

@@ -53,6 +53,8 @@ def payload(tmp_path):
 
 @pytest.fixture
 def explorer(qt_theme_applied, qtbot, payload):
+    from spacr.qt.widgets.cursor_policy import install_cursor_policy
+    install_cursor_policy()
     widget = ImageUmapExplorer()
     qtbot.addWidget(widget)
     # WIDE ENOUGH THAT THE DIVIDER CAN MOVE. The sidebar carries a width
@@ -132,16 +134,27 @@ class TestTheDividerIsARealHandle:
 
     def test_neither_side_can_be_collapsed_out_of_existence(self, explorer):
         """A divider dragged to the edge that then cannot be dragged back is
-        a divider that has eaten the sidebar."""
-        assert not explorer._body_splitter.childrenCollapsible()
+        a divider that has eaten the sidebar.
+
+        Item 471 lets the sidebar collapse to the right, but only as an EDGE
+        pane: its handle stays, carries the arrow, and a click on it brings
+        the sidebar back. The chart itself never collapses.
+        """
+        from spacr.qt.widgets.collapsible_splitter import EDGE
+
+        split = explorer._body_splitter
+        assert not split.isCollapsible(0), "the chart can be dragged away"
+        assert split.pane("Sidebar").mode == EDGE
+        split.set_collapsed("Sidebar", True, by_user=False)
+        assert split.handle(1).edge_pane() is split.pane("Sidebar")
+        split.toggle_pane("Sidebar", by_user=False)
+        assert not split.is_collapsed("Sidebar")
 
     def test_the_handle_says_it_can_be_dragged(self, explorer):
-        """The cursor over it, and the hover text, are what say so before the
-        first drag. The cursor alone only helps a reader who is already on
-        the handle, which on a hairline is the hard part."""
+        """The handle explains dragging while preserving the native OS arrow."""
         handle = explorer._body_splitter.handle(1)
         assert handle is not None
-        assert handle.cursor().shape() == Qt.SplitHCursor
+        assert handle.cursor().shape() == Qt.ArrowCursor
         assert "Drag" in handle.toolTip()
 
     def test_the_handle_can_be_hit_without_becoming_a_bar(self, explorer):

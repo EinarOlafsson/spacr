@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from audit_staged_catalogs import CATALOGS
+from append_staged_lessons import NAV_PREFIX, JS_SUFFIX
 from build_navigation import build
 from coming_soon import COPY, EMBEDDINGS, OPS, PLACEHOLDERS
 from check_completed_matrix import digest
@@ -17,8 +18,8 @@ REMAINING_HOLDS = [identity for identity in PLACEHOLDERS
 
 def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
     result = validate(ROOT, require_browser=True)
-    assert result['routes'] == 77
-    assert result['ready'] == 76
+    assert result['routes'] == 85
+    assert result['ready'] == 84
     assert result['coming_soon'] == 1
 
 
@@ -39,21 +40,34 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     lessons = english['lessons']
     unavailable = [x for x in lessons if x.get('status') == 'coming_soon']
     ready = [x for x in lessons if x.get('status') != 'coming_soon']
-    # Embeddings and OPS are measured API examples, not fictitious GUI runs.
+    # Embeddings now demonstrates its native crop loader and encoder.
+    # OPS retains its explicitly recorded API example.
     # Model Compare/Zoo are likewise their explicitly recorded subsets.
     # Map now includes real search, mapped counts and its explicit API subset.
     # Investigate Hit still must not be counted as a completed tutorial.
-    assert len(ready) == 76 and len(lessons) == 77
+    assert len(ready) == 84 and len(lessons) == 85
     assert [x['id'] for x in unavailable] == REMAINING_HOLDS
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
-    assert len(embeddings['scenes']) == 11
+    assert len(embeddings['scenes']) == 9
     nav = build(english)
+    manifest = json.loads((ROOT / 'release-manifest.json').read_text())
+    assert nav['missing_tutorials'] == manifest['outstanding_module_tutorials']
     assert nav['missing_tutorials'] == []
     assert nav['routes']['76_ops']['host_app_key'] == 'mask'
+    navigation_text = (ROOT / 'web/module_navigation.js').read_text()
+    assert navigation_text.startswith(NAV_PREFIX) and navigation_text.endswith(JS_SUFFIX)
+    published_nav = json.loads(navigation_text[len(NAV_PREFIX):-len(JS_SUFFIX)])
+    assert published_nav['routes'] == nav['routes']
+    moved_assays = {'26_invasion', '27_replication'}
     for lesson in lessons:
         route = nav['routes'].get(lesson['id'], {})
-        if route.get('kind') == 'submodule':
+        if lesson['id'] in moved_assays:
+            # Preserved lesson metadata predates item 495. The player's
+            # current breadcrumb follows the shared generated navigation.
+            assert lesson.get('host_app_key') is None
+            assert route['host_app_key'] == 'toxoplasma'
+        elif route.get('kind') == 'submodule':
             assert lesson['host_app_key'] == route['host_app_key']
     expected = [(x['id'], x.get('app_key'), x.get('host_app_key'), x.get('status'), len(x['scenes'])) for x in lessons]
     for filename in CATALOGS:
@@ -68,7 +82,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 3800
+    assert manifest['narration_tracks'] == 525
     videos = {Path(r['path']).parts[2] for r in manifest['files']
               if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     assert videos == {x['id'] for x in ready}
@@ -94,4 +108,4 @@ def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
     assert readback['passed'] is True and not readback['download_failures'] and not readback['metadata_failures']
     assert readback['downloaded_sha256_matched'] == readback['files_expected'] == receipt['media_files']
     assert published['passed'] is True and published['media_root'] == receipt['media_root']
-    assert len(published['ready_playback_cases']) == 76
+    assert len(published['ready_playback_cases']) == 84

@@ -5,19 +5,18 @@
   "series": 5,
   "app_key": "trellis",
   "section": "Explore",
-  "title": "Small Multiples: real groups, live filters and honest scales",
-  "description": "Open the nested Small Multiples view, compare genuine downloaded measurements on matched or independent scales, inspect real empty groups and capped wrapping, and create a reversible derived column.",
+  "title": "Small Multiples: compare groups with shared or separate axes",
+  "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
   "objectives": [
-    "Find Small Multiples inside Graph Builder and build a real object-level scatter grid.",
-    "Compare shared, free, per-row and per-column limits without confusing scale changes with data changes.",
-    "Filter live, distinguish empty groups from unused wrap slots and account for omitted facet levels.",
-    "Create and remove an in-memory rescaling, preserving the source and recording reproducible chart choices."
+    "Load measurements and assign axes and facets.",
+    "Choose shared, independent or grouped axis limits.",
+    "Inspect filters and displayed groups, then add or remove a derived column."
   ],
-  "prerequisite": "Use the downloadable Annotate example on a byte-identical private copy of measurements.db: 2,341 objects across four wells. The source includes 13 field labels and 51 observed well/field combinations. Object counts are not independent experimental replication, and spatial labels are not established treatments. All demonstrated continuous scatter-point coordinates, exact group memberships, axis limits, group titles and visible-versus-hidden panels are independently checked against source rows. The proof is bounded to finite, nondegenerate axes and this unsampled dataset; it does not validate arbitrary plots, linked-view brushing, biological effects or physical-unit calibration. Small Multiples is a table-only Graph Builder submodule, with no dedicated download, image preview, GPU pipeline, AI console, Run-level Plot switch or export button. Reuse Annotate's test data and its own Load table control.",
+  "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
   "scenes": [
     {
       "visual": "01_graph_builder_host",
-      "narration": "Open Graph Builder from Home, then choose its nested Small Multiples button. This is the current submodule route, not a separate Home tile. We reuse the genuine downloadable Annotate measurements on a private copy; the Annotate tutorial shows how to obtain that example.",
+      "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
       "hold_after": 0.7,
       "related_lessons": [
         "09_annotate",
@@ -26,12 +25,12 @@
     },
     {
       "visual": "03_choose_real_measurements",
-      "narration": "Use Load table inside Small Multiples and select the private measurements database, then cell. It contains two thousand three hundred forty-one measured objects across four wells. The host Graph Builder has a separate Load table button. Use the one beside the Small Multiples heading for this workflow.",
+      "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
       "hold_after": 0.7
     },
     {
       "visual": "05_four_wells_shared_axes",
-      "narration": "Search for cell_area and drag it onto X, then put cell_channel_1_mean_intensity on Y. Choose Scatter in Plot. Drag rowID onto Facet down and columnID onto Facet across. Search narrows the column list, not the cell population. Each plotted point here is an existing measured object.",
+      "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
       "hold_after": 0.7,
       "focus": [
         300,
@@ -42,37 +41,37 @@
     },
     {
       "visual": "05_four_wells_shared_axes",
-      "narration": "With both scales shared, all four panels use the same horizontal and vertical limits. Their titles report six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one objects. The row and column labels describe position, not verified treatments. These cells are not independent experimental replicates.",
+      "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
       "hold_after": 0.7
     },
     {
       "visual": "06_both_axes_free",
-      "narration": "Set both X scale and Y scale to free. Each panel now uses its own range. This reveals within-group shape, but equally wide clouds need not span equal measurement values. Read the tick labels before comparing panels. Changing the scales does not alter any source measurements.",
+      "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
       "hold_after": 0.7
     },
     {
       "visual": "07_both_axes_row",
-      "narration": "Choose per row for both scales. Panels on the same grid row now share limits, while different grid rows can differ. This is a layout-based scale group, not a statistical correction. Here the two columns within each row are directly comparable on their matched axes.",
+      "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
       "hold_after": 0.7
     },
     {
       "visual": "08_both_axes_col",
-      "narration": "Choose per column for both scales. Panels in the same grid column now share limits. X and Y can also be configured separately; this demonstration changes both together. Restore shared for both before comparing all four wells. Shared means common within the current grid, not fixed across every later filter.",
+      "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
       "hold_after": 0.7
     },
     {
       "visual": "10_live_area_filter",
-      "narration": "In the Filter tab, add cell_area and set its lower bound to twenty-one thousand nine hundred twenty-five. The actual grid updates immediately to one thousand one hundred seventy-one objects. The panel counts and points change together. This is a live measurement filter, not image segmentation or a new analysis run.",
+      "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
       "hold_after": 0.7
     },
     {
       "visual": "11_all_cells_restored",
-      "narration": "Choose Clear all in the Filter tab. All two thousand three hundred forty-one objects return, with their original point positions and shared limits. This button clears the filter; Clear all channels on the left instead removes the chart assignments. Neither action deletes rows from the database.",
+      "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
       "hold_after": 0.7
     },
     {
       "visual": "12_real_empty_group",
-      "narration": "To inspect a genuine missing group, filter columnID to c two and fieldID to f twenty and f twenty-one, scrolling the category list as needed. Put fieldID on Facet across and keep rowID on Facet down. One hundred seventy-four cells remain. The row-five, field-twenty panel has n equals zero: no source objects, not a measured zero intensity.",
+      "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
       "hold_after": 0.7,
       "related_lessons": [
         "61_tabulate"
@@ -80,17 +79,17 @@
     },
     {
       "visual": "14_two_way_wrap_ignored",
-      "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five while both facet channels are assigned. The grid remains two by two, and the notice says wrapping is ignored. Wrapping applies when only one facet channel is in use; it does not rearrange a two-way grid.",
+      "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
       "hold_after": 0.7
     },
     {
       "visual": "15_twelve_fields_and_three_unused_slots",
-      "narration": "Clear Facet down, put fieldID on Facet across and keep Wrap at five. The retained fields now form three rows, five slots wide. Only twelve field levels are drawn, although the source has thirteen. The three unused positions are hidden layout padding, unlike a real group displayed with n equals zero.",
+      "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
       "hold_after": 0.7
     },
     {
       "visual": "15_twelve_fields_and_three_unused_slots",
-      "narration": "Read the notice below the grid. Field twenty-one falls outside the twelve displayed levels, excluding two hundred sixty-four source objects from the panels. Two thousand seventy-seven points are actually drawn, even though the loaded table still contains two thousand three hundred forty-one rows. A loaded-row count is not proof that every row is visible.",
+      "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
       "hold_after": 0.7,
       "focus": [
         1000,
@@ -101,7 +100,7 @@
     },
     {
       "visual": "17_actual_area_formula",
-      "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, enter area_k as the name and cell_area divided by one thousand as the expression, exactly as shown. The preview checks the first two thousand rows. Choose Add column to compute the derived values for the full table, without rewriting the database.",
+      "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
       "hold_after": 0.7,
       "focus": [
         3120,
@@ -112,22 +111,23 @@
     },
     {
       "visual": "18_rescaled_area_not_new_measurement",
-      "narration": "Drag area_k onto X. Every horizontal coordinate is now the original cell area divided by one thousand; Y values and group membership remain unchanged. This is a numerical rescaling, not calibration to square micrometres, a new measurement or evidence of a biological effect. All two thousand three hundred forty-one derived values were checked.",
+      "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
       "hold_after": 0.7
     },
     {
       "visual": "19_formula_removed_original_points",
-      "narration": "Put cell_area back on X before selecting area_k in Columns and choosing Remove. The original four-panel plot returns and the derived column disappears. Both the private database and the original downloaded data remain unchanged. Record your variables, grouping, filters and scale choices so someone else can reproduce the view.",
+      "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
       "hold_after": 0.7
     },
     {
       "visual": "19_formula_removed_original_points",
-      "narration": "For code, trellis and TrellisSpec in spaCR's Qt trellis_spec module define the grouping, scales and wrap; GraphSpec defines the chart channels. This screen has no dedicated export button or downloadable dataset of its own. Use Tabulate for checked summary CSV exports. Image previews, GPU pipelines and spaCR AI belong to the relevant analysis lessons, not this table-only view.",
+      "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
       "hold_after": 0.7,
       "related_lessons": [
         "06_api",
         "61_tabulate"
       ]
     }
-  ]
+  ],
+  "host_app_key": "graph_builder"
 }

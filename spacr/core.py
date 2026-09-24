@@ -60,7 +60,9 @@ also removes those objects from the returned frame, keeping the table and the
 visible embedding aligned rather than silently returning different samples.
 """
 
-import os, gc, torch, time, random
+import os, torch, time, random
+
+from . import _gc as gc
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -190,6 +192,9 @@ def preprocess_generate_masks(settings):
         - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.
         - ``timelapse`` — enable trackpy linking; forces
           ``randomize=False``.
+        - ``motility_analysis`` — when timelapse is enabled, analyze the
+          completed merged frames once per plate, rebuilding measurements
+          from the current masks rather than reusing an older assay table.
         - ``dry_run`` — validate only: inspect the input folders, print the
           preflight report and plan and return, without writing anything or
           loading a model.
@@ -333,9 +338,10 @@ def preprocess_generate_masks(settings):
                                     f"number the wells itself (rename_log.csv then records which "
                                     f"file became which well) is only safe once the plate*_*.tif "
                                     f"files this attempt already wrote are moved out of "
-                                    f"{source_folder}: that conversion reads every image in the "
-                                    f"folder, so it would convert them a second time, as further "
-                                    f"wells.")
+                                    f"{source_folder}. Automatic conversion now refuses folders "
+                                    f"with converted images to prevent overwrites or changed "
+                                    f"well assignments. A separate folder containing only the "
+                                    f"original inputs is the safest place to retry.")
                                 print(f'Error: {refusal}')
                                 ledger.record_failure(source_folder,
                                                       stage='convert_metadata', exc=e)
@@ -403,6 +409,27 @@ def preprocess_generate_masks(settings):
 
                         if not settings['preprocess']:
                             _check_archives_without_preprocessing(src)
+                            from .psf_pipeline import validate_psf_resume, _record_path
+                            if (settings.get('psf_operation', 'none') != 'none' or
+                                    _record_path(src).exists()):
+                                psf_channels = list(dict.fromkeys(
+                                    int(settings[f'{role}_channel'])
+                                    for role in ('nucleus', 'cell', 'pathogen',
+                                                 *ORGANELLE_ROLES)
+                                    if settings.get(f'{role}_channel') is not None))
+                                validate_psf_resume(
+                                    settings, src, psf_channels,
+                                    expected_fields=_normalized_npz_field_ids(mask_src))
+
+                        from .image_quality import screen_fields
+                        quality_paths = None
+                        if settings.get('image_qc_mode', 'off') != 'off':
+                            quality_paths = [os.path.join(src, 'stack', field + '.npy')
+                                             for field in _normalized_npz_field_ids(mask_src)]
+                        settings['image_qc_excluded_fields'] = screen_fields(src, settings, quality_paths)
+                        if quality_paths and len(settings['image_qc_excluded_fields']) == len(quality_paths):
+                            print('All fields were excluded by the saved image-quality policy; no masks generated.')
+                            break
 
                         if (not settings['preprocess'] and
                                 settings.get('illumination_correction', False)):
@@ -497,6 +524,8 @@ def preprocess_generate_masks(settings):
 
                                     print(f'Adjusting cell masks with nuclei and pathogen masks')
                                     adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                                    from .object import _run_seg_qc
+                                    _run_seg_qc(mask_src, settings, 'cell')
                                     stop = time.time()
                                     adjust_time = (stop-start)/60
                                     print(f'Cell mask adjustment: {adjust_time} min.')
@@ -518,6 +547,12 @@ def preprocess_generate_masks(settings):
                                     f'{role}_channel')) is not None},
                             resume=settings.get('resume', False)
                         )
+
+                        if settings['timelapse'] and settings.get('motility_analysis', False):
+                            cancellation_checkpoint()
+                            from .timelapse import automated_motility_assay
+                            automated_motility_assay(dict(
+                                settings, src=src, reuse_existing_measurements=False))
 
                         if settings['plot']:
                             if not settings['timelapse']:

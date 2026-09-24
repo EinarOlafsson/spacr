@@ -222,7 +222,6 @@ class _CopyGlyphButton(QAbstractButton):
         """Build the copy mark, drawn rather than shipped as an icon."""
         super().__init__(parent)
         self.setObjectName("ConsoleCopyGlyph")
-        self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.NoFocus)
         edge = self._SIDE + self._OFFSET + 5
         self.setFixedSize(edge, edge)
@@ -281,13 +280,12 @@ class _TopicBar(QFrame):
             heading, for a count or a control belonging to the section.
 
         The heading is a CONTROL, not a caption: clicking it brings its
-        section to the top and expands it, so it takes a pointing hand and
-        strong focus. A control only a mouse can reach is one some users
-        cannot reach at all.
+        section to the top and expands it, so it takes strong focus while
+        preserving the operating system's cursor. A control only a mouse can
+        reach is one some users cannot reach at all.
         """
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
-        self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.StrongFocus)
         self._expanded = True
         lay = QHBoxLayout(self)

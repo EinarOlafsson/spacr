@@ -23,12 +23,19 @@ on:
         description: Commit containing the collected installers
         value: ${{ jobs.collect.outputs.commit_sha }}
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to verify (release builds always use all)
+        type: choice
+        default: all
+        options: [all, linux, windows, macos]
 
 permissions:
   contents: write
 
 jobs:
   linux:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'linux' }}
     name: Linux online installer
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -79,6 +86,7 @@ jobs:
           if-no-files-found: error
 
   windows:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'windows' }}
     name: Windows online installer
     runs-on: windows-2025
     timeout-minutes: 30
@@ -207,9 +215,12 @@ jobs:
           if-no-files-found: error
 
   macos:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'macos' }}
     name: macOS universal online installer
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 50
+    env:
+      SPACR_MACOS_SIGNING_REQUIRED: ${{ vars.SPACR_MACOS_SIGNING_REQUIRED || '0' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -217,13 +228,29 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+      - name: Prepare optional Developer ID signing
+        env:
+          MACOS_CERTIFICATES_BASE64: ${{ secrets.MACOS_CERTIFICATES_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_APPLICATION_IDENTITY: ${{ secrets.MACOS_APPLICATION_IDENTITY }}
+          MACOS_INSTALLER_IDENTITY: ${{ secrets.MACOS_INSTALLER_IDENTITY }}
+          MACOS_APPLE_ID: ${{ secrets.MACOS_APPLE_ID }}
+          MACOS_TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+          MACOS_APP_PASSWORD: ${{ secrets.MACOS_APP_PASSWORD }}
+        run: python packaging/online/macos_signing.py prepare-ci
       - name: Build small .pkg web installer
         run: packaging/online/build_macos_online.sh
       - name: Inspect package and bootstrap scripts
         run: |
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           test -n "$pkg"
-          pkgutil --check-signature "$pkg" || true
+          if [ "$SPACR_MACOS_SIGNING_REQUIRED" = "1" ]; then
+            pkgutil --check-signature "$pkg"
+            xcrun stapler validate "$pkg"
+            spctl --assess --type install --verbose=2 "$pkg"
+          else
+            echo "::warning::This package is not notarized; Gatekeeper acceptance is not claimed."
+          fi
           pkgutil --payload-files "$pkg" | grep 'Applications/spaCR.app'
           bash -n packaging/online/install_spacr_unix.sh
           packaging/online/install_spacr_unix.sh \
@@ -238,6 +265,8 @@ jobs:
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           sudo installer -verboseR -pkg "$pkg" -target /
           test -s "/Applications/spaCR.app/Contents/Resources/spaCR.icns"
+          lipo "/Applications/spaCR.app/Contents/MacOS/spaCR" -verify_arch arm64 x86_64
+          codesign --verify --deep --strict "/Applications/spaCR.app"
           test -L /usr/local/bin/spacr
           SPACR_NO_RELAUNCH=1 \
             SPACR_PACKAGE_SPEC="$GITHUB_WORKSPACE[qt]" \
@@ -259,6 +288,15 @@ jobs:
           name: spacr-online-macos
           path: dist/online/*macOS*Online.pkg
           if-no-files-found: error
+      - name: Preserve macOS signing receipt
+        uses: actions/upload-artifact@v7
+        with:
+          name: spacr-macos-signing-receipt
+          path: dist/online/*.notarization.json
+          if-no-files-found: error
+      - name: Remove temporary signing credentials
+        if: always()
+        run: python packaging/online/macos_signing.py cleanup-ci
 
   collect:
     name: Store installers and update README

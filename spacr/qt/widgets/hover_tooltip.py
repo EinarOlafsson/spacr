@@ -693,7 +693,7 @@ class HoverTooltip(QFrame):
         if animation is not _DERIVE:
             return animation
 
-        key = _anchor_setting_key(anchor)
+        key = (anchor.property("settingAnimationKey") if anchor is not None else None) or _anchor_setting_key(anchor)
         if not key:
             return None
         try:

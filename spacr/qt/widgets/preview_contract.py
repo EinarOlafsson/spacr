@@ -155,6 +155,12 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     Cellpose and torch are imported inside the call, so importing a preview
     module cold — as the test suite does — needs no CUDA-capable stack.
 
+    CPU previews set ``use_bfloat16=False``, including an explicit
+    ``gpu=False`` choice and the CPU fallback when accelerator detection
+    fails. A Cellpose 3 checkpoint rejected by Cellpose 4 raises a
+    preview-specific compatibility message while retaining the original
+    exception as its cause.
+
     :param model_name: the model name or checkpoint path the user picked.
     :param gpu: force the device choice; ``None`` asks torch.
     :returns: a ``cellpose.models.CellposeModel``.
@@ -172,17 +178,22 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     kwargs.pop("device", None)
     if gpu is not None:
         kwargs["gpu"] = bool(gpu)
+    if not kwargs["gpu"]:
+        kwargs["use_bfloat16"] = False
     try:
         return cp_models.CellposeModel(
             pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
             device=None, **kwargs)
     except ValueError as exc:
-        from spacr.submodules import explain_cellpose3
+        from spacr.submodules import Cellpose3Checkpoint, explain_cellpose3
 
         explained = explain_cellpose3(exc, model_name)
         if explained is exc:
             raise
-        raise explained from exc
+        raise Cellpose3Checkpoint(tr(
+            "{model} is a Cellpose 3 checkpoint and cannot be loaded by "
+            "Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.",
+            model=model_name)) from exc
 
 
 class LivePreviewContract:

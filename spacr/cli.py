@@ -342,10 +342,11 @@ _MODULE_LIST: Tuple[Module, ...] = (
         entry="spacr.ml:perform_regression",
         defaults="get_perform_regression_default_settings",
         validate_key="regression",
-        requires=("score_data — CSV(s) of per-well scores",
-                  "count_data — CSV(s) of per-well sgRNA counts",
+        requires=("paired_data — ordered rows pairing score and sgRNA-count tables",
                   "dependent_variable — the score column to regress"),
         writes=("volcano plots, plate heatmaps, gene phenotype plots, GO reports",),
+        note=("src is an optional output root. Legacy score_data/count_data lists "
+              "are paired by position; new configurations should use paired_data."),
     ),
     Module(
         key="explain_cv",
@@ -440,6 +441,18 @@ _MODULE_LIST: Tuple[Module, ...] = (
         note=("The counting unit is a vacuole, not a host cell. Check the "
               "reported vacuole_key and non-power-of-two QC fraction before "
               "quoting the result."),
+    ),
+    Module(
+        key='host_pathogen',
+        defaults=None,
+        validate_key='host_pathogen',
+        summary='Combine vacuole recruitment, explicit parasite counts and host infection denominators.',
+        entry='spacr.host_pathogen:analyze_host_pathogen',
+        defaults_entry='spacr.host_pathogen:default_settings',
+        requires=('src — measured projects or measurements.db files',
+                  'cell and vacuole objects with explicit host links and a per-host reference table'),
+        writes=('<src>/results/host_pathogen/*.csv and settings.json',),
+        note='Counts remain unknown unless a linked parasite table or explicit count column is supplied. Recruitment remains available separately.',
     ),
     Module(
         key="endodyogeny",

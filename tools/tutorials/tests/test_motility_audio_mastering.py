@@ -56,3 +56,17 @@ def test_spanish_overview_repair_keeps_other_lessons_and_voices_unchanged():
                      ('41_classify', 'en', 'af_heart')]:
         assert select(*identity) == baseline
     assert len(baseline['filters']) == 3
+
+
+def test_module_reference_repair_is_limited_to_its_measured_heart_track():
+    ns, _ = namespace()
+    select, baseline = ns['mastering_config'], ns['MASTERING_CONFIG']
+    repaired = select('79_module_inputs_outputs', 'en', 'af_heart')
+    assert repaired['filters'] == baseline['filters'] + [baseline['filters'][-1] + ',volume=-2dB']
+    assert repaired['maximum_decoded_true_peak_dbfs'] == -1.0
+    for identity in [('79_module_inputs_outputs', 'en', 'af_bella'),
+                     ('79_module_inputs_outputs', 'es', 'ef_dora'),
+                     ('78_spacr_screens', 'en', 'af_heart'),
+                     ('80_image_analysis_pathways', 'en', 'af_heart'),
+                     ('81_sequencing_pathways', 'en', 'af_heart')]:
+        assert select(*identity) == baseline

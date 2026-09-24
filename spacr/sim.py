@@ -1,6 +1,8 @@
 """Pooled-screen simulation, evaluation, and visualisation utilities."""
 
-import os, random, warnings, traceback, sqlite3, math, gc
+import os, random, warnings, traceback, sqlite3, math
+
+from . import _gc as gc
 from time import time, sleep
 from datetime import datetime
 import numpy as np

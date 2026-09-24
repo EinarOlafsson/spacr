@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import queue
 import re
+import signal
 import subprocess
 import threading
 from typing import Dict, List, Optional, Sequence
@@ -40,6 +41,7 @@ __all__ = [
 _ANSI = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)"
                    r"|\x1b[@-Z\\-_]")
 _URL = re.compile(r"https?://[^\s\"'<>\x1b]+")
+_spawn = subprocess.Popen
 
 
 def pty_available() -> bool:
@@ -90,10 +92,16 @@ class PtySession:
         environ.setdefault("TERM", "xterm-256color")
         self._master = master
         self._queue: "queue.Queue[str]" = queue.Queue()
-        self.proc = subprocess.Popen(
-            list(argv), stdin=slave, stdout=slave, stderr=slave, env=environ,
-            start_new_session=True, close_fds=True)
-        os.close(slave)
+        self._stopped = False
+        try:
+            self.proc = _spawn(
+                list(argv), stdin=slave, stdout=slave, stderr=slave, env=environ,
+                start_new_session=True, close_fds=True)
+        except BaseException:
+            os.close(master)
+            raise
+        finally:
+            os.close(slave)
         self._reader = threading.Thread(target=self._pump, daemon=True)
         self._reader.start()
 
@@ -133,17 +141,32 @@ class PtySession:
         return self.proc.poll()
 
     def stop(self) -> None:
-        """End the command and close the terminal."""
-        if self.proc.poll() is None:
-            try:
-                self.proc.terminate()
-                self.proc.wait(timeout=3)
-            except Exception:
-                self.proc.kill()
+        """Reap the command, stop its process group and close the terminal.
+
+        Launchers can leave a child holding the terminal after they exit.
+        The group belongs to this session, so cancellation also ends those
+        children. Repeated teardown cannot close a reused file descriptor.
+        """
+        if self._stopped:
+            return
+        self._stopped = True
         try:
+            try:
+                os.killpg(self.proc.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                self.proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                pass
+            try:
+                os.killpg(self.proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            self.proc.wait()
+        finally:
+            self._reader.join(timeout=1)
             os.close(self._master)
-        except OSError:
-            pass
 
 
 class SignInDialog(QDialog):
@@ -201,6 +224,7 @@ class SignInDialog(QDialog):
         layout.addWidget(self.close_btn)
         factory = session_factory or PtySession
         self.session = factory(list(argv))
+        self.destroyed.connect(self.session.stop)
         self._timer = QTimer(self)
         self._timer.setInterval(150)
         self._timer.timeout.connect(self._tick)
@@ -208,6 +232,9 @@ class SignInDialog(QDialog):
 
     def _tick(self) -> None:
         """Show new output, open a new sign-in page, notice the end."""
+        code = self.session.poll()
+        if code is not None:
+            self.session.stop()
         text = self.session.read()
         if text:
             self.log.moveCursor(QTextCursor.End)
@@ -219,7 +246,6 @@ class SignInDialog(QDialog):
                     self.open_btn.setEnabled(True)
                     if len(self._urls) == 1:
                         self._open_url(url)
-        code = self.session.poll()
         if code is not None:
             self._timer.stop()
             self.succeeded = code == 0

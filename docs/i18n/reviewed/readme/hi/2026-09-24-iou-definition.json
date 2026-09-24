@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_method": "Technical meaning and terminology reviewed against the current English definition; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "iou-definition-and-threshold",
+      "source": "**IoU**, intersection over union, divides the overlap between predicted and reference objects by their combined area. Read scores with their threshold: \"F1 0.864 at IoU 0.5\" counts a vacuole as found when that overlap reaches half the combined area.",
+      "source_sha256": "12e926d2e3780c37078d042fb17a81202f12e57bd5bfd00ab55f9aff41f17f4e",
+      "translation": "**IoU** (इंटरसेक्शन ओवर यूनियन) अनुमानित वस्तु और संदर्भ वस्तु के साझा क्षेत्रफल को उनके संयुक्त क्षेत्रफल से विभाजित करता है। स्कोर को उसकी सीमा के साथ पढ़ें: “IoU 0.5 पर F1 0.864” में रिक्तिका को तभी मिला हुआ गिना जाता है, जब साझा क्षेत्रफल संयुक्त क्षेत्रफल के कम से कम आधे तक पहुँचता है।"
+    }
+  ]
+}

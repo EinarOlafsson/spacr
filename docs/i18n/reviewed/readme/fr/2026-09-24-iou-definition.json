@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_method": "Technical meaning and terminology reviewed against the current English definition; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "iou-definition-and-threshold",
+      "source": "**IoU**, intersection over union, divides the overlap between predicted and reference objects by their combined area. Read scores with their threshold: \"F1 0.864 at IoU 0.5\" counts a vacuole as found when that overlap reaches half the combined area.",
+      "source_sha256": "12e926d2e3780c37078d042fb17a81202f12e57bd5bfd00ab55f9aff41f17f4e",
+      "translation": "**IoU** (intersection sur union) divise la surface de chevauchement entre les objets prédits et de référence par la surface de leur union. Lisez les scores avec leur seuil : « F1 0.864 à IoU 0.5 » compte une vacuole comme détectée lorsque le chevauchement atteint au moins la moitié de cette surface."
+    }
+  ]
+}

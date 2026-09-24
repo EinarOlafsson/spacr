@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted source-context review. Preserves per-view thresholding before agreement/voting, available probabilities and default. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "score_threshold",
+      "source": "Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5.",
+      "source_sha256": "4ac7d466720508704bc9a5a1e24952d1ed154bd2c6cb35393ef41791d33c7948",
+      "translation": "生成二元预测时，对模型的正类概率分数应用的阈值（0–1）。使用测试时增强时，先按此阈值对每个视图分类，再计算一致性和投票结果。概率分数仍然可用。默认值为 0.5。"
+    }
+  ]
+}

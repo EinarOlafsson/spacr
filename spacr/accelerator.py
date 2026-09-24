@@ -177,7 +177,7 @@ def _forced() -> Optional[str]:
     return wanted or None
 
 
-def _cuda_or_rocm(torch) -> Optional[Accelerator]:
+def _cuda_or_rocm(torch, *, device_names=True) -> Optional[Accelerator]:
     """NVIDIA, or AMD-on-Linux, both of which dispatch to ``cuda``."""
     try:
         if not torch.cuda.is_available():
@@ -187,7 +187,7 @@ def _cuda_or_rocm(torch) -> Optional[Accelerator]:
     version_module = getattr(torch, "version", None)
     hip = getattr(version_module, "hip", None)
     try:
-        name = torch.cuda.get_device_name(0)
+        name = torch.cuda.get_device_name(0) if device_names else "GPU"
     except Exception:                                        # noqa: BLE001
         name = "GPU"
     if hip:
@@ -322,7 +322,7 @@ def _metal_gpu_name() -> str:
     return "Metal GPU"
 
 
-def _xpu(torch) -> Optional[Accelerator]:
+def _xpu(torch, *, device_names=True) -> Optional[Accelerator]:
     """Intel Arc / Xe, on a torch built with XPU or with IPEX loaded."""
     xpu = getattr(torch, "xpu", None)
     if xpu is None:
@@ -333,7 +333,7 @@ def _xpu(torch) -> Optional[Accelerator]:
     except Exception:                                        # noqa: BLE001
         return None
     try:
-        name = xpu.get_device_name(0)
+        name = xpu.get_device_name(0) if device_names else "Intel GPU"
     except Exception:                                        # noqa: BLE001
         name = "Intel GPU"
     return Accelerator(kind="xpu", device="xpu", label=f"{name} (Intel XPU)",
@@ -374,7 +374,7 @@ def neural_engines() -> Tuple[str, ...]:
     return tuple(found)
 
 
-def inspect_torch(torch) -> Accelerator:
+def inspect_torch(torch, *, device_names=True, include_cuda=True) -> Accelerator:
     """Resolve against a SPECIFIC torch module, without touching the cache.
 
     For callers that already hold a torch handle and must be answered about
@@ -383,10 +383,18 @@ def inspect_torch(torch) -> Accelerator:
     stand-in, and a cached answer about the real machine would defeat that
     entirely. Same probes and same order as :func:`resolve`, so the two
     cannot drift.
+
+    :param torch: torch module whose availability metadata should be inspected.
+    :param device_names: False avoids CUDA/XPU property queries that can
+        initialize their runtime. Availability queries still run.
+    :param include_cuda: False skips CUDA/ROCm entirely, for a process whose
+        environment deliberately hides those devices. Other backends remain
+        eligible. This function does not allocate dtype-probe tensors.
+    :returns: accelerator described by the supplied torch module.
     """
     found = None
-    for probe in (lambda: _cuda_or_rocm(torch), lambda: _mps(torch),
-                  lambda: _xpu(torch), _directml):
+    for probe in (lambda: _cuda_or_rocm(torch, device_names=device_names) if include_cuda else None,
+                  lambda: _mps(torch), lambda: _xpu(torch, device_names=device_names), _directml):
         try:
             found = probe()
         except Exception:                                    # noqa: BLE001
@@ -499,6 +507,84 @@ def _forced_device(wanted: str, found: Accelerator) -> Accelerator:
 
 
 
+def _mask_devices():
+    """List CUDA/ROCm mask devices visible to this process, without tensors.
+
+    Logical indices belong to the current allocation, including scheduler
+    visibility restrictions. Other accelerator types are not multi-GPU mask
+    candidates. An explicit single-device override disables parallel discovery.
+    Unavailable or failed probes return an empty tuple.
+    """
+    forced = _forced()
+    if forced not in (None, 'auto', 'cuda', 'rocm'):
+        return ()
+    torch = _torch()
+    if torch is None:
+        return ()
+    try:
+        if not torch.cuda.is_available():
+            return ()
+        backend = 'rocm' if getattr(torch.version, 'hip', None) else 'cuda'
+        if forced in ('cuda', 'rocm') and forced != backend:
+            return ()
+        devices = []
+        for index in range(torch.cuda.device_count()):
+            properties = torch.cuda.get_device_properties(index)
+            devices.append({'index': index, 'name': str(properties.name),
+                            'memory_bytes': int(properties.total_memory),
+                            'backend': backend})
+        return tuple(devices)
+    except Exception:
+        LOG.debug('Could not enumerate mask GPUs', exc_info=True)
+        return ()
+
+
+def _mask_worker_environment(index, *, backend, count, environment=None):
+    """Restrict a fresh mask worker to one GPU from its parent's allocation.
+
+    CUDA visibility lists remap logical ordinals. HIP uses the same mapping
+    within any retained ROCR restriction. Never replace an allocated logical
+    ordinal with a host ordinal or remove a scheduler's ROCR restriction.
+    The returned environment is independent; this process is not modified.
+
+    :param index: selected logical device ordinal reported by _mask_devices.
+    :param backend: ``cuda`` or ``rocm`` from device discovery.
+    :param count: number of devices the parent actually discovered.
+    :param environment: parent environment, defaulting to os.environ.
+    :returns: child environment exposing the selected device as cuda:0.
+    :raises ValueError: for an invalid selection or contradictory HIP aliases.
+    """
+    import operator
+
+    try:
+        if isinstance(index, bool) or isinstance(count, bool):
+            raise TypeError
+        index, count = operator.index(index), operator.index(count)
+    except TypeError as exc:
+        raise ValueError('GPU selection and device count must be integers') from exc
+    if backend not in ('cuda', 'rocm') or not 0 <= index < count:
+        raise ValueError('Selected GPU is outside the available mask devices')
+    result = dict(os.environ if environment is None else environment)
+    key = 'CUDA_VISIBLE_DEVICES'
+    if backend == 'rocm' and 'HIP_VISIBLE_DEVICES' in result:
+        key = 'HIP_VISIBLE_DEVICES'
+        if ('CUDA_VISIBLE_DEVICES' in result
+                and result['CUDA_VISIBLE_DEVICES'] != result[key]):
+            raise ValueError('HIP_VISIBLE_DEVICES and CUDA_VISIBLE_DEVICES disagree')
+    if key in result:
+        visible = [token.strip() for token in result[key].split(',')]
+        if len(visible) < count or not visible[index] or visible[index] == '-1':
+            raise ValueError('GPU visibility changed since device discovery')
+        selected = visible[index]
+    else:
+        selected = str(index)
+    result['CUDA_VISIBLE_DEVICES'] = selected
+    if backend == 'rocm':
+        result['HIP_VISIBLE_DEVICES'] = selected
+    result[ENV_DEVICE] = backend
+    return result
+
+
 def torch_device():
     """``torch.device`` for the resolved accelerator.
 
@@ -560,8 +646,8 @@ def cellpose_gpu() -> bool:
     Cellpose does its own device resolution and already knows about MPS --
     ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it
     cannot do is guess, so it must be TOLD there is a GPU. Passing
-    ``torch.cuda.is_available()`` here is what pinned every Mac to the CPU:
-    cellpose branches on this flag before it looks at ``device`` at all.
+    ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit
+    device is supplied. An explicit Cellpose device takes precedence.
     """
     return is_gpu()
 
@@ -572,20 +658,24 @@ def supports_bfloat16() -> bool:
 
 
 def cellpose_kwargs() -> dict:
-    """Everything ``CellposeModel`` needs to land on this machine's GPU.
+    """Consistent device and weight precision for ``CellposeModel`` inference.
 
     THREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced
     together rather than spelled out at six call sites:
 
-    * ``gpu`` -- cellpose branches on this BEFORE it looks at ``device``,
-      so a device without the flag still takes the CPU path.
+    * ``gpu`` -- controls Cellpose's selection when no explicit device is
+      supplied, including callers that deliberately drop ``device`` below.
     * ``device`` -- from the one resolver, so cellpose and spaCR cannot
-      disagree about the same machine.
+      disagree about the same machine; an explicit device takes precedence.
     * ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default
       and Metal on torch 2.2 has no bfloat16, so the default is a
       ``TypeError: BFloat16 is not supported on MPS`` at construction.
       Measured on the reporting iMac; float32 weights work there and cost
       VRAM, which is the right trade for a card that otherwise sits idle.
+      CPU inference also uses float32: bfloat16 support does not imply
+      native arithmetic, and emulation can be substantially slower. This
+      matches Make Masks; float32 arithmetic need not produce identical
+      predictions to bfloat16.
 
     Callers that pass ``device=None`` on purpose -- letting cellpose
     resolve it -- should take ``gpu`` and ``use_bfloat16`` from here and
@@ -595,7 +685,7 @@ def cellpose_kwargs() -> dict:
     if accelerator.kind == "mps":
         _keep_cellpose_flows_off_metal()
     kwargs = {"gpu": accelerator.is_gpu, "device": accelerator.torch_device}
-    if accelerator.is_gpu and not accelerator.bfloat16:
+    if not accelerator.is_gpu or not accelerator.bfloat16:
         kwargs["use_bfloat16"] = False
     return kwargs
 
@@ -694,7 +784,7 @@ def empty_cache(torch_module=None) -> str:
     return made
 
 
-def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
+def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, str], ...]:
     """``(task, accelerated, detail)`` for what this machine can actually do.
 
     WHAT THE SETUP SCREEN IS FOR. "Compatible GPU" on its own answers a
@@ -708,9 +798,15 @@ def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
     Ordered by how much the acceleration is worth: segmentation on the CPU
     took 444 s for one 256x256 image on the machine this was written on,
     and 3.2 s on its Radeon.
+
+    :param found: optional existing accelerator snapshot. Providing it avoids
+        another resolution and any dtype-probe allocations, as required by
+        the doctor's metadata-only check.
+    :returns: task, accelerated flag and explanation for each capability.
     """
-    found = resolve()
+    found = resolve() if found is None else found
     gpu = found.is_gpu
+    display_gpu = _opengl_likely()
     rows = [
         ("Segmentation (Cellpose)", gpu,
          "on the GPU — minutes per image on a CPU" if gpu
@@ -719,8 +815,8 @@ def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
          "on the GPU" if gpu else "CPU only — slow but works"),
         ("Model inference / classification", gpu,
          "on the GPU" if gpu else "CPU only"),
-        ("Live backdrop and spaceout", True,
-         "GPU shader" if _opengl_likely() else "CPU renderer"),
+        ("Live backdrop and spaceout", display_gpu,
+         "GPU shader" if display_gpu else "CPU renderer"),
         ("UMAP / t-SNE / clustering", found.is_cuda,
          "on the GPU via cuML" if found.is_cuda
          else "CPU — cuML is built for CUDA only"),

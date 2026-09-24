@@ -347,3 +347,26 @@ def test_the_table_follows_the_object_channel_in_the_same_row(
     panel._cell_channel.setValue(2)
     qtbot.waitUntil(lambda: panel._table_col == 2, timeout=5000)
     assert panel._table_row == 1
+
+
+@pytest.mark.parametrize("folder_of", [_multichannel_folder, _cellvoyager_folder])
+def test_clicking_a_channel_column_sets_the_chosen_objects_channel(
+        qtbot, tmp_path, folder_of):
+    """2026-09-22, the maintainer: the setting moved the table, but a click on
+    another channel always snapped back to the object's channel. The click
+    now sets the chosen object's channel, and the view stays where clicked."""
+    panel = _panel(qtbot)
+    panel.load_source_async(folder_of(tmp_path))
+    qtbot.waitUntil(lambda: panel._set_table.columnCount() >= 3, timeout=10000)
+    panel._cell_channel.setValue(0)
+    qtbot.waitUntil(lambda: panel._table_col == 0, timeout=5000)
+
+    _click(qtbot, panel, 1, 2)
+    qtbot.wait(200)
+    assert int(panel._cell_channel.value()) == 2
+    assert (panel._table_row, panel._table_col) == (1, 2), "the click stays"
+
+    _click(qtbot, panel, 1, 1)
+    qtbot.wait(200)
+    assert int(panel._cell_channel.value()) == 1
+    assert panel._table_col == 1

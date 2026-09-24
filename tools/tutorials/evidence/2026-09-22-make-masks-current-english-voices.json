@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "14_make_masks",
+  "selection": "english",
+  "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1",
+  "tracks": [
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_heart.m4a",
+      "sha256": "07110b688ac6a7cb301bf03a217270084922f422388c8e40f20b7db4703ecaed",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -3.4
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_aoede.m4a",
+      "sha256": "8862cde52910e71b0ce24048091b67ea0aeb341f1226e4b4f04d562ca7748fba",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.5
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_bella.m4a",
+      "sha256": "4dd592b630a71a4c3692ed0dfbb11cd22afb033d3912b2946ef537a97bda1f2d",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -3.9
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_jessica.m4a",
+      "sha256": "ab6976fdb8d4cec5d3d7799d8b5e098414e3407850994099d9f0365531ce368c",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_river.m4a",
+      "sha256": "3b530eebe4f995df30c16bec38467a55003702e4a9105a0b2415dfb72cb7674e",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_sarah.m4a",
+      "sha256": "0971ea33d4bf2019430f12dc919471b177989c3ecdb0d12cac20ef67717fa640",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/af_sky.m4a",
+      "sha256": "4c5d31332642fe32d63953072e2df0c91c569dfbbeb2ff0f9ca29af858879ff8",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_adam.m4a",
+      "sha256": "d5f7e24df57ded82881fe076584cc081ebef4842c5b562b97a7ecd6ca323e8ea",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_echo.m4a",
+      "sha256": "9d2ba0a567bc265775ce74841225bf077f36dc57110a966f7698239c23ead76a",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_eric.m4a",
+      "sha256": "5ffa10b9258ae35b46c3aee933a614860f06247a4cd5602cb56f3a44c35af635",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.4
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_fenrir.m4a",
+      "sha256": "ed296810c4b6bc0d4ceb8616063070178ab1624c3e92c4dc07b834b107624963",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_liam.m4a",
+      "sha256": "9c5d1a9d98ef27f23899ae2c63938b9ae83644f5a700765a30caaf5f45a6be71",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_michael.m4a",
+      "sha256": "f180412279872e21490196d9b23dd817e60d4ee752dcf43340c8989c3e5b0cb6",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -3.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_onyx.m4a",
+      "sha256": "7b71304875cd93f4926614fee63d8d5cb557e782c432784576ce9a35a1e6a790",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -4.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_puck.m4a",
+      "sha256": "a2211c068d5fea36d81fc86abbcb030cb77ea79604daeb5693af71f3005d021d",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.7
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/am_santa.m4a",
+      "sha256": "30b5bbf29a6c72c3919fb1ae4c287bb41c0dad7db7793f565a55b96a77cf2e34",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bf_alice.m4a",
+      "sha256": "5c456f9081bdee0b5d0ba9fdc46e2e1ca0f0ac1ced3aaa7756e6f0c13726ee9b",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bf_emma.m4a",
+      "sha256": "70a6c82a6a1318153bae49cc6c85df0c4bcc4efbe7a91bec162d6aed403ac3d2",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.7
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bf_isabella.m4a",
+      "sha256": "b81de2d423cac7d85100233b32a54cb965eb2dd7e8f769cb79434d0b70879a5a",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bf_lily.m4a",
+      "sha256": "de4cb388ccccf51a6d821f12b31064cffe6c5611b89664bc73ede1bf48682ff0",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bm_daniel.m4a",
+      "sha256": "296177a7e18de2213a055b6035fc986ef71c0c5f7c2f82b2a82af59f892391d6",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -4.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bm_fable.m4a",
+      "sha256": "2860bc237ec4adf5c29a702bfae608ecb39a7910e7ab92ef86cb1c0dedaeebc4",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bm_george.m4a",
+      "sha256": "183348413d4d3146ab22e32077d205b065d76fdf4efd283456481442676579d5",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/production/14_make_masks/audio/en/bm_lewis.m4a",
+      "sha256": "50de55c8d1bcd40787adefcaed508474c4f1b2f582f0bd13e7e843b0a0f14d6a",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.6
+    }
+  ],
+  "verified_tracks": 24,
+  "required_tracks": 24,
+  "maximum_decoded_true_peak_dbfs": -1.0,
+  "published": false,
+  "human_listening_signoff": false,
+  "remaining": [
+    "Complete language/voice/caption acceptance",
+    "Audible narration acceptance",
+    "Complete-set publication"
+  ]
+}

@@ -151,13 +151,6 @@
     },
     {
       "table": "ui",
-      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "translation": "实时放大镜也使用这些设置：Cellpose 模式使用模型、两个阈值、直径及归一化设置，DINOCell 使用细胞概率设置。Otsu 模式则读取 Otsu 类别中的设置。",
-      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
-    },
-    {
-      "table": "ui",
       "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "translation": "spaCR 执行的命令。也可复制该命令，自行在终端中运行。",
@@ -274,6 +267,19 @@
       "source": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
       "translation": "这是随本机代码保存的描述。正在检查能否访问已发布的页面…",
       "source_sha256": "f605135194ed5e4b3ea396566a391bf9d9d91f31ad3b7fd0fa2b57a16dcc9d68"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "translation": "实时放大镜也使用这些设置：Cellpose 模式使用模型、两个阈值、直径及归一化设置，DINOCell 使用细胞概率设置。Otsu 模式则读取 Otsu 类别中的设置。",
+        "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
+      }
     }
   ]
 }

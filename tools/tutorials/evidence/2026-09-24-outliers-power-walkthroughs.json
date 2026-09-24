@@ -1,0 +1,28 @@
+{
+  "scope": "Practical flagging and simulation controls; preserve unscored groups, transform refusal and current report/headline cautions.",
+  "lessons": [
+    {
+      "lesson": "66_outliers",
+      "old_spoken_words": 921,
+      "new_spoken_words": 500,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "68_power_design",
+      "old_spoken_words": 532,
+      "new_spoken_words": 320,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Accepted with all84hosted playback cases and14localized unavailable views. Prepared for nightly; live deployment not yet verified.",
+  "publication": {
+    "commit": "5fef816b732a14df2654c5eda9610baa071a080c",
+    "files": 1722,
+    "bytes": 2123675799,
+    "manifest_sha256": "2c25f8e5c511ef8f229158876883a4087b2cd065d11e44834e70437f7fe982f4",
+    "valid_narration_tracks": 819
+  },
+  "original_capture_hash_sequence_matches": true
+}

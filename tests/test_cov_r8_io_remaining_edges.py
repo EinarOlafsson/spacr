@@ -314,15 +314,23 @@ class TestTheRemainingDecisions:
         assert 'while os.path.exists(f"{base}_{j}"):' in source
         assert "j += 1" in source
 
-    def test_a_well_is_minted_once_per_file_not_once_per_channel(self):
+    def test_a_well_is_minted_once_per_file_not_once_per_channel(self, tmp_path):
         """``convert_to_yokogawa``: the loop runs per channel/timepoint.
 
         Minting a well on every pass would scatter one image's channels
         across the plate, which is the one thing the conversion must not
         do.
         """
-        source = inspect.getsource(io.convert_to_yokogawa)
-        assert "file_to_well" not in source
-        assert "well = _get_next_well(used_wells)" in source
-        assert source.index("for file in sorted(_listdir_visible(folder)):") < \
-            source.index("well = _get_next_well(used_wells)")
+        import tifffile
+
+        planes = np.arange(3 * 7 * 8, dtype=np.uint16).reshape(3, 7, 8)
+        tifffile.imwrite(tmp_path / 'multichannel.tif', planes,
+                         photometric='minisblack')
+        io.convert_to_yokogawa(str(tmp_path))
+        log = pd.read_csv(tmp_path / 'rename_log.csv')
+        assert log['Original File'].tolist() == ['multichannel.tif'] * 3
+        assert log['Renamed TIFF'].tolist() == [
+            f'plate1_A01_T0001F001L01C0{channel}.tif' for channel in (1, 2, 3)]
+        for index, name in enumerate(log['Renamed TIFF']):
+            np.testing.assert_array_equal(tifffile.imread(tmp_path / name),
+                                          planes[index])

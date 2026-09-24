@@ -137,15 +137,15 @@ theme, milliseconds, idle against one Python thread, min of nine interleaved
 rounds:
 
 =========  =====================  =====================
- theme      shading (moved)        soften + blit (stays)
+theme      shading (moved)        soften + blit (stays)
 =========  =====================  =====================
- blobs      0.240 ->  0.572        0.651 -> 1.097
- aurora     1.396 ->  7.176        0.797 -> 1.043
- ripple     0.367 ->  0.589        0.644 -> 1.196
- bokeh      0.663 ->  3.533        0.679 -> 1.008
- cells      0.538 -> 26.179        0.663 -> 0.909
- drift      0.528 ->  1.084        (no buffer)
- resonance  1.072 -> see below     0.842 -> 1.115
+blobs      0.240 ->  0.572        0.651 -> 1.097
+aurora     1.396 ->  7.176        0.797 -> 1.043
+ripple     0.367 ->  0.589        0.644 -> 1.196
+bokeh      0.663 ->  3.533        0.679 -> 1.008
+cells      0.538 -> 26.179        0.663 -> 0.909
+drift      0.528 ->  1.084        (no buffer)
+resonance  1.072 -> see below     0.842 -> 1.115
 =========  =====================  =====================
 
 ``resonance`` is the one row whose contended figure is a range rather than a
@@ -688,10 +688,8 @@ def screen_pixels(widget: Optional[QWidget] = None) -> int:
     or invalid screen information falls back to :data:`BUFFER_MAX_PIXELS`.
     """
     try:
-        screen = widget.screen() if widget is not None else None
-        if screen is None:
-            from PySide6.QtGui import QGuiApplication
-            screen = QGuiApplication.primaryScreen()
+        from ..hidpi import screen_for_widget
+        screen = screen_for_widget(widget)
         if screen is None:
             return BUFFER_MAX_PIXELS
         size = screen.size()

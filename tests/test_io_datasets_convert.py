@@ -48,8 +48,8 @@ def test_generate_dataset_from_lists_splits_train_test(tmp_path, rng):
         str(tmp_path / "out"), data, ["nc", "pc"], test_split=0.2,
         group_by="cell")
     assert os.path.isdir(train) and os.path.isdir(test)
-    n_train = sum(len(files) for _r, _d, files in os.walk(train))
-    n_test = sum(len(files) for _r, _d, files in os.walk(test))
+    n_train = sum(f.endswith('.png') for _r, _d, files in os.walk(train) for f in files)
+    n_test = sum(f.endswith('.png') for _r, _d, files in os.walk(test) for f in files)
     assert n_train + n_test == 20
     assert n_test == 4          # 20% of 10 per class
 

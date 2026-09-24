@@ -5,173 +5,130 @@ on:
     branches: [main, nightly]
   workflow_dispatch:
 
-# Deploys the sphinx-autoapi build directly through the GitHub Pages
-# artifact upload API (modern approach — bypasses gh-pages, bypasses
-# `main:/docs/` commit, bypasses branch protection).
-#
-# REQUIRES: Repository Settings → Pages → "Build and deployment" →
-#           Source = "GitHub Actions" (not "Deploy from a branch").
-# If it's still "Deploy from a branch", this workflow silently uploads
-# but Pages keeps serving the old branch — flip the source once.
-#
-# ---------------------------------------------------------------------------
-# AUTOMATIC PUBLISHING IS main-ONLY. That is load-bearing, not tidiness.
-#
-# The push trigger used to run every step on `nightly` as well, so each
-# nightly push republished https://einarolafsson.github.io/spacr/ *from
-# nightly*, overwriting whatever main had last deployed. The public site
-# therefore documented unreviewed work, and re-running the main build was the
-# only way to put it back — until the next nightly push minutes later.
-#
-# nightly still BUILDS, because a docs build that only runs on main finds a
-# broken docstring after the merge instead of before. It just stops short of
-# the Pages target: no configure-pages, no `github-pages` artifact, no deploy
-# job — it fails the run if sphinx cannot produce index.html and then writes
-# a job summary. Everything that can touch production Pages is guarded by
-# `github.ref == 'refs/heads/main'`. A deliberately dispatched nightly run is
-# the one narrow exception: it may publish only after this same workflow has
-# audited the exact nightly catalogs and built the site successfully. Pushes
-# to nightly still cannot deploy.
-# ---------------------------------------------------------------------------
-
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Serialize per branch. A shared "pages" group here would let a nightly
-# validation build hold the group while a real main deploy queues behind it;
-# the genuine Pages serialization belongs on the deploy job, which automatic
-# nightly pushes never reach.
+# One combined Pages artifact contains both channels. Serializing the whole
+# workflow keeps an older build from replacing a newer published snapshot.
 concurrency:
-  group: docs-${{ github.ref }}
+  group: docs-pages-channels
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build Sphinx
+  resolve:
+    name: Pin both documentation branches
     runs-on: ubuntu-24.04
-    # 60, RAISED FROM 30 ON 2026-09-11 BECAUSE THE JOB HAD GROWN INTO ITS
-    # OWN LIMIT. Run 34559204118 was killed at exactly 30m15s with the
-    # Sphinx read at 100% and both audits already GREEN -- so the build was
-    # correct and the deploy was lost to the clock. GitHub reports a
-    # timeout kill as "cancelled", which is why this looked like a
-    # superseded run rather than a failure for as long as it did.
-    #
-    # WHERE THE TIME ACTUALLY GOES, measured from that run's log rather than
-    # assumed -- the obvious suspect, pip, is not the problem:
-    #
-    #     checkout + Python + system deps      0.8 min
-    #     install spacr + Sphinx tooling       1.4 min
-    #     AUDIT LOCALIZATION CATALOGS         24.2 min
-    #     build docs                           3.8 min
-    #
-    # The audit is the cost: ten API catalogs of 10,478 symbols and ten
-    # runtime catalogs, every one verified on every docs build. That is
-    # 30 minutes of work against a 30 minute budget, so the job was going to
-    # be flaky even on the runs it survived. Raising the ceiling is the fix
-    # for today; making the audit cheaper is a separate piece of work and
-    # should not be attempted by guessing at it.
-    timeout-minutes: 60
+    outputs:
+      main: ${{ steps.refs.outputs.main }}
+      nightly: ${{ steps.refs.outputs.nightly }}
+    steps:
+      - name: Resolve source commits
+        id: refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          for branch in main nightly; do
+            sha=$(gh api "repos/$REPOSITORY/commits/$branch" --jq .sha)
+            echo "$branch=$sha" >> "$GITHUB_OUTPUT"
+          done
 
+  build:
+    name: Build ${{ matrix.branch }} documentation
+    needs: resolve
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [main, nightly]
+    env:
+      DOCS_BRANCH: ${{ matrix.branch }}
+      DOCS_SHA: ${{ needs.resolve.outputs[matrix.branch] }}
+      SPACR_DOCS_API_LANGUAGE: all
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v7
+        with:
+          ref: ${{ env.DOCS_SHA }}
+      - name: Check out publication tooling
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: .publisher
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.10"
           cache: pip
-
-      - name: Install localization and Qt system dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          # The localization audit imports the settings registry, whose
-          # screen modules load Qt. Keep this list aligned with tests.yml so
-          # the docs runner can import that public surface offscreen.
           sudo apt-get install --no-install-recommends -y \
-            libopencc1.1 libopencc-data \
-            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libopencc1.1 libopencc-data libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
             libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
             libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
-            libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1
-
-      # Sphinx IMPORTS the package to document it, and spacr.qt imports
-      # PySide6, which dlopens libEGL at import time -- so a docs build needs
-      # the same GL/xcb stack the test job installs even though it never
-      # opens a window. Without it every autodoc import of a Qt module dies
-      # with "ImportError: libEGL.so.1: cannot open shared object file" and
-      # the API pages come out empty rather than the build failing loudly.
-      - name: Install Qt runtime libraries
-        run: |
-          sudo apt-get install --no-install-recommends -y \
-            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
-            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
-            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
-            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
-            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
-            libxdamage1 libxrandr2 libxtst6 libasound2t64 xvfb
-
-      - name: Install spacr + Sphinx tooling
+            libxdamage1 libxrandr2 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 xvfb
+      - name: Install spaCR and Sphinx
         run: |
           python -m pip install --upgrade pip
-          # CPU-only torch first (matches tests.yml) so pip won't fetch
-          # the CUDA wheel while resolving spacr's install_requires.
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
-            "torch>=2.0" "torchvision"
-          # Full install — autoapi's AST walker doesn't NEED to import
-          # spacr modules, but sphinx-build's viewcode + import-checks
-          # do, and half the docstring cross-refs break without the
-          # full dep graph. Same install path as tests.yml so any
-          # green-tests commit produces a green docs build too.
+            "torch>=2.0" torchvision
           python -m pip install -e ".[qt,dev]"
-          # furo — dark-mode capable Sphinx theme
-          # sphinx-design — grid / card directives on the landing page
-          # sphinx-autoapi — AST-walk API reference generator
           python -m pip install sphinx furo sphinx-design sphinx-autoapi
-
-      - name: Audit localization catalogs
-        env:
-          QT_QPA_PLATFORM: offscreen
+      - name: Generate Make Masks parameter reference from the pinned branch
         run: |
-          # BOTH LANES ALWAYS RUN, AND THAT IS THE WHOLE POINT OF THE
-          # BOOKKEEPING. These are two independent catalogs -- the API
-          # lane and the runtime lane -- and the step used to be two bare
-          # commands under `bash -e`, so a red API lane exited before the
-          # runtime lane was ever asked. The API lane was red for fifteen
-          # consecutive runs on 2026-09-13, which means the runtime audit
-          # went unrun for fifteen runs and a regression in it would have
-          # surfaced only once the unrelated lane was fixed.
-          set +e
-          python tools/build_documentation_i18n.py --audit
-          api=$?
-          python tools/build_i18n_catalogs.py --audit
-          runtime=$?
-          set -e
-          echo "audit exits: api=$api runtime=$runtime"
-          if [ "$api" -ne 0 ] || [ "$runtime" -ne 0 ]; then
-            [ "$api" -ne 0 ] && echo "FAILED: the API catalog lane"
-            [ "$runtime" -ne 0 ] && echo "FAILED: the runtime catalog lane"
-            exit 1
+          if [ -f tools/build_make_masks_reference.py ]; then
+            reference_home=$(mktemp -d)
+            HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
+              tools/run_capped.sh 4G python tools/build_make_masks_reference.py
           fi
-
+      - name: Refresh English manifests from the pinned branch
+        run: |
+          tools/run_capped.sh 4G python tools/build_documentation_i18n.py --sources-only
+          tools/run_capped.sh 4G python tools/build_i18n_catalogs.py --sources-only
+      - name: Verify English and register translation incompatibilities
+        run: |
+          GITHUB_SHA="$DOCS_SHA" tools/run_capped.sh 4G python \
+            .publisher/tools/report_translation_compatibility.py \
+            --english-required --output translation-compatibility.json
+      - name: Upload translation compatibility register
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-compatibility-${{ matrix.branch }}
+          path: translation-compatibility.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Build docs
-        env:
-          QT_QPA_PLATFORM: offscreen
         run: |
           rm -rf docs/_build docs/source/api
-          # --keep-going finishes the complete diagnostic log instead of
-          # stopping at the first broken page. -W still makes every warning
-          # an error, and the captured Sphinx status remains authoritative:
-          # a partially written index.html can never turn that failure green.
-          set +e
-          sphinx-build -W -E -b html --keep-going \
-            docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
-          rc=${PIPESTATUS[0]}
-          set -e
+          tools/run_capped.sh 2G python .publisher/tools/publish_docs_channels.py configure
+          source_version=$(tools/run_capped.sh 2G python .publisher/tools/publish_docs_channels.py version)
+          for attempt in 1 2 3; do
+            set +e
+            GITHUB_REF_NAME="$DOCS_BRANCH" sphinx-build -W -E -b html --keep-going \
+              -D "release=$source_version" -D "version=$source_version" \
+              -D "html_title=spaCR $source_version documentation" \
+              docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
+            rc=${PIPESTATUS[0]}
+            set -e
+            if [ "$rc" -eq 0 ] || [ "$attempt" -eq 3 ]; then
+              break
+            fi
+            if ! grep -Eq '^WARNING: failed to reach any of the inventories|intersphinx inventory .*not fetchable' /tmp/sphinx.log; then
+              break
+            fi
+            echo "Retrying failed external API inventory fetch (attempt $attempt of 3)."
+            cp /tmp/sphinx.log "/tmp/sphinx-inventory-attempt-$attempt.log"
+          done
           echo "sphinx-build exit=$rc"
           if [ ! -f docs/_build/html/index.html ]; then
             echo "FATAL: no index.html produced"
@@ -183,86 +140,68 @@ jobs:
             tail -80 /tmp/sphinx.log
             exit "$rc"
           fi
-          echo "produced $(find docs/_build/html -name '*.html' | wc -l) HTML pages"
-          # Pages needs .nojekyll to preserve _static / _sources folders
           touch docs/_build/html/.nojekyll
-
       - name: Verify generated tooltip API links
         env:
-          QT_QPA_PLATFORM: offscreen
           SPACR_DOCS_BUILT: "1"
         run: |
-          python -m pytest -q \
-            tests/test_tooltip_api_links_resolve.py \
-            tests/test_built_constructor_api.py \
-            tests/test_built_nested_helper_api.py
-
-      # --- production Pages path: main, or an explicit audited nightly ---
-      - name: Configure Pages
-        if: >-
-          github.ref == 'refs/heads/main' ||
-          (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
-        uses: actions/configure-pages@v6
-
-      - name: Upload Pages artifact
-        if: >-
-          github.ref == 'refs/heads/main' ||
-          (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: docs/_build/html
-
-      # --- everything else: build only, and say so ------------------------
-      # No artifact is uploaded on purpose. `html_extra_path = ['_extra']`
-      # copies the staged tutorial player, posters, catalogs, and 1440p video
-      # into every build. Narration and 4K masters are external, but uploading
-      # the same build artifact for every nightly push still costs time and
-      # storage for a preview nobody asked for. The build itself is the value
-      # here — it fails the run if Sphinx reports any warning or error. If a
-      # browsable nightly preview is ever wanted, deploy it to a target that
-      # is not production Pages.
-      - name: Report build-only outcome (non-main)
-        if: >-
-          github.ref != 'refs/heads/main' &&
-          (github.event_name != 'workflow_dispatch' || github.ref != 'refs/heads/nightly')
-        # The ref goes through the environment, not through `${{ }}`
-        # interpolation into the shell: a branch name is attacker-influenced
-        # text, and interpolated text becomes shell source.
-        env:
-          REF_NAME: ${{ github.ref_name }}
+          files=(tests/test_tooltip_api_links_resolve.py tests/test_built_constructor_api.py tests/test_built_nested_helper_api.py)
+          if [ -f tests/test_english_documentation_publication.py ]; then
+            files+=(tests/test_english_documentation_publication.py)
+          fi
+          # Real-catalog coverage is registered separately; fixture tests still
+          # prove that stale translations fall back safely and English links work.
+          tools/run_capped.sh 4G python -m pytest -q "${files[@]}" \
+            -k 'not enabled_helpers_use_their_own_real_catalog_entries_in_the_browser'
+      - name: Prepare branch artifact
         run: |
-          pages=$(find docs/_build/html -name '*.html' | wc -l)
-          size=$(du -sh docs/_build/html | cut -f1)
+          tools/run_capped.sh 4G python .publisher/tools/publish_docs_channels.py prepare \
+            --build docs/_build/html --report translation-compatibility.json \
+            --branch "$DOCS_BRANCH" --commit "$DOCS_SHA"
           {
-            echo "### Docs built, not published"
-            echo ""
-            echo "Ref \`$REF_NAME\` is not \`main\`, so this build validated"
-            echo "the documentation and stopped there. GitHub Pages is"
-            echo "published from \`main\` only."
-            echo ""
-            echo "- HTML pages: $pages"
-            echo "- Built size: $size"
+            echo "### $DOCS_BRANCH documentation"
+            echo "Source commit: $DOCS_SHA"
+            echo "API, guides and tutorials use this branch's committed sources and media pins."
+            echo "Translation incompatibilities are recorded and fall back to English."
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload branch site
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-channel-${{ matrix.branch }}
+          path: docs/_build/html
+          include-hidden-files: true
+          retention-days: 1
 
   deploy:
-    name: Deploy to GitHub Pages
+    name: Publish main and nightly channels
     needs: build
-    # The single gate on the production site. Nightly pushes cannot pass it;
-    # only a deliberate workflow dispatch can publish an audited nightly cut.
-    if: >-
-      github.ref == 'refs/heads/main' ||
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
     runs-on: ubuntu-24.04
-    # Real Pages deployments serialize against each other here rather than
-    # in the workflow-level group, so a nightly validation build never
-    # queues against a deploy.
-    concurrency:
-      group: "pages"
-      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Download both branch sites
+        uses: actions/download-artifact@v8
+        with:
+          pattern: docs-channel-*
+          path: channels
+      - name: Assemble independent channels
+        run: |
+          tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble \
+            --main channels/docs-channel-main --nightly channels/docs-channel-nightly \
+            --output pages --base-path "/${GITHUB_REPOSITORY#*/}"
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: pages
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5

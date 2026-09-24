@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "13_regression",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "previous_english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
+  "scene_count": 21,
+  "changed_narration_scene": 12,
+  "fresh_download_visual": "02_download",
+  "languages": [
+    {
+      "language": "da",
+      "review_sha256": "797ea6cecd63cdfac56897e14b51bb575dc79fe221601a4568bd99b1a1d7569b",
+      "staged_catalog_sha256": "9db464bc420fc230f998c0cb8f7a118aef3e56028615a7c52f6bd2b338e7daa4",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "de",
+      "review_sha256": "25db74a8ad1db214d9f51fea4d586a9504bbbb8f4c731e79c06ef8a90685c4ac",
+      "staged_catalog_sha256": "5befc5ba5d5be1475420132917a276a9a70731dce6de0542d455a614da0572b1",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "es",
+      "review_sha256": "6117afecbc10fdef929111c479e01d1977d0f9415701a5949343d8299a6450ba",
+      "staged_catalog_sha256": "f5521c9f64b55c810d82b6b48e98197f62a1f8d33fada8c79abda6005790ec53",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "fr",
+      "review_sha256": "1b8326686051098bddbea02f7b31c6f3ae5c2d03d88062612f9572d080833847",
+      "staged_catalog_sha256": "08b7cb46526a383cbae8a0eea128bba28b3c5f171380145fd5d6dc1c0b8b0723",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "hi",
+      "review_sha256": "05cba1bbd1b7c189e459ba641266f0d91c47cd2866798f3890f014082c6494ad",
+      "staged_catalog_sha256": "7a9670d7ded3d6eda2f38e51d6f9f464b89aadafc5f420c4d7b8845a184b0182",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "is",
+      "review_sha256": "646a72d3744951988c13d3b89cea7ef810fe8c86508f96089f7cb028f88497f4",
+      "staged_catalog_sha256": "15bf233b237f29b7bb0e3165672281513e954401b47386b76ff56e1a1a23499d",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "it",
+      "review_sha256": "f56cfd0649390bf96905a0c06c47ad548d4eecfa193de73619996d402081d213",
+      "staged_catalog_sha256": "46d757c0e492edc0ffa17e75108089397a4e785854d76942e3c0d21b0fb14c4f",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "ja",
+      "review_sha256": "4b8fa7fe7e971145d70fa8b01c3775a38bb2395cf779c88531d7510dcd7c69d0",
+      "staged_catalog_sha256": "f30270cbf7af5876922f7dd7e084ca465b93c48704b1ec1b6bc3fe69eb92d575",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "ko",
+      "review_sha256": "86eedeb6ccc284afe1fee40b7b27e4521da11f7cea9d5ff41ecc55ed75fb9a97",
+      "staged_catalog_sha256": "9c847f800fd6455d22406fe180e62a190907065c6b64f437719f7ab70b325bc8",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "nb",
+      "review_sha256": "2827d0549ffb92f1d6a94bc3c3f608f22cd9e058dfed6d0f76abd3bdbfa34170",
+      "staged_catalog_sha256": "0d75161b8be2676ab84445abc41b7e661aa0fc2578635cc05b87e1b0a4b3b274",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "pt-BR",
+      "review_sha256": "c8557e0e8bf2fdc39221b291a81c5c9cf022275467847ffffa05c244de7c24a6",
+      "staged_catalog_sha256": "b93c431949744895543dcfb9b84a94692a71b71636080ad2a8c2a644fade7fc9",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "sv",
+      "review_sha256": "48fdb2d5f841f7069d76aceab5305fa48c6927f0f64645754e32510b4a801e90",
+      "staged_catalog_sha256": "bff51741e40d2ae7d8940a52b507993d43ef9ba225b94828d816d847997d110f",
+      "retained_narration_scenes": 20
+    },
+    {
+      "language": "zh-CN",
+      "review_sha256": "e2d9d09e9828b55326a410fd8d147efcf6567782f7970dc928a3881f5c17f172",
+      "staged_catalog_sha256": "b2a05c405c1200c2436baadd459e6d8592851b33544e7d7248b09f8177eaa35a",
+      "retained_narration_scenes": 20
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Fresh narration and visual master",
+    "Complete voice matrix verification",
+    "Caption/player and listening acceptance",
+    "Complete-set publication"
+  ]
+}

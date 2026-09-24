@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "78_spacr_screens",
+  "scope": "Current player, thirteen caption selections with unchanged English Heart audio, mobile geometry, chapter/transcript links and seek synchronization; shared 4K master decoded without errors.",
+  "player_sha256": "3f0e6384184a162c1ac5b8a52d813107247b36c60f2931b366bf82b3b367b55e",
+  "caption_cases": [
+    {
+      "language": "da",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-da/playback-checks.json",
+      "sha256": "197021c75c5548311c7b8bbdfb21ec3542f67325833bd23e48aebeb2b681d33b",
+      "webvtt_sha256": "b7fc73ffeee8ee9d9f9cc24d362001669d0d3a2e57f622a0fa45bda0453ca8f9",
+      "desktop_sha256": "b8554614b04a371a15401b06d55b3a9b77187b8f91118086cfb2261a334e25ca",
+      "mobile_sha256": "14bf580c4245b92c063e637f4113c4844e553ab1cb2474be92b096cc814e5f8e"
+    },
+    {
+      "language": "de",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-de/playback-checks.json",
+      "sha256": "01e15ac8e66ea9a777e75f3d4386f1d90613b4ba8bb41807c2c0cfae2ccf585e",
+      "webvtt_sha256": "bf5832189ae4c7f09ce3e702db022c20747fab932e3b1e0cca000f9f7af29b90",
+      "desktop_sha256": "d818bd1d8cb69218534817e22ad62124c1bcceeb928c4bb8929cfd0a294af4ed",
+      "mobile_sha256": "140a93e5a852a2dd40767cf42ce4785d45f478ee64eafc16efb6a8d4ea5caf78"
+    },
+    {
+      "language": "es",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-es/playback-checks.json",
+      "sha256": "da79aaf42a139d5ed504137df985eccbef84f72c6036bd2bbdc6e56a3c57f54d",
+      "webvtt_sha256": "7ea8f7b354824fbb343eb77530f37beff6c725a183535bd1d2009f825ba942fa",
+      "desktop_sha256": "872e1ce9f2742b343df768dd7802aa8cefe29f0ad59a2bfae697b39d0fe8db3b",
+      "mobile_sha256": "25d354da054f108556cc46ec72e36a6a83a758bf0455bb8c0f91beb9e3e1da23"
+    },
+    {
+      "language": "fr",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-fr/playback-checks.json",
+      "sha256": "d6b2ab8868d5a1e7a1750c45c8dbe0de7847eb143d76ed54184a030d888e2812",
+      "webvtt_sha256": "f64db74014d500c7294e8952479f5db3be22f7e757a0e5747387663bcded8e29",
+      "desktop_sha256": "5c25d9cb6ab4c56a66c615830eb76d5652736d59c9709f28a0438b0058ec3642",
+      "mobile_sha256": "00a474bbe27ada8d305aa7ca7a1b1909c9dcf59b9c964627a365e65b95577257"
+    },
+    {
+      "language": "hi",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-hi/playback-checks.json",
+      "sha256": "21d5578e1568aaaf1a99d1d12d60a028152f47264dff86a4e5d0bc8b66c773ad",
+      "webvtt_sha256": "99737a8e6f61e7a795f7224c2c1b312538cd19d8d43efd7e0c5f55397983d263",
+      "desktop_sha256": "2dfc55942bf3e39f60a58ce72c2b1af0bc53920dea7ab0859ad0df4f356ff42a",
+      "mobile_sha256": "209eb31e8def66194052ece54b7938ab5e12b6a81f774f573a33236e5b78ac83"
+    },
+    {
+      "language": "is",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-is/playback-checks.json",
+      "sha256": "3000433fc559e988612c47bdfb12b9f3740cffe4e752edfebf8ba49229c4a055",
+      "webvtt_sha256": "c46826f7066bfdb46316d7a1f035a6c43c2b60af809ecd4c245e5cba482d717b",
+      "desktop_sha256": "eaee5a6c55f2036369723773d9656e9ef7c2fba2b671e428acc609c5721d1be1",
+      "mobile_sha256": "740a82d4d288d929f69f17103b1d4963403584a6ea526e6f97d584dc131282e9"
+    },
+    {
+      "language": "it",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-it/playback-checks.json",
+      "sha256": "74f7b67e2c35df150fdf7afea770e3577c3aaae856b36a849ddfde892e507388",
+      "webvtt_sha256": "bfbaaa7b57f16499ddbde9db71ca2a7a825b6e3f4285de85a7495fff525923cd",
+      "desktop_sha256": "63c78f027f482615f820f932ce184b4a8500d87e65ba2fdc46b39d1f9a68f3c1",
+      "mobile_sha256": "a6b27e804cae783f6bd01e88d248b24514dd1580e08a7bc61dc40cc18d60b131"
+    },
+    {
+      "language": "ja",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-ja/playback-checks.json",
+      "sha256": "3ed3da78f01537269af483dfa1bc9652274a78ba622252706cc06739e7d84e9e",
+      "webvtt_sha256": "b2ddf6e7dc4d15eeefc9c71f352dfeab7829982faa861dfd204acc61fbeb8176",
+      "desktop_sha256": "ffbac77f634266b51eda8a321c836b3df74042de3c0d063e9d4aba1d7d9c5b65",
+      "mobile_sha256": "40a3c6d544a86be865222560f66933d577744a0fd7d5ee164a34002de7fb661b"
+    },
+    {
+      "language": "ko",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-ko/playback-checks.json",
+      "sha256": "f7f57e5307b16896ae90e1cff5e50d994398c714965743cfadfdb97cab8b065f",
+      "webvtt_sha256": "e11309154a15dca4e5b48e5e56078fb17ebfb446dc0c061ff0d11fbc57c8f945",
+      "desktop_sha256": "344e343c5573ebf526570416cadb13a7d24b3ae44d80559cd1f9d7702bb8cfa5",
+      "mobile_sha256": "87c9973b0927d46b3126dd2c22e100185a9222e29fe80304b8f7dbb1d3a0782a"
+    },
+    {
+      "language": "nb",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-nb/playback-checks.json",
+      "sha256": "6291e54e365071a5bd6cd61db9a898c7eadb7ad2ac1daab3021da81a40ae327a",
+      "webvtt_sha256": "1250d6ef2091d92027fbf503ed9cc97d1ebc32f95aad5dcc44291c14050ef0ba",
+      "desktop_sha256": "121ab1607ff5c16e7199810c2d07be9a26bf38c39bdb3d5a345baf9ffc5b23a7",
+      "mobile_sha256": "b921ae5749c4f8223a86e31ae86ba455546583a8986577193f174bd34ce87b01"
+    },
+    {
+      "language": "pt-BR",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-pt-BR/playback-checks.json",
+      "sha256": "3d2611ecab5c1351f53f60df516defcfa711cfcc0cfdc25b83f4199d81267717",
+      "webvtt_sha256": "a99c28b56a64143029411df82afc8fae8a7863ad2756970681dd75caac9f0c34",
+      "desktop_sha256": "a45b235dc332ac251329a5195fef26191c3ebf43e0301cef4c32ce9e6a4e1660",
+      "mobile_sha256": "21cb3e9cbc888e9e99a198d293602e2438b98505a7aeb69c47820cd47b1a1939"
+    },
+    {
+      "language": "sv",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-sv/playback-checks.json",
+      "sha256": "7c876f7f34af34f487c0d8dc4615047f79793f563527863babee878bb0c163c1",
+      "webvtt_sha256": "3a1898e313236bbb8b394e639cdfa342fe538c560cfe8548e70d682e6118b2c1",
+      "desktop_sha256": "b727c309e868cb157f04964416233ba572c9fa6d408c7137c07c6357e77edea5",
+      "mobile_sha256": "3b4fb3a1e5e2c4cac318b3fd4b560eb4ded23b018f39d930a2cab9ee286141d3"
+    },
+    {
+      "language": "zh-CN",
+      "proof": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-captions-zh-CN/playback-checks.json",
+      "sha256": "1e98b851391c86982b3b09fb02142d9c8aee2b5f26eee4b8e8c3de741aecaf90",
+      "webvtt_sha256": "6df925d4f220017d9275aeb53c4e3f0811ba4aaeb131fd3b41ef174d70ef0bcf",
+      "desktop_sha256": "42b2a7ed2e9ce43876bc9767be3cab35ebdffed47eabee4b04d23335a8ed66ac",
+      "mobile_sha256": "c9491d2717f8cc79294f468401bf66642ea99124e8e8df06635ae072120bca28"
+    }
+  ],
+  "caption_cases_passed": 13,
+  "video": {
+    "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/video/78_spacr_screens_silent.mp4",
+    "sha256": "c12efd8dfbda4e72b71e4c0b9e0d583ab5eef9c5a489c9c8da3f0e0e57ddeca4",
+    "codec_name": "h264",
+    "width": 3840,
+    "height": 2160,
+    "r_frame_rate": "30/1",
+    "duration": "256.066667",
+    "nb_frames": "7682"
+  },
+  "caption_timing": "Recorded sentence timings when available; character-weighted estimates otherwise. No forced-alignment claim.",
+  "visual_review": [
+    "Japanese mobile cue fits without paragraph overlay",
+    "Hindi mobile cue fits without paragraph overlay",
+    "Chinese mobile cue fits without paragraph overlay"
+  ],
+  "tests": "14 focused player contract checks passed, including native punctuation without spaces, punctuation clusters, Unicode sentence starts and retained abbreviations.",
+  "all_voices_accepted": false,
+  "human_listening_signoff": false,
+  "published": false
+}

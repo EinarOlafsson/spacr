@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from PySide6.QtCore import QEvent, QPoint, Qt
+from PySide6.QtCore import QEvent, QPoint, QRect, Qt
 from PySide6.QtGui import QColor, QImage, QKeyEvent
 from PySide6.QtWidgets import QLabel, QMainWindow, QWidget
 
@@ -298,8 +298,12 @@ def test_the_card_stays_at_the_bottom_centre_on_a_resize(window, qapp):
     overlay.setGeometry(0, 0, 1000, 800)
     overlay.resizeEvent(None)
     card = overlay._card.geometry()
-    assert abs(card.center().x() - 500) <= 1
-    assert card.bottom() < 800
+    from spacr.qt.hidpi import screen_for_widget
+    available = screen_for_widget(overlay).availableGeometry()
+    visible = overlay.rect().intersected(QRect(
+        overlay.mapFromGlobal(available.topLeft()), available.size()))
+    assert abs(card.center().x() - visible.center().x()) <= 1
+    assert visible.contains(card)
     overlay._finish()
     qapp.processEvents()
 
@@ -327,7 +331,7 @@ def test_a_highlighted_widget_gets_a_ring_and_keeps_its_own_colour(window,
 
     inside = QColor(shot.pixelColor(140, 100))
     dimmed = QColor(shot.pixelColor(600, 300))
-    assert inside.alpha() == 0                       # the dimming was cut out
+    assert inside == QColor('white')  # Keep the underlying pixels, never erase the window.
     assert dimmed.alpha() == 255 and dimmed.value() < 150
     ring = QColor(shot.pixelColor(140, 37))
     assert ring.blue() > ring.red()
@@ -414,6 +418,7 @@ def test_a_widgets_rectangle_is_reported_in_the_windows_own_coordinates(
         window, qapp):
     target = QLabel("x", window.centralWidget())
     target.setGeometry(30, 20, 100, 50)
+    target.show()
     qapp.processEvents()
     rect = fr._widget_rect_in_window(target, window)
     assert rect is not None

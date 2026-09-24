@@ -79,6 +79,7 @@ WEB_FILES = [
 ENCODE_ARGS = [
     "-vf", "scale='min(2560,iw)':-2", "-vsync", "0",
     "-c:v", "libx264", "-crf", "26", "-preset", "veryfast",
+    "-g", "60",
     "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
 ]
 

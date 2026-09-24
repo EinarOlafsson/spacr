@@ -413,3 +413,29 @@ def test_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     assert seen == [2, 2]          # p3 never reached the helper
     assert len(out) == 4
     assert col == "infected"
+
+
+def test_measure_records_explicit_parasite_to_vacuole_overlap_links(tmp_path):
+    cell, nucleus, pathogen, organelle, cytoplasm = _nested_masks()
+    organelle[:] = 0
+    organelle[18:20, 18:20] = 1
+    organelle[10:12, 20:22] = 2
+    frames = M._intensity_measurements(cell, nucleus, pathogen, organelle,
+        cytoplasm, CH3, _intensity_settings(calculate_correlation=False, radial_dist=False),
+        periphery=False, outside=False)
+    from spacr.utils import _check_integrity
+    children = _check_integrity(frames[3].copy()).set_index('object_label')
+    assert children.loc[1, 'pathogen_id'] == 1
+    assert children.loc[1, 'organelle_pathogen_overlap_fraction'] == 1
+    assert np.isnan(children.loc[2, 'pathogen_id'])
+    import sqlite3
+    import pandas as pd
+    from spacr.utils import _merge_and_save_to_database
+    (tmp_path / 'measurements').mkdir()
+    morphology = pd.DataFrame({'label': [1, 2], 'organelle_area': [4., 4.]})
+    _merge_and_save_to_database(morphology, frames[3], 'organelle', str(tmp_path),
+                                'plate1_r1_c1_f1', 'experiment')
+    with sqlite3.connect(tmp_path / 'measurements/measurements.db') as connection:
+        stored = pd.read_sql_query('SELECT * FROM organelle', connection).set_index('object_label')
+    assert stored.loc[1, 'pathogen_id'] == 1
+    assert pd.isna(stored.loc[2, 'pathogen_id'])

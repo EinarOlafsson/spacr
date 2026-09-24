@@ -167,18 +167,67 @@ older release's version DOI for the concept DOI in the README.
 
 ## Conda-forge releases
 
-The prepared recipe and bot configuration live in `../conda-forge`. Unlike
-PyPI, conda-forge requires a one-time reviewed pull request to
-`conda-forge/staged-recipes`; a source-repository workflow cannot bypass that
-review. Follow `../conda-forge/README.md` once. After the recipe is accepted,
-the conda-forge bot detects each new PyPI version, tests its update PR, and
-automerges passing version-only updates. No Anaconda token is stored here.
+spaCR is already published on conda-forge. The authoritative recipe and bot
+configuration live in
+[`conda-forge/spacr-feedstock`](https://github.com/conda-forge/spacr-feedstock);
+`../conda-forge` holds a reference mirror and installation notes. The bot
+detects each new PyPI version, tests its update PR, and automerges passing
+version-only updates. Publication can lag PyPI. No Anaconda token is stored
+here, and changes to the mirror do not trigger a feedstock release.
 
 Linux installs the small Qt/OpenGL runtime libraries through apt, dnf, zypper,
-or pacman when available. macOS packages may be signed by setting
-`PRODUCTSIGN_IDENTITY`; public distribution should additionally use an Apple
-Developer ID and notarization. Windows uses a per-user NSIS installer and does
-not require administrator access.
+or pacman when available. Windows uses a per-user NSIS installer and does not
+require administrator access.
+
+The macOS online builder compiles an arm64/x86_64 native launcher, leaving the
+scientific stack in its private Python environment. Without signing configuration
+it produces an explicitly unsigned development package. U-M signing access is
+still pending; adding this build path does not mean published installers have
+passed Gatekeeper.
+
+Apple's bundle metadata uses three components: spaCR `1.5.0.9` has display
+version `1.5.0` and build `105.0.9`; `1.5.1.0` becomes `1.5.1` / `105.1.0`.
+The build encodes `100 × major + minor`, patch and fourth component, preserving
+release order for components below 100. The full package version remains in
+`SPACRPackageVersion`, the information string, package metadata and filename.
+This follows [Apple's bundle version format](https://developer.apple.com/documentation/bundleresources/information-property-list/cfbundleversion).
+
+For a local signed build, set `CODESIGN_IDENTITY` to the full **Developer ID
+Application** certificate name, `PRODUCTSIGN_IDENTITY` to the **Developer ID
+Installer** certificate name, and `SPACR_NOTARY_PROFILE` to a stored `notarytool`
+credential profile. Optionally set `SPACR_SIGNING_KEYCHAIN` to its file-based
+keychain. Set `SPACR_MACOS_SIGNING_REQUIRED=1` to refuse unsigned builds.
+Partial signing configuration always fails, including the old installer-only
+configuration: signing a package alone does not notarize its application.
+
+For GitHub Actions, the following repository or organization secrets enable the
+same path. Export both certificates **with their private keys** into one
+password-protected PKCS#12 file; no certificate or password belongs in git.
+
+| Secret | Value |
+| --- | --- |
+| `MACOS_CERTIFICATES_BASE64` | Base64 of the combined `.p12` export |
+| `MACOS_CERTIFICATE_PASSWORD` | Password protecting that export |
+| `MACOS_APPLICATION_IDENTITY` | Full Developer ID Application identity |
+| `MACOS_INSTALLER_IDENTITY` | Full Developer ID Installer identity |
+| `MACOS_APPLE_ID` | Authorized Apple account |
+| `MACOS_TEAM_ID` | Institutional developer team identifier |
+| `MACOS_APP_PASSWORD` | App-specific password for notarization |
+
+Once institutional access is available, set the repository variable
+`SPACR_MACOS_SIGNING_REQUIRED` to `1` so a missing secret cannot silently fall
+back to an unsigned build. The workflow imports keys into a temporary private
+keychain, stores the notarization credential there, and restores the previous
+keychain search list and removes temporary credentials in an `always()` step.
+Developer ID signing includes secure timestamps and hardened runtime. The
+signed package replaces the unsigned input only after Apple's service reports
+`Accepted`, the ticket is stapled and validated, and Gatekeeper's installer
+assessment succeeds. The separate signing-receipt artifact records the final
+package SHA-256 and submission ID. A native macOS install and launch remains
+part of acceptance; local tests of command orchestration cannot substitute for it.
+
+The implementation follows [Apple's notarization workflow](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow)
+and [GitHub's temporary certificate setup](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications).
 
 The macOS package itself performs no network installation in PackageKit's
 time-limited ``postinstall`` process. On first launch, spaCR opens a Terminal

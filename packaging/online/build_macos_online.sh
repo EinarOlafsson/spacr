@@ -6,7 +6,11 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
     exit 2
 fi
 
+SIGNING_HELPER="packaging/online/macos_signing.py"
+python3 "$SIGNING_HELPER" validate
+
 VERSION="$(python3 -c 'import ast,pathlib; t=ast.parse(pathlib.Path("setup.py").read_text()); print(next(ast.literal_eval(n.value) for n in t.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "VERSION" for x in n.targets)))')"
+read -r APP_VERSION APP_BUILD < <(python3 "$SIGNING_HELPER" bundle-versions "$VERSION")
 OUT_DIR="dist/online"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/spacr-online-pkg.XXXXXX")"
 ROOT="$WORK/root"
@@ -42,27 +46,10 @@ chmod 755 "$SUPPORT/install-online.sh"
 cp packaging/online/generated/installer_messages.sh \
     "$SUPPORT/installer_messages.sh"
 
-cat > "$APP/Contents/MacOS/spaCR" <<'EOF'
-#!/bin/sh
-RUNTIME_ROOT="$HOME/Library/Application Support/spaCR"
-PYTHON="$RUNTIME_ROOT/venv/bin/python"
-FIRST_RUN="/Library/Application Support/spaCR/install-for-user.sh"
-
-if [ ! -x "$PYTHON" ]; then
-    osascript - "$FIRST_RUN" <<'APPLESCRIPT'
-on run argv
-    set helperPath to item 1 of argv
-    tell application "Terminal"
-        activate
-        do script quoted form of helperPath
-    end tell
-end run
-APPLESCRIPT
-    exit 0
-fi
-
-exec "$PYTHON" -m spacr.qt "$@"
-EOF
+xcrun clang -Wall -Wextra -Werror -O2 -arch arm64 -arch x86_64 \
+    -mmacosx-version-min=11.0 packaging/online/macos_launcher.c \
+    -o "$APP/Contents/MacOS/spaCR"
+lipo "$APP/Contents/MacOS/spaCR" -verify_arch arm64 x86_64
 chmod 755 "$APP/Contents/MacOS/spaCR"
 
 cat > "$APP/Contents/Info.plist" <<EOF
@@ -77,8 +64,10 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleName</key><string>spaCR</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>$VERSION</string>
-  <key>CFBundleVersion</key><string>$VERSION</string>
+  <key>CFBundleShortVersionString</key><string>$APP_VERSION</string>
+  <key>CFBundleVersion</key><string>$APP_BUILD</string>
+  <key>SPACRPackageVersion</key><string>$VERSION</string>
+  <key>CFBundleGetInfoString</key><string>spaCR $VERSION</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
 </dict>
@@ -139,7 +128,7 @@ exit 0
 EOF
 chmod 755 "$SCRIPTS/postinstall"
 
-codesign --force --deep --sign - "$APP"
+python3 "$SIGNING_HELPER" sign-app "$APP"
 pkgbuild \
     --root "$ROOT" \
     --scripts "$SCRIPTS" \
@@ -148,10 +137,6 @@ pkgbuild \
     --install-location / \
     "$OUT"
 
-if [[ -n "${PRODUCTSIGN_IDENTITY:-}" ]]; then
-    SIGNED="$OUT_DIR/spaCR-$VERSION-macOS-Universal-Online-signed.pkg"
-    productsign --sign "$PRODUCTSIGN_IDENTITY" "$OUT" "$SIGNED"
-    mv "$SIGNED" "$OUT"
-fi
+python3 "$SIGNING_HELPER" sign-package "$OUT"
 
 echo "Built $OUT"

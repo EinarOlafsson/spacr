@@ -3876,6 +3876,14 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
     :param sheet: the complete application stylesheet, as
         :func:`stylesheet` composes it.
     :returns: the number of windows the sheet was put on.
+
+    A settings category's body that is waiting off the page is parentless,
+    so Qt lists it among the top-level widgets, but it is not a window: it
+    goes back under its page before anybody sees it and wears the page's
+    sheet from there. Sheeting it here would leave it carrying a copy of
+    the sheet of the moment when it went back, which the next theme change
+    would not reach. See
+    :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.
     """
     global _WINDOW_SHEET_FILTER
 
@@ -3894,6 +3902,8 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
 
     sheeted = 0
     for window in list(app.topLevelWidgets()):
+        if getattr(window, "_spacr_detached_from", None) is not None:
+            continue
         for root in _roots_for(window):
             if _sheet_one_window(root):
                 sheeted += 1
@@ -4784,6 +4794,16 @@ QLabel#SectionHeading {{
     font-weight: 600;
     background: transparent;
 }}
+QLabel#FoldHeading {{
+    color: {P["fg"]};
+    font-size: {F["body"]}px;
+    font-weight: 600;
+    padding: 1px 0px;
+    background: transparent;
+}}
+QWidget#FoldSection, QWidget#FoldSectionBody {{
+    background: transparent;
+}}
 
 /* -----------------------------------------------------------------
  *  Buttons
@@ -4964,7 +4984,7 @@ QFrame#ConsoleSectionResizeHandle {{
     border-bottom: 1px solid {P["border_soft"]};
 }}
 QFrame#ConsoleSectionResizeHandle:hover {{
-    border-bottom: 2px solid {P["accent"]};
+    border-bottom: 1px solid #168cff;
 }}
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus,
 QComboBox:focus, QPlainTextEdit:focus, QTextEdit:focus {{
@@ -5347,20 +5367,11 @@ QTableCornerButton::section {{
 /* -----------------------------------------------------------------
  *  Help search results (422)
  * ----------------------------------------------------------------- */
-/* OPAQUE ON PURPOSE, and close to the only panel in the app that is.
-   Every other surface honours the page-opacity preference; this one is a
-   transient overlay that lands on top of the console, and at any alpha
-   below 1 the log's text shows through the result rows and neither is
-   readable. The field shipped with no rule here AT ALL -- the frame sets
-   autoFillBackground and WA_StyledBackground, both of which paint nothing
-   when no selector matches -- so the rows sat directly on the log with
-   the log's own words running between them.
-   The frame carries the surface and the border; the list and the note
-   inside it stay transparent so there is ONE box and not three, and the
-   rows keep the app's hover and selection colours from the view rules
-   above rather than inventing a second set. */
+/* The search overlay uses a fixed 80% background independently of page
+   opacity. Its text stays fully opaque; the list and note remain transparent
+   so only the enclosing frame paints the background. */
 QFrame#HelpSearchResults {{
-    background-color: {P["surface_hi"]};
+    background-color: {css_color(base["surface_hi"], 0.8)};
     border: 1px solid {P["border"]};
     border-radius: {R["md"]}px;
 }}
@@ -5702,11 +5713,23 @@ def apply_close_mark(button, *, tooltip: Optional[str] = None,
 
 
 def size_close_mark(button, body_px: Optional[int] = None) -> None:
-    """Resize a close-mark button for its current font and interface scale."""
+    """Resize a close-mark button for its current font and interface scale.
+
+    THE FLOORS ARE CONVERTED, and that is the whole of the GUI scale in
+    here. ``minimumWidth`` answers in 100 % units (the scaling layer in
+    :mod:`spacr.qt.gui_scale` remembers what the code asked for) while the
+    glyph is measured in the pixels actually being drawn, so comparing them
+    raw made the box 12 px wider than the mark at 50 % and left the chrome
+    shifted when the scale came back.
+    """
+    from .gui_scale import scale_int
+
     side = close_mark_side(button, body_px)
     hint = button.sizeHint()
-    height = max(side, button.minimumHeight(), hint.height())
-    width = max(side, button.minimumWidth(), min(hint.width(), height))
+    floor_h = scale_int(button.minimumHeight())
+    floor_w = scale_int(button.minimumWidth())
+    height = max(side, floor_h, hint.height())
+    width = max(side, floor_w, min(hint.width(), height))
     button.setFixedSize(width, height)
 
 

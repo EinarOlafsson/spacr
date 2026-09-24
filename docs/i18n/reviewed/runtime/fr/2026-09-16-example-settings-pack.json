@@ -9,20 +9,6 @@
   },
   "records": [
     {
-      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
-      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
-      "translation": "Jeu de données de démonstration chargé avec ses paramètres. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
-      "table": "ui",
-      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate."
-    },
-    {
-      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
-      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
-      "translation": "Jeu de données de démonstration chargé sans jeu de paramètres ; les valeurs par défaut sont utilisées. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
-      "table": "ui",
-      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate."
-    },
-    {
       "source": "[example] Dropped {count} unknown or retired settings: {keys}",
       "source_sha256": "a2ce4d5c7bb78b45f367a059440d82df3e5549962aaa808f9ac4bfaff5ce07b3",
       "translation": "[example] {count} paramètres inconnus ou retirés exclus : {keys}",
@@ -56,6 +42,22 @@
       "translation": "[example] {applied} paramètres de {name} appliqués au formulaire ; {accepted} clés CSV acceptées.",
       "table": "ui",
       "key": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted."
+    }
+  ],
+  "retired_records": [
+    {
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "translation": "Jeu de données de démonstration chargé avec ses paramètres. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate."
+    },
+    {
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "translation": "Jeu de données de démonstration chargé sans jeu de paramètres ; les valeurs par défaut sont utilisées. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate."
     }
   ]
 }

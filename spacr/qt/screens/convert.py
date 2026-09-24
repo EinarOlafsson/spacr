@@ -80,6 +80,7 @@ from ... import convert as cvt
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider, Toggle
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting
 
 __all__ = [
@@ -350,7 +351,9 @@ class ConvertScreen(QWidget):
         outer.addLayout(dst_row)
 
         self._model = PlanTableModel(self)
-        self._table = QTableView(self)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="convert::body")
+        self._table = QTableView()
         self._table.setModel(self._model)
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -359,15 +362,19 @@ class ConvertScreen(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._table.verticalHeader().setVisible(False)
-        outer.addWidget(self._table, 1)
+        split.add_section(self._table, "Conversion plan",
+                          persist_key="convert/Conversion plan")
 
-        self._summary = QPlainTextEdit(self)
+        self._summary = QPlainTextEdit()
         self._summary.setReadOnly(True)
-        self._summary.setMaximumHeight(140)
         self._summary.setPlaceholderText(
             "The plan summary and, after a run, what was converted and what "
             "was skipped.")
-        outer.addWidget(self._summary)
+        split.add_section(self._summary, "Summary",
+                          persist_key="convert/Summary", stretch=0,
+                          extent=140)
+        outer.addWidget(split, 1)
+        self._body_splitter = split
 
         self._progress_bar = QProgressBar(self)
         self._progress_bar.setRange(0, 100)

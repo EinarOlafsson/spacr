@@ -89,7 +89,13 @@ from ... import image_import as imp
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting
+
+#: Where the screen remembers its folds and its dragged heights (item 471):
+#: the proposed layout, the questions and the report each fold by their
+#: heading and trade height by the handle between them.
+FOLD_KEY = "import_images"
 
 __all__ = [
     "ANSWER_COLUMNS",
@@ -500,7 +506,12 @@ class ImageImportScreen(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._table.verticalHeader().setVisible(False)
-        outer.addWidget(self._table, 1)
+        tables = CollapsibleSplitter(Qt.Vertical, self,
+                                     persist_key=f"{FOLD_KEY}::tables")
+        self._tables = tables
+        self.proposal_section = tables.add_section(
+            self._table, "Proposed layout",
+            persist_key=f"{FOLD_KEY}/Proposed layout", stretch=1)
 
         self._answers = AnswerModel(self)
         self._answers.answers_edited.connect(self._on_answer_edited)
@@ -512,7 +523,9 @@ class ImageImportScreen(QWidget):
         self._answer_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._answer_table.verticalHeader().setVisible(False)
-        outer.addWidget(self._answer_table)
+        self.answers_section = tables.add_section(
+            self._answer_table, "Questions",
+            persist_key=f"{FOLD_KEY}/Questions", stretch=0)
 
         self._report = QPlainTextEdit(self)
         self._report.setReadOnly(True)
@@ -521,7 +534,10 @@ class ImageImportScreen(QWidget):
             "How many files were read, how many distinct wells, fields and "
             "channels they hold, what could not be placed, and what was named "
             "unlike the rest and therefore not interpreted.")
-        outer.addWidget(self._report)
+        self.report_section = tables.add_section(
+            self._report, "Report", persist_key=f"{FOLD_KEY}/Report",
+            stretch=0)
+        outer.addWidget(tables, 1)
 
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])

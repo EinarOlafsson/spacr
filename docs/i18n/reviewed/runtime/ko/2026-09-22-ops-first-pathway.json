@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source_sha256": "cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea",
+      "table": "ui",
+      "translation": "“홈 (Home)”에서 시작하여 “마스크 (Mask)”를 연 다음 “OPS”를 여세요. 주기 및 위치별 원본 이미지와 표현형 이미지에 대한 정합 정보를 제공하세요."
+    },
+    {
+      "key": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source_sha256": "94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903",
+      "table": "ui",
+      "translation": "이미지 타일의 기하 구조를 확인하거나 좌표를 매핑해야 할 때 «정렬 및 이어 붙이기 (Align & Stitch)»를 선택적으로 사용할 수 있습니다. OPS 예제의 필수 사전 단계는 아닙니다. 이어 붙인 이미지 하나만으로 시퀀싱 주기를 대체할 수는 없습니다. OPS 테이블은 회귀 분석 전에 식별자를 기준으로 명시적으로 결합하고 집계해야 합니다. 이 안내는 해당 변환을 자동으로 수행하지 않습니다."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review against the OPS-first sample route; optional preparation prefix retains the earlier reviewed note unchanged; no native-speaker sign-off",
+  "schema": 1
+}

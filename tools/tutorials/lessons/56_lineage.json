@@ -1,25 +1,102 @@
 {
-  "id":"56_lineage", "number":56, "slug":"lineage", "series":5,
-  "app_key":"lineage", "host_app_key":"db_browser", "section":"Explore",
-  "title":"Lineage: containment identities and verified parent crops",
-  "description":"Inspect actual stored parent-child relationships, understand the display cap and distinguish a verified single-parent crop from the unsafe missing-child fallback.",
-  "objectives":["Find Lineage inside Database Browser and build the real containment tree.","Distinguish complete counts, displayed families and typed object identities.","Recognize the incorrect family-crop fallback and inspect only a verified parent.","Use native crop zoom and distinguish the complete Python export from GUI controls."],
-  "prerequisite":"Use the downloaded Annotate example with matching measurements and cell crops. The linked Graph Builder archive supplies the exact database but no images; the Lineage archive supplies the verified API CSV and review, not a replacement database. Do not use the current family-crop fallback to identify or label missing child images.",
-  "example_files":["Lineage_real_containment_review.zip","Graph_Builder_real_measurements.zip"],
-  "scenes":[
-    {"visual":"02_database_host","narration":"Find Database Browser under Help, then open its nested Lineage tool. Here lineage means stored containment: which objects belong inside which cells. It is not a cell-division history, genetic ancestry or a new segmentation. The surrounding database controls belong to the host module.","hold_after":0.7,"related_lessons":["34_database"]},
-    {"visual":"04_choose_real_measurements","narration":"Browse to measurements dot db from the real Annotate example and build the tree. This lesson uses an unchanged private copy. Widen the Object column and the divider if labels are cramped. Numeric labels repeat across fields and object types, so a number alone is not an identity.","hold_after":0.7},
-    {"visual":"05_full_counts_capped_tree_and_zero_orphans","narration":"The complete source contains two thousand three hundred forty-one cells, two thousand six hundred eighty-two nuclei and two thousand one hundred seventy-eight objects in the pathogen table. Only two thousand parent families appear in the tree; three hundred forty-one are omitted from display, not deleted from the database.","hold_after":0.7},
-    {"visual":"06_one_nucleus_no_pathogen","narration":"The summary says no cells have nothing inside, because a nucleus also counts as a child. That does not mean every cell contains a pathogen-table object: one thousand one hundred sixty-eight do not. No unattached children means every recorded parent exists, not that the segmentation is biologically correct.","hold_after":0.7},
-    {"visual":"07_cell_with_nucleus_and_pathogen","narration":"Expand a parent to see its children. In this field, cell three contains nucleus five and pathogen one according to the stored links. These are typed object identities, not three interchangeable numbers. Selecting a child alone is different from selecting the whole family.","hold_after":0.7},
-    {"visual":"09_publish_three_typed_objects","narration":"Select with contents publishes the parent and its children. Selecting the parent and a child together does not need a duplicate copy of that child. Published keys preserve field and object type, but the key column is hidden here. Publishing an identity does not prove that a matching crop exists.","hold_after":0.7},
-    {"visual":"11_large_family_not_biological_validation","narration":"Large families deserve inspection, not automatic biological interpretation. This example includes one family with thirty-three objects in total. Containment may reflect segmentation errors or other acquisition issues. The tree reports saved relationships; it does not validate unusual counts as a discovery.","hold_after":0.7},
-    {"visual":"12_actual_header_sort_preserves_containment","narration":"Clicking a header sorts the displayed families without changing their containment. The two-thousand-parent display limit still applies. We checked every displayed identity and parent edge as well as the full hierarchy. Do not confuse a reordered or truncated view with an edited measurement table.","hold_after":0.7},
-    {"visual":"13_real_open_annotate_prerequisite","narration":"Open crops needs the Annotate screen, which supplies the image viewer. The actual message tells us to open Annotate first. A missing viewer is different from a missing image. Before requesting crops, load the matching example project in Annotate, not another run with coincidentally similar labels.","hold_after":0.7,"related_lessons":["09_annotate"]},
-    {"visual":"16_real_downloaded_cell_crops","narration":"The downloaded project provides real cell crops. The database-only archive linked here cannot supply those images by itself. We use the complete matching example and preserve every original crop. Opening the source does not train a classifier or establish new labels.","hold_after":0.7},
-    {"visual":"20_wrong_typed_children_are_unrelated_cell_crops","narration":"There is a serious limitation in this build. Opening the three-object family displays cell three, then unrelated cell five and cell one crops instead of the requested nucleus and pathogen. The source has only cell crops. Reject this substitution: do not label those images as the missing children. This tutorial does not repair it.","hold_after":0.7},
-    {"visual":"22_verified_parent_only_real_cell_crop","narration":"The verified alternative is narrower: return to Lineage and double-click the parent cell alone. Unlike Open crops, this sends only that parent, not its family. Annotate now shows exactly the requested cell crop. We checked its identity and original image bytes; no child-crop support is implied.","hold_after":0.7},
-    {"visual":"22a_zoom_parent_without_labelling","narration":"Shift-click the parent thumbnail to enlarge its existing preview without assigning a class. Escape returns to the grid. This helps visual inspection but creates no extra image resolution. Use the correct gesture: an ordinary left click is an annotation action, not the zoom demonstrated here.","hold_after":0.7},
-    {"visual":"24_rebuild_preserves_full_containment","narration":"Build tree refreshes the containment view. For Python, read_object_tables, build_forest and lineage_frame expose the same structure. The linked CSV contains all seven thousand two hundred one nodes, including families omitted from display. It was written by the API, not a Lineage export button, and is not biological validation.","hold_after":0.7,"related_lessons":["06_api"]}
+  "id": "56_lineage",
+  "number": 56,
+  "slug": "lineage",
+  "series": 5,
+  "app_key": "lineage",
+  "host_app_key": "db_browser",
+  "section": "Explore",
+  "title": "Lineage: browse parent objects and their contents",
+  "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+  "objectives": [
+    "Load measurements and expand parent-child relationships.",
+    "Select objects while checking field and object type.",
+    "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+  ],
+  "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+  "example_files": [
+    "Lineage_real_containment_review.zip",
+    "Graph_Builder_real_measurements.zip"
+  ],
+  "scenes": [
+    {
+      "visual": "02_database_host",
+      "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "34_database"
+      ]
+    },
+    {
+      "visual": "04_choose_real_measurements",
+      "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_full_counts_capped_tree_and_zero_orphans",
+      "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_one_nucleus_no_pathogen",
+      "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_cell_with_nucleus_and_pathogen",
+      "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_publish_three_typed_objects",
+      "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_large_family_not_biological_validation",
+      "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_header_sort_preserves_containment",
+      "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_real_open_annotate_prerequisite",
+      "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "16_real_downloaded_cell_crops",
+      "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
+      "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_verified_parent_only_real_cell_crop",
+      "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22a_zoom_parent_without_labelling",
+      "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "24_rebuild_preserves_full_containment",
+      "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api"
+      ]
+    }
   ]
 }

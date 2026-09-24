@@ -315,95 +315,186 @@ class CellposeLazyDataset(Dataset):
 
         return image, label
 
-def train_cellpose(settings):
-    """Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.
+def _cellpose_training_pairs(image_src, mask_src=None):
+    """Match native images with unique same-stem or ``_masks`` label files.
 
-    :param settings: dict of training settings; see
-        ``get_train_cellpose_default_settings`` for keys including ``src``,
-        ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,
-        ``learning_rate``, ``weight_decay``, and ``augment``.
-    :returns: None. Saves the trained model under ``<src>/models/cellpose_model``,
-        named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``.
+    :param image_src: image folder, or a legacy project with train/images.
+    :param mask_src: optional label folder; defaults to images/masks.
+    :returns: sorted (image path, mask path) pairs.
+    :raises ValueError: missing, ambiguous or empty image/mask pairs.
+    """
+    from pathlib import Path
+
+    images = Path(image_src).expanduser()
+    if not mask_src and (images / 'train' / 'images').is_dir():
+        print('Using legacy train/images and train/masks folders.')
+        masks = images / 'train' / 'masks'
+        images = images / 'train' / 'images'
+    else:
+        masks = Path(mask_src).expanduser() if mask_src else images / 'masks'
+    if not images.is_dir() or not masks.is_dir():
+        raise ValueError(f'Choose an image folder and a mask folder. Expected images: {images}; masks: {masks}')
+    extensions = {'.tif', '.tiff', '.png', '.bmp', '.jpg', '.jpeg'}
+    def files(folder):
+        """Ignore metadata sidecars and Cellpose-generated flow caches."""
+        return sorted(path for path in folder.iterdir() if path.is_file()
+                      and path.suffix.lower() in extensions
+                      and not path.name.startswith('.')
+                      and not path.stem.endswith(('_flows', '_masks')))
+    labels = {}
+    for path in masks.iterdir():
+        if path.is_file() and path.suffix.lower() in extensions and not path.name.startswith('.'):
+            labels.setdefault(path.stem, []).append(path)
+    pairs, missing = [], []
+    for path in files(images):
+        matches = labels.get(path.stem, []) + labels.get(path.stem + '_masks', [])
+        matches = [label for label in matches if label.resolve() != path.resolve()]
+        if len(matches) > 1:
+            raise ValueError(f'Ambiguous masks for {path.name}: ' + ', '.join(str(item) for item in matches))
+        if not matches:
+            missing.append(path.name)
+        else:
+            pairs.append((str(path), str(matches[0])))
+    if missing:
+        raise ValueError('Missing masks for: ' + ', '.join(missing[:12]))
+    if not pairs:
+        raise ValueError(f'No paired training images and label masks found in {images} and {masks}.')
+    return pairs
+
+
+def _cellpose_training_arrays(pairs, settings):
+    """Read label images and preserve native spatial geometry and chosen channels.
+
+    :param pairs: matched image/mask filenames.
+    :param settings: channels (zero-based, at most three) and channel_axis.
+    :returns: images and labels; multichannel images use channel-first layout.
+    :raises ValueError: invalid label values, ambiguous axes or mismatched sizes.
+    """
+    images, labels = [], []
+    selected = settings.get('channels')
+    if selected is not None:
+        if (not isinstance(selected, (list, tuple)) or not 1 <= len(selected) <= 3
+                or any(not isinstance(c, int) or isinstance(c, bool) or c < 0 for c in selected)
+                or len(set(selected)) != len(selected)):
+            raise ValueError('channels must contain one to three distinct zero-based channel indices, or be empty.')
+    for image_path, label_path in pairs:
+        image, label = np.asarray(cp_io.imread(image_path)), np.asarray(cp_io.imread(label_path))
+        if label.ndim != 2 or not np.issubdtype(label.dtype, np.integer) or np.any(label < 0):
+            raise ValueError(f'{label_path}: masks must be 2-D nonnegative integer object labels, with background 0.')
+        if image.ndim == 2:
+            if image.shape != label.shape:
+                raise ValueError(f'{image_path}: image and mask dimensions differ.')
+            if selected is not None and selected != [0] and selected != (0,):
+                raise ValueError(f'{image_path}: a grayscale image only has channel 0.')
+        elif image.ndim == 3:
+            axis = settings.get('channel_axis')
+            if axis is None:
+                candidates = [axis for axis in range(3)
+                              if tuple(size for i, size in enumerate(image.shape) if i != axis) == label.shape]
+                if len(candidates) != 1:
+                    raise ValueError(f'{image_path}: set channel_axis explicitly; the image axes are ambiguous.')
+                axis = candidates[0]
+            if not isinstance(axis, int) or axis not in (-3, -2, -1, 0, 1, 2):
+                raise ValueError('channel_axis must be -3, -2, -1, 0, 1, 2 or empty for automatic detection.')
+            image = np.moveaxis(image, axis, 0)
+            if image.shape[1:] != label.shape:
+                raise ValueError(f'{image_path}: image and mask dimensions differ for channel_axis={axis}.')
+            if selected is not None:
+                if max(selected) >= image.shape[0]:
+                    raise ValueError(f'{image_path}: a selected channel is outside the image.')
+                image = image[list(selected)]
+            if image.shape[0] > 3:
+                raise ValueError(f'{image_path}: Cellpose-SAM uses at most three channels; select channels explicitly.')
+        else:
+            raise ValueError(f'{image_path}: training requires a 2-D image with optional channels, not a Z stack.')
+        image = image.astype(np.float32)
+        if not np.isfinite(image).all():
+            raise ValueError(f'{image_path}: the image contains nonfinite values.')
+        images.append(image)
+        labels.append(label)
+    return images, labels
+
+
+def train_cellpose(settings):
+    """Fine-tune Cellpose-SAM with native paired images and instance-label masks.
+
+    :param settings: image folder src; optional mask_src (default src/masks),
+        validation test_src/test_mask_src, base_model, model_name, AdamW schedule,
+        channels/channel_axis, normalize/percentiles, scale_range, min_train_masks,
+        optional image limits and checkpoint controls. Legacy project/train/images
+        plus project/train/masks remains accepted when mask_src is blank.
+    :returns: Cellpose's checkpoint path, training losses and validation losses.
+        Weights are written beneath save_path/models (default src/models/cellpose_model/models).
+    :raises ValueError: invalid settings, unpaired images or incompatible masks.
     """
     from .settings import get_train_cellpose_default_settings
     from .utils import save_settings
 
-    settings = get_train_cellpose_default_settings(settings)
-    img_src = os.path.join(settings['src'], 'train', 'images')
-    mask_src = os.path.join(settings['src'], 'train', 'masks')
-    target_size = settings['target_size']
-
-    model_name = f"{settings['model_name']}_cpsam_e{settings['n_epochs']}_X{target_size}_Y{target_size}.CP_model"
-    model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
+    settings = get_train_cellpose_default_settings(dict(settings))
+    if not settings['src'] or not str(settings['src']).strip():
+        raise ValueError('Choose the training image source folder.')
+    if settings.get('from_scratch'):
+        raise ValueError('Cellpose 4 fine-tunes pretrained weights. Choose base_model instead of from_scratch.')
+    for key in ('n_epochs', 'batch_size', 'save_every'):
+        if not isinstance(settings[key], int) or isinstance(settings[key], bool) or settings[key] < 1:
+            raise ValueError(f'{key} must be a positive integer.')
+    for key in ('nimg_per_epoch', 'nimg_test_per_epoch'):
+        if settings[key] is not None and (not isinstance(settings[key], int) or settings[key] < 1):
+            raise ValueError(f'{key} must be a positive integer or empty for all images.')
+    if (not np.isfinite(settings['learning_rate']) or settings['learning_rate'] <= 0
+            or not np.isfinite(settings['weight_decay']) or settings['weight_decay'] < 0):
+        raise ValueError('learning_rate must be positive and weight_decay nonnegative.')
+    if not isinstance(settings['min_train_masks'], int) or settings['min_train_masks'] < 0:
+        raise ValueError('min_train_masks must be a nonnegative integer.')
+    if not 0 <= settings['scale_range'] <= 2:
+        raise ValueError('scale_range must be between 0 and 2.')
+    percentiles = settings['percentiles']
+    if len(percentiles) != 2 or not 0 <= percentiles[0] < percentiles[1] <= 100:
+        raise ValueError('percentiles must contain two increasing values between 0 and 100.')
+    pairs = _cellpose_training_pairs(settings['src'], settings['mask_src'])
+    maximum = settings['max_train_images']
+    if maximum is not None and int(maximum) > 0 and int(maximum) < len(pairs):
+        print(f'max_train_images={maximum}: training on {int(maximum)} of {len(pairs)} annotated images.')
+        pairs = pairs[:int(maximum)]
+    test_pairs = []
+    if settings['test_src']:
+        test_pairs = _cellpose_training_pairs(settings['test_src'], settings['test_mask_src'])
+        if {os.path.realpath(pair[0]) for pair in pairs} & {os.path.realpath(pair[0]) for pair in test_pairs}:
+            raise ValueError('Training and validation images must be separate.')
+    elif settings['test_mask_src']:
+        raise ValueError('A validation mask source also requires a validation image source.')
+    images, labels = _cellpose_training_arrays(pairs, settings)
+    test_images, test_labels = _cellpose_training_arrays(test_pairs, settings)
+    if settings.get('augment') or settings.get('target_size'):
+        print('Legacy augment/target_size are not applied: Cellpose 4 performs online augmentation and native crop sampling.')
+    model_name = f"{settings['model_name']}_cpsam_e{settings['n_epochs']}.CP_model"
+    if os.path.basename(model_name) != model_name or '/' in model_name or '\\' in model_name:
+        raise ValueError('model_name must be a filename, not a path.')
+    model_save_path = os.path.expanduser(settings['save_path'] or os.path.join(settings['src'], 'models', 'cellpose_model'))
     os.makedirs(model_save_path, exist_ok=True)
-
     save_settings(settings, name=model_name)
-
-    base = _resolve_training_base(settings.get('base_model'))
-    print(f"Training starts from {base}")
-    model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model=base
-    )
-
-    
-    image_filenames = set(f for f in os.listdir(img_src) if f.endswith('.tif'))
-    label_filenames = set(f for f in os.listdir(mask_src) if f.endswith('.tif'))
-
-    matched_filenames = sorted(image_filenames & label_filenames)
-
-    train_image_files = [os.path.join(img_src, f) for f in matched_filenames]
-    train_label_files = [os.path.join(mask_src, f) for f in matched_filenames]
-
-    train_dataset = CellposeLazyDataset(train_image_files, train_label_files, settings, randomize=True, augment=settings['augment'])
-
-    n_aug = 8 if settings['augment'] else 1
-    max_base_images = len(train_dataset) // n_aug if settings['augment'] else len(train_dataset)
-
-    max_train_images = settings.get('max_train_images')
-    if max_train_images is not None and int(max_train_images) > 0:
-        n_base = min(int(max_train_images), max_base_images)
-    else:
-        n_base = max_base_images
-
-    unique_base_indices = list(range(max_base_images))
-    random.shuffle(unique_base_indices)
-    selected_indices = unique_base_indices[:n_base]
-
-    if n_base < max_base_images:
-        print(f"max_train_images={max_train_images}: training on {n_base} of "
-              f"{max_base_images} annotated images.")
-
-    images, labels = [], []
-    for idx in selected_indices:
-        for aug_idx in range(n_aug):
-            i = idx * n_aug + aug_idx if settings['augment'] else idx
-            img, lbl = train_dataset[i]
-            images.append(img)
-            labels.append(lbl)
+    base = _resolve_training_base(settings['base_model'])
+    print(f'Training starts from {base}')
+    model = cp_models.CellposeModel(gpu=_cellpose_use_gpu(), pretrained_model=base)
     try:
-        plot_cellpose_batch(images[:_TRAIN_PREVIEW_N], labels[:_TRAIN_PREVIEW_N])
+        preview = [image if image.ndim == 2 else image[0] for image in images[:_TRAIN_PREVIEW_N]]
+        plot_cellpose_batch(preview, labels[:_TRAIN_PREVIEW_N])
     except Exception:
-        print(f"could not print batch images")
+        print('could not print batch images')
+    print(f"Training model on {len(images)} native annotated images for {settings['n_epochs']} epochs, minibatch {settings['batch_size']}; Cellpose online augmentation enabled.")
+    result = train_cp.train_seg(
+        model.net, train_data=images, train_labels=labels,
+        test_data=test_images or None, test_labels=test_labels or None,
+        channel_axis=0, save_path=model_save_path, model_name=model_name,
+        normalize=dict(normalize=settings['normalize'], percentile=list(percentiles)),
+        rescale=False, **{key: settings[key] for key in (
+            'n_epochs', 'batch_size', 'learning_rate', 'weight_decay',
+            'save_every', 'save_each', 'min_train_masks', 'scale_range',
+            'nimg_per_epoch', 'nimg_test_per_epoch')})
+    if result is not None:
+        print(f'Model saved at: {result[0]}')
+    return result
 
-    print(f"Training model on {len(images)} patches from {n_base} annotated "
-          f"images (augment={bool(settings['augment'])}, x{n_aug}) for "
-          f"{settings['n_epochs']} epochs, minibatch {settings['batch_size']}")
-
-    train_cp.train_seg(model.net,
-                       train_data=images,
-                       train_labels=labels,
-                       channel_axis=None,
-                       save_path=model_save_path,
-                       n_epochs=settings['n_epochs'],
-                       batch_size=settings['batch_size'],
-                       learning_rate=settings['learning_rate'],
-                       weight_decay=settings['weight_decay'],
-                       model_name=model_name,
-                       save_every=max(1, (settings['n_epochs'] // 10)),
-                       rescale=False)
-
-    print(f"Model saved at: {model_save_path}/{model_name}")
-    
 def test_cellpose_model(settings):
     """Evaluate a Cellpose model on a labelled test set and report per-image metrics.
 
@@ -485,8 +576,10 @@ def test_cellpose_model(settings):
 
     test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
 
+    from .accelerator import cellpose_kwargs
+
     model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model=settings['model_path']
+        pretrained_model=settings['model_path'], **cellpose_kwargs()
     )
 
     batch_size = settings['batch_size']
@@ -672,8 +765,10 @@ def apply_cellpose_model(settings):
     dummy_labels = [image_files[0]] * len(image_files)
     dataset = CellposeLazyDataset(image_files, dummy_labels, settings, randomize=False, augment=False)
 
+    from .accelerator import cellpose_kwargs
+
     model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model=settings['model_path']
+        pretrained_model=settings['model_path'], **cellpose_kwargs()
     )
     batch_size = settings['batch_size']
     measurements = []
@@ -894,36 +989,51 @@ def analyze_percent_positive(settings):
     return merged
 
 def analyze_recruitment(settings):
-    """Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.
+    """Measure marker recruitment with host-cell and per-well summaries.
 
     Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from
     a spacr ``measurements.db``, annotates each row with cell type /
     pathogen / treatment based on plate metadata, filters objects by
     size and intensity, computes the pathogen-to-cytoplasm mean-intensity
     ratio for ``channel_of_interest``, groups by well and writes both
-    ``cells.csv`` and ``wells.csv`` alongside recruitment plots.
+    ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.
+
+    Each cell row combines the pathogen measurements assigned to that host
+    cell. Pathogen mean intensities are averaged across its associated objects;
+    these rows represent host cells rather than independently measured vacuoles.
+    The main recruitment ratio divides that aggregate pathogen mean by the
+    cell's cytoplasm mean. Each well averages its retained cell ratios.
+
+    In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project,
+    map its channels and plate conditions, review the object filters, and Run.
+    Inspect the retained counts and ratio columns before comparing conditions.
+    Condition plots show between-well standard deviations. For measurements
+    linked to individual vacuoles, use :mod:`spacr.host_pathogen`.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.get_analyze_recruitment_default_settings`.
         Key entries:
 
         - ``src`` — folder containing ``measurements/measurements.db``
-          (or the DB path directly).
+          and optional ``merged`` images for overlays. A database path is also
+          accepted; a database outside a measurements folder may be moved into
+          one, so use a project copy when reorganizing existing data.
         - ``cell_types`` / ``cell_plate_metadata`` — labels + row/col
           metadata that map wells to cell lines.
         - ``pathogen_types`` / ``pathogen_plate_metadata``.
         - ``treatments`` / ``treatment_plate_metadata``.
         - ``channel_of_interest`` — intensity channel for the ratio.
         - ``cell_chann_dim`` / ``nucleus_chann_dim`` /
-          ``pathogen_chann_dim`` — mask channel dims.
+          ``pathogen_chann_dim`` — recorded object-channel mapping used by
+          image overlays and intensity filtering.
         - ``cell_size_range``, ``nucleus_size_range``,
           ``pathogen_size_range`` — ``[min, max]`` px area filters.
         - ``*_intensity_range``, ``target_intensity_min``.
         - ``cells_per_well`` — minimum well count to keep.
         - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.
 
-    :returns: List ``[cells, wells]`` — the per-PV and per-well
-        recruitment DataFrames, also written to CSV under ``src``.
+    :returns: List ``[cells, wells]`` — the host-cell and per-well
+        recruitment DataFrames, also written to CSV under ``src/results``.
 
     Example:
         .. code-block:: python
@@ -1037,7 +1147,7 @@ def analyze_recruitment(settings):
        
     df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
     
-    for chan in settings['channel_dims']:
+    for chan in dict.fromkeys([*settings['channel_dims'], settings['channel_of_interest']]):
         df = _calculate_recruitment(df, channel=chan)
     print(f'calculated recruitment for: {len(df)} rows')
     
@@ -1064,6 +1174,16 @@ def analyze_recruitment(settings):
 
 
 
+def _plaque_well_diameter(filename, settings):
+    """Return detected mean box extent even when physical calibration is unknown."""
+    from .plaque import Well
+
+    geometry = (settings.get('_well_geometry') or {}).get(filename)
+    if not geometry:
+        return None
+    return Well(**{k: geometry[k] for k in ('x0', 'y0', 'x1', 'y1')}).diameter_px
+
+
 def _plaque_scale_for(filename, settings):
     """The pixels-per-mm for one segmented image, or ``None``.
 
@@ -1077,8 +1197,15 @@ def _plaque_scale_for(filename, settings):
     is honest. Inventing a default plate format would fill those columns with
     confident numbers that are wrong by whatever the real plate was.
     """
-    from .plaque import Well, scale_from_well
+    from .plaque import Well, PlaqueScale, scale_from_well
+    from .plaque_papers import calibration_number
 
+    manual = calibration_number(settings.get("plaque_pixels_per_um"), name="plaque_pixels_per_um")
+    if manual is not None:
+        diameter = _plaque_well_diameter(filename, settings)
+        return PlaqueScale(manual * 1000, diameter,
+                           diameter / (manual * 1000) if diameter is not None else None,
+                           "manual settings")
     geometry = (settings.get('_well_geometry') or {}).get(filename)
     if not geometry:
         return None
@@ -1430,15 +1557,23 @@ def analyze_plaques(settings):
 
             scale = _plaque_scale_for(filename, settings)
             px_per_mm = scale.px_per_mm if scale else None
-            well_px = scale.well_diameter_px if scale else None
+            well_px = _plaque_well_diameter(filename, settings)
+            from .plaque_papers import calibration_number
+            hours = calibration_number(settings.get('plaque_formation_hours'), name='plaque_formation_hours', allow_zero=True)
+            calibration = dict(well_diameter_px=well_px,
+                               well_diameter_method='mean detected bounding-box extent' if well_px is not None else None,
+                               pixels_per_um=px_per_mm / 1000 if px_per_mm else None,
+                               formation_hours=hours,
+                               formation_time_source='settings' if hours is not None else 'unknown',
+                               scale_source=scale.source if scale else 'unknown')
             mm2 = (lambda a: scale.area_mm2(a)) if scale else (lambda a: None)
 
-            summary_data.append({'file': filename, 'object_count': object_count,
+            summary_data.append({**calibration, 'file': filename, 'object_count': object_count,
                                  'average_size': average_size,
                                  'well_diameter_px': well_px,
                                  'px_per_mm': px_per_mm,
                                  'average_size_mm2': mm2(average_size)})
-            stats_data.append({'file': filename, 'plaque_count': object_count,
+            stats_data.append({**calibration, 'file': filename, 'plaque_count': object_count,
                                'average_size': average_size,
                                'std_dev_size': std_dev_size,
                                'well_diameter_px': well_px,
@@ -1446,11 +1581,11 @@ def analyze_plaques(settings):
                                'average_size_mm2': mm2(average_size),
                                'std_dev_size_mm2': mm2(std_dev_size)})
             for size in sizes:
-                details_data.append({'file': filename, 'plaque_size': size,
+                details_data.append({**calibration, 'file': filename, 'plaque_size': size,
                                      'plaque_size_mm2': mm2(size)})
             median = float(np.median(sizes)) if sizes else 0.0
             per_image.append({
-                'file': filename, 'plaque_count': object_count,
+                **calibration, 'file': filename, 'plaque_count': object_count,
                 'mean_area_px': average_size, 'median_area_px': median,
                 'std_area_px': std_dev_size,
                 'total_area_px': float(np.sum(sizes)) if sizes else 0.0,
@@ -1461,7 +1596,7 @@ def analyze_plaques(settings):
                 'plaque_model': settings.get('plaque_model')})
             for region in regions:
                 per_plaque.append({
-                    'file': filename, 'plaque_id': int(region.label),
+                    **calibration, 'file': filename, 'plaque_id': int(region.label),
                     'area_px': int(region.area),
                     'area_mm2': mm2(region.area),
                     'area_vs_image_median': (float(region.area) / median
@@ -1473,6 +1608,19 @@ def analyze_plaques(settings):
                     'centroid_y': float(region.centroid[0]),
                     'centroid_x': float(region.centroid[1])})
     
+    from .plaque_growth import estimates_from_settings
+    growth = {}
+    if settings.get('plaque_estimate_growth', False):
+        areas_by_file = {}
+        for row in per_plaque:
+            areas_by_file.setdefault(row['file'], []).append(row['area_px'])
+        for row in per_image:
+            well = dict(well=row['file'], areas_px=areas_by_file.get(row['file'], []),
+                        pixels_per_um=row['pixels_per_um'], formation_hours=row['formation_hours'])
+            growth.update(estimates_from_settings([well], settings))
+    for table in (summary_data, stats_data, details_data, per_image, per_plaque):
+        for row in table:
+            row.update(growth.get(row['file'], {}))
     summary_df = pd.DataFrame(summary_data)
     details_df = pd.DataFrame(details_data)
     stats_df = pd.DataFrame(stats_data)
@@ -1577,7 +1725,10 @@ def _analyze_plaque_figures(settings, model_path):
         segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
         confidence=float(settings.get('figure_confidence', 0.25)),
         confirm_each=bool(settings.get('confirm_annotations', False)),
-        plate_format=settings.get('plate_format'), read_text=read_text,
+        plate_format=settings.get('plate_format'),
+        pixels_per_um=settings.get("plaque_pixels_per_um"),
+        formation_hours=settings.get("plaque_formation_hours"),
+        growth_settings=settings, read_text=read_text,
         text_options=plaque_papers.text_options_from_settings(settings))
     print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
           f"plaque image(s), {summary['plaques']} plaque(s) -> "
@@ -3253,6 +3404,13 @@ def _replication_stacked_bars(settings, vacuoles, group_column, prc_column,
 def analyze_replication(settings):
     """Replication assay: count parasites per vacuole and compare the distributions.
 
+    ``replication_method='direct_count'`` is the default described below.
+    ``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its
+    area-derived, host-aggregated readout instead. Both return the selected
+    method in ``replication_method``. ``'deep_learning_coming_soon'`` raises
+    :class:`NotImplementedError` before any data are read or outputs written;
+    the whole-vacuole classification model is not available yet.
+
     *Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside
     a mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites —
     a power of two. The readout of a replication assay is therefore the
@@ -3324,6 +3482,22 @@ def analyze_replication(settings):
         :func:`analyze_endodyogeny` — the size-proxy version, for fused
         rosettes that cannot be resolved into single parasites.
     """
+    method = settings.get('replication_method', 'direct_count')
+    if method == 'deep_learning_coming_soon':
+        raise NotImplementedError(
+            'Whole-vacuole deep learning classification model coming soon. '
+            'No trained model is available yet. Choose direct parasite counts '
+            'or the area-derived size proxy to run replication analysis.')
+    if method not in ('direct_count', 'size_proxy'):
+        raise ValueError(f'Unknown replication_method: {method!r}')
+    if method == 'size_proxy':
+        print('Replication size proxy: host-cell aggregated pathogen area, '
+              'not direct parasite counts or measured volume. Multiple vacuoles '
+              'in one host cell are combined by this legacy method.')
+        output = analyze_endodyogeny(dict(settings))
+        output['replication_method'] = method
+        return output
+
     from .utils import annotate_conditions, save_settings
     from .io import _read_db
     from . import settings as settings_module
@@ -3513,6 +3687,7 @@ def analyze_replication(settings):
 
     output = {
         'vacuoles': vacuoles,
+        'replication_method': method,
         'wells': wells,
         'summary': summary,
         'comparisons': comparisons,

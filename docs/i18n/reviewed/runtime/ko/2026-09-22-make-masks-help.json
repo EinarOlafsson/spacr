@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b",
+      "translation": "이 시야를 제외 대상으로 표시하고 다음 시야로 이동합니다. 아무것도 삭제하지 않습니다. 판정은 이미지 옆의 csv/keep_discard.csv 파일에 기록되며 시야, 마스크, 객체는 그대로 유지됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9",
+      "translation": "이 시야를 유지 대상으로 표시하고 다음 시야로 이동합니다. 판정은 이미지 옆의 csv/keep_discard.csv 파일에 이미지, 마스크, 현재 마스크에 있는 객체 수와 함께 기록됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
+      "translation": "그린 마스크를 측정합니다. 각 행이 시야이고 각 열이 채널 또는 마스크 유형인 표를 엽니다. 측정 모듈 자체를 통해 실행하므로 폴더와 측정 데이터베이스도 일반 측정 실행에서 생성하는 것과 같습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "브러시, 마술봉, 표시, 자동 필터, 객체 작업, Otsu, 객체 검출, 실시간 확대경 설정을 한 그룹으로 표시하거나 숨깁니다. 숨겨서 확보한 너비는 캔버스가 사용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "이미지와 검출에 사용하는 픽셀을 반전하여 어두운 객체를 밝게 만듭니다. 시야를 0..1로 정규화한 다음 각 픽셀 값을 1에서 해당 값을 뺀 값으로 바꿉니다. 커서 아래의 픽셀 강도는 반전을 반영하지만 객체 평균 강도와 필터 임계값은 처음 불러온 원래 값을 사용합니다. 불러온 이미지 데이터와 기존 마스크는 바뀌지 않습니다. 완성된 마스크의 전경과 배경을 바꾸려면 객체 작업에서 «객체와 배경 바꾸기» ('Swap object and background')를 사용하세요."
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
+      "translation": "마지막 필터가 제거한 객체 목록입니다. 객체마다 한 행에 식별자, 판정에 사용한 면적과 평균 강도, 제거 원인이 된 제한값을 표시합니다. 식별자는 포인터 아래의 값 표시에 나오는 것과 같습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
+      "translation": "유지할 최소 객체 크기이며 단위는 픽셀입니다. 작은 객체 제거는 이 값보다 작은 객체를 모두 없앱니다. Otsu 검출과 객체 검출도 이보다 작은 객체를 생성하지 않으므로 작은 잔해의 크기 기준을 한 설정으로 정합니다."
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5",
+      "translation": "팽창 또는 축소를 한 번 누를 때 각 객체의 경계가 이동하는 픽셀 수입니다. 직선거리를 사용하므로 1은 경계를 네 방향의 이웃 픽셀로 이동시키지만 대각선 모서리로는 이동시키지 않습니다. 커질 공간이 있었던 객체는 같은 크기로 축소하면 팽창이 되돌려집니다."
+    },
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972",
+      "translation": "각 객체를 지정한 픽셀 수만큼 배경 쪽으로만 확장합니다. 이웃 객체의 픽셀을 빼앗거나 두 객체를 하나로 합치지 않으므로 식별자와 객체 수는 유지됩니다. 한 번의 실행 취소로 되돌릴 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966",
+      "translation": "각 객체의 경계를 지정한 픽셀 수만큼 안쪽으로 이동합니다. 배경뿐 아니라 이웃 객체에서도 물러나므로 맞닿은 두 객체가 분리됩니다. 이 거리의 두 배보다 얇은 객체는 사라지며, 상태 줄에 사라진 객체 수가 표시됩니다. 한 번의 실행 취소로 되돌릴 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
+      "translation": "이 시야와 Cellpose 모드의 실시간 확대경 상자를 분할할 모델 가중치입니다. 목록에는 이 컴퓨터에 설치된 Cellpose와 모델 저장소의 모든 Cellpose 모델이 있습니다. 아직 다운로드하지 않은 저장소 모델은 회색으로 표시되며, 선택하면 다운로드한 뒤 해당 모델을 선택합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88",
+      "translation": "객체 검출 모델로 열린 시야를 분할하고 교체 또는 병합 설정에 따라 결과를 반영합니다. 세포 확률 및 흐름 탭에는 실행 과정의 중간 결과가 채워집니다."
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146",
+      "translation": "임계값을 찾고 이미지에 적용하기 전에 수행하는 가우시안 블러이며 단위는 픽셀입니다. 잡음이 많은 시야에서 한 픽셀짜리 객체가 수천 개 생기는 것을 막습니다. 0이면 원본 데이터에 임계값을 적용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602",
+      "translation": "시야의 가장자리에 걸쳐 잘린 객체를 제외합니다. 이런 객체의 면적과 평균 강도는 객체 자체보다 프레임 위치에 좌우되므로 측정용 검출에서는 제외하는 편이 좋습니다. Otsu 검출에만 적용됩니다. 실시간 확대경에는 상자 경계를 위한 별도 설정이 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
+      "translation": "어떤 밝기 구간을 객체로 삼을지 정합니다. 가장 어두운 구간을 0으로 셉니다. 클래스가 3개일 때 2는 밝은 핵을, 1은 핵을 제외하고 그 주위의 어두운 테두리만 선택합니다. 정확히 그 구간만 선택하는 것이 클래스를 두 개보다 많이 두는 목적입니다. 클래스가 두 개보다 많으면 이 설정이 객체가 배경보다 밝다는 설정을 대체하며, 숫자가 선택할 쪽을 결정합니다."
+    },
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37",
+      "translation": "각 픽셀을 중심으로 국소 임계값을 측정하는 정사각형입니다. 객체 하나보다 충분히 크고 조명이 공간적으로 변하는 규모보다 작게 설정하세요. 너무 작으면 큰 객체의 내부가 스스로의 배경이 되어 속이 빈 객체로 나오고, 너무 크면 다시 전체 시야의 임계값이 됩니다. 중심이 있도록 짝수는 다음 홀수로 올립니다."
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
+      "translation": "전체 시야에서 한 번만 계산하는 대신 각 픽셀 주변 창에서 Otsu 임계값을 따로 구합니다. 조명이 약한 모서리를 그 주변과 비교하므로 그곳의 객체를 놓치지 않으면서 밝은 중앙은 깨끗하게 유지합니다. 잡음이 많은 배경에서는 객체가 더 생길 수 있으며 최소 면적으로 걸러냅니다. 클래스가 두 개일 때만, Otsu 검출에서만 사용할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1",
+      "translation": "Otsu 모드가 객체를 얼마나 쉽게 받아들일지 정합니다. 어둡거나 덜 확실한 객체도 포함하려면 값을 높이고, 뚜렷한 객체만 유지하려면 낮추세요. 0은 기본 기준입니다. 모델은 대신 객체 검출 설정의 임계값을 사용하므로 다른 모드를 선택하면 이 설정은 회색으로 표시됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+      "translation": "마스크에 이미 객체가 있는 곳에서 새 객체를 처리하는 방식입니다. 잘라내기는 새 객체의 레이블 없는 픽셀만 유지하여 기존 객체가 픽셀을 잃지 않게 합니다. 건너뛰기는 기존 객체에 닿는 새 객체를 통째로 제외합니다. 교체는 새 객체가 덮는 모든 픽셀을 차지하게 합니다. 마우스 아래 영역의 미리보기 상자에는 이 규칙의 결과가 나타납니다. 클릭으로 추가될 부분은 불투명하게, 제거될 부분은 흐리게 표시됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "이미지 반전이 켜져 있습니다. 화면 표시와 검출에 반전된 이미지를 사용합니다. 커서 아래의 픽셀 강도는 반전을 반영하지만 객체 평균 강도와 필터 임계값은 처음 불러온 원래 값을 사용합니다. 불러온 이미지 데이터와 기존 마스크는 바뀌지 않습니다."
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
+        "translation": "상자 안 영역을 분할하는 모델입니다. Otsu는 영역에 Otsu 임계값을 적용하고 워터셰드로 맞닿은 객체를 분리합니다. 별도 설치가 필요 없으며 객체 작업의 최소 면적과 임계값 보정을 비롯한 Otsu 범주의 설정을 따릅니다. 모델을 불러올 수 없을 때도 Otsu가 실행됩니다. Cellpose는 객체 검출에 설정된 모델, 두 임계값, 지름, 정규화를 사용하며 GPU가 없으면 느립니다. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell, SAMCell은 항상 목록에 있지만 설치 전에는 회색으로 표시됩니다. 선택하면 별도 환경에 설치하는 옵션이 나옵니다. Cellpose 3은 객체 검출의 두 임계값과 지름을, DINOCell은 세포 확률을 사용하고 SAMCell은 자체 임계값을 사용합니다."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+        "translation": "이미지를 음화로 표시하고 같은 음화에서 객체를 검출합니다. 시야를 0..1로 정규화한 뒤 각 픽셀 값을 1에서 원래 값을 뺀 값으로 바꾸므로 가장 어두운 픽셀이 가장 밝아집니다. 따라서 밝은 객체를 찾는 Otsu와 실시간 확대경이 어두운 객체도 검출할 수 있습니다. 밝은 명시야 배경의 어두운 객체가 눈과 검출기 모두에 형광 객체처럼 보입니다. 이 기능이 켜져 있는 동안 마스크는 반전된 이미지에서 만들어지며, 이미지 위에 이를 알리는 경고가 계속 표시됩니다. 포인터 아래의 값 표시, 필터 범주, 저장하는 마스크는 이미지의 실제 값을 계속 사용하므로 측정값은 바뀌지 않습니다. 객체 작업에서 객체와 배경을 맞바꾸는 기능('Swap object and background')과는 다릅니다. 그 기능은 완성된 마스크만 뒤집고 이미지는 바꾸지 않습니다."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+        "translation": "이미지에 Otsu 임계값을 적용하고 위의 최소 면적을 지키면서 남은 영역에 레이블을 지정합니다. 임계값 보정, 평활화, 객체로 취급할 쪽, 구멍 채우기, 맞닿은 객체 분리, 프레임에 잘린 객체 제외는 모두 Otsu 범주에서 설정합니다."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "상자 안 영역을 분할하는 모델입니다. Otsu는 영역에 Otsu 임계값을 적용하고 워터셰드로 맞닿은 객체를 분리합니다. 별도 설치가 필요 없으며 객체 작업의 최소 면적과 임계값 보정을 비롯한 Otsu 범주의 설정을 따릅니다. 모델을 불러올 수 없을 때도 Otsu가 실행됩니다. 적응형 임계값(Adaptive threshold), LoG blobs, DoG blobs, 능선 필터(Ridge filter), 히스테리시스(Hysteresis), U-Net은 세포소기관 검출 자체의 방법입니다. 분할 작업과 같은 코드를 실행하고 검출 방법 범주의 설정을 읽으며, 각 행의 툴팁에서 해당 방법에 적합한 용도를 설명합니다. Cellpose는 객체 검출에 설정된 모델, 두 임계값, 지름, 정규화를 사용하며 GPU가 없으면 느립니다. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell, SAMCell은 항상 목록에 있지만 설치 전에는 회색으로 표시됩니다. 선택하면 별도 환경에 설치하는 옵션이 나옵니다. Cellpose 3은 객체 검출의 두 임계값과 지름을, DINOCell은 세포 확률을 사용하고 SAMCell은 자체 임계값을 사용합니다."
+      }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "시야를 나눌 밝기 구간 수입니다. 2는 배경과 객체 사이에 임계값 하나를 두는 기본 Otsu 분할입니다. 배경, 어두운 테두리, 밝은 핵처럼 두 개보다 많은 집단이 있으면 값을 높이세요. 그러면 세 집단 사이의 절충된 임계값 대신 아래에서 선택한 원하는 경계를 사용합니다. Otsu 검출에만 적용됩니다."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "이 시야의 강도 히스토그램에 위 설정이 적용하는 임계값을 표시합니다. 버튼이 사용하는 것과 같은 함수에서 가져온 동일한 값입니다. 표시선이 히스토그램 골짜기에서 한쪽으로 치우쳐 있다면 임계값 보정을 조정하세요."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ]
+}

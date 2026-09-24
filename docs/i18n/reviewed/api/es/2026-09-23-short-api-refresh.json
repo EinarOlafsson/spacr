@@ -1,0 +1,882 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "How many extracted image regions this plan will load.",
+      "label": "spacr.crop_loader.CropPlan.count#0",
+      "source": "How many crops this plan will load.",
+      "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
+      "translation": "Número de recortes de imagen que cargará este plan."
+    },
+    {
+      "context": "Whether the query matched nothing at all.",
+      "label": "spacr.crop_loader.CropPlan.is_empty#0",
+      "source": "Whether the query matched nothing at all.",
+      "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
+      "translation": "Si la consulta no encontró ningún resultado."
+    },
+    {
+      "context": "Shorter side over longer, so 1.0 is square.",
+      "label": "spacr.plaque_papers.Region.axis_ratio#0",
+      "source": "Shorter side over longer, so 1.0 is square.",
+      "source_sha256": "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6",
+      "translation": "Relación entre el lado más corto y el más largo; 1.0 corresponde a un cuadrado."
+    },
+    {
+      "context": "Box height in pixels.",
+      "label": "spacr.plaque_papers.Region.height#0",
+      "source": "Box height in pixels.",
+      "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
+      "translation": "Altura del cuadro delimitador en píxeles."
+    },
+    {
+      "context": "Box width in pixels.",
+      "label": "spacr.plaque_papers.Region.width#0",
+      "source": "Box width in pixels.",
+      "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
+      "translation": "Anchura del cuadro delimitador en píxeles."
+    },
+    {
+      "context": "Horizontal centre.",
+      "label": "spacr.plaque_papers.Word.cx#0",
+      "source": "Horizontal centre.",
+      "source_sha256": "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0",
+      "translation": "Centro horizontal."
+    },
+    {
+      "context": "Vertical centre.",
+      "label": "spacr.plaque_papers.Word.cy#0",
+      "source": "Vertical centre.",
+      "source_sha256": "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575",
+      "translation": "Centro vertical."
+    },
+    {
+      "context": "The letter when this word is a panel label such as ``F`` or ``(b)``.",
+      "label": "spacr.plaque_papers.Word.panel_letter#0",
+      "source": "The letter when this word is a panel label such as ``F`` or ``(b)``.",
+      "source_sha256": "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c",
+      "translation": "La letra cuando esta palabra identifica un panel de la figura, como ``F`` o ``(b)``."
+    },
+    {
+      "context": "Whether the tool is now installed and findable.",
+      "label": "spacr.qt.ai.cli_install.InstallOutcome.ok#0",
+      "source": "Whether the tool is now installed and findable.",
+      "source_sha256": "8f1b6fd02a7ae0581d7297ce8af370420cd6aca71e8b897f769d2e7c55e809a2",
+      "translation": "Si la herramienta está instalada y se puede localizar."
+    },
+    {
+      "context": "Whether a row was found that spaCR can run.",
+      "label": "spacr.qt.ai.cli_install.InstallPlan.automatic#0",
+      "source": "Whether a row was found that spaCR can run.",
+      "source_sha256": "5d7e0d2c0ef8a01752f610a0cfef4342f3645208507a834f39f609c672f34c9b",
+      "translation": "Si se encontró una línea de comandos que spaCR puede ejecutar."
+    },
+    {
+      "context": "The command to show: the row that would execute, else the hint.",
+      "label": "spacr.qt.ai.cli_install.InstallPlan.command#0",
+      "source": "The command to show: the row that would run, else the hint.",
+      "source_sha256": "4c607e66e735a3fb51d07de10b02d1a5024aeafab107b970e0289d76d03fbb38",
+      "translation": "El comando que se mostrará: la línea que se ejecutaría o, en su defecto, la indicación."
+    },
+    {
+      "context": "Return True when the tool's executable is on ``PATH``.",
+      "label": "spacr.qt.ai.providers.CommandLineTool.is_installed#0",
+      "source": "Return True when the tool's executable is on ``PATH``.",
+      "source_sha256": "fc88759a3ed90eb7c4f1a98e97543f68ba79e12ce1dc11f01e18ec9fe0b2840d",
+      "translation": "Devuelve True cuando el ejecutable de la herramienta está en ``PATH``."
+    },
+    {
+      "context": "The GitHub CLI, described the way the AI providers are.",
+      "label": "spacr.qt.ai.providers.github_cli#0",
+      "source": "The GitHub CLI, described the way the AI providers are.",
+      "source_sha256": "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90",
+      "translation": "La CLI de GitHub, descrita con el mismo formato que los proveedores de IA."
+    },
+    {
+      "context": "The exit code, or None while it runs.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.poll#0",
+      "source": "The exit code, or None while it runs.",
+      "source_sha256": "7b0e38b23bf54b8b79d37f18ae5943c6509c40e3b280e93c07fcc5cc2321c2db",
+      "translation": "El código de salida, o None mientras se ejecuta."
+    },
+    {
+      "context": "Every mode this module adds, in the box's order.",
+      "label": "spacr.qt.cpu_modes.modes#0",
+      "source": "Every mode this module adds, in the box's order.",
+      "source_sha256": "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee",
+      "translation": "Todos los modos que añade este módulo, en el orden del cuadro de selección."
+    },
+    {
+      "context": "The modes that are a threshold algorithm, Multi-Otsu included.",
+      "label": "spacr.qt.cpu_modes.threshold_modes#0",
+      "source": "The modes that are a threshold algorithm, Multi-Otsu included.",
+      "source_sha256": "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb",
+      "translation": "Los modos que corresponden a algoritmos de umbralización, incluido Multi-Otsu."
+    },
+    {
+      "context": "The GUI scale in force now (1.0 = 100 %).",
+      "label": "spacr.qt.gui_scale.current_scale#0",
+      "source": "The GUI scale in force now (1.0 = 100 %).",
+      "source_sha256": "08510d88321d39211476b557bdb25a29e93806a20b6c7c34b680ff8246501962",
+      "translation": "El factor de escala actual de la GUI (1.0 = 100 %)."
+    },
+    {
+      "context": "Whether :func:`install_scaling_layer` has run in this process.",
+      "label": "spacr.qt.gui_scale.installed#0",
+      "source": "Whether :func:`install_scaling_layer` has run in this process.",
+      "source_sha256": "e5fdf9dbe236e39c151c82755c490c2a378a2e469c3f5b4abee2f3b401d0a9ec",
+      "translation": "Si :func:`install_scaling_layer` se ha ejecutado en este proceso."
+    },
+    {
+      "context": "Title, subtitle and description, lowercased, for matching.",
+      "label": "spacr.qt.help_index.HelpEntry.haystack#0",
+      "source": "Title, subtitle and description, lowercased, for matching.",
+      "source_sha256": "fd57e2bbf9c5c195bcabcc0fceff7a4e6ab670dc339a4fc9e0045611c82b644f",
+      "translation": "Título, subtítulo y descripción en minúsculas para buscar coincidencias."
+    },
+    {
+      "context": "The registered providers, in registration order.",
+      "label": "spacr.qt.help_index.provider_names#0",
+      "source": "The registered providers, in registration order.",
+      "source_sha256": "24855a0eb4899b22f5fcd93812797358651c644e7febdb355bce3ecb49f37efd",
+      "translation": "Los proveedores registrados, en orden de registro."
+    },
+    {
+      "context": "Put the popup away.",
+      "label": "spacr.qt.help_search.HelpSearchField.hide_popup#0",
+      "source": "Put the popup away.",
+      "source_sha256": "43bc98f3ad345ba7c988879cc19b27a47d08e55a5ecd88071d4b3d201c6dd5a5",
+      "translation": "Ocultar la ventana emergente."
+    },
+    {
+      "context": "The index, or ``None`` while it is still being built.",
+      "label": "spacr.qt.help_search.HelpSearchField.index#0",
+      "source": "The index, or ``None`` while it is still being built.",
+      "source_sha256": "11a545ee5ce749127514778112ae690ea6936a157ded3d3a3accaee282ad8a0b",
+      "translation": "El índice, o ``None`` mientras se está construyendo."
+    },
+    {
+      "context": "The line above the list: what is being built, or what matched.",
+      "label": "spacr.qt.help_search.HelpSearchField.note#0",
+      "source": "The line above the list: what is being built, or what matched.",
+      "source_sha256": "8a0de8cadb3e016b66bb67794e24d24fec57edd428badfafc173f7d35b3a283a",
+      "translation": "La línea sobre la lista: qué se está construyendo o qué coincidencias se encontraron."
+    },
+    {
+      "context": "The results popup, so a test can ask whether it is up.",
+      "label": "spacr.qt.help_search.HelpSearchField.popup#0",
+      "source": "The results popup, so a test can ask whether it is up.",
+      "source_sha256": "df2ed8b50cac99a91a63b829e84862a49d92ed897a7277a498356d6c957b4e1e",
+      "translation": "La ventana emergente de resultados, para que una prueba pueda comprobar si está visible."
+    },
+    {
+      "context": "What the popup is showing, best first.",
+      "label": "spacr.qt.help_search.HelpSearchField.results#0",
+      "source": "What the popup is showing, best first.",
+      "source_sha256": "73a7e3825148a9ce18bba17118f48e7385ebe7539d26d3217f930a0d7b111de8",
+      "translation": "Los resultados que muestra la ventana emergente, con los mejores primero."
+    },
+    {
+      "context": "The one reachability probe, made on first use.",
+      "label": "spacr.qt.help_search.docs_reach#0",
+      "source": "The one reachability probe, made on first use.",
+      "source_sha256": "e7ea479da87ff4c3218eb504821abab11adaf0633c088a333245247bc2ac92a6",
+      "translation": "La única comprobación de accesibilidad, realizada en el primer uso."
+    },
+    {
+      "context": "The kinds that can be opened, in registration order.",
+      "label": "spacr.qt.help_search.opener_kinds#0",
+      "source": "The kinds that can be opened, in registration order.",
+      "source_sha256": "85e73d707c9daf06f22e4a5be1e61658b0ba449fb0c02ffc20a123e3aeb80b8e",
+      "translation": "Los tipos que se pueden abrir, en orden de registro."
+    },
+    {
+      "context": "The dataset that is selected, or None.",
+      "label": "spacr.qt.make_masks_datasets.DatasetPicker.chosen#0",
+      "source": "The dataset that is selected, or None.",
+      "source_sha256": "5feea3dc9fe250a02ebd67b235127a7e1cc27838ecc0a606dc6c8ed10a367896",
+      "translation": "El conjunto de datos seleccionado, o None."
+    },
+    {
+      "context": "How many fields a complete sample of this dataset holds.",
+      "label": "spacr.qt.make_masks_datasets.MaskDataset.size#0",
+      "source": "How many fields a complete sample of this dataset holds.",
+      "source_sha256": "79b1828b3be5bb97eb92c28bc2b5f36841b51e4c3ceca4bf1200f6b223efec99",
+      "translation": "Número de campos de imagen que contiene una muestra completa de este conjunto de datos."
+    },
+    {
+      "context": "Every threshold algorithm name, global then local.",
+      "label": "spacr.qt.mask_engine.threshold_algorithms#0",
+      "source": "Every threshold algorithm name, global then local.",
+      "source_sha256": "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e",
+      "translation": "Todos los nombres de algoritmos de umbralización, primero los globales y después los locales."
+    },
+    {
+      "context": "Whether the download thread is still running.",
+      "label": "spacr.qt.model_install.CheckpointDownload.is_running#0",
+      "source": "Whether the download thread is still running.",
+      "source_sha256": "f706ec222d52424e583ce1d3f7593b130a20f6811eb217b28f2f8331a4ec21fa",
+      "translation": "Si el hilo de descarga sigue ejecutándose."
+    },
+    {
+      "context": "Stop the installer, and report it as not having worked.",
+      "label": "spacr.qt.model_install.PackageInstall.cancel#0",
+      "source": "Stop the installer, and report it as not having worked.",
+      "source_sha256": "c1e1404d26338f7e95f09f8a57e40c452052a3852122a2f95bacfda431b68488",
+      "translation": "Detener el instalador e informar de que la instalación ha fallado."
+    },
+    {
+      "context": "Whether the installer is still running.",
+      "label": "spacr.qt.model_install.PackageInstall.is_running#0",
+      "source": "Whether the installer is still running.",
+      "source_sha256": "6471a54eccf2f447b5dec20768444fabd2815bb84bdf0ae8a2560d8cd757b381",
+      "translation": "Si el instalador sigue ejecutándose."
+    },
+    {
+      "context": "Everything the installer has written so far.",
+      "label": "spacr.qt.model_install.PackageInstall.output#0",
+      "source": "Everything the installer has written so far.",
+      "source_sha256": "ebdf89c0ea771362c515a6de9c3316d44e49ebc5ca2a2234f9bc6a0d4d29eb8f",
+      "translation": "Toda la salida que ha generado el instalador hasta el momento."
+    },
+    {
+      "context": "Grey the backends that are not installed, and only those.",
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.refresh_installed#0",
+      "source": "Grey the backends that are not installed, and only those.",
+      "source_sha256": "980554b271e019bfc084efa97490589d66a250f2114d04541c275bc3bd032ce6",
+      "translation": "Mostrar en gris únicamente los motores que no están instalados."
+    },
+    {
+      "context": "Key of this theme's sound set. It is the theme's own key.",
+      "label": "spacr.qt.night_themes.NightTheme.sound#0",
+      "source": "Key of this theme's sound set. It is the theme's own key.",
+      "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+      "translation": "La clave del conjunto de sonidos de este tema; coincide con la clave del propio tema."
+    },
+    {
+      "context": "Every mode this module adds to Make Masks, in the box's order.",
+      "label": "spacr.qt.organelle_modes.modes#0",
+      "source": "Every mode this module adds to Make Masks, in the box's order.",
+      "source_sha256": "d9b62de3aa3fe4eae3e537303b3c9f87bf6a2dc2916177049651d3a441bdc670",
+      "translation": "Todos los modos que añade este módulo a Make Masks, en el orden del cuadro de selección."
+    },
+    {
+      "context": "How many analysis frames there are.",
+      "label": "spacr.qt.resonance.Resonance.frames#0",
+      "source": "How many analysis frames there are.",
+      "source_sha256": "bf6c42cd73418958927ab9495f28cf77328738d9e472472a9fc9ab6464bfbc0f",
+      "translation": "Número de fotogramas de análisis."
+    },
+    {
+      "context": "Nothing is playing any more.",
+      "label": "spacr.qt.resonance.clear_now_playing#0",
+      "source": "Nothing is playing any more.",
+      "source_sha256": "88d9ce5c4978656f8766fa08886acbf0fd17d958a7df8efb903eecf392af88b4",
+      "translation": "Ya no se está reproduciendo nada."
+    },
+    {
+      "context": "What the last load actually read, as the loader recorded it.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_record#0",
+      "source": "What the last load actually read, as the loader recorded it.",
+      "source_sha256": "d72b1d500b4a98a92eb059f9d4c70425970c8399d1f14dae223379b5a71fa359",
+      "translation": "Los datos leídos en la última carga, tal como los registró el cargador."
+    },
+    {
+      "context": "Which kind of place the extracted image regions come from.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_source#0",
+      "source": "Which kind of place the crops come from.",
+      "source_sha256": "198425cab2a7a3df2d8e7471be745aaa9d86cf56fdcafde98171e2134680e16f",
+      "translation": "El tipo de origen de los recortes de imagen."
+    },
+    {
+      "context": "Whether an extracted image region load is in flight.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading#0",
+      "source": "Whether a crop load is in flight.",
+      "source_sha256": "67d882f598d5815116c5b9363f40480e0269805eaf63cc4313616a1c4b8692bd",
+      "translation": "Si hay una carga de recortes de imagen en curso."
+    },
+    {
+      "context": "The keys of the templates on the menu, in menu order.",
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.template_keys#0",
+      "source": "The keys of the templates on the menu, in menu order.",
+      "source_sha256": "d0eb7f103c8e3c81fc189c700a373fdf94abe718bc2ba0f8703e239cb76a5d6f",
+      "translation": "Las claves de las plantillas del menú, en el orden del menú."
+    },
+    {
+      "context": "Forget every mask folder, so a new set does not inherit the last.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.clear_mask_folders#0",
+      "source": "Forget every mask folder, so a new set does not inherit the last.",
+      "source_sha256": "6a5adfc144d33e63cc0bfb580f9b8d35a477ea1af122cac3d0efbdb692d9dced",
+      "translation": "Olvidar todas las carpetas de máscaras para que una nueva selección no herede la anterior."
+    },
+    {
+      "context": "The pattern typed for the Custom convention.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.custom_regex#0",
+      "source": "The pattern typed for the Custom convention.",
+      "source_sha256": "f3505b3904aa9c46bca8137912d1e8da59028752f823327f1f30151ca9c73668",
+      "translation": "El patrón introducido para la convención Custom."
+    },
+    {
+      "context": "The chosen convention's key; ``NAMING_AUTO`` for folders.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.metadata_type#0",
+      "source": "The chosen convention's key; ``NAMING_AUTO`` for folders.",
+      "source_sha256": "73bf0a62963f2bd9250d27be06523439a75407b2323484f71a6ba8f14355174c",
+      "translation": "La clave de la convención elegida; ``NAMING_AUTO`` para carpetas."
+    },
+    {
+      "context": "Where the next run would write, as far as this window knows.",
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.destination#0",
+      "source": "Where the next run would write, as far as this window knows.",
+      "source_sha256": "01c2a68a48eed544818f183dbcbb0032db4d7fb37379827af62ca1c6f510fb9c",
+      "translation": "El destino de salida de la siguiente ejecución según la información de esta ventana."
+    },
+    {
+      "context": "What the last run returned, or ``None`` if none has finished.",
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.result#0",
+      "source": "What the last run returned, or ``None`` if none has finished.",
+      "source_sha256": "06d176dee0e87ac58c0fa754d6dd6198de796bb4dd71246838b39a3c37e8215e",
+      "translation": "El resultado de la última ejecución, o ``None`` si todavía no ha terminado ninguna."
+    },
+    {
+      "context": "Where the project is written. ``None`` puts it beside the files.",
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.set_destination#0",
+      "source": "Where the project is written. ``None`` puts it beside the files.",
+      "source_sha256": "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee",
+      "translation": "El destino donde se guarda el proyecto. ``None`` lo sitúa junto a los archivos."
+    },
+    {
+      "context": "The entry a row currently stands for, honouring its version pick.",
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.chosen_entry#0",
+      "source": "The entry a row currently stands for, honouring its version pick.",
+      "source_sha256": "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016",
+      "translation": "La entrada que representa actualmente una fila, respetando la versión seleccionada."
+    },
+    {
+      "context": "The setting :meth:`reveal` last showed, or ``\"\"``.",
+      "label": "spacr.qt.settings_search.SettingsSearchBar.revealed_key#0",
+      "source": "The setting :meth:`reveal` last showed, or ``\"\"``.",
+      "source_sha256": "fd36d80c4e225a9f7694a7328b3fa2ca0177ddd7da77eff6e5ea312d1b885c2a",
+      "translation": "El último ajuste que mostró :meth:`reveal`, o ``\"\"``."
+    },
+    {
+      "context": "The thread sounds are rendered on, or ``None`` when unthreaded.",
+      "label": "spacr.qt.sound.SoundEngine.audio_thread#0",
+      "source": "The thread sounds are rendered on, or ``None`` when unthreaded.",
+      "source_sha256": "61d35c987e061114c11dcec1267a9d5e2aef9246c6a5df9e4a9565bb48e53273",
+      "translation": "El hilo en el que se generan los sonidos, o ``None`` cuando se ejecutan sin un hilo propio."
+    },
+    {
+      "context": "Whether :meth:`shutdown` has run.",
+      "label": "spacr.qt.sound.SoundEngine.closed#0",
+      "source": "Whether :meth:`shutdown` has run.",
+      "source_sha256": "7bfce9b68bda6b48ef8672d1d776814f9f9cf7e8c6ba48e44f0ebdb387d3e7b7",
+      "translation": "Si :meth:`shutdown` se ha ejecutado."
+    },
+    {
+      "context": "Whether the application-wide input filter is in place.",
+      "label": "spacr.qt.sound.SoundEngine.filter_installed#0",
+      "source": "Whether the application-wide input filter is in place.",
+      "source_sha256": "96a8d141af78bdb787a80b3dd677ae51fae96337fe8a12a3b5b9ac7b18e52b86",
+      "translation": "Si está instalado el filtro de entrada de toda la aplicación."
+    },
+    {
+      "context": "The main GUI execution path half: every Qt Multimedia object lives here.",
+      "label": "spacr.qt.sound.SoundEngine.player#0",
+      "source": "The GUI-thread half: every Qt Multimedia object lives here.",
+      "source_sha256": "19befc856b63c669ad6c1520ba15ec6f151d2aa78790735ba9e0af2f4da17c14",
+      "translation": "La parte que se ejecuta en el hilo de la GUI: aquí residen todos los objetos de Qt Multimedia."
+    },
+    {
+      "context": "The settings this engine is following.",
+      "label": "spacr.qt.sound.SoundEngine.settings#0",
+      "source": "The settings this engine is following.",
+      "source_sha256": "35375d859b83ce9787f729042e3fe43c115709b2ba6b365ac4f98e8b9ab109ec",
+      "translation": "La configuración que utiliza este motor."
+    },
+    {
+      "context": "Put the music bed back to what the stored settings say.",
+      "label": "spacr.qt.sound.SoundEngine.stop_preview#0",
+      "source": "Put the music bed back to what the stored settings say.",
+      "source_sha256": "51b0cfd834dba371512379fd6d1f3f60eff4343bc7cc8633e3fb26776d2c4e35",
+      "translation": "Restablecer la música de fondo según la configuración guardada."
+    },
+    {
+      "context": "The linear gain the volume slider stands for.",
+      "label": "spacr.qt.sound.SoundSettings.gain#0",
+      "source": "The linear gain the volume slider stands for.",
+      "source_sha256": "cf9426e0b98982b5a960065ea246cd3cbf3b3775c69bec4afb81443d69707e41",
+      "translation": "La ganancia lineal que representa el control deslizante de volumen."
+    },
+    {
+      "context": "Whether the application-wide input filter is needed at all.",
+      "label": "spacr.qt.sound.SoundSettings.watches_input#0",
+      "source": "Whether the application-wide input filter is needed at all.",
+      "source_sha256": "d77d21a8614baa56553751422d2ea2be5b5b725c4b5381bdb360bfb142007e48",
+      "translation": "Si se necesita el filtro de entrada de toda la aplicación."
+    },
+    {
+      "context": "The running engine, or ``None`` when sound was never switched on.",
+      "label": "spacr.qt.sound.sound_engine#0",
+      "source": "The running engine, or ``None`` when sound was never switched on.",
+      "source_sha256": "8bec1e2e5dc671f28c0f4a30a87286a5d2c463e6a5b823ae6f37e4388fa9e698",
+      "translation": "El motor en ejecución, o ``None`` si el sonido nunca se ha activado."
+    },
+    {
+      "context": "End any preview and return to the stored settings.",
+      "label": "spacr.qt.sound.stop_sound_preview#0",
+      "source": "End any preview and return to the stored settings.",
+      "source_sha256": "7b5e7c7582e8216e2799e1ee30fcd602a6e60e5ea90971ea6bdd4c9adec6e893",
+      "translation": "Finalizar cualquier vista previa y volver a la configuración guardada."
+    },
+    {
+      "context": "Write every control on the page to the preference store.",
+      "label": "spacr.qt.sound_preferences.SoundPage.save#0",
+      "source": "Write every control on the page to the preference store.",
+      "source_sha256": "5526559d3ab50abbcfb0e257fee30355674248b4911f64830fa4f7e97ac9adcf",
+      "translation": "Guardar el valor de todos los controles de la página en las preferencias."
+    },
+    {
+      "context": "Seconds per beat at this theme's tempo.",
+      "label": "spacr.qt.sound_synth.SoundTheme.beat#0",
+      "source": "Seconds per beat at this theme's tempo.",
+      "source_sha256": "f3f36d8a85e977ea90432be071b990c15a0123f82c8ba1cb572f95eb8af7c10b",
+      "translation": "Segundos por pulso al tempo de este tema."
+    },
+    {
+      "context": "Where along :data:`spacr.qt.resonance.MODES` the figure sits.",
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.mode_position#0",
+      "source": "Where along :data:`spacr.qt.resonance.MODES` the figure sits.",
+      "source_sha256": "b54a45528254f228f491b3073f55fc755a09232170b65b6671fca111f7dee829",
+      "translation": "La posición de la figura dentro de :data:`spacr.qt.resonance.MODES`."
+    },
+    {
+      "context": "The square the figure is drawn in: ``(left, top, side)`` in px.",
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.plate#0",
+      "source": "The square the figure is drawn in: ``(left, top, side)`` in px.",
+      "source_sha256": "1d291dacedcf5b85d38a7c4eba4428b62fb171aefa28f3cc3d58e68373303598",
+      "translation": "El cuadrado en el que se dibuja la figura: ``(left, top, side)`` en px."
+    },
+    {
+      "context": "Stop the installer, or stop waiting for the sign-in.",
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.cancel#0",
+      "source": "Stop the installer, or stop waiting for the sign-in.",
+      "source_sha256": "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027",
+      "translation": "Detener el instalador o dejar de esperar el inicio de sesión."
+    },
+    {
+      "context": "Close the panel and have the owner look at the tool again.",
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.done#0",
+      "source": "Close the panel and have the owner look at the tool again.",
+      "source_sha256": "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a",
+      "translation": "Cerrar el panel y solicitar a su propietario que vuelva a comprobar la herramienta."
+    },
+    {
+      "context": "Whether an installer is running.",
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.is_busy#0",
+      "source": "Whether an installer is running.",
+      "source_sha256": "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b",
+      "translation": "Si hay un instalador en ejecución."
+    },
+    {
+      "context": "Every handle is a :class:`_PaneHandle`.",
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.createHandle#0",
+      "source": "Every handle is a :class:`_PaneHandle`.",
+      "source_sha256": "a7d3dbbea0f96158da6625bf1ce0fb9e647d3af271bcbb4769abeaaf9010b055",
+      "translation": "Cada control de arrastre es una instancia de :class:`_PaneHandle`."
+    },
+    {
+      "context": "``{pane name: size to open at}`` for every registered pane.",
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.extents#0",
+      "source": "``{pane name: size to open at}`` for every registered pane.",
+      "source_sha256": "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90",
+      "translation": "``{pane name: size to open at}`` para cada panel registrado."
+    },
+    {
+      "context": "Every registered pane, in the order registered.",
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.panes#0",
+      "source": "Every registered pane, in the order registered.",
+      "source_sha256": "7b8d5cbac22a5b0f63e3277b4cf09819cb92c3340e113ce4927128ab3e4cf33a",
+      "translation": "Todos los paneles registrados, en orden de registro."
+    },
+    {
+      "context": "The screen came on: forget last view's pins and apply the rule.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.begin_view#0",
+      "source": "The screen came on: forget last view's pins and apply the rule.",
+      "source_sha256": "28a509e4d44cc689826096778320a180e1f39a7ed1c0af40d9305a8f682f5548",
+      "translation": "Al abrirse la pantalla, olvidar las preferencias fijadas en la vista anterior y aplicar la regla."
+    },
+    {
+      "context": "The user left the screen: their pins for this view are spent.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.end_view#0",
+      "source": "The user left the screen: their pins for this view are spent.",
+      "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
+      "translation": "Al abandonar el usuario la pantalla, dejan de aplicarse las preferencias fijadas para esta vista."
+    },
+    {
+      "context": "Whether any focus widget is shown.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.is_active#0",
+      "source": "Whether any focus widget is shown.",
+      "source_sha256": "26a1b33f2b7f5bcf560637cba2eec855f4333979172a0a096667aa494913eef8",
+      "translation": "Si se muestra algún widget de enfoque."
+    },
+    {
+      "context": "Whether the section is folded.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.shut#0",
+      "source": "Whether the section is folded.",
+      "source_sha256": "b66379c2b92a609d60d4d50859e27d17a07e6826edec5c4cef68a72a961167cb",
+      "translation": "Si la sección está contraída."
+    },
+    {
+      "context": "Whether the pane is collapsed right now.",
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane.is_collapsed#0",
+      "source": "Whether the pane is collapsed right now.",
+      "source_sha256": "a07c37606842ad89bd4787cc92a815a18278761db71324c24f26a9042a220b3d",
+      "translation": "Si el panel está contraído actualmente."
+    },
+    {
+      "context": ":func:`four_parameter_logistic` or :func:`five_parameter_logistic`.",
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.model_function#0",
+      "source": ":func:`four_parameter_logistic` or :func:`five_parameter_logistic`.",
+      "source_sha256": "88faaf1b2ef2cf40e09bef353cb47fa6b7a64b70f59b0de4d8419ac5d6cc57c5",
+      "translation": ":func:`four_parameter_logistic` o :func:`five_parameter_logistic`."
+    },
+    {
+      "context": "4 or 5 — what every degrees-of-freedom count here is against.",
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.n_parameters#0",
+      "source": "4 or 5 — what every degrees-of-freedom count here is against.",
+      "source_sha256": "96562ba9b84b00e4271282770acab049d8d7ee98fec227f20d1fd3e9eeb45bfc",
+      "translation": "4 o 5: el número de referencia para todos los cálculos de grados de libertad de este código."
+    },
+    {
+      "context": "One line, for a caption, a caveat or a refusal message.",
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck.describe#0",
+      "source": "One line, for a caption, a caveat or a refusal message.",
+      "source_sha256": "76bcfe7124023901e7db5328a7182beeceff211dca0e26c79907e0db63f48629",
+      "translation": "Una línea para un título, una salvedad o un mensaje de rechazo."
+    },
+    {
+      "context": "Add one empty row, numbered after the last one.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_field#0",
+      "source": "Add one empty row, numbered after the last one.",
+      "source_sha256": "50aa67babd8862b02a1388697c9ae81bf37cbe415df997ce2b5985e538f0c0c5",
+      "translation": "Añadir una fila vacía, con el número siguiente al de la última fila."
+    },
+    {
+      "context": "True while a walk started by :meth:`add_dropped` is still running.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.is_scanning#0",
+      "source": "True while a walk started by :meth:`add_dropped` is still running.",
+      "source_sha256": "bfda07c1b496ab3f4f20e6ac1579c6ef9e01330e6ee82269e3b7e65e709af1bc",
+      "translation": "True mientras siga en curso un recorrido iniciado por :meth:`add_dropped`."
+    },
+    {
+      "context": "Everything stopping this table being measured, as sentences.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.problems#0",
+      "source": "Everything stopping this table being measured, as sentences.",
+      "source_sha256": "be4a570c4b69af9184c69eb8debf07f12884430c1379659978f52b4fbc63f4c1",
+      "translation": "Todos los motivos que impiden medir esta tabla, expresados en frases."
+    },
+    {
+      "context": "The pattern in the regex box.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.regex#0",
+      "source": "The pattern in the regex box.",
+      "source_sha256": "0899c41600d2bcd3319fde4f6385d02d1ebd5512c4f15a031da51a7e00de308f",
+      "translation": "El patrón del cuadro de expresiones regulares."
+    },
+    {
+      "context": "Remove every selected row. Returns how many went.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.remove_selected#0",
+      "source": "Remove every selected row. Returns how many went.",
+      "source_sha256": "9159c029d52254308c6da1a0a2e87d0ada35404f7e8b5d1c225237847d4f07f2",
+      "translation": "Eliminar todas las filas seleccionadas y devolver cuántas se eliminaron."
+    },
+    {
+      "context": "Put ``pattern`` in the regex box and sort the known files again.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_regex#0",
+      "source": "Put ``pattern`` in the regex box and sort the known files again.",
+      "source_sha256": "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3",
+      "translation": "Introducir ``pattern`` en el cuadro de expresiones regulares y volver a ordenar los archivos conocidos."
+    },
+    {
+      "context": "The model this widget edits. Live, not a copy.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.table#0",
+      "source": "The model this widget edits. Live, not a copy.",
+      "source_sha256": "1f3cf72aee7279879fd9405ee4290e3af2438fd8c65955af0504fa21a832849f",
+      "translation": "El modelo que edita este widget; es el modelo activo, no una copia."
+    },
+    {
+      "context": "``(path, reason)`` for every dropped file that landed nowhere.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.unassigned#0",
+      "source": "``(path, reason)`` for every dropped file that landed nowhere.",
+      "source_sha256": "3eb40042d246d440967b46bd414d3ab016a73b4d340cea09c300f3371a11206e",
+      "translation": "``(path, reason)`` para cada archivo arrastrado que no se pudo asignar."
+    },
+    {
+      "context": "The example plate's ``measurements/measurements.db``, present or not.",
+      "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",
+      "source": "The example plate's ``measurements/measurements.db``, present or not.",
+      "source_sha256": "d6349afaeb8e4c7b6a3f5c0700f94120cd25d5d3363587432cafb282533f5e86",
+      "translation": "La ruta ``measurements/measurements.db`` de la placa de ejemplo, exista o no el archivo."
+    },
+    {
+      "context": "The shared example plate folder the Annotate example unpacks into.",
+      "label": "spacr.qt.widgets.measurements_example.example_measurements_folder#0",
+      "source": "The shared example plate folder the Annotate example unpacks into.",
+      "source_sha256": "490735e017fc577495ae4652c476018771ea4f4546cc63d0e5f479371a996eef",
+      "translation": "La carpeta compartida de la placa de ejemplo en la que se extrae el ejemplo de Annotate."
+    },
+    {
+      "context": "The model card, carrying the same table every spaCR model card uses.",
+      "label": "spacr.qt.widgets.model_share.card#0",
+      "source": "The model card, carrying the same table every spaCR model card uses.",
+      "source_sha256": "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f",
+      "translation": "La ficha del modelo, con la misma tabla que utilizan todas las fichas de modelos de spaCR."
+    },
+    {
+      "context": "The uploader's own Hugging Face token, or ``None``.",
+      "label": "spacr.qt.widgets.model_share.find_token#0",
+      "source": "The uploader's own Hugging Face token, or ``None``.",
+      "source_sha256": "b688695597f69f7ddb29215d8b87aed0fcd25dc8f07555c0d3f7119c9af7ccee",
+      "translation": "El token de Hugging Face del usuario que sube el modelo, o ``None``."
+    },
+    {
+      "context": "Upload a checkpoint and its card. Returns the model page URL.",
+      "label": "spacr.qt.widgets.model_share.share#0",
+      "source": "Upload a checkpoint and its card. Returns the model page URL.",
+      "source_sha256": "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6",
+      "translation": "Subir un punto de control y su ficha; devuelve la URL de la página del modelo."
+    },
+    {
+      "context": "A repository-safe folder name.",
+      "label": "spacr.qt.widgets.model_share.slugify#0",
+      "source": "A repository-safe folder name.",
+      "source_sha256": "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2",
+      "translation": "Un nombre de carpeta válido para un repositorio."
+    },
+    {
+      "context": "The form that collects a shared model's scorecard before it is uploaded.",
+      "label": "spacr.qt.widgets.model_share_dialog#0",
+      "source": "The form that collects a shared model's scorecard before it is uploaded.",
+      "source_sha256": "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb",
+      "translation": "El formulario que recoge la ficha de evaluación de un modelo compartido antes de subirlo."
+    },
+    {
+      "context": "The chosen training-data folder, or an empty string.",
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog.train_data_dir#0",
+      "source": "The chosen training-data folder, or an empty string.",
+      "source_sha256": "d1b14ff4ed5df35b0b66b1642ed76592c3c5c629b567315dc236e09a8bc8d4bc",
+      "translation": "La carpeta de datos de entrenamiento seleccionada, o una cadena vacía."
+    },
+    {
+      "context": "What the user typed, by field structured-data name.",
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog.values#0",
+      "source": "What the user typed, by field key.",
+      "source_sha256": "ee3567a1c9be16f4ab269f93ec7244ef437c36e730871d9d9a756b03dac3c8d0",
+      "translation": "Los valores introducidos por el usuario, asociados a las claves de los campos."
+    },
+    {
+      "context": "Closing the window is Cancel; it never leaves a thread behind.",
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent#0",
+      "source": "Closing the window is Cancel; it never leaves a thread behind.",
+      "source_sha256": "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8",
+      "translation": "Cerrar la ventana equivale a Cancelar; nunca deja un hilo en ejecución."
+    },
+    {
+      "context": "Cancel an executing install; close once it has stopped.",
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.reject#0",
+      "source": "Cancel a running install; close once it has stopped.",
+      "source_sha256": "581c9b32c755b27e55e68a34c65af0bda4ef9e43fa047980d69164a15aa02589",
+      "translation": "Cancelar una instalación en curso y cerrar cuando se haya detenido."
+    },
+    {
+      "context": "Whether the install or uninstall is in progress.",
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.running#0",
+      "source": "Whether the install or uninstall is in progress.",
+      "source_sha256": "4f014375c2f712d3aec8bbf844bb82f3fe6108130ee0fc9eebee32cd168728b6",
+      "translation": "Si hay una instalación o desinstalación en curso."
+    },
+    {
+      "context": "Start the job on a background execution unit.",
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.start#0",
+      "source": "Start the job on a worker thread.",
+      "source_sha256": "7e6a1d9228b2cb30c2d78cc5952dfafbc98bd148e10b450b673bff7a972fdcca",
+      "translation": "Iniciar la tarea en un hilo de trabajo."
+    },
+    {
+      "context": "The headings that are on, in :data:`ZOO_SOURCES` order.",
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.enabled#0",
+      "source": "The headings that are on, in :data:`ZOO_SOURCES` order.",
+      "source_sha256": "7f86d5fbab4942b5aded6aaf03ee13c9e07f5bd673a6fca6a6a7b990dab20adc",
+      "translation": "Los encabezados activados, en el orden de :data:`ZOO_SOURCES`."
+    },
+    {
+      "context": "The label for one source, for a test or a tooltip retarget.",
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.heading#0",
+      "source": "The label for one source, for a test or a tooltip retarget.",
+      "source_sha256": "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33",
+      "translation": "La etiqueta de un origen, para una prueba o para reasignar una descripción emergente."
+    },
+    {
+      "context": "Whether one heading is on.",
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.is_on#0",
+      "source": "Whether one heading is on.",
+      "source_sha256": "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb",
+      "translation": "Si un encabezado está activado."
+    },
+    {
+      "context": "The mode selected now.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueModeSwitch.mode#0",
+      "source": "The mode selected now.",
+      "source_sha256": "afb6d3b6d4537f4b2bf61abb6b3abf5cb149e5a794d635de9aa625dd6cd53076",
+      "translation": "El modo seleccionado actualmente."
+    },
+    {
+      "context": "The style the controls describe.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueOverlayDialog.overlay_style#0",
+      "source": "The style the controls describe.",
+      "source_sha256": "a415c0f2ef704d831c9dd12c85bb38eecde82cf17822c3b5bfd3de3a99c367b6",
+      "translation": "El estilo definido por los controles."
+    },
+    {
+      "context": "The image selected in the picker.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.current_path#0",
+      "source": "The image selected in the picker.",
+      "source_sha256": "58fb79d509e13d7a3955d7c0daddad5f9fcf116c1c8f081851749a995a0d1e22",
+      "translation": "La imagen seleccionada en el selector."
+    },
+    {
+      "context": "The module's settings with this panel's values over them.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.current_settings#0",
+      "source": "The module's settings with this panel's values over them.",
+      "source_sha256": "5fa6d16f704147aa24ba85adf07fac4e1cdc457210861a3372c2047bad668aa4",
+      "translation": "La configuración del módulo con los valores de este panel aplicados sobre ella."
+    },
+    {
+      "context": "The mode the panel is in.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.mode#0",
+      "source": "The mode the panel is in.",
+      "source_sha256": "9dfa2c5afa981f22d5f4ff5327d0d3143f4a26b0df86a30c465a3ff0631197bb",
+      "translation": "El modo actual del panel."
+    },
+    {
+      "context": "How the plaques are drawn now.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.overlay_style#0",
+      "source": "How the plaques are drawn now.",
+      "source_sha256": "90264f0b345b09afd70eb2c1b5c2524c2999951fd4f12c013c4e1eedc0920a06",
+      "translation": "Cómo se dibujan las placas actualmente."
+    },
+    {
+      "context": "Write the tuned values into the module's settings.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.propagate#0",
+      "source": "Write the tuned values into the module's settings.",
+      "source_sha256": "63c1c73fc0be44116528daee7773c9cf424e1d40f86e8899d49bcfd528a90a70",
+      "translation": "Guardar los valores ajustados en la configuración del módulo."
+    },
+    {
+      "context": "The index of the highlighted well, or None.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.selected_well#0",
+      "source": "The index of the highlighted well, or None.",
+      "source_sha256": "24229130e165fb7d6c0a4bdc5478003564dd0831cca58564c8fb05b80a239710",
+      "translation": "El índice del pocillo resaltado, o None."
+    },
+    {
+      "context": "Leave no background execution unit behind.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.shutdown#0",
+      "source": "Leave no worker thread behind.",
+      "source_sha256": "976f47217b7dae1bd69b703f3fba264362af96323227081ee6510badbfb2c8fc",
+      "translation": "No dejar ningún hilo de trabajo en ejecución."
+    },
+    {
+      "context": "The :class:`spacr.plaque_papers.TextOptions` the controls describe.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.text_options#0",
+      "source": "The :class:`spacr.plaque_papers.TextOptions` the controls describe.",
+      "source_sha256": "2904844155210e6d5ab2f6dedba173b05977d53566c041b91103cd4b418fc7e0",
+      "translation": "Las opciones :class:`spacr.plaque_papers.TextOptions` definidas por los controles."
+    },
+    {
+      "context": "Return every lent control to the panel, hidden, values intact.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog.give_back#0",
+      "source": "Return every lent control to the panel, hidden, values intact.",
+      "source_sha256": "ba515e6443aac47bf52b9ede20d678acf2ece92ce890441054d2b01dce950ef0",
+      "translation": "Devolver todos los controles prestados al panel, ocultos y con sus valores intactos."
+    },
+    {
+      "context": "Put the current scale on every widget of the preview.",
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.apply#0",
+      "source": "Put the current scale on every widget of the preview.",
+      "source_sha256": "ddc35192de55943c9213968627e07bee8bbd732e4d01ff72d6c5a1a6c0144b7a",
+      "translation": "Aplicar la escala actual a todos los widgets de la vista previa."
+    },
+    {
+      "context": "The key this preview's scale is saved under.",
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.name#0",
+      "source": "The key this preview's scale is saved under.",
+      "source_sha256": "8d6534ab41bf8268bddbd18b16dbce110636a4f5111aa8a6d2e4dbe7c4b1ac5e",
+      "translation": "La clave con la que se guarda la escala de esta vista previa."
+    },
+    {
+      "context": "Rebuild after the application sheet changed (Zoom, theme).",
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.refresh#0",
+      "source": "Rebuild after the application sheet changed (Zoom, theme).",
+      "source_sha256": "c0fcfb2f26d189297bcfd99f6873ecd13307b4ea29335dc4ee4dc239b4695f1d",
+      "translation": "Reconstruir tras un cambio de la hoja de estilos de la aplicación (Zoom, tema)."
+    },
+    {
+      "context": "The preview's current scale.",
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.scale#0",
+      "source": "The preview's current scale.",
+      "source_sha256": "7c968373ae85a721dc5296b42a21e0e9609e558417d6f9b74da52228f29ab3ee",
+      "translation": "La escala actual de la vista previa."
+    },
+    {
+      "context": "Announce the chosen pathway's first module and close.",
+      "label": "spacr.qt.widgets.sample_project.SampleProjectDialog.accept#0",
+      "source": "Announce the chosen pathway's first module and close.",
+      "source_sha256": "501f0b17323792978d09aadd6121da9e410c8503dee46bca740ef2c1d59fc86e",
+      "translation": "Anunciar el primer módulo de la ruta de trabajo elegida y cerrar."
+    },
+    {
+      "context": "The pathway highlighted now, or None.",
+      "label": "spacr.qt.widgets.sample_project.SampleProjectDialog.selected#0",
+      "source": "The pathway highlighted now, or None.",
+      "source_sha256": "4cc475866913b6545dc0655aadd248533aad235141b2be330d6fb47cd4394835",
+      "translation": "La ruta de trabajo resaltada actualmente, o None."
+    },
+    {
+      "context": "Empty the view.",
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image#0",
+      "source": "Empty the view.",
+      "source_sha256": "bb4f6950d494f46914c8d88e853aa8e5170f359a26ec075dab161e9d8ad967eb",
+      "translation": "Vaciar la vista."
+    },
+    {
+      "context": "Fit the whole image in the view again, and the peers with it.",
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.fit#0",
+      "source": "Fit the whole image in the view again, and the peers with it.",
+      "source_sha256": "2603f96b3286859cc085f89a0ab68f9b871d45bdd96d20aecfb08310c73923ed",
+      "translation": "Volver a ajustar la imagen completa a esta vista y a las vistas vinculadas."
+    },
+    {
+      "context": "How far this view is zoomed in, as a scale factor.",
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_factor#0",
+      "source": "How far this view is zoomed in, as a scale factor.",
+      "source_sha256": "1e9f146a8937422b0ac2cda7acfbb3f82694cc7cb6a5292afcbb9b67ac330ba8",
+      "translation": "El nivel de ampliación de esta vista, expresado como factor de escala."
+    },
+    {
+      "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
+      "label": "spacr.submodules.Cellpose3Checkpoint#0",
+      "source": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
+      "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
+      "translation": "Se ha pasado un punto de control de Cellpose 3 a Cellpose 4, que no puede cargarlo."
+    },
+    {
+      "context": "The encoder's parameters, for freezing and the optimiser.",
+      "label": "spacr.timeflows_model.CellposeSamFeatures.parameters#0",
+      "source": "The encoder's parameters, for freezing and the optimiser.",
+      "source_sha256": "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902",
+      "translation": "Los parámetros del codificador, para congelarlos y para el optimizador."
+    }
+  ],
+  "review_kind": "AI-assisted review of all 125 English/Spanish API descriptions in their named API context. Corrected software threads, field/plate terminology, gain, GUI panels, template keys, sorting and process status. Existing identical-source reviews retained verbatim. No native-speaker sign-off.",
+  "schema": 1
+}

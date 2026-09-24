@@ -56,6 +56,29 @@ if _requested_format not in ("tif", "tiff", "npy"):
 DEFAULT_FORMAT = _requested_format
 
 
+def _as_uint16_mask(mask: np.ndarray) -> np.ndarray:
+    """Convert labels without narrowing, wrapping or renumbering identities.
+
+    :param mask: real integer-valued labels; spatial shape is preserved.
+    :returns: uint16 labels, sharing storage when conversion is unnecessary.
+    :raises ValueError: labels are nonfinite, fractional, negative, nonnumeric,
+        or exceed the uint16 capacity. Input values are never modified.
+    """
+    labels = np.asarray(mask)
+    if labels.dtype.kind not in 'buif':
+        raise ValueError('Mask labels must be real nonnegative integers fitting uint16')
+    if labels.size:
+        if not np.isfinite(labels).all() or np.min(labels) < 0:
+            raise ValueError('Mask labels must be finite nonnegative integers fitting uint16')
+        top = np.max(labels)
+        if top > np.iinfo(np.uint16).max:
+            raise ValueError(f'Mask holds object id {top}, which does not fit in uint16; '
+                             'labels were not renumbered or saved')
+        if labels.dtype.kind == 'f' and np.any(labels != np.floor(labels)):
+            raise ValueError('Mask labels must be integer-valued before conversion to uint16')
+    return labels.astype(np.uint16, copy=False)
+
+
 def save_mask(path: PathLike, mask: np.ndarray,
                 fmt: str = None) -> Path:
     """Write a Cellpose mask to disk.
@@ -66,8 +89,8 @@ def save_mask(path: PathLike, mask: np.ndarray,
     :param fmt: force a format (``"tif"``, ``"tiff"``, or ``"npy"``).
         Defaults to :data:`DEFAULT_FORMAT` (env-overridable).
     :returns: the resolved on-disk path.
-    :raises ValueError: when an object id will not fit in uint16, or when
-        ``fmt`` names a format this module cannot write.
+    :raises ValueError: labels are nonfinite, negative, fractional or will
+        not fit in uint16, or ``fmt`` names a format this module cannot write.
 
     An id above 65535 is refused rather than cast. The cast wraps, and the
     first value it wraps to is 0 — background — so object 65536 would come
@@ -77,11 +100,7 @@ def save_mask(path: PathLike, mask: np.ndarray,
     fmt = (fmt or DEFAULT_FORMAT).lower().lstrip(".")
     p = Path(path)
 
-    top = int(np.max(mask)) if np.size(mask) else 0
-    if top > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"mask holds object id {top}, which does not fit in uint16; "
-            f"relabel it before saving to {p}")
+    mask = _as_uint16_mask(mask).copy()
 
     if p.suffix.lower() in (".tif", ".tiff", ".npy"):
         fmt = p.suffix.lower().lstrip(".")
@@ -94,11 +113,11 @@ def save_mask(path: PathLike, mask: np.ndarray,
             LOG.warning("tifffile missing — falling back to npy for %s", p)
             return save_mask(path, mask, fmt="npy")
         write_tiff(
-            str(p), mask.astype(np.uint16), compression="lzw",
+            str(p), mask, compression="lzw",
         )
     elif fmt == "npy":
         p = p.with_suffix(".npy")
-        np.save(str(p), mask.astype(np.uint16))
+        np.save(str(p), mask)
     else:
         raise ValueError(f"unknown mask format: {fmt!r}")
     return p
@@ -115,6 +134,7 @@ def load_mask(path: PathLike) -> np.ndarray:
 
     :returns: uint16 2-D array. Shape unchanged.
     :raises FileNotFoundError: when no matching file exists.
+    :raises ValueError: stored labels cannot be represented exactly as uint16.
     """
     p = Path(path)
     candidates = []
@@ -140,7 +160,8 @@ def _read_one(p: Path) -> np.ndarray:
 
     :param p: Mask file with a ``.tif``, ``.tiff``, or ``.npy`` suffix.
     :returns: Mask array cast to ``numpy.uint16`` without changing its shape.
-    :raises ValueError: ``p`` has an unsupported suffix.
+    :raises ValueError: ``p`` has an unsupported suffix or its stored labels
+        cannot be represented exactly as uint16.
     """
     if p.suffix.lower() in (".tif", ".tiff"):
         import tifffile
@@ -149,4 +170,4 @@ def _read_one(p: Path) -> np.ndarray:
         arr = np.load(str(p), allow_pickle=False)
     else:
         raise ValueError(f"unsupported mask extension: {p}")
-    return arr.astype(np.uint16, copy=False)
+    return _as_uint16_mask(arr)

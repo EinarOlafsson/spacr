@@ -38,9 +38,10 @@ from PySide6.QtGui import QColor, QIcon, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
     QDoubleSpinBox, QGridLayout, QHBoxLayout, QHeaderView, QGroupBox, QLabel,
-    QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
+    QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSpinBox,
     QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.figure_grid import SearchFigureGrid
 from ..widgets.toggle import Toggle
 from ..widgets.umap_search_viewer import UmapExplorer, UmapGalleryDialog
@@ -1110,8 +1111,9 @@ class HyperparamPanel(QWidget):
         compact_actions.addStretch(1)
         root.insertLayout(0, compact_actions)
 
-        split = QSplitter(Qt.Horizontal)
-        split.setChildrenCollapsible(False)
+        split = CollapsibleSplitter(
+            Qt.Horizontal, persist_key=f"{self.app_key}::hyperparam")
+        self._split = split
 
         self._table = QTableWidget(0, len(self.COLUMNS))
         install_sorting(self._table)
@@ -1134,7 +1136,9 @@ class HyperparamPanel(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             self.COLUMNS.index("parameters"), QHeaderView.Stretch)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
-        split.addWidget(self._table)
+        self._trials_section = split.add_section(
+            self._table, "Trials", persist_key=f"{self.app_key}/Trials",
+            stretch=3)
 
         self._preview_stack = QWidget(self)
         self._preview_stack.setObjectName("SearchPreviewStack")
@@ -1181,9 +1185,9 @@ class HyperparamPanel(QWidget):
                 QSizePolicy.Expanding, QSizePolicy.Expanding)
             self._preview.setWordWrap(True)
             preview_column.addWidget(self._preview, 1)
-        split.addWidget(self._preview_stack)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 4)
+        self._preview_section = split.add_section(
+            self._preview_stack, "Search preview",
+            persist_key=f"{self.app_key}/Search preview", stretch=4)
         root.addWidget(split, 1)
 
         self._status = QLabel("")

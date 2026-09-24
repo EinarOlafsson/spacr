@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
 import ast
 import contextlib
 import fnmatch
@@ -99,7 +102,25 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # keys dropped is 10,523, the previous value. Their blocks carry reviewed
 # records in all nine locales
 # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
-REAL_SYMBOL_COUNT = 10_539
+# 10,539 -> 11,280 on 2026-09-22: +743 / -2 against e23a6ad9a; exact keys
+# are in features/data/411_api_manifest_refresh_2026-09-22.json. English is
+# current. The complete-catalog browser gate still checks every locale; this
+# pin change does not exempt its missing or stale translations.
+# 474's ten additional entries have reviewed records in every locale.
+# +27 / -0 since 1d5a80f78: 14 Starplast, 9 ruler and 4 diagram entries.
+# Subtraction is recorded in 411_api_prose_cleanup_2026-09-22.json.
+# +22 / -0 for the flowchart and secondary-object APIs; exact delta in
+# 411_flowchart_secondary_inventory_2026-09-23.json.
+# +7 source-bound Timeflows nested helpers; subtraction and nine-language
+# review evidence: features/data/411_timeflows_guidance_2026-09-23.json.
+# +9 held-out validation entries, with exact source-bound locale records.
+# +7 pipeline entries, then +12 inference/cursor/help/schema entries. English
+# is current; the complete-catalog browser gate still reports locale debt.
+# +12 image-quality/Host–Pathogen entries; translation completion is separate.
+# Exact additions/removals and the unchanged rendered boundary are recorded
+# in features/data/411_api_test_surface_2026-09-23.json. Locale debt remains
+# checked separately by the complete-catalog browser test.
+REAL_SYMBOL_COUNT = 11_528
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -403,6 +424,33 @@ window.addEventListener('unhandledrejection', (event) => {
 
 
 @pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_english_publication_keeps_current_content_without_loading_translations():
+    harness = """
+setTimeout(() => {
+  const article = document.querySelector('article[role="main"]');
+  const ok = article.querySelector('.spacr-api-publication-note') &&
+    article.textContent.includes('Translations are being updated.') &&
+    article.textContent.includes('English body') &&
+    !article.querySelector('.spacr-api-language') &&
+    !article.querySelector('.spacr-api-translation') &&
+    localStorage.getItem('spacr-doc-language') === 'es' &&
+    new URL(location.href).searchParams.get('lang') === 'en';
+  document.body.dataset.result = ok ? 'pass' : 'fail';
+}, 300);
+"""
+    before = "localStorage.setItem('spacr-doc-language', 'es');"
+    page = _page(harness, before_script=before).replace(
+        b'data-api-catalog-version="unit-content-v1"',
+        b'data-api-catalog-version="unit-content-v1" data-api-language="english"',
+    )
+    files = _browser_files(page, es=_catalog("es", "Old module.", "Old member.", stale=True))
+    with _server(files) as (base, requests):
+        dom = _dump_dom(f"{base}/api/page.html?lang=es")
+    assert 'data-result="pass"' in dom
+    assert not any(path.endswith('.json') for path, _query in requests)
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
 def test_chinese_renderer_labels_are_localized():
     translated = (
         "摘要。\n\n.. note::\n\n   请仔细检查。\n\n"
@@ -567,7 +615,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete 10,243-symbol union for every real locale."""
+    """Render the complete pinned symbol union for every real locale."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"

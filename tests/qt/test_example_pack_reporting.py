@@ -15,7 +15,6 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr.qt import settings_pack
-from spacr.qt.app import MainWindow
 from spacr.qt.screens.app_screen import AppScreen
 
 pytestmark = pytest.mark.qt
@@ -70,25 +69,6 @@ class _Screen:
         raise AssertionError("importing an example must not launch a pipeline")
 
 
-class _Window:
-    """The e2e import only needs navigation, a screen, and a status bar."""
-
-    _run_e2e_chain = MainWindow._run_e2e_chain
-
-    def __init__(self):
-        self.screen = _Screen("mask")
-        self._screens = {"mask": self.screen}
-        self.opened = []
-        self.messages = []
-
-    def _on_nav_selected(self, app_key):
-        self.opened.append(app_key)
-
-    def statusBar(self):
-        return self
-
-    def showMessage(self, text, timeout):
-        self.messages.append(text)
 
 
 def _write_pack(directory, filename, rows):
@@ -231,48 +211,8 @@ def test_measure_pack_keeps_the_reanchored_merged_subfolder(
     assert screen.values["verbose"] is True
 
 
-def test_e2e_missing_pack_warns_and_describes_defaults(
-        tmp_path, shared_reader, caplog):
-    """Missing settings are usable defaults, not successfully loaded settings."""
-    window = _Window()
-    data = tmp_path / "plate1"
-
-    with caplog.at_level(logging.WARNING, logger="spacr.qt.app"):
-        window._run_e2e_chain(data, tmp_path / "missing-pack")
-
-    assert window.opened == ["mask"]
-    assert window.screen.applied == [dict(_DEFAULTS, src=str(data))]
-    assert shared_reader[-1][2].source == ""
-    warnings = [record.getMessage().lower() for record in caplog.records
-                if record.name == "spacr.qt.app"
-                and record.levelno >= logging.WARNING]
-    assert any("settings" in text and "default" in text
-               and ("missing" in text or "no " in text or "not found" in text)
-               for text in warnings), "no missing-pack/defaults warning was emitted"
-    assert "defaults" in window.messages[-1].lower()
-    assert "loaded with its settings" not in window.messages[-1].lower()
-    assert "Live Preview" in window.messages[-1]
 
 
-def test_e2e_a_real_pack_is_not_misreported_as_a_defaults_fallback(
-        tmp_path, shared_reader, caplog):
-    """The missing-pack notice must not fire for a valid shipped filename."""
-    pack = tmp_path / "pack"
-    _write_pack(pack, "gen_masks_settings.csv", [("cell_diameter", "43")])
-    window = _Window()
-    data = tmp_path / "plate1"
-
-    with caplog.at_level(logging.WARNING, logger="spacr.qt.app"):
-        window._run_e2e_chain(data, pack)
-
-    assert window.screen.values["cell_diameter"] == 43
-    assert window.screen.values["src"] == str(data)
-    assert shared_reader[-1][2].source == "gen_masks_settings.csv"
-    assert not [record for record in caplog.records
-                if record.name == "spacr.qt.app"
-                and record.levelno >= logging.WARNING]
-    assert "loaded with its settings" in window.messages[-1].lower()
-    assert "defaults" not in window.messages[-1].lower()
 
 
 @pytest.mark.parametrize("basis", ["metadata", "annotation"])

@@ -16,11 +16,12 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
                                QDialogButtonBox, QFileDialog, QHBoxLayout,
                                QHeaderView, QLabel, QLineEdit, QPlainTextEdit,
-                               QPushButton, QSplitter, QTableWidget,
+                               QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
 
 from ...import_plan import (CHANNEL_MEANINGS, ROLES, for_get_regex,
                             group_names, plan)
+from .collapsible_splitter import CollapsibleSplitter
 from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.import_workbench")
@@ -184,18 +185,23 @@ class ImportWorkbench(QWidget):
         self.role_trouble.setWordWrap(True)
         outer.addWidget(self.role_trouble)
 
-        split = QSplitter(Qt.Horizontal, self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="import_workbench::preview")
+        self.split = split
         self.table = QTableWidget(0, 2, self)
         install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(["file", "would become"])
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Interactive)
-        split.addWidget(self.table)
+        self.table_section = split.add_section(
+            self.table, "Files", persist_key="import_workbench/Files",
+            stretch=1, extent=560)
         self.tree = QPlainTextEdit(self)
         self.tree.setReadOnly(True)
-        split.addWidget(self.tree)
-        split.setSizes([560, 340])
+        self.tree_section = split.add_section(
+            self.tree, "Folders", persist_key="import_workbench/Folders",
+            stretch=1, extent=340)
         outer.addWidget(split, 1)
 
         if regex:

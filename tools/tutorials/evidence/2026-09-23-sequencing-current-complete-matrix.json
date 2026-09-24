@@ -1,0 +1,86 @@
+{
+  "lesson": "81_sequencing_pathways",
+  "stage": "/tmp/spacr-tutorials-sequencing-desktop.wc6Fqc",
+  "source_commit": "a33bb315e84d34bd1cc4beb8da8c2ae20d89c5aa",
+  "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+  "canonical_english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "scenes": 11,
+  "current_reviewed_translations": 13,
+  "fully_decoded_tracks": 50,
+  "browser_language_cases": 14,
+  "master_sha256": "561923557e15f1abbcf2ba0b1bfa224101b99d7f60f346f9be233406d7209035",
+  "master_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_type": "video",
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "nb_frames": "11136"
+      }
+    ],
+    "format": {
+      "duration": "371.200000",
+      "size": "19200255"
+    }
+  },
+  "master_full_decode_exit_code": 0,
+  "master_full_decode_log": "/mnt/firecuda2/codex/workflow-authoring-20260922/sequencing-current-master-decode.log",
+  "web_rendition": {
+    "lesson": "81_sequencing_pathways",
+    "accepted": true,
+    "master_sha256": "561923557e15f1abbcf2ba0b1bfa224101b99d7f60f346f9be233406d7209035",
+    "rendition_sha256": "056601ddb97a1ee0878cd73b8c217b7a14a95a235a64330f74837a6239918ec8",
+    "bytes": 5562128,
+    "frames": 11136,
+    "dimensions": [
+      2560,
+      1440
+    ],
+    "all_frame_presentation_times_match": true,
+    "full_decode_passed": true,
+    "publisher_sha256": "29774e07582cb9aca0fa6c2b9f61fbb770039a8253f200aaebe29d76c1180b59",
+    "encoder_arguments": [
+      "-threads",
+      "2",
+      "-filter_threads",
+      "2",
+      "-vf",
+      "scale='min(2560,iw)':-2",
+      "-vsync",
+      "0",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "26",
+      "-preset",
+      "veryfast",
+      "-pix_fmt",
+      "yuv420p",
+      "-an",
+      "-movflags",
+      "+faststart"
+    ],
+    "retained_published_sha256": null,
+    "elapsed_seconds": 107.53,
+    "visual_review_complete": false,
+    "narration_regenerated": false,
+    "original_master_changed": false,
+    "published": false
+  },
+  "web_browser_passed": true,
+  "receipt_sha256": {
+    "capture": "48cf0f7703b18a93e9f4ad3e968bbfd60f26e66648e071eb73e6346f288182d4",
+    "matrix": "8a6adde1018aa5dccb207804966738c9b5ff3913706e13ad69302c828766b27c",
+    "web": "5e27922fece9f838afcdde9219c72166e2c23e81fe16224924988f9b0417d60f",
+    "web_browser": "7689f439168b88c858b214be56d563bfebf186b7d26a2dd4f66d9c4486bdba55"
+  },
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "limitations": [
+    "Technical/source-bound verification does not constitute listening or native-speaker review.",
+    "Candidate assembly, immutable upload/readback and live publication remain pending."
+  ]
+}

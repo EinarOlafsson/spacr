@@ -37,12 +37,13 @@ import logging
 import os
 import threading
 from dataclasses import dataclass
+from functools import wraps
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QPoint, QRectF, Qt, Signal
+from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, Qt, Signal, QTimer
 from PySide6.QtGui import (QActionGroup, QColor, QFont, QImage, QPainter,
                            QPen, QPixmap)
 from PySide6.QtWidgets import (
@@ -54,7 +55,6 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..hidpi import scaled_for
 from .sortable_table import install_sorting, table_item
 from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
@@ -154,22 +154,31 @@ BOX_WAITING = QColor(255, 150, 40)
 BOX_SELECTED = QColor(0, 200, 255)
 
 TABLE_COLUMNS = ("#", "Panel", "Label text", "Legend passage", "Condition",
-                 "Source", "Plaques", "Mean area", "OK")
+                 "Source", "Plaques", "Mean area", "OK", "Well diameter (px)",
+                 "Pixels per µm", "Formation time (hours)",
+                 "Estimated pixels per µm", "Estimated time (hours)", "Estimate basis")
 CONDITION_COLUMN = 4
 SOURCE_COLUMN = 5
 PLAQUES_COLUMN = 6
 MEAN_AREA_COLUMN = 7
 OK_COLUMN = 8
+WELL_DIAMETER_COLUMN = 9
+PIXELS_PER_UM_COLUMN = 10
+FORMATION_HOURS_COLUMN = 11
 
 PLAQUE_COLUMNS = ("Well", "Panel", "Condition", "Plaque", "Area (px)",
                   "Vs panel median", "Vs well median", "Perimeter (px)",
                   "Equivalent diameter (px)", "Eccentricity", "Solidity",
-                  "Centroid y", "Centroid x", "Area (mm²)", "Scale")
+                  "Centroid y", "Centroid x", "Area (mm²)", "Scale",
+                  "Well diameter (px)", "Pixels per µm", "Formation time (hours)",
+                  "Estimated pixels per µm", "Estimated time (hours)", "Estimate basis")
 
 PLAQUE_KEYS = ("well", "panel", "condition", "plaque_id", "area_px",
                "area_vs_panel_median", "area_vs_well_median",
                "perimeter_px", "equivalent_diameter_px", "eccentricity",
-               "solidity", "centroid_y", "centroid_x", "area_mm2", "scale")
+               "solidity", "centroid_y", "centroid_x", "area_mm2", "scale",
+               "well_diameter_px", "pixels_per_um", "formation_hours",
+               "estimated_pixels_per_um", "estimated_formation_hours", "estimation_source")
 
 #: The colour of a Source cell whose label and legend disagree.
 CONFLICT_COLOUR = QColor(230, 90, 60)
@@ -759,6 +768,17 @@ def write_legend(path: Any, stem: str, legend: str) -> Path:
 
 _MODELS: Dict[str, Any] = {}
 _MODELS_LOCK = threading.Lock()
+_INFERENCE_LOCK = threading.Lock()
+
+
+def _serialized_inference(work):
+    """Keep cached model construction and evaluation exclusive across panels."""
+    @wraps(work)
+    def run(*args, **kwargs):
+        """Serialize the wrapped inference call so cached model instances cannot overlap."""
+        with _INFERENCE_LOCK:
+            return work(*args, **kwargs)
+    return run
 
 
 def _cellpose_model(path: str):
@@ -794,6 +814,7 @@ def _match_shape(labels: np.ndarray, shape: Tuple[int, int]) -> np.ndarray:
                   anti_aliasing=False).astype(labels.dtype)
 
 
+@_serialized_inference
 def plaque_pass(path: Any, settings: Dict[str, Any], *,
                 segment: Optional[Callable[[Path], np.ndarray]] = None
                 ) -> Dict[str, Any]:
@@ -848,6 +869,7 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
             "areas": areas, "note": note}
 
 
+@_serialized_inference
 def figure_pass(path: Any, settings: Dict[str, Any], *,
                 detect: Optional[Callable] = None,
                 read_text: Optional[Callable] = None,
@@ -890,7 +912,7 @@ def figure_pass(path: Any, settings: Dict[str, Any], *,
 
         def segment(crop: np.ndarray) -> np.ndarray:
             """The Cellpose label mask of one plaque-well crop."""
-            return np.asarray(model.eval(crop)[0])
+            return segment_plaque_image(model, crop, settings)
 
     image = _load_image(path)
     regions = find_plaque_regions(
@@ -968,6 +990,49 @@ def _figure_scales(result: Dict[str, Any], annotations: Sequence[Any],
     return _scales_for_regions(image, result["regions"], result.get("words", []),
                               caption=caption, annotations=annotations,
                               plate_format=fmt)
+
+
+def prepare_figure_review(result, settings, *, caption=None, previous=()):
+    """Read review sidecars and infer rulers on a worker, without Qt access.
+
+    :param result: detected figure including image, regions, words and path.
+    :param settings: snapshot of preview settings.
+    :param caption: supplied legend; None reads legends.csv beside the image.
+    :param previous: optional snapshot of current annotations, preserving
+        manual calibration, condition edits and approval during reannotation.
+    :returns: result copy with review_caption, annotations and automatic_scales.
+    """
+    from dataclasses import replace
+    from ...plaque_papers import LEGENDS_FILE, read_legends, text_options_from_settings
+
+    result = dict(result)
+    path = Path(result["path"])
+    if caption is None:
+        caption = read_legends(path.parent / LEGENDS_FILE).get(path.stem, "")
+    annotations = annotate_figure(result, caption, path.parent,
+        confirm=bool(settings.get("confirm_annotations", False)),
+        options=text_options_from_settings(settings))
+    for a, old in zip(annotations, previous):
+        if a.region != old.region:
+            continue
+        if old.source == "manual":
+            a.condition, a.source, a.strength = old.condition, old.source, old.strength
+        a.pixels_per_um, a.formation_hours = old.pixels_per_um, old.formation_hours
+        a.approved = old.approved
+    result["review_caption"] = caption
+    result["annotations"] = annotations
+    result["automatic_scales"] = _figure_scales(
+        result, [replace(a, pixels_per_um=None) for a in annotations], caption,
+        settings.get("plate_format"))
+    return result
+
+
+def _preview_call(work):
+    """Route worker exceptions through the same stale-result gate as success."""
+    try:
+        return work()
+    except Exception as exc:
+        return {"error": preview_failure_message(str(exc))}
 
 
 def detect_figure(path: Any, settings: Dict[str, Any], *,
@@ -1073,6 +1138,7 @@ def plaque_rows(labels: np.ndarray) -> List[Dict[str, Any]]:
     return rows
 
 
+@_serialized_inference
 def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
                  segment: Optional[Callable[[np.ndarray], np.ndarray]] = None
                  ) -> Dict[str, Any]:
@@ -1681,7 +1747,7 @@ class PlaqueModeSwitch(QWidget):
 
 
 class _ImageView(QLabel):
-    """An image scaled to the width it is given, boxes painted on top.
+    """A native image with a modest initial scale and explicit user zoom/pan.
 
     A click is reported in IMAGE pixels, through :attr:`clicked`.
     """
@@ -1698,8 +1764,12 @@ class _ImageView(QLabel):
         self.setObjectName("PlaquePreviewImage")
         self.setAlignment(Qt.AlignCenter)
         self.setWordWrap(True)
-        self.setMinimumHeight(320)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setMinimumSize(120, 120)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self._scale = None
+        self._pan = QPointF()
+        self._drag_start = None
+        self._drag_pan = QPointF()
         self._pixmap: Optional[QPixmap] = None
         self._array: Optional[np.ndarray] = None
 
@@ -1729,6 +1799,8 @@ class _ImageView(QLabel):
         if rgb is None:
             self._pixmap = None
             self._array = None
+            self._scale = None
+            self._pan = QPointF()
             self.clear()
             return
         rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
@@ -1760,44 +1832,109 @@ class _ImageView(QLabel):
                                  region.y0 + font.pixelSize() + thickness,
                                  str(number))
             painter.end()
+        changed_shape = self._pixmap is None or self._pixmap.size() != pixmap.size()
         self._pixmap = pixmap
-        self._rescale()
+        self.clear()
+        if changed_shape or self._scale is None:
+            self.fit_image(initial=True)
+        self.update()
 
     def has_image(self) -> bool:
         """Whether an image is shown."""
         return self._pixmap is not None
 
+    def sizeHint(self):
+        """Keep image pixels out of the surrounding layout's size requests."""
+        return QSize(480, 260)
+
+    def image_rect(self):
+        """Return the displayed image bounds in logical widget coordinates."""
+        if self._pixmap is None or self._scale is None:
+            return QRectF()
+        width, height = self._pixmap.width() * self._scale, self._pixmap.height() * self._scale
+        return QRectF((self.width() - width) / 2 + self._pan.x(),
+                      (self.height() - height) / 2 + self._pan.y(), width, height)
+
     def image_point(self, x: float, y: float) -> Optional[Tuple[float, float]]:
-        """Where a point on the label falls in the image.
-
-        :param x: label column.
-        :param y: label row.
-        :returns: ``(x, y)`` in image pixels, or None off the image.
-        """
-        shown = self.pixmap()
-        if self._pixmap is None or shown is None or shown.isNull():
+        """Map a point through the current zoom and pan into native image pixels."""
+        rect = self.image_rect()
+        if rect.isEmpty() or not rect.contains(QPointF(x, y)):
             return None
-        ratio = shown.devicePixelRatio() or 1.0
-        width, height = shown.width() / ratio, shown.height() / ratio
-        if not width or not height:
-            return None
-        left = (self.width() - width) / 2.0
-        top = (self.height() - height) / 2.0
-        if not (left <= x <= left + width and top <= y <= top + height):
-            return None
-        return ((x - left) * self._pixmap.width() / width,
-                (y - top) * self._pixmap.height() / height)
+        return ((x - rect.left()) / self._scale, (y - rect.top()) / self._scale)
 
-    def mousePressEvent(self, event):                        # noqa: N802
-        """Report a click in image pixels.
+    def fit_image(self, *, initial=False):
+        """Fit only on initial loading or an explicit request, without upscaling."""
+        if self._pixmap is None:
+            return
+        width = min(self.width(), 480) if initial else self.width()
+        height = min(self.height(), 260) if initial else self.height()
+        self._scale = min(1.0, max(1, width - 12) / self._pixmap.width(),
+                          max(1, height - 12) / self._pixmap.height())
+        self._pan = QPointF()
+        self.update()
 
-        :param event: the mouse event.
-        """
-        position = event.position()
-        point = self.image_point(position.x(), position.y())
-        if point is not None and event.button() == Qt.LeftButton:
-            self.clicked.emit(point[0], point[1])
-        super().mousePressEvent(event)
+    def zoom(self, factor, position=None):
+        """Zoom about the pointer, or the view center for toolbar actions."""
+        if self._pixmap is None or self._scale is None:
+            return
+        point = position if position is not None else QPointF(self.width()/2, self.height()/2)
+        old = self._scale
+        self._scale = min(32., max(.0001, old * factor))
+        ratio = self._scale / old
+        center = QPointF(self.width()/2, self.height()/2)
+        self._pan = (point - center) * (1 - ratio) + self._pan * ratio
+        self.update()
+
+    def paintEvent(self, event):
+        """Draw directly from native pixels; zoom never allocates an enlarged bitmap."""
+        if self._pixmap is None:
+            return super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.drawPixmap(self.image_rect(), self._pixmap, QRectF(self._pixmap.rect()))
+
+    def wheelEvent(self, event):
+        """Ctrl-wheel zooms about the pointer; plain scrolling stays with the page."""
+        if self._pixmap is not None and event.modifiers() & Qt.ControlModifier:
+            amount = event.angleDelta().y() or event.pixelDelta().y()
+            if amount:
+                self.zoom(1.2 if amount > 0 else 1/1.2, event.position())
+            event.accept()
+        else:
+            super().wheelEvent(event)
+
+    def mousePressEvent(self, event):
+        """Begin a possible pan; selection waits until a click is released."""
+        if self._pixmap is not None and event.button() == Qt.LeftButton:
+            self._drag_start = event.position()
+            self._drag_pan = QPointF(self._pan)
+            event.accept()
+        else:
+            super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        """Move the image without changing the operating-system cursor."""
+        if self._drag_start is not None and event.buttons() & Qt.LeftButton:
+            self._pan = self._drag_pan + event.position() - self._drag_start
+            self.update()
+            event.accept()
+        else:
+            super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        """A click selects a well; a drag only pans the image."""
+        if self._drag_start is not None and event.button() == Qt.LeftButton:
+            distance = (event.position() - self._drag_start).manhattanLength()
+            if distance < 4:
+                self._pan = self._drag_pan
+                point = self.image_point(event.position().x(), event.position().y())
+                if point is not None:
+                    self.clicked.emit(*point)
+            self._drag_start = None
+            self.update()
+            event.accept()
+        else:
+            super().mouseReleaseEvent(event)
 
     def contextMenuEvent(self, event):                       # noqa: N802
         """A right-click asks the panel for the overlay options.
@@ -1807,17 +1944,10 @@ class _ImageView(QLabel):
         self.context_requested.emit(event.globalPos())
         event.accept()
 
-    def _rescale(self) -> None:
-        """Fit the pixmap to the label, keeping its shape."""
-        if self._pixmap is None:
-            return
-        self.setPixmap(scaled_for(self._pixmap, self, max(1, self.width()),
-                                  max(1, self.height())))
-
-    def resizeEvent(self, event):                            # noqa: N802
-        """Refit on resize."""
+    def resizeEvent(self, event):
+        """Keep scale fixed as layout settles or the user changes pane dimensions."""
         super().resizeEvent(event)
-        self._rescale()
+        self.update()
 
 
 class PlaquePreviewPanel(QWidget, LivePreviewContract):
@@ -1833,6 +1963,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     """
 
     PREVIEW_SOURCE_HINT = "Choose a source folder with images first."
+
+    #: Where this preview's section folds and sizes are remembered (item
+    #: 471): the pictures and the wells/plaques tables fold by their
+    #: headings and trade height by their edge; the well picture beside the
+    #: image collapses to the right by its handle.
+    SECTION_KEY = "plaque_preview"
 
     mode_changed = Signal(str)
     preview_ready = Signal(dict)
@@ -1853,11 +1989,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._propagate_cb: Optional[Callable[[Dict[str, Any]], None]] = None
         self._run_token = 0
         self._load_token = 0
+        self._review_token = 0
         self._seeded_model = ""
         self._seeded_detector = ""
         self._figure: Optional[Dict[str, Any]] = None
         self._annotations: List[Any] = []
         self._scales: List[Any] = []
+        self._automatic_scales: List[Any] = []
         self._caption = ""
         self._missing_entry: Any = None
         self._download = None
@@ -1868,6 +2006,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._batch: List[int] = []
         self._batch_total = 0
         self._batch_segment: Optional[Callable] = None
+        self._batch_settings = {}
         self._overlay_style: OverlayStyle = _SESSION["style"]
         self._fixed_colours: Dict[str, Tuple[int, int, int]] = {
             "outline": OUTLINE_COLOUR, "fill": OUTLINE_COLOUR}
@@ -1881,11 +2020,18 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="plaque preview image",
                                     user_visible=False)
+        self._review_jobs = JobRunner(self, threaded=threaded,
+                                      app_key="plaque figure review", user_visible=False)
+        self._save_jobs = JobRunner(self, threaded=threaded,
+                                    app_key="plaque annotation save", user_visible=False)
         self._jobs.job_failed.connect(self._on_job_failed)
         self._load_jobs.job_failed.connect(self._on_job_failed)
         self._paper_jobs = JobRunner(self, threaded=threaded,
                                      app_key="plaque paper")
         self._paper_jobs.job_failed.connect(self._on_paper_failed)
+        self._retirement_timer = QTimer(self)
+        self._retirement_timer.setInterval(100)
+        self._retirement_timer.timeout.connect(self._sync_inference_controls)
         self._build()
         self._stow_free_widgets()
         self.set_mode(PLAQUE_MODE)
@@ -2010,6 +2156,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._run_btn.clicked.connect(self.run_preview)
         self._cancel_btn = QPushButton(tr(PREVIEW_CANCEL_TEXT))
         self._cancel_btn.setEnabled(False)
+        self._cancel_btn.setToolTip(tr(
+            "Discard this preview. A model call already running finishes in "
+            "the background before another preview can start."))
         self._cancel_btn.clicked.connect(self.cancel_preview)
         self._use_btn = QPushButton(tr("Use these settings"))
         self._use_btn.setToolTip(tr("Write the values tuned here into the "
@@ -2045,6 +2194,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                        self._cancel_btn, self._use_btn):
             buttons.addWidget(widget)
         buttons.addStretch(1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "plaque", buttons)
         outer.addLayout(buttons)
 
         self._paper_note = QLabel("")
@@ -2058,9 +2209,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-        pictures = QHBoxLayout()
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        key = self.SECTION_KEY
+        pictures = CollapsibleSplitter(Qt.Horizontal, self,
+                                       persist_key=f"{key}::pictures")
+        self._pictures_split = pictures
         self._view = _ImageView(self)
-        self._view.setCursor(Qt.PointingHandCursor)
         self._view.clicked.connect(self._on_figure_clicked)
         self._objects_view = _ImageView(self)
         self._objects_view.setObjectName("PlaqueObjectsImage")
@@ -2083,7 +2237,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._image_tabs.addTab(view, tr(title))
             self._image_tabs.setTabToolTip(index, tips[index])
             view.context_requested.connect(self._on_view_context)
-        pictures.addWidget(self._image_tabs, 3)
+        self._sections = {}
+        pictures.add_pane(self._image_tabs, "Image", stretch=3)
         self._well_side = QWidget(self)
         side = QVBoxLayout(self._well_side)
         side.setContentsMargins(0, 0, 0, 0)
@@ -2095,8 +2250,26 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._well_view.setObjectName("PlaqueWellImage")
         self._well_view.context_requested.connect(self._on_view_context)
         side.addWidget(self._well_view, 1)
-        pictures.addWidget(self._well_side, 2)
-        outer.addLayout(pictures, 3)
+        pictures.add_pane(self._well_side, "Well", mode=EDGE, stretch=2,
+                          fold_key=f"{key}/Well")
+        picture_host = QWidget(self)
+        picture_col = QVBoxLayout(picture_host)
+        picture_col.setContentsMargins(0, 0, 0, 0)
+        zoom_row = QHBoxLayout()
+        for title, action in (
+                (tr("−"), lambda: self._image_tabs.currentWidget().zoom(1/1.2)),
+                (tr("+"), lambda: self._image_tabs.currentWidget().zoom(1.2)),
+                (tr("Fit image"), lambda: self._image_tabs.currentWidget().fit_image())):
+            button = QPushButton(title)
+            button.clicked.connect(action)
+            zoom_row.addWidget(button)
+        from PySide6.QtGui import QKeySequence
+        modifier = QKeySequence("Ctrl+Z").toString(QKeySequence.NativeText).removesuffix("Z").rstrip("+")
+        self._image_navigation_hint = QLabel(tr("Hold {key} and scroll to zoom; drag the image to pan.", key=modifier))
+        self._image_navigation_hint.setWordWrap(True)
+        zoom_row.addWidget(self._image_navigation_hint, 1)
+        picture_col.addLayout(zoom_row)
+        picture_col.addWidget(pictures, 1)
 
         self._legend_box = QFrame(self)
         self._legend_box.setObjectName("PlaqueLegendPrompt")
@@ -2119,7 +2292,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         legend_buttons.addWidget(self._legend_skip)
         legend_buttons.addStretch(1)
         legend.addLayout(legend_buttons)
-        outer.addWidget(self._legend_box)
+        picture_col.addWidget(self._legend_box)
 
         self._confirm_note = QLabel(tr(
             "Confirm annotations is on: the run measures ONLY the images "
@@ -2128,7 +2301,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._confirm_note.setObjectName("PlaqueConfirmNotice")
         self._confirm_note.setWordWrap(True)
         self._confirm_note.setStyleSheet("font-weight: 600;")
-        outer.addWidget(self._confirm_note)
+        picture_col.addWidget(self._confirm_note)
 
         self._table = QTableWidget(0, len(TABLE_COLUMNS), self)
         self._table.setObjectName("PlaqueAnnotationTable")
@@ -2159,7 +2332,16 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._tabs.addTab(self._table, tr("Wells"))
         self._tabs.addTab(self._plaque_table, tr("Plaques"))
         self._tabs.setMinimumHeight(200)
-        outer.addWidget(self._tabs, 2)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key=f"{key}::sections")
+        self._section_split = split
+        self._sections["Pictures"] = split.add_section(
+            picture_host, "Pictures", stretch=1,
+            persist_key=f"{key}/Pictures")
+        self._sections["Wells and plaques"] = split.add_section(
+            self._tabs, "Wells and plaques", stretch=2,
+            persist_key=f"{key}/Wells and plaques")
+        outer.addWidget(split, 5)
 
         save_row = QHBoxLayout()
         self._save_btn = QPushButton(tr("Save annotations"))
@@ -2169,10 +2351,20 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "the source folder. The Figure-mode run reads it."))
         self._save_btn.clicked.connect(self.save_annotations)
         save_row.addWidget(self._save_btn)
+        self._growth_btn = QPushButton(tr("Estimate scale / time (experimental)"))
+        self._growth_btn.setCheckable(True)
+        self._growth_btn.setToolTip(tr("Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page"))
+        self._growth_btn.toggled.connect(self._on_growth_toggled)
+        save_row.addWidget(self._growth_btn)
         save_row.addStretch(1)
         self._save_row = QWidget(self)
         self._save_row.setLayout(save_row)
         outer.addWidget(self._save_row)
+        self._growth_note = QLabel(tr("Published RH/HFF reference: 7 days, largest-quarter diameter 894 µm; about 40 hours error across three held-out experiments. Linear growth is assumed, not validated across times. Without a ruler or entered time, the reference duration is assumed. Change the reference in Experimental Growth Estimates settings. Suggestions are saved separately from measurements. <a href='https://doi.org/10.1371/journal.pbio.3002110'>Reference data</a>"))
+        self._growth_note.setOpenExternalLinks(True)
+        self._growth_note.setWordWrap(True)
+        self._growth_note.hide()
+        outer.addWidget(self._growth_note)
 
     def _stow_free_widgets(self) -> int:
         """Put every child that is in no layout into the holder that never shows.
@@ -2347,11 +2539,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 "The second reading changed: press Run preview to read the "
                 "figure again."))
             return
+        self.set_preview_status(tr("Updating conditions with the new text settings…"))
         self._reannotate()
-        if self._selected is not None:
-            self._show_well(self._selected)
-        self.set_preview_status(tr("Conditions proposed again with the new "
-                                   "text settings."))
 
     def _spin(self, low: float, high: float, decimals: int, value: float,
               step: float) -> QDoubleSpinBox:
@@ -2392,6 +2581,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_note.setVisible(figure and bool(self._paper_note.text()))
         self._all_btn.setVisible(figure)
         self._save_row.setVisible(figure)
+        self._growth_note.setVisible(figure and self._growth_btn.isChecked())
         self._confirm_note.setVisible(figure and self._confirm.isChecked())
         if not figure:
             self._legend_box.hide()
@@ -2447,6 +2637,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         text = str(source or "").strip()
         if not text:
             return False
+        self.cancel_preview()
         self._src = text
         self._load_token += 1
         token = self._load_token
@@ -2471,6 +2662,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._picker.addItem(path.name, str(path))
         self._picker.blockSignals(False)
         if not self._paths:
+            self._clear_figure()
+            self._plaque_result = None
+            self._show_plaque_tabs()
+            self._legend_box.hide()
             self.set_preview_status(tr("No images found in {path}.",
                                        path=self._src))
             self._view.set_image(None)
@@ -2502,6 +2697,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _show_selected_image(self) -> None:
         """Decode the selected image off the GUI thread and show it."""
+        self.cancel_preview()
         path = self.current_path()
         if path is None:
             return
@@ -2523,6 +2719,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """
         self._settings = dict(settings or {})
         s = self._settings
+        self._growth_btn.setChecked(bool(s.get("plaque_estimate_growth", False)))
         if MODE_KEY in s:
             self.set_mode(s.get(MODE_KEY))
         if s.get("src") and not self._src:
@@ -2660,6 +2857,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "figure_confidence": float(self._confidence.value()),
             "figure_read_text": self._read_text.isChecked(),
             "confirm_annotations": self._confirm.isChecked(),
+            "plaque_estimate_growth": self._growth_btn.isChecked(),
         })
         out.update(self.text_values())
         return out
@@ -2680,7 +2878,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             out["plaque_model"] = s["plaque_model"]
         if self.mode() == FIGURE_MODE:
             for key in ("figure_imgsz", "figure_confidence",
-                        "figure_read_text", "confirm_annotations") + TEXT_KEYS:
+                        "figure_read_text", "confirm_annotations", "plaque_estimate_growth") + TEXT_KEYS:
                 out[key] = s[key]
             if s["figure_detector"] != self._seeded_detector:
                 out["figure_detector"] = s["figure_detector"]
@@ -2706,6 +2904,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _preview_blocked_reason(self) -> str:
         """Why a pass cannot start, or ``''``."""
+        if not self._jobs.is_busy() and self._jobs.active_jobs():
+            return tr("The previous preview is still finishing. Run preview will be available when it exits.")
         if self.current_path() is None:
             return tr(self.PREVIEW_SOURCE_HINT)
         if self.mode() == FIGURE_MODE:
@@ -2715,17 +2915,42 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         return ""
 
     def preview_running(self) -> bool:
-        """Whether a pass is in flight."""
-        return self._jobs.is_busy()
+        """Whether a pass still owns a worker, including after Cancel."""
+        return self._jobs.is_busy() or self._jobs.active_jobs() > 0
+
+    def set_preview_busy(self, busy: bool) -> None:
+        """Keep rerun controls disabled until cancelled inference has exited.
+
+        :param busy: requested busy state; active preview jobs also keep controls
+            disabled until their workers retire.
+        :returns: None.
+        """
+        busy = bool(busy or self.preview_running())
+        LivePreviewContract.set_preview_busy(self, busy)
+        for name in ('_well_btn', '_all_btn'):
+            button = getattr(self, name, None)
+            if button is not None:
+                button.setEnabled(not busy)
+        if busy:
+            self._retirement_timer.start()
+        else:
+            self._retirement_timer.stop()
+
+    def _sync_inference_controls(self) -> None:
+        """Re-enable inference only after the cancelled QThread retires."""
+        self.set_preview_busy(self.preview_running())
 
     def _extra_work_in_flight(self) -> bool:
         """Whether a pass is in flight, for :meth:`cancel_preview`."""
-        return self._jobs.is_busy()
+        return self.preview_running()
 
     def _cancel_extra_work(self) -> None:
         """Drop the pass in flight, and any wells still queued."""
         self._batch = []
+        self._batch_settings = {}
         self._jobs.cancel()
+        self._review_token += 1
+        self._review_jobs.cancel()
 
     def run_preview(self, *_args: Any, detect: Optional[Callable] = None,
                     read_text: Optional[Callable] = None,
@@ -2746,11 +2971,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         settings = self.current_settings()
         self.set_preview_status(tr(PREVIEW_RUNNING_MESSAGE))
         if self.mode() == FIGURE_MODE:
-            work = (lambda: detect_figure(path, settings, detect=detect,
-                                          read_text=read_text))
+            def work():
+                """Detect figure wells and prepare a review result unless detection already returned an error."""
+                result = detect_figure(path, settings, detect=detect, read_text=read_text)
+                return result if result.get("error") else prepare_figure_review(result, settings)
         else:
             work = lambda: plaque_pass(path, settings, segment=segment)
-        self._jobs.submit(work, lambda result, t=token: self._on_result(t, result))
+        self._jobs.submit(lambda: _preview_call(work), lambda result, t=token: self._on_result(t, result))
         return True
 
     def _on_job_failed(self, message: str) -> None:
@@ -2760,8 +2987,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _on_result(self, token: int, result: Dict[str, Any]) -> None:
         """Show a finished pass."""
+        if self.preview_stale(token):
+            return
         self.set_preview_busy(False)
-        if self.preview_stale(token) or not isinstance(result, dict):
+        if not isinstance(result, dict):
             return
         if result.get("error"):
             self.set_preview_status(result["error"])
@@ -3022,6 +3251,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _folder(self) -> Optional[Path]:
         """The figure folder."""
+        path = self.current_path()
+        if path is not None:
+            return Path(path).parent
         if not self._src:
             return None
         folder = Path(self._src)
@@ -3030,11 +3262,16 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _show_figure(self, result: Dict[str, Any]) -> None:
         """Annotate a finished figure pass and fill the table."""
         self._clear_figure()
-        result.setdefault("overlay", np.array(result["image"], copy=True))
+        if "overlay" not in result:
+            result["overlay"] = np.array(result["image"], copy=True)
         self._figure = result
-        stem = Path(result["path"]).stem
-        self._caption = self._legend_for(stem)
-        self._reannotate()
+        self._caption = result["review_caption"]
+        self._annotations = result["annotations"]
+        self._automatic_scales = result["automatic_scales"]
+        self._refresh_calibration_scales()
+        self._fill_table()
+        self._fill_plaque_table()
+        self._redraw_boxes()
         panels = sorted({a.panel for a in self._annotations if a.panel})
         if panels and not self._caption:
             self._legend_text.setText(tr(
@@ -3071,14 +3308,82 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         result = self._figure
         if result is None:
             return
-        self._annotations = annotate_figure(
-            result, self._caption, self._folder(),
-            confirm=self._confirm.isChecked(), options=self.text_options())
-        self._scales = _figure_scales(result, self._annotations, self._caption,
-                                     self.current_settings().get("plate_format"))
+        from dataclasses import replace
+        self._review_token += 1
+        token = self._review_token
+        self._review_jobs.cancel()
+        snapshot, settings, caption = dict(result), self.current_settings(), self._caption
+        previous = [replace(a) for a in self._annotations]
+        self._review_jobs.submit(lambda: _preview_call(lambda: prepare_figure_review(
+            snapshot, settings, caption=caption, previous=previous)),
+            lambda review: self._adopt_review(token, result, review))
+
+    def _adopt_review(self, token, figure, review) -> None:
+        """Apply only the latest review for the figure still displayed."""
+        if token != self._review_token or self._figure is not figure:
+            return
+        if review.get("error"):
+            self.set_preview_status(review["error"])
+            return
+        for a, current in zip(review["annotations"], self._annotations):
+            if a.region != current.region:
+                continue
+            if current.source == "manual":
+                a.condition, a.source, a.strength = current.condition, current.source, current.strength
+            a.pixels_per_um, a.formation_hours = current.pixels_per_um, current.formation_hours
+            a.approved = current.approved
+        self._annotations = review["annotations"]
+        self._automatic_scales = review["automatic_scales"]
+        self._refresh_calibration_scales()
         self._fill_table()
         self._fill_plaque_table()
         self._redraw_boxes()
+        if self._selected is not None:
+            self._show_well(self._selected)
+        self.set_preview_status(tr("Conditions proposed again with the new text settings."))
+
+    def _refresh_calibration_scales(self) -> None:
+        """Apply editable manual rulers without repeating image analysis."""
+        from ...plaque_papers import _Scale, calibration_number
+
+        global_scale = calibration_number(
+            self.current_settings().get("plaque_pixels_per_um"), name="pixels_per_um")
+        self._scales = []
+        for index, annotation in enumerate(self._annotations):
+            base = self._automatic_scales[index] if index < len(self._automatic_scales) else _Scale()
+            value = annotation.pixels_per_um
+            source = "manual annotation" if value is not None else "settings"
+            value = value if value is not None else global_scale
+            self._scales.append(base if value is None else _Scale(
+                value * 1000, source, f"{value:g} px/µm", base.magnification))
+
+    def _on_growth_toggled(self, enabled: bool) -> None:
+        """Expose optional estimates without changing entered calibration."""
+        self._growth_note.setVisible(enabled and self.mode() == FIGURE_MODE)
+        self._fill_table()
+        self._fill_plaque_table()
+
+    def _growth_values(self) -> Dict[int, Any]:
+        """Estimate from current measured values; never feed estimates back in."""
+        from ...plaque_growth import estimates_from_settings
+        from ...plaque_papers import calibration_values
+
+        if not self._growth_btn.isChecked():
+            return {}
+        settings = self.current_settings()
+        wells = []
+        for index, well in self._wells.items():
+            if index >= len(self._annotations):
+                continue
+            scale = self._scales[index] if index < len(self._scales) else None
+            wells.append(dict(well=index, areas_px=[r["area_px"] for r in well["rows"]],
+                              **calibration_values(self._annotations[index], scale,
+                                                   settings.get("plaque_formation_hours"))))
+        try:
+            return estimates_from_settings(wells, {**settings, "plaque_estimate_growth": True})
+        except ValueError as exc:
+            self.set_preview_status(str(exc))
+            return {}
 
     def _redraw_boxes(self) -> None:
         """Draw the figure with each box coloured by its OK tick."""
@@ -3103,6 +3408,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._table.blockSignals(True)
         self._table.setSortingEnabled(False)
         self._table.setRowCount(len(self._annotations))
+        growth = self._growth_values()
         for row, a in enumerate(self._annotations):
             well = self._wells.get(row)
             source = f"{a.source} / {a.strength}"
@@ -3122,12 +3428,34 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                     item.setForeground(CONFLICT_COLOUR)
                     item.setToolTip(_conflict_note(a))
                 self._table.setItem(row, column, item)
+            for column, key in enumerate(("estimated_pixels_per_um", "estimated_formation_hours", "estimation_source"), 12):
+                value = growth.get(row, {}).get(key)
+                item = table_item("" if value is None else f"{value:.6g}" if isinstance(value, float) else str(value))
+                item.setData(Qt.UserRole, row)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                item.setToolTip(tr("Experimental suggestion; measured values are retained. See the reference and assumptions below."))
+                self._table.setItem(row, column, item)
             ok = table_item("")
             ok.setData(Qt.UserRole, row)
             ok.setFlags((ok.flags() | Qt.ItemIsUserCheckable)
                         & ~Qt.ItemIsEditable)
             ok.setCheckState(Qt.Checked if a.approved else Qt.Unchecked)
             self._table.setItem(row, OK_COLUMN, ok)
+            from ...plaque_papers import calibration_values
+            scale = self._scales[row] if row < len(self._scales) else None
+            values = calibration_values(a, scale, self.current_settings().get("plaque_formation_hours"))
+            for column, key in ((WELL_DIAMETER_COLUMN, "well_diameter_px"),
+                                (PIXELS_PER_UM_COLUMN, "pixels_per_um"),
+                                (FORMATION_HOURS_COLUMN, "formation_hours")):
+                value = values[key]
+                item = table_item("" if value is None else f"{value:.8g}")
+                item.setData(Qt.UserRole, row)
+                if column == WELL_DIAMETER_COLUMN:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    item.setToolTip(tr("Mean detected box width and height; verify that the box contains the complete well."))
+                else:
+                    item.setToolTip(tr("Double-click to enter a value for this well. Clear it to use the settings or detected ruler."))
+                self._table.setItem(row, column, item)
         self._table.setSortingEnabled(True)
         if self._selected is not None:
             self._table.selectRow(self._view_row(self._selected))
@@ -3159,9 +3487,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _clear_figure(self) -> None:
         """Forget the figure, its wells and both tables."""
+        self._review_token += 1
+        self._review_jobs.cancel()
         self._figure = None
         self._annotations = []
         self._scales = []
+        self._automatic_scales = []
         self._wells = {}
         self._selected = None
         self._batch = []
@@ -3280,13 +3611,14 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         :param segment: replaces the plaque model (tests).
         :returns: True when the first was started.
         """
-        if self._jobs.is_busy():
+        if self.preview_running():
             self.set_preview_status(tr("Preview already running."))
             return False
         self._run_token += 1
         self._batch = list(indices)
         self._batch_total = len(indices)
         self._batch_segment = segment
+        self._batch_settings = self.current_settings()
         self.set_preview_busy(True)
         self._next_well(self._run_token)
         return True
@@ -3309,10 +3641,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             k=position, total=self._batch_total))
         image = self._figure["image"]
         region = self._figure["regions"][index]
-        settings = self.current_settings()
+        settings = dict(self._batch_settings)
         segment = self._batch_segment
         self._jobs.submit(
-            lambda: segment_well(image, region, settings, segment=segment),
+            lambda: _preview_call(lambda: segment_well(image, region, settings, segment=segment)),
             lambda result, t=token, i=index: self._on_well(t, i, result))
 
     def _on_well(self, token: int, index: int, result: Dict[str, Any]) -> None:
@@ -3370,6 +3702,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         medians = {k: float(np.median(v)) if v else 0.0
                    for k, v in by_panel.items()}
         scales = self._scales
+        growth = self._growth_values()
         out = []
         for index in sorted(self._wells):
             a = annotation(index)
@@ -3385,6 +3718,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                             **row,
                             "area_mm2": row["area_px"] / ppm ** 2 if ppm else None,
                             "scale": _scale_note(scale)})
+                out[-1].update(growth.get(index, {}))
+                if a is not None:
+                    from ...plaque_papers import calibration_values
+                    out[-1].update(calibration_values(
+                        a, scale, self.current_settings().get("plaque_formation_hours")))
         return out
 
     def _fill_plaque_table(self) -> None:
@@ -3420,7 +3758,28 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if row >= len(self._annotations):
             return
         a = self._annotations[row]
-        if item.column() == CONDITION_COLUMN:
+        if item.column() in (PIXELS_PER_UM_COLUMN, FORMATION_HOURS_COLUMN):
+            from ...plaque_papers import calibration_number, calibration_values
+            name = "pixels_per_um" if item.column() == PIXELS_PER_UM_COLUMN else "formation_hours"
+            try:
+                value = calibration_number(item.text(), name=name, allow_zero=name == "formation_hours")
+            except ValueError:
+                self.set_preview_status(tr("Enter a finite positive scale, or a nonnegative formation time in hours. Clear the cell to restore its default."))
+                value = calibration_values(a, self._scales[row], self.current_settings().get("plaque_formation_hours"))[name]
+                self._table.blockSignals(True)
+                item.setText("" if value is None else f"{value:.8g}")
+                self._table.blockSignals(False)
+                return
+            setattr(a, name, value)
+            self._refresh_calibration_scales()
+            value = calibration_values(a, self._scales[row], self.current_settings().get("plaque_formation_hours"))[name]
+            self._table.blockSignals(True)
+            item.setText("" if value is None else f"{value:.8g}")
+            self._table.blockSignals(False)
+            self._fill_plaque_table()
+            if self._growth_btn.isChecked():
+                QTimer.singleShot(0, self._fill_table)
+        elif item.column() == CONDITION_COLUMN:
             text = item.text().strip()
             if text and text != a.condition:
                 a.condition, a.source, a.strength = text, "manual", "manual"
@@ -3435,10 +3794,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         result = self._figure
         if result is None:
             return []
-        from ...plaque_papers import _annotation_file_row
+        from ...plaque_papers import _annotation_file_row, calibration_values
 
         name = Path(result["path"]).name
         rows = []
+        growth = self._growth_values()
         for row in range(self._table.rowCount()):
             condition = self._table.item(self._view_row(row), CONDITION_COLUMN)
             text = condition.text().strip() if condition is not None else ""
@@ -3446,6 +3806,14 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 rows.append(_annotation_file_row(
                     name, row + 1, self._annotations[row], condition=text,
                     approved=self._row_ok(row)))
+                scale = self._scales[row] if row < len(self._scales) else None
+                values = calibration_values(self._annotations[row], scale,
+                                            self.current_settings().get("plaque_formation_hours"))
+                rows[-1].update(resolved_pixels_per_um=values["pixels_per_um"],
+                                resolved_formation_hours=values["formation_hours"],
+                                formation_time_source=values["formation_time_source"],
+                                scale_source=getattr(scale, "source", "unknown"))
+                rows[-1].update(growth.get(row, {}))
             else:
                 rows.append({"file": name, "region": row + 1,
                              "condition": text, "approved": self._row_ok(row)})
@@ -3454,7 +3822,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def save_annotations(self) -> Optional[Path]:
         """Write the review to ``figure_annotations.csv``, keeping other figures'.
 
-        :returns: the file written, or None when there is nothing to save.
+        :returns: destination of the queued write, or None when not started.
+            Completion or failure is reported in the preview status.
         """
         from ...plaque_papers import ANNOTATIONS_FILE, write_annotation_overrides
 
@@ -3464,12 +3833,32 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self.set_preview_status(tr("Nothing to save: run the preview on "
                                        "a figure first."))
             return None
-        path = write_annotation_overrides(folder / ANNOTATIONS_FILE, rows)
+        path = folder / ANNOTATIONS_FILE
         ok = sum(1 for r in rows if r["approved"])
-        self.set_preview_status(tr(
-            "Saved {n} annotations ({ok} OK) to {path}.", n=len(rows), ok=ok,
-            path=path))
-        return path
+        started = self._save_review_file(
+            lambda: write_annotation_overrides(path, rows),
+            lambda: self.set_preview_status(tr(
+                "Saved {n} annotations ({ok} OK) to {path}.", n=len(rows), ok=ok, path=path)))
+        return path if started else None
+
+    def _save_review_file(self, work, on_done) -> bool:
+        """Serialize sidecar writes without blocking the GUI or losing snapshots."""
+        if self._save_jobs.is_busy():
+            self.set_preview_status(tr("An annotation or legend save is already in progress."))
+            return False
+        token = self._run_token
+        self.set_preview_status(tr("Saving review…"))
+
+        def finished(result):
+            """Ignore stale export completions and report failure or invoke the current success callback."""
+            if self.preview_stale(token):
+                return
+            if isinstance(result, dict) and result.get("error"):
+                self.set_preview_status(result["error"])
+            else:
+                on_done()
+
+        return self._save_jobs.submit(lambda: _preview_call(work), finished)
 
     def _use_pasted_legend(self) -> None:
         """Key the pasted legend, and keep it for the run in ``legends.csv``."""
@@ -3480,13 +3869,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if not text or self._figure is None or folder is None:
             return
         stem = Path(self._figure["path"]).stem
-        write_legend(folder / LEGENDS_FILE, stem, text)
-        self._caption = " ".join(text.split())
-        self._reannotate()
-        self._legend_box.hide()
-        self.set_preview_status(tr("Legend saved to {path}; conditions "
-                                   "proposed again.",
-                                   path=folder / LEGENDS_FILE))
+        def saved():
+            """Normalize the edited legend text, close its editor and rebuild the figure annotations."""
+            self._caption = " ".join(text.split())
+            self._legend_box.hide()
+            self._reannotate()
+
+        self._save_review_file(lambda: write_legend(folder / LEGENDS_FILE, stem, text), saved)
 
     def _annotate_by_hand(self) -> None:
         """Put the cursor in the first condition cell."""
@@ -3576,7 +3965,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def shutdown(self) -> None:
         """Leave no worker thread behind."""
-        for runner in (self._jobs, self._load_jobs, self._paper_jobs):
+        self._retirement_timer.stop()
+        for runner in (self._jobs, self._load_jobs, self._paper_jobs, self._review_jobs, self._save_jobs):
             runner.shutdown()
 
     def closeEvent(self, event):                             # noqa: N802

@@ -1005,9 +1005,10 @@ def test_the_module_embeds_in_a_shell_installer_and_needs_only_the_standard_libr
             imported.update(alias.name.split(".")[0] for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.level == 0:
             imported.add(node.module.split(".")[0])
-    standard = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
-    if standard:
-        assert imported <= standard, imported - standard
+    from tests.stdlib_inventory import stdlib_names
+
+    standard = stdlib_names()
+    assert imported <= standard, imported - standard
     assert "spacr" not in imported
 
 
@@ -1255,11 +1256,30 @@ def test_a_file_names_the_copy_only_where_the_folder_name_ends(tmp_path):
 
 @_PERMISSIONS_BIND
 @pytest.mark.parametrize("onexc", [True, False], ids=["onexc", "onerror"])
+@pytest.mark.parametrize("legacy_rmtree", [False, True], ids=["host-rmtree", "legacy-rmtree"])
 def test_a_folder_that_cannot_be_opened_is_reported_not_a_crash(
-        tmp_path, monkeypatch, onexc):
+        tmp_path, monkeypatch, onexc, legacy_rmtree):
     """rmtree's retry called ``os.open(path)`` without its flags; the
     TypeError escaped the remover and ended the update with a traceback."""
     monkeypatch.setattr(ic, "_RMTREE_TAKES_ONEXC", onexc)
+    import inspect
+
+    host_rmtree = ic.shutil.rmtree
+    if legacy_rmtree:
+        def legacy(path, *, onerror):
+            """Keep real filesystem behavior with the pre-3.12 signature."""
+            return host_rmtree(path, onerror=onerror)
+
+        monkeypatch.setattr(ic.shutil, "rmtree", legacy)
+    original_rmtree = ic.shutil.rmtree
+    if onexc and "onexc" not in inspect.signature(original_rmtree).parameters:
+        def rmtree_with_onexc(path, *, onexc):
+            """Exercise exception-object callbacks over an older real remover."""
+            def onerror(function, failed_path, exc_info):
+                return onexc(function, failed_path, exc_info[1])
+            return original_rmtree(path, onerror=onerror)
+
+        monkeypatch.setattr(ic.shutil, "rmtree", rmtree_with_onexc)
     box = Box(tmp_path)
     root = linux_online(box, "1.5.0.7")
     locked = root / "cache" / "made-by-sudo"

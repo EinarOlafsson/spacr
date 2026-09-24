@@ -184,6 +184,10 @@ def test_a_host_with_no_body_falls_back_to_a_window(qtbot, qt_theme_applied):
         assert f"registered widget QSS: {name}" in shown.styleSheet()
         assert qt_theme_applied.styleSheet() == live_sheet
     finally:
+        # A child window is destroyed with its parent, but destruction does
+        # not deliver the screen's closeEvent that retires its usage worker.
+        folded.close()
+        qtbot.waitUntil(lambda: folded.active_jobs() == 0, timeout=10000)
         unregister_widget_qss(name)
         clear_widget_qss_overlays(qt_theme_applied)
 

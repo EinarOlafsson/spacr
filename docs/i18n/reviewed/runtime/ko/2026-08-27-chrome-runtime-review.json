@@ -80,13 +80,6 @@
       "translation": "`measurements/measurements.db`가 들어 있는 폴더를 선택하십시오. 이미지를 왼쪽 클릭하면 클래스 1을, 오른쪽 클릭하면 클래스 2를 지정하고, 다시 클릭하면 레이블을 지울 수 있습니다 — 키보드만 사용할 수도 있습니다: 1–9로 레이블을 지정하고 다음 크롭으로 이동합니다. 어노테이션은 백그라운드에서 저장됩니다."
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "엔드투엔드(마스크 → 측정 → 어노테이션) 실제 데이터 세트…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

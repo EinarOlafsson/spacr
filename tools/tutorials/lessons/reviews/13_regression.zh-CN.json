@@ -1,11 +1,25 @@
 {
-  "lesson": "13_regression", "language": "zh-CN",
-  "english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
-  "review": {"kind": "Editorial translation checked against English and the accepted real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish 759 stored results from the displayed 434-guide family.", "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes."]},
+  "lesson": "13_regression",
+  "language": "zh-CN",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "review": {
+    "kind": "Editorial translation checked against English and the accepted real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish 759 stored results from the displayed 434-guide family.",
+      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
+      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
+    ]
+  },
   "title": "Regression：用真实示例从配对数据表走到结果",
   "description": "加载可下载的示例筛选数据，配置一次规模受限的向导置换分析，查看真实控制台和图形，并找到现已嵌套在 Regression 内的专用工具。",
-  "objectives": ["通过界面上的测试数据控件加载四组配对的得分与计数表，并选择独立的输出文件夹。", "区分推断方法、结果层级与分析单位，复现这个简短示例，但不把演示的置换次数当作正式分析的推荐值。", "检查真实结果、图形和诊断局限，区分交互式查看与重新计算分析的实时预览。", "找到 Regression 的嵌套工具、可选的人工智能辅助功能和当前的 Python 入口函数。"],
-  "prerequisite": "打开 spaCR，在 Core 模块中选择 Regression。示例会下载得分与计数文件，或复用缓存。录像中的分析不需要测量数据库、裁剪图像、外部注释服务或人工智能订阅。这次简短的置换分析用于演示流程，并不代表确定的生物学发现。",
+  "objectives": [
+    "通过界面上的测试数据控件加载四组配对的得分与计数表，并选择独立的输出文件夹。",
+    "区分推断方法、结果层级与分析单位，复现这个简短示例，但不把演示的置换次数当作正式分析的推荐值。",
+    "检查真实结果、图形和诊断局限，区分交互式查看与重新计算分析的实时预览。",
+    "找到 Regression 的嵌套工具、可选的人工智能辅助功能和当前的 Python 入口函数。"
+  ],
+  "prerequisite": "使用 spaCR 1.5.0.9 录制。打开 spaCR，在 Core 模块中选择 Regression。示例会下载得分与计数文件，或复用缓存。录像中的分析不需要测量数据库、裁剪图像、外部注释服务或人工智能订阅。这次简短的置换分析用于演示流程，并不代表确定的生物学发现。",
   "scenes": [
     "在 Core 模块中打开 Regression。它将表型得分与向导丰度联系起来，再按所选推断方法报告关联。顶部的工具现已归入这个模块，不再是 Home 上独立的入口。",
     "在 Input Tables 中选择 Load test data。应用会下载示例筛选数据，或复用经过验证的缓存文件；本次录像使用缓存。控制台报告四个得分表和四个计数表，按培养板配对。",
@@ -19,7 +33,7 @@
     "Regression backend 并非通用加速开关。它适用于受支持的模型拟合估计器；改变这个字段，不会让本次向导置换演示变成显卡回归。其他 spaCR 模块有各自的设备选项，应根据实际运行的操作查看控件和控制台。",
     "在这个自包含示例中，将注释来源设为 none。统计结果不依赖外部基因注释查询。分析自己的筛选数据时，应使用符合物种和标识符体系的注释，不要假设每个向导标签都能被识别。",
     "清空搜索，检查输出文件夹，然后点击 Run。在真实控制台中观察输入对齐、所选筛选条件的应用及结果计算。Regression 直接生成诊断图，本次录像没有需要另外打开的 Plot 开关。",
-    "完成的示例生成了四百三十四条向导结果、三百二十五条基因结果和五幅图。Finished 仅表示软件执行完成，并不证明实验设计有效或存在生物学发现。除了完成提示，还要阅读诊断警告。",
+    "完成的示例生成了四百三十四条向导结果、三百二十五条基因结果和五幅图。Finished 仅表示软件执行完成，并不证明实验设计有效或存在生物学发现。除了完成提示，还要阅读诊断警告。 本次运行未能生成可交换性报告，因此仍需独立评估置换检验的假设。",
     "Runs 标识保存的分析，Results 显示所选运行的结果。比较运行时，请核对文件夹和设置。更改表单值不会重新计算当前看到的结果；若要测试新的选择，需要再次运行分析。",
     "Results 包含系数表、交互式视图及生成的图形。本次运行在两个层级合计有七百五十九行；当前视图选择了四百三十四条向导结果。用 Level 选择检验族。交互式查看已保存的输出不会重新执行推断。",
     "打开 p-values 视图，检查结果分布。应结合所选检验族、置换分辨率和诊断进行解读，不要自动将其视为存在效应的证据。独立的 Diagnostics 教程会详细解释保存的设计与推断面板。",

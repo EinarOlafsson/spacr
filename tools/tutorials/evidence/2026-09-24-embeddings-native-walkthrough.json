@@ -1,0 +1,81 @@
+{
+  "source_commit": "ba599995917c4c63a56b3cd8188b1418f03d4ac7",
+  "capture": "/tmp/spacr-embeddings-tutorial-vjw_2mw8/captures/embeddings_current_gui",
+  "accepted": true,
+  "gui_workflow_completed": true,
+  "crops_injected": false,
+  "input_method": "Visible crop-folder selection and Load crops button",
+  "input_hashes": {
+    "plate1_E02_10_1_1.png": "4a42a56e083a48aa7954eae54077cfc7df25445cf23d92f328b27233bb9f7767",
+    "plate1_E02_10_1_15.png": "698bf94c8d8e8a22932bae78dd5a2ee832859e591f1bb1cff02c5f5aa3b199fc",
+    "plate1_E02_10_1_16.png": "6b7dc75f6124531146d91149f99606c9134b8df70f6d7235b9c87839de937541",
+    "plate1_E02_10_1_17.png": "48cfcefe467b4ea1afbb61ee49922798290b74040967907881a77fffa755d6ec",
+    "plate1_E02_10_1_23.png": "f0a82aaf1ad3910c35b732761f00170e687dbae5886e389bd44b36a7b2bdfa79",
+    "plate1_E02_10_1_28.png": "99dc7f537bdbee2b1747afcc63809561ece181304e445a232724ca474a15a527",
+    "plate1_E02_10_1_30.png": "b9df4dc9bea40be4e67852b538cde3734330933796083e4d696596deecb0c6be",
+    "plate1_E02_10_1_31.png": "3f214bbff9f04535fa3b272f6439fb256575977b0056510cad486b87381e15a1",
+    "plate1_E02_10_1_37.png": "4d48d9f8ba6d1126e26226c59eb6a26619a2e6fe5041d0ec67b016f72060bad3",
+    "plate1_E02_10_1_38.png": "05481d49733e9c0a1bc22e78c664602e1da31437bc09dc956fdcc4e8665816aa",
+    "plate1_E02_10_1_40.png": "ebbac8d597cba1812318b51c93d7b377c308c82c1e5a2b017bf20346e9a43c5b",
+    "plate1_E02_10_1_41.png": "19ed8e16de2dbeb9b7a6ad8304d6d33ab86b3405471c37313ad5231ff7f6cd72",
+    "plate1_E02_10_1_6.png": "7843d641b3094c53ecefada0da9be5034bb2722474edab4182c8bc5b2e990558",
+    "plate1_E02_10_1_7.png": "0ff2ad15d909934169dfa64572020dcd02573119237b61bf90fa1c57da655ea3",
+    "plate1_E02_10_1_8.png": "5f818ff617e7526902fd51dd34ad47b80fb0bd12cc9c006c4091392c3b3714b3",
+    "plate1_E02_11_1_10.png": "ed3866914fe87262261a0ef05f8322c01f9dfcbd2e73d2aaf9b218000d3d4199"
+  },
+  "crop_record": {
+    "matched": 16,
+    "selected": 16,
+    "dropped": 0,
+    "loaded": 16,
+    "crop_shape": [
+      224,
+      224,
+      3
+    ],
+    "conformed": 0,
+    "capped": false,
+    "stopped": false,
+    "source": "png crop source (the 16 PNGs in /tmp/spacr-embeddings-tutorial-vjw_2mw8/embeddings_example/cell_png)",
+    "query": "crop folder /tmp/spacr-embeddings-tutorial-vjw_2mw8/embeddings_example/cell_png"
+  },
+  "runs": [
+    {
+      "policy": "per_channel",
+      "shape": [
+        16,
+        1536
+      ],
+      "finite": true,
+      "preview_rows": 16,
+      "matrix_sha256": "d5442bb673382c94f8bedcf14cf714eaae9f75eeadd590d2096964800d74b2d8",
+      "status": "16 objects x 1536 dimensions. Encoder resnet18 (per_channel), weights 80c49dee3da4…."
+    },
+    {
+      "policy": "project",
+      "shape": [
+        16,
+        512
+      ],
+      "finite": true,
+      "preview_rows": 16,
+      "matrix_sha256": "8414d65766d0205d35def428a02b1457a3eb4f334c647bbf8641385bdcebc159",
+      "status": "16 objects x 512 dimensions. Encoder resnet18 (project), weights 80c49dee3da4…."
+    }
+  ],
+  "app_source_modified": false,
+  "device": "cpu",
+  "gpu_used": false,
+  "matrix_files": "Private evidence saved by the recorder; GUI has no export button.",
+  "source_unchanged": true,
+  "published": false,
+  "visual_review": "Current GUI loader and projected result inspected; native dark/blobs capture with neutral paths.",
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-ui5y3r18",
+    "commit": "f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65",
+    "tag": "tutorials-native-20260924-ui5y3r18",
+    "readback_files": 1134,
+    "all_ready_local_and_hosted_playback": true
+  }
+}

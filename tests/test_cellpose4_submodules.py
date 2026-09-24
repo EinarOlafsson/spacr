@@ -10,15 +10,27 @@ with a recorder so the call shape is what is under test. CPU only, offline.
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 
 # ---------------------------------------------------------------------------
 # submodules.train_cellpose -- the checkpoint name
 # ---------------------------------------------------------------------------
 
-def test_trained_checkpoint_is_named_cpsam_not_cyto(tmp_path, monkeypatch):
+@pytest.mark.parametrize("cached_stock", [False, True])
+def test_trained_checkpoint_is_named_cpsam_not_cyto(tmp_path, monkeypatch, cached_stock):
     """train_cellpose fine-tunes cpsam, so the filename must say cpsam."""
     import spacr.submodules as submodules
+    from spacr import model_zoo
+    from types import SimpleNamespace
+
+    cached = tmp_path / "cached-cpsam"
+    if cached_stock:
+        cached.write_bytes(b"recording model; never loaded")
+    entry = SimpleNamespace(key="cpsam", path=str(cached), uri="")
+    monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    monkeypatch.setattr(model_zoo, "fetch",
+                        lambda *a, **k: pytest.fail("stock weights must not be fetched"))
 
     seen = {}
 
@@ -52,13 +64,14 @@ def test_trained_checkpoint_is_named_cpsam_not_cyto(tmp_path, monkeypatch):
     })
 
     name = seen["train_kwargs"]["model_name"]
-    assert name == "mymodel_cpsam_e20_X16_Y16.CP_model"
+    assert name == "mymodel_cpsam_e20.CP_model"
     assert "_cyto_" not in name
     # It really is the SAM checkpoint being fine-tuned.
-    assert seen["model_kwargs"]["pretrained_model"] == "cpsam"
+    assert seen["model_kwargs"]["pretrained_model"] == (
+        str(cached) if cached_stock else "cpsam")
     # The settings snapshot is written under the same name.
     assert (tmp_path / "settings" /
-            "mymodel_cpsam_e20_X16_Y16.CP_model.csv").exists()
+            "mymodel_cpsam_e20.CP_model.csv").exists()
 
 
 def test_checkpoints_written_under_the_old_name_still_resolve(tmp_path):

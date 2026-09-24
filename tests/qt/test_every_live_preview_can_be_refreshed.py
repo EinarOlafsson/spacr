@@ -39,7 +39,12 @@ def _refresh_buttons(screen):
 @pytest.mark.parametrize("key", ["mask", "analyze_plaques", "measure",
                                  "timelapse", "motility"])
 def test_every_screen_built_preview_has_one_refresh_button(qtbot, key):
-    assert len(_refresh_buttons(_screen(qtbot, key))) == 1
+    screen = _screen(qtbot, key)
+    card = getattr(screen, screen._preview_card_attr)
+    assert len(_refresh_buttons(card)) == 1
+    folded = list(getattr(screen, "_folded_previews", {}).values())
+    assert all(len(_refresh_buttons(host.card)) == 1 for host in folded)
+    assert len(_refresh_buttons(screen)) == 1 + len(folded)
 
 
 def test_a_registry_mounted_preview_has_one_too(qtbot):
@@ -48,14 +53,20 @@ def test_a_registry_mounted_preview_has_one_too(qtbot):
     assert len(_refresh_buttons(screen)) == 1
 
 
-def test_plaques_live_switch_sits_just_left_of_ai(qtbot):
+def test_plaques_live_switch_rides_on_the_preview_card(qtbot):
+    """Closed Live stays beside Actions; opening moves it onto its card."""
     screen = _screen(qtbot, "analyze_plaques")
     switch = screen._preview_switch
-    row = switch.parentWidget().layout()
-    texts = [row.itemAt(i).widget().text() for i in range(row.count())
-             if row.itemAt(i).widget() is not None
-             and hasattr(row.itemAt(i).widget(), "text")]
-    assert texts.index("Live") + 1 == texts.index("AI")
+    card = getattr(screen, screen._preview_card_attr)
+    assert screen._actions_heading_row.indexOf(switch) >= 0
+    assert not card.isAncestorOf(switch) and card.isHidden()
+    switch.setChecked(True)
+    assert card.isAncestorOf(switch) and not card.isHidden()
+    assert switch.text().strip() == "Live"
+    assert len(_refresh_buttons(card)) == 1
+    switch.setChecked(False)
+    assert screen._actions_heading_row.indexOf(switch) >= 0
+    assert not switch.isHidden() and card.isHidden()
 
 
 def test_plaque_is_not_mounted_a_second_time_by_the_registry(qtbot):

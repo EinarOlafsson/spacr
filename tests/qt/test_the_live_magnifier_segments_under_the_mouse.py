@@ -574,7 +574,10 @@ def test_the_screen_offers_and_runs_otsu_with_no_model(
     test still said Mode offers "only Classical" and had been red on nightly
     since that commit. Item 423 added the four Cellpose 3 models to that
     list, so the list is read from _MAGNIFIER_BACKENDS rather than typed
-    out again, and item 419 point 5 renamed Classical to Otsu.
+    out again, and item 419 point 5 renamed Classical to Otsu. Item 473
+    added organelle detection's own methods and the CPU threshold
+    algorithms, which are scikit-image and need nothing installed, so they
+    are listed and RUNNABLE here.
     """
     from spacr import _segmentation_backends as backends
 
@@ -593,7 +596,8 @@ def test_the_screen_offers_and_runs_otsu_with_no_model(
         made._mag_size.setValue(SIZE)
         assert [made._mag_mode.itemData(i)
                 for i in range(made._mag_mode.count())] == [
-            "otsu", *mm._MAGNIFIER_BACKENDS]
+            "otsu", *mm.cpu_modes.modes(), *mm.organelle_modes.modes(),
+            *mm._MAGNIFIER_BACKENDS]
         assert made._mag_uninstalled == set(mm._MAGNIFIER_BACKENDS)
         assert made._mag_mode.currentData() == "otsu"
         made._btn_magnifier.setChecked(True)

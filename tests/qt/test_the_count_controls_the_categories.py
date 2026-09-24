@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 
 import spacr.qt.app as app_module
-from spacr.qt.widgets.section import Section
+from spacr.qt.widgets.section import Section, _sections_below
 
 
 @pytest.fixture(scope="module")
@@ -19,8 +19,10 @@ def mask(qapp):
 
 
 def _categories(screen):
+    """Every category heading, including those inside a body that waits
+    off the page until its category is opened."""
     return [str(s.property("settingsCategorySource"))
-            for s in screen.findChildren(Section)]
+            for s in _sections_below(screen) if isinstance(s, Section)]
 
 
 def test_the_count_defaults_to_none(mask):
@@ -51,13 +53,15 @@ def test_the_control_itself_survives(mask):
 def test_no_category_is_empty(mask):
     """Asked for 2026-08-28, for every category and not only organelles."""
     empty = []
-    for section in mask.findChildren(Section):
+    for section in _sections_below(mask):
+        if not isinstance(section, Section):
+            continue
         rows = getattr(section, "_row_widgets", None) or ()
         if any(w is not None for _label, w in rows):
             continue
         if any(any(w is not None for _l, w in
                    (getattr(child, "_row_widgets", None) or ()))
-               for child in section.findChildren(Section)):
+               for child in _sections_below(section)):
             continue
         empty.append(str(section.property("settingsCategorySource")))
     assert empty == [], f"headings over nothing: {empty}"
@@ -216,6 +220,9 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
     stay off the form. That half is held by
     ``test_a_channel_brings_its_segmentation_settings.py``; this test counts
     every nucleus row the object rule gates, which only "All settings" shows.
+    Every category is opened first: since 2026-09-22 a closed category's
+    rows are not built until it is, and a row that does not exist is
+    neither shown nor hidden.
     """
     from spacr.qt.settings_search import forget_disclosure, remember_disclosure
 
@@ -226,6 +233,8 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
     qapp.processEvents()
     try:
         screen = win._screens["mask"]
+        screen._open_every_waiting_heading()
+        qapp.processEvents()
         widgets = screen._settings_model._widgets
         nucleus = [k for k in widgets if k.startswith("nucleus_")]
         assert len(nucleus) > 10, f"only {len(nucleus)} nucleus rows built"

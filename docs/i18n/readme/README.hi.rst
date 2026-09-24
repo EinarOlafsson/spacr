@@ -1,6 +1,6 @@
-|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Platforms| |Python| |Qt| |Tests| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
-.. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
+.. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
    :alt: दस्तावेज़
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
@@ -142,15 +142,15 @@ spaCR इंस्टॉल करें
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11 के लिए spaCR 1.5.0.9 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Windows-Online-Setup.exe
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.0.9 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-macOS-Universal-Online.pkg
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-बिट Linux के लिए spaCR 1.5.0.9 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Linux-x86_64-Online.run
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: spaCR के पुराने इंस्टॉलर
@@ -249,7 +249,7 @@ conda-forge से इंस्टॉलेशन
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-पूरा क्लोन 1186 MB के चेकआउट के लिए 5.8 GB डाउनलोड करता है। उस क्लोन में ``--filter=blob:none`` जोड़ने से कोई बचत नहीं होती: चेकआउट वैसे भी सारे blob ले आता है।
+2026-09-15 के मापन में पूरे क्लोन ने 5.8 GB डाउनलोड किया। एक कमिट वाले क्लोन में ``--filter=blob:none`` जोड़ने से उसके मापे गए डाउनलोड में कमी नहीं आई। nightly की ट्रैक की गई फ़ाइलों का चेकआउट 1607 MB है (मापन: 2026-09-24), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।
 
 
 कमांड-लाइन प्रवेश बिंदु
@@ -322,7 +322,7 @@ embedding, draw a gate, build a plot, check quality.
 
 Quantitative readouts for biological assays.
 
-| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+| |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -414,25 +414,20 @@ Quantitative readouts for biological assays.
    :alt: Graph Builder API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
    :width: 16.0%
-   :alt: Plaque Assay API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :alt: Toxoplasma API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
    :align: middle
-.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
    :width: 16.0%
-   :alt: Recruitment API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :alt: Plasmodium spp. API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
    :align: middle
-.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
    :width: 16.0%
-   :alt: Invasion Assay API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
-   :align: middle
-.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.0%
-   :alt: Replication Assay API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :alt: Candida spp. API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
    :align: middle
 
 .. spacr-workflow-end
@@ -562,7 +557,7 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 **F1** दोनों संयुक्त हैं, और यह उद्धृत किया जाता है क्योंकि प्रत्येक अकेले ट्रिविल रूप से खेला जाता है - निकट-पूर्ण सटीकता के लिए एक अविश्वसनीय प्लेक की रिपोर्ट करें, या करीब-पूर्ण पुनरावृत्ति के लिए प्रत्येक अंधेरे ब्लॉब. जो आप बेहतर खो देंगे, यह अनुमान पर निर्भर करता है, और गिनती आमतौर पर बेहतर है अति-कवाना द्वारा सेवा की जाती है: प्लेक्स मॉडल को 0.858 की परिभाषा में स्वीकार किया गया था और 0.811 को 0.939 और 0.631.
 
-**IoU**, यूनियन के माध्यम से पारगमन, यह है कि कितना एक अनुमानित वस्तु और वास्तविक एक ओवरपॉप, वे एक साथ कवर क्षेत्र द्वारा विभाजित है. यह नियंत्रक है कि बाकी के खिलाफ पढ़ा जाता है, इसलिए एक स्कोर इसका सीमा के बिना कुछ भी नहीं है: "F1 0.864 में IoU 0.5" एक वैक्यूल की गिनती करता है जैसा कि पाया जाता है जब दोनों आउटलिन अपने संयुक्त क्षेत्र के आधे से अधिक सहमत होते हैं।
+**IoU** (इंटरसेक्शन ओवर यूनियन) अनुमानित वस्तु और संदर्भ वस्तु के साझा क्षेत्रफल को उनके संयुक्त क्षेत्रफल से विभाजित करता है। स्कोर को उसकी सीमा के साथ पढ़ें: “IoU 0.5 पर F1 0.864” में रिक्तिका को तभी मिला हुआ गिना जाता है, जब साझा क्षेत्रफल संयुक्त क्षेत्रफल के कम से कम आधे तक पहुँचता है।
 
 **mAP50** और **map50-95** डिटेक्टर से संबंधित हैं. पहला पूछता है कि क्या बर्तन पाए गए हैं; दूसरा इसे 0.5 से 0.95 तक के दस सीमाओं के माध्यम से दोहराता है, इसलिए यह भी पूछा जाता है कि प्रत्येक बॉक्स को कितनी ठोस रूप से खींचा जाता है. उनके बीच का अंतर स्थान है, नहीं पहचान।
 
@@ -674,7 +669,7 @@ spaCR is released under the `BSD 3 क्लास लाइसेंस <https:
 ट्यूटोरियल
 ~~~~~~~~~
 
-`इंटरैक्टिव spaCR ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में स्थापना और प्रत्येक ऐप कार्यप्रवाह के वर्णित तथा कैप्शनयुक्त मार्गदर्शन हैं: आठ भाषाओं में 50 आवाज़ों के साथ 73 पाठ।
+`spaCR की इंटरैक्टिव ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में इंस्टॉलेशन और मॉड्यूल के उपयोग की चरण-दर-चरण जानकारी है। हर पाठ में उपलब्ध नैरेशन और भाषाएँ दी गई हैं।
 
 spaCR का संदर्भ
 ~~~~~~~~~~~~~~

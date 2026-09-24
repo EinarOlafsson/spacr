@@ -218,14 +218,16 @@ def test_a_missing_canvas_does_not_stop_the_other_refusing_drops(
 # ---------------------------------------------------------------------------
 
 def test_a_projection_follows_the_channel_the_open_file_belongs_to(
-        panel, stack_plate):
+        panel, stack_plate, qtbot):
     """Opening channel 2 and switching MIP on projects channel 2's planes."""
     second = stack_plate / _name(1, 2, 1)
+    panel._cell_channel.setValue(1)
     assert panel.load_image(second) is True
     assert panel._mip_toggle.isEnabled(), (
         "three planes per channel is a stack; the switch has to offer itself")
 
     panel._mip_toggle.setChecked(True)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
 
     assert panel._image.max() == 30, (
         "channel 2's planes are 10/20/30, so its projection is 30")
@@ -257,13 +259,14 @@ def test_a_set_that_does_not_name_the_open_file_projects_its_first_channel(
     assert panel.load_image(stack_plate / _name(1, 1, 1)) is True
     monkeypatch.setattr(panel._sampler, "set_for_path", lambda _p: stranger)
 
-    panel._mip_toggle.setChecked(True)
+    panel._mip_enabled = True
+    projected = panel._load_for_display(panel._image_path)
 
-    assert panel._image.max() == 900, (
+    assert projected.max() == 900, (
         "with no channel matching the file name the set's first channel is "
         "projected: max(7, 900)")
-    assert panel._image.min() == 900
-    assert panel._image.max() != 3, (
+    assert projected.min() == 900
+    assert projected.max() != 3, (
         "3 is the projection of the file's own real stack, which this "
         "sampler no longer knows about")
 
@@ -436,7 +439,7 @@ def test_a_selected_cell_with_no_file_paints_no_selection(
 
 
 def test_the_cell_a_selection_activates_always_has_a_file_behind_it(
-        panel, ragged_plate, monkeypatch):
+        panel, ragged_plate, monkeypatch, qtbot):
     """``_set_selection`` filters before it activates, so it cannot load air.
 
     This is the proof for the un-taken ``if path:`` false arc at the end of
@@ -450,6 +453,7 @@ def test_the_cell_a_selection_activates_always_has_a_file_behind_it(
 
     # (0, 0) has no file; (1, 0) does. Both are offered together.
     panel._set_selection([(0, 0), (1, 0)], extend=False)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
 
     assert panel._selected_cells == [(1, 0)], (
         "the file-less cell never becomes part of the selection, so it can "

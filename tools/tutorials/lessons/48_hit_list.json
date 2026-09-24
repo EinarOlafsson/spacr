@@ -1,22 +1,84 @@
 {
-  "id": "48_hit_list", "number": 48, "slug": "hit_list",
-  "title": "Hit List: inspect candidates with an explicit companion window",
-  "series": 5, "app_key": "hit_list", "host_app_key": "regression", "section": "Regression",
-  "example_files": ["Hit_List_real_results_companion.zip"],
-  "description": "Use unchanged Regression results to explore real Hit List filters and exports, while explicitly working around the hidden native panel.",
-  "objectives": ["Distinguish the broken native shortcut from the external companion.", "Interpret ranked candidates without claiming significant discoveries.", "Filter, restore and export the actual result rows."],
-  "prerequisite": "Extract Hit_List_real_results_companion.zip. Activate your spaCR environment and run python hit_list_companion.py, then Browse to results. The companion wraps the unmodified HitListScreen; it does not repair Regression navigation or wire Investigate. The archive contains original Regression outputs, not a full project. There are 325 genes, 434 guide rows and zero genes passing q <= .05. Effects are standardized marginal effects, not simultaneous multivariable coefficients. Missing intervals are unavailable. Exported n_obs=0 does not report actual well support: use results_gene.csv wells_with_gene, which ranges from 2 to 48. Metadata joins, penalised ranking and Investigate are outside this demonstration. No model training, new regression, GPU or AI-provider request is needed. API: spacr.hits.build_hit_list and HitList.filter/write_csv/to_markdown/to_html.",
+  "id": "48_hit_list",
+  "number": 48,
+  "slug": "hit_list",
+  "title": "Hit List: filter candidates and export a shortlist",
+  "series": 5,
+  "app_key": "hit_list",
+  "host_app_key": "regression",
+  "section": "Regression",
+  "example_files": [
+    "Hit_List_real_results_companion.zip"
+  ],
+  "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+  "objectives": [
+    "Open the example Regression results with the supplied companion.",
+    "Filter candidates and read their effects and guide agreement.",
+    "Export the selected rows as CSV, Markdown or HTML."
+  ],
+  "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
   "scenes": [
-    {"visual": "01b_hit_list_route_failure", "narration": "Hit List belongs under Regression. In this build, clicking Hits selects a page inside a hidden panel, so the list does not appear. This tutorial shows that limitation openly. The following window is an external companion, not evidence that the native shortcut has been repaired.", "related_lessons": ["13_regression"], "hold_after": 0.7},
-    {"visual": "01c_explicit_companion_not_native_route", "narration": "Extract the linked example, activate your spaCR environment, and run the bundled Hit List companion script. The labelled companion opens spaCR's existing Hit List widget without changing its calculations. Click Browse and select the extracted results folder. No regression is rerun, and Investigate integration is not connected here.", "hold_after": 0.7},
-    {"visual": "03_all_325_ranked_genes_not_discoveries", "narration": "The original example loads three hundred twenty-five genes. Double-click column boundaries if values are clipped. Read effect direction, raw P, corrected q and guide agreement separately. Missing confidence intervals are unavailable. These are standardized marginal effects; the exported observation-count zero is not the true number of supporting wells.", "hold_after": 0.7},
-    {"visual": "04_no_genes_pass_q_point05", "narration": "Set Max q to zero point zero five. No genes remain because the smallest gene q-value is about zero point two seven one. An empty filtered table is not an import failure. Restore Max q to one to recover all candidates; this does not declare them discoveries.", "hold_after": 0.7},
-    {"visual": "06_at_least_two_tested_guides", "narration": "Minimum guides two keeps one hundred seventeen genes with at least two tested guide rows. This counts available evidence, not every guide originally designed for a library. The filter changes the displayed subset without recomputing the original multiple-testing correction.", "hold_after": 0.7},
-    {"visual": "07_all_tested_guides_same_sign", "narration": "Minimum agreement one additionally keeps fifty-seven genes whose tested guides all share the gene effect's sign. Agreement is not proof of significance or causality. The summary still reports zero significant corroborated genes, even though these candidate rows have agreeing guides.", "hold_after": 0.7},
-    {"visual": "08_hide_controls_not_recalculate_q", "narration": "Hide controls removes one control row, leaving fifty-six candidates in this subset. Restore it before the later export. Removing controls from view does not refit the model or change the correction family; retain their identities when interpreting your analysis.", "hold_after": 0.7},
-    {"visual": "10_positive_effect_magnitude_cut", "narration": "With the other filters cleared, Direction up shows positive effects. Adding a minimum absolute effect of zero point one leaves sixteen rows here. These are illustrative display choices, not recommended thresholds. Restore direction and effect controls before searching or comparing a different subset.", "hold_after": 0.7},
-    {"visual": "13_real_gene_returns", "narration": "Search a recorded identifier to inspect one real row. An unmatched query gives an empty table; returning to the known identifier restores it, and clearing search restores the population. This demonstrates reversible filtering. Annotation imports and the separate Investigate workflow require their own checks.", "hold_after": 0.7},
-    {"visual": "17_export_html_complete", "narration": "For export, restore two guides, full agreement, controls included and an empty search. All three exports contain the same fifty-seven candidates in this example. Markdown and HTML round numbers; CSV preserves numerical detail. Save the filter choices separately, because the files do not record every setting.", "hold_after": 0.7},
-    {"visual": "18_original_ranked_population_restored", "narration": "Clear the filters to recover all three hundred twenty-five genes. Keep exported subsets separate from unchanged originals and do not label nonsignificant candidates as validated hits. Python offers the same Hit List reader and filters, but check the format-specific row limits when exporting larger lists.", "related_lessons": ["06_api", "72_volcano_explorer"], "hold_after": 0.7}
+    {
+      "visual": "01b_hit_list_route_failure",
+      "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+      "related_lessons": [
+        "13_regression"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01c_explicit_companion_not_native_route",
+      "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_all_325_ranked_genes_not_discoveries",
+      "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_no_genes_pass_q_point05",
+      "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_at_least_two_tested_guides",
+      "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_all_tested_guides_same_sign",
+      "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_hide_controls_not_recalculate_q",
+      "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_positive_effect_magnitude_cut",
+      "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_real_gene_returns",
+      "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_export_html_complete",
+      "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_original_ranked_population_restored",
+      "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+      "related_lessons": [
+        "06_api",
+        "72_volcano_explorer"
+      ],
+      "hold_after": 0.7
+    }
   ]
 }

@@ -132,6 +132,7 @@ def test_a_double_click_closes_the_polygon(qtbot, qt_theme_applied, tmp_path):
     for point in (QPoint(20, 20), QPoint(20, 80), QPoint(80, 80)):
         QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier, point)
     QTest.mouseDClick(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(80, 20))
+    QTest.mouseRelease(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(80, 20))
 
     assert finished == [0]
     shape, = pen.layer.shapes

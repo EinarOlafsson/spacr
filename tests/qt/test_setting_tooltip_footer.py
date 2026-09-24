@@ -348,7 +348,9 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
 
     At a fixed 220-pixel column all 141 of these wrapped to between 238 and
     323 pixels — taller than the square, so every popup was a tall ribbon.
-    The column widens instead.
+    The column widens instead. Visit aliases of the same GIF together so
+    every setting's prose is checked without evicting and decoding the same
+    assets thousands of times from the deliberately small runtime cache.
     """
     from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
     from spacr.setting_animations import animation_for_setting
@@ -357,9 +359,10 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
     heights = []
     #: Settings whose help is too long for the square even at TEXT_WIDTH.
     oversized = []
-    for key, text in get_tooltips().items():
-        if animation_for_setting(key) is None:
-            continue
+    animated = [(animation, key, text)
+                for key, text in get_tooltips().items()
+                if (animation := animation_for_setting(key)) is not None]
+    for _animation, key, text in sorted(animated, key=lambda row: (str(row[0].path), row[1])):
         tooltip.show_for(_anchor(qtbot, key), format_tooltip(text, "mask", key))
         assert tooltip.animation_view().isVisible(), f"{key}: no animation"
         heights.append((_inner_height(tooltip), key))

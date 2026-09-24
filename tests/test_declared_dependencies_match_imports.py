@@ -54,6 +54,11 @@ statement, so that if either ever becomes a literal the name resolves to the
 right distribution (``umap-learn``, ``omero-py``) rather than to one that does
 not exist on PyPI.
 
+Worker-only dependencies may instead be declared in the isolated backend
+installer manifest. That route checks the pinned requirement, import probe,
+disabled in-process support and exact worker import scope; it cannot excuse
+an undeclared import in the host application.
+
 Nothing here imports :mod:`spacr` or any scientific package — it is AST and
 text only, so it runs in the metadata CI job that deliberately has no stack
 installed.
@@ -189,6 +194,12 @@ EXCLUDED_DIRS = ("_generators",)
 #: because every entry is a hole in this file's guarantee.
 STRING_LITERAL_ONLY = {"umap", "omero"}
 
+# SpotNet requires an older Python/TensorFlow stack and runs exclusively in
+# its own environment. Its pinned installer manifest is the declaration;
+# adding it to setup.py would offer an incompatible host-environment extra.
+ISOLATED_WORKER_IMPORTS = {"deepcell_spots": "_worker_detect_spots"}
+BACKEND_SOURCE = PKG / "_segmentation_backends.py"
+
 
 def _is_censused(rel_path: str) -> bool:
     return not any(f"/{d}/" in f"/{rel_path}" for d in EXCLUDED_DIRS)
@@ -266,6 +277,49 @@ def _third_party_imports() -> dict[str, set[str]]:
     }
 
 
+def _isolated_declaration(mod, files, tree=None):
+    """Verify a dependency is pinned, probed, and imported only by its worker."""
+    from packaging.requirements import Requirement
+
+    assert files == {str(BACKEND_SOURCE.relative_to(REPO_ROOT))}
+    if tree is None:
+        tree = ast.parse(BACKEND_SOURCE.read_text(encoding="utf-8"))
+    specs = [node for node in ast.walk(tree)
+             if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name) and node.func.id == "_BackendSpec"
+             and any(kw.arg == "module" and isinstance(kw.value, ast.Constant)
+                     and kw.value.value == mod for kw in node.keywords)]
+    assert len(specs) == 1, f"{mod} needs one isolated installer declaration"
+    fields = {kw.arg: kw.value for kw in specs[0].keywords}
+    assert "in_process" not in fields or ast.literal_eval(fields["in_process"]) is False
+    spec_class = next(node for node in tree.body
+                      if isinstance(node, ast.ClassDef) and node.name == "_BackendSpec")
+    default = next(node.value for node in spec_class.body
+                   if isinstance(node, ast.AnnAssign)
+                   and node.target.id == "in_process")
+    assert ast.literal_eval(default) is False
+    distribution = _norm(ast.literal_eval(fields["distribution"]))
+    requirements = [Requirement(value)
+                    for value in ast.literal_eval(fields["requirements"])]
+    assert any(_norm(req.name) == distribution
+               and any(pin.operator == "==" and "*" not in pin.version
+                       for pin in req.specifier)
+               for req in requirements), f"{mod} has no pinned installation requirement"
+    assert mod in ast.literal_eval(fields["probe"])
+    worker = next(node for node in tree.body
+                  if isinstance(node, ast.FunctionDef)
+                  and node.name == ISOLATED_WORKER_IMPORTS[mod])
+    worker_nodes = set(ast.walk(worker))
+    imports = [node for node in ast.walk(tree)
+               if (isinstance(node, ast.ImportFrom) and node.module
+                   and node.module.split(".")[0] == mod)
+               or (isinstance(node, ast.Import)
+                   and any(alias.name.split(".")[0] == mod for alias in node.names))]
+    assert imports and all(node in worker_nodes for node in imports), (
+        f"{mod} escaped its isolated worker")
+    return distribution
+
+
 # ---------------------------------------------------------------------------
 # 1. Nothing is imported that is not declared
 # ---------------------------------------------------------------------------
@@ -281,6 +335,9 @@ def test_every_third_party_import_is_a_declared_dependency():
     undeclared = {}
     for mod, files in sorted(_third_party_imports().items()):
         dist = _norm(IMPORT_TO_DIST.get(mod, mod))
+        if mod in ISOLATED_WORKER_IMPORTS:
+            assert _isolated_declaration(mod, files) == dist
+            continue
         if dist not in declared:
             undeclared[mod] = (dist, sorted(files)[:4])
 
@@ -293,6 +350,27 @@ def test_every_third_party_import_is_a_declared_dependency():
           "actionable ImportError). If the import name differs from the "
           "distribution name, add the mapping to IMPORT_TO_DIST in this file."
     )
+
+
+@pytest.mark.parametrize("mutation", ["unpin", "host", "import", "file"])
+def test_isolated_dependencies_cannot_bypass_the_host_census(mutation):
+    """The isolated declaration is accepted only while its safety claims hold."""
+    tree = ast.parse(BACKEND_SOURCE.read_text(encoding="utf-8"))
+    files = {str(BACKEND_SOURCE.relative_to(REPO_ROOT))}
+    spec = next(node for node in ast.walk(tree)
+                if isinstance(node, ast.Call)
+                and any(kw.arg == "module" and isinstance(kw.value, ast.Constant)
+                        and kw.value.value == "deepcell_spots" for kw in node.keywords))
+    if mutation == "unpin":
+        next(kw for kw in spec.keywords if kw.arg == "requirements").value = ast.Tuple(elts=[])
+    elif mutation == "host":
+        spec.keywords.append(ast.keyword(arg="in_process", value=ast.Constant(True)))
+    elif mutation == "import":
+        tree.body.append(ast.Import(names=[ast.alias(name="deepcell_spots")]))
+    else:
+        files.add("spacr/core.py")
+    with pytest.raises(AssertionError):
+        _isolated_declaration("deepcell_spots", files, tree)
 
 
 def test_the_import_to_dist_table_has_no_dead_entries():

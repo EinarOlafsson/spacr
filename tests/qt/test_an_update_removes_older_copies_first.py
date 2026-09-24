@@ -30,6 +30,7 @@ class _Messages:
     """Every message box the update handlers show, recorded instead."""
 
     def __init__(self, monkeypatch):
+        monkeypatch.setattr(updater, "editable_install_location", lambda: None)
         self.warnings = []
         self.informations = []
         monkeypatch.setattr(
@@ -98,7 +99,7 @@ def _fake_remover(window, monkeypatch, fail_on=()):
 
     monkeypatch.setattr(install_cleanup, "remove_install", remove)
     monkeypatch.setattr(updater, "run_pip_upgrade",
-                        lambda: window.events.append("install") or (0, "ok"))
+                        lambda **kwargs: window.events.append("install") or (0, "ok"))
 
 
 def test_accepting_an_update_starts_by_finding_old_copies(monkeypatch):

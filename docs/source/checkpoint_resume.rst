@@ -44,6 +44,24 @@ Batch Runner
    its own verified field boundary is reused. Other jobs restart at the job
    boundary.
 
+Interrupted normalization archives
+----------------------------------
+
+Mask also checks the normalized ``masks/*.npz`` archives before segmentation.
+It checks ZIP member extents, a readable numeric ``data.npy`` header, enough
+declared pixel bytes for the shape and dtype, and one filename per batch
+field. This structural check does not inflate every pixel array or perform
+a full pixel CRC scan.
+
+Damaged archives are set aside as ``<name>.damaged``. With preprocessing
+disabled, the run stops and explains how to recover them. The same quarantine
+still prevents a later run from silently omitting those fields. It is resolved
+by a valid same-name replacement, or by readable archives covering every
+existing field in ``stack/``. Legacy object-valued filename arrays cannot
+prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt
+from the available source data; valid archives and quarantined evidence are
+preserved.
+
 Safety rules
 ------------
 

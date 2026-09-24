@@ -201,14 +201,47 @@ def _sheet_carrier(label, window):
 
 
 def _visible_label_sizes(window) -> dict:
-    """``(objectName, text) -> (resolved px, the sheet carrier)`` per label."""
+    """Measure label fonts, identifying changing resource readings by meter.
+
+    CPU/RAM values can change between snapshots. Their captions identify the
+    readouts without dropping these labels from the font/visibility checks.
+    """
+    from spacr.qt.widgets.usage_bar import UsageBar
+
     sizes = {}
     for label in window.findChildren(QLabel):
         if label.isVisible() and label.text().strip():
-            key = (label.objectName(), label.text()[:40])
+            parent = label.parentWidget()
+            key = (("UsageBarPercentage", parent._label.text())
+                   if isinstance(parent, UsageBar) and label is parent._pct
+                   else (label.objectName(), label.text()[:40]))
             sizes.setdefault(key, (_rendered_px(label),
                                    _sheet_carrier(label, window)))
     return sizes
+
+
+def test_usage_readings_keep_their_identity_when_the_values_change(qtbot):
+    from spacr.qt.widgets.usage_bar import UsageBar
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    layout = QVBoxLayout(root)
+    bars = [UsageBar(name) for name in ("CPU", "RAM")]
+    for bar in bars:
+        layout.addWidget(bar)
+        bar.set_value(17)
+    root.show()
+    QApplication.processEvents()
+    before = _visible_label_sizes(root)
+    for bar, value in zip(bars, (91, 42)):
+        bar.set_value(value)
+    QApplication.processEvents()
+    after = _visible_label_sizes(root)
+
+    assert len(before) == len(after) == 4
+    assert before.keys() == after.keys()
+    assert {key: value[0] for key, value in before.items()} == {
+        key: value[0] for key, value in after.items()}
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,97 @@
+name: sync Wikidata version
+
+# The Wikidata item for spaCR states P348 software version identifier. Like
+# the bio.tools entry, it is a claim that rots: an item still reporting the
+# version it was created with tells a reader the project stopped.
+#
+# ONLY P348 and its P577 date are touched, and the statement is replaced in
+# place, so its id, rank and references survive. Wikidata is edited by
+# volunteers and anything they add to that statement stays.
+#
+# Three things must be configured, and the job skips cleanly when they are
+# not, because Wikidata is not a release blocker:
+#   vars.WIKIDATA_ITEM          the item id, for example Q123456
+#   secrets.WIKIDATA_BOT_USER   a Special:BotPasswords user
+#   secrets.WIKIDATA_BOT_PASSWORD
+#
+# A bot password is used rather than an account password: it is scoped to the
+# rights it needs and can be revoked on its own.
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Version to publish to Wikidata
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish. Empty reads it from setup.py.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spacr-wikidata
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Update P348 on Wikidata
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Resolve the version to publish
+        id: version
+        env:
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version="$REQUESTED"
+          if [ -z "$version" ]; then
+            version=$(python packaging/release.py version)
+          fi
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+(\.[0-9]+){2,3}$'; then
+            echo "::error::'$version' is not a 3- or 4-component numeric version."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether Wikidata is configured
+        id: config
+        env:
+          ITEM: ${{ vars.WIKIDATA_ITEM }}
+          USER: ${{ secrets.WIKIDATA_BOT_USER }}
+          PASSWORD: ${{ secrets.WIKIDATA_BOT_PASSWORD }}
+        run: |
+          if [ -z "$ITEM" ] || [ -z "$USER" ] || [ -z "$PASSWORD" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Wikidata is not configured; P348 was not updated."
+            echo "Wikidata was **not** updated: set the WIKIDATA_ITEM variable" \
+              "and the two bot-password secrets." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set the version statement
+        if: steps.config.outputs.configured == 'true'
+        env:
+          WIKIDATA_BOT_USER: ${{ secrets.WIKIDATA_BOT_USER }}
+          WIKIDATA_BOT_PASSWORD: ${{ secrets.WIKIDATA_BOT_PASSWORD }}
+          ITEM: ${{ vars.WIKIDATA_ITEM }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          python tools/wikidata_set_version.py \
+            --item "$ITEM" --version "$VERSION"
+          echo "Wikidata [$ITEM](https://www.wikidata.org/wiki/$ITEM) reports" \
+            "**$VERSION**." >> "$GITHUB_STEP_SUMMARY"

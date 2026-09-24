@@ -151,7 +151,9 @@ def _install_fake_model(monkeypatch, mask_fn=None):
     monkeypatch.setattr(
         SUB, "cp_models", types.SimpleNamespace(CellposeModel=_FakeCellposeModel)
     )
-    monkeypatch.setattr(SUB, "_cellpose_use_gpu", lambda: True)
+    from spacr import accelerator
+    monkeypatch.setattr(accelerator, "cellpose_kwargs",
+                        lambda: {"gpu": True, "device": None})
     return record
 
 

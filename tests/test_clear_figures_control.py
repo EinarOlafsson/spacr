@@ -35,7 +35,9 @@ def _settle(ms: int) -> None:
 
 @pytest.fixture
 def queue(qtbot):
+    from spacr.qt.widgets.cursor_policy import install_cursor_policy
     from spacr.qt.widgets.figure_queue import FigureQueue
+    install_cursor_policy()
     widget = FigureQueue()
     qtbot.addWidget(widget)
     return widget
@@ -49,8 +51,7 @@ def test_the_control_is_text_not_a_button(queue):
     label = queue._clear_label
     assert isinstance(label, QLabel)
     assert not isinstance(label, QPushButton)
-    # Discoverable as clickable without a border saying so.
-    assert label.cursor().shape() == Qt.PointingHandCursor
+    assert label.cursor().shape() == Qt.ArrowCursor
     # Reachable without a mouse.
     assert label.focusPolicy() == Qt.StrongFocus
 

@@ -1,0 +1,42 @@
+{
+  "scope": "Practical inputs, controls and outputs; retain required companion, crop and statistical cautions without test-process narration.",
+  "lessons": [
+    {
+      "lesson": "48_hit_list",
+      "old_spoken_words": 484,
+      "new_spoken_words": 319,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "56_lineage",
+      "old_spoken_words": 645,
+      "new_spoken_words": 390,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "64_gate_editor",
+      "old_spoken_words": 954,
+      "new_spoken_words": 608,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "65_feature_explorer",
+      "old_spoken_words": 682,
+      "new_spoken_words": 401,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Accepted with all84hosted playback cases and14localized unavailable views. Prepared for nightly; live deployment not yet verified.",
+  "publication": {
+    "commit": "5fef816b732a14df2654c5eda9610baa071a080c",
+    "files": 1722,
+    "bytes": 2123675799,
+    "manifest_sha256": "2c25f8e5c511ef8f229158876883a4087b2cd065d11e44834e70437f7fe982f4",
+    "valid_narration_tracks": 819
+  },
+  "original_capture_hash_sequence_matches": true
+}

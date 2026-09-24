@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_method": "Context review preserving historical network measurements and distinguishing the new tracked-file size; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source_sha256": "385d9fe03748af093bf1acb966263cca19b52db8c0161e48a0b662f69b1cb893",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1607 MB checkout (measured 2026-09-24), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "Vid mätningen 2026-09-15 laddade den fullständiga klonen ner 5,8 GB. För den grunda klonen minskade ``--filter=blob:none`` inte den uppmätta nedladdningen. De versionshanterade filerna i nightly ger en utcheckning på 1607 MB (uppmätt 2026-09-24), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."
+    }
+  ]
+}

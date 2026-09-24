@@ -54,6 +54,7 @@ from PySide6.QtCore import QMimeData, QObject, Qt, QTimer, QUrl
 from PySide6.QtWidgets import QFileDialog
 
 import spacr.qt.widgets.live_preview as LP
+from spacr.qt import gc_policy
 from spacr.qt.widgets.live_preview import LivePreviewPanel
 
 #: The longest the GUI thread may stop pumping events while a load runs.
@@ -112,7 +113,10 @@ class LoopWatchdog(QObject):
     same 400 ms budget: the measurement still catches work that moves back onto
     the GUI thread, it just no longer catches the garbage collector.
 
-    A sweep is taken *before* the window rather than merely skipped, so a
+    The GUI's collection timer is paused as well as automatic collection;
+    disabling CPython's automatic trigger does not stop timer-driven sweeps.
+    Both are restored when the measured window ends. A sweep is taken
+    *before* the window rather than merely skipped, so a
     window does not inherit a nearly-full generation and the deferred garbage
     does not accumulate across the file. Anything that collects anyway --
     an explicit ``gc.collect()`` from the code under test -- is counted, and
@@ -127,12 +131,17 @@ class LoopWatchdog(QObject):
         self.ticks = 0
         self.collections = 0
         self._gc_was_enabled = False
+        self._gui_gc_timer = None
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(interval_ms)
         self._timer.timeout.connect(self._tick)
 
     def start(self):
+        timer = gc_policy._timer
+        if timer is not None and timer.isActive():
+            self._gui_gc_timer = timer
+            timer.stop()
         gc.collect()
         self._gc_was_enabled = gc.isenabled()
         gc.disable()
@@ -151,6 +160,10 @@ class LoopWatchdog(QObject):
         if self._gc_was_enabled:
             gc.enable()
         self._gc_was_enabled = False
+        if self._gui_gc_timer is not None:
+            if gc_policy._timer is self._gui_gc_timer:
+                self._gui_gc_timer.start()
+            self._gui_gc_timer = None
 
     def _note_collection(self, phase, _info):
         """Count a collection that ran anyway, so ``_drive`` can name it."""
@@ -167,10 +180,10 @@ class LoopWatchdog(QObject):
 
 
 @pytest.fixture(autouse=True)
-def _collector_left_as_found():
+def _collector_left_as_found(qapp):
     """Hand the collector back however a test ends.
 
-    ``LoopWatchdog.stop`` restores both halves of what ``start`` changed, and
+    ``LoopWatchdog.stop`` restores everything ``start`` changed, and
     ``_drive`` calls it before any assertion -- but a test that raises anywhere
     else would leave automatic collection off, and a stale callback on a dead
     widget, for the whole session. Either is a far worse thing to leak into
@@ -178,12 +191,49 @@ def _collector_left_as_found():
     """
     was_enabled = gc.isenabled()
     callbacks = list(gc.callbacks)
+    timer = gc_policy._timer
+    timer_was_active = timer is not None and timer.isActive()
     try:
         yield
     finally:
         gc.callbacks[:] = callbacks
         if was_enabled and not gc.isenabled():
             gc.enable()
+        if timer is not None and gc_policy._timer is timer:
+            if timer_was_active:
+                timer.start()
+            else:
+                timer.stop()
+
+
+def test_timing_window_pauses_gui_collection_and_restores_pending_cleanup(qapp, qtbot):
+    timer = gc_policy._timer
+    assert timer is not None and timer.isActive()
+    dog = LoopWatchdog()
+    try:
+        dog.start()
+        assert not timer.isActive()
+        assert not gc.isenabled()
+        gc_policy._requested.set()
+        qtbot.wait(20)
+        assert dog.collections == 0
+        assert gc_policy._requested.is_set()
+    finally:
+        dog.stop()
+    assert timer.isActive()
+    assert not gc.isenabled()
+    qtbot.waitUntil(lambda: not gc_policy._requested.is_set(), timeout=3000)
+
+
+def test_timing_window_still_rejects_an_explicit_sweep(qtbot):
+    dog = LoopWatchdog()
+    try:
+        dog.start()
+        gc.collect()
+        with pytest.raises(AssertionError, match="cyclic collection"):
+            _drive(qtbot, dog, lambda: True)
+    finally:
+        dog.stop()
 
 
 @pytest.fixture
@@ -259,6 +309,168 @@ def _panel(qtbot):
     p = LivePreviewPanel()
     qtbot.addWidget(p)
     return p
+
+
+@pytest.mark.parametrize("action", ["table", "spinner"])
+def test_selecting_a_channel_keeps_the_gui_responsive(
+        qtbot, plate, monkeypatch, action):
+    panel = _panel(qtbot)
+    panel.load_image(sorted(plate.iterdir())[0])
+    qtbot.wait(20)
+    real = LP.load_preview_image
+    monkeypatch.setattr(
+        LP, "load_preview_image",
+        lambda path: (time.sleep(SLOW_DECODE_S), real(path))[1])
+    target = panel._set_table.item(0, 1).data(Qt.UserRole)
+    dog = LoopWatchdog()
+    dog.start()
+
+    if action == "table":
+        panel._on_set_cell_clicked(0, 1)
+    else:
+        panel._cell_channel.setValue(1)
+
+    _drive(qtbot, dog, lambda: not panel._image_loaders)
+    assert str(panel._image_path) == target
+    np.testing.assert_array_equal(panel._image, real(target))
+    assert dog.ticks > 10
+    assert dog.worst < STALL_BUDGET_S
+
+
+@pytest.mark.parametrize("return_to_current", [False, True])
+def test_a_late_channel_read_cannot_replace_the_latest_selection(
+        qtbot, plate, monkeypatch, return_to_current):
+    from threading import Event
+
+    panel = _panel(qtbot)
+    panel.load_image(sorted(plate.iterdir())[0])
+    qtbot.wait(20)
+    first = panel._image_path
+    slow_path = panel._set_table.item(0, 1).data(Qt.UserRole)
+    entered, release = Event(), Event()
+    real = LP.load_preview_image
+
+    def delayed(path):
+        if str(path) == slow_path:
+            entered.set()
+            if not release.wait(5):
+                raise TimeoutError("test did not release decoder")
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", delayed)
+    try:
+        panel._on_set_cell_clicked(0, 1)
+        qtbot.waitUntil(entered.is_set)
+        row = 0 if return_to_current else 1
+        target = panel._set_table.item(row, 0).data(Qt.UserRole)
+        panel._on_set_cell_clicked(row, 0)
+        qtbot.waitUntil(lambda: str(panel._image_path) == target)
+        assert (panel._image_path == first) == return_to_current
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert str(panel._image_path) == target
+    np.testing.assert_array_equal(panel._image, real(target))
+    assert (panel._table_row, panel._table_col) == (row, 0)
+
+
+def test_projection_and_channel_changes_decode_off_the_gui_thread(
+        qtbot, tmp_path, monkeypatch):
+    from threading import get_ident
+
+    for channel in (1, 2):
+        for z in (1, 2, 3):
+            tifffile.imwrite(
+                tmp_path / f"plate1_A01_T0001F001L01A01Z{z:02d}C{channel:02d}.tif",
+                np.full((8, 8), channel * 10 + z, dtype=np.uint16))
+    panel = _panel(qtbot)
+    panel.load_image(sorted(tmp_path.iterdir())[0])
+    qtbot.wait(20)
+    gui_thread = get_ident()
+    calls = []
+    real = LP.load_preview_image
+
+    def record(path):
+        calls.append(get_ident())
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", record)
+    panel._mip_toggle.setChecked(True)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    np.testing.assert_array_equal(panel._image, 13)
+    panel._on_set_cell_clicked(0, 1)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    np.testing.assert_array_equal(panel._image, 23)
+    panel._mip_toggle.setChecked(False)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    np.testing.assert_array_equal(panel._image, 21)
+    assert len(calls) >= 9
+    assert gui_thread not in calls
+
+
+def test_a_worker_load_keeps_the_clicked_plane_and_reuses_the_same_file(
+        qtbot, tmp_path, monkeypatch):
+    for field in (1, 2):
+        image = np.stack([np.full((8, 8), field * 10 + ch, dtype=np.uint16)
+                          for ch in range(3)], axis=-1)
+        tifffile.imwrite(tmp_path / f"field{field}.tif", image)
+    panel = _panel(qtbot)
+    panel.load_image(tmp_path / "field1.tif")
+    qtbot.wait(20)
+    reads = []
+    real = LP.load_preview_image
+
+    def record(path):
+        reads.append(path)
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", record)
+    panel._on_set_cell_clicked(1, 2)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert panel._image_path == tmp_path / "field2.tif"
+    assert panel.display_channel() == 2
+    np.testing.assert_array_equal(panel._image[..., panel.display_channel()], 22)
+    assert len(reads) == 1
+
+    panel._on_set_cell_clicked(1, 1)
+    assert panel.display_channel() == 1
+    np.testing.assert_array_equal(panel._image[..., panel.display_channel()], 21)
+    assert len(reads) == 1
+
+
+def test_projection_toggled_during_a_load_keeps_the_requested_channel(
+        qtbot, tmp_path, monkeypatch):
+    from threading import Event
+
+    for channel in (1, 2):
+        for z in (1, 2):
+            tifffile.imwrite(
+                tmp_path / f"plate1_A01_T0001F001L01A01Z{z:02d}C{channel:02d}.tif",
+                np.full((8, 8), channel * 10 + z, dtype=np.uint16))
+    panel = _panel(qtbot)
+    panel.load_image(sorted(tmp_path.iterdir())[0])
+    qtbot.wait(20)
+    entered, release = Event(), Event()
+    real = LP.load_preview_image
+
+    def delayed(path):
+        if "C02" in str(path):
+            entered.set()
+            if not release.wait(5):
+                raise TimeoutError("test did not release decoder")
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", delayed)
+    try:
+        panel._on_set_cell_clicked(0, 1)
+        qtbot.waitUntil(entered.is_set)
+        panel._mip_toggle.setChecked(True)
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert panel._image_path.name.endswith("Z01C02.tif")
+    assert panel._table_col == 1
+    np.testing.assert_array_equal(panel._image, 22)
 
 
 # ---------------------------------------------------------------------------

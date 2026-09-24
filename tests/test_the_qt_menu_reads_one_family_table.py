@@ -164,7 +164,7 @@ def test_the_menu_does_not_reach_for_the_fitting_module():
     import inspect
 
     menu = inspect.getsource(sm._regression_type_menu)
-    branch = inspect.getsource(sm.SettingsWidgets._widget_for)
+    branch = inspect.getsource(sm.SettingsWidgets._route_control)
     branch = branch.split('if key == "regression_type":', 1)[1]
     branch = branch.split("elif key ==", 1)[0]
 

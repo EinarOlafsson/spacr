@@ -56,7 +56,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox, QFileDialog, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QMenu, QPushButton, QScrollArea, QSizePolicy, QSpinBox,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QStyledItemDelegate, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
@@ -71,6 +71,7 @@ from ..widgets.plate_layout import (
     to_settings_fragment, write_design,
 )
 from ..widgets.plate_map_picker import _Header, _locked_square, well_side
+from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
 
@@ -355,6 +356,14 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
 register_widget_qss("ExperimentDesign", _design_qss, replace=True)
 
 
+class _RoleDelegate(QStyledItemDelegate):
+    """Let role dropdowns use the whole cell and their own internal padding."""
+
+    def updateEditorGeometry(self, editor, option, index):
+        """Keep table-item padding from shrinking the embedded dropdown."""
+        editor.setGeometry(option.rect)
+
+
 class ExperimentDesignScreen(QWidget):
     """Plate designer: conditions in, plate map and warnings out.
 
@@ -464,9 +473,20 @@ class ExperimentDesignScreen(QWidget):
                                                "Role"])
         self._table.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch)
-        self._table.setMaximumHeight(220)
+        for column in (1, 2):
+            self._table.horizontalHeader().setSectionResizeMode(
+                column, QHeaderView.ResizeMode.ResizeToContents)
+        self._table.setItemDelegateForColumn(2, _RoleDelegate(self._table))
+        self._table.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.ResizeToContents)
         self._table.itemChanged.connect(self._on_changed)
-        outer.addWidget(self._table)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="experiment_design::body")
+        conditions = QWidget()
+        conditions_layout = QVBoxLayout(conditions)
+        conditions_layout.setContentsMargins(0, 0, 0, 0)
+        conditions_layout.setSpacing(SPACING["xs"])
+        conditions_layout.addWidget(self._table, 1)
 
         buttons = QHBoxLayout()
         add = QPushButton("Add condition")
@@ -479,7 +499,10 @@ class ExperimentDesignScreen(QWidget):
         self._export = QPushButton("Export plate map...")
         self._export.clicked.connect(self._on_export)
         buttons.addWidget(self._export)
-        outer.addLayout(buttons)
+        conditions_layout.addLayout(buttons)
+        split.add_section(conditions, "Conditions",
+                          persist_key="experiment_design/Conditions",
+                          stretch=0, extent=260)
 
         self._plate_panel = QWidget()
         self._plate_panel.setObjectName(PLATE_OBJECT)
@@ -495,7 +518,10 @@ class ExperimentDesignScreen(QWidget):
         scroll.viewport().setAutoFillBackground(False)
         scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Expanding)
-        outer.addWidget(scroll, 1)
+        split.add_section(scroll, "Plate map",
+                          persist_key="experiment_design/Plate map")
+        outer.addWidget(split, 1)
+        self._body_splitter = split
 
         self._findings_panel = QWidget()
         self._findings_panel.setObjectName(FINDINGS_OBJECT)
@@ -503,7 +529,10 @@ class ExperimentDesignScreen(QWidget):
         self._findings_layout.setContentsMargins(SPACING["sm"], SPACING["xs"],
                                                  SPACING["sm"], SPACING["xs"])
         self._findings_layout.setSpacing(2)
-        outer.addWidget(self._findings_panel)
+        self._findings_section = FoldSection(
+            self._findings_panel, "Findings",
+            persist_key="experiment_design/Findings", stretch=0)
+        outer.addWidget(self._findings_section)
 
         self._status = QLabel("")
         self._status.setObjectName(STATUS_OBJECT)

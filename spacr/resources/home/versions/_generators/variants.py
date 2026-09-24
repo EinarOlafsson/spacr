@@ -251,8 +251,8 @@ def v03(ctx: Ctx) -> QWidget:
 @variant(
     "eight-narrow", "Eight narrow categories, as panels",
     changes="Eight tightly-drawn categories (Segment, Measure, Label, "
-            "Classify, Screens & reports, Import & batch, Toxoplasma, "
-            "Design) laid out as a 3x3 board of panels, each "
+            "Classify, Screens & reports, Import & batch, Assays, "
+            "Design) laid out in three independent columns of panels, each "
             "listing its apps as compact rows with their one-line "
             "descriptions on the same row.",
     adds="Per-category counts in the headings.",
@@ -272,12 +272,16 @@ def v04(ctx: Ctx) -> QWidget:
         actions=(("Search…", False), ("Preferences", False))))
     board = QWidget()
     board.setObjectName("Transparent")
-    grid = QGridLayout(board)
-    grid.setContentsMargins(0, 0, 0, 0)
-    grid.setHorizontalSpacing(12)
-    grid.setVerticalSpacing(12)
+    columns = QHBoxLayout(board)
+    columns.setContentsMargins(0, 0, 0, 0)
+    columns.setSpacing(12)
+    stacks = []
+    for _ in range(3):
+        stack, layout = transparent(spacing=12)
+        columns.addWidget(stack, 0, Qt.AlignTop)
+        stacks.append(layout)
     pw = (CONTENT_W - 2 * 12) // 3
-    for i, (title, keys) in enumerate(CATS_NARROW8):
+    for title, keys in CATS_NARROW8:
         frame, col = panel(ctx, margins=(14, 11, 14, 11), spacing=4)
         frame.setFixedWidth(pw)
         col.addWidget(text_label(ctx, f"{title}  ({len(keys)})", size=11,
@@ -285,7 +289,9 @@ def v04(ctx: Ctx) -> QWidget:
                                  tracking="1.6px", upper=True))
         col.addWidget(dense_list(ctx, keys, width=pw - 28, name_width=136))
         col.addStretch(1)
-        grid.addWidget(frame, i // 3, i % 3, Qt.AlignTop)
+        column = (1 if title == "Screens & reports" else
+                  2 if title in ("Import & batch", "Assays") else 0)
+        stacks[column].addWidget(frame)
     page.body.addWidget(board)
     page.body.addStretch(1)
     return page.finish(footer=hint_bar(ctx))
@@ -643,8 +649,9 @@ def v12(ctx: Ctx) -> QWidget:
     "dense-two-column", "Dense two-column list, current sections",
     changes=f"No tiles anywhere. The {common.n_sections()} current sections "
             "are kept "
-            "verbatim, but every app is a 30 px row with its icon, its "
-            "name and its description on one line, in two columns.",
+            "verbatim, but every app is a 26 px row with its icon, its "
+            "name and its description on one line, in two columns "
+            "balanced by their app counts.",
     adds="Descriptions are permanently visible.",
     removes="Tiles, the hero, the dashboard, the reserved surface, the "
             "hint bar.",
@@ -664,13 +671,21 @@ def v13(ctx: Ctx) -> QWidget:
     crow.setSpacing(24)
     colw = (CONTENT_W - 24) // 2
     cats = cats_current()
-    midpoint = (len(cats) + 1) // 2
-    split = [cats[:midpoint], cats[midpoint:]]
+    split = [[], []]
+    heights = [0, 0]
+    for category in sorted(cats, key=lambda entry: len(entry[1]), reverse=True):
+        column = heights.index(min(heights))
+        split[column].append(category)
+        heights[column] += len(category[1]) * 27 + 40
     for group in split:
-        block, bcol = transparent(spacing=10)
+        group.sort(key=cats.index)
+    split.sort(key=lambda group: cats.index(group[0]))
+    for group in split:
+        block, bcol = transparent(spacing=6)
         for title, keys in group:
             bcol.addWidget(cat_header(ctx, title, note=f"{len(keys)}"))
-            bcol.addWidget(dense_list(ctx, keys, width=colw, name_width=152))
+            bcol.addWidget(dense_list(ctx, keys, width=colw, name_width=152,
+                                     height=26))
         bcol.addStretch(1)
         crow.addWidget(block)
     page.body.addWidget(cols)
@@ -824,8 +839,8 @@ def v16(ctx: Ctx) -> QWidget:
 
 @variant(
     "split-apps-aside", "Apps left, everything-about-your-machine right",
-    changes="A hard vertical split. The left two thirds are apps and "
-            "nothing else; the right third is state — recent runs, "
+    changes="A vertical split with five columns of apps on the left and "
+            "a compact status pane on the right — recent runs, "
             "system, what changed.",
     adds="A persistent right-hand aside carrying recent runs, disk/GPU "
             "state and a what's-new panel.",
@@ -846,14 +861,14 @@ def v17(ctx: Ctx) -> QWidget:
     left, lcol = transparent(spacing=10)
     for title, keys in CATS_BROAD3:
         lcol.addWidget(cat_header(ctx, title, note=f"{len(keys)}"))
-        lcol.addWidget(htile_grid(ctx, keys, cols=4, width=250,
+        lcol.addWidget(htile_grid(ctx, keys, cols=5, width=212,
                                   icon_px=36, name_px=13, height=62))
     lcol.addStretch(1)
     brow.addWidget(left, 1)
     aside, acol = transparent(spacing=12)
-    acol.addWidget(recent_runs_list(ctx, count=4, width=328))
-    acol.addWidget(system_panel(ctx, width=328))
-    acol.addWidget(whats_new_panel(ctx, width=328, items=3))
+    acol.addWidget(recent_runs_list(ctx, count=4, width=260))
+    acol.addWidget(system_panel(ctx, width=260))
+    acol.addWidget(whats_new_panel(ctx, width=260, items=3))
     acol.addStretch(1)
     brow.addWidget(aside, 0)
     page.body.addWidget(body, 1)

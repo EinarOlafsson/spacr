@@ -369,6 +369,25 @@ class LiveZoomFilter(QObject):
             return
 
 
+    @staticmethod
+    def _ask_to_keep(window, scale: float, before: float) -> None:
+        """Ask whether to keep the font scale the wheel chose (item 471).
+
+        Every change of font or GUI scale asks, so a scale that turned out
+        unreadable goes back by itself. Asked after the gesture, never per
+        notch.
+
+        :param window: the window the question is centred on.
+        :param scale: the font scale now in force.
+        :param before: the font scale to go back to.
+        """
+        try:
+            from .gui_scale import change_scales, current_scale
+            change_scales(window, font=scale,
+                          previous=(current_scale(), before))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not ask to keep the font scale", exc_info=True)
+
     def settle(self, released: bool = True) -> None:
         """End the gesture: persist the scale and let the spacing catch up.
 
@@ -423,6 +442,8 @@ class LiveZoomFilter(QObject):
             apply_preferences_to_app(QApplication.instance())
         except Exception:                                    # noqa: BLE001
             LOG.exception("could not apply the font scale the wheel chose")
+        if scale != self._base_scale:
+            self._ask_to_keep(window, scale, self._base_scale)
         if window is not None and _alive(window):
             refresh = getattr(window, "refresh_theme", None)
             if callable(refresh):

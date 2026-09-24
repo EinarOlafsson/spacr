@@ -55,6 +55,10 @@ def test_training_hands_the_base_to_cellpose(tmp_path, monkeypatch):
     monkeypatch.setattr("spacr.utils.save_settings", lambda *a, **k: None)
     (tmp_path / "train" / "images").mkdir(parents=True)
     (tmp_path / "train" / "masks").mkdir(parents=True)
+    import numpy as np
+    import tifffile
+    tifffile.imwrite(tmp_path / 'train/images/one.tif', np.zeros((12, 16), np.uint16))
+    tifffile.imwrite(tmp_path / 'train/masks/one.tif', np.zeros((12, 16), np.uint16))
     with pytest.raises(Stop):
         sm.train_cellpose({"src": str(tmp_path), "base_model": str(checkpoint)})
     assert seen["pretrained_model"] == str(checkpoint)

@@ -1,6 +1,9 @@
 """Object segmentation, filtering, mask generation, and post-processing."""
 
-import os, gc, torch, time
+import os, torch, time
+
+from . import _gc as gc
+from .mask_io import _as_uint16_mask
 
 from . import accelerator
 import numpy as np
@@ -213,7 +216,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
 
     return filtered_masks
 
-def _run_seg_qc(src, settings, object_type):
+def _run_seg_qc(src, settings, object_type, *, mask_folder=None):
     """Score the masks just written and surface the segmentation scorecard.
 
     Called at the end of every mask generator, once per object type, while the
@@ -234,6 +237,9 @@ def _run_seg_qc(src, settings, object_type):
     :param settings: pipeline settings; read for ``seg_qc``, the ``seg_qc_*``
         thresholds and ``verbose``. Mutated only in ``'flag'`` mode.
     :param object_type: which masks to score.
+    :param mask_folder: optional finalized-mask directory to score instead of
+        the raw mask stack. Report destination and object identity stay tied
+        to ``src`` and ``object_type``.
     :returns: the dict :func:`spacr.seg_qc.run_segmentation_qc` returns, or
         None when QC is off, unavailable or it failed.
     """
@@ -244,7 +250,8 @@ def _run_seg_qc(src, settings, object_type):
         if mode == 'off':
             return None
 
-        mask_folder = os.path.join(src, f'{object_type}_mask_stack')
+        if mask_folder is None:
+            mask_folder = os.path.join(src, f'{object_type}_mask_stack')
         dst = os.path.dirname(src) or src
         result = run_segmentation_qc(
             mask_folder,
@@ -647,7 +654,29 @@ def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
     return result
 
 
-def generate_cellpose_masks_sam(src, settings, object_type):
+def _assigned_mask_archives(src, batch_paths):
+    """Validate an explicit worker assignment without changing output roots."""
+    if isinstance(batch_paths, (str, bytes, os.PathLike)):
+        raise ValueError('batch_paths must be a sequence of NPZ paths')
+    root = os.path.realpath(os.fspath(src))
+    selected = []
+    for value in batch_paths:
+        path = os.fspath(value)
+        if not os.path.isabs(path):
+            path = os.path.join(root, path)
+        path = os.path.abspath(path)
+        if (os.path.realpath(os.path.dirname(path)) != root
+                or os.path.basename(path).startswith('.')
+                or not path.endswith('.npz') or not os.path.isfile(path)):
+            raise ValueError(f'Mask batch is not a prepared NPZ under {root}: {path}')
+        if path in selected:
+            raise ValueError(f'Mask batch assigned more than once: {path}')
+        selected.append(path)
+    return selected
+
+
+def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
+                                on_batch_done=None, run_qc=True):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
     Loads the ``cpsam`` pretrained model — or, when
@@ -660,13 +689,22 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     the run's SQLite database. Time-stack archives must contain one filename
     per timepoint, regardless of the declared time-axis position; each raw
     filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its
-    ``(Y, X, C)`` image for a flat ``TYX`` series.
+    ``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis
+    belongs to :func:`spacr.core.preprocess_generate_masks` after all object
+    masks have been merged with their images; this generator does not run it.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or
         ``'organelle'``; drives channel/threshold lookups and output folder name.
+    :param batch_paths: optional exclusive worker assignment of NPZ paths under
+        ``src``. One model is reused across the assignment; ``None`` keeps the
+        ordinary whole-directory run. An empty assignment loads no model.
+    :param on_batch_done: optional callable receiving the archive path after
+        its selected fields have completed. Failed archives are not reported.
+    :param run_qc: False lets a parallel coordinator run shared QC once after
+        every worker finishes, instead of writing reports from each worker.
     :returns: None.
     """
     from .utils import (_masks_to_masks_stack, all_elements_match,
@@ -683,6 +721,14 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .cancellation import checkpoint as cancellation_checkpoint
     from dataclasses import replace
     from .zstack import as_t_first
+
+    if on_batch_done is not None and not callable(on_batch_done):
+        raise ValueError('on_batch_done must be callable or None')
+    paths = (_assigned_mask_archives(src, batch_paths) if batch_paths is not None
+             else [os.path.join(src, file) for file in _listdir_visible(src)
+                   if file.endswith('.npz')])
+    if batch_paths is not None and not paths:
+        return
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -774,8 +820,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         model = _load_backend(segmentation_backend, z_plan=z_plan,
                               t_plan=t_plan, model_name=model_name,
                               object_type=object_type)
-    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]
-    
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
@@ -836,6 +880,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
 
         if len(stack) == 0:
+            if on_batch_done is not None:
+                on_batch_done(path)
             continue
 
         for i in range(0, stack.shape[0], batch_size):
@@ -850,6 +896,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
 
 
             batch_filenames = filenames[i: i+batch_size].tolist()
+            from .image_quality import filter_batch
+            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
 
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(
@@ -1045,10 +1093,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 mask_stack = _masks_to_masks_stack(masks)
         
-            if timelapse and settings.get("motility_analysis", False):
-                from .timelapse import automated_motility_assay
-                _ = automated_motility_assay(settings)
-            
             if not np.any(mask_stack):
                 avg_num_objects_per_image, average_obj_size = 0, 0
             else:
@@ -1074,17 +1118,20 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                         plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
 
             if settings['save']:
+                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    mask = mask.astype(np.uint16)
                     _save_array_atomic(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
 
         gc.collect()
+        if on_batch_done is not None:
+            on_batch_done(path)
 
     torch.cuda.empty_cache()
-    _run_seg_qc(src, settings, object_type)
+    if run_qc:
+        _run_seg_qc(src, settings, object_type)
     return
 
 def generate_cellpose_masks(src, settings, object_type):
@@ -1094,6 +1141,10 @@ def generate_cellpose_masks(src, settings, object_type):
     runs per-batch inference with the object-specific channel/threshold
     settings, applies :func:`spacr.utils._filter_cp_masks`, optionally tracks
     timelapse objects, and writes ``.npy`` masks plus per-object counts.
+
+    Whole-plate motility analysis runs through
+    :func:`spacr.core.preprocess_generate_masks` after frame merging, rather
+    than within this per-object generator.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -1235,6 +1286,8 @@ def generate_cellpose_masks(src, settings, object_type):
                 batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
 
             batch_filenames = filenames[i: i+batch_size].tolist()
+            from .image_quality import filter_batch
+            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
 
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(
@@ -1351,10 +1404,6 @@ def generate_cellpose_masks(src, settings, object_type):
                 elif not object_settings['merge']:
                     mask_stack = _masks_to_masks_stack(masks)
         
-            if timelapse and settings.get("motility_analysis", False):
-                from .timelapse import automated_motility_assay
-                _ = automated_motility_assay(settings)
-            
             if not np.any(mask_stack):
                 avg_num_objects_per_image, average_obj_size = 0, 0
             else:
@@ -1372,9 +1421,9 @@ def generate_cellpose_masks(src, settings, object_type):
                     plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
 
             if settings['save']:
+                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    mask = mask.astype(np.uint16)
                     _save_array_atomic(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
@@ -1518,6 +1567,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
             start = time.time()
             batch = stack[i: i + batch_size]
             batch_filenames = filenames[i: i + batch_size].tolist()
+            from .image_quality import filter_batch
+            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
             if not settings.get('plot', False):
                 offered = len(batch_filenames)
                 batch, batch_filenames = _check_masks(
@@ -1605,9 +1656,10 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 )
 
             if settings['save']:
+                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_idx, mask in enumerate(mask_stack):
                     out_path = os.path.join(output_folder, batch_filenames[mask_idx])
-                    _save_array_atomic(out_path, mask.astype(np.uint16))
+                    _save_array_atomic(out_path, mask)
                 mask_stack = []
                 batch_filenames = []
 

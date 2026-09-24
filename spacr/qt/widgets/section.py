@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from typing import Optional, Union
 
-from PySide6.QtCore import QEvent, QSize, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QEvent, QObject, QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QFormLayout,
@@ -88,6 +88,72 @@ def scroll_host(widget):
     return None
 
 
+class _BodyBackOnShow(QObject):
+    """Puts an open category's detached body back when the category shows.
+
+    Installed on a category only while its body is away, so no other
+    widget's events reach it. ``Show`` is delivered before anything is
+    painted, whichever way the category was revealed -- shown itself, or by
+    a parent -- and the body is visible again in the same pass.
+    """
+
+    _show = QEvent.Type.Show
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        """Bring an open category's body back as the category appears."""
+        if (event.type() == self._show and isinstance(watched, Section)
+                and watched._expanded
+                and watched._detached_at is not None):
+            watched._attach_body()
+        return False
+
+
+#: The one filter every category with a body away carries.
+_BACK_ON_SHOW: Optional[_BodyBackOnShow] = None
+
+
+def _back_on_show() -> _BodyBackOnShow:
+    """The shared :class:`_BodyBackOnShow`, made on first use."""
+    global _BACK_ON_SHOW
+    if _BACK_ON_SHOW is None:
+        _BACK_ON_SHOW = _BodyBackOnShow(QCoreApplication.instance())
+    return _BACK_ON_SHOW
+
+
+def _logical_parent(widget):
+    """``widget``'s parent on the settings form, across a detached body.
+
+    The parent widget, except for the body of a category that is holding it
+    detached (see :meth:`Section._detach_body_while_hidden`): that body has no
+    parent widget while it waits, and its category is where it belongs.
+
+    :param widget: any widget.
+    :returns: the parent it has on the form, or ``None``.
+    """
+    parent = widget.parentWidget()
+    if parent is None:
+        owner = getattr(widget, "_spacr_detached_from", None)
+        if owner is not None:
+            return owner
+    return parent
+
+
+def _sections_below(widget) -> list:
+    """Every :class:`Section` below ``widget``, across detached bodies.
+
+    ``findChildren(Section)`` for a widget that is not a category;
+    :meth:`Section._nested_sections` for one that is.
+    """
+    nested = getattr(widget, "_nested_sections", None)
+    if callable(nested):
+        return nested()
+    found = list(widget.findChildren(Section))
+    for member in list(found):
+        found.extend(child for child in member._nested_sections()
+                     if child not in found)
+    return found
+
+
 def module_mark(key: str):
     """Return the specific icon for a folded module, if available.
 
@@ -155,6 +221,14 @@ class Section(QFrame):
         #: module wrote itself, which is most of them.
         self._source_app = ""
         self._source_mark = None
+        #: Where the body goes back when it is detached, and who hears that
+        #: it did. See :meth:`_detach_body_while_hidden`.
+        self._detached_at: Optional[int] = None
+        self._body_came_back = None
+        #: Builds the body's rows the first time the category is opened,
+        #: for a category whose rows wait for that; see
+        #: ``AppScreen._build_a_waiting_heading``. ``None`` otherwise.
+        self._spacr_build_body = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -195,6 +269,117 @@ class Section(QFrame):
 
         if expanded:
             self.set_expanded(True)
+
+    def _detach_body_while_hidden(self) -> int:
+        """Take a body nobody can see out of the page until it is needed.
+
+        A module screen is styled widget by widget, and Qt styles every
+        widget under the page when the stylesheet lands on it -- hidden or
+        not. On Classify, Mask and Measure most of a settings form is in
+        categories that are collapsed, or hidden by the Essentials view or
+        the maturity preference: 533 of Classify's widgets, 392 of Mask's,
+        303 of Measure's. A body taken out of the page before the sheet lands
+        costs nothing then; :meth:`_attach_body` puts it back the moment it
+        could be seen, and it is styled at that moment instead.
+
+        NOTHING IS REBUILT. The body keeps every row, caption and control it
+        had, and the controls are still the ones the settings model reads
+        and writes, so the run collects every value, and recipes and imports
+        still set them. The body remembers its category, so
+        :func:`_logical_parent`, :meth:`_nested_sections` and :meth:`_holds`
+        answer as they would with it in place, for the code that walks the
+        form rather than the model.
+
+        A body that is away when its category is destroyed goes with it,
+        as it would have as a child.
+
+        :returns: how many widgets left the page; 0 when the body can be
+            seen, or is already out.
+        """
+        if self._detached_at is not None:
+            return 0
+        if not (self.isHidden() or self._body.isHidden()):
+            return 0
+        layout = self.layout()
+        index = layout.indexOf(self._body)
+        if index < 0:
+            return 0
+        count = len(self._body.findChildren(QWidget)) + 1
+        layout.removeWidget(self._body)
+        self._body._spacr_detached_from = self
+        self._body.setParent(None)
+        self._body.setVisible(False)
+        self.destroyed.connect(self._body.deleteLater)
+        self.installEventFilter(_back_on_show())
+        self._detached_at = index
+        return count
+
+    def _body_is_detached(self) -> bool:
+        """Whether the body is out of the page, waiting to be seen."""
+        return self._detached_at is not None
+
+    def _attach_body(self) -> bool:
+        """Put a detached body back where it was, before it can be seen.
+
+        Called on expanding, and on the category's ``Show`` while it is
+        open (see :class:`_BodyBackOnShow`), so the body is in place, styled
+        and laid out in the same pass that shows it. Whoever
+        set :attr:`_body_came_back` is then told, which is how a screen runs
+        the language pass the body missed while it was away.
+
+        :returns: ``True`` when this call put it back.
+        """
+        index = self._detached_at
+        if index is None:
+            return False
+        self._detached_at = None
+        body = self._body
+        try:
+            self.destroyed.disconnect(body.deleteLater)
+        except (RuntimeError, TypeError):
+            pass
+        if _BACK_ON_SHOW is not None:
+            self.removeEventFilter(_BACK_ON_SHOW)
+        body.setParent(self)
+        body._spacr_detached_from = None
+        self.layout().insertWidget(index, body)
+        body.setVisible(self._expanded)
+        heard = self._body_came_back
+        if callable(heard):
+            heard(self)
+        return True
+
+    def _nested_sections(self) -> list:
+        """Every category below this one, including in a detached body.
+
+        What ``findChildren(Section)`` answers with every body in place.
+        """
+        found = []
+        seen = {id(self)}
+        pending = [self._body] if self._detached_at is not None else []
+        pending.append(self)
+        visited = set()
+        while pending:
+            root = pending.pop()
+            if id(root) in visited:
+                continue
+            visited.add(id(root))
+            for member in root.findChildren(Section):
+                if id(member) not in seen:
+                    seen.add(id(member))
+                    found.append(member)
+                if member._detached_at is not None:
+                    pending.append(member._body)
+        return found
+
+    def _holds(self, widget) -> bool:
+        """Whether ``widget`` is on this category's form, attached or not."""
+        node = widget
+        while node is not None:
+            if node is self:
+                return True
+            node = _logical_parent(node)
+        return False
 
     def add_row(
         self,
@@ -629,6 +814,11 @@ class Section(QFrame):
         self._expanded = bool(checked)
         self._header.setArrowType(
             Qt.DownArrow if self._expanded else Qt.RightArrow)
+        if self._expanded and self._detached_at is not None:
+            self._attach_body()
+        if self._expanded and self._spacr_build_body is not None:
+            build, self._spacr_build_body = self._spacr_build_body, None
+            build()
 
         scroll = scroll_host(self)
         if scroll is None:

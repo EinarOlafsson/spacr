@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted source-context review of cancellation, asynchronous saving, enhancement comparisons and optional scale/time estimates. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page",
+      "source": "Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page",
+      "source_sha256": "447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3",
+      "translation": "Sugerir valores em falta a partir dos 25% de placas de maior tamanho. Pressupõe o crescimento do controlo RH/HFF; as medições existentes são mantidas. API: spacr.plaque_growth.estimate_page"
+    },
+    {
+      "table": "ui",
+      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.",
+      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.",
+      "source_sha256": "77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0",
+      "translation": "Pré-visualizar as melhorias configuradas ao lado da imagem sem melhorias, na área da lupa quando esta existe ou em todo o campo caso contrário, para avaliar visualmente o efeito de cada etapa. O processamento decorre em segundo plano. Cancelar fecha a comparação; um filtro em execução termina sem apresentar o resultado. A normalização de todo o campo é aplicada antes do recorte, tal como na deteção."
+    }
+  ]
+}

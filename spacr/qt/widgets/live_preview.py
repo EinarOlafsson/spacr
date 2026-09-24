@@ -44,21 +44,24 @@ call is lazy-imported inside the worker thread.
 from __future__ import annotations
 
 import colorsys
+from copy import deepcopy
+import json
 import logging
 import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
+from threading import Event
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QRectF, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
-    QHeaderView, QSizePolicy, QSpinBox, QSplitter, QTableWidget,
+    QHeaderView, QSizePolicy, QSpinBox, QTableWidget,
     QTableWidgetItem,
     QVBoxLayout, QWidget,
 )
@@ -270,8 +273,7 @@ def load_preview_mip(paths) -> np.ndarray:
     is looking at is what masking will actually run on.
 
     Planes are folded one at a time rather than stacked: a 60-plane field at
-    2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview
-    is on the GUI thread.
+    2048x2048 uint16 is 500 MB as one array and 8 MB folded.
 
     :param paths: plane paths in acquisition order; one path is returned
         unchanged, so a flat 2-D field costs nothing.
@@ -663,7 +665,8 @@ def first_supported_image(source: Path) -> Optional[Path]:
 
 
 def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
-                        enumerate_sets: bool = True) -> Dict[str, Any]:
+                        enumerate_sets: bool = True, *,
+                        project: bool = False, known_sets=()) -> Dict[str, Any]:
     """Discover, enumerate and decode one preview source. Data in, data out.
 
     This is the whole of a preview load, written so it touches **no widget and
@@ -674,8 +677,8 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
     halves in one dict gets the same ordering for free, because the caller
     adopts the enumeration and installs the image in a single GUI-thread call.
 
-    The enumeration reads **file names only** — it never opens an image — so
-    the single decode here stays the only file read for a folder of any size.
+    The enumeration reads **file names only**. Decoding reads the selected
+    image, plus its channel's z-planes when projection is requested.
 
     :param source: image file or directory to load a preview from.
     :param max_sets: cap for the sample drawn when ``source`` is a directory.
@@ -683,6 +686,8 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
         dropdown hands out a path from a set the sampler already produced, so
         re-scanning for it would burn a full pass over a 98 000-file plate to
         rediscover what is already cached.
+    :param project: project the selected channel's z-stack on this worker.
+    :param known_sets: cached image sets used when enumeration is skipped.
     :returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is
         ``None`` when no enumeration was done or it failed, which the caller
         reads as "leave the sampler alone".
@@ -712,6 +717,18 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
                               path.parent)
         out["path"] = path
         out["array"] = load_preview_image(path) if path is not None else None
+        if project and path is not None:
+            for picked in out["sets"] if out["sets"] is not None else known_sets:
+                if Path(picked.directory) != path.parent or picked.z_count <= 1:
+                    continue
+                channel = next((ch for ch, names in picked.planes.items()
+                                if path.name in names), None)
+                if channel is not None:
+                    try:
+                        out["array"] = load_preview_mip(picked.plane_paths(channel))
+                    except Exception:
+                        LOG.exception("Could not project preview source %s", path)
+                    break
     except Exception as exc:
         LOG.exception("Could not load live-preview source %s", source)
         out["error"] = str(exc) or exc.__class__.__name__
@@ -734,6 +751,9 @@ class PreviewRequest:
     object_types:        Tuple[str, ...] = ("cell",)
     preprocess_settings: Dict[str, Any] = field(default_factory=dict)
     postprocess_settings: Dict[str, Any] = field(default_factory=dict)
+    model_note:          str = ""
+    cancel:             Event = field(default_factory=Event, repr=False)
+    provenance:         Dict[str, Any] = field(default_factory=dict)
 
 
 class _PreviewWorker(QThread):
@@ -741,6 +761,7 @@ class _PreviewWorker(QThread):
 
     finished_masks = Signal(object, str, int)
     flows_ready = Signal(object, int)
+    provenance_ready = Signal(object, int)
 
     def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
         """Prepare the worker.
@@ -752,9 +773,9 @@ class _PreviewWorker(QThread):
         :param token: the panel's run token at the moment this worker was
             started. It rides back out on both result signals so the panel
             can recognise -- and drop -- a result produced for an image it
-            has since replaced. Cellpose has no interrupt, so this is what
-            "cancel" means here: the thread runs itself out and its answer
-            lands as a no-op.
+            has since replaced. PSF processing stops cooperatively between
+            convolutions. Native Cellpose inference runs itself out after
+            cancellation and its answer lands as a no-op.
         """
         super().__init__(parent)
         self._request = request
@@ -777,6 +798,12 @@ class _PreviewWorker(QThread):
                 masks, flows = res
             else:
                 masks, flows = res, {}
+            _check_preview_cancel(self._request)
+            if masks:
+                record = deepcopy(self._request.provenance)
+                record.update(model=self._request.model,
+                              model_note=self._request.model_note)
+                self.provenance_ready.emit(record, self.token)
             self.finished_masks.emit(masks, "", self.token)
             self.flows_ready.emit(flows or {}, self.token)
         except Exception as e:
@@ -821,6 +848,13 @@ def _classical_organelle_mask(image_2d: np.ndarray, role: str,
     return np.asarray(mask).astype(np.int32)
 
 
+def _check_preview_cancel(req: PreviewRequest) -> None:
+    """Stop between processing stages without interrupting native inference."""
+    if req.cancel.is_set():
+        from ...cancellation import PipelineCancelled
+        raise PipelineCancelled('Preview cancelled')
+
+
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     """Run one Cellpose pass per requested object type.
 
@@ -831,13 +865,42 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     applied per-object-type after the model returns, using the
     ``postprocess_settings`` dict on the request.
     """
-    model = preview_cellpose_model(req.model)
+    from ...psf_pipeline import prepare_psf
+
+    _check_preview_cancel(req)
+    plan = prepare_psf(req.preprocess_settings)
+    _check_preview_cancel(req)
+    model = None
+    processed = {}
+    req.provenance = {
+        'processing': plan.provenance() if plan else {'operation': 'none'},
+        'stage': 'loaded preview field, before background and model normalization',
+        'normalization': 'field-local Cellpose defaults; classical method specific',
+        'illumination': 'no preview illumination correction',
+        'input_modified': False,
+        'filter_intensity_source': 'original loaded preview field',
+        'input_shape': list(req.image.shape),
+        'input_dtype': str(req.image.dtype),
+        'channels': {},
+        'methods': {},
+        'preprocess_settings': deepcopy(req.preprocess_settings),
+        'diameter': float(req.diameter),
+        'flow_threshold': float(req.flow_threshold),
+        'cellprob_threshold': float(req.cellprob),
+    }
 
     out: Dict[str, np.ndarray] = {}
     flows_out: Dict[str, np.ndarray] = {}
     for obj in req.object_types:
-        ch_idx = req.channels.get(obj, 0)
-        image_2d = _select_channel(req.image, ch_idx)
+        _check_preview_cancel(req)
+        ch_idx = int(req.channels.get(obj, 0))
+        ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
+        req.provenance['channels'][obj] = ch_idx
+        if ch_idx not in processed:
+            plane = _select_channel(req.image, ch_idx)
+            processed[ch_idx] = (plan.apply(plane[..., None], cancel=req.cancel)[..., 0]
+                                 if plan else plane)
+        image_2d = processed[ch_idx].copy()
 
         if req.preprocess_settings.get(f"remove_background_{obj}"):
             bg = float(req.preprocess_settings.get(
@@ -850,13 +913,20 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             f"{obj}_method",
             req.preprocess_settings.get("organelle_method", "cellpose"))
             or "cellpose").strip().lower()
+        req.provenance['methods'][obj] = (
+            method if obj.startswith('organelle') else 'cellpose')
         if obj.startswith("organelle") and method != "cellpose":
             out[obj] = _classical_organelle_mask(
                 image_2d, obj, req.preprocess_settings)
             continue
 
+        _check_preview_cancel(req)
+        if model is None:
+            model = preview_cellpose_model(req.model)
+        _check_preview_cancel(req)
         result = model.eval(
             image_2d,
+            channel_axis=None,
             diameter=float(req.diameter) or None,
             flow_threshold=float(req.flow_threshold),
             cellprob_threshold=float(req.cellprob),
@@ -876,6 +946,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             pass
 
         out[obj] = mask
+    _check_preview_cancel(req)
     return out, flows_out
 
 
@@ -985,6 +1056,10 @@ class _ZoomView(QGraphicsView):
     def __init__(self, parent=None):
         """Build the view with its own scene and no peer yet."""
         super().__init__(parent)
+        from .image_ruler import ImageRuler
+
+        self.ruler = ImageRuler(self)
+        self.ruler.changed.connect(self.viewport().update)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
         self._pixmap_item: Optional[QGraphicsPixmapItem] = None
@@ -993,7 +1068,7 @@ class _ZoomView(QGraphicsView):
         self._scale = 1.0
         self._user_zoomed = False
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setMouseTracking(True)
         self.viewport().setMouseTracking(True)
@@ -1010,6 +1085,7 @@ class _ZoomView(QGraphicsView):
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
+        self.setSceneRect(self._scene.sceneRect())
         self._user_zoomed = False
         self._scale = 1.0
         self.resetTransform()
@@ -1033,6 +1109,7 @@ class _ZoomView(QGraphicsView):
         """Snap back to fit-in-view (100 % of the container)."""
         self._user_zoomed = False
         self._scale = 1.0
+        self.setSceneRect(self._scene.sceneRect())
         self.resetTransform()
         if self._pixmap_item is not None:
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
@@ -1043,8 +1120,12 @@ class _ZoomView(QGraphicsView):
         if event.modifiers() & Qt.ShiftModifier:
             super().wheelEvent(event)
             return
-        factor = 1.20 if event.angleDelta().y() > 0 else 0.833
-        self._apply_zoom(factor, broadcast=True)
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        if not delta:
+            event.ignore()
+            return
+        factor = 1.20 if delta > 0 else 1.0 / 1.20
+        self._apply_zoom(factor, broadcast=True, position=event.position())
         event.accept()
 
     def resizeEvent(self, event):
@@ -1054,26 +1135,41 @@ class _ZoomView(QGraphicsView):
         if not self._user_zoomed and self._pixmap_item is not None:
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
-    def _apply_zoom(self, factor: float, broadcast: bool = False) -> None:
+    def _apply_zoom(self, factor: float, broadcast: bool = False, position=None) -> None:
         """Zoom by ``factor``, optionally taking the twin view with it.
 
-        THE GUARD GOES ON THIS VIEW, NOT THE PEER. The flag makes ``_apply_zoom``
-        a no-op, so setting it on the peer skipped the peer's own zoom and the
-        two canvases never actually tracked each other -- they only appeared to
-        while both were being driven by hand.
+        :param factor: magnification multiplier.
+        :param broadcast: copy the finished transform and pan to the peer.
+        :param position: viewport cursor position; None uses the view center.
+            Guard the complete operation so scrollbar changes cannot feed an
+            intermediate transform back from the other canvas.
         """
         if self._syncing:
             return
-        self.scale(factor, factor)
-        self._scale *= factor
-        self._user_zoomed = True
+        from .cursor_zoom import zoom_at_pointer
+
+        self._syncing = True
+        try:
+            self._user_zoomed = True
+            if not zoom_at_pointer(self, factor, position):
+                return
+            self._scale *= factor
+            if broadcast and self._peer is not None:
+                peer = self._peer
+                peer._syncing = True
+                try:
+                    peer._user_zoomed = True
+                    peer._scale = self._scale
+                    peer.setSceneRect(self.sceneRect())
+                    peer.setTransform(self.transform())
+                    peer.horizontalScrollBar().setValue(self.horizontalScrollBar().value())
+                    peer.verticalScrollBar().setValue(self.verticalScrollBar().value())
+                finally:
+                    peer._syncing = False
+                peer.zoom_changed.emit(peer._scale)
+        finally:
+            self._syncing = False
         self.zoom_changed.emit(self._scale)
-        if broadcast and self._peer is not None:
-            self._syncing = True
-            try:
-                self._peer._apply_zoom(factor, broadcast=False)
-            finally:
-                self._syncing = False
 
     def _mirror_pan(self, _value: int = 0) -> None:
         """Put the peer at the same scroll offset as this view.
@@ -1103,6 +1199,9 @@ class _ZoomView(QGraphicsView):
 
     def mousePressEvent(self, event):        # noqa: N802 (Qt naming)
         """Remember where a press started, to tell a click from a drag."""
+        if self.ruler.handle(event, self._ruler_point):
+            self._press_pos = None
+            return
         self._press_pos = event.position().toPoint()
         super().mousePressEvent(event)
 
@@ -1115,6 +1214,9 @@ class _ZoomView(QGraphicsView):
         zero movement.
         """
         start = getattr(self, "_press_pos", None)
+        if self.ruler.handle(event, self._ruler_point):
+            self._press_pos = None
+            return
         super().mouseReleaseEvent(event)
         if start is None:
             return
@@ -1131,12 +1233,38 @@ class _ZoomView(QGraphicsView):
 
         :param event: the mouse event.
         """
+        if self.ruler.handle(event, self._ruler_point):
+            return
         if self._pixmap_item is not None:
             scene_pt = self.mapToScene(event.position().toPoint())
             x = int(scene_pt.x())
             y = int(scene_pt.y())
             self.hover_pixel.emit(x, y)
         super().mouseMoveEvent(event)
+
+    def _ruler_point(self, point):
+        """Map a viewport point into image pixels, excluding letterboxing.
+
+        :param point: mouse position in viewport coordinates.
+        :returns: image (x, y), or None outside the current image.
+        """
+        if self._pixmap_item is None or self._pixmap_item.pixmap().isNull():
+            return None
+        scene_point = self.mapToScene(point.toPoint())
+        if not self._pixmap_item.boundingRect().contains(scene_point):
+            return None
+        return scene_point.x(), scene_point.y()
+
+    def paintEvent(self, event):
+        """Draw the pixel ruler above the image using the current view transform.
+
+        :param event: Qt viewport paint event.
+        """
+        super().paintEvent(event)
+        if self.ruler.start is not None:
+            painter = QPainter(self.viewport())
+            self.ruler.paint(painter, lambda x, y: self.mapFromScene(QPointF(x, y)))
+            painter.end()
 
 
 
@@ -1466,6 +1594,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         diverging.
     """
 
+    #: Where this preview's section folds and sizes are remembered
+    #: (item 471): folds under ``"<key>/<section>"``, sizes under
+    #: ``"<key>::sections"``.
+    SECTION_KEY = "live_preview"
+
     preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load an image first."
@@ -1486,6 +1619,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks: Dict[str, np.ndarray] = {}
         self._raw_masks: Dict[str, np.ndarray] = {}
         self._flows: Dict[str, np.ndarray] = {}
+        self._processing_provenance: Dict[str, Any] = {}
+        self._pending_provenance = None
         self._settings: Dict[str, Any] = {}
         #: The model the masks on screen were actually made with, and the
         #: clause explaining it when that is not the model that was asked
@@ -1773,7 +1908,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "No preview image loaded — drag & drop an image here to load it",
             self)
         self._path_label.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Preferred)
+            QSizePolicy.Ignored, QSizePolicy.Preferred)
         self._path_label.setMinimumWidth(0)
         #: The path in full. The label shows an elided version sized to
         #: whatever width it actually gets, so the text can never be the thing
@@ -1859,8 +1994,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         pick_row.addWidget(self._cycle_label)
         pick_row.addWidget(self._cycle_next_btn)
         pick_row.addWidget(self._mip_toggle)
-        pick_row.addWidget(self._max_images_box)
-        pick_row.addWidget(self._max_sets_box)
+        for caption, field in ((tr('Images'), self._max_images_box),
+                               (tr('Fields'), self._max_sets_box)):
+            group = QWidget(self)
+            group_layout = QHBoxLayout(group)
+            group_layout.setContentsMargins(0, 0, 0, 0)
+            group_layout.setSpacing(4)
+            group_layout.addWidget(QLabel(caption, group))
+            group_layout.addWidget(field)
+            pick_row.addWidget(group)
         pick_row.addWidget(self._pick_btn)
         self._offscreen_controls = QWidget(self)
         self._offscreen_controls.setVisible(False)
@@ -1874,7 +2016,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._channel_box.setVisible(False)
         root.addLayout(pick_row)
 
-        act = QHBoxLayout()
+        from .flow import FlowHost, FlowLayout
+        act_host = FlowHost(self)
+        act_host.setObjectName("LivePreviewActions")
+        act = FlowLayout(act_host, spacing=6)
         self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
         self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
@@ -1893,13 +2038,21 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._view_mode.currentTextChanged.connect(
             lambda *_: self._refresh_canvases())
         self._status = QLabel("", self)
+        self._status.setWordWrap(True)
         act.addWidget(self._run_btn)
         act.addWidget(self._cancel_btn)
         act.addWidget(self._live_settings_btn)
-        act.addWidget(QLabel("View:", self))
-        act.addWidget(self._view_mode)
-        act.addWidget(self._status, 1)
-        root.addLayout(act)
+        view_group = QWidget(act_host)
+        view_row = QHBoxLayout(view_group)
+        view_row.setContentsMargins(0, 0, 0, 0)
+        view_row.setSpacing(6)
+        view_row.addWidget(QLabel("View:", view_group))
+        view_row.addWidget(self._view_mode)
+        act.addWidget(view_group)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "mask", act)
+        root.addWidget(act_host)
+        root.addWidget(self._status)
 
         canvas = QHBoxLayout()
         self._src_view = _ZoomView(self)
@@ -1908,28 +2061,42 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._mask_view.setMinimumHeight(160)
         self._src_view.set_peer(self._mask_view)
         self._mask_view.set_peer(self._src_view)
+        self._mask_view.ruler = self._src_view.ruler
+        self._src_view.ruler.changed.connect(self._mask_view.viewport().update)
+        self._ruler_btn = QPushButton(tr("Ruler"), self)
+        self._ruler_btn.setCheckable(True)
+        self._ruler_btn.setToolTip(tr(
+            "Drag a line on either image to measure its length in image pixels. "
+            "Right-click with Ruler selected to clear it. Turn Ruler off to pan."))
+        self._ruler_btn.toggled.connect(self._src_view.ruler.set_active)
+        act.addWidget(self._ruler_btn)
         self._src_view.hover_pixel.connect(self._on_hover)
         self._mask_view.hover_pixel.connect(self._on_hover)
         canvas.addWidget(self._src_view, 1)
         canvas.addWidget(self._mask_view, 1)
         canvas_host = QWidget(self)
         canvas_host.setLayout(canvas)
-        self._table_split = QSplitter(Qt.Vertical, self)
+        from .collapsible_splitter import CollapsibleSplitter
+        self._table_split = CollapsibleSplitter(
+            Qt.Vertical, self, persist_key=f"{self.SECTION_KEY}::sections")
         self._table_split.setObjectName('PreviewTableSplit')
-        self._table_split.setChildrenCollapsible(False)
-        self._table_split.setHandleWidth(1)
-        self._table_split.addWidget(self._set_table)
-        self._table_split.addWidget(canvas_host)
-        self._table_split.setStretchFactor(0, 0)
-        self._table_split.setStretchFactor(1, 1)
-        self._table_split.setSizes([170, 600])
-        root.addWidget(self._table_split, 1)
+        self._sections = {}
+        self._sections["Image sets"] = self._table_split.add_section(
+            self._set_table, "Image sets", stretch=0, extent=170,
+            persist_key=f"{self.SECTION_KEY}/Image sets")
+        self._sections["Images"] = self._table_split.add_section(
+            canvas_host, "Images", stretch=1, extent=600,
+            persist_key=f"{self.SECTION_KEY}/Images")
 
+        info = QWidget(self)
+        info_col = QVBoxLayout(info)
+        info_col.setContentsMargins(0, 0, 0, 0)
+        info_col.setSpacing(2)
         self._hover_label = QLabel("Hover over the image to inspect pixels.",
                                      self)
         self._hover_label.setStyleSheet("color: #ffffff; "
                                             "font-family: monospace;")
-        root.addWidget(self._hover_label)
+        info_col.addWidget(self._hover_label)
 
         from PySide6.QtWidgets import QSlider
         self._history: list = []
@@ -1946,7 +2113,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._compare_label.setStyleSheet("color: #ffffff; font-family: monospace;")
         comp.addWidget(self._compare_label)
         self._compare_row.setVisible(False)
-        root.addWidget(self._compare_row)
+        info_col.addWidget(self._compare_row)
+        self._sections["Pixel info"] = self._table_split.add_section(
+            info, "Pixel info", stretch=0,
+            persist_key=f"{self.SECTION_KEY}/Pixel info")
+        root.addWidget(self._table_split, 1)
 
         self._live_settings_dialog: Optional["LiveSettingsDialog"] = None
         self._on_model_or_object_changed()
@@ -2012,7 +2183,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         runner = getattr(self, "_load_jobs", None)
         return [] if runner is None else [0] * runner.pending_jobs()
 
-    def load_source_async(self, source, *, enumerate_sets: bool = True) -> bool:
+    def load_source_async(self, source, *, enumerate_sets: bool = True,
+                          display_plane: Optional[int] = None) -> bool:
         """Discover and decode a file/folder source on a worker thread.
 
         New requests supersede older ones by token. An old decoder is allowed
@@ -2021,6 +2193,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         :param source: direct supported image or directory containing images.
         :param enumerate_sets: ``False`` reuses the sampler's cached listing
             instead of re-scanning. See :func:`load_source_payload`.
+        :param display_plane: channel plane selected by the table, if any.
         :returns: ``True`` when a worker was started.
         """
         text = os.fspath(source).strip() if source is not None else ""
@@ -2029,13 +2202,19 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._image_load_token += 1
         token = self._image_load_token
         max_sets = int(self._sampler.max_sets)
+        project = self._mip_enabled
+        known_sets = tuple(self._sampler.sets)
+        self._load_request = (text, enumerate_sets, display_plane)
         self._status.setText(f"Loading preview from {text}…")
         self._load_jobs.submit(
-            lambda: load_source_payload(text, max_sets, enumerate_sets),
-            lambda payload, _t=token: self._on_source_payload(_t, payload))
+            lambda: load_source_payload(text, max_sets, enumerate_sets,
+                                        project=project, known_sets=known_sets),
+            lambda payload, _t=token: self._on_source_payload(
+                _t, payload, display_plane=display_plane))
         return True
 
-    def _on_source_payload(self, token: int, payload) -> None:
+    def _on_source_payload(self, token: int, payload, *,
+                           display_plane: Optional[int] = None) -> None:
         """Apply the newest asynchronous load result. Always on the GUI thread.
 
         Adopting the enumeration *before* installing the image is what keeps
@@ -2045,6 +2224,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         if token != self._image_load_token or not isinstance(payload, dict):
             return
+        self._load_request = None
         error = payload.get("error") or ""
         if error:
             self._status.setText(f"Load failed: {error}")
@@ -2057,7 +2237,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if path is None or arr is None:
             self._status.setText("No supported preview image found.")
             return
-        self._install_loaded_image(Path(path), arr)
+        self._install_loaded_image(Path(path), arr, project=False,
+                                   display_plane=display_plane)
 
     def shutdown(self) -> None:
         """Abandon any load in flight and leave no QThread behind.
@@ -2065,6 +2246,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         Called from :meth:`closeEvent`, and safe to call directly when a
         screen is torn down without one.
         """
+        self.cancel_preview()
+        worker = self._worker
+        if worker is not None:
+            from ..bridge import drain_thread
+            worker.setParent(None)
+            for signal in (worker.finished_masks, worker.flows_ready,
+                           worker.provenance_ready, worker.finished):
+                signal.disconnect()
+            drain_thread(worker, timeout_ms=0)
+            self._worker = None
         for name in ("_load_jobs", "_model_jobs"):
             runner = getattr(self, name, None)
             if runner is not None:
@@ -2075,17 +2266,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self.shutdown()
         super().closeEvent(event)
 
-    def _install_loaded_image(self, path: Path, arr: np.ndarray) -> None:
+    def _install_loaded_image(self, path: Path, arr: np.ndarray, *,
+                              project: bool = True,
+                              display_plane: Optional[int] = None) -> None:
         """Replace preview state with an already-decoded image.
 
-        MIP is re-applied here rather than only where the switch is clicked.
-        This is the one funnel every image arrives through, and the array a
-        background load hands over was decoded by a worker that reads a single
-        file and knows nothing about the switch — so with MIP on, changing
-        field or channel used to drop silently back to one plane until the
-        switch was toggled off and on again.
+        Synchronous callers can request projection here. Worker results have
+        already applied the projection setting and pass ``project=False`` to
+        keep decoding off the GUI thread. The selected plane is installed
+        before the first repaint.
         """
-        if getattr(self, "_mip_enabled", False):
+        if project and getattr(self, "_mip_enabled", False):
             try:
                 projected = self._load_for_display(Path(path))
             except Exception:
@@ -2093,14 +2284,26 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             if projected is not None:
                 arr = projected
         self.cancel_preview()
+        self._src_view.ruler.clear()
+        self._src_view.ruler.set_spacing()
         self._image = arr
         self._image_path = Path(path)
         self._masks = {}
         self._raw_masks = {}
         self._flows = {}
+        self._processing_provenance = {}
+        self._pending_provenance = None
+        self._model_that_ran = ""
+        self._model_note = ""
+        self._status.setToolTip("")
         self._path_full = str(path)
         self._show_elided_path()
         self._refresh_source_selectors()
+        self._loaded_projection = self._mip_enabled
+        if display_plane is not None:
+            self._select_display_channel(display_plane)
+            self._composite_roles = ()
+            self._refresh_cycle_controls()
         note = self.sample_note()
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}"
                              + (f" — {note}" if note else ""))
@@ -2345,8 +2548,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
           channel spin boxes in Live settings number. More planes than those
           spin boxes can name is taken for something other than channels.
 
-        THE CAPTION IS THE CHANNEL'S INDEX, from 0 (the maintainer,
-        2026-09-21): the number the Cell / Nucleus / Pathogen channel settings
+        The caption is the channel's index, from 0: the number the
+        Cell / Nucleus / Pathogen channel settings
         take, not the ID the file name carries. The pipeline stacks the
         channels in the sorted order of their IDs (``spacr.io``), which is the
         order the columns come in, so column N is channel N; a Yokogawa
@@ -2500,7 +2703,42 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._fov_box.setCurrentIndex(index)
         finally:
             self._fov_box.blockSignals(False)
+        self._adopt_clicked_channel(column)
         self._open_cell(item)
+
+    def _adopt_clicked_channel(self, column: int) -> bool:
+        """Give the chosen object the channel of the column the user clicked.
+
+        Clicking a channel column updates the selected object's channel
+        setting so the view stays on that channel. Changing the setting
+        follows the same mapping through :meth:`_follow_in_table`.
+
+        Only with ONE object chosen: with "cell + nucleus" there is no single
+        setting the click could mean, and the click just shows the channel.
+        A column that is not a channel (a file the naming could not read) sets
+        nothing.
+
+        :param column: the table column clicked.
+        :returns: whether a channel setting was changed.
+        """
+        channels = getattr(self, "_column_channels", None) or []
+        if not (0 <= column < len(channels)) or channels[column] is None:
+            return False
+        ordered = self._selected_object_types()
+        if len(ordered) != 1:
+            return False
+        role = ordered[0]
+        spinner = {"cell": self._cell_channel, "nucleus": self._nucleus_channel,
+                   "pathogen": self._pathogen_channel}.get(role)
+        if spinner is None and role == getattr(self, "_active_organelle_role", None):
+            spinner = self._organelle_channel
+        if spinner is None:
+            return False
+        wanted = int(channels[column])
+        if int(spinner.value()) == wanted or wanted > spinner.maximum():
+            return False
+        spinner.setValue(wanted)
+        return True
 
     def _open_cell(self, item) -> None:
         """Show the file a table cell names, at the plane it names if any.
@@ -2516,11 +2754,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not path:
             return
         plane = item.data(_PLANE_ROLE)
-        if (plane is None or self._image is None
-                or str(self._image_path) != str(path)):
-            if not self.load_image(Path(path)):
-                return
+        if (self._image is None or str(self._image_path) != str(path)
+                or getattr(self, "_loaded_projection", False) != self._mip_enabled):
+            self.load_source_async(path, enumerate_sets=False,
+                                   display_plane=plane)
+            return
+        self._image_load_token += 1
+        self._load_request = None
+        note = self.sample_note()
+        self._status.setText(f"Loaded {self._image.shape} {self._image.dtype}"
+                             + (f" — {note}" if note else ""))
         if plane is None:
+            self._refresh_canvases()
             return
         self._select_display_channel(int(plane))
         self._on_display_channel_changed()
@@ -2562,11 +2807,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _reload_for_mip(self) -> None:
         """Re-read the file on screen under the new projection setting."""
+        requested = getattr(self, "_load_request", None)
+        if requested is not None:
+            path, enumerate_sets, plane = requested
+            self.load_source_async(path, enumerate_sets=enumerate_sets,
+                                   display_plane=plane)
+            return
         path = getattr(self, "_image_path", None)
         if not path:
             return
-        arr = self._load_for_display(Path(path))
-        self._install_loaded_image(Path(path), arr)
+        self.load_source_async(path, enumerate_sets=False,
+                               display_plane=self.display_channel())
 
     def _on_max_sets_changed(self, value: int) -> None:
         """Draw a new sample at the user's new cap — without re-enumerating."""
@@ -3117,14 +3368,37 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not self.begin_preview():
             return
         self._release_worker()
+        self._run_token += 1
         req = self._build_request()
         self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
+        worker.provenance_ready.connect(self._on_processing_provenance)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
+
+    def cancel_preview(self) -> bool:
+        """Cancel PSF work cooperatively and discard any native inference result."""
+        worker = getattr(self, '_worker', None)
+        if worker is not None:
+            worker._request.cancel.set()
+        return super().cancel_preview()
+
+    def _on_processing_provenance(self, record, token: int = -1) -> None:
+        """Stage captured settings until the matching masks are accepted."""
+        if self._stale(token):
+            return
+        self._pending_provenance = (token, deepcopy(record))
+
+    def _processing_tooltip(self, record) -> str:
+        """Explain preview scope and expose the captured scientific settings."""
+        note = tr("Preview uses the loaded field and field-local normalization. "
+                  "Full Mask runs can use batch normalization and illumination "
+                  "correction, so their masks may differ. Intensity filters "
+                  "use the original preview pixels.")
+        return note + '\n\n' + json.dumps(record, indent=2, default=str)
 
     def _release_worker(self) -> None:
         """Free the previous worker, whose thread has already finished.
@@ -3151,7 +3425,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         is what keeps them usable after a run whose result was discarded as
         stale, or a worker that died without emitting a result at all.
         """
-        self.set_preview_busy(False)
+        if not self.preview_running():
+            self.set_preview_busy(False)
 
 
 
@@ -3728,8 +4003,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         wanted = self._channel_for_object(ordered[0])
         if wanted is None:
             return False
-        if self._follow_in_table(int(wanted)):
-            return True
+        if int(wanted) in (getattr(self, "_column_channels", None) or []):
+            return self._follow_in_table(int(wanted))
         box = self._channel_box
         target = f"Ch {wanted}"
         for index in range(box.count()):
@@ -3752,9 +4027,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def _follow_in_table(self, wanted: int) -> bool:
         """Move the set table to channel ``wanted``'s column, in the same row.
 
-        The maintainer, 2026-09-21: with cell chosen and cell channel 1, a
-        table showing another channel's column switches to channel 1's --
-        staying on the same field -- so what is on screen is always what the
+        With cell chosen and cell channel 1, a table showing another
+        channel's column switches to channel 1 while staying on the same
+        field, so what is on screen is what the
         object will be segmented on.
 
         :param wanted: the channel index.
@@ -3766,11 +4041,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return False
         column = channels.index(wanted)
         row = getattr(self, "_table_row", 0) or 0
-        if column == getattr(self, "_table_col", None):
-            return False
         item = table.item(row, column)
         if item is None or not item.data(Qt.UserRole):
             return False
+        if column == getattr(self, "_table_col", None):
+            plane = item.data(_PLANE_ROLE)
+            if (plane is None or self.display_channel() == int(plane)
+                    or str(self._image_path) != str(item.data(Qt.UserRole))):
+                return False
         self._selected_cells = [(row, column)]
         self._table_row, self._table_col = row, column
         blocked = table.blockSignals(True)
@@ -3936,6 +4214,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         :returns: the clause, e.g. ``Model: cpsam.``, or
             ``Model: cpsam — <requested>: missing.`` after a fallback.
         """
+        methods = self._processing_provenance.get('methods', {})
+        if methods and 'cellpose' not in methods.values():
+            return tr('Segmentation: {methods}.',
+                      methods=', '.join(sorted(set(methods.values()))))
         model = self._model_that_ran or self._model_box.currentText()
         label = tr("Model")
         if self._model_note:
@@ -3959,14 +4241,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         merged = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
             merged.update(self._compartment_settings())
-        pre = merged
-        post = merged
+        pre = deepcopy(merged)
+        post = pre
         model, note = self._model_for_this_pass()
-        self._model_that_ran = model
-        self._model_note = note
         return PreviewRequest(
             image=self._image,
             model=model,
+            model_note=note,
             diameter=self._diameter.value(),
             flow_threshold=self._flow.value(),
             cellprob=self._prob.value(),
@@ -4260,6 +4541,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if masks is None or not masks:
             self._status.setText("Preview returned no masks.")
             return
+        pending = self._pending_provenance
+        if pending is not None and pending[0] == token:
+            self._processing_provenance = pending[1]
+            self._model_that_ran = pending[1].get('model', '')
+            self._model_note = pending[1].get('model_note', '')
+            self._status.setToolTip(self._processing_tooltip(pending[1]))
+        self._pending_provenance = None
         self._raw_masks = masks
         self._recompute_masks(snapshot=True)
 
@@ -4307,6 +4595,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                     for k, v in out.items()]
         self._status.setText(
             f"Found {', '.join(counts)}.  {self._model_provenance()}")
+        operation = self._processing_provenance.get('processing', {}).get('operation')
+        if operation and operation != 'none':
+            self._status.setText(self._status.text() + '  ' + tr(
+                'PSF: {operation} (preview field).', operation=operation))
         self._refresh_canvases()
         if snapshot:
             self._snapshot_run(out, counts)
@@ -4330,7 +4622,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "model": self._model_that_ran or self._model_box.currentText(),
             "object": _combo_value(self._object_box),
             "summary": ", ".join(counts),
+            "processing_provenance": deepcopy(self._processing_provenance),
         }
+        methods = self._processing_provenance.get('methods', {})
+        if methods and 'cellpose' not in methods.values():
+            snap['model'] = ', '.join(sorted(set(methods.values())))
         self._history.append(snap)
         if len(self._history) > 50:
             self._history = self._history[-50:]
@@ -4368,6 +4664,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._compare_label.setText(
             f"{idx + 1}/{len(self._history)}  "
             f"{snap['model']}/{snap['object']}  {snap['summary']}")
+        self._compare_label.setToolTip(self._processing_tooltip(
+            snap.get('processing_provenance', {})))
 
     def refresh_model_choices(self) -> None:
         """Re-read the Cellpose model list and add anything new.
@@ -4552,7 +4850,8 @@ class LiveSettingsDialog(QDialog):
         self.refresh_visibility()
 
         try:
-            avail = self.screen().availableGeometry()
+            from ..hidpi import screen_for_widget
+            avail = screen_for_widget(self).availableGeometry()
             want = row_host.sizeHint().width() + 48
             self.resize(min(want, avail.width() - 80), min(760, avail.height() - 80))
         except Exception:

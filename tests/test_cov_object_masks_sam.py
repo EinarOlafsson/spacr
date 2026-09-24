@@ -658,7 +658,7 @@ def test_timelapse_plot_uses_single_frame_and_object_numbers(tmp_path,
     assert len(fake_plot[0]["batch"]) == 2
 
 
-def test_timelapse_motility_hook_runs(tmp_path, fake_model, fake_timelapse):
+def test_timelapse_generator_defers_motility_until_the_pipeline_merges_frames(tmp_path, fake_model, fake_timelapse):
     src = tmp_path / "stack"
     _write_npz(src, n=2)
     settings = _tl_settings(src, batch_size=2, timelapse_objects=["nucleus"],
@@ -666,8 +666,7 @@ def test_timelapse_motility_hook_runs(tmp_path, fake_model, fake_timelapse):
 
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
-    assert len(fake_timelapse["motility"]) == 1
-    assert fake_timelapse["motility"][0] is settings
+    assert not fake_timelapse["motility"]
 
 
 # ---------------------------------------------------------------------------

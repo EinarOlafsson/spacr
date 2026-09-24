@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-assisted source-context review of PSF calibration and processing help plus Host–Pathogen assay guidance. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Enter the actual image pixel spacing in micrometers. No calibration is inferred.",
+      "source": "Enter the actual image pixel spacing in micrometers. No calibration is inferred.",
+      "source_sha256": "1badb9bb2d6bcbd8b814bd7196d5c9575956c6f34c687f3f9f8bea4d14fa4d92",
+      "translation": "Introduzca el espaciado real de los píxeles de la imagen en micrómetros. No se deduce ninguna calibración."
+    },
+    {
+      "table": "ui",
+      "key": "Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.",
+      "source": "Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.",
+      "source_sha256": "574fd172a1dad29dbc5e32cad321335bdaf0970701e8c93f28f2f0da0992ca87",
+      "translation": "Introduzca el espaciado de píxel del núcleo medido. Debe coincidir con el de la imagen; no se realiza remuestreo."
+    },
+    {
+      "table": "ui",
+      "key": "Full width at half maximum in micrometers. The Gaussian is sampled at image spacing and truncated at four sigma.",
+      "source": "Full width at half maximum in micrometers. The Gaussian is sampled at image spacing and truncated at four sigma.",
+      "source_sha256": "b62c1b1cea08253b070f6e6f90bc1fedc93bd5bff6d6c78f180b758af01c497a",
+      "translation": "Anchura total a la mitad del máximo en micrómetros. La gaussiana se muestrea con el espaciado de la imagen y se trunca a cuatro sigma."
+    },
+    {
+      "table": "ui",
+      "key": "Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.",
+      "source": "Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.",
+      "source_sha256": "259ae344e708c9e3fd2b72e19353df48af840a47727f3fb15323cd2df567bd16",
+      "translation": "Cargue un núcleo 2D TIFF o NPY de hasta 64 MiB. Los hashes del archivo y del núcleo normalizado identifican los datos cargados. Vuelva a cargar para leer los cambios del archivo."
+    },
+    {
+      "table": "ui",
+      "key": "Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.",
+      "source": "Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.",
+      "source_sha256": "927dbe2f53b7cd6b789961c2eca3873eb4e0f95b662009a2dafb0f3dd567fee2",
+      "translation": "Vuelva a leer el archivo del núcleo. Un archivo modificado en disco no altera de forma silenciosa un núcleo ya cargado."
+    },
+    {
+      "table": "ui",
+      "key": "Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.",
+      "source": "Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.",
+      "source_sha256": "106b3569af9fcfdfda314d926413c143f044cc9a0ecafa58afdf84d322657c19",
+      "translation": "Iteraciones de Richardson–Lucy. Más iteraciones pueden amplificar el ruido. Este método no tiene regularización."
+    },
+    {
+      "table": "ui",
+      "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
+      "translation": "Orden: estiramiento por percentiles (Visualización) → fondo → PSF → restauración → reducción de ruido → contraste → enfoque → detección → morfología → división."
+    },
+    {
+      "table": "ui",
+      "key": "Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.",
+      "source": "Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.",
+      "source_sha256": "e2ef517d3e5cc82863b56eb018c1dac8bb5c260f55d9c5fb8ae78d1ee01fd71b",
+      "translation": "Calcule una gaussiana con muestreo explícito o cargue un núcleo 2D medido con dimensiones impares y valores finitos no negativos. El píxel central es el origen. El núcleo cargado se normaliza para que su suma sea uno."
+    },
+    {
+      "table": "ui",
+      "key": "Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.",
+      "source": "Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.",
+      "source_sha256": "2f868de51239c86c703286d5f1c1ed1fd08867d8628c512dc21b5347beef9aab",
+      "translation": "Aplique una función de dispersión de punto calibrada tras restar el fondo. La convolución añade desenfoque; la deconvolución Richardson–Lucy puede amplificar el ruido. Una gaussiana es una aproximación, no una PSF medida del microscopio."
+    },
+    {
+      "table": "ui",
+      "key": "Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.",
+      "source": "Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.",
+      "source_sha256": "1d82ed921610db9d2f793be4dc119116d5b5556b78d901afe08c60a879e3edeb",
+      "translation": "Aplique una PSF medida y calibrada o una aproximación gaussiana explícita a los canales de segmentación antes de normalizar. La convolución añade desenfoque; Richardson–Lucy intenta deconvolucionar y puede amplificar el ruido. Las imágenes originales y las intensidades de medición no cambian. Déjelo desactivado salvo que el mismo núcleo y la calibración de píxel sean adecuados para todos los canales seleccionados."
+    },
+    {
+      "table": "ui",
+      "key": "Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.",
+      "source": "Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.",
+      "source_sha256": "28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c",
+      "translation": "Relacione vacuolas completas con sus células hospedadoras y compare las intensidades de los marcadores con un compartimento de referencia explícito del hospedador. Los recuentos de parásitos vinculados opcionales describen la replicación; los recuentos ausentes y las intensidades de referencia no válidas permanecen desconocidos. Calibre los umbrales de los marcadores con controles del ensayo."
+    }
+  ],
+  "superseded_records": [
+    {
+      "reason": "Restoration was inserted after PSF in the current runtime order; original review retained.",
+      "record": {
+        "table": "ui",
+        "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
+        "translation": "Orden: estiramiento por percentiles (Visualización) → fondo → PSF → reducción de ruido → contraste → enfoque → detección → morfología → división."
+      }
+    }
+  ]
+}

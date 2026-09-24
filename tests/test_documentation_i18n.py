@@ -1,6 +1,9 @@
 """Structural contracts for external API/docstring localization."""
 from __future__ import annotations
 
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
 import hashlib
 import json
 import os
@@ -180,7 +183,26 @@ TOOLS = ROOT / "tools"
 # keys dropped is 10,523, the previous value. Their blocks carry reviewed
 # records in all nine locales
 # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_539
+# 10,539 -> 11,280 on 2026-09-22: +743 / -2, measured against e23a6ad9a.
+# Exact added/removed keys: features/data/411_api_manifest_refresh_2026-09-22.json.
+# English is refreshed; the locale inventory and source-hash assertions below
+# remain strict and still report the unfinished translated catalog rebuild.
+# 474: ten organism API entries, translated and source-bound in all nine locales.
+# +27 Starplast/ruler/diagram entries, then +22 flowchart/secondary entries.
+# Source subtraction is recorded in the two dated 411 API receipts.
+# +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
+# +9 held-out validation module/functions/reporting helpers in all locales.
+# +12 inference/cursor/help/schema entries. English and Help are refreshed;
+# all locale key/hash checks remain strict while translations are completed.
+# +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
+# Starplast update APIs add five entries; the retired Demos label removes one.
+# Exact added/removed sets: features/data/411_starplast_demos_api_2026-09-23.json.
+# Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
+# Growth, asynchronous review and fallback delta: 411_growth_and_async_api_2026-09-23.json.
+# Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
+# PSF module and metadata-only doctor: 411_psf_doctor_api_2026-09-23.json.
+# Mask PSF integration: 411_psf_integration_api_2026-09-23.json.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_528
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -1717,6 +1739,29 @@ def test_indented_query_and_shortcut_keys_stay_literal_while_help_translates():
                    for block in shortcut_blocks)
 
 
+def test_shortcut_translation_keeps_compound_bindings_and_layout_exact():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    bindings = [
+        "Ctrl+0", "Ctrl+1..9", "Ctrl+K", "Ctrl+Shift+H", "F1  / ?",
+        "Ctrl+P", "Ctrl+Alt+0", "Ctrl+/", "Ctrl+End", "F11", "Esc",
+        "Meta+Shift+Left", "Cmd+Alt+Home", "Alt+F4", "Ctrl+,",
+    ]
+    source = "Shortcuts:\n\n" + "\n".join(
+        f"    {binding:<20}  Action {index}"
+        for index, binding in enumerate(bindings)
+    )
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Shortcuts:"] + [
+        f"Action {index}" for index in range(len(bindings))
+    ]
+    assert rebuild_document(layout, blocks) == source
+    translated = ["Shortcuts:"] + [
+        f"Acción {index}" for index in range(len(bindings))
+    ]
+    assert rebuild_document(layout, translated) == source.replace("Action", "Acción")
+
+
 def test_parser_preserves_directive_options_and_translates_admonition_title():
     from build_documentation_i18n import rebuild_document, translatable_blocks
 
@@ -1924,6 +1969,20 @@ def test_independent_link_translation_preserves_reviewed_link_labels():
     assert localized.endswith(f"`GitHub Probleme <{target}>`_")
 
 
+def test_old_readme_measurement_reviews_are_retained_without_becoming_current():
+    from build_documentation_i18n import (
+        RETIRED_README_EVIDENCE_BLOCKS, REVIEWED_README_EVIDENCE_BLOCKS,
+    )
+
+    old = next(source for source in RETIRED_README_EVIDENCE_BLOCKS
+               if "1186 MB checkout" in source)
+    assert len(RETIRED_README_EVIDENCE_BLOCKS[old]) == 9
+    assert old not in REVIEWED_README_EVIDENCE_BLOCKS
+    current = next(source for source in REVIEWED_README_EVIDENCE_BLOCKS
+                   if "The nightly tracked tree" in source)
+    assert len(REVIEWED_README_EVIDENCE_BLOCKS[current]) == 9
+
+
 def test_github_summary_has_reviewed_domain_translations():
     from build_documentation_i18n import (
         REVIEWED_README_BLOCKS,
@@ -1943,6 +2002,9 @@ def test_github_summary_has_reviewed_domain_translations():
         is_document_block = canonical_blocks.count(source) == 1
         assert (
             is_document_block
+            or (source == "Make Masks" and canonical_normalized.count(source) == 2
+                and ":alt: Open the Make Masks API" in canonical
+                and "Import, Make Masks, Annotate" in canonical)
             or canonical_normalized.count(source) == 1
         ), source
         expected_languages = (
@@ -2900,24 +2962,31 @@ def test_catalog_seed_requires_current_per_entry_source_hash(monkeypatch):
 def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
     tmp_path, monkeypatch, capsys,
 ):
-    """Deleting one localized tooltip must make the release audit red."""
+    """A synthetic missing row is detected independently of real-corpus debt."""
     import build_i18n_catalogs as builder
 
+    sources = {"setting_labels": {}, "setting_tooltips": {
+        "cell_diameter": "Cell diameter in pixels."}, "categories": {},
+        "ui": {}, "module_summaries": {}, "installer": {"language_name": "Svenska"}}
     catalog_dir = tmp_path / "catalogs"
     catalog_dir.mkdir()
-    for language in ("en", "sv"):
-        source = builder.CATALOG_DIR / f"{language}.py"
-        target = catalog_dir / source.name
-        target.write_bytes(source.read_bytes())
-    swedish = catalog_dir / "sv.py"
-    swedish.write_text(
-        swedish.read_text(encoding="utf-8")
-        + '\nSETTING_TOOLTIPS.pop("cell_diameter")\n',
-        encoding="utf-8",
-    )
     monkeypatch.setattr(builder, "CATALOG_DIR", catalog_dir)
-
-    assert builder.audit(builder.canonical_sources(), ["sv"]) == 1
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
+    installer = tmp_path / "packaging/i18n"
+    installer.mkdir(parents=True)
+    (installer / "sv.json").write_text(json.dumps(sources["installer"]))
+    builder.write_english(sources)
+    values = {"SETTING_LABELS": {}, "SETTING_TOOLTIPS": {
+        "cell_diameter": "Celldiameter i pixlar."}, "CATEGORY_HELP": {},
+        "UI": {}, "MODULE_SUMMARIES": {}, "SOURCE_HASHES": builder._source_hashes(sources),
+        "SECONDARY_MODEL": builder.SECONDARY_MODEL, "SECONDARY_LICENSE": builder.SECONDARY_LICENSE}
+    swedish = catalog_dir / "sv.py"
+    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()))
+    assert builder.audit(sources, ["sv"]) == 0
+    with swedish.open("a") as handle:
+        handle.write('\nSETTING_TOOLTIPS.pop("cell_diameter")\n')
+    assert builder.audit(sources, ["sv"]) == 1
     assert "sv/SETTING_TOOLTIPS: 1 missing" in capsys.readouterr().err
 
 
@@ -2952,49 +3021,37 @@ def test_incremental_api_generation_reuses_only_current_nonblank_entries(
     }
 
 
-def test_documentation_api_catalog_inventory_and_hashes_are_current():
-    """Ratcheted guard against undocumented API-catalog source drift.
+@pytest.fixture(scope="module")
+def current_documentation_api_contracts():
+    """Extract immutable source contracts once for all locale comparisons."""
+    import build_documentation_i18n as builder
+    docs = builder.public_docstrings()
+    contracts = {
+        key: (builder._source_hash(source), builder._source_block_hashes(source),
+              builder._translation_source_block_hashes(source))
+        for key, source in docs.items()
+    }
+    return docs, contracts
 
-    IF THIS IS RED, YOU PROBABLY DO NOT NEED TO FIX IT NOW. Both sessions
-    agreed on 2026-09-08 that the API catalogs may be STALE during ordinary
-    work and are rebuilt ONCE, immediately before the version is cut. The
-    rule and its measurement are in 325; the rebuild is a named checklist
-    line in 331, with the per-locale command, because `--repair-api-blocks`
-    writes whole locales and dies of a CUDA OOM if given all nine in one
-    process.
 
-    WHY THE RULE EXISTS: the repair path's cost is a function of the number
-    of LOCALES, not of changed symbols, so one changed docstring costs the
-    same nine-locale rebuild as ten. Measured -- ten symbols cost one
-    rebuild, then a single symbol cost a second identical one.
+@pytest.mark.parametrize("language", ["en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_documentation_api_catalog_inventory_and_hashes_are_current(language, current_documentation_api_contracts):
+    """English freshness is required; localized drift is registered for repair.
 
-    NOT XFAILED, deliberately, though it was asked for and the reasoning was
-    good: an xfail says "expected to fail", and at the moment that matters
-    -- the release -- this test is expected to PASS. Marking it xfail would
-    make the release-time green look like an unexpected pass and put the
-    ratchet the wrong way round for the one run it exists to guard. The
-    reason lives here instead, where a reader who hits the failure is
-    already looking.
+    The maintainer made translation compatibility report-only on 2026-09-23.
+    English has its own parametrization so source regressions stay visible.
     """
     import build_documentation_i18n as builder
 
-    docs = builder.public_docstrings()
+    docs, source_contracts = current_documentation_api_contracts
     assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
     )
     expected = set(docs)
-    source_contracts = {
-        key: (
-            builder._source_hash(source),
-            builder._source_block_hashes(source),
-            builder._translation_source_block_hashes(source),
-        )
-        for key, source in docs.items()
-    }
     api_dir = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
-    for language in ("en", *builder.MODEL_SPECS):
+    for language in (language,):
         payload = json.loads(
             (api_dir / f"{language}.json").read_text(encoding="utf-8")
         )

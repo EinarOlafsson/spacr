@@ -1,0 +1,53 @@
+{
+  "id": "82_toxoplasma",
+  "number": 82,
+  "slug": "toxoplasma",
+  "title": "Toxoplasma: explore the page and choose an assay",
+  "series": 3,
+  "app_key": "toxoplasma",
+  "section": "Organisms and assays",
+  "description": "Open the organism page, explore the cell diagram and choose an available assay.",
+  "objectives": [
+    "Open the page from Home and find its main controls.",
+    "Identify the available inputs, actions and outputs.",
+    "Choose the next available analysis or reference."
+  ],
+  "prerequisite": "Open spaCR Home. The organism guide requires no input files. Each assay has its own inputs and linked walkthrough.",
+  "scenes": [
+    {
+      "visual": "00_home",
+      "narration": "From Home, choose Toxoplasma. This page brings the organism guide, cell diagram and available assays together. You can explore it before loading any images or measurements.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_organism",
+      "narration": "Read the introduction in the information pane. Scroll each pane independently, or drag the divider to give the guide or assay tiles more room.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_diagram",
+      "narration": "Hover over a cell component to read its description. Select several components to keep them highlighted, and use Clear components to reset the diagram.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_assays",
+      "narration": "Choose Plaque Assay for plaque counts and areas, Invasion Assay for entry measurements, Recruitment for marker ratios, Replication Assay for parasite counts, or Host–Pathogen for linked vacuole and host summaries. Open the matching lesson for its inputs, settings and results.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_host_pathogen",
+      "narration": "Click Host–Pathogen to open its analysis screen. Use Load test data to start with the supplied microscopy example, then follow the Host–Pathogen tutorial through the settings, preview and Run.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_starplast",
+      "narration": "Return to Toxoplasma and choose Starplast to explore the knowledge map in its separate application. On first use, follow the offered installation steps. The reference links also open organism resources in your browser.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_home_return",
+      "narration": "The guide itself writes no analysis files. Return to Home when you need image segmentation or measurement first; use the assay pages once the required images or tables are ready.",
+      "hold_after": 0.7
+    }
+  ]
+}

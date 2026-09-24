@@ -43,50 +43,73 @@ tp = _LazyModule("trackpy")
 
 
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
-    """
-    Convert a list of numpy arrays to a movie file.
+    """Write equally sized image frames to a labelled movie without editing them.
 
-    Args:
-        arrays (List[np.ndarray]): List of numpy arrays representing frames of the movie.
-        filenames (List[str]): List of filenames corresponding to each frame.
-        save_path (str): Path to save the movie file.
-        fps (int, optional): Frames per second of the movie. Defaults to 10.
-
-    Returns:
-        None
+    :param arrays: nonempty sequence of ``(H, W)`` or ``(H, W, C)`` frames.
+        uint8 is preserved; uint16 is scaled from 0–65535; finite floats
+        are clipped to 0–1 and scaled. Grayscale is repeated into RGB,
+        two channels become red/green, and additional channels after RGB
+        are omitted. Volumes must be sliced or projected by the caller.
+    :param filenames: one label per frame, drawn near its bottom edge.
+    :param save_path: movie path; ``.mp4`` uses mp4v, otherwise XVID.
+    :param fps: finite positive frame rate, default 10.
+    :returns: None. The writer is released even if frame encoding raises.
+    :raises ValueError: invalid dimensions, data type, labels or frame rate,
+        detected before opening the writer.
+    :raises OSError: the video writer cannot open the output.
     """
+    if len(arrays) == 0 or len(arrays) != len(filenames):
+        raise ValueError("a movie needs frames and one filename per frame")
+    fps = float(fps)
+    if not np.isfinite(fps) or fps <= 0:
+        raise ValueError("fps must be finite and positive")
+    frame_shape = np.asarray(arrays[0]).shape[:2]
+    for index, frame in enumerate(arrays):
+        frame = np.asarray(frame)
+        if (frame.ndim not in (2, 3) or not all(frame.shape)
+                or frame.shape[:2] != frame_shape):
+            raise ValueError(
+                f"frame {index} must be a 2-D image with optional channels, "
+                "with the same height and width as every other frame")
+        if frame.dtype.kind == 'f':
+            if not np.isfinite(frame).all():
+                raise ValueError(f"frame {index} contains nonfinite pixels")
+        elif frame.dtype not in (np.dtype('uint8'), np.dtype('uint16')):
+            raise ValueError(f"frame {index} must use uint8, uint16 or floats")
+    save_path = os.fspath(save_path)
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    if save_path.endswith('.mp4'):
+    if save_path.lower().endswith('.mp4'):
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-    height, width = arrays[0].shape[:2]
+    height, width = frame_shape
     out = cv2.VideoWriter(save_path, fourcc, fps, (width, height))
+    try:
+        if not out.isOpened():
+            raise OSError(f"video writer could not open {save_path}")
+        for i, frame in enumerate(arrays):
+            frame = np.asarray(frame)
+            if frame.dtype.kind == 'f':
+                frame = np.clip(frame, 0, 1)
+                frame = (frame * 255).astype(np.uint8)
+            elif frame.dtype == np.uint16:
+                frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))
 
-    for i, frame in enumerate(arrays):
-        if frame.dtype == np.float32:
-            frame = np.clip(frame, 0, 1)
-            frame = (frame * 255).astype(np.uint8)
-
-        elif frame.dtype == np.uint16:
-            frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))
-
-        if frame.ndim == 2 or (frame.ndim == 3 and frame.shape[2] in [1, 2]):
             if frame.ndim == 2 or frame.shape[2] == 1:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
-            else:
+            elif frame.shape[2] == 2:
                 rgb_frame = np.zeros((height, width, 3), dtype=np.uint8)
                 rgb_frame[..., 0] = frame[..., 0]
                 rgb_frame[..., 1] = frame[..., 1]
                 frame = rgb_frame
+            else:
+                frame = np.array(frame[..., :3], copy=True, order='C')
 
-        elif frame.shape[2] >= 3:
-            frame = np.ascontiguousarray(frame[..., :3])
-
-        cv2.putText(frame, filenames[i], (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-
-        out.write(rgb_to_cv2(frame))
-
-    out.release()
+            cv2.putText(frame, str(filenames[i]), (10, height - 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
+                        1, cv2.LINE_AA)
+            out.write(rgb_to_cv2(frame))
+    finally:
+        out.release()
     print(f"Movie saved to {save_path}")
     
 def _scmovie(folder_paths):
@@ -2808,36 +2831,8 @@ def _parse_merged_filename(fname):
        :func:`spacr.schema.parse_field_stem`, which returns the same identity
        the measurement tables carry.
     """
-    base = os.path.splitext(os.path.basename(fname))[0]
-    parts = base.split("_")
-
-    plateID = parts[0] if len(parts) > 0 else ""
-    wellID = parts[1] if len(parts) > 1 else ""
-    fieldID = parts[2] if len(parts) > 2 else "1"
-    time_str = parts[3] if len(parts) > 3 else "0"
-
-    digits = "".join(ch for ch in time_str if ch.isdigit())
-    timeID = int(digits) if digits else 0
-
-    rowID = wellID[0] if wellID else ""
-    col_part = "".join(ch for ch in wellID[1:] if ch.isdigit())
-    columnID = int(col_part) if col_part else 0
-
-    prcf = f"{plateID}_{wellID}_{fieldID}"
-    prcft = f"{prcf}_{timeID}"
-
-    meta = dict(
-        plateID=plateID,
-        wellID=wellID,
-        rowID=rowID,
-        columnID=columnID,
-        fieldID=fieldID,
-        timeID=timeID,
-        prcf=prcf,
-        prcft=prcft,
-        filename=os.path.basename(fname),
-    )
-    return meta
+    from ._merged_names import parse_merged_filename
+    return parse_merged_filename(fname)
 
 def _compute_parent_child_overlaps(
     parent_masks,

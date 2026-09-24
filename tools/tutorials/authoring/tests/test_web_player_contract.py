@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import shutil
 import subprocess
@@ -227,6 +228,27 @@ def test_render_captions_passes_the_matching_audio_scene_to_cue_builder():
     assert "captionCueIntervals(chapter, timing, sentences)" in render
 
 
+def test_caption_splitter_handles_unspaced_and_non_latin_sentence_boundaries():
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node.js is required for the caption splitter contract")
+    splitter = extract_simple_function(APP.read_text(encoding="utf-8"), "splitCaptionText")
+    cases = [
+        ("Homeから開きます。入力を確認します。実行します。", ["Homeから開きます。", "入力を確認します。", "実行します。"]),
+        ("本当！？次です。", ["本当！？", "次です。"]),
+        ("检查图像。保留标识！下一步？", ["检查图像。", "保留标识！", "下一步？"]),
+        ("Home खोलें। इनपुट जाँचें। फिर चलाएँ।", ["Home खोलें।", "इनपुट जाँचें।", "फिर चलाएँ।"]),
+        ("Home을 여세요. 입력을 확인하세요. 실행하세요.", ["Home을 여세요.", "입력을 확인하세요.", "실행하세요."]),
+        ("保存します。』次を開きます。", ["保存します。』", "次を開きます。"]),
+        ("Prüfen Sie das Bild. Öffnen Sie danach die Maske.", ["Prüfen Sie das Bild.", "Öffnen Sie danach die Maske."]),
+        ("Read Fig. 2 and install.log. Keep the file.", ["Read Fig. 2 and install.log.", "Keep the file."]),
+        ("Keep 0.5 and Model B. Start spaCR.", ["Keep 0.5 and Model B.", "Start spaCR."]),
+    ]
+    script = splitter + "\nconst cases = " + json.dumps(cases, ensure_ascii=False) + ";\n"
+    script += "for (const [text, expected] of cases) { if (JSON.stringify(splitCaptionText(text)) !== JSON.stringify(expected)) throw new Error(text); }"
+    subprocess.run([node, "-e", script], check=True)
+
+
 def test_player_release_cache_key_and_voice_counts_are_current():
     index = INDEX.read_text(encoding="utf-8")
     assert "English · 24 voices" in index
@@ -241,7 +263,7 @@ def test_player_release_cache_key_and_voice_counts_are_current():
     assert 'voice_catalog.js?v=20260811-50-voices' in index
     assert 'lesson_catalog.js?v=20260827-conda-live' in index
     assert 'module_navigation.js?v=20260909-main-submodules' in index
-    assert 'app_v2.js?v=20260911-narration-captions' in index
+    assert 'app_v2.js?v=20260923-unicode-captions' in index
     assert 'app_v2.js?v=20260909-main-submodules' not in index
     assert "20260810-mobile-smooth" not in index
 

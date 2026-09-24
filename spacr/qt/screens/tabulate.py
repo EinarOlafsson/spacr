@@ -52,12 +52,13 @@ from typing import List, Optional
 import pandas as pd
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
     QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.pivot_builder import PivotPanel
@@ -101,6 +102,10 @@ class TabulateScreen(QWidget):
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         """Build the screen: the pivot builder beside the shared filter.
+
+        Item 471: the pivot, the graph and the filter are sections of
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        panes -- each folds by its heading and each shared edge drags.
 
         :param parent: parent widget, or ``None``.
         :param link: shared selection link.
@@ -152,25 +157,23 @@ class TabulateScreen(QWidget):
             say=self._source.setText)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
-
-        stack = QSplitter(Qt.Vertical, body)
-        stack.setChildrenCollapsible(False)
-        self.pivot = PivotPanel(stack)
-        stack.addWidget(self.pivot)
-        self.graph = GraphBuilderPanel(stack, link=link, source=GRAPH_SOURCE)
-        stack.addWidget(self.graph)
-        stack.setStretchFactor(0, 1)
-        stack.setStretchFactor(1, 1)
-        body.addWidget(stack)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="tabulate::body")
+        stack = CollapsibleSplitter(Qt.Vertical,
+                                    persist_key="tabulate::stack")
+        self.pivot = PivotPanel()
+        stack.add_section(self.pivot, "Pivot", persist_key="tabulate/Pivot")
+        self.graph = GraphBuilderPanel(link=link, source=GRAPH_SOURCE)
+        stack.add_section(self.graph, "Graph", persist_key="tabulate/Graph")
+        body.add_pane(stack, "Tables", stretch=1)
 
         self.filters = DataFilterPanel(self, link=link)
         from ..preferences import scaled_px
         self.filters.setMaximumWidth(scaled_px(320))
-        body.addWidget(self.filters)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
+        body.add_section(self.filters, "Filter", persist_key="tabulate/Filter",
+                         stretch=0)
+        self._body_splitter = body
+        self._stack_splitter = stack
         outer.addWidget(body, 1)
 
         self.pivot.plot_requested.connect(self.plot_summary)

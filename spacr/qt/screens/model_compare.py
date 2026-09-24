@@ -76,7 +76,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -91,6 +90,7 @@ from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
@@ -174,6 +174,11 @@ MODEL_PANEL_NAME = "ModelComparePanel"
 #: below can reach them; the canvases used to carry an inline stylesheet
 #: instead, which is what made them black.
 RESULT_TABLE_NAME = "ModelCompareTable"
+
+#: Where the screen remembers its folds and dragged sizes (item 471): the
+#: two result tables and the mask previews fold by their headings and trade
+#: height by the handles between them.
+FOLD_KEY = "model_compare"
 PREVIEW_NAME = "ModelComparePreview"
 
 
@@ -470,16 +475,24 @@ class ModelCompareScreen(QWidget):
         self._warnings.setVisible(False)
         outer.addWidget(self._warnings)
 
-        outer.addWidget(QLabel("Parameters that reached each model", self))
+        results = CollapsibleSplitter(Qt.Vertical, self,
+                                      persist_key=f"{FOLD_KEY}::results")
+        self._results = results
+
         self._param_table = QTableWidget(0, len(_PARAM_HEADERS), self)
         install_sorting(self._param_table)
         self._param_table.setHorizontalHeaderLabels(list(_PARAM_HEADERS))
         self._prepare_table(self._param_table)
         self._param_table.setMaximumHeight(200)
-        outer.addWidget(self._param_table)
+        self.param_section = results.add_section(
+            self._param_table, "Parameters that reached each model",
+            persist_key=f"{FOLD_KEY}/Parameters", stretch=0)
 
-        outer.addWidget(QLabel("Per-field comparison", self))
-        self._row_table = QTableWidget(0, len(_ROW_HEADERS), self)
+        rows = QWidget(self)
+        rows_layout = QVBoxLayout(rows)
+        rows_layout.setContentsMargins(0, 0, 0, 0)
+        rows_layout.setSpacing(SPACING["xs"])
+        self._row_table = QTableWidget(0, len(_ROW_HEADERS), rows)
         install_sorting(self._row_table)
         self._row_table.setHorizontalHeaderLabels(list(_ROW_HEADERS))
         self._prepare_table(self._row_table)
@@ -487,20 +500,25 @@ class ModelCompareScreen(QWidget):
         self._row_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._row_table.currentCellChanged.connect(
             lambda row, *_: self.select_field(row))
-        outer.addWidget(self._row_table, 1)
+        rows_layout.addWidget(self._row_table, 1)
 
-        self._summary = QLabel("", self)
+        self._summary = QLabel("", rows)
         self._summary.setWordWrap(True)
         self._summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        outer.addWidget(self._summary)
+        rows_layout.addWidget(self._summary)
+        self.rows_section = results.add_section(
+            rows, "Per-field comparison",
+            persist_key=f"{FOLD_KEY}/Per-field comparison", stretch=1)
 
-        outer.addWidget(Divider())
-
-        preview = QSplitter(Qt.Horizontal, self)
+        preview = CollapsibleSplitter(Qt.Horizontal, self,
+                                      persist_key=f"{FOLD_KEY}::preview")
+        self._preview_split = preview
         self._preview_a, self._caption_a = self._build_preview(preview, "A")
         self._preview_b, self._caption_b = self._build_preview(preview, "B")
-        preview.setSizes([600, 600])
-        outer.addWidget(preview, 1)
+        self.preview_section = results.add_section(
+            preview, "Mask previews", persist_key=f"{FOLD_KEY}/Mask previews",
+            stretch=1)
+        outer.addWidget(results, 1)
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")
@@ -508,10 +526,11 @@ class ModelCompareScreen(QWidget):
         self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
         outer.addWidget(self._status)
 
-    def _build_preview(self, parent: QSplitter, side: str):
+    def _build_preview(self, parent, side: str):
         """Build one side of the side-by-side mask preview.
 
-        :param parent: the splitter the preview is added to.
+        :param parent: the :class:`CollapsibleSplitter` the preview is added
+            to, as a pane that resizes by the handle between the two sides.
         :param side: which model this side shows -- ``"A"`` or ``"B"``.
         :returns: the ``(canvas, caption)`` pair, so the caller can hold both.
         """
@@ -529,7 +548,8 @@ class ModelCompareScreen(QWidget):
         canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         canvas.setObjectName(PREVIEW_NAME)
         layout.addWidget(canvas, 1)
-        parent.addWidget(holder)
+        parent.add_pane(holder, f"Model {side}", stretch=1,
+                        extent=600)
         return canvas, caption
 
     @staticmethod

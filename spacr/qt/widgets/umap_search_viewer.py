@@ -624,6 +624,9 @@ class UmapExplorer(QWidget):
         self.reset.clicked.connect(self._reset)
         bar.addWidget(self.title)
         bar.addStretch(1)
+        from .preview_scale import install_preview_scale
+        self.scale_control = install_preview_scale(
+            self, "umap_search", bar, prefer_card=False)
         bar.addWidget(self.reset)
         layout.addLayout(bar)
         self.view = UmapEmbeddingView(self)

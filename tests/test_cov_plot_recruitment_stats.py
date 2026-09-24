@@ -52,11 +52,11 @@ def _figs():
 # ---------------------------------------------------------------------------
 
 _RECRUITMENT_EXTRA = [
-    "pathogen_cytoplasm_mean_mean",
-    "pathogen_cytoplasm_q75_mean",
-    "pathogen_periphery_cytoplasm_mean_mean",
-    "pathogen_outside_cytoplasm_mean_mean",
-    "pathogen_outside_cytoplasm_q75_mean",
+    "pathogen_channel_1_cytoplasm_mean_ratio",
+    "pathogen_channel_1_cytoplasm_q75_ratio",
+    "pathogen_channel_1_cytoplasm_periphery_mean_ratio",
+    "pathogen_channel_1_cytoplasm_outside_mean_ratio",
+    "pathogen_channel_1_cytoplasm_outside_q75_ratio",
 ]
 
 
@@ -69,7 +69,7 @@ def _recruitment_df(channel=1, n=24, seed=0):
     for comp in ("cell", "nucleus", "cytoplasm", "pathogen"):
         data[f"{comp}_channel_{channel}_mean_intensity"] = rng.uniform(10, 100, n)
     for col in _RECRUITMENT_EXTRA + ["extra_a", "extra_b"]:
-        data[col] = rng.uniform(2, 50, n)
+        data[col.replace('channel_1_', f'channel_{channel}_')] = rng.uniform(2, 50, n)
     return pd.DataFrame(data)
 
 
@@ -152,7 +152,8 @@ def test_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5()
     grid = _figs()[1]
     # 7 columns -> ceil(7/2)=4 per row -> 8 axes, last blanked.
     assert len(grid.axes) == 8
-    assert [ax.get_ylabel() for ax in grid.axes[:7]] == user_cols + _RECRUITMENT_EXTRA
+    assert [ax.get_ylabel() for ax in grid.axes[:7]] == user_cols + [
+        col.replace('channel_1_', 'channel_0_') for col in _RECRUITMENT_EXTRA]
     assert grid.axes[7].axison is False
     # i in 0..5 -> ylim bottom pinned at 1; i == 6 -> untouched (autoscaled to 0).
     assert all(ax.get_ylim()[0] == 1.0 for ax in grid.axes[:6])
@@ -164,7 +165,7 @@ def test_plot_recruitment_prints_the_column_list(capsys):
     P._plot_recruitment(df, "test", 2, figuresize=4)
     out = capsys.readouterr().out
     for col in _RECRUITMENT_EXTRA:
-        assert col in out
+        assert col.replace('channel_1_', 'channel_2_') in out
 
 
 # ---------------------------------------------------------------------------

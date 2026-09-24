@@ -115,11 +115,20 @@ _DINOCELL = "dinocell"
 _SAMCELL = "samcell"
 _PAPERS = "papers"
 
+#: DeepCell's SpotNet, for fluorescent spots rather than cells.
+_SPOTNET = "spotnet"
+
 #: Every value ``segmentation_backend`` accepts, the default first.
 _BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
 
 #: The models the Cellpose 3 backend names, as Cellpose 3 names them.
 _CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
+
+_RESTORATION_MODELS = tuple(
+    f"{operation}_{structure}"
+    for operation in ("denoise", "deblur", "oneclick")
+    for structure in ("cyto3", "cyto2", "nuclei")
+)
 
 #: The request/response protocol between spaCR and a backend worker.
 _PROTOCOL = 1
@@ -313,7 +322,8 @@ _SPECS = {
     _SAMCELL: _BackendSpec(
         name=_SAMCELL, label="SAMCell", module="samcell",
         probe=("samcell.model", "samcell.pipeline"),
-        distribution="samcell", requirements=("samcell==1.2.0",),
+        distribution="samcell",
+        requirements=("samcell==1.2.0", "matplotlib>=3.3.0"),
         torch=("torch",), python=((3, 9), (3, 14)), licence="MIT",
         licence_note=(
             "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It "
@@ -331,6 +341,40 @@ _SPECS = {
             "0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, "
             "against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored "
             "this backend on its own data.")),
+    _SPOTNET: _BackendSpec(
+        name=_SPOTNET, label="SpotNet (DeepCell)", module="deepcell_spots",
+        probe=("deepcell_spots", "deepcell_spots.applications", "tensorflow"),
+        distribution="deepcell-spots",
+        requirements=("trackpy==0.6.1", "deepcell==0.12.10",
+                      "deepcell-spots==0.4.2"),
+        torch=("torch", "torchvision"), python=((3, 7), (3, 10)),
+        licence="Modified Apache-2.0, NON-COMMERCIAL ACADEMIC USE ONLY",
+        licence_note=(
+            "DeepCell's models and training data are licensed for "
+            "non-commercial academic use only (a modified Apache licence), "
+            "which is NOT the licence spaCR itself carries. Its weights are "
+            "not public either: they are fetched from users.deepcell.org "
+            "with a free account's access token, which spaCR reads from "
+            "DEEPCELL_ACCESS_TOKEN. Read the licence before using SpotNet "
+            "for anything commercial."),
+        homepage="https://github.com/vanvalenlab/deepcell-spots",
+        size_gb=3.0, segments=False,
+        blurb=(
+            "SpotNet finds fluorescent SPOTS -- single molecules, FISH "
+            "puncta, sequencing-by-synthesis signals -- and returns their "
+            "coordinates, not masks. Its environment contains TensorFlow "
+            "and PyTorch. deepcell-spots 0.4.2 needs Python 3.7 to 3.10 "
+            "available to create that environment; spaCR itself may use "
+            "a newer Python. The weights need a free DeepCell token. trackpy and "
+            "deepcell are pinned with it: deepcell-spots pins neither, and "
+            "pip walked back to trackpy 0.2.3 (2014), whose setup.py cannot "
+            "build (reported 2026-09-22)."),
+        published=(
+            "Published results: Laubscher et al., 'Accurate single-molecule "
+            "spot detection for image-based spatial transcriptomics with "
+            "weakly supervised deep learning', Cell Systems 2024 "
+            "(doi:10.1016/j.cels.2023.12.008). spaCR has not scored it on "
+            "its own data.")),
     _PAPERS: _BackendSpec(
         name=_PAPERS, label="Plaque figure reader", module="ultralytics",
         probe=("ultralytics", "rapidocr_onnxruntime"),
@@ -421,10 +465,15 @@ class _BackendState:
 def _spec(name):
     """The spec for an optional backend.
 
+    A backend that does not segment -- the plaque figure reader, SpotNet --
+    is not a ``segmentation_backend`` value, so it is found by its own name
+    before the segmentation names are checked.
+
     :raises ValueError: for Cellpose 4 or a name spaCR has no backend for.
     """
-    if str(name).strip().lower() == _PAPERS:
-        return _SPECS[_PAPERS]
+    asked = str(name).strip().lower()
+    if asked in _SPECS and not _SPECS[asked].segments:
+        return _SPECS[asked]
     backend = _backend_name(name)
     if backend not in _SPECS:
         raise ValueError(
@@ -900,7 +949,8 @@ def _install_plan(spec, env, interpreter, torch_index=None, worker=None):
     pip = (python, "-m", "pip", "install", "--disable-pip-version-check",
            "--no-input", "--progress-bar", "off")
     steps = [_Step("Create the environment",
-                   tuple(interpreter) + ("-m", "venv", env))]
+                   tuple(interpreter) + ("-m", "venv", env)),
+             _Step("Update pip", pip + ("--upgrade", "pip"))]
     if spec.torch:
         index = ("--index-url", torch_index) if torch_index else ()
         steps.append(_Step("Install PyTorch", pip + tuple(spec.torch) + index))
@@ -942,6 +992,11 @@ def _worker_env(name, env):
     preflight's free-space check -- which measures the backends folder --
     the check that matters.
 
+    SAMCell has two downloads: its fine-tuned checkpoint uses Torch's hub
+    cache, and its SAM backbone uses Transformers and Hugging Face. Both
+    are scoped to the environment; legacy Transformers cache overrides
+    must be removed alongside the Hugging Face overrides.
+
     Setting ``HF_HOME`` is necessary and not sufficient. :func:`_clean_env`
     forwards the rest of the inherited environment, and every variable in
     :data:`_HF_CACHE_VARIABLES` overrides the path ``HF_HOME`` would give,
@@ -952,10 +1007,15 @@ def _worker_env(name, env):
     environ = _clean_env(env)
     if name == _CELLPOSE3:
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
-    elif name == _DINOCELL:
+    elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
         for variable in _HF_CACHE_VARIABLES:
             environ.pop(variable, None)
+        if name == _SAMCELL:
+            environ["TORCH_HOME"] = os.path.join(env, "torch")
+            for variable in ("TRANSFORMERS_CACHE", "PYTORCH_TRANSFORMERS_CACHE",
+                             "PYTORCH_PRETRAINED_BERT_CACHE", "HF_MODULES_CACHE"):
+                environ.pop(variable, None)
     return environ
 
 
@@ -1528,6 +1588,97 @@ def _shutdown_workers(name=None):
 
 
 atexit.register(_shutdown_workers)
+
+
+@dataclass(frozen=True)
+class _RestorationPlan:
+    """Immutable model identity captured off the GUI thread before Apply.
+
+    Including checkpoint and environment identity in a request key prevents
+    enhanced image caches surviving a model change or backend reinstall.
+    """
+
+    env: str
+    model: str
+    diameter: float
+    device: str
+    weights_sha256: str
+    cellpose_version: str
+
+    def _identity(self):
+        """The identity the worker must still have when inference starts."""
+        return {"backend": _CELLPOSE3, "model": self.model,
+                "device": self.device, "weights_sha256": self.weights_sha256,
+                "cellpose_version": self.cellpose_version}
+
+
+def _restoration_plan(model, diameter, *, root=None, device="cpu",
+                      should_cancel=None, worker_for=None):
+    """Load an isolated restoration model and capture its identity.
+
+    Call from a background worker: first use may download weights. Backend
+    installation remains an explicit Model Zoo action. CPU is the default;
+    no application-wide automatic accelerator selection is used here.
+    """
+    if model not in _RESTORATION_MODELS:
+        raise ValueError(f"unsupported same-grid restoration model: {model!r}")
+    diameter = float(diameter)
+    if not math.isfinite(diameter) or diameter <= 0:
+        raise ValueError("restoration diameter must be finite and positive")
+    _check_restoration_cancel(should_cancel)
+    state = _backend_state(_CELLPOSE3, root)
+    if state.state != _INSTALLED or state.in_process:
+        raise ImportError(_not_installed_message(_CELLPOSE3, state))
+    worker = (worker_for or _worker_for)(_CELLPOSE3, state.env)
+    reply = worker.request("restoration_model", should_cancel=should_cancel,
+                           model=model, device=device or "cpu")
+    _check_restoration_cancel(should_cancel)
+    identity = reply["identity"]
+    return _RestorationPlan(
+        env=state.env, model=model, diameter=diameter,
+        device=identity["device"], weights_sha256=identity["weights_sha256"],
+        cellpose_version=identity["cellpose_version"])
+
+
+def _check_restoration_cancel(should_cancel):
+    """Discard cancelled work even when its reply has already arrived."""
+    if should_cancel is not None and should_cancel():
+        raise _BackendCancelled("the restoration request was cancelled")
+
+
+def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
+    """Return a restored copy and provenance for one captured model plan.
+
+    This blocking operation belongs on a background thread. Scratch files
+    are removed after success, failure or cancellation. Output values retain
+    normalized model units and are never cast back to the source's dtype.
+    """
+    _check_restoration_cancel(should_cancel)
+    source = np.asarray(image)
+    if (source.ndim != 2 or min(source.shape) < 2
+            or source.dtype.kind not in "uif" or not np.isfinite(source).all()):
+        raise ValueError("restoration needs one finite real intensity plane")
+    worker = (worker_for or _worker_for)(_CELLPOSE3, plan.env)
+    with tempfile.TemporaryDirectory(prefix="spacr-restoration-") as scratch:
+        input_path = os.path.join(scratch, "input.npy")
+        output_path = os.path.join(scratch, "output.npy")
+        np.save(input_path, source, allow_pickle=False)
+        reply = worker.request(
+            "restore", should_cancel=should_cancel, model=plan.model,
+            diameter=plan.diameter, device=plan.device,
+            expected_identity=plan._identity(), input=input_path,
+            output=output_path)
+        _check_restoration_cancel(should_cancel)
+        restored = np.load(output_path, allow_pickle=False)
+        record = reply["provenance"]
+        if any(record.get(key) != value
+               for key, value in plan._identity().items()):
+            raise _BackendError("restoration model changed; select the model again")
+        if (restored.shape != source.shape or restored.dtype != np.float32
+                or not np.isfinite(restored).all()):
+            raise _BackendError("restoration returned an invalid intensity plane")
+        _check_restoration_cancel(should_cancel)
+        return restored, dict(record)
 
 
 class _RemoteBackend:
@@ -2212,6 +2363,76 @@ def _worker_segment(name, request, adapters):
     return reply
 
 
+def _worker_restoration_model(name, request, adapters):
+    """Load or reuse a model and return the identity of its loaded weights."""
+    if name != _CELLPOSE3:
+        raise ValueError("image restoration requires the Cellpose 3 backend")
+    model_name = request.get("model")
+    if model_name not in _RESTORATION_MODELS:
+        raise ValueError(f"unsupported same-grid restoration model: {model_name!r}")
+    device = _worker_device(request.get("device") or "cpu")
+    key = ("restore", model_name, device)
+    cached = adapters.get(key)
+    if cached is None:
+        import hashlib
+        from importlib.metadata import version
+
+        import torch
+        from cellpose import denoise
+
+        where = torch.device(device)
+        model = denoise.DenoiseModel(
+            model_type=model_name, device=where, gpu=where.type != "cpu")
+        digest = hashlib.sha256()
+        with open(model.pretrained_model, "rb") as weights:
+            for block in iter(lambda: weights.read(1024 * 1024), b""):
+                digest.update(block)
+        identity = {"backend": name, "model": model_name,
+                    "cellpose_version": version("cellpose"),
+                    "weights_sha256": digest.hexdigest(), "device": str(model.device)}
+        cached = (model, identity)
+        adapters[key] = cached
+    return cached
+
+
+def _worker_restore(name, request, adapters):
+    """Restore a finite intensity plane on its original coordinate grid.
+
+    Output remains float32 in normalized model units, including negative
+    values; callers must not interpret it as calibrated fluorescence. The
+    existing worker protocol supplies cancellation by terminating the isolated
+    process. A restarted worker refuses weights differing from a captured plan.
+    """
+    diameter = float(request.get("diameter", 30.0))
+    if not math.isfinite(diameter) or diameter <= 0:
+        raise ValueError("restoration diameter must be finite and positive")
+    image = np.load(request["input"], allow_pickle=False)
+    if (image.ndim != 2 or min(image.shape) < 2
+            or image.dtype.kind not in "uif"
+            or not np.isfinite(image).all()):
+        raise ValueError("restoration needs one finite real intensity plane")
+    image = np.array(image, dtype=np.float32, copy=True)
+    if not np.isfinite(image).all():
+        raise ValueError("restoration intensity exceeds the float32 range")
+    model, identity = _worker_restoration_model(name, request, adapters)
+    expected = request.get("expected_identity")
+    if expected is not None and expected != identity:
+        raise ValueError("restoration model changed; select the model again")
+    restored = np.asarray(model.eval(
+        image, channels=None, channel_axis=None, diameter=diameter,
+        normalize=True, batch_size=1), dtype=np.float32)
+    if restored.shape == (*image.shape, 1):
+        restored = restored[..., 0]
+    if restored.shape != image.shape or not np.isfinite(restored).all():
+        raise ValueError("restoration returned invalid values or changed image dimensions")
+    np.save(request["output"], restored, allow_pickle=False)
+    return {"output": request["output"], "provenance": {
+        **identity, "diameter_px": diameter,
+        "normalization": "Cellpose 1st/99th percentile",
+        "intensity_units": "normalized model output", "dtype": "float32",
+        "shape": list(restored.shape)}}
+
+
 def _worker_detect(request, adapters):
     """Find plaque images in one figure with the YOLO detector, per size.
 
@@ -2257,6 +2478,45 @@ def _worker_detect(request, adapters):
                          if conf is not None else 1.0)
                 boxes.append([x0, y0, x1, y1, score, int(size)])
     return {"boxes": boxes}
+
+
+def _worker_detect_spots(request, adapters):
+    """Find fluorescent spots in one image with SpotNet.
+
+    :param request: ``image`` (a ``.npy`` path, ``H x W`` or ``H x W x 1``
+        with finite values) and ``threshold`` (a finite detection probability
+        from 0 to 1). Invalid inputs are rejected before loading weights.
+    :param adapters: the worker's cache; the application loads once.
+    :returns: ``{"spots": [[y, x], ...]}`` in image pixels.
+    """
+    import numpy as np
+
+    image = np.load(str(request["image"]), allow_pickle=False)
+    if image.ndim == 2:
+        image = image[..., None]
+    if image.ndim != 3 or image.shape[-1] != 1 or not all(image.shape):
+        raise ValueError("SpotNet needs one nonempty single-channel image.")
+    batch = image[None].astype("float32")
+    if not np.isfinite(batch).all():
+        raise ValueError("SpotNet image values must be finite.")
+    threshold = float(request.get("threshold", 0.95))
+    if not np.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ValueError("SpotNet threshold must be between 0 and 1.")
+    if "spotnet" not in adapters:
+        from deepcell_spots.applications import SpotDetection
+
+        adapters["spotnet"] = SpotDetection()
+    found = adapters["spotnet"].predict(batch, threshold=threshold)
+    if (not isinstance(found, (list, tuple, np.ndarray))
+            or (isinstance(found, np.ndarray) and found.ndim == 0)
+            or len(found) != 1):
+        raise ValueError("SpotNet must return coordinates for exactly one image.")
+    spots = np.asarray(found[0], dtype=float)
+    if spots.shape in ((0,), (0, 2)):
+        return {"spots": []}
+    if spots.ndim != 2 or spots.shape[1] != 2 or not np.isfinite(spots).all():
+        raise ValueError("SpotNet coordinates must be finite (y, x) pairs.")
+    return {"spots": spots.tolist()}
 
 
 def _worker_read_text(request, adapters):
@@ -2331,8 +2591,15 @@ def _handle(name, request, adapters):
             body = _worker_hello(name)
         elif op == "segment":
             body = _worker_segment(name, request, adapters)
+        elif op == "restore":
+            body = _worker_restore(name, request, adapters)
+        elif op == "restoration_model":
+            _, identity = _worker_restoration_model(name, request, adapters)
+            body = {"identity": dict(identity)}
         elif op == "detect":
             body = _worker_detect(request, adapters)
+        elif op == "detect_spots":
+            body = _worker_detect_spots(request, adapters)
         elif op == "read_text":
             body = _worker_read_text(request, adapters)
         elif op == "read_pdf":

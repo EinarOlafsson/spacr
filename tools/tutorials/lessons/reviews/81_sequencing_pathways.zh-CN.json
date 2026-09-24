@@ -1,0 +1,38 @@
+{
+  "language": "zh-CN",
+  "title": "测序模块及其关联",
+  "section": "工作流程",
+  "description": "将测序和光学条形码流程与表型评分、回归分析、实验设计、统计功效估计、剂量反应分析及运行比较连接起来。",
+  "scenes": [
+    "从 Home 开始，先明确研究问题和条形码数据类型。Map Barcodes 读取测序文件；光学混池筛选通过 OPS 读取已配准的多轮图像。两者都需要明确建立条形码身份与实验之间的对应关系。Regression 将兼容的扰动计数与表型评分关联起来，不能替代条形码解码。规划筛选时，应在采集数据之前使用 Experiment Design 和 Power；而 Dose-Response 和 Run Compare 则用于在采集之后检查适用的结果。",
+    "从 Home 打开 Map Barcodes。提供编码实验信息的参考数据。先检查映射后的计数和条形码质控，再将每孔向导序列计数与表型评分配对。输入数据：测序读段。输出数据：每孔向导序列计数。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。",
+    "从 Home 打开 Map Barcodes，然后选择 Barcode QC。在过滤向导序列计数之前，检查映射深度、覆盖度、条形码冲突和位置效应。输入数据：每孔向导序列计数。输出数据：质量控制结果；图表和表格导出文件。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。",
+    "从 Home 打开 Mask，然后选择 OPS。使用测序循环图像和表型图像对齐结果，对每个细胞核的条形码进行解码。进入 Regression 之前，先将解码后的身份信息聚合或连接到兼容的表型输入；OPS 数据库不能直接替代由 FASTQ 生成的计数 CSV 文件。输入数据：显微镜图像；已对齐的拼接图和坐标。输出数据：光学条形码分配结果。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。",
+    "从 Home 打开 Regression。匹配表型输入和向导序列计数输入中的板号与孔位标识，选择响应变量和对照，并在解释命中结果前检查诊断信息。也支持直接测量的响应值。输入数据：对象分类评分；每孔向导序列计数；光学条形码分配结果；测量后的对象。输出数据：回归结果和命中项。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板号和孔位身份。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
+    "从 Home 打开 Power / Design。根据选定的效应量和变异程度估计采样需求；可选择使用预实验测量结果来支持假设。输入数据：筛选设计和统计功效估计；测量后的对象；实验布局。输出数据：筛选设计和统计功效估计。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。",
+    "从 Home 打开 Experiment Design。输入实验条件、对照、重复和板布局限制，然后在数据采集之前导出实验布局。输入数据：筛选设计和统计功效估计。输出数据：实验布局。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。",
+    "从 Home 打开 Dose–Response。在曲线拟合之前，提供剂量列、响应列、对照和单位；这条路径不需要测序。输入数据：测量后的对象；实验布局。输出数据：实验分析结果；图表和表格导出文件。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。",
+    "从 Home 打开 Run Compare。比较兼容的已保存设置、计数和命中列表，不要把输入数据发生变化的情况当成受控的模型比较。输入数据：运行历史和产物；回归结果和命中项。输出数据：运行或模型比较。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
+    "在 Python 中通过 spacr.sim.run_multiple_simulations 使用混池筛选模拟参数扫描。这个流程仅通过 API 提供，没有 Home 磁贴或菜单入口。使用 Python 参数扫描 API 探索明确陈述的筛选设计假设。它会展开参数组合，在进程池中运行模拟，并写出合成数据的汇总统计量；返回值为 None。运行前，显式设置较小的 max_workers 值，并限定参数网格的规模。输出不能替代实验性 Regression 所需的测量结果或条形码计数。将模拟发现用作规划依据，并记录其假设。选择规划假设时，检查模拟汇总结果；再将这些假设手动输入 Power / Design 或 Experiment Design。这两个工具都不导入此模拟数据库，也都不导出模拟设置网格。输入数据：混池筛选模拟假设。输出数据：合成筛选模拟汇总结果。",
+    "将测序参考数据和板布局与计数一起保存，并在解释回归结果之前，检查与图像评分的连接。光学分配结果需要专门的对象连接和聚合，不能自动充当可直接替换的测序计数文件。应将规划假设、拟合效应和已完成运行之间的比较视为不同类型的结果。关联课程和从 Home 开始的操作指南展示了各类实验的路径。"
+  ],
+  "objectives": [
+    "根据已有数据选择起始模块。",
+    "确定每个模块读取和写出哪些数据。",
+    "通过链接的模块课程和 API 说明了解下一步。"
+  ],
+  "prerequisite": "安装 spaCR 并打开 Home。本课程解释界面导航和数据交接；链接的模块课程提供完整的数据操作示例。输入和输出包含有条件的替代方案，各模块会分别说明。",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain separate sequencing and optical barcode workflows and their explicit phenotype joins.",
+      "Distinguish prospective design/power assumptions from measured dose responses and completed-run comparisons.",
+      "Keep the simulation API, None return and max_workers literal, bounded CPU process-pool guidance, synthetic output caveat and manual transfer to planning tools.",
+      "Navigation and data-handoff overview only; no claim that the capture executed an experiment."
+    ]
+  }
+}

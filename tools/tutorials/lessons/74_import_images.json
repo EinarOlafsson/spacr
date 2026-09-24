@@ -2,76 +2,99 @@
   "id": "74_import_images",
   "number": 74,
   "slug": "import_images",
-  "title": "Import Images: inspect the plan before importing",
+  "title": "Import Images: map image identities and create a project",
   "series": 2,
   "app_key": "import_images",
   "host_app_key": "foreign",
   "section": "spaCR",
-  "description": "Open Import Images inside Import, check a real microscopy subset before writing, and save a reusable plan. The example explicitly distinguishes unsupported raw naming from prepared copies.",
+  "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
   "objectives": [
-    "Find Import Images inside the Import module and distinguish it from importing existing measurements and masks.",
-    "Check image identities and unresolved filename tokens before writing a project.",
-    "Choose copying or linking, save and reload a plan, and verify the completed import."
+    "Scan microscope images and resolve naming questions.",
+    "Choose a destination, plate name and copy or link behavior.",
+    "Save a reusable plan and import images for Mask."
   ],
-  "prerequisite": "Download Mask's real example first. This recording uses copied E01/F001 and L01/F009 fields, four C channels each. Prepared copies omit only the A token immediately before Z; originals remain unchanged. This is a specifically checked example, not a general instruction to delete unfamiliar filename metadata.",
+  "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
   "scenes": [
     {
       "visual": "02_import_fold",
-      "narration": "Open Import from Home's Data category, then choose Import Images. This nested tool prepares raw image files. Import Project, Format Converter, and External Masks are related workflows with their own tutorials.",
+      "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
       "hold_after": 0.7,
       "focus_buttons": "FoldButton",
-      "related_lessons": ["36_import", "35_converter", "31_external_masks"]
+      "related_lessons": [
+        "36_import",
+        "35_converter",
+        "31_external_masks"
+      ]
     },
     {
       "visual": "04_source_options",
-      "narration": "Our eight images are real microscopy data from Mask's downloadable example: one field from each of two wells, with four channels per field. We work on separate copies and leave the downloaded originals untouched.",
+      "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
       "hold_after": 0.7,
-      "related_lessons": ["07_mask"]
+      "related_lessons": [
+        "07_mask"
+      ]
     },
     {
       "visual": "04a_unresolved_acquisition_token",
-      "narration": "Scan reveals an unresolved acquisition token in these raw names. Import stays disabled and nothing is written. Do not guess a channel mapping: two different channels share this acquisition value, so that answer would corrupt their identities.",
+      "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
       "hold_after": 0.7
     },
     {
       "visual": "05_scan_proposal",
-      "narration": "For this checked example, prepared copies omit only the redundant acquisition token. Their well, field, and channel names remain intact. Scan now shows eight rows, two wells, two field numbers, and four channels. This does not mean the original naming was accepted.",
+      "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
       "hold_after": 0.7
     },
     {
       "visual": "06_check_filename",
-      "narration": "Compare the proposal with the filenames before importing. Read inside each file checks embedded axis metadata as well as names. Sample limits the files inspected; ensure the proposal includes the images you intend to import. Resolve questions from acquisition records, not guesses.",
+      "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
       "hold_after": 0.7,
-      "focus": [350, 665, 1770, 675]
+      "focus": [
+        350,
+        665,
+        1770,
+        675
+      ]
     },
     {
       "visual": "07_copy_destination",
-      "narration": "Choose a destination outside the input folder and set the plate name. We turn off Link instead of copy for an independent project. Links save disk space, but depend on the originals staying accessible at their existing locations.",
+      "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
       "hold_after": 0.7,
-      "focus": [345, 1600, 3420, 210]
+      "focus": [
+        345,
+        1600,
+        3420,
+        210
+      ]
     },
     {
       "visual": "07_copy_destination",
-      "narration": "These example files are not tiles. For tiled acquisitions, read the Tiles choice carefully: stitching assembles fields, keeping tiles separately changes what a field means, and skipping loses those images. Check the report and any unverified seams before measuring.",
+      "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
       "hold_after": 0.7,
-      "related_lessons": ["32_align_stitch"]
+      "related_lessons": [
+        "32_align_stitch"
+      ]
     },
     {
       "visual": "09_saved_plan",
-      "narration": "Save plan writes a JSON record of the source and your mapping answers, not a backup of the images. Keep it with the acquisition notes. The same plan can be read through the Python image import API.",
+      "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
       "hold_after": 0.7,
-      "related_lessons": ["06_api"]
+      "related_lessons": [
+        "06_api"
+      ]
     },
     {
       "visual": "11_reloaded_plan",
-      "narration": "Load plan reads the source folder again and reuses the saved answers. Check the new proposal before importing; a saved plan does not guarantee that a changed acquisition is correct. Here it restores the same eight checked image identities.",
+      "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
       "hold_after": 0.7
     },
     {
       "visual": "12_import_complete",
-      "narration": "Press Import and read the summary. This run wrote eight independent image copies with no skipped files; their contents match the source. Next, point Mask at the project and inspect its live preview before segmentation. Importing alone does not generate masks or measurements.",
+      "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
       "hold_after": 0.7,
-      "related_lessons": ["07_mask", "08_measure"]
+      "related_lessons": [
+        "07_mask",
+        "08_measure"
+      ]
     }
   ]
 }

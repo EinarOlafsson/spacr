@@ -1,5 +1,6 @@
 """Editorial promotion is source-pinned and cannot overwrite other lessons."""
 import hashlib
+import copy
 import importlib.util
 import json
 from pathlib import Path
@@ -76,3 +77,48 @@ def test_section_heading_remains_translated(project, explicit):
     reviewer.promote(review, root)
     actual = reviewer.read(root / 'catalog/lessons_es.json')['lessons'][0]
     assert actual['section'] == ('Datos' if explicit else 'Módulos principales')
+
+
+def new_lesson_reviews(root, english, review):
+    source = reviewer.read(root / 'catalog/lessons_en.json')
+    reviews = []
+    for number in (8, 9):
+        lesson = dict(copy.deepcopy(english), id=f'new_{number}', number=number)
+        source['lessons'].append(lesson)
+        reviews.append(dict(copy.deepcopy(review), lesson=lesson['id'],
+                            english_sha256=hashlib.sha256(json.dumps(
+                                lesson, sort_keys=True, ensure_ascii=False).encode()).hexdigest()))
+    reviewer.write(root / 'catalog/lessons_en.json', source)
+    return reviews
+
+
+def test_batch_adds_new_lessons_together_without_english_fallback(project):
+    root, english, retained, review = project
+    before = reviewer.read(root / 'catalog/lessons_es.json')
+    reviews = new_lesson_reviews(root, english, review)
+    reviewer.promote_many(reviews, root)
+    actual = reviewer.read(root / 'catalog/lessons_es.json')['lessons']
+    assert actual[:2] == before['lessons']
+    assert [lesson['id'] for lesson in actual[2:]] == ['new_8', 'new_9']
+    for lesson in actual[2:]:
+        assert lesson['scenes'][0]['narration'] == 'Abra Home.'
+        assert lesson['scenes'][0]['related_lessons'] == ['mask']
+
+
+@pytest.mark.parametrize('fault', ['late_stale_source', 'missing_sibling', 'mixed_language', 'duplicate'])
+def test_bad_batch_leaves_all_catalog_and_review_files_unchanged(project, fault):
+    root, english, retained, review = project
+    reviews = new_lesson_reviews(root, english, review)
+    if fault == 'late_stale_source':
+        reviews[1]['english_sha256'] = 'stale'
+    elif fault == 'missing_sibling':
+        reviews.pop()
+    elif fault == 'mixed_language':
+        reviews[1]['language'] = 'de'
+    else:
+        reviews.append(reviews[0])
+    before = {p: p.read_bytes() for p in (root / 'catalog').glob('*.json')}
+    with pytest.raises(ValueError):
+        reviewer.promote_many(reviews, root)
+    assert {p: p.read_bytes() for p in (root / 'catalog').glob('*.json')} == before
+    assert not (root / 'production').exists()

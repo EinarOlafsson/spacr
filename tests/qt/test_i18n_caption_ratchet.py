@@ -916,10 +916,10 @@ def test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned():
 
 def test_compact_and_generated_caption_owners_are_disjoint():
     """A caption belongs to the reviewed compact or generated layer, not both."""
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
     from spacr.qt.i18n_catalogs import en
 
-    duplicated = sorted(set(_ROWS) & set(en.UI_SOURCES))
+    duplicated = sorted((set(_ROWS) | set(_TERM_ROWS)) & set(en.UI_SOURCES))
     assert not duplicated, (
         "compact captions must not acquire a second generated owner:\n  "
         + "\n  ".join(repr(value) for value in duplicated)
@@ -1154,7 +1154,7 @@ def test_external_caption_layer_is_complete_exclusive_and_pinned():
     finally:
         sys.path.remove(tools_dir)
 
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
     from spacr.qt.i18n_catalogs import en
 
     canonical = builder.canonical_sources()
@@ -1198,7 +1198,7 @@ def test_external_caption_layer_is_complete_exclusive_and_pinned():
     } == {
         table: set(records) for table, records in english.items()
     }
-    assert not (set(_ROWS) & set(external["UI"])), (
+    assert not ((set(_ROWS) | set(_TERM_ROWS)) & set(external["UI"])), (
         "compact and source-bound caption layers must be disjoint"
     )
 
@@ -1212,17 +1212,18 @@ def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():
     finally:
         sys.path.remove(tools_dir)
 
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
     from spacr.qt.i18n_catalogs import CATALOG_LANGUAGES, en
 
     discovered = set(builder.extract_static_ui_sources())
     independently_expected = (
         _custom_widget_literal_captions() | _indirect_registry_captions()
     )
+    compact = set(_ROWS) | set(_TERM_ROWS)
     missing_ownership = sorted(
         independently_expected
         - _RUNTIME_IDENTITY_CAPTIONS
-        - set(_ROWS)
+        - compact
         - discovered
     )
     assert not missing_ownership, (
@@ -1233,7 +1234,7 @@ def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():
     ambiguous_ownership = sorted(
         source
         for source in independently_expected - _RUNTIME_IDENTITY_CAPTIONS
-        if int(source in _ROWS) + int(source in en.UI_SOURCES) != 1
+        if int(source in compact) + int(source in en.UI_SOURCES) != 1
     )
     assert not ambiguous_ownership, (
         "custom/indirect captions need exactly one compact or generated "
@@ -1242,7 +1243,7 @@ def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():
     )
 
     external = (
-        independently_expected - _RUNTIME_IDENTITY_CAPTIONS - set(_ROWS)
+        independently_expected - _RUNTIME_IDENTITY_CAPTIONS - compact
     )
     assert external <= set(en.UI_SOURCES)
     for language in CATALOG_LANGUAGES:

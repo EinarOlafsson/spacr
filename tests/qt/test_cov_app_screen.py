@@ -1655,10 +1655,13 @@ class TestRuntimePanels:
         # next layout change and still catches a pane going missing.
         splitter = scr._runtime_splitter
         panes = [splitter.widget(i) for i in range(splitter.count())]
-        assert panes == [scr._figures_card, card, scr._console_wrap], (
+        # Item 471 put System and the buttons section in the same splitter,
+        # under the console, so each of them resizes and collapses too.
+        assert panes == [scr._figures_card, card, scr._console_wrap,
+                         scr._usage_card, scr._actions_section], (
             f"{app_key}: the runtime splitter holds "
             f"{[type(w).__name__ for w in panes]}, not figures / preview / "
-            f"console")
+            f"console / System / buttons")
         assert scr._console.isAncestorOf(scr._console_wrap) is False
         assert scr._console_wrap.isAncestorOf(scr._console), (
             "the console pane must actually contain the console")
@@ -1863,51 +1866,6 @@ class TestLivePreviewAutoload:
 # L. Demos menu
 # ---------------------------------------------------------------------------
 
-class TestDemosMenu:
-
-    def test_empty_state_cta_opens_the_demos_menu(self, qtbot):
-        win = QMainWindow()
-        qtbot.addWidget(win)
-        menu = _RecordingMenu("&Demos", win)
-        win.menuBar().addMenu(menu)
-        scr = AppScreen("mask")
-        win.setCentralWidget(scr)
-        scr._open_demos_menu()
-        assert len(menu.exec_calls) == 1
-
-    def test_no_demos_menu_means_nothing_happens(self, qtbot):
-        win = QMainWindow()
-        qtbot.addWidget(win)
-        other = _RecordingMenu("&File", win)
-        win.menuBar().addMenu(other)
-        scr = AppScreen("mask")
-        win.setCentralWidget(scr)
-        scr._open_demos_menu()
-        assert other.exec_calls == []
-
-    def test_a_demos_entry_without_a_submenu_is_skipped(self, qtbot):
-        win = QMainWindow()
-        qtbot.addWidget(win)
-        win.menuBar().addAction("&Demos")       # bare action, no submenu
-        scr = AppScreen("mask")
-        win.setCentralWidget(scr)
-        console_before = _console_text(scr._console)
-        scr._open_demos_menu()                  # must not raise
-        assert _console_text(scr._console) == console_before
-
-    def test_open_demos_menu_without_a_window_is_silent(self, qtbot):
-        scr = _make_screen(qtbot, "mask")
-        scr.window = lambda: None
-        console_before = _console_text(scr._console)
-        scr._open_demos_menu()          # must not raise
-        assert _console_text(scr._console) == console_before
-
-    def test_open_demos_menu_survives_a_parent_without_a_menu_bar(self, qtbot):
-        scr = _make_screen(qtbot, "mask")
-        assert not hasattr(scr.window(), "menuBar")
-        console_before = _console_text(scr._console)
-        scr._open_demos_menu()          # top-level QWidget: no menuBar()
-        assert _console_text(scr._console) == console_before
 
 
 # ---------------------------------------------------------------------------

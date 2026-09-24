@@ -50,12 +50,12 @@ class TestClickingTheNameFolds:
         _click(heading)
         assert not folder.shut and not body.isHidden()
 
-    def test_the_name_looks_clickable_before_it_is_clicked(self, app):
+    def test_the_name_explains_folding_without_changing_the_os_cursor(self, app):
         from spacr.qt.widgets.foldable import make_foldable
 
         heading = QLabel("Console")
         make_foldable(heading, QWidget())
-        assert heading.cursor().shape() == Qt.PointingHandCursor
+        assert heading.cursor().shape() == Qt.ArrowCursor
         assert "fold" in heading.toolTip().lower()
 
     def test_a_folded_panel_leaves_a_strip_that_names_it(self, app):

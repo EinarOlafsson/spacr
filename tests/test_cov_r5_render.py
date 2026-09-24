@@ -126,9 +126,9 @@ def test_the_sheet_font_falls_back_when_the_bundled_one_is_missing(
     """A checkout without ``OpenSans-SemiBold.ttf`` still labels the sheet.
 
     The contact sheet is a review artefact; losing the bundled face has to
-    cost the typeface and not the run.  Pointing ``repo_root`` at an empty
-    tree is exactly what an install stripped of its font resources looks
-    like.
+    cost the typeface and not the run. Refuse the bundled face explicitly:
+    Pillow may find its basename in system font directories even when the
+    requested absolute path does not exist.
     """
     import common
 
@@ -142,7 +142,22 @@ def test_the_sheet_font_falls_back_when_the_bundled_one_is_missing(
     assert bundled.size == 15
 
     monkeypatch.setattr(common, "repo_root", lambda: str(tmp_path))
+    from PIL import ImageFont
+
+    real_truetype = ImageFont.truetype
+    missing_face = os.path.join(str(tmp_path), "spacr", "qt", "resources",
+                                "fonts", "OpenSans-SemiBold.ttf")
+    attempted = []
+
+    def without_bundled_face(font, *args, **kwargs):
+        if font == missing_face:
+            attempted.append(font)
+            raise OSError("bundled font is unavailable")
+        return real_truetype(font, *args, **kwargs)
+
+    monkeypatch.setattr(ImageFont, "truetype", without_bundled_face)
     fallback = sandbox._sheet_font(15)
+    assert attempted == [missing_face]
     assert fallback.getname()[0] != "Open Sans", (
         "the missing file was not silently found somewhere else")
 

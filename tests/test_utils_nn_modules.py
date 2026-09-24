@@ -224,17 +224,16 @@ def test_calculate_recruitment():
     # No column literally contains the word "recruitment"; the ratios are
     # named <object>_<compartment>_<stat>_mean. The old assertion would have
     # failed too, had the call ever got that far.
-    expected = {f"pathogen_{compartment}_{stat}_mean"
+    expected = {f"pathogen_channel_1_{compartment}_{stat}_ratio"
                 for compartment in ("cell", "cytoplasm", "nucleus")
                 for stat in ("mean", "q75")}
     assert expected <= set(out.columns)
     np.testing.assert_allclose(
-        out["pathogen_cell_q75_mean"],
+        out["pathogen_channel_1_cell_q75_ratio"],
         expected_inputs["pathogen_channel_1_percentile_75"]
         / expected_inputs["cell_channel_1_mean_intensity"])
     # per-channel slope placeholders for both object types
-    assert {f"pathogen_slope_channel_{c}" for c in range(4)} <= set(out.columns)
-    assert {f"nucleus_slope_channel_{c}" for c in range(4)} <= set(out.columns)
+    assert not any("slope_channel_" in col for col in out.columns)
 
 
 def test_group_by_well():

@@ -1634,6 +1634,10 @@ class HomePage(QWidget):
     """
 
     tile_clicked = Signal(str)
+    #: Emitted when the person asks for a sample project of their own kind
+    #: (GitHub #130). The window answers it with
+    #: :func:`spacr.qt.widgets.sample_project.offer_a_sample_project`.
+    sample_project_requested = Signal()
     #: Emitted when the page wants the window to run its update check.
     update_check_requested = Signal()
 
@@ -2319,6 +2323,21 @@ class HomePage(QWidget):
         col = QVBoxLayout(aside)
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["md"])
+
+        from ..i18n import tr
+
+        # GitHub #130: Home said what spaCR can do and nothing about where to
+        # begin. First in the column, above the panels, because it is the
+        # answer to the first question a new user has.
+        start = QPushButton(tr("Pipeline overviews"), aside)
+        start.setObjectName("PrimaryButton")
+        start.setToolTip(tr(
+            "Explore pipeline flowcharts, their modules, inputs and outputs, "
+            "and optionally start with example data."))
+        start.clicked.connect(
+            lambda _checked=False: self.sample_project_requested.emit())
+        self._sample_project_button = start
+        col.addWidget(start)
 
         self._queued = QueuedPanel()
         self._recent = RecentRunsPanel(known_keys=lambda: self._names)

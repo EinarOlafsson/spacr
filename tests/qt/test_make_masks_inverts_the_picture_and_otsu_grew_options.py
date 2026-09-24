@@ -469,11 +469,12 @@ def test_the_histogram_counts_the_values_the_level_was_found_on():
     assert not np.array_equal(rough, smooth)
 
 
-def test_the_preview_window_marks_the_level_the_button_would_use(screen):
+def test_the_preview_window_marks_the_level_the_button_would_use(screen, qtbot):
     screen._otsu_correction.setValue(1.0)
     screen._on_show_otsu_histogram()
     dialog = screen._otsu_histogram_dialog
     assert dialog is not None
+    qtbot.waitUntil(lambda: dialog.ready)
     settings = screen._otsu_settings()
     expected = engine._otsu_levels(
         screen._canvas.image, bright=screen._otsu_bright.isChecked(),
@@ -486,21 +487,24 @@ def test_the_preview_window_marks_the_level_the_button_would_use(screen):
     dialog.close()
 
 
-def test_the_preview_follows_the_correction(screen):
+def test_the_preview_follows_the_correction(screen, qtbot):
     screen._otsu_correction.setValue(1.0)
     screen._on_show_otsu_histogram()
+    qtbot.waitUntil(lambda: screen._otsu_histogram_dialog.ready)
     plain = list(screen._otsu_histogram_dialog.plot.levels)
     screen._otsu_correction.setValue(1.5)
     screen._on_show_otsu_histogram()
+    qtbot.waitUntil(lambda: screen._otsu_histogram_dialog.ready)
     stricter = list(screen._otsu_histogram_dialog.plot.levels)
     assert stricter[0] > plain[0]
     assert screen._otsu_histogram_dialog.plot.levels == stricter
     screen._otsu_histogram_dialog.close()
 
 
-def test_the_preview_says_a_local_level_varies(screen):
+def test_the_preview_says_a_local_level_varies(screen, qtbot):
     screen._otsu_local.setChecked(True)
     screen._on_show_otsu_histogram()
+    qtbot.waitUntil(lambda: screen._otsu_histogram_dialog.ready)
     text = screen._otsu_histogram_dialog.caption.text()
     assert "varies" in text and "local" in text.lower()
     screen._otsu_histogram_dialog.close()
@@ -521,7 +525,7 @@ def test_each_new_otsu_control_is_in_the_otsu_category_with_help(screen, name):
     from spacr.qt.screens.settings_model import _sibling_label_for
 
     control = getattr(screen, name)
-    category = dict(screen._settings_categories)["Otsu"]
+    category = dict(screen._settings_categories)["Detection method"]
     assert category.isAncestorOf(control), name
     label = _sibling_label_for(control)
     helped = control.toolTip() or (label is not None and label.toolTip())
@@ -583,20 +587,21 @@ def test_the_detect_run_records_the_new_settings(screen):
     assert detail["otsu_window"] == mm.OTSU_LOCAL_WINDOW
 
 
-def test_the_three_new_settings_are_the_detect_buttons_own(screen):
-    """They are whole-field judgements, so the magnifier does not read them.
+def test_multiotsu_bands_reach_the_box_but_local_otsu_remains_button_only(screen):
+    """473 adds band snapshots for Multi-Otsu in both magnifier scopes.
 
-    A 64 px box rarely holds three populations and a window the size of the
-    box is the box's own threshold, so offering either there would be
-    offering a control that does nothing -- the same defect, moved. The
-    precedent is 419's own "Drop objects the image border cuts".
+    The local window also reaches Sauvola/Niblack. The Local Otsu toggle
+    remains a whole-image detect setting, separate from those algorithms.
     """
     context = screen._magnifier_context()
-    for key in ("classes", "foreground_class", "local", "window",
-                "otsu_classes", "otsu_local", "otsu_window"):
+    for key in ("classes", "foreground_class", "local", "otsu_local"):
         assert key not in context, key
-    assert "otsu_classes" not in mm._MODEL_SETTING_FIELDS
+    assert context["otsu_classes"] == screen._otsu_classes.value()
+    assert context["otsu_foreground_class"] == screen._otsu_foreground.value()
+    assert "otsu_classes" in mm._MODEL_SETTING_FIELDS
+    assert "otsu_foreground_class" in mm._MODEL_SETTING_FIELDS
     assert "otsu_local" not in mm._MODEL_SETTING_FIELDS
+    assert context["otsu_window"] == screen._otsu_window.value()
 
 
 def test_the_minimum_area_after_the_threshold_is_the_one_box_there_was(screen):
@@ -617,7 +622,7 @@ def test_the_minimum_area_after_the_threshold_is_the_one_box_there_was(screen):
     screen._btn_otsu.click()
     assert int(screen._canvas.mask.max()) < small
 
-    category = dict(screen._settings_categories)["Otsu"]
+    category = dict(screen._settings_categories)["Detection method"]
     said = [label.text() for label in category.findChildren(QLabel)]
     assert any("Min area" in text and "Object operations" in text
                for text in said), said

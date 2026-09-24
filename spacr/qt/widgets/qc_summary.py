@@ -497,6 +497,36 @@ _READERS = (
 )
 
 
+def _read_image_quality(src):
+    """Read the saved pre-segmentation policy and distinguish exclusions from empty masks."""
+    import json
+    from pathlib import Path
+    from ...image_quality import REPORT
+
+    path = Path(_project_root(src)) / REPORT
+    if not path.exists():
+        return None
+    card = QCCard(key='image_quality', title='Image Quality', source=str(path))
+    try:
+        report = json.loads(path.read_text(encoding='utf-8'))
+        fields = report['fields']
+        rejected = report['excluded_fields']
+        flagged = [field for field in fields if field['reasons']]
+        card.verdict = 'warn' if flagged else 'ok'
+        card.headline = f'{len(fields)} fields screened; {len(flagged)} flagged; {len(rejected)} excluded.'
+        if report['policy']['image_qc_mode'] == 'off':
+            card.verdict = 'missing'
+            card.headline = 'Image-quality screening is off.'
+        card.detail = ['Policy: ' + report['policy']['image_qc_mode'] + '. Excluded fields were not analyzed; they are not zero-object detections.']
+        card.detail.extend(field['field'] + ': ' + '; '.join(field['reasons']) for field in flagged[:20])
+        card.detail.append('Full field/channel metrics and reasons: ' + str(path.with_suffix('.csv')))
+        card.mtime = path.stat().st_mtime
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        card.verdict = 'error'
+        card.headline = f'Could not read image-quality report: {exc}'
+    return card
+
+
 def read_dashboard(src: Any, *, segmentation_reader=None) -> Dashboard:
     """Read every verdict already on disk for one project. Computes none.
 
@@ -507,6 +537,9 @@ def read_dashboard(src: Any, *, segmentation_reader=None) -> Dashboard:
         has been run, which is not the same as ``"ok"``.
     """
     cards: List[QCCard] = []
+    image_quality = _read_image_quality(src)
+    if image_quality is not None:
+        cards.append(image_quality)
     for key, reader in _READERS:
         if key == "segmentation":
             cards.append(_read_segmentation(src, reader=segmentation_reader))

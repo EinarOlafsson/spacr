@@ -59,7 +59,9 @@ from PySide6.QtWidgets import (
 from ..job_runner import JobRunner
 from ..theme import SPACING, register_widget_qss
 from .app_screen import ModuleHeader
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.measurements_example import install_test_data_button
+from ..i18n import tr
 from ..widgets.qc_summary import (
     Dashboard, format_dashboard, read_dashboard,
 )
@@ -90,6 +92,8 @@ LOG = logging.getLogger(__name__)
 VERDICT_OBJECT = "spacrQCVerdict"
 CARDS_OBJECT = "spacrQCCards"
 STATUS_OBJECT = "spacrQCStatus"
+#: One card's lines, the body of the section that folds it (item 471).
+CARD_OBJECT = "spacrQCCard"
 
 
 def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
@@ -137,6 +141,11 @@ def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
    would freeze one opacity into the labels while the panel behind them
    kept following the preference. */
 #{CARDS_OBJECT} QLabel {{
+    background: transparent;
+}}
+#{CARDS_OBJECT} QWidget#{CARD_OBJECT},
+#{CARDS_OBJECT} QWidget#FoldSection,
+#{CARDS_OBJECT} QWidget#FoldSectionBody {{
     background: transparent;
 }}
 #{STATUS_OBJECT} {{
@@ -323,7 +332,7 @@ class QCDashboardScreen(QWidget):
             paths = list(find_scorecards(src))
         except Exception:
             return None
-        for extra in ("measurements/measurements.db", "measurements.db"):
+        for extra in ("measurements/measurements.db", "measurements.db", "qc/image_quality.json"):
             candidate = os.path.join(src, extra)
             if os.path.isfile(candidate):
                 paths.append(candidate)
@@ -440,6 +449,15 @@ class QCDashboardScreen(QWidget):
         A missing card also prints how to produce what it is missing, so the
         dashboard says what to do next rather than only what is absent.
 
+        Each card is a :class:`~spacr.qt.widgets.collapsible_splitter.FoldSection`
+        named by its title (item 471): a click on the heading folds the card's
+        lines away, the verdict stays on the heading row so a folded card
+        still says pass or fail, and a fold the user makes is remembered per
+        card under ``qc_dashboard/<card key>``. A card never grows past what it
+        needs, so the column's spare room stays below the last card and a
+        folded card keeps its place in the list instead of opening a gap
+        above its heading.
+
         :param dashboard: the read verdicts.
         """
         self._verdict.setText(
@@ -454,6 +472,11 @@ class QCDashboardScreen(QWidget):
         self._card_labels = []
 
         for card in dashboard.cards:
+            group = QWidget()
+            group.setObjectName(CARD_OBJECT)
+            group_layout = QVBoxLayout(group)
+            group_layout.setContentsMargins(0, 0, 0, 0)
+            group_layout.setSpacing(SPACING["sm"])
             heading = QLabel(
                 f"[{card.display_verdict}]  {card.title} — {card.headline}")
             heading.setWordWrap(True)
@@ -463,22 +486,40 @@ class QCDashboardScreen(QWidget):
             heading.setProperty("cardKey", card.key)
             if card.source:
                 heading.setToolTip(card.source)
-            self._cards_layout.addWidget(heading)
+            group_layout.addWidget(heading)
             self._card_labels.append(heading)
+            if card.key == 'image_quality' and card.source:
+                from pathlib import Path
+                from PySide6.QtCore import QUrl
+                from PySide6.QtGui import QDesktopServices
+                review = QPushButton(tr('Review image quality'))
+                gallery = str(Path(card.source).with_suffix('.html'))
+                review.clicked.connect(lambda _checked=False, path=gallery:
+                                       QDesktopServices.openUrl(QUrl.fromLocalFile(path)))
+                group_layout.addWidget(review)
             for line in card.detail:
                 detail = QLabel(line)
                 detail.setWordWrap(True)
                 detail.setProperty("spacrQCRole", "detail")
                 detail.setIndent(SPACING["md"])
-                self._cards_layout.addWidget(detail)
+                group_layout.addWidget(detail)
                 self._card_labels.append(detail)
             if card.verdict == "missing" and card.how_to_produce:
                 todo = QLabel(f"-> {card.how_to_produce}")
                 todo.setWordWrap(True)
                 todo.setProperty("spacrQCRole", "detail")
                 todo.setIndent(SPACING["md"])
-                self._cards_layout.addWidget(todo)
+                group_layout.addWidget(todo)
                 self._card_labels.append(todo)
+            chip = QLabel(f"[{card.display_verdict}]")
+            chip.setProperty("spacrQCVerdictLevel", card.verdict)
+            chip.setProperty("i18nSkipText", True)
+            section = FoldSection(
+                group, card.title, persist_key=f"qc_dashboard/{card.key}",
+                actions=[chip])
+            section.setSizePolicy(QSizePolicy.Policy.Preferred,
+                                  QSizePolicy.Policy.Maximum)
+            self._cards_layout.addWidget(section)
 
     def visible_text(self) -> str:
         """Every card line currently on screen, joined. For tests."""

@@ -1,0 +1,259 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "A shared line ruler that measures image coordinates without changing pixels.",
+      "label": "spacr.qt.widgets.image_ruler#0",
+      "source": "A shared line ruler that measures image coordinates without changing pixels.",
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "translation": "Una regla de línea compartida que mide coordenadas de imagen sin modificar píxeles."
+    },
+    {
+      "context": "Keep a line in image pixels and paint it through the host's transform.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler#0",
+      "source": "Keep a line in image pixels and paint it through the host's transform.",
+      "source_sha256": "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+      "translation": "Mantiene una línea en píxeles de imagen y la dibuja mediante la transformación del componente anfitrión."
+    },
+    {
+      "context": "owning image canvas or view; defaults to None.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler#1",
+      "source": "owning image canvas or view; defaults to None.",
+      "source_sha256": "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+      "translation": "lienzo o vista de imagen propietario; el valor predeterminado es None."
+    },
+    {
+      "context": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
+      "source": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
+      "source_sha256": "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c",
+      "translation": "Los componentes anfitriones pasan su correspondencia de widget a imagen a :meth:`handle` y la inversa a :meth:`paint`. El zoom y el desplazamiento nunca cambian la longitud medida. Siempre se muestran unidades de píxel. Las unidades físicas requieren una calibración explícita y validada mediante :meth:`set_spacing`; nunca se supone la ampliación de la cámara. El clic derecho borra la línea mientras la herramienta está activa. Comienza sin línea ni calibración y con el dibujo desactivado."
+    },
+    {
+      "context": "Remove the line without changing tool activation or calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.clear#0",
+      "source": "Remove the line without changing tool activation or calibration.",
+      "source_sha256": "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+      "translation": "Elimina la línea sin cambiar la activación de la herramienta ni la calibración."
+    },
+    {
+      "context": "None; emits ``changed`` even when no line was present.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.clear#1",
+      "source": "None; emits ``changed`` even when no line was present.",
+      "source_sha256": "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c",
+      "translation": "None; emite ``changed`` incluso si no había ninguna línea."
+    },
+    {
+      "context": "Consume ruler mouse gestures; return False for navigation gestures.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#0",
+      "source": "Consume ruler mouse gestures; return False for navigation gestures.",
+      "source_sha256": "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+      "translation": "Consume los gestos del ratón de la regla; devuelve False para los gestos de navegación."
+    },
+    {
+      "context": "a mouse press, move or release from the host canvas.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#1",
+      "source": "a mouse press, move or release from the host canvas.",
+      "source_sha256": "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+      "translation": "evento de pulsación, movimiento o liberación del ratón del lienzo anfitrión."
+    },
+    {
+      "context": "widget QPointF -> image (x, y), or None off-image.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#2",
+      "source": "widget QPointF -> image (x, y), or None off-image.",
+      "source_sha256": "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+      "translation": "QPointF del widget -> imagen (x, y), o None fuera de la imagen."
+    },
+    {
+      "context": "True for consumed ruler gestures; False when the host should handle the event. Coordinates outside the image do not move endpoints.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#3",
+      "source": "True for consumed ruler gestures; False when the host should handle the event. Coordinates outside the image do not move endpoints.",
+      "source_sha256": "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb",
+      "translation": "True para los gestos de regla consumidos; False cuando el anfitrión debe gestionar el evento. Las coordenadas fuera de la imagen no mueven los extremos."
+    },
+    {
+      "context": "Return pixel length and, only when calibrated, physical length.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.label#0",
+      "source": "Return pixel length and, only when calibrated, physical length.",
+      "source_sha256": "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+      "translation": "Devuelve la longitud en píxeles y, solo si está calibrada, la longitud física."
+    },
+    {
+      "context": "text with lengths to two decimal places; empty before a line exists.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.label#1",
+      "source": "text with lengths to two decimal places; empty before a line exists.",
+      "source_sha256": "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e",
+      "translation": "texto con longitudes de dos decimales; vacío antes de que exista una línea."
+    },
+    {
+      "context": "Return the line length, or None before a line exists.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.length#0",
+      "source": "Return the line length, or None before a line exists.",
+      "source_sha256": "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+      "translation": "Devuelve la longitud de la línea, o None antes de que exista una línea."
+    },
+    {
+      "context": "False (default) uses image pixels; True uses calibrated per-axis spacing, including different horizontal and vertical values.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.length#1",
+      "source": "False (default) uses image pixels; True uses calibrated per-axis spacing, including different horizontal and vertical values.",
+      "source_sha256": "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+      "translation": "False (predeterminado) usa píxeles de imagen; True usa la escala calibrada de cada eje, incluidos valores horizontales y verticales distintos."
+    },
+    {
+      "context": "Euclidean length as a float in pixels or ``unit``; None when no line exists or physical length is requested without calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.length#2",
+      "source": "Euclidean length as a float in pixels or ``unit``; None when no line exists or physical length is requested without calibration.",
+      "source_sha256": "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197",
+      "translation": "longitud euclídea como float en píxeles o ``unit``; None si no existe una línea o se solicita longitud física sin calibración."
+    },
+    {
+      "context": "Draw endpoints, line and readout in widget coordinates.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#0",
+      "source": "Draw endpoints, line and readout in widget coordinates.",
+      "source_sha256": "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+      "translation": "Dibuja los extremos, la línea y la lectura en coordenadas del widget."
+    },
+    {
+      "context": "an active painter for the host canvas/viewport.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#1",
+      "source": "an active painter for the host canvas/viewport.",
+      "source_sha256": "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+      "translation": "pintor activo para el lienzo o área visible del anfitrión."
+    },
+    {
+      "context": "image (x, y) -> widget QPointF or QPoint, or None.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#2",
+      "source": "image (x, y) -> widget QPointF or QPoint, or None.",
+      "source_sha256": "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+      "translation": "imagen (x, y) -> QPointF o QPoint del widget, o None."
+    },
+    {
+      "context": "None; draws nothing when a line or either mapped endpoint is missing.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#3",
+      "source": "None; draws nothing when a line or either mapped endpoint is missing.",
+      "source_sha256": "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af",
+      "translation": "None; no dibuja nada si falta la línea o cualquiera de los extremos transformados."
+    },
+    {
+      "context": "Enable drawing; disabling preserves the finished line.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_active#0",
+      "source": "Enable drawing; disabling preserves the finished line.",
+      "source_sha256": "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+      "translation": "Activa el dibujo; al desactivarlo se conserva la línea terminada."
+    },
+    {
+      "context": "whether unmodified left drags measure instead of edit.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_active#1",
+      "source": "whether unmodified left drags measure instead of edit.",
+      "source_sha256": "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+      "translation": "si arrastrar con el botón izquierdo sin modificadores mide en lugar de editar."
+    },
+    {
+      "context": "None; emits ``changed`` after updating activation.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_active#2",
+      "source": "None; emits ``changed`` after updating activation.",
+      "source_sha256": "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa",
+      "translation": "None; emite ``changed`` tras actualizar la activación."
+    },
+    {
+      "context": "Set physical distance per image pixel, or clear calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#0",
+      "source": "Set physical distance per image pixel, or clear calibration.",
+      "source_sha256": "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+      "translation": "Establece la distancia física por píxel de imagen o elimina la calibración."
+    },
+    {
+      "context": "positive finite distance per horizontal image pixel in ``unit``; defaults to None, which clears calibration and ignores ``y``.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#1",
+      "source": "positive finite distance per horizontal image pixel in ``unit``; defaults to None, which clears calibration and ignores ``y``.",
+      "source_sha256": "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+      "translation": "distancia positiva y finita por píxel horizontal de imagen en ``unit``; el valor predeterminado es None, que elimina la calibración e ignora ``y``."
+    },
+    {
+      "context": "positive finite distance per vertical image pixel in ``unit``; defaults to None, which uses ``x`` for both axes.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#2",
+      "source": "positive finite distance per vertical image pixel in ``unit``; defaults to None, which uses ``x`` for both axes.",
+      "source_sha256": "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+      "translation": "distancia positiva y finita por píxel vertical de imagen en ``unit``; el valor predeterminado es None, que usa ``x`` para ambos ejes."
+    },
+    {
+      "context": "physical unit label; defaults to ``'µm'``. The caller supplies spacing in this unit; this method does not convert units.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#3",
+      "source": "physical unit label; defaults to ``'µm'``. The caller supplies spacing in this unit; this method does not convert units.",
+      "source_sha256": "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+      "translation": "etiqueta de la unidad física; el valor predeterminado es ``'µm'``. Quien llama proporciona la escala en esta unidad; este método no convierte unidades."
+    },
+    {
+      "context": "when spacing is nonpositive or nonfinite.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#4",
+      "source": "when spacing is nonpositive or nonfinite.",
+      "source_sha256": "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+      "translation": "cuando la escala no es positiva o no es finita."
+    },
+    {
+      "context": "None; emits ``changed`` after updating calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#5",
+      "source": "None; emits ``changed`` after updating calibration.",
+      "source_sha256": "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8",
+      "translation": "None; emite ``changed`` tras actualizar la calibración."
+    },
+    {
+      "context": "The ten tools, in :data:`TOOL_MODES` order, because this vocabulary is what a reader needs before opening the application view:",
+      "label": "spacr.qt.screens.make_masks#2",
+      "source": "THE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what a reader needs before opening the screen:",
+      "source_sha256": "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
+      "translation": "LAS DIEZ HERRAMIENTAS, en el orden de :data:`TOOL_MODES`, porque este vocabulario es necesario antes de abrir la pantalla:"
+    },
+    {
+      "context": "**Ruler** is the tenth. Drag between image pixels to read a length without editing labels. Zoom and pan preserve it; right-click with Ruler selected clears it. The same ruler is available on the paired live preview canvases.",
+      "label": "spacr.qt.screens.make_masks#5",
+      "source": "**Ruler** is the tenth. Drag between image pixels to read a length without editing labels. Zoom and pan preserve it; right-click with Ruler selected clears it. The same ruler is available on the paired live preview canvases.",
+      "source_sha256": "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
+      "translation": "**Regla** es la décima herramienta. Arrastre entre píxeles de imagen para leer una longitud sin editar etiquetas. El zoom y el desplazamiento la conservan; un clic derecho con Regla seleccionada la borra. La misma regla está disponible en los lienzos de vista previa en vivo emparejados."
+    },
+    {
+      "context": "Editor modes are assembled from :func:`tool_row_entries` and :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts non-mode actions into the same toolbar. The settings panel carries the operations that are not gestures -- object filling and relabeling, swapping object and background, size filtering and Otsu detection, with undo and redo over all of them -- alongside the brush, wand and display controls, and can be hidden to return its width to the canvas.",
+      "label": "spacr.qt.screens.make_masks#8",
+      "source": "Editor modes are assembled from :func:`tool_row_entries` and :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts non-mode actions into the same toolbar. The settings panel carries the operations that are not gestures -- object filling and relabeling, swapping object and background, size filtering and Otsu detection, with undo and redo over all of them -- alongside the brush, wand and display controls, and can be hidden to return its width to the canvas.",
+      "source_sha256": "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+      "translation": "Los modos del editor se forman a partir de :func:`tool_row_entries` y :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserta acciones que no son modos en la misma barra de herramientas. El panel de ajustes contiene las operaciones que no son gestos —relleno y reetiquetado de objetos, intercambio de objeto y fondo, filtrado por tamaño y detección Otsu, todas con deshacer y rehacer— junto con los controles de pincel, varita y visualización. Puede ocultarse para devolver su anchura al lienzo."
+    },
+    {
+      "context": "Image inversion and swapping object and background are separate operations. The first changes the image seen by the detector; the second changes labels.",
+      "label": "spacr.qt.screens.make_masks#9",
+      "source": "Image inversion and swapping object and background are separate operations. The first changes the image seen by the detector; the second changes labels.",
+      "source_sha256": "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+      "translation": "La inversión de imagen y el intercambio de objeto y fondo son operaciones distintas. La primera cambia la imagen que ve el detector; la segunda cambia las etiquetas."
+    },
+    {
+      "context": "**Invert image**, in the Display category, is THE inversion. It draws the microscope field of view as its own negative and hands the detectors that same negative: both detect buttons and the live magnifier segment :meth:`MakeMasksScreen._detector_image`, so a threshold written for bright objects takes dark ones, and a banner above the image says so for as long as it is on. The corner readout's pixel intensity follows the inverted image. Object mean intensities and the object filter still read the loaded pixels. Saving writes label masks without changing the source image.",
+      "label": "spacr.qt.screens.make_masks#10",
+      "source": "**Invert image**, in the Display category, is THE inversion. It draws the field as its own negative and hands the detectors that same negative: both detect buttons and the live magnifier segment :meth:`MakeMasksScreen._detector_image`, so a threshold written for bright objects takes dark ones, and a banner above the image says so for as long as it is on. The corner readout's pixel intensity follows the inverted image. Object mean intensities and the object filter still read the loaded pixels. Saving writes label masks without changing the source image.",
+      "source_sha256": "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+      "translation": "**Invertir imagen**, en la categoría Visualización, es la inversión común. Dibuja el campo como su negativo y entrega ese mismo negativo a los detectores: ambos botones de detección y la lupa en vivo segmentan :meth:`MakeMasksScreen._detector_image`, de modo que un umbral diseñado para objetos brillantes detecta los oscuros. Un aviso sobre la imagen lo indica mientras está activado. La intensidad del píxel en la lectura de la esquina sigue la imagen invertida. Las intensidades medias de los objetos y el filtro de objetos siguen leyendo los píxeles cargados. Al guardar se escriben máscaras de etiquetas sin modificar la imagen original."
+    },
+    {
+      "context": "It used to be two switches and they could disagree. A display-only \"Invert image\" drew a negative and left detection untouched; \"Invert for detection\" inverted what the detectors read and drew nothing. A curator could hold either without the other, and the first one's status line had to contradict the second one's banner. They are one switch because the reason for the switch is one intention: inverting a microscope field of view of dark objects so that Otsu and the magnifier can detect them. ``_cp_invert`` is now the same widget object as ``_invert_display`` under its old name, so the two cannot come apart.",
+      "label": "spacr.qt.screens.make_masks#11",
+      "source": "IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only \"Invert image\" drew a negative and left detection untouched; \"Invert for detection\" inverted what the detectors read and drew nothing. A curator could hold either without the other, and the first one's status line had to contradict the second one's banner. They are one switch because the reason for the switch is one intention: inverting a field of dark objects so that Otsu and the magnifier can detect them. ``_cp_invert`` is now the same widget object as ``_invert_display`` under its old name, so the two cannot come apart.",
+      "source_sha256": "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+      "translation": "ANTES ERAN DOS INTERRUPTORES QUE PODÍAN CONTRADECIRSE. \"Invert image\" (Invertir imagen), solo para visualización, dibujaba un negativo sin afectar a la detección; \"Invert for detection\" (Invertir para detección) invertía la entrada de los detectores sin dibujar nada. Era posible activar uno sin el otro, y la línea de estado del primero podía contradecir el aviso del segundo. Ahora hay un solo interruptor porque la intención es única: invertir un campo de objetos oscuros para que Otsu y la lupa puedan detectarlos. ``_cp_invert`` es ahora el mismo objeto de widget que ``_invert_display`` bajo su nombre anterior, por lo que ya no pueden divergir."
+    },
+    {
+      "context": "**Swap object and background**, in Object operations, is the old \"Invert mask\" under the name that describes it -- it flips the LABEL image, which on an ordinary microscope field of view leaves one object covering the frame. It is not a picture invert and is deliberately not called one.",
+      "label": "spacr.qt.screens.make_masks#12",
+      "source": "**Swap object and background**, in Object operations, is the old \"Invert mask\" under the name that describes it -- it flips the LABEL image, which on an ordinary field leaves one object covering the frame. It is not a picture invert and is deliberately not called one.",
+      "source_sha256": "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+      "translation": "**Intercambiar objeto y fondo**, en Operaciones de objetos, es el antiguo \"Invert mask\" (Invertir máscara) con un nombre descriptivo: invierte la imagen de ETIQUETAS, lo que en un campo normal deja un objeto que cubre todo el encuadre. No es una inversión de imagen y deliberadamente no se llama así."
+    },
+    {
+      "context": "The arithmetic. :func:`~spacr.qt.mask_engine.invert_normalized` normalises the microscope field of view to 0..1 on its own range and takes ``1 - v``, and the normalisation is not incidental: the Otsu correction is a MULTIPLIER on an absolute level, so normalising first is what makes one correction value mean the same thing on the next image. :func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and :func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the microscope field of view's range) are what this application view used before and are kept for other callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.",
+      "label": "spacr.qt.screens.make_masks#13",
+      "source": "THE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises the field to 0..1 on its own range and takes ``1 - v``, and the normalisation is not incidental: the Otsu correction is a MULTIPLIER on an absolute level, so normalising first is what makes one correction value mean the same thing on the next image. :func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and :func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the field's range) are what this screen used before and are kept for other callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.",
+      "source_sha256": "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
+      "translation": "EL CÁLCULO. :func:`~spacr.qt.mask_engine.invert_normalized` normaliza el campo a 0..1 según su propio intervalo y calcula ``1 - v``. La normalización es importante: la corrección Otsu es un MULTIPLICADOR de un nivel absoluto, por lo que normalizar primero permite que un valor de corrección tenga el mismo significado en la siguiente imagen. :func:`~spacr.qt.mask_engine.invert_intensity` (complemento del tipo de datos) y :func:`~spacr.qt.mask_engine.invert_for_detection` (reflexión respecto al intervalo del campo) eran las funciones usadas antes en esta pantalla y se conservan para otros llamadores. :func:`~spacr.qt.mask_engine.invert_mask` invierte etiquetas."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of ruler units, per-axis calibration, defaults and return values, and changed Make Masks introductory paragraphs; no native-speaker sign-off. Eight unchanged paragraphs are retained from the prior catalog and are not claimed as newly reviewed.",
+  "schema": 1
+}

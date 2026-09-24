@@ -50,6 +50,9 @@ class _FakeWriter:
     def write(self, frame):
         self.frames.append(np.array(frame, copy=True))
 
+    def isOpened(self):
+        return True
+
     def release(self):
         self.released = True
 
@@ -564,3 +567,71 @@ def test_timelapse_masks_to_gif_reuses_existing_gif_folder(tmp_path, gif_spy):
     assert (gif_folder / "old.gif").read_bytes() == b"GIF89a"
     assert len(gif_spy) == 1
     assert os.path.exists(gif_spy[0]["path"])
+
+
+def test_movie_labels_do_not_modify_input_pixels(tmp_path, fake_writer):
+    from spacr.timelapse import _npz_to_movie
+
+    frame = np.full((64, 200, 3), 17, dtype=np.uint8)
+    frame.flags.writeable = False
+    _npz_to_movie([frame], ['field.npy'], str(tmp_path / 'm.avi'))
+    assert np.all(frame == 17)
+    assert fake_writer.instances[0].frames[0].max() > 200
+
+
+@pytest.mark.parametrize('frames,names', [([], []),
+    ([np.zeros((10, 10), np.uint8)], []),
+    ([np.zeros((10, 10), np.uint8), np.zeros((12, 10), np.uint8)], ['a', 'b']),
+    ([np.zeros((10, 10), np.uint8), np.zeros((10, 10, 2, 3), np.uint8)], ['a', 'b']),
+    ([np.zeros((0, 10), np.uint8)], ['a']),
+    ([np.zeros((10, 10, 0), np.uint8)], ['a']),
+    ([np.zeros((10, 10), np.int32)], ['a']),
+    ([np.full((10, 10), np.nan)], ['a']),
+])
+def test_invalid_movie_input_is_refused_before_opening_writer(
+        tmp_path, fake_writer, frames, names):
+    from spacr.timelapse import _npz_to_movie
+
+    with pytest.raises(ValueError):
+        _npz_to_movie(frames, names, str(tmp_path / 'm.avi'))
+    assert fake_writer.instances == []
+
+
+@pytest.mark.parametrize('fps', [0, -1, np.nan, np.inf])
+def test_invalid_movie_rate_is_refused_before_opening_writer(tmp_path, fake_writer, fps):
+    from spacr.timelapse import _npz_to_movie
+
+    with pytest.raises(ValueError, match='fps'):
+        _npz_to_movie([np.zeros((16, 16), np.uint8)], ['a'],
+                       str(tmp_path / 'm.avi'), fps=fps)
+    assert fake_writer.instances == []
+
+
+def test_movie_writer_failure_is_reported_and_released(tmp_path, fake_writer, monkeypatch):
+    from spacr.timelapse import _npz_to_movie
+
+    monkeypatch.setattr(fake_writer, 'isOpened', lambda self: False, raising=False)
+    with pytest.raises(OSError, match='writer'):
+        _npz_to_movie([np.zeros((16, 16), np.uint8)], ['a'], str(tmp_path / 'm.avi'))
+    assert fake_writer.instances[0].released
+    assert not fake_writer.instances[0].frames
+
+
+def test_movie_writer_is_released_when_encoding_raises(tmp_path, fake_writer, monkeypatch):
+    from spacr.timelapse import _npz_to_movie
+
+    def fail(self, frame):
+        raise RuntimeError('codec failed')
+    monkeypatch.setattr(fake_writer, 'write', fail)
+    with pytest.raises(RuntimeError, match='codec failed'):
+        _npz_to_movie([np.zeros((16, 16), np.uint8)], ['a'], str(tmp_path / 'm.avi'))
+    assert fake_writer.instances[0].released
+
+
+def test_float64_movie_has_the_same_scale_as_float32(tmp_path, fake_writer):
+    from spacr.timelapse import _npz_to_movie
+
+    _npz_to_movie([np.full((16, 16), .5)], ['a'], str(tmp_path / 'm.avi'))
+    written = fake_writer.instances[0].frames[0]
+    assert written.dtype == np.uint8
+    assert written[0, 0].tolist() == [127, 127, 127]

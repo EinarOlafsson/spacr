@@ -1,0 +1,49 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Reserve the longest caption once per width; hover never changes geometry.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent#0",
+      "source": "Reserve the longest caption once per width; hover never changes geometry.",
+      "source_sha256": "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+      "translation": "너비별로 가장 긴 설명의 공간을 한 번 확보합니다. 마우스를 올려도 기하 구조는 바뀌지 않습니다."
+    },
+    {
+      "context": "Qt resize event forwarded to the parent widget.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent#1",
+      "source": "Qt resize event forwarded to the parent widget.",
+      "source_sha256": "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+      "translation": "부모 위젯으로 전달되는 Qt 크기 변경 이벤트입니다."
+    },
+    {
+      "context": "None.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent#2",
+      "source": "None.",
+      "source_sha256": "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+      "translation": "None."
+    },
+    {
+      "context": "Recompute reserved text space after an explicit font or language change.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent#0",
+      "source": "Recompute reserved text space after an explicit font or language change.",
+      "source_sha256": "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+      "translation": "글꼴 또는 언어가 명시적으로 변경되면 확보된 텍스트 공간을 다시 계산합니다."
+    },
+    {
+      "context": "Qt change event; font and language changes invalidate the layout.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent#1",
+      "source": "Qt change event; font and language changes invalidate the layout.",
+      "source_sha256": "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+      "translation": "Qt 변경 이벤트입니다. 글꼴과 언어가 변경되면 레이아웃이 무효화됩니다."
+    },
+    {
+      "context": "None.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent#2",
+      "source": "None.",
+      "source_sha256": "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+      "translation": "None."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of Qt resize/change behavior; no native-speaker sign-off",
+  "schema": 1
+}

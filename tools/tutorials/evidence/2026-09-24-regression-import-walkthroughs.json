@@ -1,0 +1,48 @@
+{
+  "scope": "Practical controls, input matching, diagnostics and exports. Retain interpretation cautions without validation-process narration.",
+  "lessons": [
+    {
+      "lesson": "70_explain_cv",
+      "old_spoken_words": 475,
+      "new_spoken_words": 301,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "old_spoken_words": 650,
+      "new_spoken_words": 371,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "old_spoken_words": 453,
+      "new_spoken_words": 280,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "74_import_images",
+      "old_spoken_words": 382,
+      "new_spoken_words": 281,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "old_spoken_words": 431,
+      "new_spoken_words": 274,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-ui5y3r18",
+    "commit": "f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65",
+    "tag": "tutorials-native-20260924-ui5y3r18",
+    "readback_files": 1134,
+    "all_ready_local_and_hosted_playback": true
+  }
+}

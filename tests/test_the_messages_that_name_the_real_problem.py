@@ -68,8 +68,9 @@ def test_a_mask_whose_ids_exceed_uint16_is_refused_before_writing(tmp_path):
 
     Masks are stored as uint16. An id above 65535 wraps on write, so object
     65536 silently becomes object 0 -- background -- and every measurement for
-    it disappears into the field. The message names the offending id and tells
-    the user to relabel, which is the actual fix.
+    it disappears into the field. The message names the offending id and
+    confirms identities were preserved; silent renumbering would invalidate
+    existing measurements and primary/secondary relationships.
     """
     from spacr.mask_io import save_mask
 
@@ -81,7 +82,9 @@ def test_a_mask_whose_ids_exceed_uint16_is_refused_before_writing(tmp_path):
 
     message = str(excinfo.value)
     assert "70000" in message
-    assert "relabel" in message
+    assert "uint16" in message
+    assert "labels were not renumbered or saved" in message
+    assert mask[1, 1] == 70000
     assert not (tmp_path / "mask.tif").exists(), "refused before writing"
 
 

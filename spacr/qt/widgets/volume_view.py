@@ -51,6 +51,9 @@ def view_axes(elev: float, azim: float, roll: float = 0.0):
     ``V x w`` with ``V`` the vertical axis (negated past the pole), and
     ``roll`` turns ``u`` and ``v`` about ``w``.
 
+    :param elev: the camera elevation in degrees.
+    :param azim: the camera azimuth in degrees.
+    :param roll: the camera roll in degrees.
     :returns: ``(u, v, w)``, three orthonormal vectors.
     """
     e = np.deg2rad(float(elev))
@@ -110,6 +113,9 @@ def trackball(elev: float, azim: float, roll: float,
     horizontal. Both are applied to the frame, not to the angles, so the
     two directions compose freely and there is no pole to stop at.
 
+    :param elev: the camera elevation in degrees.
+    :param azim: the camera azimuth in degrees.
+    :param roll: the camera roll in degrees.
     :param right_degrees: how far the pointer moved right, as an angle.
     :param up_degrees: how far it moved up, as an angle.
     :returns: the new ``(elev, azim, roll)``.
@@ -128,6 +134,9 @@ def rotate_about_world(elev: float, azim: float, roll: float,
                        axis: str, degrees: float) -> Angles:
     """Turn the volume about one of its own data axes.
 
+    :param elev: the camera elevation in degrees.
+    :param azim: the camera azimuth in degrees.
+    :param roll: the camera roll in degrees.
     :param axis: ``"x"``, ``"y"`` or ``"z"`` -- the measurement the volume
         spins about, which stays put on screen while the other two turn.
     :param degrees: how far; positive turns the volume anticlockwise when

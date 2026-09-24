@@ -27,6 +27,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
+    QApplication,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -1236,6 +1237,7 @@ EXAMPLE_DATA_SECTIONS = {
     "recruitment": "Data source",
     "umap": "Input Data",
     "invasion": "Assay Inputs",
+    'host_pathogen': 'Assay Inputs',
     "ops": "OPS input",
 }
 
@@ -1422,6 +1424,185 @@ _HYPERPARAM_PANEL = "hyperparameter panel"
 _LIVE_PREVIEW = "live preview"
 #: Measure's crop preview panel inside its card.
 _MEASURE_PREVIEW = "measure preview"
+_UMAP_EXPLORER = "UMAP explorer"
+
+
+def _run_to_the_end(steps):
+    """Run a generator of build steps to the end and return what it returns.
+
+    The settings form's builders are generators so that the idle prebuild
+    (:class:`_IdlePrebuild`) can run them a step at a time; everything else
+    runs them through here, in one go, which is the same code doing the same
+    work in the same order.
+    """
+    while True:
+        try:
+            next(steps)
+        except StopIteration as done:
+            return done.value
+
+
+class _IdlePrebuild(QObject):
+    """Builds a screen's waiting settings categories while nobody is using it.
+
+    A category closed at open is built when it is first opened
+    (:meth:`AppScreen._build_a_waiting_heading`), and that first open costs
+    its build on the click. This builds them beforehand, in the gaps: once
+    the screen has been on show with no input for :attr:`IDLE_MS`, it runs
+    the same steps a click runs (:meth:`AppScreen._run_a_step_of`), for about
+    :attr:`SLICE_MS` at a time, then gives the event loop back.
+
+    INPUT STOPS IT. While slices are running it watches the application's
+    events, and any mouse, key, wheel or touch event pushes the next slice
+    to :attr:`IDLE_MS` after that input, so a user never waits on more than
+    the one slice already running. It stops when the screen is hidden and
+    starts again when it is shown.
+
+    THE WATCH IS OFF WHILE IT WAITS FOR POINTER INPUT TO STOP. An
+    application-wide event filter is a Python call per event, and opening a
+    module delivers tens of thousands of them: installed for the whole wait,
+    it cost every module open about 10 ms in the benchmark. So after pointer
+    input, and at the start, the wait ends by comparing where the pointer
+    is now with where it was; after a key the watch stays on, so typing
+    keeps the build waiting key after key. A key typed with the pointer
+    still after a pointer wait is caught one slice late, by the watch that
+    slice installs.
+
+    :param screen: the :class:`AppScreen` whose categories it builds.
+    """
+
+    #: No input for this long, in ms, before a slice runs.
+    IDLE_MS = 400
+
+    #: How long, in ms, a slice keeps taking steps. A step is one control,
+    #: one row, or one pass, so a slice ends within one step of this; a
+    #: step that took half of it ends the slice on its own, so a costly step
+    #: is not run on top of several cheap ones.
+    SLICE_MS = 4.0
+
+    _POINTER = frozenset({
+        QEvent.Type.MouseButtonPress, QEvent.Type.MouseButtonRelease,
+        QEvent.Type.MouseButtonDblClick, QEvent.Type.MouseMove,
+        QEvent.Type.Wheel, QEvent.Type.TouchBegin, QEvent.Type.TouchUpdate,
+        QEvent.Type.TabletPress, QEvent.Type.TabletMove,
+    })
+    _KEYS = frozenset({QEvent.Type.KeyPress, QEvent.Type.KeyRelease,
+                       QEvent.Type.ShortcutOverride})
+
+    def __init__(self, screen) -> None:
+        """Prepare, without starting; see :meth:`resume`."""
+        super().__init__(screen)
+        self._screen = screen
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._slice)
+        self._watching = False
+        self._pointer = None
+        #: Wall time, in ms, of each slice run so far; read by the tests
+        #: and the measurements, never by the application.
+        self.slices_ms: list = []
+
+    def _work_left(self) -> list:
+        """The headings still to build, in the order the form shows them."""
+        screen = self._screen
+        try:
+            return [section for section
+                    in screen.rendered_settings_sections()
+                    if screen._heading_is_waiting(section)]
+        except RuntimeError:
+            return []
+
+    @staticmethod
+    def _pointer_now():
+        """Where the pointer is, and which buttons are down."""
+        from PySide6.QtGui import QCursor
+
+        return (QCursor.pos(), int(QApplication.mouseButtons().value))
+
+    def _wait(self, ms: int, *, watch: bool = False) -> None:
+        """Note the pointer and try again in ``ms``.
+
+        :param watch: keep watching events while waiting. After a key, so
+            that typing keeps the build waiting key after key; after
+            pointer input the watch comes off, because a click is how a user
+            opens the next module and the next module's build is where an
+            event filter costs the most.
+        """
+        if not watch:
+            self._unwatch()
+        self._pointer = self._pointer_now()
+        self._timer.start(ms)
+
+    def _unwatch(self) -> None:
+        """Remove the application event filter once when activity observation ends."""
+        if self._watching:
+            app = QApplication.instance()
+            if app is not None:
+                app.removeEventFilter(self)
+            self._watching = False
+
+    def resume(self) -> None:
+        """Start, or restart after a hide, if there is anything to build."""
+        if not self._work_left():
+            self.stop()
+            return
+        self._wait(self.IDLE_MS)
+
+    def stop(self) -> None:
+        """Stop building and stop watching input."""
+        self._timer.stop()
+        self._unwatch()
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        """Input: stop, and wait :attr:`IDLE_MS` after it."""
+        kind = event.type()
+        if kind in self._POINTER:
+            self._wait(self.IDLE_MS)
+        elif kind in self._KEYS:
+            self._wait(self.IDLE_MS, watch=True)
+        return False
+
+    def _slice(self) -> None:
+        """Take steps for about :attr:`SLICE_MS`, then give the loop back."""
+        import time
+
+        screen = self._screen
+        try:
+            if not screen.isVisible():
+                self.stop()
+                return
+        except RuntimeError:
+            self.stop()
+            return
+        if not self._watching:
+            if self._pointer_now() != self._pointer:
+                self._wait(self.IDLE_MS)
+                return
+            app = QApplication.instance()
+            if app is None:
+                return
+            app.installEventFilter(self)
+            self._watching = True
+        work = self._work_left()
+        if not work:
+            self.stop()
+            return
+        section = work[0]
+        started = time.perf_counter()
+        more = True
+        while more:
+            before = time.perf_counter()
+            more = screen._run_a_step_of(section)
+            after = time.perf_counter()
+            if ((after - started) * 1000.0 >= self.SLICE_MS
+                    or (after - before) * 1000.0 >= self.SLICE_MS / 2):
+                break
+        self.slices_ms.append((time.perf_counter() - started) * 1000.0)
+        if not more and not self._work_left():
+            self.stop()
+            return
+        if self._watching:
+            self._timer.start(0)
 
 
 class _BuiltOnFirstUse:
@@ -1536,6 +1717,7 @@ class AppScreen(QWidget):
     _hyperparam = _BuiltOnFirstUse(_HYPERPARAM_PANEL)
     _live_preview = _BuiltOnFirstUse(_LIVE_PREVIEW)
     _measure_preview = _BuiltOnFirstUse(_MEASURE_PREVIEW)
+    _umap_explorer = _BuiltOnFirstUse(_UMAP_EXPLORER)
 
     def __init__(self, app_key: str, parent=None):
         """Build one module page: the settings column beside the runtime panel.
@@ -1601,22 +1783,32 @@ class AppScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        body = QSplitter(Qt.Horizontal)
+        from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
+
+        body = CollapsibleSplitter(Qt.Horizontal,
+                                   persist_key=f"{app_key}::body")
         self._body_splitter = body
         body.setChildrenCollapsible(False)
 
         self._settings_body = body
+        from .. import screens as _screens_package
+
+        self._categories_wait = bool(getattr(
+            _screens_package, "_categories_wait_to_be_opened", False))
         self._settings_panel = self._build_settings_panel()
-        body.addWidget(self._settings_panel)
+        body.add_pane(self._settings_panel, "Settings", mode=EDGE,
+                      fold_key=f"{app_key}/Settings", stretch=1, extent=400)
         self.the_name_carries_the_help()
         self._form_shape_on_screen = self._form_shape()
         self._watch_the_settings_that_decide_the_form()
-        body.addWidget(self._build_runtime_panel())
+        body.add_pane(self._build_runtime_panel(), "Runtime", stretch=2,
+                      extent=800)
 
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 2)
         body.setSizes([400, 800])
         outer.addWidget(body, 1)
+        self._shell_focus.target(body, "Settings")
 
         self._wire_live_preview_autoload()
         if self.app_key == "analyze_plaques":
@@ -2111,6 +2303,8 @@ class AppScreen(QWidget):
             getattr(self, "_runtime_wrap", None),
             getattr(self, "_console_wrap", None),
             getattr(self, "_actions_row", None),
+            getattr(self, "_actions_section", None),
+            getattr(self, "_actions_body", None),
             getattr(self, "_category_hint", None),
         )
 
@@ -2161,6 +2355,15 @@ class AppScreen(QWidget):
             self._lay_out_the_rows_that_are_back
         self._settings_model.rows_are_filtered_by = \
             self._refilter_the_settings_search
+        self._settings_model.rows_the_screen_hides = \
+            self._rows_the_filters_hide
+        #: ``key -> heading`` for each setting whose category waits to be
+        #: opened; see :meth:`_build_a_waiting_heading`.
+        self._waiting_heading_of = {}
+        if (getattr(self, "_categories_wait", False)
+                and str(self.app_key) not in self.SETTINGS_AS_TABS):
+            self._settings_model.categories_may_wait = \
+                self._a_category_may_wait
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -2196,6 +2399,13 @@ class AppScreen(QWidget):
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
         for section_order, spec in enumerate(sections):
+            if self._spec_waits(spec) and self._spec_holds_anything(spec):
+                section = self._build_a_waiting_heading(spec)
+                section._settings_top_level_order = section_order
+                layout.addWidget(section)
+                continue
+            if self._spec_waits(spec):
+                spec = self._with_the_controls(spec)
             section = self._build_settings_section(spec)
             section._settings_top_level_order = section_order
             if not self._section_holds_anything(section):
@@ -2416,10 +2626,12 @@ class AppScreen(QWidget):
         """
         model = getattr(self, "_settings_model", None)
         widgets = getattr(model, "_widgets", None) or {}
-        stamp = (id(model), len(widgets))
+        built = getattr(widgets, "built_items", None)
+        pairs = built() if callable(built) else list(widgets.items())
+        stamp = (id(model), len(pairs))
         if getattr(self, "_widget_key_stamp", None) != stamp:
             index: dict = {}
-            for key, widget in widgets.items():
+            for key, widget in pairs:
                 index.setdefault(id(widget), key)
             self._widget_key_cache = index
             self._widget_key_stamp = stamp
@@ -2460,7 +2672,7 @@ class AppScreen(QWidget):
         umbrella over three empty sub-headings would survive as four empty
         headings instead of none.
         """
-        from ..widgets.section import Section
+        from ..widgets.section import Section, _sections_below
 
         def already_built_rows(owner):
             """Iterate registered rows without forcing deferred captions."""
@@ -2486,13 +2698,64 @@ class AppScreen(QWidget):
             return True
         if holds_an_active_slot(section):
             return True
-        for child in section.findChildren(Section):
+        for child in _sections_below(section):
+            if not isinstance(child, Section):
+                continue
             if any(widget is not None for _label, widget
                    in already_built_rows(child)):
                 return True
             if holds_an_active_slot(child):
                 return True
         return False
+
+    def _detach_what_the_form_hides(self) -> int:
+        """Take every category body nobody can see out of the page.
+
+        Called by the window just before the page is first shown, which is
+        when the stylesheet lands on it and every widget under the page is
+        styled; see
+        :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.
+        By then the maturity preference, the dimension switches and the
+        settings search's Essentials view have all decided which categories
+        are on the form, so what leaves the page is exactly what the user
+        first sees collapsed or hidden. Only top-level categories are
+        detached; a sub-heading travels with its category.
+
+        :returns: how many widgets left the page.
+        """
+        moved = 0
+        for section in self.rendered_settings_sections():
+            if getattr(section, "_settings_top_level_order", None) is None:
+                continue
+            detach = getattr(section, "_detach_body_while_hidden", None)
+            if not callable(detach) or self._heading_is_waiting(section):
+                continue
+            try:
+                section._body_came_back = self._a_category_body_came_back
+                moved += int(detach())
+            except RuntimeError:
+                continue
+        return moved
+
+    def _a_category_body_came_back(self, section) -> None:
+        """Give a body that was detached what the page had while it was away.
+
+        The language pass and the move of field help onto captions run over
+        the page, and a detached body is not on it; the language may have
+        changed, or a caption may have been built, while it waited. Both are
+        idempotent, so a body that missed nothing is left as it was.
+        """
+        try:
+            from ..i18n import retranslate_widget_tree
+            from .settings_model import retarget_field_tooltips
+
+            retranslate_widget_tree(section._body)
+            retarget_field_tooltips(self)
+        except RuntimeError:
+            pass
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not dress a category that came back",
+                      exc_info=True)
 
     def rendered_settings_sections(self) -> tuple:
         """The section widgets actually mounted in the settings panel.
@@ -2515,10 +2778,11 @@ class AppScreen(QWidget):
         form and model row registration.  Park the whole tree under a hidden
         owned widget instead; visual consumers explicitly ignore it.
         """
-        from ..widgets.section import Section
+        from ..widgets.section import Section, _sections_below
 
         section._settings_restore_parent = restore_parent
-        for member in (section, *section.findChildren(Section)):
+        for member in (section, *(child for child in _sections_below(section)
+                                  if isinstance(child, Section))):
             member.setProperty("settingsSectionDiscarded", True)
             member.hide()
         if restore_parent is None:
@@ -2808,7 +3072,17 @@ class AppScreen(QWidget):
         finally:
             self._rebuilding_the_form = False
 
-    def _build_settings_section(self, spec, depth: int = 0):
+    def _build_settings_section(self, spec, depth: int = 0, into=None):
+        """Build one heading of the settings TREE, and everything under it.
+
+        :meth:`_settings_section_steps` run to the end; see it for the
+        parameters.
+
+        :returns: the built :class:`Section` widget.
+        """
+        return _run_to_the_end(self._settings_section_steps(spec, depth, into))
+
+    def _settings_section_steps(self, spec, depth: int = 0, into=None):
         """Build one heading of the settings TREE, and everything under it.
 
         ``SettingsWidgets.build_sections`` returns a
@@ -2831,6 +3105,10 @@ class AppScreen(QWidget):
 
         :param spec: a ``SettingsSection`` or a plain ``(title, rows)`` pair.
         :param depth: 0 for a top-level category; deeper for a sub-heading.
+        :param into: a heading built earlier by
+            :meth:`_build_a_waiting_heading`, to lay the rows out in instead
+            of a new one. It is already titled and recorded, so only its body
+            is built.
         :returns: the built :class:`Section` widget.
         """
         title = getattr(spec, "title", None)
@@ -2840,14 +3118,10 @@ class AppScreen(QWidget):
         own_rows = getattr(spec, "own_rows", None)
         rows = spec[1] if own_rows is None else own_rows
         children = tuple(getattr(spec, "children", ()) or ())
-        section = Section(title)
-        section.setProperty("settingsCategorySource", title)
-        section.set_maturity(
-            settings_section_maturity(self.app_key, title)
-        )
-        blurb = section_tooltip(self.app_key, spec)
-        section.set_hint(blurb)
-        self._category_blurbs.setdefault(title, blurb)
+        if into is None:
+            section = self._titled_heading(spec, title)
+        else:
+            section = into
         declared = tuple((self._key_of_field(widget), label, widget)
                          for label, widget in rows)
         no_object = self._keys_the_run_has_no_object_for()
@@ -2868,10 +3142,12 @@ class AppScreen(QWidget):
             if key in waiting:
                 self._rows_awaiting_layout[key] = section
                 section.add_prose(widget)
+                yield
                 continue
             self._lay_out_setting_row(section, label, widget)
+            yield
         for child in children:
-            nested = self._build_settings_section(child, depth + 1)
+            nested = yield from self._settings_section_steps(child, depth + 1)
             if not self._section_holds_anything(nested):
                 section.add_prose(nested)
                 self._discard_settings_section(nested, section)
@@ -2879,6 +3155,8 @@ class AppScreen(QWidget):
             section.add_prose(nested)
             nested.toggled.connect(
                 partial(self._open_the_headings_above, section))
+            yield
+        yield
         from .settings_model import has_section_explainer
 
         if depth == 0 and has_section_explainer(self.app_key, title):
@@ -2895,7 +3173,7 @@ class AppScreen(QWidget):
                 self._install_sequencing_example_button(section)
             elif self.app_key == "analyze_plaques":
                 self._install_plaque_example_button(section)
-            elif self.app_key in ("replication", "recruitment", "invasion"):
+            elif self.app_key in ("replication", "recruitment", "invasion", 'host_pathogen'):
                 from ..assay_examples import install_assay_example_button
 
                 install_assay_example_button(self, section)
@@ -2905,8 +3183,372 @@ class AppScreen(QWidget):
                 self._install_ops_example_button(section)
             else:
                 self._install_example_images_button(section)
+        if into is None:
+            self._settings_sections.append(section)
+        return section
+
+    def _titled_heading(self, spec, title: str):
+        """A new, empty heading for ``spec``: title, maturity and blurb."""
+        section = Section(title)
+        section.setProperty("settingsCategorySource", title)
+        section.set_maturity(
+            settings_section_maturity(self.app_key, title)
+        )
+        blurb = section_tooltip(self.app_key, spec)
+        section.set_hint(blurb)
+        self._category_blurbs.setdefault(title, blurb)
+        return section
+
+    def _a_category_may_wait(self, title: str, keys=()) -> bool:
+        """Whether top-level category ``title`` may wait to be opened.
+
+        Not the one holding the module's example-data control, which
+        :meth:`_build_settings_section` opens. Not one the settings search
+        will open either: under the Essentials view -- where every module
+        starts -- the strip opens each category holding an essential setting
+        as it is installed, and a category built by being opened pays the
+        passes an opening runs on top of what building it with the panel
+        costs. The essentials are over-counted on purpose (every object's
+        segmentation settings, whether or not its channel is set): a
+        category wrongly kept is built as it always was, and one wrongly
+        left waiting is built a moment later, so either mistake is safe.
+
+        :param title: the category.
+        :param keys: the settings laid out under it.
+        """
+        if str(title) == EXAMPLE_DATA_SECTIONS.get(self.app_key):
+            return False
+        return not (set(keys) & self._settings_the_essentials_view_opens())
+
+    def _settings_the_essentials_view_opens(self) -> set:
+        """The settings the Essentials view shows, if it is the view used."""
+        found = getattr(self, "_essentials_it_opens", None)
+        if found is not None:
+            return found
+        found = set()
+        try:
+            from ..settings_search import ESSENTIALS, disclosure_for
+            from .settings_model import (
+                _APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT,
+                _expand_layout_tokens, categories_for_app, essential_keys,
+                get_categories)
+
+            if disclosure_for(self.app_key) == ESSENTIALS:
+                cats = categories_for_app(self.app_key, get_categories())
+                found.update(essential_keys(self.app_key, cats))
+                found.update(_expand_layout_tokens(
+                    cats, _APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT.get(
+                        str(self.app_key), ())))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not tell which settings Essentials shows",
+                      exc_info=True)
+        self._essentials_it_opens = found
+        return found
+
+    @staticmethod
+    def _spec_waits(spec) -> bool:
+        """Whether any row under ``spec`` is a control still to come."""
+        from .settings_model import _ControlToCome
+
+        return any(isinstance(widget, _ControlToCome)
+                   for _label, widget in (spec[1] or ()))
+
+    def _key_of_row(self, widget) -> Optional[str]:
+        """The setting a spec row is for, whether or not it is built."""
+        from .settings_model import _ControlToCome
+
+        if isinstance(widget, _ControlToCome):
+            return widget.key
+        return self._key_of_field(widget)
+
+    def _spec_holds_anything(self, spec) -> bool:
+        """:meth:`_section_holds_anything`, answered from the keys alone.
+
+        A heading holds something when a row under it is laid out -- every
+        row whose object the run has -- or belongs to an organelle slot the
+        count asked for, which is the same test the built heading is given.
+        """
+        from ...organelle_types import organelle_role_of
+
+        lacking = self._keys_the_run_has_no_object_for()
+        for _label, widget in spec[1] or ():
+            key = self._key_of_row(widget)
+            if key is None:
+                continue
+            if key not in lacking or organelle_role_of(key) is not None:
+                return True
+        return False
+
+    def _with_the_controls(self, spec):
+        """``spec`` with every control still to come built and in its row."""
+        from .settings_model import SettingsSection, _ControlToCome
+
+        model = self._settings_model
+        widgets = model._widgets
+        widgets.build([widget.key for _label, widget in spec[1] or ()
+                       if isinstance(widget, _ControlToCome)])
+
+        def swap(node):
+            """``node`` rebuilt with its stand-ins replaced by controls."""
+            own = getattr(node, "own_rows", None)
+            own = node[1] if own is None else own
+            rows = []
+            for label, widget in own:
+                if isinstance(widget, _ControlToCome):
+                    widget = widgets.built(widget.key)
+                    if widget is None:
+                        continue
+                rows.append((label, widget))
+            children = [swap(child)
+                        for child in getattr(node, "children", ()) or ()]
+            title = getattr(node, "title", None)
+            return SettingsSection(node[0] if title is None else title,
+                                   rows, children)
+
+        return swap(spec)
+
+    def _build_a_waiting_heading(self, spec):
+        """A category's heading, with its rows left until it is opened.
+
+        WHAT WAITS. Every row of the category -- caption, field, help, and
+        the sub-headings below it -- and every control in it that nothing
+        has read. Measured on a real window, those were most of what a
+        module built at open and nobody could see: 91 of Classify's 101
+        settings, 101 of Mask's 132. The heading itself is built, titled,
+        rated for maturity and recorded, so the form looks exactly as it
+        does with the rows in place and closed.
+
+        WHAT STILL ANSWERS FOR IT. The model knows every key, so ``in``,
+        the search strip and the palette find its settings; a read of any of
+        its controls builds that control (see
+        :class:`~spacr.qt.screens.settings_model._ControlsBuiltWhenAskedFor`)
+        so ``collect()``, recipes, imports and drops read and write real
+        values. The object rule knows its keys through
+        ``remember_section_rows``, the dimension switches through
+        :meth:`_dimension_hidden_sections`.
+
+        A control that was built anyway -- one nothing can read unbuilt, or
+        one something read while the panel was being built -- is taken off
+        the page until its row is laid out: it was made with the form as its
+        parent, and a child of a shown widget that belongs to no row is drawn
+        where it stands, at the form's top-left corner.
+
+        WHAT OPENS IT: expanding it, revealing one of its settings, asking
+        for its rows, or anything that needs a row on the form. See
+        :meth:`_open_a_waiting_heading`.
+        """
+        title = str(getattr(spec, "title", None) or spec[0])
+        children = tuple(getattr(spec, "children", ()) or ())
+        section = self._titled_heading(spec, title)
+        own = getattr(spec, "own_rows", None)
+        own = spec[1] if own is None else own
+        own_keys = [key for key in (self._key_of_row(widget)
+                                    for _label, widget in own) if key]
+        try:
+            self._settings_model.remember_section_rows(
+                section, own_keys, bool(children))
+        except AttributeError:
+            pass
+        for _label, widget in spec[1] or ():
+            if isinstance(widget, QWidget) and widget.parentWidget() is not None:
+                widget.setParent(None)
+        section._spacr_waiting_spec = spec
+        section._spacr_declared_rows = ()
+        opener = partial(self._open_a_waiting_heading, section)
+        section._spacr_build_body = opener
+        section._row_widgets = _RowsBuiltWhenTheyAreAskedFor(opener)
+        for _label, widget in spec[1] or ():
+            key = self._key_of_row(widget)
+            if key:
+                self._waiting_heading_of[key] = section
         self._settings_sections.append(section)
         return section
+
+    def _heading_is_waiting(self, section) -> bool:
+        """Whether ``section`` is a heading whose build is not finished.
+
+        True from :meth:`_build_a_waiting_heading` until the last step of
+        :meth:`_waiting_heading_steps`, including while an idle prebuild is
+        part-way through it.
+        """
+        try:
+            return (getattr(section, "_spacr_waiting_spec", None) is not None
+                    or "_spacr_opening" in section.__dict__)
+        except RuntimeError:
+            return False
+
+    def _open_the_heading_of(self, key: str) -> bool:
+        """Build the waiting category ``key`` belongs to, if it waits.
+
+        :returns: ``True`` when a category was built by this call.
+        """
+        section = (getattr(self, "_waiting_heading_of", None) or {}).get(
+            str(key))
+        if section is None:
+            return False
+        return self._open_a_waiting_heading(section)
+
+    def _open_every_waiting_heading(self) -> int:
+        """Build every category still waiting.
+
+        :returns: how many were built.
+        """
+        opened = 0
+        for section in list(getattr(self, "_settings_sections", ()) or ()):
+            if self._heading_is_waiting(section):
+                opened += int(self._open_a_waiting_heading(section))
+        return opened
+
+    def _open_a_waiting_heading(self, section) -> bool:
+        """Build a waiting category's rows, as opening the screen would have.
+
+        The rows are laid out by :meth:`_build_settings_section`, the path
+        every category takes, into the heading already on the form. Then the
+        category is given what the page gave every other one while it was
+        opening, in the same order: its sub-headings are recorded ahead of
+        it (deepest first, as the search strip and the palette expect), the
+        category hints reach them, the surface sweep runs, the maturity and
+        dimension switches and the object rule decide the new rows, the
+        search strip indexes them, and the language pass and the move of
+        help onto captions run last, after the rows are polished -- the
+        order :meth:`_translate_a_late_part` explains.
+
+        :returns: ``True`` when this call built the rows; ``False`` when the
+            heading was built already.
+        """
+        steps = section.__dict__.get("_spacr_opening")
+        if steps is None:
+            if getattr(section, "_spacr_waiting_spec", None) is None:
+                return False
+            steps = section._spacr_opening = self._waiting_heading_steps(
+                section)
+        if section.__dict__.get("_spacr_opening_now"):
+            return False
+        from .. import timing
+        from .settings_model import language_resolved_once
+
+        title = str(section.property("settingsCategorySource") or "")
+        section._spacr_opening_now = True
+        try:
+            with timing.span("build waiting category", title), \
+                    language_resolved_once():
+                _run_to_the_end(steps)
+        finally:
+            section._spacr_opening_now = False
+        return True
+
+    def _run_a_step_of(self, section) -> bool:
+        """Run one step of building a waiting category.
+
+        What :class:`_IdlePrebuild` calls. The steps are the ones
+        :meth:`_open_a_waiting_heading` runs, from the same generator, so a
+        category half built in idle time is finished by a click exactly as
+        it would have been built by one.
+
+        :returns: ``True`` while there is more to do; ``False`` once the
+            category is built (or cannot be).
+        """
+        steps = section.__dict__.get("_spacr_opening")
+        if steps is None:
+            if getattr(section, "_spacr_waiting_spec", None) is None:
+                return False
+            steps = section._spacr_opening = self._waiting_heading_steps(
+                section)
+        if section.__dict__.get("_spacr_opening_now"):
+            return True
+        from .settings_model import language_resolved_once
+
+        section._spacr_opening_now = True
+        try:
+            with language_resolved_once():
+                next(steps)
+        except StopIteration:
+            return False
+        except RuntimeError:
+            LOG.debug("a waiting category went away mid-build", exc_info=True)
+            section.__dict__.pop("_spacr_opening", None)
+            return False
+        finally:
+            section._spacr_opening_now = False
+        return True
+
+    def _waiting_heading_steps(self, section):
+        """The steps of building a waiting category, in the order they run.
+
+        One control per step; the passes that grey controls from others once
+        for the batch; one row, or one sub-heading, per step; then the
+        passes the category needs once its rows exist, each its own step.
+        Until the last step the heading counts as waiting
+        (:meth:`_heading_is_waiting`) and opening it finishes the build first.
+        """
+        spec = section._spacr_waiting_spec
+        model = self._settings_model
+        widgets = model._widgets
+        pending = [widget.key for _label, widget in spec[1] or ()
+                   if self._is_control_to_come(widget)]
+        arrived = []
+        for key in pending:
+            if key in widgets and not widgets.is_built(key):
+                widgets.build((key,), decide=False)
+                arrived.append(key)
+                yield
+        if arrived and model._decided_by_a_pass().intersection(arrived):
+            yield from model._state_pass_steps()
+        real = self._with_the_controls(spec)
+        before = {id(other) for other in self._settings_sections}
+        self._run_has_no_object_for = None
+        try:
+            yield from self._settings_section_steps(real, 0, into=section)
+        finally:
+            self._run_has_no_object_for = None
+        section._spacr_waiting_spec = None
+        rows = section.__dict__.get("_row_widgets")
+        if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
+            rows._build_the_rest = None
+        self._put_new_headings_ahead_of(section, before)
+        self._wire_category_hints()
+        yield
+        self._clear_a_late_parts_surfaces(section._body)
+        yield
+        self.refresh_maturity_visibility()
+        yield
+        yield from self._rows_moved_steps(judge_them=True)
+        yield from self._translate_a_late_part_steps(section._body)
+        for _label, widget in spec[1] or ():
+            key = self._key_of_row(widget)
+            if key and self._waiting_heading_of.get(key) is section:
+                del self._waiting_heading_of[key]
+        section._spacr_build_body = None
+        section.__dict__.pop("_spacr_opening", None)
+
+    @staticmethod
+    def _is_control_to_come(widget) -> bool:
+        """Whether a spec row's widget is a stand-in for a waiting control."""
+        from .settings_model import _ControlToCome
+
+        return isinstance(widget, _ControlToCome)
+
+    def _put_new_headings_ahead_of(self, section, before) -> None:
+        """Record the sub-headings a category just built ahead of it.
+
+        :param before: ``id()`` of every heading recorded until now.
+        """
+        fresh = [other for other in self._settings_sections
+                 if id(other) not in before]
+        if not fresh:
+            return
+        kept = [other for other in self._settings_sections
+                if id(other) in before]
+        at = next((i for i, other in enumerate(kept) if other is section),
+                  len(kept))
+        self._settings_sections[:] = kept[:at] + fresh + kept[at:]
+        bar = getattr(self, "_settings_search", None)
+        known = getattr(bar, "_sections", None)
+        if isinstance(known, list):
+            where = next((i for i, other in enumerate(known)
+                          if other is section), len(known))
+            known[where:where] = [other for other in fresh
+                                  if not any(other is k for k in known)]
 
     def _keys_the_run_has_no_object_for(self) -> set:
         """The settings whose object this run does not have, right now.
@@ -2956,6 +3598,33 @@ class AppScreen(QWidget):
             LOG.debug("could not re-apply the settings search", exc_info=True)
         finally:
             self._refiltering_settings = False
+
+    def _rows_the_filters_hide(self) -> set:
+        """The settings the search strip and the dimension switches hide.
+
+        Asked by the object rule before it sets rows, so that a row one of
+        these hides anyway is left hidden rather than shown and hidden again
+        (see ``SettingsWidgets.rows_the_screen_hides``). Only asked while
+        the strip is not already re-filtering: the pass it runs from inside
+        a re-filter is answered by that re-filter.
+
+        :returns: setting keys.
+        """
+        hides = set()
+        bar = getattr(self, "_settings_search", None)
+        if bar is not None and not getattr(self, "_refiltering_settings",
+                                           False):
+            try:
+                hides.update(bar.keys_it_hides())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not ask the search strip", exc_info=True)
+        try:
+            for _section, key, _field in self._dimension_rows():
+                if self._dimension_is_gated(setting_dimension(key)):
+                    hides.add(key)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not ask the dimension switches", exc_info=True)
+        return hides
 
     def _headings_the_run_lacks(self) -> set:
         """``id()`` of each heading the object rule is holding off the form.
@@ -3023,6 +3692,7 @@ class AppScreen(QWidget):
         re-run afterwards, so this cannot put a setting for an absent object
         on screen -- it only makes sure there is nothing left to find.
         """
+        self._open_every_waiting_heading()
         waiting = getattr(self, "_rows_awaiting_layout", None)
         if not waiting:
             return
@@ -3082,6 +3752,15 @@ class AppScreen(QWidget):
     def _the_rows_moved(self, judge_them: bool = True) -> None:
         """Put the panel's row-shaped answers back in step after a build.
 
+        :meth:`_rows_moved_steps` run to the end; see it.
+
+        :param judge_them: run the object rule over the new rows.
+        """
+        _run_to_the_end(self._rows_moved_steps(judge_them))
+
+    def _rows_moved_steps(self, judge_them: bool = True):
+        """Put the panel's row-shaped answers back in step after a build.
+
         A row that arrives after the panel was laid out has to be judged by
         everything that judges a row -- the object rule and the dimension
         switches decide whether it is on screen, the settings search has to be
@@ -3094,14 +3773,17 @@ class AppScreen(QWidget):
             itself would be a second pass saying the same thing.
         """
         for section in getattr(self, "_settings_sections", []) or []:
+            if getattr(section, "_spacr_waiting_spec", None) is not None:
+                continue
             rows = section.__dict__.get("_row_widgets")
             declared = getattr(section, "_spacr_declared_rows", None)
             if not isinstance(rows, list) or not declared:
                 continue
             order = {id(widget): index
                      for index, (_k, _l, widget) in enumerate(declared)}
-            if all(id(pair[1]) in order for pair in rows):
+            if all(id(pair[1]) in order for pair in list.__iter__(rows)):
                 rows.sort(key=lambda pair: order[id(pair[1])])
+        yield
         if judge_them:
             model = getattr(self, "_settings_model", None)
             if model is not None:
@@ -3110,11 +3792,13 @@ class AppScreen(QWidget):
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not re-decide the object rows",
                               exc_info=True)
+            yield
         try:
             self._apply_dimension_visibility()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-apply the dimension switches",
                       exc_info=True)
+        yield
         late = getattr(self, "_captioned_late", None) or set()
         self._captioned_late = set()
         if late:
@@ -3128,11 +3812,17 @@ class AppScreen(QWidget):
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not translate a caption that arrived late",
                           exc_info=True)
+            yield
         bar = getattr(self, "_settings_search", None)
         if bar is None:
             return
         try:
             bar._build_index()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-index the settings search", exc_info=True)
+            return
+        yield
+        try:
             bar.apply(reopen=False)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-index the settings search", exc_info=True)
@@ -3216,9 +3906,31 @@ class AppScreen(QWidget):
             self._hint_map[lbl_widget] = hint
             self._html_tip_map[lbl_widget] = html
             lbl_widget.installEventFilter(self)
+            self._put_the_greyed_reason_on(field, lbl_widget)
         section.add_row(lbl_widget, widget, info_widget=None,
                         wrap_label=True)
         self._attach_column_picker(field_key, field)
+
+    @staticmethod
+    def _put_the_greyed_reason_on(field, label) -> None:
+        """Give a new caption the reason its field is greyed, if it is.
+
+        A rule that greys a field before its row is laid out keeps the
+        reason on the field (``settings_model._PENDING_NOTE_PROPERTY``, "so
+        it can be put on a label that does not exist yet"), and nothing put
+        it there: a greyed row's name, which is where the help lives, said
+        nothing about why. The reason reached the name only if some later
+        pass happened to grey the field again -- so whether it did depended
+        on the order categories were built in.
+
+        :param field: the setting's control.
+        :param label: the caption just made for it.
+        """
+        from .settings_model import _PENDING_NOTE_PROPERTY, _note_on_label
+
+        note = str(field.property(_PENDING_NOTE_PROPERTY) or "")
+        if note and not field.isEnabled():
+            _note_on_label(label, note)
 
     @staticmethod
     def _open_the_headings_above(parent, expanded: bool) -> None:
@@ -3644,6 +4356,10 @@ class AppScreen(QWidget):
         """
         wrap = getattr(self, "_console_wrap", None)
         if wrap is None:
+            return
+        from ..widgets.collapsible_splitter import splitter_of
+
+        if splitter_of(wrap) is not None:
             return
         wrap.setMinimumHeight(0 if shut else 180)
         splitter = getattr(self, "_console_splitter", None)
@@ -4672,6 +5388,10 @@ class AppScreen(QWidget):
             return self._dimension_switches
         offered = {setting_dimension(key)
                    for _section, key, _field in self._dimension_rows()}
+        offered.update(
+            setting_dimension(key)
+            for key in (getattr(self, "_waiting_heading_of", None) or {})
+            if setting_dimension(key))
         for dimension, label, tooltip in DIMENSION_TOGGLES:
             if dimension not in offered:
                 continue
@@ -4748,7 +5468,9 @@ class AppScreen(QWidget):
         widgets = getattr(model, "_widgets", None) or {}
         if not widgets or str(self.app_key) not in DIMENSION_TOGGLE_APPS:
             return []
-        by_widget = {id(widget): key for key, widget in widgets.items()}
+        built = getattr(widgets, "built_items", None)
+        pairs = built() if callable(built) else widgets.items()
+        by_widget = {id(widget): key for key, widget in pairs}
         found = []
         for section in getattr(self, "_settings_sections", []) or []:
             form = getattr(section, "_form", None)
@@ -4787,6 +5509,18 @@ class AppScreen(QWidget):
             if all(self._dimension_is_gated(setting_dimension(key))
                    for key in keys):
                 hidden.add(marker)
+        if str(self.app_key) not in DIMENSION_TOGGLE_APPS:
+            return hidden
+        for section in getattr(self, "_settings_sections", []) or []:
+            spec = getattr(section, "_spacr_waiting_spec", None)
+            if spec is None or getattr(spec, "children", ()):
+                continue
+            keys = [self._key_of_row(widget) for _label, widget in spec[1]]
+            if keys and all(
+                    key and setting_dimension(key)
+                    and self._dimension_is_gated(setting_dimension(key))
+                    for key in keys):
+                hidden.add(id(section))
         return hidden
 
     def _apply_dimension_visibility(self) -> None:
@@ -4835,6 +5569,7 @@ class AppScreen(QWidget):
         """
         from PySide6.QtWidgets import QFormLayout
 
+        self._open_the_heading_of(str(key))
         model = getattr(self, "_settings_model", None)
         field = (getattr(model, "_widgets", None) or {}).get(str(key))
         if field is None:
@@ -4930,7 +5665,7 @@ class AppScreen(QWidget):
         return ""
 
     def _build_empty_state_banner(self):
-        """Return a compact "Drop or pick a demo" card, or None.
+        """Return a compact source selection and test-data guidance card, or None.
 
         The card is inserted at the top of the settings scroll. It
         hides once the ``src`` widget contains anything so users
@@ -4956,19 +5691,10 @@ class AppScreen(QWidget):
             "Point {module} at some data",
             module=tr(APP_TITLES.get(self.app_key, self.app_key)).lower(),
         )
-        try:
-            from ..app import demo_label_for_app
-            demo = demo_label_for_app(self.app_key)
-        except Exception:
-            demo = None
-        offer = (
-            tr("use Demos → {demo} for a synthetic dataset", demo=tr(demo))
-            if demo else tr("pick a dataset from the Demos menu")
-        )
         subtitle = tr(
-            "Drop a folder of images anywhere on this window, or {offer}. "
-            "You can also type a path into the Source field below.",
-            offer=offer,
+            "Drop a folder of images anywhere on this window or type a path "
+            "into the Source field below. Use Load test data when available, "
+            "or open Pipeline overviews on Home to choose a walkthrough."
         )
         card = EmptyState(
             title=title, subtitle=subtitle,
@@ -5155,24 +5881,6 @@ class AppScreen(QWidget):
         self._refresh_empty_state()
         return chosen
 
-    def _open_demos_menu(self) -> None:
-        """Drop the window's Demos menu down at the top-left of the window.
-
-        Guarded throughout: a screen built without a menu bar -- a test, or a
-        panel used on its own -- simply does nothing.
-        """
-        try:
-            mw = self.window()
-            if mw is None:
-                return
-            for act in mw.menuBar().actions():
-                if act.text().replace("&", "") == "Demos":
-                    m = act.menu()
-                    if m is not None:
-                        m.exec(mw.mapToGlobal(mw.rect().topLeft()))
-                    break
-        except Exception:
-            pass
 
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
@@ -5437,42 +6145,50 @@ class AppScreen(QWidget):
 
         Never raises: a part in the wrong language still works.
         """
+        _run_to_the_end(self._translate_a_late_part_steps(root))
+
+    def _translate_a_late_part_steps(self, root):
+        """:meth:`_translate_a_late_part`, a step at a time.
+
+        The polish is taken one direct child of ``root`` at a time, then
+        ``root`` itself, which polishes exactly what polishing ``root`` alone
+        would (each child's whole subtree, then what is left), in the same
+        order relative to the language pass. The language pass is taken the
+        same way: each child's subtree in full, then ``root`` with
+        ``only_new``, which visits what the children's passes did not -- the
+        widgets they stamped are the ones it skips.
+        """
+        try:
+            children = [child for child in root.children()
+                        if isinstance(child, QWidget)]
+        except RuntimeError:
+            return
+        for child in children:
+            try:
+                child.ensurePolished()
+            except RuntimeError:
+                pass
+            yield
         try:
             root.ensurePolished()
         except RuntimeError:
             return
+        yield
         try:
             from ..i18n import retranslate_widget_tree
             from .settings_model import retarget_field_tooltips
 
-            retranslate_widget_tree(root)
+            for child in children:
+                try:
+                    retranslate_widget_tree(child)
+                except RuntimeError:
+                    pass
+                yield
+            retranslate_widget_tree(root, only_new=True)
+            yield
             retarget_field_tooltips(self)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not translate a late part", exc_info=True)
-
-    @staticmethod
-    def _regression_results_can_be_built() -> bool:
-        """Import what the regression results need, without building them.
-
-        The imports stay at the screen's open, where they always were, so
-        the widget blocks those modules register reach the page's sheet
-        exactly as before; only the construction waits. A missing module
-        answers ``False`` and the screen falls back to the figure queue,
-        which is what the eager build did when its import failed.
-        """
-        try:
-            from importlib import import_module
-
-            for name in ("..widgets.regression_results",
-                         "..widgets.figure_grid_view", "..widgets.sweep_runs",
-                         "..widgets.measurement_scan_panel",
-                         "..widgets.sweep_panel",
-                         "..widgets.cell_montage_view", "..preferences"):
-                import_module(name, __package__)
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("no fast results panel", exc_info=True)
-            return False
-        return True
 
     def _build_regression_results(self) -> Optional[QWidget]:
         """Build Regression's results tabs and figure pages into their card.
@@ -5481,13 +6197,21 @@ class AppScreen(QWidget):
         is shown or any of these attributes is used -- about 740 widgets
         that nobody can see until a run has results. See
         :class:`_BuiltOnFirstUse`. A failure falls back to the figure
-        queue, as the eager build did.
+        queue, as the eager build did. Dependencies are imported together
+        before constructing the panels, so opening the screen does not
+        load their data libraries and a missing dependency leaves no
+        partially constructed results widgets.
         """
         try:
             from ..widgets.regression_results import RegressionResultsPanel
             from ..preferences import get_figure_grid_size
             from ..widgets.figure_grid_view import (
                 MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
+            from ..widgets.sweep_runs import SweepRunsPanel
+            from ..widgets.measurement_scan_panel import (
+                MeasurementScanPanel)
+            from ..widgets.sweep_panel import SweepPanel
+            from ..widgets.cell_montage_view import CellMontageView
 
             self._results_panel = RegressionResultsPanel(
                 self._figures_card, external_volcano=True)
@@ -5526,12 +6250,14 @@ class AppScreen(QWidget):
             volcano_row.addWidget(back_to_grid)
             volcano_row.addStretch(1)
             volcano_layout.addLayout(volcano_row)
-            gene_split = QSplitter(Qt.Vertical, volcano_page)
-            gene_split.setChildrenCollapsible(True)
-            gene_split.addWidget(self._results_panel.volcano)
-            gene_split.addWidget(self._results_panel.gene)
-            gene_split.setStretchFactor(0, 3)
-            gene_split.setStretchFactor(1, 1)
+            from ..widgets.collapsible_splitter import (
+                EDGE, CollapsibleSplitter)
+            gene_split = CollapsibleSplitter(Qt.Vertical, volcano_page)
+            gene_split.add_pane(self._results_panel.volcano, "Volcano",
+                                stretch=3)
+            gene_split.add_pane(self._results_panel.gene, "Gene", mode=EDGE,
+                                stretch=1)
+            gene_split.set_collapsed("Gene", True, by_user=False)
             gene_split.setSizes([1000, 0])
             self._gene_split = gene_split
             volcano_layout.addWidget(gene_split, 1)
@@ -5574,7 +6300,6 @@ class AppScreen(QWidget):
             self._results_panel.table.key_selected.connect(
                 self._on_guide_selected)
 
-            from ..widgets.sweep_runs import SweepRunsPanel
             self._sweep_runs = SweepRunsPanel(self._figures_card)
             self._sweep_runs.trial_activated.connect(self._show_trial)
             self._sweep_runs.loaded_run_changed.connect(self._show_trial)
@@ -5602,8 +6327,6 @@ class AppScreen(QWidget):
                                   "Picking a row in Runs re-points this "
                                   "at that run.")
 
-            from ..widgets.measurement_scan_panel import (
-                MeasurementScanPanel)
             self._scan_panel = MeasurementScanPanel(
                 frame_provider=self._scan_source_frame,
                 database_provider=self._attached_database_rows,
@@ -5615,7 +6338,6 @@ class AppScreen(QWidget):
                 self._on_column_fit_started)
             self._scan_panel.regression.fit_finished.connect(
                 self._on_column_fit_finished)
-            from ..widgets.sweep_panel import SweepPanel
             self._sweep_panel = SweepPanel(
                 cells_provider=self._scan_panel.databases_frame,
                 counts_provider=self._sweep_counts,
@@ -5637,7 +6359,6 @@ class AppScreen(QWidget):
                    "each measurement -- a measurement that passes alone "
                    "and fails across the scan is the one worth knowing "
                    "about.")
-            from ..widgets.cell_montage_view import CellMontageView
             self._cell_montage = CellMontageView(
                 frame_provider=self._results_panel.results_frame,
                 results_provider=self._results_source_path,
@@ -5660,12 +6381,10 @@ class AppScreen(QWidget):
             self._results_tabs = left
             left.setCurrentWidget(self._results_page)
 
-            split = QSplitter(Qt.Horizontal, self._figures_card)
-            split.setChildrenCollapsible(False)
-            split.addWidget(left)
-            split.addWidget(self._figures_stack)
-            split.setStretchFactor(0, 1)
-            split.setStretchFactor(1, 1)
+            split = CollapsibleSplitter(Qt.Horizontal, self._figures_card)
+            split.add_pane(left, "Results", mode=EDGE, stretch=1,
+                           extent=780, fold_key="regression/Results")
+            split.add_pane(self._figures_stack, "Figure pages", stretch=1)
             left.setMinimumWidth(520)
             self._figures_stack.setMinimumWidth(360)
             split.setSizes([780, 620])
@@ -5683,7 +6402,7 @@ class AppScreen(QWidget):
             self._cell_montage = None
             self._figures_card.body_layout.addWidget(
                 self._queue_the_results_hold, 1)
-            self._figures_card.setMinimumHeight(360)
+            self._figures_card.setMinimumHeight(0)
             return None
         return self._figures_split
 
@@ -5761,8 +6480,7 @@ class AppScreen(QWidget):
         #: Cell-montage tab, when this screen supports regression results.
         #: Initialised before tab-change handlers can read it.
         self._cell_montage = None
-        if (self.app_key == "regression"
-                and self._regression_results_can_be_built()):
+        if self.app_key == "regression":
             self._owe_part(_REGRESSION_RESULTS,
                            self._build_regression_results)
             self._figures_card.build_body_when_first_shown(
@@ -5770,6 +6488,14 @@ class AppScreen(QWidget):
         results_expected = (
             self._part_is_owed(_REGRESSION_RESULTS)
             or self._if_built("_results_panel") is not None)
+        if results_expected:
+            content = self._figures_card.body
+            scroll = QScrollArea(self._figures_card)
+            scroll.setFrameShape(QScrollArea.NoFrame)
+            scroll.setWidgetResizable(True)
+            self._figures_card._outer.replaceWidget(content, scroll)
+            scroll.setWidget(content)
+            self._figures_card.body = scroll
         if not results_expected:
             self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         self._figure_queue.set_propagate_callback(
@@ -5777,17 +6503,9 @@ class AppScreen(QWidget):
         self._umap_explorer = None
         self._umap_payload_ready = False
         if self.app_key == "umap":
-            from ..widgets import ImageUmapExplorer
-            self._umap_explorer = ImageUmapExplorer(
-                parent=self._figures_card)
-            self._umap_explorer.hide()
-            self._umap_explorer.set_propagate_callback(
-                self._propagate_live_settings)
-            self._umap_explorer._settings_getter = self._umap_display_defaults
-            self._figures_card.body_layout.addWidget(
-                self._umap_explorer, 1)
+            self._owe_part(_UMAP_EXPLORER, self._build_umap_explorer)
         self._figures_card.setMinimumHeight(
-            560 if results_expected else 360)
+            0 if results_expected else 360)
         self._figures_card.hide()
 
         from ..widgets import ConsolePanel
@@ -5821,7 +6539,7 @@ class AppScreen(QWidget):
         self._runtime_splitter = None
 
         if self.app_key in ("mask", "analyze_plaques"):
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             if self.app_key == "analyze_plaques":
                 from ..widgets.plaque_preview import build_plaque_preview_card
@@ -5847,7 +6565,7 @@ class AppScreen(QWidget):
             self._remember_runtime_splitter(splitter)
         elif self.app_key == "timelapse":
             from ..widgets.timelapse_preview import build_timelapse_preview_card
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             self._timelapse_preview, self._timelapse_preview_card = (
                 build_timelapse_preview_card(self))
@@ -5864,7 +6582,7 @@ class AppScreen(QWidget):
             self._remember_runtime_splitter(splitter)
         elif self.app_key == "motility":
             from ..widgets.motility_preview import build_motility_preview_card
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             self._motility_preview, self._motility_preview_card = (
                 build_motility_preview_card(self))
@@ -5880,7 +6598,7 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
         elif self.app_key == "measure":
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             _, self._measure_preview_card = _build_measure_preview_card(
                 self, panel_later=True)
@@ -5897,7 +6615,7 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
         elif _sweepable(self.app_key):
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             from .parameter_sweep import build_parameter_sweep_card
             self._sweep, self._sweep_card = build_parameter_sweep_card(self)
@@ -5913,7 +6631,7 @@ class AppScreen(QWidget):
             self._remember_runtime_splitter(splitter)
         elif _hyperparam_searchable(self.app_key):
             from .hyperparam import build_hyperparam_card
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             _, self._hyperparam_card = build_hyperparam_card(
                 self, panel_later=True)
@@ -5930,7 +6648,7 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
         else:
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             splitter.addWidget(self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5980,7 +6698,24 @@ class AppScreen(QWidget):
         self._per_core_wrap.hide()
         usage_card.body_layout.addWidget(self._per_core_wrap)
 
-        layout.addWidget(usage_card)
+        section = QWidget()
+        self._actions_section = section
+        section_col = QVBoxLayout(section)
+        section_col.setContentsMargins(0, 0, 0, 0)
+        section_col.setSpacing(4)
+        actions_heading = QLabel("Actions")
+        actions_heading.setObjectName("CardTitle")
+        self._actions_heading = actions_heading
+        self._actions_heading_row = QHBoxLayout()
+        self._actions_heading_row.addWidget(actions_heading)
+        self._actions_heading_row.addStretch(1)
+        section_col.addLayout(self._actions_heading_row)
+        actions_body = QWidget(section)
+        self._actions_body = actions_body
+        body_col = QVBoxLayout(actions_body)
+        body_col.setContentsMargins(0, 0, 0, 0)
+        body_col.setSpacing(SPACING["md"])
+        section_col.addWidget(actions_body, 1)
 
         actions = QWidget()
         self._actions_row = actions
@@ -6139,7 +6874,17 @@ class AppScreen(QWidget):
                     text="Live", tooltip=tooltip)
                 self._preview_switch.toggled.connect(
                     self._on_preview_switch)
-                row.addWidget(self._preview_switch)
+                card = getattr(self, card_attr, None)
+                placed = False
+                if hasattr(card, "add_title_action"):
+                    try:
+                        card.add_title_action(self._preview_switch)
+                        placed = True
+                    except Exception:                    # noqa: BLE001
+                        LOG.debug("the preview card took no title action",
+                                  exc_info=True)
+                if not placed:
+                    row.addWidget(self._preview_switch)
                 if self.app_key == "mask":
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)
@@ -6189,7 +6934,7 @@ class AppScreen(QWidget):
             self._on_hyperparam_switch(False)
 
         self._interactive_switch = None
-        if self.app_key == "umap" and self._umap_explorer is not None:
+        if self.app_key == "umap":
             self._interactive_switch = AiToggleLabel(
                 text="Interactive",
                 tooltip=(
@@ -6211,7 +6956,7 @@ class AppScreen(QWidget):
 
         self._apply_ai_default()
 
-        layout.addWidget(actions)
+        body_col.addWidget(actions)
 
         self._category_hint_pinned = ""
         self._category_hint = QLabel(self._default_category_hint())
@@ -6221,7 +6966,7 @@ class AppScreen(QWidget):
         self._category_hint.setTextFormat(Qt.RichText)
         self._category_hint.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._sync_category_hint_height()
-        layout.addWidget(self._category_hint)
+        body_col.addWidget(self._category_hint)
 
         self._hint_strip = QLabel(self._default_hint())
         self._hint_strip.setObjectName("SubtitleSmall")
@@ -6230,8 +6975,12 @@ class AppScreen(QWidget):
         self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
         self._hint_strip.linkActivated.connect(self._on_hint_link)
-        layout.addWidget(self._hint_strip)
+        body_col.addWidget(self._hint_strip)
 
+        self._actions_folder = make_foldable(
+            actions_heading, actions_body, name="Actions",
+            persist_key=f"{self.app_key}/Actions")
+        self._install_the_shell_panes(layout, usage_card, section)
         return wrap
 
     #: Where a runtime splitter's state is stored. Distinct from the console
@@ -6241,14 +6990,179 @@ class AppScreen(QWidget):
     #: nothing, which is a layout that ignores the user with no message.
     RUNTIME_SPLIT_SUFFIX = "::runtime"
 
+    def _new_runtime_splitter(self):
+        """The vertical splitter the runtime column's panes live in.
+
+        A :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (item 471): every pane in it resizes by its edge and collapses at the
+        limit, and it remembers the sizes the user dragged, per pane name,
+        under this module's key.
+        """
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        return CollapsibleSplitter(
+            Qt.Vertical,
+            persist_key=f"{self.app_key}{self.RUNTIME_SPLIT_SUFFIX}")
+
+    @staticmethod
+    def _fold_a_card(card, name: str):
+        """The Folder that collapses ``card`` by its title, made if need be.
+
+        No persist key: a panel that opens because the user switched it on
+        (a live preview) or because a run produced something (figures) must
+        open, not come back as the strip it was left as last session.
+
+        :returns: the Folder, or None for a card with no title to click.
+        """
+        if card is None:
+            return None
+        folder = getattr(card, "folder", None)
+        if folder is not None:
+            return folder
+        title = getattr(card, "title_label", None)
+        body = getattr(card, "body", None)
+        if title is None or body is None:
+            return None
+        from ..widgets.foldable import make_foldable
+
+        card.folder = make_foldable(title, body, name=name)
+        return card.folder
+
+    #: The runtime cards that are FOCUS panes: shown, they take the height
+    #: (item 471). ``(attribute, name, height to open at)``; the name is the
+    #: fallback for a card with no title, whose own title is used otherwise.
+    _FOCUS_CARDS = (
+        ("_figures_card", "Figures", 420),
+        ("_live_preview_card", "Live preview", 420),
+        ("_measure_preview_card", "Crop preview", 420),
+        ("_timelapse_preview_card", "Track preview", 420),
+        ("_motility_preview_card", "Motility preview", 420),
+    )
+
+    #: The runtime cards that collapse and resize but take nothing over.
+    _TOOL_CARDS = (
+        ("_sweep_card", "Parameter sweep", 300),
+        ("_hyperparam_card", "Hyperparameter search", 300),
+    )
+
+    #: The panes a focus pane collapses, and the order they stack in.
+    SHELL_TARGETS = ("Console", "System", "Actions")
+
+    def _install_the_shell_panes(self, layout, usage_card, section) -> None:
+        """Put System and the buttons in the splitter and name every pane.
+
+        Item 471, slice B. The console, System and the buttons section each
+        collapse and each resize by their edge; a collapsed one is its
+        heading, at the bottom of the column. The figures panel and the
+        previews are FOCUS panes: while one is shown the three below it and
+        the settings column collapse (:class:`FocusCollapse`), and the user
+        can open any of them again, which pins it open for the visit.
+
+        Nothing here shows, measures or builds a card: a lazily-built panel
+        is registered while hidden and stays unbuilt until its switch shows
+        it (items 284/380).
+
+        :param layout: the runtime column's layout, for the fallback.
+        :param usage_card: the System card.
+        :param section: the buttons section.
+        """
+        from ..widgets.collapsible_splitter import (CollapsibleSplitter,
+                                                    FocusCollapse)
+
+        focus = FocusCollapse(self)
+        self._shell_focus = focus
+        split = self._runtime_splitter
+        if not isinstance(split, CollapsibleSplitter):
+            layout.addWidget(usage_card)
+            layout.addWidget(section)
+            return
+        tall = (self._part_is_owed(_REGRESSION_RESULTS)
+                or self._if_built("_results_panel") is not None)
+        focus_attrs = {attr for attr, _name, _extent in self._FOCUS_CARDS}
+        for attr, name, extent in self._FOCUS_CARDS + self._TOOL_CARDS:
+            card = getattr(self, attr, None)
+            if card is None or split.indexOf(card) < 0:
+                continue
+            if attr == "_figures_card" and tall:
+                extent = 720
+            title = getattr(card, "title_label", None)
+            name = (title.text().strip() if title is not None else "") or name
+            is_focus = attr in focus_attrs
+            split.add_pane(card, name, folder=self._fold_a_card(card, name),
+                           focus=is_focus, extent=extent,
+                           minimum=card.minimumHeight())
+            if is_focus:
+                focus.watch(card)
+        split.add_pane(self._console_wrap, "Console",
+                       folder=self._console_folder, extent=300, minimum=0)
+        split.add_pane(usage_card, "System", folder=usage_card.folder,
+                       stretch=0)
+        split.add_pane(section, "Actions", folder=self._actions_folder,
+                       stretch=0)
+        for name in self.SHELL_TARGETS:
+            focus.target(split, name)
+
+    def adopt_runtime_pane(self, card, *, focus: bool = True):
+        """Name a card someone else put in the runtime splitter.
+
+        :mod:`spacr.qt.preview_registry` inserts a declared preview above the
+        console; adopting it makes it collapse by its title, resize by its
+        edge, and -- as a preview -- take the height when it is shown.
+
+        :param card: the card, already in the runtime splitter.
+        :param focus: whether showing it collapses the console, System, the
+            buttons and the settings column.
+        :returns: the pane, or None when this screen has no such splitter.
+        """
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        split = getattr(self, "_runtime_splitter", None)
+        if not isinstance(split, CollapsibleSplitter) or card is None:
+            return None
+        if split.indexOf(card) < 0:
+            return None
+        title = getattr(card, "title_label", None)
+        name = (title.text().strip() if title is not None else "") or \
+            card.objectName() or "Preview"
+        pane = split.add_pane(card, name, folder=self._fold_a_card(card, name),
+                              focus=focus, extent=420,
+                              minimum=card.minimumHeight())
+        shell = getattr(self, "_shell_focus", None)
+        if focus and shell is not None:
+            shell.watch(card)
+        return pane
+
+    def reveal_settings(self) -> bool:
+        """Open the settings column if it is collapsed; the user asked.
+
+        Ctrl+F puts the caret in the settings search, which cannot take it
+        from a column folded away to the left.
+
+        :returns: whether the column is open now.
+        """
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        body = getattr(self, "_body_splitter", None)
+        if not isinstance(body, CollapsibleSplitter):
+            return True
+        if body.is_collapsed("Settings"):
+            body.set_collapsed("Settings", False, by_user=True)
+        return not body.is_collapsed("Settings")
+
     def _remember_runtime_splitter(self, splitter) -> None:
         """Restore this screen's pane heights and persist each resize.
 
         Saving on every splitter move preserves the layout even when the
-        application does not reach its normal shutdown path.
+        application does not reach its normal shutdown path. A
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        remembers its own sizes, per pane name, so it is only recorded here.
         """
         self._runtime_splitter = splitter
         if splitter is None:
+            return
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        if isinstance(splitter, CollapsibleSplitter):
             return
         key = f"{self.app_key}{self.RUNTIME_SPLIT_SUFFIX}"
         try:
@@ -6521,6 +7435,9 @@ class AppScreen(QWidget):
         :meth:`refresh_ambient_background`.
         """
         super().showEvent(event)
+        focus = getattr(self, "_shell_focus", None)
+        if focus is not None and not event.spontaneous():
+            focus.begin_view()
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None and not usage_timer.isActive():
             usage_timer.start()
@@ -6552,16 +7469,32 @@ class AppScreen(QWidget):
                 LOG.debug("could not clear the page surfaces on first show",
                           exc_info=True)
         self.refresh_ambient_background()
+        self._prebuild_when_idle()
+
+    def _prebuild_when_idle(self) -> None:
+        """Build the waiting categories in idle time; see :class:`_IdlePrebuild`."""
+        if not getattr(self, "_waiting_heading_of", None):
+            return
+        builder = self.__dict__.get("_idle_prebuild")
+        if builder is None:
+            builder = self._idle_prebuild = _IdlePrebuild(self)
+        builder.resume()
 
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Let the screen stop paying for things nobody can see.
 
         :param event: the Qt hide event.
         """
+        builder = self.__dict__.get("_idle_prebuild")
+        if builder is not None:
+            builder.stop()
         self._usage_generation += 1
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None:
             usage_timer.stop()
+        focus = getattr(self, "_shell_focus", None)
+        if focus is not None and not event.spontaneous():
+            focus.end_view()
         super().hideEvent(event)
 
     def _on_run(self, _checked=False, *, override=None):
@@ -7255,7 +8188,11 @@ class AppScreen(QWidget):
         card.setVisible(on)
 
     def _on_preview_switch(self, on: bool) -> None:
-        """Show or hide this module's runtime preview card.
+        """Show or hide the preview while keeping its Live switch reachable.
+
+        When closed, the switch sits beside the Actions heading, outside its
+        folding body. When open, it rides on the preview card. Hidden lazy
+        previews therefore remain unbuilt until the user opens them.
 
         Opening it also seeds the panel from the form, once. Before that,
         this screen wired only the push direction — ``set_propagate_callback``
@@ -7276,6 +8213,21 @@ class AppScreen(QWidget):
         card = getattr(self, attr, None) if attr else None
         if card is None:
             return
+        switch = getattr(self, "_preview_switch", None)
+        heading_row = getattr(self, "_actions_heading_row", None)
+        if switch is not None and heading_row is not None:
+            if on and hasattr(card, "add_title_action"):
+                heading_row.removeWidget(switch)
+                card.add_title_action(switch)
+            else:
+                title_row = getattr(card, "_title_row", None)
+                if title_row is not None:
+                    title_row.removeWidget(switch)
+                heading_row.addWidget(switch)
+            blocked = switch.blockSignals(True)
+            switch.setChecked(on)
+            switch.blockSignals(blocked)
+            switch.show()
         if on and not getattr(self, "_preview_primed", False):
             self._preview_primed = True
             self._prime_preview()
@@ -7369,6 +8321,23 @@ class AppScreen(QWidget):
         except Exception:
             LOG.debug("could not announce interactive mode", exc_info=True)
 
+    def _build_umap_explorer(self) -> QWidget:
+        """Build the explorer on its first payload or direct access.
+
+        The common deferred-part lifecycle applies the current style and
+        language. Switching between result modes reuses this panel and its
+        payload rather than constructing another explorer.
+        """
+        from ..widgets import ImageUmapExplorer
+
+        explorer = ImageUmapExplorer(parent=self._figures_card)
+        explorer.hide()
+        explorer.set_propagate_callback(self._propagate_live_settings)
+        explorer._settings_getter = self._umap_display_defaults
+        self._figures_card.body_layout.addWidget(explorer, 1)
+        self._umap_explorer = explorer
+        return explorer
+
     def _on_interactive_switch(self, on: bool) -> None:
         """Switch UMAP results between the static figure and explorer.
 
@@ -7376,7 +8345,7 @@ class AppScreen(QWidget):
         console/figure layout stays put until a UMAP payload arrives, then
         :meth:`_on_figure_ready` opens the explorer automatically.
         """
-        explorer = getattr(self, "_umap_explorer", None)
+        explorer = self._if_built("_umap_explorer")
         queue = getattr(self, "_figure_queue", None)
         if explorer is None or queue is None:
             return
@@ -7648,7 +8617,9 @@ class AppScreen(QWidget):
         can adopt it (cheap) instead of re-rendering on the GUI thread — that's
         what keeps the UI responsive while many figures stream in."""
         payload = getattr(fig, "_spacr_umap_payload", None)
-        explorer = getattr(self, "_umap_explorer", None)
+        explorer = (self._umap_explorer
+                    if payload is not None and self.app_key == "umap"
+                    else self._if_built("_umap_explorer"))
         if payload is not None and explorer is not None:
             explorer.set_payload(payload)
             self._umap_payload_ready = True
@@ -7683,6 +8654,9 @@ class AppScreen(QWidget):
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
         """
+        builder = self.__dict__.get("_idle_prebuild")
+        if builder is not None:
+            builder.stop()
         self._stop_the_heartbeat()
         th = getattr(self, "_thread", None)
         if th is not None:
@@ -7743,7 +8717,7 @@ class AppScreen(QWidget):
                 fq.clear()
             except Exception:
                 pass
-        explorer = getattr(self, "_umap_explorer", None)
+        explorer = self._if_built("_umap_explorer")
         if explorer is not None:
             try:
                 explorer.close()
@@ -7769,7 +8743,11 @@ class AppScreen(QWidget):
         model = getattr(self, "_settings_model", None)
         widgets = getattr(model, "_widgets", None) if model is not None else None
         try:
-            values = list(widgets.values()) if widgets else []
+            built = getattr(widgets, "built_items", None)
+            if callable(built):
+                values = [widget for _key, widget in built()]
+            else:
+                values = list(widgets.values()) if widgets else []
         except Exception:
             return
         for widget in values:
@@ -8289,6 +9267,10 @@ class AppScreen(QWidget):
                 or getattr(self, "_results_panel", None))
         if tabs is None or page is None:
             return
+        self._figures_card.show()
+        folder = getattr(self._figures_card, "folder", None)
+        if folder is not None:
+            folder.set_shut(False, by_user=False)
         try:
             tabs.setCurrentWidget(page)
         except (RuntimeError, TypeError):
@@ -8877,6 +9859,9 @@ class AppScreen(QWidget):
             return
         if not getattr(self, "_gene_opened", False) and split.sizes()[1] == 0:
             self._gene_opened = True
+            if getattr(split, "is_collapsed", None) and \
+                    split.is_collapsed("Gene"):
+                split.set_collapsed("Gene", False, by_user=False)
             total = sum(split.sizes()) or split.height() or 600
             split.setSizes([int(total * 0.6), int(total * 0.4)])
 

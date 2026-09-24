@@ -177,6 +177,7 @@ from __future__ import annotations
 import os
 import sqlite3
 import sys
+import tempfile
 import warnings
 from dataclasses import dataclass, replace as _dataclass_replace
 from datetime import datetime, timezone
@@ -769,6 +770,7 @@ def _build_var(features: Sequence[str], frame: pd.DataFrame,
                 values.to_numpy(dtype=float, na_value=np.nan)).sum()),
         })
     var = pd.DataFrame(rows, index=pd.Index(list(features), name=None))
+    _hdf5_metadata(var)
     for categorical in ("object_type", "channel_scope", "family",
                         "source_table", "measurement_units"):
         var[categorical] = var[categorical].astype("category")
@@ -810,6 +812,26 @@ def _redundant_identity_columns(columns: Sequence[str],
     return drop
 
 
+def _hdf5_metadata(frame: pd.DataFrame) -> None:
+    """Normalize owned metadata in place for AnnData's HDF5 string encoding.
+
+    Preserve values and missingness while avoiding nullable string storage,
+    which AnnData requires callers to opt into globally. Entirely missing
+    object columns use empty categoricals; numeric metadata is untouched.
+    """
+    frame.index = frame.index.astype(object)
+    for column in frame.columns:
+        values = frame[column]
+        if isinstance(values.dtype, pd.CategoricalDtype):
+            if isinstance(values.cat.categories.dtype, pd.StringDtype):
+                frame[column] = values.cat.rename_categories(
+                    values.cat.categories.astype(object))
+        elif isinstance(values.dtype, pd.StringDtype):
+            frame[column] = values = values.astype(object)
+        if values.dtype == object and values.isna().all():
+            frame[column] = pd.Categorical(values)
+
+
 def _build_obs(frame: pd.DataFrame, features: Sequence[str],
                annotations: Sequence[str], predictions: Sequence[str],
                *, timelapse: bool,
@@ -820,6 +842,10 @@ def _build_obs(frame: pd.DataFrame, features: Sequence[str],
 
     The index is :func:`spacr.selection.object_keys`, which is spaCR's own
     object identity -- not a new one invented for AnnData.
+
+    Entirely missing object-typed metadata uses an empty categorical for
+    HDF5 storage. Missingness is preserved without inventing a numeric value
+    or a string label; populated calibration columns remain numeric.
     """
     obs = frame.drop(columns=[c for c in features if c in frame.columns])
     obs = obs.drop(columns=[c for c in drop_columns if c in obs.columns])
@@ -848,6 +874,7 @@ def _build_obs(frame: pd.DataFrame, features: Sequence[str],
             mapping.get(str(value), CONDITION_FALLBACK)
             for value in frame[condition_column]]
 
+    _hdf5_metadata(obs)
     categorical = list(OBJECT_KEY_COLUMNS[:-1]) + [
         schema.PRC_KEY, schema.PRCF_KEY, "condition", "cluster",
         "measurement_units", *annotations, *predictions]
@@ -1449,6 +1476,23 @@ def _run_id_from_db(db_path: str) -> str:
 
 
 
+def _write_h5ad_atomic(adata: Any, path: Union[str, os.PathLike],
+                       **kwargs: Any) -> None:
+    """Publish a complete HDF5 file while preserving any previous export.
+
+    Write in a temporary directory beside the destination, flush the completed
+    file, and replace the destination only on success. Failed writes leave no
+    partial export or scratch files; the original exception reaches the caller.
+    """
+    path = os.path.abspath(os.fspath(path))
+    with tempfile.TemporaryDirectory(prefix=".anndata-", dir=os.path.dirname(path)) as folder:
+        pending = os.path.join(folder, "pending.h5ad")
+        adata.write_h5ad(pending, **kwargs)
+        with open(pending, "rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(pending, path)
+
+
 def export_anndata(db_path: Union[str, os.PathLike],
                    out_path: Union[str, os.PathLike],
                    *,
@@ -1461,6 +1505,8 @@ def export_anndata(db_path: Union[str, os.PathLike],
 
     Everything :func:`build_anndata` accepts is accepted here and passed
     through; this adds the write and the artifact registration.
+    A failed write preserves any existing destination; only a completed file
+    replaces it and is registered as an artifact.
 
     :param db_path: a ``measurements.db``.
     :param out_path: the ``.h5ad`` to write. Parent directories are created.
@@ -1484,7 +1530,7 @@ def export_anndata(db_path: Union[str, os.PathLike],
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
-    adata.write_h5ad(out_path, compression=compression)
+    _write_h5ad_atomic(adata, out_path, compression=compression)
 
     artifact_id = ""
     if register:
@@ -1620,7 +1666,9 @@ def _stamp_parent_file(child_path: str, parent_path: str,
         provenance = dict(adata.uns["spacr"])
         provenance["relationships"] = relationships
         adata.uns["spacr"] = provenance
-        adata.write_h5ad(child_path)
+        _hdf5_metadata(adata.obs)
+        _hdf5_metadata(adata.var)
+        _write_h5ad_atomic(adata, child_path)
     except Exception as exc:
         warnings.warn(
             f"could not record the parent file in {child_path}: {exc}",

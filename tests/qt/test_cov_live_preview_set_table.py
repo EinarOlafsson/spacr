@@ -71,7 +71,7 @@ def stack_plate(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def panel(qtbot, flat_plate: Path):
-    widget = LivePreviewPanel()
+    widget = LivePreviewPanel(threaded=False)
     qtbot.addWidget(widget)
     widget.load_image(sorted(flat_plate.iterdir())[0])
     return widget
@@ -309,8 +309,10 @@ def test_turning_projection_on_redraws_the_field_projected(qtbot, stack_plate):
     assert int(np.max(widget._image)) == 1
     widget._mip_toggle.setChecked(True)
     assert widget._mip_enabled is True
+    qtbot.waitUntil(lambda: not widget._image_loaders)
     assert int(np.max(widget._image)) == 4
     widget._mip_toggle.setChecked(False)
+    qtbot.waitUntil(lambda: not widget._image_loaders)
     assert int(np.max(widget._image)) == 1
 
 

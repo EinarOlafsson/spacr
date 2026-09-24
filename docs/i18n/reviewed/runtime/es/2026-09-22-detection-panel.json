@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-assisted linguistic and technical review against the consolidated detection panel; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Detection method",
+      "source": "Detection method",
+      "translation": "Método de detección",
+      "source_sha256": "387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858"
+    },
+    {
+      "table": "ui",
+      "key": "Method",
+      "source": "Method",
+      "translation": "Método",
+      "source_sha256": "52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce"
+    },
+    {
+      "table": "ui",
+      "key": "What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.",
+      "source": "What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.",
+      "translation": "El método que encuentra los objetos y los ajustes que utiliza. Controla tanto los botones de detección como la lupa en directo.",
+      "source_sha256": "0ae7e6ba12cd1c6ea2256fff604320bab483fccda5888c76a826b481e8f831b9"
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.",
+      "translation": "La lupa en directo también utiliza estos ajustes: el modo Cellpose usa el modelo, ambos umbrales, el diámetro y la normalización, mientras que DINOCell usa la probabilidad celular. Al elegir otro método arriba, aquí se muestran sus ajustes.",
+      "source_sha256": "1a647d07653a25d8a80c82004d9b6df1cafb925cad3ac77924b9d49b87b12237"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "translation": "Segmenta el campo abierto con el modelo de Detección de objetos e incorpora el resultado según el ajuste de reemplazo o fusión. Rellena las pestañas Probabilidad celular y Flujos con los resultados intermedios de la ejecución.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88"
+    },
+    {
+      "table": "ui",
+      "key": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
+      "source": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
+      "translation": "El algoritmo que encuentra los objetos se aplica tanto a los botones de detección como a la lupa en directo. Otsu y los algoritmos de umbral que aparecen debajo dividen el campo según un nivel y no requieren instalar nada. El método de máximos y propagación hace crecer un objeto desde cada centro brillante y así separa dos objetos que se tocan. Los métodos para orgánulos usan el mismo código que la detección de orgánulos. Cellpose y los motores de cálculo son modelos. Al elegir una fila cambian los ajustes de esta categoría; la ayuda de esa fila indica para qué casos resulta adecuada.",
+      "source_sha256": "ea95731b1b53d915a2a7b82ef71b3d45bf4ff895a2081c2d166de23bb8ccf5b3"
+    }
+  ]
+}

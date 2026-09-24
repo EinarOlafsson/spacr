@@ -9,6 +9,17 @@ from verify_staged_lesson import check_related_links
 import verify_staged_lesson as staged
 
 
+def test_host_lesson_gap_must_be_registered():
+    navigation = {'missing_tutorials': [{'app_key': 'toxoplasma'}]}
+    assert staged.find_host_lesson([], navigation, 'toxoplasma') is None
+    with pytest.raises(ValueError, match='Unexpected parent tutorial coverage'):
+        staged.find_host_lesson([], navigation, 'annotate')
+    parent = {'app_key': 'annotate', 'title': 'Annotate'}
+    assert staged.find_host_lesson([parent], navigation, 'annotate') == parent
+    with pytest.raises(ValueError, match='Unexpected parent tutorial coverage'):
+        staged.find_host_lesson([parent, parent], navigation, 'annotate')
+
+
 def test_server_uses_committed_player_not_stale_authoring_copy(tmp_path, monkeypatch):
     workspace, repo = tmp_path/'authoring', tmp_path/'repo'
     production = workspace/'refresh/production'

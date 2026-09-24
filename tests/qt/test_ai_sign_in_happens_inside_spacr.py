@@ -8,6 +8,9 @@ sign-in link, asks for a code, and says whether it worked.
 """
 from __future__ import annotations
 
+import os
+import signal
+import subprocess
 import sys
 import textwrap
 
@@ -19,6 +22,12 @@ from spacr.qt.ai import pty_sign_in as psi  # noqa: E402
 
 pytestmark = pytest.mark.skipif(not psi.pty_available(),
                                 reason="needs a POSIX pseudo-terminal")
+
+
+@pytest.fixture(autouse=True)
+def local_processes_only(monkeypatch, _no_real_embedded_provider_sign_in):
+    """This file runs only Python stand-ins written under tmp_path."""
+    monkeypatch.setattr(psi, "_spawn", subprocess.Popen)
 
 
 @pytest.fixture
@@ -56,6 +65,9 @@ def test_the_tool_believes_it_is_on_a_terminal_and_signs_in(qtbot, fake_cli):
     qtbot.waitUntil(lambda: dialog.succeeded is not None, timeout=10000)
     assert dialog.succeeded is True
     assert "Logged in." in dialog.log.toPlainText()
+    assert not dialog.session._reader.is_alive()
+    with pytest.raises(OSError):
+        os.fstat(dialog.session._master)
 
 
 def test_a_failed_sign_in_says_so(qtbot, fake_cli):
@@ -75,3 +87,109 @@ def test_closing_the_window_stops_the_sign_in(qtbot, fake_cli):
     qtbot.waitUntil(lambda: "Paste code" in dialog.log.toPlainText(), timeout=10000)
     dialog.reject()
     assert dialog.session.poll() is not None
+
+
+def test_completion_drains_the_last_output_before_showing_the_result(qtbot):
+    class FinishedSession:
+        text = ""
+
+        def poll(self):
+            return 1
+
+        def stop(self):
+            self.text = "The local stand-in refused the supplied code."
+
+        def read(self):
+            return self.text
+
+    dialog = psi.SignInDialog("Local stand-in", ["unused"],
+                             session_factory=lambda argv: FinishedSession(),
+                             open_url=lambda url: None)
+    qtbot.addWidget(dialog)
+    dialog._tick()
+    assert dialog.succeeded is False
+    assert "refused the supplied code" in dialog.log.toPlainText()
+
+
+def test_destroying_the_parent_stops_the_sign_in(qtbot, fake_cli):
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import delete
+
+    parent = QWidget()
+    dialog = psi.SignInDialog("Local stand-in", fake_cli, parent,
+                             open_url=lambda url: None)
+    session = dialog.session
+    try:
+        qtbot.waitUntil(lambda: "Paste code" in dialog.log.toPlainText(),
+                        timeout=10000)
+        delete(parent)
+        assert session.poll() is not None
+        qtbot.waitUntil(lambda: not session._reader.is_alive(), timeout=2000)
+    finally:
+        session.stop()
+
+
+def test_a_failed_spawn_closes_both_terminal_descriptors(monkeypatch):
+    opened = []
+    original = os.openpty
+
+    def record():
+        pair = original()
+        opened.extend(pair)
+        return pair
+
+    monkeypatch.setattr(psi.os, "openpty", record)
+    with pytest.raises(FileNotFoundError):
+        psi.PtySession(["/does/not/exist/spacr-test-login"])
+    try:
+        for descriptor in opened:
+            with pytest.raises(OSError):
+                os.fstat(descriptor)
+    finally:
+        for descriptor in opened:
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+
+
+@pytest.mark.parametrize("stubborn_launcher", [False, True])
+def test_stopping_a_launcher_also_stops_its_stubborn_child(
+        qtbot, tmp_path, stubborn_launcher):
+    script = tmp_path / "launcher.py"
+    script.write_text(textwrap.dedent('''
+        import subprocess
+        import signal
+        import sys
+        import time
+        if sys.argv[1] == "True":
+            signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        subprocess.Popen([sys.executable, "-c",
+            "import signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+            "print('child-ready', flush=True); time.sleep(3600)"])
+        time.sleep(3600)
+    '''))
+    session = psi.PtySession([sys.executable, str(script), str(stubborn_launcher)])
+    output = []
+
+    def ready():
+        output.append(session.read())
+        return "child-ready" in "".join(output)
+
+    try:
+        qtbot.waitUntil(ready, timeout=10000)
+        session.stop()
+        assert session.poll() is not None
+        qtbot.waitUntil(lambda: not session._reader.is_alive(), timeout=2000)
+        descriptor = os.open(os.devnull, os.O_RDONLY)
+        try:
+            session.stop()
+            assert os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+    finally:
+        try:
+            os.killpg(session.proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        session.proc.wait(timeout=5)

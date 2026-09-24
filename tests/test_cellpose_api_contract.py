@@ -337,6 +337,20 @@ def test_every_converted_double_declares_the_installed_signature():
     """
     wrong = []
     for rel, cls, lineno, fn in _eval_doubles():
+        if (rel, cls) == ('test_restoration_backend.py', 'Cellpose3DenoiseModel'):
+            # DenoiseModel restores pixels; it is not CellposeModel's
+            # segmentation API. Pin its separate isolated 3.1.1.3 API:
+            # https://github.com/MouseLand/cellpose/blob/v3.1.1.3/cellpose/denoise.py
+            expected = dict(batch_size=8, channels=None, channel_axis=None,
+                z_axis=None, normalize=True, rescale=None, diameter=None,
+                tile=True, do_3D=False, tile_overlap=0.1, bsize=224)
+            names = [arg.arg for arg in fn.args.args[2:]]
+            defaults = [ast.literal_eval(value) for value in fn.args.defaults]
+            assert names == list(expected)
+            assert defaults == list(expected.values())
+            assert fn.args.kwarg is None and fn.args.vararg is None
+            assert not fn.args.kwonlyargs
+            continue
         if PARTIAL_SIGNATURE_RATCHET.get((rel, cls)):
             continue
         if not _declares_full_signature(fn):

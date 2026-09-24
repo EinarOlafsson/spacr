@@ -78,7 +78,7 @@ def test_the_default_model_name_builds_the_librarys_own_default(built, monkeypat
 
     ops_engine._cellpose_model({"cellpose_model": name}, gpu=False)
 
-    assert built == [{"gpu": False}]
+    assert built == [{"gpu": False, "use_bfloat16": False}]
 
 
 def test_another_model_name_is_loaded_by_that_name(built, monkeypatch):
@@ -87,7 +87,7 @@ def test_another_model_name_is_loaded_by_that_name(built, monkeypatch):
 
     ops_engine._cellpose_model({"cellpose_model": " /models/ops_nuclei "}, gpu=False)
 
-    assert built == [{"gpu": False, "pretrained_model": "/models/ops_nuclei"}]
+    assert built == [{"gpu": False, "use_bfloat16": False, "pretrained_model": "/models/ops_nuclei"}]
 
 
 def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, monkeypatch):

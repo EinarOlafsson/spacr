@@ -31,10 +31,13 @@
     },
     {
       "context": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
-      "label": "spacr.measure.measure_crop#15",
+      "label": "spacr.measure.measure_crop#16",
       "source": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
       "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
-      "translation": "uniquement en mode strict (``settings['strict_errors']`` ou la variable d’environnement ``SPACR_STRICT_ERRORS``). Sinon, les vérifications de type de ``normalize``, ``normalize_by``, des dimensions et tailles minimales des masques ainsi que de ``channels`` affichent un WARNING et renvoient ``None`` sans effectuer de mesure."
+      "translation": "uniquement en mode strict (``settings['strict_errors']`` ou la variable d’environnement ``SPACR_STRICT_ERRORS``). Sinon, les vérifications de type de ``normalize``, ``normalize_by``, des dimensions et tailles minimales des masques ainsi que de ``channels`` affichent un WARNING et renvoient ``None`` sans effectuer de mesure.",
+      "previous_labels": [
+        "spacr.measure.measure_crop#15"
+      ]
     },
     {
       "context": "A hook that raises, returns ``None``, or returns the wrong shape/dtype gets its exception re-raised as :class:`MeasurementHookError` (a :class:`spacr.errors.ConfigurationError`) naming the hook and the field. It is raised inside ``_measure_crop_core``'s ``try``, so it takes the ordinary per-field failure route: the traceback is printed, the field is recorded on the ``RunLedger`` as a failure, and ``measurements.db`` is stamped incomplete. It is never swallowed into a row of quietly-wrong numbers.",

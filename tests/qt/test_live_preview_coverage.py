@@ -807,7 +807,7 @@ class TestZoomView:
                            QPoint(0, -120), Qt.NoButton, Qt.NoModifier,
                            Qt.ScrollUpdate, False)
         a.wheelEvent(down)
-        assert a.scale_factor() == pytest.approx(1.20 * 0.833)
+        assert a.scale_factor() == pytest.approx(1.0)
 
     def test_shift_wheel_scrolls_instead_of_zooming(self, qtbot):
         a, _ = self._pair(qtbot)
@@ -2031,12 +2031,11 @@ class TestLiveSettingsDialog:
             p._live_settings_dialog.close()
 
     def test_the_dialog_still_opens_without_a_screen(self, qtbot, monkeypatch):
-        """Headless / detached-display fallback: ``screen()`` returns None and
-        ``None.availableGeometry()`` raises, so the dialog takes its default
-        size instead of failing to open."""
-        monkeypatch.setattr(LP.LiveSettingsDialog, "screen",
-                            lambda self: None, raising=False)
+        """The safe screen resolver returns None for the detached-display case."""
+        from spacr.qt import hidpi
+
         p = _panel(qtbot)
+        monkeypatch.setattr(hidpi, 'screen_for_widget', lambda widget=None: None)
         dlg = LP.LiveSettingsDialog(p)
         qtbot.addWidget(dlg)
         try:

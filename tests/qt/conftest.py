@@ -1070,3 +1070,16 @@ def _no_qt_test_touches_a_real_spacr_installation(monkeypatch):
     monkeypatch.setattr(cleanup, "find_old_installs", lambda **kwargs: [])
     monkeypatch.setattr(cleanup, "remove_install", _refuse)
     monkeypatch.setattr(cleanup, "start_update_helper", _refuse)
+
+
+@pytest.fixture(autouse=True)
+def _no_real_embedded_provider_sign_in(monkeypatch):
+    """Require tests to opt into launching a local sign-in stand-in."""
+    from spacr.qt.ai import pty_sign_in
+
+    def refuse(command, **kwargs):
+        raise AssertionError(
+            f"a test attempted a real embedded sign-in: {command!r}; "
+            "replace pty_sign_in._spawn with a local stand-in")
+
+    monkeypatch.setattr(pty_sign_in, "_spawn", refuse)

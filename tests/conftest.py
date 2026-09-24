@@ -35,6 +35,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+pytest_plugins = ["tools.pytest_translation_compatibility"]
+
 # ---------------------------------------------------------------------------
 # The suite is not allowed to take the machine down
 # ---------------------------------------------------------------------------
@@ -508,6 +510,16 @@ def _inside_allowed_root(path) -> bool:
     return False
 
 
+@pytest.fixture(scope="session")
+def qapp(qapp):
+    """Give pytest-qt the same GUI-thread collector as normal app startup."""
+    from spacr.qt import gc_policy
+
+    gc_policy.install(qapp)
+    yield qapp
+    gc_policy.uninstall()
+
+
 @pytest.fixture(autouse=True)
 def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     """Deliver owner-requested Qt deletions for every Qt test boundary.
@@ -556,6 +568,9 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
 
             app = module.QApplication.instance()
             if app is not None:
+                from spacr.qt import gc_policy
+
+                gc_policy.install(app)
                 module.QApplication.sendPostedEvents(
                     None, QEvent.DeferredDelete)
         except Exception:                                        # noqa: BLE001

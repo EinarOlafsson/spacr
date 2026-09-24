@@ -1,0 +1,483 @@
+{
+  "title": "Sequencing modules and how they relate",
+  "description": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
+  "introduction": "From Home, open Map Barcodes for sequencing reads, or open OPS inside Mask for optical sequencing images. Provide the references and experimental layout that connect barcode identities to your screen. Combine compatible guide counts and phenotype scores in Regression. Use Experiment Design and Power before acquisition; use Dose-Response and Run Compare when you have suitable results to inspect.",
+  "conclusion": "Keep barcode references and plate layouts with your count tables. Match those counts to phenotype scores by plate and well before Regression. For optical screening, join decoded object identities to the phenotypes and aggregate them for the chosen analysis. Follow the linked module lessons for data preparation, settings and outputs.",
+  "pathways": [
+    "pooled_screen",
+    "optical_screen",
+    "screen_planning"
+  ],
+  "modules": [
+    "map_barcodes",
+    "barcode_qc",
+    "ops",
+    "regression",
+    "power",
+    "experiment_design",
+    "dose_response",
+    "run_compare",
+    "simulation"
+  ],
+  "schema_version": 1,
+  "source": "spacr/resources/module_workflows.json",
+  "module_contracts": {
+    "map_barcodes": {
+      "name": "Map Barcodes",
+      "home": "map_barcodes",
+      "parent": null,
+      "api_module": "spacr.sequencing",
+      "lesson": "12_map_barcodes",
+      "inputs": [
+        "fastq"
+      ],
+      "outputs": [
+        "barcode_counts"
+      ],
+      "guidance": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "declared_ports": {
+        "key": "map_barcodes",
+        "consumes": [
+          {
+            "kind": "sequencing-reads",
+            "role": "reads",
+            "path": "",
+            "pattern": "*.fastq.gz",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "paired or single-end reads"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "barcode-map",
+            "role": "reads_h5",
+            "path": "",
+            "pattern": "*/annotated_reads.h5",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "one row per read, with its three barcodes"
+          },
+          {
+            "kind": "barcode-map",
+            "role": "combinations",
+            "path": "",
+            "pattern": "*/unique_combinations.csv",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "collapsed well x gRNA counts"
+          }
+        ],
+        "summary": "FASTQ reads to row / column / gRNA barcode assignments"
+      }
+    },
+    "barcode_qc": {
+      "name": "Barcode QC",
+      "home": "map_barcodes",
+      "parent": "map_barcodes",
+      "api_module": "spacr.sequencing_qc",
+      "lesson": "47_barcode_qc",
+      "inputs": [
+        "barcode_counts"
+      ],
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "guidance": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering."
+    },
+    "ops": {
+      "name": "OPS",
+      "home": "mask",
+      "parent": "mask",
+      "api_module": "spacr.ops_engine",
+      "lesson": "76_ops",
+      "inputs": [
+        "raw_images",
+        "mosaic"
+      ],
+      "outputs": [
+        "ops_tables"
+      ],
+      "guidance": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
+    },
+    "regression": {
+      "name": "Regression",
+      "home": "regression",
+      "parent": null,
+      "api_module": "spacr.ml",
+      "lesson": "13_regression",
+      "inputs": [
+        "scores",
+        "barcode_counts",
+        "ops_tables",
+        "measurements"
+      ],
+      "outputs": [
+        "regression"
+      ],
+      "guidance": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "declared_ports": {
+        "key": "regression",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the scores being regressed"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "regression-results",
+            "role": "results",
+            "path": "results",
+            "pattern": "**/results*.csv",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "coefficients, and the significant subset"
+          }
+        ],
+        "summary": "measurements plus a barcode map to gene-level hits"
+      }
+    },
+    "power": {
+      "name": "Power / Design",
+      "home": "power",
+      "parent": null,
+      "api_module": "spacr.qt.screens.power",
+      "lesson": "68_power_design",
+      "inputs": [
+        "design",
+        "measurements",
+        "plate_map"
+      ],
+      "outputs": [
+        "design"
+      ],
+      "guidance": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions."
+    },
+    "experiment_design": {
+      "name": "Experiment Design",
+      "home": "experiment_design",
+      "parent": null,
+      "api_module": "spacr.qt.screens.experiment_design",
+      "lesson": "67_experiment_design",
+      "inputs": [
+        "design"
+      ],
+      "outputs": [
+        "plate_map"
+      ],
+      "guidance": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition."
+    },
+    "dose_response": {
+      "name": "Dose–Response",
+      "home": "dose_response",
+      "parent": null,
+      "api_module": "spacr.qt.screens.dose_response",
+      "lesson": "69_dose_response",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "outputs": [
+        "assay_results",
+        "figures"
+      ],
+      "guidance": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing."
+    },
+    "run_compare": {
+      "name": "Run Compare",
+      "home": "run_compare",
+      "parent": null,
+      "api_module": "spacr.qt.screens.run_compare",
+      "lesson": "50_run_compare",
+      "inputs": [
+        "run_records",
+        "regression"
+      ],
+      "outputs": [
+        "comparison"
+      ],
+      "guidance": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison."
+    },
+    "simulation": {
+      "name": "Pooled-screen simulation sweep",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.sim",
+      "api_entry": "spacr.sim.run_multiple_simulations",
+      "lesson": null,
+      "inputs": [
+        "simulation_settings"
+      ],
+      "outputs": [
+        "simulation_summary"
+      ],
+      "guidance": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid."
+    }
+  },
+  "pathway_steps": {
+    "pooled_screen": {
+      "title": "A pooled spaCR screen",
+      "home_app": "mask",
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Start on Home and open Mask. Load the example data, check channels and segmentation, then run.",
+          "after": []
+        },
+        {
+          "module": "map_barcodes",
+          "action": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
+          "after": []
+        },
+        {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure with the Mask project and create measurements and object crops.",
+          "after": [
+            "mask",
+            "foreign"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Open Annotate, inspect representative objects and save phenotype labels.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "gate_editor",
+          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify, choose images or measured features, and inspect held-out predictions.",
+          "after": [
+            "annotate",
+            "gate_editor",
+            "umap"
+          ]
+        },
+        {
+          "module": "regression",
+          "action": "Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.",
+          "after": [
+            "classify_merged",
+            "map_barcodes"
+          ]
+        }
+      ],
+      "description": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        },
+        {
+          "id": "fastq",
+          "title": "FASTQ: R1/R2, R1 only or R2 only",
+          "artifacts": [
+            "fastq"
+          ],
+          "targets": [
+            "map_barcodes"
+          ],
+          "description": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation."
+        }
+      ]
+    },
+    "optical_screen": {
+      "title": "An optical pooled screen",
+      "home_app": "mask",
+      "steps": [
+        {
+          "module": "ops",
+          "action": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+          "after": []
+        },
+        {
+          "module": "regression",
+          "action": "Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.",
+          "after": [
+            "ops"
+          ]
+        }
+      ],
+      "note": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "description": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "inputs": [
+        {
+          "id": "cycles",
+          "title": "Sequencing cycles and phenotype images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "ops"
+          ],
+          "description": "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding."
+        },
+        {
+          "id": "phenotypes",
+          "title": "Compatible phenotype responses",
+          "artifacts": [
+            "scores"
+          ],
+          "targets": [
+            "regression"
+          ],
+          "description": "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff."
+        }
+      ]
+    },
+    "screen_planning": {
+      "title": "Plan a screen",
+      "home_app": "experiment_design",
+      "steps": [
+        {
+          "module": "experiment_design",
+          "action": "Start on Home with Experiment Design; assign conditions, controls, replicates and wells.",
+          "after": []
+        },
+        {
+          "module": "power",
+          "action": "Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions.",
+          "after": [
+            "experiment_design"
+          ]
+        }
+      ],
+      "description": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "inputs": [
+        {
+          "id": "design",
+          "title": "Conditions, controls and design assumptions",
+          "artifacts": [
+            "design"
+          ],
+          "targets": [
+            "experiment_design"
+          ],
+          "description": "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required."
+        },
+        {
+          "id": "pilot",
+          "title": "Effect sizes, variability and optional pilot data",
+          "artifacts": [
+            "design",
+            "measurements"
+          ],
+          "targets": [
+            "power"
+          ],
+          "description": "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort."
+        }
+      ]
+    }
+  },
+  "connections": [
+    {
+      "from": "map_barcodes",
+      "to": "regression",
+      "artifacts": [
+        "barcode_counts"
+      ],
+      "handoff": "Pair guide counts with phenotype scores using consistent plate/well keys."
+    },
+    {
+      "from": "map_barcodes",
+      "to": "barcode_qc",
+      "artifacts": [
+        "barcode_counts"
+      ],
+      "handoff": "Check mapping and coverage before guide filtering."
+    },
+    {
+      "from": "ops",
+      "to": "regression",
+      "artifacts": [
+        "ops_tables"
+      ],
+      "handoff": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+    },
+    {
+      "from": "experiment_design",
+      "to": "power",
+      "artifacts": [
+        "plate_map"
+      ],
+      "handoff": "Use the experimental layout to define sampling assumptions, then revise the design."
+    },
+    {
+      "from": "experiment_design",
+      "to": "dose_response",
+      "artifacts": [
+        "plate_map"
+      ],
+      "handoff": "Acquire and measure the experiment first, preserving dose/condition identities."
+    },
+    {
+      "from": "regression",
+      "to": "run_compare",
+      "artifacts": [
+        "regression"
+      ],
+      "handoff": "Compare compatible saved result sets and their settings."
+    }
+  ]
+}

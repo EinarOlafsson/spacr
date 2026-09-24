@@ -68,6 +68,7 @@ APP_CLI_NOTE = _ROW.cli_note
 APP_TRANSLATIONS = _ROW.translations
 
 
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, tree_item
 
@@ -154,7 +155,12 @@ class RunCompareScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Lay the screen out: picker, banner, then the three tabs."""
+        """Lay the screen out: picker, banner, then the three tabs.
+
+        The three tables sit under one "Comparison" heading (item 471): a
+        click folds them away and the folded heading stays at the bottom of
+        the screen.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -234,7 +240,9 @@ class RunCompareScreen(QWidget):
         self._tabs.addTab(self._settings_tree, "Settings")
         self._tabs.addTab(self._counts_tree, "Counts")
         self._tabs.addTab(self._hits_tree, "Hits")
-        outer.addWidget(self._tabs, 1)
+        self._tabs_section = FoldSection(
+            self._tabs, "Comparison", persist_key="run_compare/Comparison")
+        outer.addWidget(self._tabs_section, 1)
 
 
     def load_project(self, project: str) -> List[RunRef]:

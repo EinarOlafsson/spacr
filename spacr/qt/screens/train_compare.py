@@ -69,7 +69,6 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPushButton,
-    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -81,6 +80,7 @@ from ..bridge import make_thread
 from ..theme import (SPACING, active_palette, make_transparent,
                      paint_panel, palette_for)
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
@@ -259,7 +259,14 @@ class TrainCompareScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Lay out the run list beside the plot, with the diff underneath."""
+        """Lay out the run list beside the plot, with the diff underneath.
+
+        Item 471: the run list ("Runs"), the curves ("Curves") and the
+        settings diff ("Settings diff") are sections of
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        panes -- each folds by its heading and every shared edge drags; the
+        run list opens at the old 300 px.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -293,9 +300,10 @@ class TrainCompareScreen(QWidget):
         src_row.addWidget(self._btn_scan)
         outer.addLayout(src_row)
 
-        split = QSplitter(Qt.Horizontal, self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="train_compare::body")
 
-        left = QWidget(split)
+        left = QWidget()
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(SPACING["xs"])
@@ -337,9 +345,11 @@ class TrainCompareScreen(QWidget):
         self._btn_overlay = QPushButton("Overlay selected", left)
         self._btn_overlay.clicked.connect(self.overlay)
         left_layout.addWidget(self._btn_overlay)
-        split.addWidget(left)
+        split.add_section(left, "Runs", persist_key="train_compare/Runs",
+                          stretch=0, extent=300)
 
-        right = QSplitter(Qt.Vertical, split)
+        right = CollapsibleSplitter(Qt.Vertical,
+                                    persist_key="train_compare::curves")
 
         from matplotlib.figure import Figure
         self._figure = Figure(
@@ -347,9 +357,10 @@ class TrainCompareScreen(QWidget):
         self._canvas = panel_canvas_class()(self._figure)
         self._canvas.setMinimumHeight(240)
         self._canvas.mpl_connect("pick_event", self._on_pick)
-        right.addWidget(self._canvas)
+        right.add_section(self._canvas, "Curves",
+                          persist_key="train_compare/Curves", stretch=3)
 
-        diff_panel = QWidget(right)
+        diff_panel = QWidget()
         diff_layout = QVBoxLayout(diff_panel)
         diff_layout.setContentsMargins(0, 0, 0, 0)
         diff_layout.setSpacing(SPACING["xs"])
@@ -366,14 +377,12 @@ class TrainCompareScreen(QWidget):
             QHeaderView.Interactive)
         self._diff_table.horizontalHeader().setStretchLastSection(True)
         diff_layout.addWidget(self._diff_table, 1)
-        right.addWidget(diff_panel)
-        right.setStretchFactor(0, 3)
-        right.setStretchFactor(1, 2)
+        right.add_section(diff_panel, "Settings diff",
+                          persist_key="train_compare/Settings diff", stretch=2)
 
-        split.addWidget(right)
-        split.setStretchFactor(0, 0)
-        split.setStretchFactor(1, 1)
-        split.setSizes([300, 820])
+        split.add_pane(right, "Comparison", stretch=1, extent=820)
+        self._body_splitter = split
+        self._curves_splitter = right
         outer.addWidget(split, 1)
 
         self._problems = QLabel("", self)

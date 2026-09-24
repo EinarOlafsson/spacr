@@ -125,3 +125,10 @@ The repository's ``Notebooks/`` directory contains complete Mask, Measure,
 Classify, barcode and regression examples. Treat the settings helpers and the
 :doc:`curated API reference <api/index>` as authoritative for the installed
 version; notebooks are worked examples rather than a compatibility contract.
+
+Export measured objects to AnnData
+----------------------------------
+
+Follow :doc:`anndata_export` to export the measurement database through the
+same entry point used by the desktop application, choose a missing-value
+policy, and inspect the resulting object-by-feature matrix.

@@ -10,9 +10,9 @@ German, Spanish, French and Swedish passed their full runtime audits at the
 46d11afaf application-source boundary. Subsequent application changes and
 explicitly inventoried chooser prose bring the live inventory to 6,298
 runtime entries; all nine current catalogs have explicit debt. The API
-inventory has 657 added, 2 removed and 127 changed sources relative to its
-English manifest, across 11,194 live symbols. Exact outstanding source
-IDs are in features/data/411_api_debt_after_view_lasso_2026-09-22.json; no English
+inventory has 658 added, 2 removed and 128 changed sources relative to its
+English manifest, across 11,195 live symbols. Exact outstanding source
+IDs are in features/data/411_api_debt_after_download_status_2026-09-22.json; no English
 manifest or debt pin was raised. The current table is regenerated from
 source-bound records; the dated completion statements below describe
 historical trees. New review records are AI-assisted technical review, not
@@ -57,7 +57,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 6,298 runtime entries and 11,194 public API docstrings. As before,
+remembered one: 6,298 runtime entries and 11,195 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -65,17 +65,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 6,298 | Remainder | Reviewed API blocks | Of 11,194 | Remainder |
+| Language | Reviewed runtime records | Of 6,298 | Remainder | Reviewed API blocks | Of 11,195 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 688 | 10.92% | 5,610 | 710 | 6.34% | 10,484 |
-| German | 651 | 10.34% | 5,647 | 750 | 6.70% | 10,444 |
-| Spanish | 656 | 10.42% | 5,642 | 570 | 5.09% | 10,624 |
-| Simplified Chinese | 998 | 15.85% | 5,300 | 853 | 7.62% | 10,341 |
-| Portuguese | 664 | 10.54% | 5,634 | 798 | 7.13% | 10,396 |
-| Hindi | 443 | 7.03% | 5,855 | 747 | 6.67% | 10,447 |
-| Korean | 661 | 10.50% | 5,637 | 820 | 7.33% | 10,374 |
-| Icelandic | 511 | 8.11% | 5,787 | 1,316 | 11.76% | 9,878 |
-| French | 684 | 10.86% | 5,614 | 734 | 6.56% | 10,460 |
+| Swedish | 701 | 11.13% | 5,597 | 710 | 6.34% | 10,485 |
+| German | 664 | 10.54% | 5,634 | 1,055 | 9.42% | 10,140 |
+| Spanish | 669 | 10.62% | 5,629 | 570 | 5.09% | 10,625 |
+| Simplified Chinese | 999 | 15.86% | 5,299 | 853 | 7.62% | 10,342 |
+| Portuguese | 677 | 10.75% | 5,621 | 798 | 7.13% | 10,397 |
+| Hindi | 456 | 7.24% | 5,842 | 747 | 6.67% | 10,448 |
+| Korean | 674 | 10.70% | 5,624 | 820 | 7.32% | 10,375 |
+| Icelandic | 524 | 8.32% | 5,774 | 1,316 | 11.76% | 9,879 |
+| French | 697 | 11.07% | 5,601 | 734 | 6.56% | 10,461 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven

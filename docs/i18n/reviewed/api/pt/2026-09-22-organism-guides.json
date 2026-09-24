@@ -1,0 +1,197 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Sourced organism introductions and image-analysis module proposals.",
+      "label": "spacr.qt.organisms#0",
+      "source": "Sourced organism introductions and image-analysis module proposals.",
+      "source_sha256": "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+      "translation": "Introduções a organismos com fontes e propostas de módulos de análise de imagens."
+    },
+    {
+      "context": "The assay structured-data names are existing workflow identifiers. A proposal has no route, so the organism pages cannot accidentally run an unimplemented analysis. Artwork provenance, licences and checksums ship in organism_sources.json.",
+      "label": "spacr.qt.organisms#1",
+      "source": "The assay keys are existing pipeline identifiers. A proposal has no route, so the organism pages cannot accidentally run an unimplemented analysis. Artwork provenance, licences and checksums ship in organism_sources.json.",
+      "source_sha256": "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f",
+      "translation": "As chaves dos ensaios são identificadores de pipelines existentes. Uma proposta não tem rota, pelo que as páginas dos organismos não podem executar acidentalmente uma análise ainda não implementada. A proveniência, as licenças e as somas de verificação das ilustrações são fornecidas em organism_sources.json."
+    },
+    {
+      "context": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.",
+      "label": "spacr.qt.organisms.ORGANISMS#0",
+      "source": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.",
+      "source_sha256": "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+      "translation": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium`` e ``candida``."
+    },
+    {
+      "context": "Sourced organism guides, interactive cell diagrams and assay navigation.",
+      "label": "spacr.qt.screens.organism_screen#0",
+      "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
+      "source_sha256": "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+      "translation": "Guias de organismos com fontes, diagramas celulares interativos e navegação entre ensaios."
+    },
+    {
+      "context": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot execute.",
+      "label": "spacr.qt.screens.organism_screen#1",
+      "source": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot run.",
+      "source_sha256": "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce",
+      "translation": "Os painéis de informação e módulos deslocam-se independentemente e partilham um divisor horizontal. Os ensaios existentes mantêm as suas chaves de registo; as propostas não podem ser executadas."
+    },
+    {
+      "context": "Show one organism and its existing or proposed image-analysis modules.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#0",
+      "source": "Show one organism and its existing or proposed image-analysis modules.",
+      "source_sha256": "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+      "translation": "Mostrar um organismo e os seus módulos de análise de imagens existentes ou propostos."
+    },
+    {
+      "context": "``toxoplasma``, ``plasmodium`` or ``candida``.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#1",
+      "source": "``toxoplasma``, ``plasmodium`` or ``candida``.",
+      "source_sha256": "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+      "translation": "``toxoplasma``, ``plasmodium`` ou ``candida``."
+    },
+    {
+      "context": "optional main window receiving module navigation requests.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#2",
+      "source": "optional main window receiving module navigation requests.",
+      "source_sha256": "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+      "translation": "janela principal opcional que recebe pedidos de navegação para módulos."
+    },
+    {
+      "context": "owning Qt widget.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#3",
+      "source": "owning Qt widget.",
+      "source_sha256": "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+      "translation": "widget Qt proprietário."
+    },
+    {
+      "context": "Build the independently scrollable introduction and Home tile grid.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#4",
+      "source": "Build the independently scrollable introduction and Home tile grid.",
+      "source_sha256": "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49",
+      "translation": "Construir a introdução e a grelha de mosaicos Home com deslocamento independente."
+    },
+    {
+      "context": "Reflow after viewport resize, including vertical scrollbar changes.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter#0",
+      "source": "Reflow after viewport resize, including vertical scrollbar changes.",
+      "source_sha256": "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+      "translation": "Reorganizar após o redimensionamento da área visível, incluindo alterações da barra de deslocamento vertical."
+    },
+    {
+      "context": "Offline SwissBioPics cells with selectable UniProt compartment labels.",
+      "label": "spacr.qt.widgets.organism_diagram#0",
+      "source": "Offline SwissBioPics cells with selectable UniProt compartment labels.",
+      "source_sha256": "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+      "translation": "Células SwissBioPics sem ligação à rede, com rótulos de compartimentos UniProt selecionáveis."
+    },
+    {
+      "context": "The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's Starplast ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany the SVGs. Only the rendered copy loses hidden metadata and its credit logo; the original asset and visible attribution are retained. No PyQt6 import, network request or measured localization data is involved.",
+      "label": "spacr.qt.widgets.organism_diagram#1",
+      "source": "The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's Starplast ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany the SVGs. Only the rendered copy loses hidden metadata and its credit logo; the original asset and visible attribution are retained. No PyQt6 import, network request or measured localization data is involved.",
+      "source_sha256": "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c",
+      "translation": "O mapeamento de Toxoplasma hyperLOPIT para SL segue o Starplast ``celldiagram.py`` de Einar Olafsson (MIT, revisão 53703bafdf0604576a05b589400051a6b09e62ea). As ilustrações são de Philippe Le Mercier, SIB, CC BY 4.0; os registos de origem acompanham os SVGs. Os metadados ocultos e o logótipo de atribuição são removidos apenas da cópia renderizada; o recurso original e a atribuição visível são mantidos. Não são utilizados importações de PyQt6, pedidos de rede nem dados de localização medidos."
+    },
+    {
+      "context": "Shared apicomplexan compartment labels mapped to UniProt SL identifiers.",
+      "label": "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS#0",
+      "source": "Shared apicomplexan compartment labels mapped to UniProt SL identifiers.",
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "translation": "Rótulos de compartimentos partilhados dos apicomplexos associados a identificadores UniProt SL."
+    },
+    {
+      "context": "Toxoplasma hyperLOPIT display labels mapped to UniProt SL identifiers.",
+      "label": "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL#0",
+      "source": "Toxoplasma hyperLOPIT display labels mapped to UniProt SL identifiers.",
+      "source_sha256": "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+      "translation": "Rótulos apresentados de Toxoplasma hyperLOPIT associados a identificadores UniProt SL."
+    },
+    {
+      "context": "Several labels share a location. The mitochondrial membrane label retains ``SL0171`` as its identifier and uses the ``SL0173`` outline when drawn.",
+      "label": "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL#1",
+      "source": "Several labels share a location. The mitochondrial membrane label retains ``SL0171`` as its identifier and uses the ``SL0173`` outline when drawn.",
+      "source_sha256": "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638",
+      "translation": "Vários rótulos partilham uma localização. O rótulo da membrana mitocondrial mantém ``SL0171`` como identificador e utiliza o contorno de ``SL0173`` ao ser desenhado."
+    },
+    {
+      "context": "A cell illustration and keyboard-accessible compartment selector.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#0",
+      "source": "A cell illustration and keyboard-accessible compartment selector.",
+      "source_sha256": "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+      "translation": "Uma ilustração celular e um seletor de compartimentos acessível por teclado."
+    },
+    {
+      "context": "organism key; only Toxoplasma uses hyperLOPIT labels.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#1",
+      "source": "organism key; only Toxoplasma uses hyperLOPIT labels.",
+      "source_sha256": "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+      "translation": "chave do organismo; apenas Toxoplasma utiliza rótulos hyperLOPIT."
+    },
+    {
+      "context": "bundled SVG path; no external resource is fetched.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#2",
+      "source": "bundled SVG path; no external resource is fetched.",
+      "source_sha256": "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+      "translation": "caminho do SVG incluído; não é obtido qualquer recurso externo."
+    },
+    {
+      "context": "owning Qt widget.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#3",
+      "source": "owning Qt widget.",
+      "source_sha256": "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+      "translation": "widget Qt proprietário."
+    },
+    {
+      "context": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
+      "label": "spacr.qt.widgets.organism_diagram.YEAST_LABELS#0",
+      "source": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "translation": "Rótulos genéricos de compartimentos de levedura em gemulação associados a identificadores UniProt SL."
+    },
+    {
+      "context": "Qt object that received the event.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter#1",
+      "source": "Qt object that received the event.",
+      "source_sha256": "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+      "translation": "objeto Qt que recebeu o evento."
+    },
+    {
+      "context": "Qt event to inspect before delegating to the base filter.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter#2",
+      "source": "Qt event to inspect before delegating to the base filter.",
+      "source_sha256": "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+      "translation": "evento Qt a inspecionar antes de delegar no filtro da classe base."
+    },
+    {
+      "context": "the base event filter's result.",
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter#3",
+      "source": "the base event filter's result.",
+      "source_sha256": "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30",
+      "translation": "o resultado do filtro de eventos da classe base."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against the organism registry, navigation and compartment-mapping contracts; no native-speaker sign-off",
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+        "label": "spacr.qt.organisms.ORGANISMS#1",
+        "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+        "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
+        "translation": "Cada registo fornece um nome apresentado, uma descrição, o URL da fonte biológica, o nome do ficheiro do diagrama incluído e uma nota sobre o diagrama. ``sections`` contém triplos de título, texto e chaves de ensaios ligados; ``links`` contém pares de rótulo apresentado e URL. ``modules`` contém tuplos de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` indica um ensaio planeado cujo mosaico não pode iniciar uma análise. O texto apresentado é traduzido na utilização; as chaves de rota, os URLs e os nomes dos recursos mantêm-se fixos."
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Build the illustration, label selector and shared-shape caption.",
+        "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
+        "source": "Build the illustration, label selector and shared-shape caption.",
+        "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
+        "translation": "Construir a ilustração, o seletor de rótulos e a legenda sobre a forma partilhada."
+      }
+    }
+  ]
+}

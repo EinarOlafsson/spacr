@@ -152,6 +152,7 @@ def _status(text):
     return match.group(1) if match else None
 
 
+@pytest.mark.skipif(not FEATURES.is_dir(), reason='Release trees omit the development feature ledger')
 def test_there_are_ledger_files_to_check():
     """The sweep must not pass because it swept nothing.
 

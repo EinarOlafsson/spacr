@@ -426,15 +426,13 @@ def test_a_directory_entry_in_a_tar_is_not_a_sample(tmp_path):
     assert [m.name for m in dataset.members] == ["plate1_A01_1_1.png"]
 
 
-def test_an_unreadable_crop_format_sidecar_reports_an_unknown_format(tmp_path):
-    """An unreadable marker means "not stated", which is not "current"."""
+def test_an_unreadable_crop_format_sidecar_refuses_to_guess_channels(tmp_path):
+    """A corrupt marker is distinct from an absent legacy-format marker."""
     tar = _tar_with(tmp_path, ["plate1_A01_1_1.png"],
                     sidecar_bytes=b"{not json at all")
 
-    dataset = io.TarImageDataset(tar)
-
-    assert dataset.crop_format is None
-    assert len(dataset) == 1, "the sidecar is still excluded from the samples"
+    with pytest.raises(ValueError, match='Invalid tar crop marker'):
+        io.TarImageDataset(tar)
 
 
 def test_a_readable_crop_format_sidecar_is_surfaced(tmp_path):
@@ -475,9 +473,9 @@ def test_an_unreadable_source_folder_is_assumed_to_hold_legacy_crops(
     assert written["spacr_crop_format"] == crops.CROP_FORMAT_LEGACY_BGR
 
 
-def test_items_from_an_unreadable_folder_are_assumed_legacy(tmp_path,
-                                                            monkeypatch):
-    """Same rule, applied to the crops about to be copied into a dataset."""
+def test_items_from_an_unreadable_folder_refuse_to_guess_channels(tmp_path,
+                                                               monkeypatch):
+    """Do not silently label unreadable source metadata as legacy BGR."""
     import spacr.crops as crops
 
     def unreadable(*_args, **_kwargs):
@@ -485,9 +483,8 @@ def test_items_from_an_unreadable_folder_are_assumed_legacy(tmp_path,
 
     monkeypatch.setattr(crops, "crop_folder_format", unreadable)
 
-    fmt = io._crop_format_of_items([str(tmp_path / "cell_png" / "a.png")])
-
-    assert fmt == crops.CROP_FORMAT_LEGACY_BGR
+    with pytest.raises(OSError, match='the crop folder is gone'):
+        io._crop_format_of_items([str(tmp_path / "cell_png" / "a.png")])
 
 
 def test_a_field_token_the_schema_cannot_classify_is_matched_literally(

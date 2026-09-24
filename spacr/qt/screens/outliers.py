@@ -54,7 +54,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog,
     QFormLayout, QHBoxLayout, QHeaderView, QLabel, QPlainTextEdit,
-    QPushButton, QSpinBox, QSplitter, QTabWidget, QTableWidget,
+    QPushButton, QSpinBox, QTabWidget, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -90,6 +90,7 @@ from ..widgets.outlier_model import (
     METHOD_IQR, METHOD_MAD, METHOD_MAHALANOBIS, TRANSFORM_LOG10,
     TRANSFORM_NONE, OutlierSpec, detect_outliers,
 )
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.pca_view import FeaturePicker
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
@@ -213,8 +214,9 @@ class OutliersScreen(QWidget):
         head.addWidget(self._export)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key=f"{APP_KEY}::body")
+        self._body = body
 
         self.tabs = QTabWidget(self)
         self.tabs.setObjectName("OutlierTabs")
@@ -231,11 +233,13 @@ class OutliersScreen(QWidget):
             "spacr.qt.widgets.outlier_model, which is also the headless "
             "entry point.")
         self.tabs.addTab(self.report, "Report")
-        body.addWidget(self.tabs)
+        self.results_section = body.add_section(
+            self.tabs, "Results", persist_key=f"{APP_KEY}/Results",
+            stretch=1)
 
-        body.addWidget(self._build_controls())
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
+        self.controls_section = body.add_section(
+            self._build_controls(), "Scan", persist_key=f"{APP_KEY}/Scan",
+            stretch=0)
         outer.addWidget(body, 1)
         from ..dnd import install_for
         install_for(self, "outliers")

@@ -91,6 +91,7 @@ CHECKED_ALPHA = 0.30
 #: important: Map Barcodes carries shared fallback copy for several other
 #: hosts, but it does not draw their buttons.
 FOLD_HOST_MODULES = (
+    "spacr.qt.screens.organism_screen",
     "spacr.qt.screens.make_masks",
     "spacr.qt.screens.foreign",
     "spacr.qt.screens.map_barcodes",

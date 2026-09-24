@@ -164,12 +164,12 @@ def test_analyze_recruitment_writes_csvs_and_exact_ratios(tmp_path, recruitment_
 
     # channel_of_interest defaults to 2 -> pathogen(402)/cytoplasm(52).
     assert np.allclose(cells["recruitment"], 402.0 / 52.0)
-    # _calculate_recruitment ran for every channel in channel_dims; the last
-    # channel (3) wins the shared column names.
-    assert np.allclose(cells["pathogen_cytoplasm_mean_mean"], 403.0 / 53.0)
-    assert np.allclose(cells["pathogen_cell_q75_mean"], 503.0 / 103.0)
-    assert np.allclose(cells["pathogen_outside_nucleus_mean_mean"], 13.0 / 203.0)
-    assert np.allclose(cells["pathogen_periphery_cytoplasm_mean_mean"], 33.0 / 53.0)
+    # Every requested channel survives in a distinct output column.
+    assert np.allclose(cells['pathogen_channel_2_cytoplasm_mean_ratio'], 402.0 / 52.0)
+    assert np.allclose(cells["pathogen_channel_3_cytoplasm_mean_ratio"], 403.0 / 53.0)
+    assert np.allclose(cells["pathogen_channel_3_cell_q75_ratio"], 503.0 / 103.0)
+    assert np.allclose(cells["pathogen_channel_3_nucleus_outside_mean_ratio"], 13.0 / 203.0)
+    assert np.allclose(cells["pathogen_channel_3_cytoplasm_periphery_mean_ratio"], 33.0 / 53.0)
 
     # annotate_conditions mapped column -> pathogen and row -> treatment.
     assert set(cells["condition"]) == {"HeLa_pathogen_1_cm",

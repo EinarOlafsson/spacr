@@ -100,6 +100,7 @@ xgboost==2.0.3
 biopython==1.80
 lxml==5.1.0
 psutil==5.9.8
+packaging==21.3
 gputil==1.4.0
 nvidia-ml-py==11.450.51
 tables==3.8.0

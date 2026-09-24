@@ -56,8 +56,9 @@ def test_release_audit_parsers_pin_the_current_inventory():
     languages, voices = live._voice_inventory(
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
-    assert len(catalog["lessons"]) == 77
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 975
+    assert len(catalog["lessons"]) == 85
+    # The native Embeddings walkthrough replaces eleven historical scenes with nine.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1078
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -73,7 +74,7 @@ def _live_gui_inventory():
 import json
 import spacr.qt
 spacr.qt.register_self_registering_modules()
-from spacr.qt.app import APPS, tiled_apps
+from spacr.qt.app import APPS, tiled_apps, folded_children
 from spacr.qt.widgets.fold_strip import folded_modules
 print(json.dumps({
     "registry": sorted({row[0] for row in APPS}),
@@ -82,6 +83,7 @@ print(json.dumps({
         key: entry[3].rsplit(".", 1)[-1]
         for key, entry in folded_modules().items()
     },
+    "folded_parents": {key: host for host, keys in folded_children().items() for key in keys},
 }))
 """
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
@@ -117,7 +119,8 @@ def _folded_lesson_hosts():
     routes = {}
     for physical_key, module_name in _live_gui_inventory()["folded"].items():
         lesson_key = FOLD_CATALOG_KEY_ALIASES.get(physical_key, physical_key)
-        host_key = HOST_APP_KEY_ALIASES.get(module_name, module_name)
+        host_key = _live_gui_inventory()['folded_parents'].get(
+            physical_key, HOST_APP_KEY_ALIASES.get(module_name, module_name))
         assert lesson_key not in routes, (
             f"multiple folds resolve to tutorial key {lesson_key!r}")
         routes[lesson_key] = host_key
@@ -159,7 +162,7 @@ def _candidate_catalog():
 
 @pytest.mark.parametrize('catalog_loader', [_tutorial_catalog, _candidate_catalog],
                          ids=['website-source', 'refreshed-candidate'])
-def test_every_module_and_fold_has_exactly_one_current_tutorial_route(catalog_loader):
+def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_loader):
     """Keep the course synchronized with tiles *and* consolidated modules.
 
     The old subset assertion allowed any number of retired tiles to remain
@@ -177,7 +180,18 @@ def test_every_module_and_fold_has_exactly_one_current_tutorial_route(catalog_lo
 
     assert len(lesson_keys) == len(set(lesson_keys)), (
         "each module or folded workflow must have exactly one lesson")
-    assert set(lesson_keys) == registry | set(folded_hosts)
+    folder = (ROOT / 'docs/source/_extra/tutorials' if catalog_loader is _tutorial_catalog
+              else ROOT / 'tools/tutorials/release_candidate/web')
+    source = (folder / 'module_navigation.js').read_text()
+    navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
+    gaps = navigation['missing_tutorials']
+    missing = {row['app_key'] for row in gaps}
+    assert missing == set()
+    assert {'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'} <= set(lesson_keys)
+    assert len(missing) == len(gaps)
+    assert all(row['status'] == 'needs_tutorial' for row in gaps)
+    assert not missing & set(lesson_keys)
+    assert set(lesson_keys) | missing == registry | set(folded_hosts)
 
     home_tiles = _home_tile_modules()
     failures = []
@@ -297,14 +311,19 @@ def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
     navigation = json.loads(source.split("Object.freeze(", 1)[1].rsplit(");", 1)[0])
     lessons = _candidate_catalog()["lessons"]
     sections = navigation["sections"]
-    assert [section["id"] for section in sections] == ["main", "submodules"]
+    assert [section["id"] for section in sections] == ["orientation", "main", "submodules"]
+    assert navigation['intro']['lessons'] == [
+        '01_pypi_github', '03_pip_install', '02_conda_install', '04_platform_installers']
+    assert sections[0]['groups'][0]['lessons'] == [
+        '05_home', '78_spacr_screens', '80_image_analysis_pathways',
+        '81_sequencing_pathways', '79_module_inputs_outputs']
     assigned = navigation["intro"]["lessons"] + [
         identity for section in sections for group in section["groups"]
         for identity in group["lessons"]
     ]
     assert len(assigned) == len(set(assigned)) == len(lessons)
     assert set(assigned) == {lesson["id"] for lesson in lessons}
-    main_keys = [key for group in sections[0]["groups"] for key in group["module_keys"]]
+    main_keys = [key for group in sections[1]["groups"] for key in group["module_keys"]]
     assert sorted(main_keys) == _live_gui_inventory()["home_tiles"]
     assert set(navigation["labels"]) == {
         "en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN",
@@ -364,7 +383,10 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     }
     assert pypi_scenes, "the installation lesson no longer names PyPI"
 
-    failures, spoken = [], []
+    compatibility = json.loads((catalog_dir.parent / 'translation-compatibility.json').read_text())
+    registered = {(row['lesson'], row['language']) for row in compatibility['entries']
+                  if row['status'] == 'english_fallback' and row['reason']}
+    failures, spoken, fallback = [], [], []
     for path in sorted(catalog_dir.glob("lessons_*.json")):
         language = path.stem.split("_", 1)[1]
         catalog = json.loads(path.read_text(encoding="utf-8"))
@@ -372,6 +394,13 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
             item for item in catalog["lessons"]
             if item["id"] == "01_pypi_github"
         )
+        declared = lesson.get('narration_voices')
+        if language != 'en' and declared is not None and language not in declared:
+            assert declared.get('en')
+            assert lesson == source_lesson
+            assert (lesson['id'], language) in registered
+            fallback.append(language)
+            continue
         speeches = {index: lesson["scenes"][index].get("speech_text")
                     for index in pypi_scenes}
         if language == "en" and all(s is None for s in speeches.values()):
@@ -384,7 +413,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
                     or rule._REJECTED_PYPI_ALIAS.search(speech)
                     or "pypie" in speech.casefold()):
                 failures.append(f"{path.name}:scene-{index + 1}")
-    assert set(spoken) >= {"es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN"}, spoken
+    assert set(spoken) | set(fallback) >= {"es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN"}
     assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
 
     published = _tutorial_catalog()

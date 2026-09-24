@@ -118,7 +118,7 @@ def test_save_reports_a_screen_it_cannot_capture(dialog, monkeypatch,
 
     assert _stored_names() == []
     (title, text), = warnings
-    assert title == "Could not save recipe"
+    assert title == "Could not save template"
     assert "no settings to capture" in text
 
 
@@ -211,7 +211,7 @@ def test_apply_reports_a_screen_that_cannot_take_settings(
     dialog._on_apply()
 
     (title, text), = warnings
-    assert title == "Could not apply recipe"
+    assert title == "Could not apply template"
     assert "cannot take settings" in text
 
 
@@ -334,7 +334,7 @@ def test_importing_another_modules_recipe_is_refused_by_name(
 
     assert _stored_names() == []
     (title, text), = warnings
-    assert title == "Could not import recipe"
+    assert title == "Could not import template"
     assert "measure" in text
 
 
@@ -349,7 +349,7 @@ def test_importing_something_that_is_not_a_recipe_is_refused(
 
     assert _stored_names() == []
     (_title, text), = warnings
-    assert "not a spaCR settings recipe" in text
+    assert "not a spaCR settings template" in text
 
 
 def test_a_cancelled_import_stores_nothing(dialog, monkeypatch):
@@ -373,7 +373,7 @@ def test_delete_removes_the_file_and_the_row(dialog, mask_screen):
 
     assert not os.path.exists(path)
     assert dialog.recipes() == []
-    assert "No recipes yet" in dialog.detail_text()
+    assert "No templates yet" in dialog.detail_text()
 
 
 def test_delete_with_nothing_selected_does_nothing(dialog):
@@ -524,7 +524,7 @@ def test_the_menu_entry_explains_itself_when_no_module_is_open(
 
     assert window.findChildren(R.RecipeDialog) == []
     (title, text), = told
-    assert title == "Settings recipes"
+    assert title == "Settings templates"
     assert "Open a module with a settings panel first" in text
 
 
@@ -541,7 +541,7 @@ def test_a_window_without_a_stack_still_answers_the_menu_entry(qtbot,
 
     action._spacr_recipe_handler.on_triggered()
 
-    assert told == ["Settings recipes"]
+    assert told == ["Settings templates"]
 
 
 # ---------------------------------------------------------------------------
@@ -786,7 +786,7 @@ def test_a_delete_that_fails_is_reported_and_the_row_stays(
         os.chmod(folder, 0o700)
 
     (title, _text), = warnings
-    assert title == "Could not delete recipe"
+    assert title == "Could not delete template"
     assert [r.name for r in R.list_recipes("mask")] == ["Locked"]
 
 

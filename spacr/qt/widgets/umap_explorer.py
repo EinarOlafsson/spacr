@@ -32,7 +32,7 @@ from PySide6.QtCore import QSize, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-    QLabel, QLineEdit, QPushButton, QSpinBox, QSplitter, QVBoxLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QVBoxLayout,
     QWidget,
 )
 
@@ -373,6 +373,9 @@ class ImageUmapExplorer(LinkedView, QWidget):
 
     annotation_finished = Signal(int, int)
 
+    #: Where the sidebar's collapse is remembered (item 471).
+    SECTION_KEY = "image_umap"
+
     def __init__(self, parent=None):
         """Build the explorer: the embedding, the gallery and the writers.
 
@@ -471,24 +474,35 @@ class ImageUmapExplorer(LinkedView, QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
 
-        from ..theme import SPACING, active_palette
+        from ..theme import active_palette
 
-        self._body_splitter = QSplitter(Qt.Horizontal, self)
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        self._body_splitter = CollapsibleSplitter(Qt.Horizontal, self)
         self._body_splitter.setObjectName("UmapBodySplit")
-        self._body_splitter.setChildrenCollapsible(False)
-        self._body_splitter.setHandleWidth(SPACING["sm"])
         surface = active_palette()["surface"]
         self._figure = Figure(figsize=(8, 6), facecolor=surface)
         self._canvas = _OwnedTimerFigureCanvas(self._figure)
+        from ..gui_scale import follow_canvas
+        follow_canvas(self._canvas)
         self._canvas.setStyleSheet(f"background: {surface};")
+        from ..gui_scale import mend_matplotlib_icons
+        mend_matplotlib_icons()
         self._toolbar = NavigationToolbar2QT(self._canvas, self)
         chart = QVBoxLayout()
-        chart.addWidget(self._toolbar)
+        tools = QHBoxLayout()
+        tools.setContentsMargins(0, 0, 0, 0)
+        tools.addWidget(self._toolbar, 1)
+        from .preview_scale import install_preview_scale, scale_figure_canvas
+        self._scale_control = install_preview_scale(
+            self, "image_umap", tools, prefer_card=False)
+        self._scale_control.scaler.add_hook(
+            lambda scale: scale_figure_canvas(self._canvas, scale))
+        chart.addLayout(tools)
         chart.addWidget(self._canvas, 1)
         chart_wrap = QWidget(self)
         chart_wrap.setLayout(chart)
         chart_wrap.setStyleSheet(f"background: {surface};")
-        self._body_splitter.addWidget(chart_wrap)
+        self._body_splitter.add_pane(chart_wrap, "Chart", stretch=1)
 
         side = QVBoxLayout()
         self._preview = _ScaledPreview("Click a point to preview its image.",
@@ -539,7 +553,12 @@ class ImageUmapExplorer(LinkedView, QWidget):
         side_wrap = QWidget(self)
         side_wrap.setLayout(side)
         side_wrap.setStyleSheet(f"background: {surface};")
-        self._body_splitter.addWidget(side_wrap)
+        self._body_splitter.add_pane(
+            side_wrap, "Sidebar", mode=EDGE, stretch=0,
+            fold_key=f"{self.SECTION_KEY}/Sidebar",
+            hint=("Drag to trade width between the chart and the sidebar. "
+                  "The plot redraws at the new size; "
+                  "the points do not move."))
         try:
             border = active_palette()["border_soft"]
             accent = active_palette()["accent"]
@@ -555,11 +574,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
     border-left: 1px solid {accent};
 }}
 """)
-        handle = self._body_splitter.handle(1)
-        if handle is not None:
-            handle.setToolTip(
-                "Drag to trade width between the chart and the sidebar. The "
-                "plot redraws at the new size; the points do not move.")
         root.addWidget(self._body_splitter, 1)
 
         self._axes = self._figure.add_subplot(111)
@@ -571,10 +585,25 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._lasso = None
         self._canvas.mpl_connect("button_press_event", self._on_click)
         self._canvas.mpl_connect("scroll_event", self._on_scroll)
-        self._body_splitter.setSizes([
-            int(self._display["canvas_width"]),
-            int(self._display["sidebar_width"]),
-        ])
+        self._apply_body_widths()
+
+    def _apply_body_widths(self) -> None:
+        """Give the chart and the sidebar the widths the display settings ask.
+
+        The sidebar collapses to the right by its handle (item 471); while
+        the user has it collapsed, the width is kept for when it opens
+        rather than forced on screen, which would open it behind the
+        collapse the user chose.
+        """
+        chart = int(self._display["canvas_width"])
+        sidebar = int(self._display["sidebar_width"])
+        pane = self._body_splitter.pane("Sidebar")
+        if pane is not None:
+            pane.extent = sidebar
+            if pane.is_collapsed():
+                self._body_splitter.setSizes([chart + sidebar, 0])
+                return
+        self._body_splitter.setSizes([chart, sidebar])
 
     #: Which display settings can be applied to the CURRENT figure, and
     #: which only take effect on the next run.
@@ -649,10 +678,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             changed = changed or key in self.LIVE_DISPLAY_KEYS
         if not changed:
             return False
-        self._body_splitter.setSizes([
-            int(self._display["canvas_width"]),
-            int(self._display["sidebar_width"]),
-        ])
+        self._apply_body_widths()
         self._draw_embedding()
         return True
 
@@ -684,10 +710,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             for key in self._display:
                 if key in display and display[key] is not None:
                     self._display[key] = display[key]
-            self._body_splitter.setSizes([
-                int(self._display["canvas_width"]),
-                int(self._display["sidebar_width"]),
-            ])
+            self._apply_body_widths()
         self._selected = np.empty(0, dtype=int)
         self._picked = None
         self._build_point_identity(frame)

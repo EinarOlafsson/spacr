@@ -292,7 +292,8 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     # Pinned deliberately: a new Home app needs a generated tile and an API
     # destination before this count advances. 44 -> 45 on 2026-09-11 with
     # `embeddings`, which had both and was missing only its section.
-    assert len(registry) == 45
+    assert len(registry) == 49
+    assert 'host_pathogen' in urls
     assert set(urls) == {key for key, _label, _description, _section in registry}
     # The generator no longer keeps its OWN copy of the section order. It
     # reads spacr.qt.app's SECTION_ORDER/SECTION_TILE_ORDER through
@@ -751,8 +752,9 @@ def test_setting_animations_are_wired_into_readme_and_docs():
     # 86 referenced GIFs are present, no GIF is left unreferenced, and
     # the README links the gallery and registry pages rather than any
     # GIF, so nothing on the front page is broken by the deletion.
-    assert gallery.count(".. _setting-animation-") == 86
-    assert gallery.count(".. image:: ../../spacr/resources/") == 86
+    assert gallery.count(".. _setting-animation-") == 87
+    assert gallery.count(".. image:: ../../spacr/resources/") == 87
+    assert "**Settings:** ``psf_fwhm_um``" in gallery
     assert ":mod:`spacr.setting_animations`" in gallery
 
 

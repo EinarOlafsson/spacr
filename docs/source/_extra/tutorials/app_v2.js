@@ -103,7 +103,13 @@ const elements = {
   themeToggle: $("#theme-toggle"), themeColor: $('meta[name="theme-color"]')
 };
 
-const LESSONS = BASE_CATALOG.lessons;
+const navigationOrder = MODULE_NAVIGATION
+  ? [...(MODULE_NAVIGATION.intro?.lessons || []),
+     ...MODULE_NAVIGATION.sections.flatMap(section => section.groups.flatMap(group => group.lessons))]
+  : [];
+const lessonByIdentity = new Map(BASE_CATALOG.lessons.map(lesson => [lesson.id, lesson]));
+const orderedIdentities = [...new Set([...navigationOrder, ...lessonByIdentity.keys()])];
+const LESSONS = orderedIdentities.map(id => lessonByIdentity.get(id)).filter(Boolean);
 const isPlayable = lesson => Boolean(lesson) && lesson.status !== "coming_soon";
 const AVAILABLE_LESSONS = LESSONS.filter(isPlayable);
 const playerToolbar = elements.player.querySelector('.player-toolbar');
@@ -597,6 +603,17 @@ function voiceById(language, id) {
   return language?.voices.find(voice => voice.id === id);
 }
 
+function lessonVoices(language, lesson = activeLesson) {
+  // An absent declaration preserves the published fifty-voice lessons.
+  // An explicit declaration offers only the tracks verified for this lesson.
+  if (!lesson || !Object.prototype.hasOwnProperty.call(lesson, "narration_voices")) {
+    return language.voices;
+  }
+  const declared = lesson.narration_voices?.[language.id];
+  if (!Array.isArray(declared)) return [];
+  return language.voices.filter(voice => declared.includes(voice.id));
+}
+
 function narrationRoot() {
   return AUDIO_ROOT;
 }
@@ -712,8 +729,9 @@ function defaultTimingSource(lesson = activeLesson) {
 
 function populateVoiceSelector(preferredVoice = "") {
   const language = languageById(elements.language.value);
+  const voices = lessonVoices(language);
   elements.voice.innerHTML = "";
-  language.voices.forEach(voice => {
+  voices.forEach(voice => {
     const option = document.createElement("option");
     option.value = voice.id;
     option.textContent = `${voice.name} · ${voice.variant}`;
@@ -723,20 +741,27 @@ function populateVoiceSelector(preferredVoice = "") {
   silent.value = "silent";
   silent.textContent = "Silent master";
   elements.voice.appendChild(silent);
-  const available = preferredVoice === "silent" || voiceById(language, preferredVoice);
-  elements.voice.value = available ? preferredVoice : language.voices[0]?.id || "silent";
+  const available = preferredVoice === "silent" || voices.some(voice => voice.id === preferredVoice);
+  elements.voice.value = available ? preferredVoice : voices[0]?.id || "silent";
+}
+
+function populateNarrationLanguages(preferredLanguage) {
+  elements.language.innerHTML = "";
+  VOICE_CATALOG.forEach(language => {
+    const count = lessonVoices(language).length;
+    const option = document.createElement("option");
+    option.value = language.id;
+    option.textContent = count
+      ? `${language.label} · ${count} ${count === 1 ? "voice" : "voices"}`
+      : `${language.label} · silent`;
+    elements.language.appendChild(option);
+  });
+  elements.language.value = languageById(preferredLanguage).id;
 }
 
 function setupNarrationSelectors() {
   const preferredLanguage = localStorage.getItem(LANGUAGE_KEY) || DEFAULT_LANGUAGE;
-  elements.language.innerHTML = "";
-  VOICE_CATALOG.forEach(language => {
-    const option = document.createElement("option");
-    option.value = language.id;
-    option.textContent = `${language.label} · ${language.voices.length} ${language.voices.length === 1 ? "voice" : "voices"}`;
-    elements.language.appendChild(option);
-  });
-  elements.language.value = languageById(preferredLanguage).id;
+  populateNarrationLanguages(preferredLanguage);
   const preferredVoice = localStorage.getItem(VOICE_KEY) ||
     (elements.language.value === DEFAULT_LANGUAGE ? DEFAULT_VOICE : "");
   populateVoiceSelector(preferredVoice);
@@ -856,7 +881,7 @@ function makeLessonLink(base) {
   if (base.id === activeLesson?.id) button.classList.add("active");
   if (isPlayable(base) && completed.has(base.id)) button.classList.add("complete");
   button.setAttribute("aria-current", base.id === activeLesson?.id ? "page" : "false");
-  button.innerHTML = `<span class="lesson-number">${String(base.number).padStart(2, "0")}</span><span class="lesson-link-copy"><strong>${escapeHTML(lesson.title)}</strong><small>${escapeHTML(isPlayable(base) ? "4K video" : lesson.availability_title || "Coming soon")}</small></span><span class="lesson-state-dot" aria-hidden="true"></span>`;
+  button.innerHTML = `<span class="lesson-number">${String(LESSONS.indexOf(base) + 1).padStart(2, "0")}</span><span class="lesson-link-copy"><strong>${escapeHTML(lesson.title)}</strong><small>${escapeHTML(isPlayable(base) ? "4K video" : lesson.availability_title || "Coming soon")}</small></span><span class="lesson-state-dot" aria-hidden="true"></span>`;
   button.addEventListener("click", () => selectLesson(base.id));
   return button;
 }
@@ -870,6 +895,9 @@ async function selectLesson(id, options = {}) {
   if (activeLesson) saveWatchPosition();
   elements.video.pause();
   activeLesson = lesson;
+  const preferredVoice = elements.voice.value;
+  populateNarrationLanguages(elements.language.value);
+  populateVoiceSelector(preferredVoice);
   if (!options.skipHash) history.replaceState(null, "", `#lesson=${lesson.id}`);
   renderCurriculum(elements.search.value);
   updateLessonHeader();
@@ -923,7 +951,7 @@ function updateLessonHeader() {
     || MODULE_NAVIGATION?.labels.en;
   elements.seriesLabel.textContent = navigationSection?.title
     || (navLabels ? navLabels[2] : `Series ${activeLesson.series}`);
-  elements.position.textContent = `Lesson ${activeLesson.number} of ${LESSONS.length}`;
+  elements.position.textContent = `Lesson ${LESSONS.indexOf(activeLesson) + 1} of ${LESSONS.length}`;
   elements.status.textContent = isPlayable(activeLesson) ? "Ready" : lesson.availability_title || "Coming soon";
   elements.status.className = `status-pill ${isPlayable(activeLesson) ? "ready" : "planned"}`;
   elements.title.textContent = lesson.title;
@@ -1435,12 +1463,14 @@ function splitCaptionText(text) {
     "dr.", "fig.", "i.e.", "jr.", "mr.", "mrs.", "ms.", "no.",
     "prof.", "sr.", "st.", "vs.", "e.g."
   ]);
-  const closings = /["'”’)\]}]+$/gu;
-  const openings = /^["'“‘({\[]+/gu;
+  const closings = /["'”’)\]}」』】）]+$/gu;
+  const openings = /^["'“‘({\[「『【（¿¡]+/gu;
   const sentences = [];
   let start = 0;
-  for (const whitespace of source.matchAll(/\s+/gu)) {
-    const boundary = Number(whitespace.index);
+  for (const separator of source.matchAll(/[。！？।]+["'”’)\]}」』】）]*\s*|\s+/gu)) {
+    const explicit = /^[。！？।]/u.test(separator[0]);
+    const boundary = Number(separator.index) + (explicit ? separator[0].trimEnd().length : 0);
+    const next = Number(separator.index) + separator[0].length;
     const prefix = source.slice(start, boundary).trimEnd();
     if (!prefix) continue;
     const bare = prefix.replace(closings, "");
@@ -1454,13 +1484,13 @@ function splitCaptionText(text) {
         continue;
       }
     }
-    const following = source.slice(boundary + whitespace[0].length)
+    const following = source.slice(next)
       .replace(openings, "");
-    if (!following || !(/^[A-Z0-9]/u.test(following) || /^spaCR\b/u.test(following))) {
+    if (!following || (!explicit && !(/^[\p{Lu}\p{Lt}\p{Lo}\p{Nd}]/u.test(following) || /^spaCR\b/u.test(following)))) {
       continue;
     }
     sentences.push(source.slice(start, boundary).trim());
-    start = boundary + whitespace[0].length;
+    start = next;
   }
   sentences.push(source.slice(start).trim());
   return sentences.filter(Boolean);

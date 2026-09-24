@@ -639,11 +639,13 @@ def test_the_training_tree_records_its_crop_format(project):
     marker = crops.read_crop_folder_marker(root)
     assert marker is not None
     assert marker["spacr_crop_format"] == crops.CROP_FORMAT_DECLARED_RGB
-    # The class folders stay clean: they are enumerated both as "the classes"
-    # and as "the samples", so a sidecar inside one would be counted as each.
+    from spacr.io import spacrDataset
     for cls in os.listdir(train):
-        assert all(not f.startswith(".")
-                   for f in os.listdir(os.path.join(train, cls)))
+        class_dir = os.path.join(train, cls)
+        assert crops.read_crop_folder_marker(class_dir)['spacr_crop_format'] == crops.CROP_FORMAT_CURRENT
+        dataset = spacrDataset(train, [cls], shuffle=False)
+        assert all(not os.path.basename(f).startswith('.') for f in dataset.filenames)
+        assert len(dataset) == len(glob.glob(os.path.join(class_dir, '*.png')))
 
 
 def test_copied_crops_keep_the_source_folders_format(project):
@@ -675,7 +677,7 @@ def test_copied_crops_keep_the_source_folders_format(project):
     assert marker["spacr_crop_format"] == crops.CROP_FORMAT_LEGACY_BGR
 
 
-def test_a_dataset_that_mixes_formats_is_left_unmarked_and_says_so(project, capsys, tmp_path):
+def test_a_dataset_that_mixes_formats_is_decoded_and_marked(project, capsys, tmp_path):
     from spacr.io import LazyCropPNG, generate_dataset_from_lists
     source = crops.resolve_crop_source(project, prefer="merged")
     merged = os.path.join(project, "merged", FIELDS[0])
@@ -691,7 +693,7 @@ def test_a_dataset_that_mixes_formats_is_left_unmarked_and_says_so(project, caps
     generate_dataset_from_lists(out, [mixed], ["only"], test_split=0.25,
                                 group_by="cell")
     assert "mixes crops of more than one format" in capsys.readouterr().out
-    assert crops.read_crop_folder_marker(out) is None
+    assert crops.read_crop_folder_marker(out)['spacr_crop_format'] == crops.CROP_FORMAT_CURRENT
     # ...and every crop still landed.
     assert len(glob.glob(os.path.join(out, "*", "*", "*.png"))) == 8
 

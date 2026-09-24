@@ -1,0 +1,46 @@
+{
+  "source_commit": "73a210b738cc457169d19d6a5bb37ae2fd79fbd5",
+  "capture": "/tmp/spacr-plate-tutorial-7reicj75/captures/plate_current_example",
+  "new_capture": true,
+  "visual_review": "Native current Graph Builder fold, public example heatmap and export inspected; dark/blobs appearance and neutral paths.",
+  "accepted": true,
+  "example_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "input_rows": 2341,
+  "input_wells": 4,
+  "states": {
+    "mean": {
+      "wells": 4,
+      "dropped": 0,
+      "all_well_identities_counts_values_match_sql": true
+    },
+    "count": {
+      "wells": 4,
+      "dropped": 0,
+      "all_well_identities_counts_values_match_sql": true
+    },
+    "filtered": {
+      "wells": 2,
+      "dropped": 2,
+      "all_well_identities_counts_values_match_sql": true
+    },
+    "restored": {
+      "wells": 4,
+      "dropped": 0,
+      "all_well_identities_counts_values_match_sql": true
+    }
+  },
+  "published": false,
+  "input_method": "Actual Load test data button with a private cached copy of the public Annotate example",
+  "well_detail": "E01 \u00b7 615 object(s) \u00b7 mean cell_area = 23997.8 \u00b7 outer ring (edge)",
+  "minimum_count": 601,
+  "export": {
+    "rows": 2,
+    "columns": 10,
+    "all_values_and_order_exact": true,
+    "sha256": "f1ebbc49bead7a0e91c3b5c69593e5eb5847c9a65eb610a5c328bf01deeeeeac",
+    "path": "/tmp/spacr-plate-tutorial-7reicj75/example_well_counts.csv"
+  },
+  "database_unchanged": true,
+  "active_jobs_at_exit": 0,
+  "media_status": "Matching narration and publication pending"
+}

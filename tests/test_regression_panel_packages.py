@@ -588,3 +588,123 @@ def test_manifest_refuses_source_level_or_phenotype_guessing(tmp_path):
         build_manifest_packages(
             _publication_manifest(), artifacts, tmp_path / "not-written"
         )
+
+
+@pytest.mark.parametrize('updates, message', [
+    ({'panels': []}, "non-empty 'panels'"),
+    ({'panels': {}}, "non-empty 'panels'"),
+    ({'figure_id': ''}, 'filename-safe'),
+    ({'figure_id': '../escaped'}, 'filename-safe'),
+    ({'columns': 0}, 'positive integer'),
+    ({'columns': True}, 'positive integer'),
+    ({'columns': '2'}, 'positive integer'),
+])
+def test_invalid_figure_manifest_cannot_create_output(tmp_path, updates, message):
+    manifest = _publication_manifest()
+    manifest.update(updates)
+    destination = tmp_path / 'not-written'
+    with pytest.raises(ValueError, match=message):
+        build_manifest_packages(manifest, _publication_artifacts(), destination)
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize('content, message', [
+    ('not json', 'Could not load panel manifest'),
+    ('[]', 'JSON object'),
+    (None, 'Could not load panel manifest'),
+])
+def test_unreadable_or_nonobject_manifest_cannot_create_output(tmp_path, content, message):
+    path = tmp_path / 'manifest.json'
+    if content is not None:
+        path.write_text(content)
+    destination = tmp_path / 'not-written'
+    with pytest.raises(ValueError, match=message):
+        build_manifest_packages(path, _publication_artifacts(), destination)
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize('updates, message', [
+    ({'panel_id': ''}, 'invalid/duplicate panel_id'),
+    ({'panel_id': '../escaped'}, 'invalid/duplicate panel_id'),
+    ({'panel_id': 'Figure_7B'}, 'invalid/duplicate panel_id'),
+    ({'source': ''}, 'exact source, phenotype and level'),
+    ({'phenotype': ''}, 'exact source, phenotype and level'),
+    ({'level': 'guess'}, 'exact source, phenotype and level'),
+    ({'kind': 'guess'}, 'unsupported kind'),
+    ({'narrative': None}, 'needs a narrative'),
+    ({'narrative': {'legend': 'Only a legend.'}}, "lacks 'purpose'"),
+    ({'effect_column': 'absent'}, 'source lacks columns'),
+    ({'limit_group': ''}, 'lacks plot/limit metadata'),
+    ({'horizontal_threshold': 'unknown'}, 'numeric horizontal_threshold'),
+])
+def test_invalid_panel_cannot_partially_write_a_figure(tmp_path, updates, message):
+    manifest = _publication_manifest()
+    manifest['panels'][0].update(updates)
+    destination = tmp_path / 'not-written'
+    with pytest.raises(ValueError, match=message):
+        build_manifest_packages(manifest, _publication_artifacts(), destination)
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize('specification, message', [
+    (None, 'must be a mapping'),
+    ({'level': 'guess', 'phenotype': 'xgboost', 'data': pd.DataFrame()}, 'invalid level'),
+    ({'level': 'grna', 'data': pd.DataFrame()}, 'needs a phenotype'),
+    ({'level': 'grna', 'phenotype': 'xgboost'}, 'exactly one of data or path'),
+    ({'level': 'grna', 'phenotype': 'xgboost', 'data': [], 'path': 'both'}, 'exactly one of data or path'),
+    ({'level': 'grna', 'phenotype': 'xgboost', 'data': []}, 'must be a DataFrame'),
+])
+def test_invalid_run_artifact_cannot_create_output(tmp_path, specification, message):
+    artifacts = _publication_artifacts()
+    artifacts['xgboost_grna'] = specification
+    destination = tmp_path / 'not-written'
+    with pytest.raises(ValueError, match=message):
+        build_manifest_packages(_publication_manifest(), artifacts, destination)
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize('column, value, message', [
+    ('effect', float('inf'), 'must be finite'),
+    ('plot_y', float('nan'), 'must be finite'),
+    ('gene_label', ' ', 'label and URL'),
+    ('gene_url', '', 'label and URL'),
+    ('lopit', 'not-a-known-compartment', 'lack colours'),
+])
+def test_invalid_scientific_rows_cannot_create_output(tmp_path, column, value, message):
+    artifacts = _publication_artifacts()
+    frame = artifacts['xgboost_grna']['data']
+    frame.loc[frame.index[0], column] = value
+    destination = tmp_path / 'not-written'
+    with pytest.raises(ValueError, match=message):
+        build_manifest_packages(_publication_manifest(), artifacts, destination)
+    assert not destination.exists()
+
+
+def test_file_backed_artifact_preserves_values_and_declared_identity(tmp_path):
+    from spacr.regression_panels import _resolve_run_artifacts
+    frame = _publication_artifacts()['xgboost_grna']['data']
+    path = tmp_path / 'guides.csv'
+    frame.to_csv(path, index=False)
+    resolved = _resolve_run_artifacts({'run': {
+        'level': 'grna', 'phenotype': 'xgboost', 'path': path,
+    }}, ['run', 'run'])
+    assert list(resolved) == ['run']
+    assert resolved['run']['level'] == 'grna'
+    assert resolved['run']['phenotype'] == 'xgboost'
+    pd.testing.assert_frame_equal(resolved['run']['data'], frame)
+
+
+@pytest.mark.parametrize('content, message', [
+    (None, 'path does not exist'),
+    ('"unterminated', 'Could not read run artifact'),
+])
+def test_missing_or_unreadable_artifact_cannot_create_output(tmp_path, content, message):
+    path = tmp_path / 'guides.csv'
+    if content is not None:
+        path.write_text(content)
+    artifacts = _publication_artifacts()
+    artifacts['xgboost_grna'] = {'level': 'grna', 'phenotype': 'xgboost', 'path': path}
+    destination = tmp_path / 'not-written'
+    with pytest.raises(ValueError, match=message):
+        build_manifest_packages(_publication_manifest(), artifacts, destination)
+    assert not destination.exists()

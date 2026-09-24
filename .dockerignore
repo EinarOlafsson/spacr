@@ -19,6 +19,7 @@
 .git
 .gitignore
 .github
+.claude/
 
 docs/
 tools/

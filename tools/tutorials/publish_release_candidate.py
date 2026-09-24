@@ -16,8 +16,9 @@ Two separate, re-runnable steps. Neither touches ``main`` on either host.
 ``pages``
     Writes the candidate's ``web/`` into ``docs/source/_extra/tutorials``,
     byte-checked against the manifest, with the media roots pinned to the
-    uploaded COMMIT (only a commit id cannot be moved). Deployment is a merge to
-    ``main``; ``.github/workflows/docs.yml`` publishes Pages from there.
+    uploaded COMMIT (only a commit id cannot be moved). Pushing ``nightly``
+    publishes its preview; pushing ``main`` publishes the main site through
+    ``.github/workflows/docs.yml``. Each channel retains its own media revision.
 
 Usage (tutorial toolchain python, ``cd tools/tutorials``)::
 
@@ -38,8 +39,12 @@ import sys
 import time
 
 from check_completed_matrix import digest
+from build_release_candidate import copy_checked
 from stage_lesson import REPO, read, write
 from validate_candidate import validate
+
+sys.path.insert(0, str(REPO / 'tools'))
+import build_tutorial_index
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'authoring' / 'tools'))
 from publish_tutorials import HF_DATASET, hf_upload_ready  # noqa: E402
@@ -81,11 +86,13 @@ def git_blob_id(path):
 def readback(root, commit, *, workers=12):
     """Hash every candidate media file as the host serves it at ``commit``."""
     import requests
-    from huggingface_hub import HfApi
+    from huggingface_hub import HfApi, get_token
 
     if not re.fullmatch(r'[0-9a-f]{40}', commit):
         raise SystemExit('Read back a full commit id, not a movable name')
     manifest = read(root / 'release-manifest.json')
+    token = get_token()
+    headers = {'Authorization': 'Bearer ' + token} if token else {}
     expected = media_records(manifest)
     tree = {}
     for entry in HfApi().list_repo_tree(HF_DATASET, repo_type='dataset', revision=commit,
@@ -108,16 +115,24 @@ def readback(root, commit, *, workers=12):
         for attempt in range(4):
             try:
                 value, size = hashlib.sha256(), 0
-                with requests.get(url, stream=True, timeout=120) as response:
+                with requests.get(url, headers=headers, stream=True, timeout=120) as response:
                     response.raise_for_status()
                     for block in response.iter_content(1024 * 1024):
                         value.update(block)
                         size += len(block)
                 return relative, value.hexdigest(), size
-            except requests.RequestException:
+            except requests.RequestException as error:
                 if attempt == 3:
                     raise
-                time.sleep(5 * (attempt + 1))
+                delay = 5 * (attempt + 1)
+                response = error.response
+                if response is not None and response.status_code == 429:
+                    reset = re.search(r'(?:^|;)\s*t=(\d+)', response.headers.get('RateLimit', ''))
+                    retry = response.headers.get('Retry-After', '')
+                    delay = max(delay, int(reset[1]) + 1 if reset else 0,
+                                int(retry) + 1 if retry.isdigit() else 0)
+                    print(f'  media host rate limit; retrying after {delay}s', flush=True)
+                time.sleep(delay)
 
     downloaded, byte_failures = 0, []
     started = time.time()
@@ -226,7 +241,7 @@ def resume_receipt(root, branch, tag, checked):
                            'manifest_sha256': digest(root / 'release-manifest.json'),
                            'media_files': len(expected), 'media_bytes': manifest['media_host_bytes'],
                            'readback': checked,
-                           'readback_source': 'the upload run itself; it stopped at a wrong tag check'})
+                           'readback_source': 'completed immutable-commit readback resumed after upload'})
     print('RECEIPT', root / RECEIPT, HOST + commit, flush=True)
 
 
@@ -251,8 +266,7 @@ def pages(root, key):
         source, target = root / 'web' / relative, PAGES / relative
         if digest(source) != record['sha256']:
             raise SystemExit(f'Candidate file changed: {relative}')
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
+        copy_checked(source, target, [], PAGES, record['sha256'])
         if digest(target) != record['sha256']:
             raise SystemExit(f'Copy differs: {relative}')
         written.append(relative)
@@ -282,8 +296,17 @@ def pages(root, key):
     index = replace(r'Lesson 1 of \d+', f'Lesson 1 of {len(catalog)}', index)
     if '../media_host' in index or 'data-production-root="production"' not in index:
         raise SystemExit('Pages index still points at local media')
-    (PAGES / 'index.html').write_text(index, encoding='utf-8')
+    index_temporary = PAGES / 'index.html.publishing'
+    index_temporary.write_text(index, encoding='utf-8')
+    index_temporary.replace(PAGES / 'index.html')
+    bundled_index = REPO / 'spacr/resources/tutorial_index.json'
+    bundled_temporary = bundled_index.with_suffix('.json.publishing')
+    bundled_temporary.write_text(json.dumps(
+        build_tutorial_index.build(PAGES / 'lesson_catalog.js'),
+        ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+    bundled_temporary.replace(bundled_index)
     receipt['pages'] = {'destination': str(PAGES.relative_to(REPO)), 'files_from_candidate': len(written) + 1,
+                        'bundled_tutorial_index_sha256': digest(bundled_index),
                         'index_sha256': digest(PAGES / 'index.html'),
                         'candidate_index_sha256': web['index.html']['sha256'],
                         'cache_key': key, 'unchanged_versioned_assets': sorted(unchanged),
@@ -317,8 +340,8 @@ def record(root):
     checkpoint.update(release_hold=False, media_uploaded=True, pages_tree_ready=True, published=False,
                       media_revision={key: receipt[key] for key in
                                       ('repository', 'branch', 'tag', 'commit', 'media_root')},
-                      publication_note='Media revision uploaded and read back; Pages deploys when '
-                                       'docs/source/_extra/tutorials reaches main (docs.yml).')
+                      publication_note='Media revision uploaded and read back; docs.yml publishes '
+                                       'the committed Pages tree to the matching nightly or main channel.')
     write(target / 'checkpoint.json', checkpoint)
     print('HOLD LIFTED in', target / 'checkpoint.json', flush=True)
 

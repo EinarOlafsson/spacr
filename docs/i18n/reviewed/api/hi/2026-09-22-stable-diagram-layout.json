@@ -1,0 +1,49 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Reserve the longest caption once per width; hover never changes geometry.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent#0",
+      "source": "Reserve the longest caption once per width; hover never changes geometry.",
+      "source_sha256": "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+      "translation": "हर चौड़ाई के लिए सबसे लंबे कैप्शन की जगह एक बार सुरक्षित करता है; माउस ऊपर ले जाने से ज्यामिति कभी नहीं बदलती।"
+    },
+    {
+      "context": "Qt resize event forwarded to the parent widget.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent#1",
+      "source": "Qt resize event forwarded to the parent widget.",
+      "source_sha256": "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+      "translation": "मूल विजेट को भेजा जाने वाला Qt आकार परिवर्तन इवेंट।"
+    },
+    {
+      "context": "None.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent#2",
+      "source": "None.",
+      "source_sha256": "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+      "translation": "None."
+    },
+    {
+      "context": "Recompute reserved text space after an explicit font or language change.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent#0",
+      "source": "Recompute reserved text space after an explicit font or language change.",
+      "source_sha256": "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+      "translation": "फ़ॉन्ट या भाषा में स्पष्ट बदलाव के बाद सुरक्षित टेक्स्ट स्थान की दोबारा गणना करता है।"
+    },
+    {
+      "context": "Qt change event; font and language changes invalidate the layout.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent#1",
+      "source": "Qt change event; font and language changes invalidate the layout.",
+      "source_sha256": "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+      "translation": "Qt परिवर्तन इवेंट; फ़ॉन्ट और भाषा में बदलाव लेआउट को अमान्य कर देते हैं।"
+    },
+    {
+      "context": "None.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent#2",
+      "source": "None.",
+      "source_sha256": "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+      "translation": "None."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of Qt resize/change behavior; no native-speaker sign-off",
+  "schema": 1
+}

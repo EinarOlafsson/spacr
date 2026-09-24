@@ -1,11 +1,25 @@
 {
-  "lesson": "13_regression", "language": "is",
-  "english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
-  "review": {"kind": "Editorial caption translation checked against English and the accepted real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish 759 stored results from the displayed 434-guide family.", "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes."]},
+  "lesson": "13_regression",
+  "language": "is",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "review": {
+    "kind": "Editorial caption translation checked against English and the accepted real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish 759 stored results from the displayed 434-guide family.",
+      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
+      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
+    ]
+  },
   "title": "Regression: raunverulegt dæmi frá pöruðum töflum að niðurstöðum",
   "description": "Hlaðið inn niðurhalanlegum skimunargögnum, stillið afmarkaða umraðagreiningu leiðsagna, skoðið raunverulega stjórnborðsúttakið og myndritin og finnið sérverkfærin sem eru nú inni í Regression.",
-  "objectives": ["Hlaða inn fjórum pörum af stiga- og talningartöflum með sýnilega prófgagnahnappinum og velja sérstaka úttaksmöppu.", "Greina á milli ályktunaraðferðar, niðurstöðustigs og greiningareiningar og endurtaka afmarkaða dæmið án þess að líta á fjölda umraðana sem ráðleggingu fyrir lokagreiningu.", "Skoða raunverulegar niðurstöður, myndrit og takmarkanir greiningarprófana; aðgreina gagnvirka skoðun frá lifandi endurreikningi greiningarinnar.", "Finna innfelld verkfæri Regression, valfrjálsa gervigreindaraðstoð og núverandi Python-fall."],
-  "prerequisite": "Opnið spaCR og veljið Regression meðal Core-eininganna. Dæmið sækir stiga- og talningarskrár eða endurnýtir skyndiminni. Greiningin í upptökunni krefst ekki mæligagnagrunns, myndútskurða, ytri skýringarþjónustu eða gervigreindaráskriftar. Stutta umraðakeyrslan sýnir verkferlið, ekki endanlegar líffræðilegar uppgötvanir.",
+  "objectives": [
+    "Hlaða inn fjórum pörum af stiga- og talningartöflum með sýnilega prófgagnahnappinum og velja sérstaka úttaksmöppu.",
+    "Greina á milli ályktunaraðferðar, niðurstöðustigs og greiningareiningar og endurtaka afmarkaða dæmið án þess að líta á fjölda umraðana sem ráðleggingu fyrir lokagreiningu.",
+    "Skoða raunverulegar niðurstöður, myndrit og takmarkanir greiningarprófana; aðgreina gagnvirka skoðun frá lifandi endurreikningi greiningarinnar.",
+    "Finna innfelld verkfæri Regression, valfrjálsa gervigreindaraðstoð og núverandi Python-fall."
+  ],
+  "prerequisite": "Tekið upp í spaCR 1.5.0.9. Opnið spaCR og veljið Regression meðal Core-eininganna. Dæmið sækir stiga- og talningarskrár eða endurnýtir skyndiminni. Greiningin í upptökunni krefst ekki mæligagnagrunns, myndútskurða, ytri skýringarþjónustu eða gervigreindaráskriftar. Stutta umraðakeyrslan sýnir verkferlið, ekki endanlegar líffræðilegar uppgötvanir.",
   "scenes": [
     "Opnið Regression meðal Core-eininganna. Einingin tengir svipgerðarstig við magn leiðsagna og birtir tengsl samkvæmt valinni ályktunaraðferð. Verkfærin efst tilheyra nú þessari einingu; þau eru ekki lengur sjálfstæðir reitir á Home.",
     "Veljið Load test data undir Input Tables. Forritið sækir skimunardæmið eða endurnýtir staðfestar skrár úr skyndiminni; upptakan notar skyndiminnið. Stjórnborðið tilkynnir um fjórar stigatöflur og fjórar talningartöflur, paraðar eftir plötu.",
@@ -19,7 +33,7 @@
     "Regression backend er ekki almennur hröðunarrofi. Reiturinn á við studdar matsaðferðir sem aðlaga líkön; breyting á honum gerir þetta umraðadæmi ekki að aðhvarfsgreiningu á skjákorti. Aðrar spaCR-einingar hafa eigið tækjaval. Fylgið stjórntækjum og stjórnborði þeirrar aðgerðar sem raunverulega er í gangi.",
     "Veljið none sem uppruna skýringa í þessu sjálfstæða dæmi. Tölfræðilegu niðurstöðurnar krefjast ekki uppflettingar genaskýringa hjá ytri þjónustu. Notið skýringar sem passa við lífveruna og auðkennakerfið í eigin skimun, í stað þess að gera ráð fyrir að öll heiti leiðsagna þekkist.",
     "Hreinsið leitina, athugið úttaksmöppuna og ýtið á Run. Fylgist með raunverulega stjórnborðinu þegar inntak er samræmt, valdar síur notaðar og niðurstöður reiknaðar. Regression býr beint til greiningarmyndrit; hér er enginn sérstakur Plot-rofi sem þarf að virkja.",
-    "Fullbúna dæmið skilaði 434 leiðsagnaniðurstöðum, 325 genaniðurstöðum og fimm myndritum. Finished merkir að forritið hafi lokið vinnunni; það staðfestir hvorki rannsóknarhönnun né líffræðilegar uppgötvanir. Lesið viðvaranir greiningarprófana ásamt lokatilkynningunni.",
+    "Fullbúna dæmið skilaði 434 leiðsagnaniðurstöðum, 325 genaniðurstöðum og fimm myndritum. Finished merkir að forritið hafi lokið vinnunni; það staðfestir hvorki rannsóknarhönnun né líffræðilegar uppgötvanir. Lesið viðvaranir greiningarprófana ásamt lokatilkynningunni. Skýrslan um víxlanleika mistókst í þessari keyrslu; því þarf enn að meta forsendur umraðunarprófsins með óháðum hætti.",
     "Runs auðkennir vistuðu greininguna; Results sýnir valda keyrslu. Staðfestið möppu og stillingar þegar keyrslur eru bornar saman. Breyting á eyðublaðsreit endurreiknar ekki niðurstöðuna sem er sýnd. Keyrið greininguna aftur þegar prófa á nýtt val.",
     "Results inniheldur stuðlatöflu og gagnvirkar sýnir við hlið myndritanna. Keyrslan hefur samtals 759 raðir á báðum stigum; þessi sýn velur 434 niðurstöður fyrir leiðsagnir. Notið Level til að velja prófafjölskyldu. Gagnvirk skoðun vistaðs úttaks keyrir ályktunina ekki aftur.",
     "Opnið p-values til að skoða dreifingu niðurstaðna. Túlkið hana með tilliti til valinnar prófafjölskyldu, upplausnar umraðana og greiningarprófana, ekki sem sjálfvirka sönnun fyrir áhrifum. Sérstaka Diagnostics-kennslan útskýrir vistuð spjöld um rannsóknarhönnun og ályktun nánar.",

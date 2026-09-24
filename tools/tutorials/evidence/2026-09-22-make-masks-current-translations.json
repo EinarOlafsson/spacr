@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "14_make_masks",
+  "english_sha256": "23a74fd46d3189d7af0d483c7308c7b67aa40596b78e1246fa3cfc7927885f27",
+  "previous_english_sha256": "8d24344932d77598f55e446b6e79104c62df72454c1a85e573f359030a9bab57",
+  "scene_count": 27,
+  "added_scenes": [
+    "readouts_04_otsu_magnifier_settings",
+    "readouts_05_live_otsu_magnifier",
+    "readouts_06_features_real_files",
+    "readouts_08_features_choose_cell_mask",
+    "readouts_09_features_assigned_table",
+    "readouts_12_features_measurements_saved"
+  ],
+  "changed_original_scene_indexes": [
+    0,
+    3,
+    9,
+    16
+  ],
+  "languages": [
+    {
+      "language": "da",
+      "review_sha256": "fa9e2770e57786f053f2f08d1e51f1f221b753e16de16cee13f3d23488130c70",
+      "staged_catalog_sha256": "3b9d0e6252212e2e6c30473267dfb8d5238ce803c1e806343fe51aa18812c4e3",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "de",
+      "review_sha256": "1de9b228235fc7c72d60316c8e2323769f232e9d38df78ea3051c5e3f8900e80",
+      "staged_catalog_sha256": "b74c9f9e39c3587b4457a5e6a3d24fd7428158cb1979cfeae47ad08aa21bc6d1",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "es",
+      "review_sha256": "90e347606ad9ec315d3beb0ed6281c6fd05434f4da1fb7611004333272c424f1",
+      "staged_catalog_sha256": "77af8e4ec4ce45e31d4327a0e83b282f39a6311f31abd80f84325b86d9df381a",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "fr",
+      "review_sha256": "6ca10a5b5a9d73dddc5d4d115a9bb7b31901f8c38b3b13d717e0925187b5c1f6",
+      "staged_catalog_sha256": "bab513d977951011c0da4c53d5f376a5239f1d054edf47997fc409af8658b445",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "hi",
+      "review_sha256": "bf85785f1708df6d36a3c1a908794e3829cedb90a5f5b5161e2013ebb0467a86",
+      "staged_catalog_sha256": "faf5b3af151b0312676b2b4146009553d053445d91edf6fc141cd26b338068d1",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "is",
+      "review_sha256": "0d1f710b95e4ed7dc1b85dde0f8a4292b8c34f54fcaf416c73db373a706e08ca",
+      "staged_catalog_sha256": "7b811ddc2f845cfeb52c7cab89349ae9bf6138d80f45259f8671ecd01c218e93",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "it",
+      "review_sha256": "044b7176ba0f5f1f05e4717402538da928fe56ccb2fdfc8545d995b6923e97e8",
+      "staged_catalog_sha256": "af872f439c0419f3b2c747d31064bffea822c95fce2384766d109c90f9537956",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "ja",
+      "review_sha256": "9add2af8d1d90993299e0d3d77321b3b6708ed6c698c765a3ea5fac19c39e879",
+      "staged_catalog_sha256": "1a4d30fda93ad40743d223250868e9e2e0257089fdcd47a8b9b89cb518973fca",
+      "retained_narration_scenes": 19,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "ko",
+      "review_sha256": "3ddf4aa9c3b60dbe20566e1458a3100ebd91848b3a43bc266790fd5c4313d9ff",
+      "staged_catalog_sha256": "ec82dfcd5ba9910f06a6358fd9d1e852f5a6b7c9116847915093d0d9a6e8ff1d",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "nb",
+      "review_sha256": "1b5ba981f2f4d081519b0d1398ed904bed88473b603b050259511bbc63fa70bf",
+      "staged_catalog_sha256": "317b2a988ed3d1039bef40260578fafc5caea495174ad303f1e6cb147ccbd308",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "pt-BR",
+      "review_sha256": "7e8361bbd73d24ce08a252cf8ecd9710c3045af0011d03a10f6435248e133453",
+      "staged_catalog_sha256": "deaec3b6d38a48737d5434f4c5fc3561b197d1470637bbdf01e47d2378c5a91a",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "sv",
+      "review_sha256": "c389cef6dadf157685a92c4f2486a4f1ada4cd27c49dbb1c9135e4bbdf79c60f",
+      "staged_catalog_sha256": "678f3fac04b288007146a6e9a4916dee32625fc10bbfc8778c4f992166bf0828",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    },
+    {
+      "language": "zh-CN",
+      "review_sha256": "49fd37c08ff40cf68bc7d81396f4f266ffa1b68d94548df8f69e1d35880c2263",
+      "staged_catalog_sha256": "1645bdde9a47e53b0479d1bc8eb56b59b582e9d4bb06a9327808808df6e65fe7",
+      "retained_narration_scenes": 17,
+      "new_readout_scenes": 6
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Fresh narration and visual master",
+    "Complete voice matrix verification",
+    "Caption/player and listening acceptance",
+    "Complete-set publication"
+  ]
+}
