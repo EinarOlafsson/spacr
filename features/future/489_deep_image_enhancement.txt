@@ -1,6 +1,6 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: IN PROGRESS. Isolated restoration and host interface verified; UI pending.
+Status: IN PROGRESS. Compare/Apply integration verified; documentation and full-field acceptance pending.
 
 Add opt-in network-based enhancement to Make Masks, with useful choices for
 different structures and acquisition noise. Research primary documentation and
@@ -95,3 +95,33 @@ identity. Model load11.17s; inference0.45s. Receipt:
 features/data/489_restoration_host_acceptance_2026-09-24.json.
 Still pending: Compare/Apply controls, per-channel integration, GUI acceptance
 and scientific quality comparisons. These additions remain outside1.5.1.0.
+
+2026-09-24 — MAKE MASKS COMPARE/APPLY INTEGRATION
+Image enhancement now offers optional denoise/deblur/one-click restoration,
+cells(cyto3/cyto2) or nuclei weights and diameter in pixels. It defaults off.
+The explicit install button reuses the isolated Model Zoo installer; model
+loading and inference use CPU background work. Model/diameter changes invalidate
+the request; late loading and inference results are discarded. Compare can
+preview before Apply. Apply feeds the same restored float plane to detection
+and the Wand, while display scaling remains separate and loaded pixels remain
+unchanged. Pending/failed restoration cannot silently flood raw pixels.
+Restoration runs after background/PSF and before classical denoising/contrast.
+Provenance saves exact model, Cellpose version, checkpoint hash, CPU device,
+diameter and normalized intensity units. Controls have API-linked tooltips.
+
+30focused restoration/PSF/comparison GUI checks pass. Broader editor regression
+selection passed202checks; its one old stage-order assertion was updated for
+the new explicit restoration stage and passes separately. A real128x128public
+microscopy crop ran through load, Compare, Apply, Otsu and save: five objects,
+saved provenance, identical Wand/detection floats and unchanged loaded source.
+Model load9.12s, Apply0.147s,973Qt ticks, maximum tick gap0.057s. Original
+float TIFFs undergo the editor's existing uint16conversion before enhancement;
+the GUI output matches direct host inference on those exact editor pixels,
+not the slightly different original float crop. No biological accuracy claim.
+Receipt:features/data/489_make_masks_restoration_acceptance_2026-09-24.json.
+
+Remaining: full-field acceptance(currently running), translated captions,
+updated API inventory and a restoration tutorial/animation. Notify the API
+lane about Chain's three restoration fields, prepare/provenance/order changes,
+the Wand output-unit explanation and restoration_controls.py captions. This
+remains follow-on nightly work; candidate06a7de42e is unchanged.

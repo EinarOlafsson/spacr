@@ -212,7 +212,7 @@ def test_the_filament_width_box_is_parsed_and_never_raises():
 def test_the_chain_order_is_fixed_and_written_down():
     """The order is a constant, and it is the order prepare runs in."""
     assert dc.CHAIN_ORDER == (
-        "percentile stretch", "background", "PSF", "denoise", "contrast", "sharpen",
+        "percentile stretch", "background", "PSF", "restoration", "denoise", "contrast", "sharpen",
         "detect", "morphology", "split")
 
     field = blob_field(64).astype(np.float32)

@@ -994,7 +994,7 @@ class _MaskCanvas(QLabel):
         cached = self._enhanced_cache
         if cached is not None and cached[0] is base and cached[1] == chain:
             return cached[2]
-        if chain.psf_operation != 'none':
+        if chain.psf_operation != 'none' or chain.restoration:
             from ..i18n import tr
 
             failure = self._enhance_failure
@@ -1313,8 +1313,10 @@ class _MaskCanvas(QLabel):
     def wand_source(self):
         """Return original pixels with Apply off, or the ready applied picture.
 
-        The applied picture keeps the source dtype's intensity units, so
-        absolute Wand tolerances retain those units. Relative tolerances
+        Classical filters use the display-scaled picture. PSF and deep
+        restoration use the detector's float output, including normalized
+        model units for restoration; absolute tolerances refer to that output.
+        Relative tolerances
         follow its new intensity range. While enhancement is pending or
         failed, return None and explain why; no raw-pixel flood substitutes
         for an applied enhancement. Post-detection morphology and splitting
@@ -1332,7 +1334,7 @@ class _MaskCanvas(QLabel):
             return base
         cached = self._enhanced_picture
         if cached is not None and cached[0] is base and cached[1] == chain:
-            if chain.psf_operation != 'none' and self._enhanced_cache is not None:
+            if (chain.psf_operation != 'none' or chain.restoration) and self._enhanced_cache is not None:
                 return self._enhanced_cache[2]
             return cached[2]
         failure = self._enhance_failure
@@ -10152,6 +10154,7 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
         from ..widgets.psf_controls import _PSFControls
+        from ..widgets.restoration_controls import _RestorationControls
 
         card = self._settings_category(
             "Image enhancement",
@@ -10159,7 +10162,7 @@ class MakeMasksScreen(QWidget):
             "fixed order. The image on disk is never changed.",
         )
         order = QLabel(tr(
-            "Order: percentile stretch (Display) → background → PSF → denoise → "
+            "Order: percentile stretch (Display) → background → PSF → restoration → denoise → "
             "contrast → sharpen → detect → morphology → split."))
         order.setWordWrap(True)
         order.setObjectName("Muted")
@@ -10211,6 +10214,8 @@ class MakeMasksScreen(QWidget):
 
         self._psf_controls = _PSFControls()
         form.addRow(self._psf_controls)
+        self._restoration_controls = _RestorationControls()
+        form.addRow(self._restoration_controls)
 
         self._enh_denoise = QComboBox()
         self._enh_denoise.addItem("None", "none")
@@ -10404,6 +10409,7 @@ class MakeMasksScreen(QWidget):
                        self._enh_sharpen, self._enh_split):
             widget.toggled.connect(self._on_chain_changed)
         self._psf_controls.changed.connect(self._on_chain_changed)
+        self._restoration_controls.changed.connect(self._on_chain_changed)
         self._on_chain_changed()
         return card
 
@@ -10439,6 +10445,7 @@ class MakeMasksScreen(QWidget):
             morphology_radius=int(self._enh_morphology_radius.value()),
             split=bool(self._enh_split.isChecked()),
             **self._psf_controls._chain_fields(),
+            **self._restoration_controls._chain_fields(),
         )
 
     def _chain_provenance(self) -> dict:
@@ -11882,6 +11889,7 @@ class MakeMasksScreen(QWidget):
         self._magnifier.close()
         self._primary_selector.shutdown()
         self._psf_controls._shutdown()
+        self._restoration_controls._shutdown()
         self._canvas.close_enhancer()
         self._cancel_comparison()
         if self._comparison_worker is not None:

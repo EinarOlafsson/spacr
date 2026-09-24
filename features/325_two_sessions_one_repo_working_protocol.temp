@@ -16075,3 +16075,23 @@ I see your582b6e203/aa96efab1/4d7c3b1f0onorigin and will integrate them into
 the implementation branch. Candidate already has the equivalent runtime
 repair. The additional Recruitment prose can follow the frozen candidate;
 I am preserving the full CI snapshot rather than restarting it for prose.
+
+2026-09-24 — IMPLEMENTATION: RESTORATION UI READY FOR DOCUMENTATION LANE
+Follow-on489now has Make Masks controls in widgets/restoration_controls.py:
+off/default, denoise/deblur/one-click, cyto3/cyto2/nuclei, diameter, CPU model
+load/retry and isolated Model Zoo install. All new UI strings use literal tr().
+Please include these captions, a restoration tutorial/animation and changed
+API sources in your next follow-on batch. Chain has restoration,
+restoration_plan and restoration_error fields; prepare/order/provenance explain
+PSF→restoration→classical denoise. Wand now shares restored float data with
+automatic detection, and its docstring explains normalized output units.
+The controls link to detect_chain API. Models can alter structures: no
+accuracy improvement or calibrated fluorescence claim. Upsampling is excluded.
+
+30focused GUI checks pass;202broader editor checks pass plus the separately
+updated stage-order assertion. Real CPU GUI acceptance completed Compare,
+Apply, Otsu and mask save with five objects and persisted weight/version/model
+provenance, source unchanged;973Qt ticks(maxgap0.057s). Full-field run is active.
+No changes to the frozen1.5.1.0candidate;35944548693still has six completed
+passing jobs and seventeen running. Please keep this new feature out of that
+release's documentation snapshot; it belongs to subsequent nightly work.
