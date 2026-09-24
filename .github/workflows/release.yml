@@ -397,3 +397,87 @@ jobs:
               --generate-notes \
               --verify-tag
           fi
+
+  release-notes:
+    name: Refresh the bundled release notes
+    # Home's News panel draws spacr/resources/release_notes.json, and until
+    # now nothing rebuilt it: the file was only ever refreshed when somebody
+    # remembered to run the tool before tagging. It went stale at v1.5.0.7
+    # while 1.5.1.0 shipped, which is the defect this job exists to end.
+    #
+    # It cannot gate the release. PyPI, the installers, the tag and the
+    # notes themselves are all already published by the time this runs, so a
+    # failure here costs a resource refresh and nothing else.
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.github-release.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, github-release]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.bump.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      # AFTER `gh release create`, NOT BEFORE, and that ordering is the
+      # whole point. `--generate-notes` is what writes the body this
+      # resource carries, so before that step this release has no note to
+      # bundle: the tool would rewrite the file with the previous release
+      # at the top and call it current. Running here means the resource
+      # names this version the moment the release exists -- and the wheel
+      # for THIS version still cannot carry it, because that wheel was
+      # built and made immutable on PyPI several jobs ago. The next wheel
+      # does, and the running copy fills the gap itself (NewsPanel asks the
+      # releases API once a day, off the GUI thread). See the docstring of
+      # tools/build_release_notes.py.
+      - name: Rebuild the resource from the published releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python tools/build_release_notes.py
+          cp spacr/resources/release_notes.json \
+            "$RUNNER_TEMP/release_notes.json"
+      # Committed the way "chore(release): add <version> installers" is:
+      # Einar as the author, the credentials actions/checkout persisted, and
+      # `git push origin HEAD:<branch>`.
+      #
+      # IT CANNOT START ANOTHER RELEASE. Three independent reasons, because
+      # a workflow that re-triggers itself on every release is the one
+      # mistake worth over-guarding: (1) the push carries GITHUB_TOKEN, and
+      # GitHub starts no workflow run from an event pushed with that token
+      # -- the same fact `container-images` above is built around; (2) this
+      # workflow's push trigger is filtered to `paths: setup.py`, and this
+      # commit touches one JSON resource; (3) the `bump` job refuses any
+      # push whose actor is github-actions[bot].
+      - name: Commit the refreshed notes to main and nightly
+        env:
+          RELEASE_BRANCH: ${{ needs.bump.outputs.branch }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          git config user.name "Einar Olafsson"
+          git config user.email "einar.olafsson@gmail.com"
+          for branch in "$RELEASE_BRANCH" nightly; do
+            if ! git fetch origin "$branch"; then
+              echo "::notice::No branch $branch to update."
+              continue
+            fi
+            # -f, because the rebuild step left the generated file in the
+            # working tree and each branch has to start from its own
+            # committed copy of it. The bytes to commit are in RUNNER_TEMP.
+            git checkout -f -B "$branch" "origin/$branch"
+            cp "$RUNNER_TEMP/release_notes.json" \
+              spacr/resources/release_notes.json
+            git add spacr/resources/release_notes.json
+            if git diff --cached --quiet; then
+              echo "$branch already carries the $VERSION release notes."
+              continue
+            fi
+            git commit -m "chore(release): bundle the spaCR $VERSION release notes"
+            git push origin "HEAD:$branch"
+          done
