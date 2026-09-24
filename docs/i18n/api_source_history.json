@@ -1534,6 +1534,18 @@
       "source_sha256": "a3b07fdcd397c8ba3ee40f197e93e5aff957d7f1d768b26c23f10bf139bece7d",
       "text": "A compact switch that can be clicked or dragged between states.\nInitialize the switch with an optional trailing label.\n\n:param text: the label drawn after the switch. Empty leaves the\n    switch alone, which is what a settings row wants -- the caption\n    beside it is the form's, not the control's.\n:param parent: parent widget."
     },
+    "a4babbdd5fd463d9645c50ab60a86ca3e4bedbf3cf83bb35d17e60454897f0b3": {
+      "source_blocks_sha256": [
+        "0b7ffdbdf6731edb022b8e88c07b33c5fcb96b3443178f5c338469f4b1430a18",
+        "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
+        "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
+        "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
+        "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "a4babbdd5fd463d9645c50ab60a86ca3e4bedbf3cf83bb35d17e60454897f0b3",
+      "text": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.\n\nLoads the ``cpsam`` pretrained model — or, when\n``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint\nthe user trained, that checkpoint — iterates over each pre-batched\n``.npz`` file, applies perimeter merging and area/border filtering to 2-D\nmasks, and optionally filters objects by their absolute mean intensity\nin the original own-channel image. It then optionally tracks timelapse\nobjects, saves per-image ``.npy`` masks, and records per-object counts to\nthe run's SQLite database. Time-stack archives must contain one filename\nper timepoint, regardless of the declared time-axis position; each raw\nfilename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its\n``(Y, X, C)`` image for a flat ``TYX`` series.\n\n:param src: Directory containing the pre-batched ``.npz`` image stacks.\n:param settings: Pipeline settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or\n    ``'organelle'``; drives channel/threshold lookups and output folder name.\n:returns: None."
+    },
     "a896333e6cf2a1fe15fbff553c4d22f40cb2650cf421ce96b34cf6e40d94e860": {
       "source_blocks_sha256": [
         "9646738cee9945bfd32ff9693fac0538cac036fff04ecee571ffa02c21c3b86d",

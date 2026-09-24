@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "source_commit": "2b2b9871204e1e352622d6a5094a9875ba8b10b1",
+  "source_commit": "d1ea6a8c8940ca70e41ca927023562e4fe8cb9ae",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
     "api": {
       "status": "compatible",
       "exit_code": 0,
-      "diagnostics": "verified API catalogs: languages=0 symbols=11527\n"
+      "diagnostics": "verified API catalogs: languages=0 symbols=11528\n"
     },
     "runtime": {
       "status": "compatible",
@@ -15,88 +15,88 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/final-private-translation-compatibility.json",
-  "full_report_sha256": "2501fcc9dab5fea116aa1c1b2d90fb61d9f7575cc55db05cc8b22dcc6d4b9437",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/mask-batch-translation-compatibility.json",
+  "full_report_sha256": "7d94badff5e9f8fab594bad5e7a644fd631978d5156839a62e06347d5c1c1c33",
   "locales": {
     "api": {
       "sv": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "de": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 725,
-          "stale": 369,
-          "translation_blocks": 111,
+          "missing": 726,
+          "stale": 371,
+          "translation_blocks": 112,
           "obsolete": 3
         }
       },
       "es": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 791,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 792,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "zh_CN": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "pt": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "hi": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "ko": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "is": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       },
       "fr": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 916,
-          "stale": 405,
-          "translation_blocks": 121,
+          "missing": 917,
+          "stale": 407,
+          "translation_blocks": 122,
           "obsolete": 3
         }
       }

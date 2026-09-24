@@ -52,6 +52,13 @@
       "source_sha256": "2d965503bf375b888dd7b02d757a69705d7f7c15dd3fae31d958e3ce00e57c22",
       "text": "Collect now, or request a full sweep on the GUI's next timer tick.\n\nWorker sweeps can destroy unrelated Qt widgets on the wrong thread.\nA running GUI therefore services worker requests through\n:func:`spacr.qt.gc_policy.collect_once`. Repeated requests coalesce.\nHeadless processes and the GUI thread retain synchronous collection;\nchecking for an application does not import Qt into headless jobs.\n\n:returns: unreachable objects collected, or zero for a deferred request."
     },
+    "spacr._mask_workers": {
+      "source_blocks_sha256": [
+        "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153"
+      ],
+      "source_sha256": "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153",
+      "text": "Process isolation and cooperative stop for assigned mask batches."
+    },
     "spacr._merged_names": {
       "source_blocks_sha256": [
         "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282"
@@ -29314,10 +29321,13 @@
         "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
         "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
         "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
+        "335d782f7f2796f7aa6e5dc88248a42c5e9ed4fbd7f58c4e57659d513258ab5d",
+        "e0353f797a2deca5e3e0e188d33b11f8b983a8a71119d4a90f139249c54a35a9",
+        "7490cab6cdcf8d211548283b8a53ba6904fa0a270f553c593f3c231a4eb212bf",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "a4babbdd5fd463d9645c50ab60a86ca3e4bedbf3cf83bb35d17e60454897f0b3",
-      "text": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.\n\nLoads the ``cpsam`` pretrained model — or, when\n``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint\nthe user trained, that checkpoint — iterates over each pre-batched\n``.npz`` file, applies perimeter merging and area/border filtering to 2-D\nmasks, and optionally filters objects by their absolute mean intensity\nin the original own-channel image. It then optionally tracks timelapse\nobjects, saves per-image ``.npy`` masks, and records per-object counts to\nthe run's SQLite database. Time-stack archives must contain one filename\nper timepoint, regardless of the declared time-axis position; each raw\nfilename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its\n``(Y, X, C)`` image for a flat ``TYX`` series.\n\n:param src: Directory containing the pre-batched ``.npz`` image stacks.\n:param settings: Pipeline settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or\n    ``'organelle'``; drives channel/threshold lookups and output folder name.\n:returns: None."
+      "source_sha256": "7939ad120aaed5760992774a7c1c94734d9d2574b114af396df0e7956ac48481",
+      "text": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.\n\nLoads the ``cpsam`` pretrained model — or, when\n``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint\nthe user trained, that checkpoint — iterates over each pre-batched\n``.npz`` file, applies perimeter merging and area/border filtering to 2-D\nmasks, and optionally filters objects by their absolute mean intensity\nin the original own-channel image. It then optionally tracks timelapse\nobjects, saves per-image ``.npy`` masks, and records per-object counts to\nthe run's SQLite database. Time-stack archives must contain one filename\nper timepoint, regardless of the declared time-axis position; each raw\nfilename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its\n``(Y, X, C)`` image for a flat ``TYX`` series.\n\n:param src: Directory containing the pre-batched ``.npz`` image stacks.\n:param settings: Pipeline settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or\n    ``'organelle'``; drives channel/threshold lookups and output folder name.\n:param batch_paths: optional exclusive worker assignment of NPZ paths under\n    ``src``. One model is reused across the assignment; ``None`` keeps the\n    ordinary whole-directory run. An empty assignment loads no model.\n:param on_batch_done: optional callable receiving the archive path after\n    its selected fields have completed. Failed archives are not reported.\n:param run_qc: False lets a parallel coordinator run shared QC once after\n    every worker finishes, instead of writing reports from each worker.\n:returns: None."
     },
     "spacr.object.generate_organelle_masks_sam": {
       "source_blocks_sha256": [

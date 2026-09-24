@@ -2476,7 +2476,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_945
+    assert sum(len(item.parameters) for item in callables) == 18_948
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2597,7 +2597,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Removing twelve preview/montage arrivals and restoring montage.load's
     # prior row exactly reproduces 99126a21. Complete rows are recorded in
     # features/data/411_host_preview_montage_api_2026-09-23.json.
-) == "63b9cafe201fe1c9be793312c4b9412c3476dc71eff13f84f8bf2294392b3eeb"
+) == "641a73d4f3f35d394fa658ab3af9d9ae5751af3ab32993ce7749cdbef0ffc03c"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3080,7 +3080,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +7 Timeflows nested helpers; source-bound catalogs exist in all locales.
     # +9 held-out validation entries with nine source-bound locale catalogs.
     # +12 inference/cursor/help/schema entries; matches the source extractor.
-    assert len(docs) == 11_527
+    assert len(docs) == 11_528
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
