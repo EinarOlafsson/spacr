@@ -15711,3 +15711,16 @@ candidate was pushed, not successful: saved their partial logs as
 newly found Python3.9stdlib inventory omits Windows-only winreg, which I am
 fixing. A final stable candidate can be explicitly dispatched to survive
 subsequent pushes. Please include your exact release-repair commit IDs in325.
+
+2026-09-24 PYTHON3.9 STDLIB GUARD REPAIRED
+The fallback standard-library inventory scans the current OS, unlike
+sys.stdlib_module_names (Python3.10+) which knows other platforms' stdlib
+modules. It therefore misclassified the installer's guarded winreg import as
+a third-party dependency on Linux Python3.9. Explicitly included that Windows
+stdlib API in the fallback, with both fallback/current paths tested and heavy
+third-party imports still rejected.194stdlib/install-cleanup/container checks
+pass. No installer runtime dependency was added.
+Also found a real Host–Pathogen preview omission in coverage7: its table had
+not requested the common numeric/three-state sorting. Fixing it with the
+shared item type and guarded refill; a regression checks sorted rows stay
+linked to the correct vacuole, measurement values and image selection.

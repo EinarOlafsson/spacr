@@ -11,5 +11,5 @@ def test_stdlib_inventory_accepts_core_and_extension_modules_but_not_extras(monk
     if old_python:
         monkeypatch.delattr(sys, 'stdlib_module_names', raising=False)
     names = stdlib_names()
-    assert {'__future__', 'sys', 'os', 'json', 'hashlib', 'ctypes', 'dataclasses', 'pathlib', 'math'} <= names
+    assert {'__future__', 'sys', 'os', 'json', 'hashlib', 'ctypes', 'dataclasses', 'pathlib', 'math', 'winreg'} <= names
     assert not {'numpy', 'torch', 'pytest', 'spacr'} & names
