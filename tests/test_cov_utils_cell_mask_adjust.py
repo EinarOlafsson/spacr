@@ -308,6 +308,28 @@ def test_adjust_cell_masks_raises_on_file_count_mismatch(tmp_path):
         adjust_cell_masks(str(para), str(cell), str(nuc), n_jobs=1)
 
 
+@pytest.mark.parametrize('role', ['cell', 'nuclei', 'parasite'])
+@pytest.mark.parametrize('workers', [1, 2])
+def test_adjustment_rejects_equal_counts_with_different_fields_before_work(
+        tmp_path, monkeypatch, role, workers):
+    """A later missing field must not leave earlier cell masks adjusted."""
+    import spacr.utils as U
+
+    folders = _write_triple(tmp_path, n_files=2)
+    (tmp_path / role / 'f1.npy').rename(tmp_path / role / 'other.npy')
+    before = {path: path.read_bytes() for path in tmp_path.rglob('*.npy')}
+    monkeypatch.setattr(U, 'process_mask_file_adjust_cell',
+                        lambda *args, **kwargs: pytest.fail('adjustment already started'))
+    monkeypatch.setattr(U, 'Pool',
+                        lambda *args, **kwargs: pytest.fail('workers already started'))
+    with pytest.raises(ValueError, match='filenames do not match') as raised:
+        U.adjust_cell_masks(folders['parasite'], folders['cell'],
+                            folders['nuclei'], n_jobs=workers)
+    assert 'f1.npy' in str(raised.value)
+    assert 'other.npy' in str(raised.value)
+    assert before == {path: path.read_bytes() for path in tmp_path.rglob('*.npy')}
+
+
 def test_adjust_cell_masks_non_npy_files_are_ignored(tmp_path):
     """Stray non-.npy files do not count towards the per-folder file totals."""
     from spacr.utils import adjust_cell_masks

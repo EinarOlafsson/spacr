@@ -154,3 +154,12 @@ readable PNGs through figure_ready to a GUI-thread QObject. Final image-array,
 colormap and durable-path checks pass7tests. No GPU inference was performed.
 Pipeline/control integration, adjusted-mask finalization and real multi-GPU
 acceptance remain open. The source module inventory is unchanged at643.
+
+2026-09-24 — Shared adjustment validates field ownership before writing
+adjust_cell_masks now rejects equal-sized parasite/cell/nuclei folders when
+the filenames differ. Count equality alone could adjust an early field before
+a later missing partner failed. Filename preflight finishes before workers
+start and names the mismatched fields. Six role/worker-count cases verify no
+worker call and byte-identical inputs on refusal; complete adjustment/mask
+cohort56passes. This also protects ordinary single-GPU finalization. Multi-GPU
+controls/pipeline wiring and adjusted-mask resume provenance remain open.

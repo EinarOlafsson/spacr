@@ -8949,7 +8949,8 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and
         values below two run inline without starting a child process.
     :returns: None.
-    :raises ValueError: if the three folders contain different numbers of files.
+    :raises ValueError: if the three folders contain different numbers of files
+        or mismatched filenames. These checks finish before any mask is changed.
     """
     from .io import _listdir_visible
 
@@ -8959,6 +8960,13 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
 
     if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
         raise ValueError("The number of files in the folders do not match.")
+
+    if parasite_files != cell_files or parasite_files != nuclei_files:
+        groups = [set(parasite_files), set(cell_files), set(nuclei_files)]
+        unmatched = set.union(*groups) - set.intersection(*groups)
+        raise ValueError(
+            "Mask filenames do not match across parasite, cell and nuclei folders: "
+            f"{', '.join(sorted(unmatched)[:5])}. No cell masks were changed.")
 
     if organelle_folder is not None and os.path.exists(organelle_folder):
         organelle_files = sorted([f for f in _listdir_visible(organelle_folder) if f.endswith('.npy')])

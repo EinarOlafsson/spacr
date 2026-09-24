@@ -17087,3 +17087,11 @@ Docs owner: Coverage8job107527435625 fails reviewed GitHub summary translation
 for the full-clone5.8GB/1186MB paragraph and English API catalog inventory.
 Please reconcile with your latest source/catalog work. Current implementation
 nightly includes c4592679d and the earlier f33805514,c70ee58c8,bb4f0d6e7 fixes.
+
+2026-09-24 — IMPLEMENTATION: MASK ADJUSTMENT FIELD PREFLIGHT493
+utils.adjust_cell_masks now checks identical filenames across parasite/cell/
+nuclei folders before any worker or write, in addition to its count check.
+Updated raises documentation; signature/settings unchanged. Equal counts with
+different fields are refused with filenames and unchanged-mask confirmation.
+56tests pass, including all3roles with inline and multiprocessing selections.
+Please refresh this one API docstring/translation when incorporating changes.
