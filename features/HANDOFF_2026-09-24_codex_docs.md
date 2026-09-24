@@ -13,7 +13,7 @@ suite. Stage explicit paths, rebase before pushing, preserve other work.
 
 ## Current English sources
 
-The English API manifest contains 11,524 rendered entries; the Help index is
+The English API manifest contains 11,526 rendered entries; the Help index is
 current. Existing parameter-description debt remains. The shared module map
 is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
@@ -214,3 +214,17 @@ failures. PSF animation review, checkout-size measurement/all9README updates,
 restoration help and English route/objective checks are reconciled.
 The wrapping Toggle API refresh is privately committed atbf63d6e16:11526API
 entries,9526public callables; exact subtraction and four source guards pass.
+
+Table candidatehpih30qn is now accepted:2506/2506hosted files SHA256match
+077895c4c53658d9af5a0b08cc38d814775c25f4 (2,950,025,020bytes). All84hosted
+playback cases and14localized unavailable views pass. Hold lifted;1211valid
+narration tracks. Do not re-upload. Matching prepared media now covers55of61
+rewritten existing lessons, plus four new guides. Last directly verified live
+table is stillH/32e760991 until this newer batch has deployed and been read back.
+The latest full English source audit passes at11526APIentries and5303UI sources.
+The wrapping Toggle proof and documentation CI repairs are integrated. The
+strict English Sphinx build passed at fc47d0194 with 11,526 API entries
+(table-toggle-sphinx.log). Eight focused publication checks also passed.
+The last directly verified deployed baseline is H/32e760991, recorded in
+358_live_practical_guides_2026-09-24.json; older live-baseline notes above are
+historical. Candidate I is accepted locally and awaits its nightly deployment.

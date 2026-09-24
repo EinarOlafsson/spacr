@@ -4,5 +4,13 @@
   "old_spoken_words": 619,
   "new_spoken_words": 414,
   "new_capture": false,
-  "media_status": "Narration refresh pending; not yet published."
+  "media_status": "English narration/captions accepted with all84hosted playback cases and14localized unavailable views. Prepared for nightly; live deployment not yet verified.",
+  "publication": {
+    "commit": "077895c4c53658d9af5a0b08cc38d814775c25f4",
+    "files": 2506,
+    "bytes": 2950025020,
+    "manifest_sha256": "f3977004ea5cfd3ec63d8dbe5c31bfa83334c4818fd71ae1899f509fc4496748",
+    "valid_narration_tracks": 1211
+  },
+  "original_capture_hash_sequence_matches": true
 }

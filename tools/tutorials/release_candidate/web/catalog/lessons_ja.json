@@ -7628,54 +7628,50 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export：現在の導線と検証済みAPI回避策",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "探索",
-      "description": "Measure内のエクスポート画面、欠損メタデータによる失敗、実際のサンプルを使った明示的なPython回避策を確認します。",
+      "section": "Measure",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Measure内のAnnData Exportと元の測定データベースを確認する。",
-        "GUIの失敗とAPI回避策を区別し、欠損メタデータを捏造しない。",
-        "結合・細胞・核の行列と四つの欠損値処理を比較する。",
-        "保存ファイルを再読込し、識別子・注釈・画像・来歴を保つ。"
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Annotateでダウンロードした実例のmeasurements.dbのコピーを使用し、原本と画像を保持してください。リンク先のスクリプトをコピーの隣に置き、spaCR環境で実行します。spacr.anndata_export.build_anndataを呼び、obsの全要素が欠損しているobject型列だけを空のカテゴリ列に符号化します。欠損は欠損のままで、校正値や注釈を作らず、この符号化ではXを変更しません。GUIの修正ではありません。既存の出力先を拒否し、新規保存後に再読込を検証します。独立SQLite検証：結合/keep 2341x1136、cell/keep・mean 2341x261、cell/drop_features 2341x257、cell/drop_objects 2334x261、nucleus/keep 2682x341。UMAP・GPU計算・画像埋込・AI送信・生物学的妥当性検証・公開は行いません。元のGUI失敗も保存されています。",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Measureを開き、その中のAnnData Exportを選びます。AnnDataは、観測メタデータと特徴名を添えた、オブジェクト行と特徴列の行列を保存します。ここでは現在のGUI導線を示しますが、成功したエクスポートには明示的なPython回避策を使います。GUIのエクスポート不具合が修正済みとは説明しません。",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Measureを開き、その中のAnnData Exportを選びます。AnnDataは、観測メタデータと特徴名を添えた、オブジェクト行と特徴列の行列を保存します。ここでは現在のGUI導線を示しますが、成功したエクスポートには明示的なPython回避策を使います。GUIのエクスポート不具合が修正済みとは説明しません。"
+          "hold_after": 0.7
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "架空の表ではなく、実際にダウンロードした測定データベースのコピーを使います。画像とデータベース原本は変更せず保管します。GUIにはプロジェクトフォルダを指定しますが、このコマンド例にはデータベースファイル自体を指定します。比較では任意の埋め込み計算を無効にします。行列のエクスポートにGPUは必要ありません。",
-          "hold_after": 0.7,
-          "speech_text": "架空の表ではなく、実際にダウンロードした測定データベースのコピーを使います。画像とデータベース原本は変更せず保管します。GUIにはプロジェクトフォルダを指定しますが、このコマンド例にはデータベースファイル自体を指定します。比較では任意の埋め込み計算を無効にします。行列のエクスポートにGPUは必要ありません。"
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "まず未修正の書き込み処理が失敗する様子を確認します。一部の観測列はobject型の欠損値だけで、この書き込み処理では保存できません。不明なボクセル校正値もその一例です。終了コード一と部分的なファイルは成功を意味しません。エラーを消すために、不明値をゼロや文字列Noneに置き換えないでください。",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
             3450,
             340
           ],
-          "hold_after": 0.7,
-          "speech_text": "まず未修正の書き込み処理が失敗する様子を確認します。一部の観測列はobject型の欠損値だけで、この書き込み処理では保存できません。不明なボクセル校正値もその一例です。終了コード一と部分的なファイルは成功を意味しません。エラーを消すために、不明値をゼロや文字列Noneに置き換えないでください。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "リンク先のスクリプトをダウンロードし、保存上の回避策を確認します。実際のbuild_anndata関数を使い、全要素が欠損したobject型メタデータだけを空のカテゴリ列に符号化します。欠損は欠損のままで、既知のメタデータや特徴行列はこの符号化では変わりません。物理的な校正が科学的にカテゴリ量であるという意味ではありません。",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7685,96 +7681,88 @@
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "リンク先のスクリプトをダウンロードし、保存上の回避策を確認します。実際のbuild_anndata関数を使い、全要素が欠損したobject型メタデータだけを空のカテゴリ列に符号化します。欠損は欠損のままで、既知のメタデータや特徴行列はこの符号化では変わりません。物理的な校正が科学的にカテゴリ量であるという意味ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "元のデータベース、新しい出力先、keep方針を指定して実行します。結合例には二千三百四十一個の細胞行と千百三十六個の特徴があります。関連する核と病原体の測定値は細胞単位に集約されます。四十万三百二十個の欠損した特徴値は、ゼロではなく欠損のまま保持されます。",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "元のデータベース、新しい出力先、keep方針を指定して実行します。結合例には二千三百四十一個の細胞行と千百三十六個の特徴があります。関連する核と病原体の測定値は細胞単位に集約されます。四十万三百二十個の欠損した特徴値は、ゼロではなく欠損のまま保持されます。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "一種類のオブジェクト自身の測定値だけが必要なら、single-table cellを追加し、欠損を保持します。同じ二千三百四十一個の細胞行に対し、特徴は二百六十一個になります。二十八個の値が欠損しています。ファイルサイズや列数だけでなく、特徴名と行の識別子を比較してください。",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "一種類のオブジェクト自身の測定値だけが必要なら、single-table cellを追加し、欠損を保持します。同じ二千三百四十一個の細胞行に対し、特徴は二百六十一個になります。二十八個の値が欠損しています。ファイルサイズや列数だけでなく、特徴名と行の識別子を比較してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "mean方針は保存の回避策とは別の分析上の選択です。この例では二十八個の欠損値を、各列の観測値の平均で補います。出力された欠損値レイヤーには元の位置が記録されます。補完が分析に適切か確認してください。欠損のない行列が、自動的に優れている、あるいは偏りがないとは限りません。",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "mean方針は保存の回避策とは別の分析上の選択です。この例では二十八個の欠損値を、各列の観測値の平均で補います。出力された欠損値レイヤーには元の位置が記録されます。補完が分析に適切か確認してください。欠損のない行列が、自動的に優れている、あるいは偏りがないとは限りません。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "drop-features方針は欠損を含む列を削除します。この例では四列が削除され、二百五十七個の特徴とすべての細胞行が残ります。どの測定がなぜ除かれたか確認してください。特徴集合を変え、有用な情報を失う場合もあるため、万能なデータ整理方法として勧めるものではありません。",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "drop-features方針は欠損を含む列を削除します。この例では四列が削除され、二百五十七個の特徴とすべての細胞行が残ります。どの測定がなぜ除かれたか確認してください。特徴集合を変え、有用な情報を失う場合もあるため、万能なデータ整理方法として勧めるものではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "一方、drop-objects方針は特徴値が欠損した行を削除します。ここでは七個の細胞が除かれ、二千三百三十四行と二百六十一個すべての特徴が残ります。欠損は表現型、撮像、セグメンテーションに関連する可能性があります。残った細胞が代表的だと考える前に、除外対象を調べてください。",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "一方、drop-objects方針は特徴値が欠損した行を削除します。ここでは七個の細胞が除かれ、二千三百三十四行と二百六十一個すべての特徴が残ります。欠損は表現型、撮像、セグメンテーションに関連する可能性があります。残った細胞が代表的だと考える前に、除外対象を調べてください。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "細胞行に核の特徴を集約する代わりに、核ごとに一行が必要ならsingle-table nucleusを選びます。この例には二千六百八十二個の核と三百四十一個の特徴があります。親オブジェクトへのリンクと識別子を保持してください。核が細胞より多くても、出力時に細胞が増えたという意味ではありません。",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "細胞行に核の特徴を集約する代わりに、核ごとに一行が必要ならsingle-table nucleusを選びます。この例には二千六百八十二個の核と三百四十一個の特徴があります。親オブジェクトへのリンクと識別子を保持してください。核が細胞より多くても、出力時に細胞が増えたという意味ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "保存した各ファイルを再度開きます。スクリプトは行列全体、順序付きのオブジェクトと特徴の識別子、欠損状態、観測メタデータを比較します。六ファイルすべてで独立したSQLite比較も合格しました。注釈はメタデータであり、行列に加えた学習特徴ではありません。画像は埋め込まれないので、元画像とパスを一緒に保持してください。",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "保存した各ファイルを再度開きます。スクリプトは行列全体、順序付きのオブジェクトと特徴の識別子、欠損状態、観測メタデータを比較します。六ファイルすべてで独立したSQLite比較も合格しました。注釈はメタデータであり、行列に加えた学習特徴ではありません。画像は埋め込まれないので、元画像とパスを一緒に保持してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "方針ごとに新しい出力名を使い、スクリプト、設定、パッケージの版を保存します。既存の出力先は上書きせず拒否します。これらの検証が示すのは、この例のデータ保存性であって、生物学的妥当性やGUI修正ではありません。前後の手順は、リンクしたAPIと測定のレッスンを参照してください。",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7785,10 +7773,14 @@
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "方針ごとに新しい出力名を使い、スクリプト、設定、パッケージの版を保存します。既存の出力先は上書きせず拒否します。これらの検証が示すのは、この例のデータ保存性であって、生物学的妥当性やGUI修正ではありません。前後の手順は、リンクしたAPIと測定のレッスンを参照してください。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7797,36 +7789,33 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "探索",
-      "title": "PCA：実測データ、ライブ再計算、欠損値",
-      "description": "Image UMAP 内の PCA を使い、ダウンロードした実測細胞データで、検証済みスコア、元に戻せるフィルター、明示的な欠損値処理、三つの CSV 出力を確認します。",
+      "section": "Explore",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "Image UMAP 内の PCA を開き、解析する測定特徴量を明示的に選ぶ。",
-        "説明分散と相関の矢印を読み、生物学的な分離と混同しない。",
-        "標準化、フィルター後の再計算、四つの欠損値処理を比較する。",
-        "元データを保存したままスコア、負荷量、分散を出力する。"
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Annotate のダウンロード可能なサンプルを、バイト単位で同一の専用コピーで使います。細胞 2,341 行、元の列 276 本、四つのウェルです。cell_area、cell_channel_1_mean_intensity、cell_perimeter を解析し、その後、実際の欠損値が七つある cell_channel_0_homogeneity_distance_32 を追加します。欠損の原因と処置条件は確認されていません。共分散行列の独立した固有値分解で、アプリの SVD、保持行の位置、スコア、負荷量、相関、分散を検証し、描画座標と出力された元データの全セルも確認しています。検証範囲は、これらの非退化・フルランクの三特徴量および四特徴量の解析に限定されます。自動選択された全特徴量、矢印の画素形状、ランク不足の入力、画像連動選択、生物学的結論は検証していません。CPU 上の NumPy PCA は UMAP やその GPU 設定とは別です。専用ダウンロード、画像プレビュー、AI コンソール、実行全体の Plot スイッチはありません。三つの CSV は学習済みモデル一式、保存設定、図の出力ではありません。API：spacr.qt.widgets.pca_model.pca と PCASpec、PCAResult.scores_frame、loadings_frame、variance_frame。",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Home から Image UMAP を開き、その中の PCA ボタンを選びます。PCA は測定値を線形に要約する手法で、別の UMAP 埋め込みではありません。Annotate のダウンロード可能な実データを専用コピーで再利用します。取得方法は Annotate のチュートリアルで説明しています。",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ],
-          "speech_text": "ホーム から Image ユーマップ を開き、その中の PCA ボタンを選びます。PCA は測定値を線形に要約する手法で、別の ユーマップ 埋め込みではありません。Annotate のダウンロード可能な実データを専用コピーで再利用します。取得方法は Annotate のチュートリアルで説明しています。"
+          ]
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "PCA の見出しの横にある Load table で、コピーした測定データベースを選び、cell を使います。四つのウェルに二千三百四十一個のオブジェクトがあります。測定値の CSV も読み込めます。親モジュールで以前読み込んだパスだけでは、目的のテーブルが開いている証拠になりません。",
-          "hold_after": 0.7,
-          "speech_text": "PCA の見出しの横にある Load table で、コピーした測定データベースを選び、cell を使います。四つのウェルに二千三百四十一個のオブジェクトがあります。測定値の CSV も読み込めます。親モジュールで以前読み込んだパスだけでは、目的のテーブルが開いている証拠になりません。"
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "None を選ぶ前に特徴量の検索を消します。このボタンがチェックを外すのは、現在表示されている特徴量だけです。cell_area、cell_channel_1_mean_intensity、cell_perimeter を検索してチェックします。検索を再び消し、Components を三に設定して Run PCA を選びます。検索で絞るのは特徴量一覧で、細胞集団ではありません。",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7836,158 +7825,149 @@
             1490,
             3350,
             610
-          ],
-          "speech_text": "None を選ぶ前に特徴量の検索を消します。このボタンがチェックを外すのは、現在表示されている特徴量だけです。cell_area、cell_channel_1_mean_intensity、cell_perimeter を検索してチェックします。検索を再び消し、Components を三に設定して Run PCA を選びます。検索で絞るのは特徴量一覧で、細胞集団ではありません。"
+          ]
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Standardise のままスクリープロットを読みます。第一主成分は、この三特徴量の標準化後の分散の約六十五点七パーセント、第二主成分は三十一点七パーセントを説明します。各点は測定された一個の細胞であり、独立した実験反復ではありません。説明分散は分類の正解率ではありません。",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Standardise のままスクリープロットを読みます。第一主成分は、この三特徴量の標準化後の分散の約六十五点七パーセント、第二主成分は三十一点七パーセントを説明します。各点は測定された一個の細胞であり、独立した実験反復ではありません。説明分散は分類の正解率ではありません。"
+          ]
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Colour に rowID、X に PC 三、Y に PC 一を選びます。これらの操作は、既存の分解結果を描き直すだけで、再計算しません。色は空間的な行を示し、確認済みの処置条件ではありません。分かれて見える点群は、測定値や交絡因子を調べる手がかりであり、生物学的効果の証明ではありません。",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
             335,
             2220,
             1600
-          ],
-          "speech_text": "Colour に rowID、X に PC 三、Y に PC 一を選びます。これらの操作は、既存の分解結果を描き直すだけで、再計算しません。色は空間的な行を示し、確認済みの処置条件ではありません。分かれて見える点群は、測定値や交絡因子を調べる手がかりであり、生物学的効果の証明ではありません。"
+          ]
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "PC 一と PC 二に戻します。Loadings biplot をオフにして、再びオンにします。矢印は各特徴量とこの二主成分との相関を表します。絶対的な長さは表示用に調整され、破線の円が基準になります。矢印の方向が近いことは、因果関係の証明ではありません。",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
             500,
             1660,
             1070
-          ],
-          "speech_text": "PC 一と PC 二に戻します。Loadings biplot をオフにして、再びオンにします。矢印は各特徴量とこの二主成分との相関を表します。絶対的な長さは表示用に調整され、破線の円が基準になります。矢印の方向が近いことは、因果関係の証明ではありません。"
+          ]
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Scale を Centre only に変えます。元の測定尺度で解析が変わるため、第一主成分の説明率は約九十点一パーセントになります。割合が高くなっても、モデルが良くなったわけではありません。先へ進む前に Standardise に戻します。これは各特徴量を中心化し、標本標準偏差で割ります。",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Scale を Centre only に変えます。元の測定尺度で解析が変わるため、第一主成分の説明率は約九十点一パーセントになります。割合が高くなっても、モデルが良くなったわけではありません。先へ進む前に Standardise に戻します。これは各特徴量を中心化し、標本標準偏差で割ります。"
+          ]
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "右側のフィルターに cell_area を追加し、最小値を二万一千九百二十五にします。解析対象は千百七十一個の細胞になります。これはライブ再計算です。集団の平均、尺度、主成分の方向が変わります。以前の座標軸から点を隠すだけではありません。",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
             325,
             470,
             620
-          ],
-          "speech_text": "右側のフィルターに cell_area を追加し、最小値を二万一千九百二十五にします。解析対象は千百七十一個の細胞になります。これはライブ再計算です。集団の平均、尺度、主成分の方向が変わります。以前の座標軸から点を隠すだけではありません。"
+          ]
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "フィルターの Clear all を選びます。二千三百四十一個の細胞がすべて戻り、元の分解結果が復元されます。フィルターでデータベースの行が削除されることはありません。変更のたびに対象数とレポートを確認してください。別々の集団で計算したスコアが、自動的に同じ座標系になるわけではありません。",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
             1890,
             2400,
             225
-          ],
-          "speech_text": "フィルターの Clear all を選びます。二千三百四十一個の細胞がすべて戻り、元の分解結果が復元されます。フィルターでデータベースの行が削除されることはありません。変更のたびに対象数とレポートを確認してください。別々の集団で計算したスコアが、自動的に同じ座標系になるわけではありません。"
+          ]
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "今度は cell_channel_0_homogeneity_distance_32 を検索してチェックします。Run PCA を選ぶまでは、既存結果の特徴量は三つのままです。このテクスチャ特徴量には、実際に七つの欠損値があります。欠損の理由は不明なので、この細胞を未感染と呼んだり、欠損測定値をゼロで置き換えたりしてはいけません。",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "今度は cell_channel_0_homogeneity_distance_32 を検索してチェックします。Run PCA を選ぶまでは、既存結果の特徴量は三つのままです。このテクスチャ特徴量には、実際に七つの欠損値があります。欠損の理由は不明なので、この細胞を未感染と呼んだり、欠損測定値をゼロで置き換えたりしてはいけません。"
+          ]
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Auto で実行します。四つの特徴量は残りますが、七個の細胞が除かれ、二千三百三十四個になります。Auto は二パーセントを超える行で欠損している特徴量を除き、その後、残った不完全な行を除きます。指定した三主成分で約九十八点六パーセントを捉えますが、第四の方向も存在します。",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Auto で実行します。四つの特徴量は残りますが、七個の細胞が除かれ、二千三百三十四個になります。Auto は二パーセントを超える行で欠損している特徴量を除き、その後、残った不完全な行を除きます。指定した三主成分で約九十八点六パーセントを捉えますが、第四の方向も存在します。"
+          ]
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "NaN で Drop features を選びます。二千三百四十一個の細胞はすべて残りますが、テクスチャ特徴量は解析から除外されます。四つのチェックが付いたままでも、実際に解析される特徴量は三つの場合があります。指定した選択だけでなく、結果と除外通知を読んでください。",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "NaN で Drop features を選びます。二千三百四十一個の細胞はすべて残りますが、テクスチャ特徴量は解析から除外されます。四つのチェックが付いたままでも、実際に解析される特徴量は三つの場合があります。指定した選択だけでなく、結果と除外通知を読んでください。"
+          ]
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Mean-impute を選びます。全細胞と四特徴量が残り、計算では七つの値をその特徴量の平均で置き換えます。これは作り出した値で、回復した測定値ではありません。レポートに置換数が示されます。結果を示す際は補完を明記してください。元のデータベースは書き換わっていません。",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Mean-impute を選びます。全細胞と四特徴量が残り、計算では七つの値をその特徴量の平均で置き換えます。これは作り出した値で、回復した測定値ではありません。レポートに置換数が示されます。結果を示す際は補完を明記してください。元のデータベースは書き換わっていません。"
+          ]
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Complete cases を選びます。この例では、選択した四特徴量を保持し、同じ七個の不完全な細胞を除きます。Auto と一致するのは、このデータに限った結果です。Auto に戻し、テクスチャ特徴量のチェックを外し、検索を消して Run PCA を選び、Colour を none に戻します。",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Complete cases を選びます。この例では、選択した四特徴量を保持し、同じ七個の不完全な細胞を除きます。Auto と一致するのは、このデータに限った結果です。Auto に戻し、テクスチャ特徴量のチェックを外し、検索を消して Run PCA を選び、Colour を none に戻します。"
+          ]
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Export を選び、pca_example などの基本名で保存します。解析した各オブジェクトのスコア、各特徴量の負荷量と相関、各主成分の分散という三つの CSV が書き出されます。スコアのファイルには元の測定列も残ります。座標三列だけのファイルではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Export を選び、pca_example などの基本名で保存します。解析した各オブジェクトのスコア、各特徴量の負荷量と相関、各主成分の分散という三つの CSV が書き出されます。スコアのファイルには元の測定列も残ります。座標三列だけのファイルではありません。"
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "この出力では二千三百四十一行のオブジェクトが保持され、両方のデータベースは変更されません。特徴量、フィルター、尺度、欠損値処理は別に記録してください。このボタンは設定や学習済みモデル一式を保存しません。コードでは spaCR の Qt pca_model モジュールの pca と PCASpec を使います。この CPU 上のテーブルビューは、画像プレビュー、GPU 解析、spaCR AI とは別です。",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
-          ],
-          "speech_text": "この出力では二千三百四十一行のオブジェクトが保持され、両方のデータベースは変更されません。特徴量、フィルター、尺度、欠損値処理は別に記録してください。このボタンは設定や学習済みモデル一式を保存しません。コードでは スペーカー の キュー ティー pca_model モジュールの pca と PCASpec を使います。この CPU 上のテーブルビューは、画像プレビュー、GPU 解析、スペーカー AI とは別です。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7995,114 +7975,103 @@
       "slug": "tabulate",
       "series": 5,
       "app_key": "tabulate",
-      "section": "探索",
-      "title": "Tabulate：実測値を集計し、件数を確認して要約グラフを更新する",
-      "description": "Database Browser内のTabulateで、ダウンロードした測定値をウェル・視野別に集計します。実際の欠損値、検証済みCSV、更新されていないグラフ、カテゴリ軸と数値軸の違いを確認します。",
+      "section": "Explore",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "入れ子になった画面を開き、実際に列をドラッグしてウェル・視野別に集計する。",
-        "独立した反復実験と混同せず、件数、欠けた組み合わせ、標本標準偏差、分位点を読む。",
-        "測定値をフィルタし、グラフを明示的に更新して軸の種類を確認する。",
-        "集計結果全体を出力し、グループ、統計量、フィルタを記録する。"
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Annotateのダウンロード用サンプルから、measurements.dbのバイト単位で同一の専用コピーを使います。細胞テーブルは2,341個のオブジェクト、4ウェル、観測されたウェル・視野の組み合わせ51個です。2,341回の独立実験ではなく、rowIDも空間的なラベルであり、実証された処置群ではありません。提示した全統計量とCSVセル、最後の散布図の51個の縦座標を独立に確認しました。生物学的効果、軸ラベルの欠損、無限値、上限のある大規模グリッドは検証範囲外です。Tabulateは既存データの集計画面で、専用ダウンロード、画像プレビュー、GPU処理、AIコンソール、実行全体のPlotスイッチはありません。周囲のDatabase Browserではなく、Tabulate自身のLoad tableとExport CSVを使ってください。",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "HelpからDatabase browserを開き、その中のTabulateボタンを選びます。これはDatabase Browserのサブモジュールであり、Homeの独立したタイルではありません。実際にダウンロードできるAnnotateサンプルの専用コピーを使います。取得方法は先のAnnotateチュートリアルを参照してください。",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ],
-          "speech_text": "HelpからDatabase browserを開き、その中のTabulateボタンを選びます。これはDatabase Browserのサブモジュールであり、ホームの独立したタイルではありません。実際にダウンロードできるAnnotateサンプルの専用コピーを使います。取得方法は先のAnnotateチュートリアルを参照してください。"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Tabulate内でLoad tableを選び、コピーした測定データベースを開いてcellを選択します。テーブル全体は二千三百四十一個のオブジェクトです。周囲のDatabase Browserにも操作ボタンがありますが、この集計の入力や出力ではありません。読み込むだけではグループ分けは決まりません。",
-          "hold_after": 0.7,
-          "speech_text": "Tabulate内でLoad tableを選び、コピーした測定データベースを開いてcellを選択します。テーブル全体は二千三百四十一個のオブジェクトです。周囲のDatabase Browserにも操作ボタンがありますが、この集計の入力や出力ではありません。読み込むだけではグループ分けは決まりません。"
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Plate slash row slash columnを選びます。Rowsに三つのキーが階層順で入ります。Valuesを空にすると元の行数を数えます。四つのウェルは、六百十五、五百二十五、七百、五百一個です。これらは細胞の数であり、独立した実験反復の数ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Plate slash row slash columnを選びます。Rowsに三つのキーが階層順で入ります。Valuesを空にすると元の行数を数えます。四つのウェルは、六百十五、五百二十五、七百、五百一個です。これらは細胞の数であり、独立した実験反復の数ではありません。"
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
+          "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "fieldIDを検索してColumnsへドラッグします。四ウェルと十三の視野ラベルから五十二通りの組み合わせができますが、測定値があるのは五十一通りです。行ラベルが五、列ラベルが二、視野が二十の組み合わせにある空欄へマウスを置きます。この組み合わせに元データの行がないという意味で、測定値がゼロという意味ではありません。",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
             405,
             2300,
             260
-          ],
-          "speech_text": "fieldIDを検索してColumnsへドラッグします。四ウェルと十三の視野ラベルから五十二通りの組み合わせができますが、測定値があるのは五十一通りです。行ラベルが五、列ラベルが二、視野が二十の組み合わせにある空欄へマウスを置きます。この組み合わせに元データの行がないという意味で、測定値がゼロという意味ではありません。"
+          ]
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Columnsを空にして、cell_areaを検索しValuesへドラッグします。初期設定の統計量は件数、平均、標本標準偏差です。軸や統計量を変えると集計が再計算されます。検索欄が絞り込むのは列名であり、細胞集団ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Columnsを空にして、cell_areaを検索しValuesへドラッグします。初期設定の統計量は件数、平均、標本標準偏差です。軸や統計量を変えると集計が再計算されます。検索欄が絞り込むのは列名であり、細胞集団ではありません。"
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "このビルドでは行の高さが低く、nを含む後ろの行が隠れることがあります。結果セルにマウスを置き、統計量全体と計算に使った件数を読みます。標準偏差はオブジェクト間のばらつきであり、独立したウェル間の不確実性ではありません。ツールチップの数値は表示用に丸められています。",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
             405,
             1190,
             450
-          ],
-          "speech_text": "このビルドでは行の高さが低く、nを含む後ろの行が隠れることがあります。結果セルにマウスを置き、統計量全体と計算に使った件数を読みます。標準偏差はオブジェクト間のばらつきであり、独立したウェル間の不確実性ではありません。ツールチップの数値は表示用に丸められています。"
+          ]
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "median、sem、quantileをオンにします。ゼロ点七五では、quantileは線形補間による上側四分位点です。SEMは標本標準偏差を利用可能な件数の平方根で割った値です。同じ視野やウェルを共有するオブジェクト間の依存性を補正しないため、独立した生物学的な不確実性とは解釈しないでください。",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             2050,
             890
-          ],
-          "speech_text": "median、sem、quantileをオンにします。ゼロ点七五では、quantileは線形補間による上側四分位点です。SEMは標本標準偏差を利用可能な件数の平方根で割った値です。同じ視野やウェルを共有するオブジェクト間の依存性を補正しないため、独立した生物学的な不確実性とは解釈しないでください。"
+          ]
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Quantile atをゼロ点五に変えます。分位点が中央値と一致し、最初のウェルでは二万二千四百になります。他の統計量は変わりません。ゼロ点七五へ戻し、追加した統計量をオフにして簡単な集計へ戻ります。",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             2050,
             890
-          ],
-          "speech_text": "Quantile atをゼロ点五に変えます。分位点が中央値と一致し、最初のウェルでは二万二千四百になります。他の統計量は変わりません。ゼロ点七五へ戻し、追加した統計量をオフにして簡単な集計へ戻ります。"
+          ]
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "面積を、チャンネルゼロの距離三十二の均質性特徴量に置き換えます。この特徴量には実際に七つの欠損値があり、有効な測定値は二千三百三十四個です。このウェルでは元の五百一行に対し、有効値は四百九十八個だけです。件数は選ぶ特徴量によって変わり、欠損測定値はゼロではありません。",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             1760,
             890
-          ],
-          "speech_text": "面積を、チャンネルゼロの距離三十二の均質性特徴量に置き換えます。この特徴量には実際に七つの欠損値があり、有効な測定値は二千三百三十四個です。このウェルでは元の五百一行に対し、有効値は四百九十八個だけです。件数は選ぶ特徴量によって変わり、欠損測定値はゼロではありません。"
+          ]
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "cell_areaへ戻し、TabulateのExport CSVで新しいファイル名を指定します。ウェル集計は四行六列で、三つのグループキー、n、平均、標準偏差を含みます。出力した全値を元データと照合しました。グループ、統計量、フィルタは別途記録してください。CSVは更新可能な設定仕様を保存するものではありません。",
-          "hold_after": 0.7,
-          "speech_text": "cell_areaへ戻し、TabulateのExport CSVで新しいファイル名を指定します。ウェル集計は四行六列で、三つのグループキー、n、平均、標準偏差を含みます。出力した全値を元データと照合しました。グループ、統計量、フィルタは別途記録してください。CSVは更新可能な設定仕様を保存するものではありません。"
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Plot this tableを押し、columnIDをX、meanをY、rowIDをColourへドラッグします。グラフに渡るのは四行の要約であり、数千個の個別細胞ではありません。注意点があります。Automaticはこの四つの異なる平均値をカテゴリと見なし、ヒートマップを描きます。大きさを連続尺度で示したグラフではありません。",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -8112,54 +8081,48 @@
             1300,
             3340,
             690
-          ],
-          "speech_text": "Plot this tableを押し、columnIDをX、meanをY、rowIDをColourへドラッグします。グラフに渡るのは四行の要約であり、数千個の個別細胞ではありません。注意点があります。Automaticはこの四つの異なる平均値をカテゴリと見なし、ヒートマップを描きます。大きさを連続尺度で示したグラフではありません。"
+          ]
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "右側のフィルタにcell_areaを追加し、下限を二万一千九百二十五にします。集計は直ちに残りの千百七十一個を対象に更新されます。ただしグラフはPlot this tableをもう一度押すまで古い要約を保持します。グラフが見えているだけでは現在のフィルタを反映しているとは言えません。",
-          "hold_after": 0.7,
-          "speech_text": "右側のフィルタにcell_areaを追加し、下限を二万一千九百二十五にします。集計は直ちに残りの千百七十一個を対象に更新されます。ただしグラフはPlot this tableをもう一度押すまで古い要約を保持します。グラフが見えているだけでは現在のフィルタを反映しているとは言えません。"
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "再度Plot this tableを押し、再計算した平均値を渡します。グラフは四つのフィルタ後グループになりますが、Automaticは依然として平均値をカテゴリとして扱います。要約にはcell_areaではなくmeanがあるため、元の面積フィルタを直接適用できないという注意が出ます。上流の集計がフィルタを無視したという意味ではありません。",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
             1300,
             3340,
             690
-          ],
-          "speech_text": "再度Plot this tableを押し、再計算した平均値を渡します。グラフは四つのフィルタ後グループになりますが、Automaticは依然として平均値をカテゴリとして扱います。要約にはcell_areaではなくmeanがあるため、元の面積フィルタを直接適用できないという注意が出ます。上流の集計がフィルタを無視したという意味ではありません。"
+          ]
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "右側のフィルタでClear allを選び、もう一度Plot this tableを押します。元の二千三百四十一個とウェル平均に戻ります。ここでのフィルタ操作は元の測定値を削除しません。両方の要約が必要なら、フィルタ前後で別のファイル名を使って出力してください。",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
             1300,
             3340,
             690
-          ],
-          "speech_text": "右側のフィルタでClear allを選び、もう一度Plot this tableを押します。元の二千三百四十一個とウェル平均に戻ります。ここでのフィルタ操作は元の測定値を削除しません。両方の要約が必要なら、フィルタ前後で別のファイル名を使って出力してください。"
+          ]
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "別の視野単位の表示を作るため、Rowsのウェルキーの後ろにfieldIDをドラッグします。グリッドは五十二行、観測グループは五十一個です。統計量はウェル全体ではなく、ウェル内の一視野を表すようになります。各観測グループの件数は十五から八十八個です。グループを増やしても独立した実験が増えるわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "別の視野単位の表示を作るため、Rowsのウェルキーの後ろにfieldIDをドラッグします。グリッドは五十二行、観測グループは五十一個です。統計量はウェル全体ではなく、ウェル内の一視野を表すようになります。各観測グループの件数は十五から八十八個です。グループを増やしても独立した実験が増えるわけではありません。"
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Plot this tableを押し、fieldIDをXへ置き、meanをY、rowIDをColourのままにして、PlotからScatterを選びます。今回は五十一個の異なる視野平均があり、実際の列一覧でもmeanは連続型と表示されます。数値が常に数値として扱われると思い込まず、型と軸ラベルを確認してください。",
-          "hold_after": 0.7,
-          "speech_text": "Plot this tableを押し、fieldIDをXへ置き、meanをY、rowIDをColourのままにして、PlotからScatterを選びます。今回は五十一個の異なる視野平均があり、実際の列一覧でもmeanは連続型と表示されます。数値が常に数値として扱われると思い込まず、型と軸ラベルを確認してください。"
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "連続した縦軸上に五十一個の実際の視野平均が描かれます。各点の高さを独立に計算した集計結果と照合しました。同じ視野ラベルでもウェルは異なります。色は空間的な行ラベルであり、検証済みの処置群ではありません。この集計テーブルにはオブジェクトキーがないため、ブラシ選択で個々の画像を選べません。",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -8170,20 +8133,23 @@
             1300,
             3340,
             690
-          ],
-          "speech_text": "連続した縦軸上に五十一個の実際の視野平均が描かれます。各点の高さを独立に計算した集計結果と照合しました。同じ視野ラベルでもウェルは異なります。色は空間的な行ラベルであり、検証済みの処置群ではありません。この集計テーブルにはオブジェクトキーがないため、ブラシ選択で個々の画像を選べません。"
+          ]
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "視野集計を出力します。五十二行七列で、実際に空の組み合わせ一つは空欄のまま残ります。グラフへの受け渡しではそのグループを除外するので、点は五十一個です。再現可能なコードでは、spaCRのQt pivot_specモジュールにあるpivotとPivotSpecがこれらの選択を受け取り、to_csvが結果を書き出します。元データを保ち、正確なグループ分けとフィルタを記録してください。",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "視野集計を出力します。五十二行七列で、実際に空の組み合わせ一つは空欄のまま残ります。グラフへの受け渡しではそのグループを除外するので、点は五十一個です。再現可能なコードでは、スペーカーのQt pivot_specモジュールにあるpivotとPivotSpecがこれらの選択を受け取り、to_csvが結果を書き出します。元データを保ち、正確なグループ分けとフィルタを記録してください。"
+          ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8315,150 +8281,137 @@
       "slug": "small_multiples",
       "series": 5,
       "app_key": "trellis",
-      "section": "探索",
-      "title": "Small Multiples：実データのグループ、ライブフィルター、正確な軸スケール",
-      "description": "Graph Builder内のSmall Multiplesを開き、取得済みの測定値を共通軸や独立軸で比較します。空のグループと表示レベルの上限を確認し、元に戻せる派生列を作成します。",
+      "section": "Explore",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "現在のサブモジュールへの経路をたどり、実際の測定オブジェクトで散布図のグリッドを作る。",
-        "共通、独立、行単位、列単位の軸範囲を比較し、データ自体の変化と区別する。",
-        "ライブフィルターを使い、空のグループと未使用の配置枠を区別し、表示されないレベルを数える。",
-        "メモリ内の数値変換を追加・削除し、元データを保護して図の設定を記録する。"
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Annotateのダウンロード可能なサンプルにあるmeasurements.dbの、バイト単位で同一の専用コピーを使います。2,341オブジェクト、4ウェル、13視野ラベル、実在する51ウェル・視野組合せを含みます。オブジェクト数は独立した実験反復数ではなく、位置ラベルは確立された処理条件ではありません。示した散布点、グループ所属、軸範囲、タイトル、パネルの表示状態を元の行から独立に検証しています。検証範囲は有限かつ非退化な連続軸と間引きのないこのデータに限定され、任意の図、ビュー間選択、生物学的効果、物理単位の校正を保証しません。Small MultiplesはGraph Builder内の表データ用サブモジュールです。専用ダウンロード、画像プレビュー、GPUパイプライン、AIコンソール、実行全体のPlotスイッチ、エクスポートボタンはありません。Annotateのデータと、このサブモジュール自身のLoad tableを使ってください。",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "HomeからGraph Builderを開き、その中のSmall Multiplesボタンを選びます。これが現在のサブモジュールへの経路で、Homeの独立したタイルではありません。Annotateからダウンロードできる実測データを専用コピーで再利用します。入手方法はAnnotateのチュートリアルで紹介しています。",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
-          ],
-          "speech_text": "ホームからGraph Builderを開き、その中のSmall Multiplesボタンを選びます。これが現在のサブモジュールへの経路で、ホームの独立したタイルではありません。Annotateからダウンロードできる実測データを専用コピーで再利用します。入手方法はAnnotateのチュートリアルで紹介しています。"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Small Multiples内のLoad tableで専用コピーの測定データベースを選び、cellを選択します。四つのウェルで測定された二千三百四十一オブジェクトが入っています。親のGraph Builderにも別のLoad tableがあります。この操作ではSmall Multiplesの見出しの横にあるボタンを使います。",
-          "hold_after": 0.7,
-          "speech_text": "Small Multiples内のLoad tableで専用コピーの測定データベースを選び、cellを選択します。四つのウェルで測定された二千三百四十一オブジェクトが入っています。親のGraph Builderにも別のLoad tableがあります。この操作ではSmall Multiplesの見出しの横にあるボタンを使います。"
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "cell_areaを検索してXへドラッグし、cell_channel_1_mean_intensityをYへ置きます。PlotでScatterを選びます。rowIDを下向きのFacetへ、columnIDを右向きのFacetへドラッグします。検索で絞られるのは列名の一覧で、細胞集団ではありません。各点は既に測定された一つのオブジェクトです。",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
             1720,
             700,
             390
-          ],
-          "speech_text": "cell_areaを検索してXへドラッグし、cell_channel_1_mean_intensityをYへ置きます。PlotでScatterを選びます。rowIDを下向きのFacetへ、columnIDを右向きのFacetへドラッグします。検索で絞られるのは列名の一覧で、細胞集団ではありません。各点は既に測定された一つのオブジェクトです。"
+          ]
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "両方の軸をsharedにすると、四つのパネルで横軸と縦軸の範囲が一致します。タイトルの個数は六百十五、五百二十五、七百、五百一です。行と列のラベルは位置を表し、検証済みの処理条件ではありません。これらの細胞を独立した実験反復として扱わないでください。",
-          "hold_after": 0.7,
-          "speech_text": "両方の軸をsharedにすると、四つのパネルで横軸と縦軸の範囲が一致します。タイトルの個数は六百十五、五百二十五、七百、五百一です。行と列のラベルは位置を表し、検証済みの処理条件ではありません。これらの細胞を独立した実験反復として扱わないでください。"
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "X scaleとY scaleを両方freeにします。各パネルが独自の範囲を使うようになります。グループ内の形は見やすくなりますが、同じ幅の点群でも測定値の広がりが同じとは限りません。比較前に目盛りを読んでください。軸スケールを変えても元の測定値は変わりません。",
-          "hold_after": 0.7,
-          "speech_text": "X scaleとY scaleを両方freeにします。各パネルが独自の範囲を使うようになります。グループ内の形は見やすくなりますが、同じ幅の点群でも測定値の広がりが同じとは限りません。比較前に目盛りを読んでください。軸スケールを変えても元の測定値は変わりません。"
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "両方の軸でper rowを選びます。グリッドの同じ行にあるパネル同士が範囲を共有し、別の行では異なる範囲を使えます。これは配置に基づく軸のグループ化で、統計的補正ではありません。ここでは同じ行の二列を、一致した軸で比較できます。",
-          "hold_after": 0.7,
-          "speech_text": "両方の軸でper rowを選びます。グリッドの同じ行にあるパネル同士が範囲を共有し、別の行では異なる範囲を使えます。これは配置に基づく軸のグループ化で、統計的補正ではありません。ここでは同じ行の二列を、一致した軸で比較できます。"
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "両方の軸でper columnを選びます。同じグリッド列のパネルが範囲を共有します。XとYは別々にも設定できますが、ここでは同時に変更しています。四ウェル全体を比較する前に両方をsharedへ戻します。共有とは現在のグリッド内で共通という意味で、後のフィルターでも範囲が固定されるという意味ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "両方の軸でper columnを選びます。同じグリッド列のパネルが範囲を共有します。XとYは別々にも設定できますが、ここでは同時に変更しています。四ウェル全体を比較する前に両方をsharedへ戻します。共有とは現在のグリッド内で共通という意味で、後のフィルターでも範囲が固定されるという意味ではありません。"
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Filterタブでcell_areaを追加し、下限を二万一千九百二十五にします。実際のグリッドが直ちに千百七十一オブジェクトへ更新されます。各パネルの個数と点が一緒に変わります。これは測定値のライブフィルターで、画像のセグメンテーションや新しい解析の実行ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Filterタブでcell_areaを追加し、下限を二万一千九百二十五にします。実際のグリッドが直ちに千百七十一オブジェクトへ更新されます。各パネルの個数と点が一緒に変わります。これは測定値のライブフィルターで、画像のセグメンテーションや新しい解析の実行ではありません。"
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "FilterタブのClear allを選びます。二千三百四十一オブジェクトがすべて、元の点位置と共有軸範囲で戻ります。このボタンが消すのはフィルターです。左のClear all channelsは図への列の割当てを消します。どちらもデータベースの行を削除しません。",
-          "hold_after": 0.7,
-          "speech_text": "FilterタブのClear allを選びます。二千三百四十一オブジェクトがすべて、元の点位置と共有軸範囲で戻ります。このボタンが消すのはフィルターです。左のClear all channelsは図への列の割当てを消します。どちらもデータベースの行を削除しません。"
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "本当に存在しない組合せを見るため、columnIDをc2、fieldIDをf20とf21だけに絞ります。必要ならカテゴリ一覧をスクロールしてください。右向きのFacetをfieldIDにし、下向きはrowIDのままにします。残る細胞は百七十四です。行ラベル五、視野二十のパネルはnがゼロです。元のオブジェクトがないのであり、強度ゼロを測定したのではありません。",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "本当に存在しない組合せを見るため、columnIDをc2、fieldIDをf20とf21だけに絞ります。必要ならカテゴリ一覧をスクロールしてください。右向きのFacetをfieldIDにし、下向きはrowIDのままにします。残る細胞は百七十四です。行ラベル五、視野二十のパネルはnがゼロです。元のオブジェクトがないのであり、強度ゼロを測定したのではありません。"
+          ]
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "フィルターを消し、右向きのFacetをcolumnIDに戻します。二つのFacetに列を割り当てたままWrap atを五にします。グリッドは二行二列のままで、折り返しは無視されたと注意書きに表示されます。WrapはFacetを一つだけ使うときに適用され、二方向のグリッドを並べ替える機能ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "フィルターを消し、右向きのFacetをcolumnIDに戻します。二つのFacetに列を割り当てたままWrap atを五にします。グリッドは二行二列のままで、折り返しは無視されたと注意書きに表示されます。WrapはFacetを一つだけ使うときに適用され、二方向のグリッドを並べ替える機能ではありません。"
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "下向きのFacetを空にし、右向きにfieldIDを置いてWrap atを五に保ちます。表示対象の視野が、横に五枠、縦に三行で並びます。元データには十三レベルありますが、描画されるのは十二だけです。余った三枠は表示されない配置上の空きで、nがゼロと表示される実際のグループとは違います。",
-          "hold_after": 0.7,
-          "speech_text": "下向きのFacetを空にし、右向きにfieldIDを置いてWrap atを五に保ちます。表示対象の視野が、横に五枠、縦に三行で並びます。元データには十三レベルありますが、描画されるのは十二だけです。余った三枠は表示されない配置上の空きで、nがゼロと表示される実際のグループとは違います。"
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "グリッドの下の注意書きを読みます。視野二十一が十二の表示レベルから外れ、二百六十四オブジェクトがパネルに含まれません。実際に描かれる点は二千七十七ですが、読み込んだ表には二千三百四十一行が残っています。読み込んだ行数だけでは、すべてが表示されている証拠になりません。",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
             1460,
             2150,
             650
-          ],
-          "speech_text": "グリッドの下の注意書きを読みます。視野二十一が十二の表示レベルから外れ、二百六十四オブジェクトがパネルに含まれません。実際に描かれる点は二千七十七ですが、読み込んだ表には二千三百四十一行が残っています。読み込んだ行数だけでは、すべてが表示されている証拠になりません。"
+          ]
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Wrapをオフにし、二つのFacetをrowIDとcolumnIDに戻します。Columnsで名前をarea_k、式をcell_areaを千で割る式にし、画面のとおりに入力します。プレビューの確認対象は先頭の二千行です。Add columnを選ぶと表全体の派生値が計算されますが、データベースは書き換わりません。",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
             315,
             460,
             940
-          ],
-          "speech_text": "Wrapをオフにし、二つのFacetをrowIDとcolumnIDに戻します。Columnsで名前をarea_k、式をcell_areaを千で割る式にし、画面のとおりに入力します。プレビューの確認対象は先頭の二千行です。Add columnを選ぶと表全体の派生値が計算されますが、データベースは書き換わりません。"
+          ]
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "area_kをXへドラッグします。横座標はすべて元の細胞面積の千分の一になり、Yの値とグループ所属は変わりません。これは数値のスケール変更で、平方マイクロメートルへの校正でも、新しい測定でも、生物学的効果の証拠でもありません。二千三百四十一の派生値をすべて検証しました。",
-          "hold_after": 0.7,
-          "speech_text": "area_kをXへドラッグします。横座標はすべて元の細胞面積の千分の一になり、Yの値とグループ所属は変わりません。これは数値のスケール変更で、平方マイクロメートルへの校正でも、新しい測定でも、生物学的効果の証拠でもありません。二千三百四十一の派生値をすべて検証しました。"
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Xをcell_areaに戻してから、Columnsのarea_kを選びRemoveを押します。元の四パネルの図が戻り、派生列がなくなります。専用データベースと元のダウンロードデータはどちらも変更されません。他の人が再現できるよう、変数、グループ化、フィルター、軸スケールを記録してください。",
-          "hold_after": 0.7,
-          "speech_text": "Xをcell_areaに戻してから、Columnsのarea_kを選びRemoveを押します。元の四パネルの図が戻り、派生列がなくなります。専用データベースと元のダウンロードデータはどちらも変更されません。他の人が再現できるよう、変数、グループ化、フィルター、軸スケールを記録してください。"
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "コードでは、spaCRのQt trellis_specモジュールにあるtrellisとTrellisSpecがグループ化、軸スケール、Wrapを定義し、GraphSpecが図のチャンネルを定義します。この画面に専用のエクスポートボタンやダウンロードデータはありません。検証済みの集計CSVにはTabulateを使います。画像プレビュー、GPUパイプライン、spaCR AIは対応する解析のチュートリアルで扱い、この表専用ビューの機能としては扱いません。",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "61_tabulate"
-          ],
-          "speech_text": "コードでは、スペーカーのQt trellis_specモジュールにあるtrellisとTrellisSpecがグループ化、軸スケール、Wrapを定義し、GraphSpecが図のチャンネルを定義します。この画面に専用のエクスポートボタンやダウンロードデータはありません。検証済みの集計CSVにはTabulateを使います。画像プレビュー、GPUパイプライン、スペーカー AIは対応する解析のチュートリアルで扱い、この表専用ビューの機能としては扱いません。"
+          ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

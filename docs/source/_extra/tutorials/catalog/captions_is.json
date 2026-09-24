@@ -7486,26 +7486,25 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: núverandi leið og sannreynd API-hjáleið",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
       "section": "Measure",
-      "description": "Finndu innbyggða útflutninginn, skildu villuna vegna lýsigagna sem vantar og flyttu út raunverulega dæmið með skýrri, prófaðri Python-hjáleið.",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Finna AnnData Export í Measure og mæligagnagrunninn.",
-        "Aðgreina GUI-villu frá API-hjáleið án þess að búa til lýsigögn.",
-        "Bera saman sameinuð, frumu- og kjarnagagnafylki og fjórar leiðir til meðferðar vöntunar.",
-        "Opna skrár aftur og varðveita auðkenni, merkingar, myndir og uppruna."
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Notaðu AFRIT af measurements.db úr niðurhalaða Annotate-dæminu; varðveittu frumrit og myndir. Afþjappaðu tengdu ZIP-skránni og settu skriftuna við afritið í spaCR-umhverfinu. Hún notar spacr.anndata_export.build_anndata og kóðar aðeins object-dálka í obs þar sem öll gildi vantar sem tóma flokkadálka. Vöntun helst; engin kvörðun eða merki eru búin til og þessi kóðun breytir ekki X. GUI-villan er EKKI lagfærð. Fyrirliggjandi úttaksskrám er hafnað; nýjar skrár eru skrifaðar og lesnar aftur til athugunar. Óháður SQLite-samanburður: sameinað/keep 2341x1136; cell/keep og mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Engin UMAP, GPU-keyrsla, innfelld mynd, AI-fyrirspurn, líffræðileg staðfesting eða útgáfa. Upprunalega GUI-bilunin er varðveitt.",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Opnaðu Measure og síðan innbyggða AnnData Export. AnnData geymir fylki með hlutum í röðum og eiginleikum í dálkum, ásamt lýsigögnum athugana og heitum eiginleika. Kennslan sýnir núverandi GUI-leið, en útflutningurinn sem tekst notar skýra Python-hjáleið. Við fullyrðum ekki að GUI-útflutningsvillan sé löguð.",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
@@ -7514,12 +7513,12 @@
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "Notaðu afrit af raunverulega niðurhalaða mæligagnagrunninum, ekki uppspunna töflu. Varðveittu myndir og frumgagnagrunn óbreytt. GUI tekur við verkefnismöppu; skipanalínudæmið tekur við mæligagnagrunnsskránni sjálfri. Slökktu á valfrjálsum innfellingarútreikningi fyrir samanburðinn. Útflutningur fylkis krefst ekki GPU.",
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
           "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "Sjáðu fyrst óbreytta skrifarann bregðast. Sumir athugunardálkar innihalda aðeins gildi sem vantar með gagnagerðinni object, sem skrifarinn getur ekki raðvætt. Óþekkt kvörðun rúmmyndeininga er eitt dæmi. Lokakóði einn og hálfskrifuð skrá eru ekki árangur. Ekki skipta óþekktum gildum út fyrir núll eða textann None til að fela villuna.",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
@@ -7530,7 +7529,7 @@
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "Sæktu tengdu hjálparskriftuna og skoðaðu geymsluhjáleiðina. Hún notar raunverulega fallið build_anndata og kóðar aðeins object-lýsigögn þar sem öll gildi vantar sem tóma flokkadálka. Vöntun helst; þekkt lýsigögn og eiginleikafylkið breytast ekki við kóðunina. Þetta þýðir ekki að eðlisfræðileg kvörðun sé vísindalega flokkunarstærð.",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7544,7 +7543,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Keyrðu skriftuna með frumgagnagrunninum, nýrri úttaksslóð og keep-stefnunni. Sameinaða dæmið hefur 2341 frumuröð og 1136 eiginleika. Tengdar kjarna- og sýklamælingar eru teknar saman fyrir hverja frumu. 400320 eiginleikagildi sem vantar eru áfram óþekkt, ekki núll.",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
@@ -7555,7 +7554,7 @@
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "Bættu við single-table cell fyrir eigin mælingar einnar hlutategundar og haltu vöntun. Skráin hefur sömu 2341 frumuraðir en aðeins 261 eiginleika. 28 gildi vantar. Berðu saman heiti eiginleika og auðkenni raða, ekki aðeins skráarstærð eða dálkafjölda.",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
@@ -7566,7 +7565,7 @@
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "Stefnan mean er sjálfstætt greiningarval, ekki hluti geymsluhjáleiðarinnar. Hér fyllir hún 28 vöntunargildi með meðaltölum mældra gilda í dálkunum. Útflutta vöntunarlagið skráir upprunalegu staðsetningarnar. Athugaðu hvort ísetning henti greiningunni; fullkomið fylki er ekki sjálfkrafa betra eða óbjagað.",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
@@ -7577,7 +7576,7 @@
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "Stefnan drop-features fjarlægir dálka með gildum sem vantar. Hér hverfa fjórir dálkar, svo 257 eiginleikar og allar frumuraðir haldast. Skoðaðu hvaða mælingar voru fjarlægðar og hvers vegna. Þetta breytir eiginleikasafninu og getur hent gagnlegum upplýsingum; þetta er ekki almenn ráðlegging um gagnahreinsun.",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
@@ -7588,7 +7587,7 @@
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "Stefnan drop-objects fjarlægir í staðinn raðir með eiginleikagildum sem vantar. Hér eru sjö frumur fjarlægðar, svo 2334 raðir og allir 261 eiginleikarnir haldast. Vöntun getur tengst svipgerð, myndöflun eða hlutaskiptingu. Skoðaðu útilokanir áður en litið er á frumurnar sem eftir eru sem dæmigerðar.",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
@@ -7599,7 +7598,7 @@
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "Veldu single-table nucleus fyrir eina röð á kjarna í stað samantekinna kjarnaeiginleika á frumuröðum. Dæmið hefur 2682 kjarna og 341 eiginleika. Varðveittu tengingar við yfirskipaða hluti og hlutauðkenni. Fleiri kjarnar en frumur þýða ekki að útflutningurinn hafi búið til fleiri frumur.",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
@@ -7610,7 +7609,7 @@
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "Opnaðu hverja vistaða skrá aftur. Skriftan ber saman allt fylkið, röðuð auðkenni hluta og eiginleika, vöntun og lýsigögn athugana; allar sex skrár stóðust líka óháðan SQLite-samanburð. Merkingar eru áfram lýsigögn, ekki þjálfunareiginleikar settir í fylkið. Myndir eru ekki innfelldar: haltu frumskrám og slóðum með útflutningnum.",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
@@ -7621,7 +7620,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Notaðu nýtt úttaksheiti fyrir hverja stefnu og varðveittu skriftu, stillingar og pakkaútgáfur. Skriftan hafnar fyrirliggjandi úttaki í stað þess að yfirskrifa það. Prófanirnar sýna gagnavarðveislu í þessu dæmi, ekki líffræðilegt gildi eða lagfærða GUI. Sjáðu tengdu API- og mælikennsluna fyrir heildarverkferlið.",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7634,7 +7633,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7644,19 +7648,18 @@
       "app_key": "pca",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "PCA: raunverulegar mælingar, lifandi endurreikningur og gildi sem vantar",
-      "description": "Skoðaðu PCA innan Image UMAP með raunverulegum niðurhöluðum frumugögnum, staðfestum skorum, afturkræfum síum, skýrum reglum um gildi sem vantar og þremur CSV-útflutningum.",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "Finna PCA innan Image UMAP og velja mælibreytur sérstaklega.",
-        "Lesa skýrða dreifni og fylgniörvar án þess að fullyrða um líffræðilegan aðskilnað.",
-        "Bera saman stöðlun, endurreikning eftir síun og fjórar reglur um gildi sem vantar.",
-        "Flytja út skor hluta, hleðslur breyta og dreifni höfuðþátta án þess að breyta upprunagögnum."
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Notaðu einkaeintak sem er bæti fyrir bæti eins og niðurhalanlega Annotate-dæmið: 2.341 frumuröð, 276 upprunalegir dálkar og fjórir brunnar. Fyrst eru cell_area, cell_channel_1_mean_intensity og cell_perimeter notuð, síðan bætist cell_channel_0_homogeneity_distance_32 við, þar sem sjö raunveruleg gildi vantar. Orsök gagnaskortsins og auðkenni meðferða hafa ekki verið staðfest. Óháð eigingildagreining samdreifnifylkisins sannreynir SVD appsins, staðsetningar varðveittra raða, skor, hleðslur, fylgni og dreifni; einnig eru teiknuð hnit og hver upprunalegur gagnareitur í útflutningi athuguð. Staðfestingin takmarkast við þessar óúrkynjuðu greiningar með fulla röð og þrjár eða fjórar breytur, ekki allar sjálfvaldar breytur, pixlarúmfræði örva, inntak með skerta röð, myndtengt val eða líffræðilegar ályktanir. NumPy-PCA á CPU er aðskilið frá UMAP og GPU-valkostum þess. Enginn sérstakur niðurhalshnappur, myndforskoðun, AI-stjórnborð eða almennur Plot-rofi er hér. CSV-skrárnar þrjár eru hvorki pakki með aðlöguðu líkani, vistaðar stillingar né útflutt mynd. API: spacr.qt.widgets.pca_model.pca og PCASpec; PCAResult.scores_frame, loadings_frame og variance_frame.",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Opnaðu Image UMAP frá Home og veldu innfellda PCA-hnappinn. PCA er línuleg samantekt mælinga, ekki önnur UMAP-innfelling. Við endurnýtum raunverulega niðurhalanlega Annotate-dæmið í einkaeintaki. Annotate-leiðbeiningarnar sýna hvar gögnin fást.",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7665,12 +7668,12 @@
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "Notaðu Load table við PCA-fyrirsögnina, veldu afritaða mæligagnagrunninn og síðan cell. Þar eru 2.341 hlutur úr fjórum brunnum. Skjárinn getur líka lesið CSV-mælitöflu. Slóð sem áður var hlaðið í aðaleiningunni sannar ekki að rétta taflan sé opin.",
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "Hreinsaðu breytuleitina áður en þú velur None: hnappurinn afvelur aðeins breyturnar sem sjást þá. Leitaðu að og merktu cell_area, cell_channel_1_mean_intensity og cell_perimeter. Hreinsaðu leitina aftur, stilltu Components á 3 og veldu Run PCA. Leitin þrengir breytulistann, ekki frumuhópinn.",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7684,7 +7687,7 @@
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Haltu Standardise og lestu skriðugrafið. Fyrsti höfuðþátturinn skýrir um 65,7 % af staðlaðri dreifni þessara þriggja breyta, annar þátturinn 31,7 %. Punktarnir eru einstakar mældar frumur, ekki óháðar endurtekningar tilraunar. Skýrð dreifni er ekki flokkunarnákvæmni.",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7695,7 +7698,7 @@
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Veldu rowID í Colour, síðan PC3 á X og PC1 á Y. Þessar stillingar teikna fyrirliggjandi greiningu aftur án nýrrar aðlögunar. Litirnir tákna staðsetningarraðir, ekki staðfestar meðferðir. Aðskilið útlit punktskýs er tilefni til að kanna mælingar og ruglandi þætti, ekki sönnun um líffræðileg áhrif.",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -7706,7 +7709,7 @@
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "Farðu aftur í PC1 og PC2. Slökktu og kveiktu aftur á Loadings biplot. Örvarnar sýna fylgni breytanna við þessa tvo þætti; heildarlengd þeirra er kvörðuð fyrir skjáinn og strikaði hringurinn er viðmið. Svipaðar örvastefnur staðfesta ekki orsakasamband.",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
@@ -7717,7 +7720,7 @@
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Breyttu Scale í Centre only. Fyrsti þátturinn skýrir nú um 90,1 %, því hráir mælikvarðar breyta greiningunni. Hærra hlutfall gerir líkanið ekki betra. Endurstilltu á Standardise áður en haldið er áfram: hver breyta er miðjuð og deilt með staðalfráviki úrtaksins.",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7728,7 +7731,7 @@
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "Bættu cell_area við síuna hægra megin og settu lágmarkið á 21.925. Greiningin notar nú 1.171 frumu. Þetta er lifandi endurreikningur: meðaltöl hópsins, kvarðar og stefnur höfuðþátta breytast. Það er ekki aðeins verið að fela punkta á gömlu ásunum.",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
@@ -7739,7 +7742,7 @@
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "Veldu Clear all í síunni. Allar 2.341 frumurnar og upprunalega greiningin koma aftur. Síun eyðir aldrei gagnagrunnsröðum. Athugaðu hóp og skýrslu eftir hverja breytingu: skor hópa sem eru greindir sitt í hvoru lagi hafa ekki sjálfkrafa sameiginlegt hnitakerfi.",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
@@ -7750,7 +7753,7 @@
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "Leitaðu nú að cell_channel_0_homogeneity_distance_32 og merktu hana. Fyrirliggjandi niðurstaða inniheldur enn þrjár breytur þar til þú velur Run PCA. Sjö raunveruleg gildi vantar í þessa áferðarbreytu. Ástæðan er óþekkt; því má hvorki kalla þessar frumur ósýktar né setja núll í stað mælinganna sem vantar.",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7761,7 +7764,7 @@
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Keyrðu með Auto. Allar fjórar breyturnar haldast en sjö frumur eru fjarlægðar og 2.334 verða eftir. Auto fjarlægir breytur sem vantar í meira en 2 % raða og síðan þær raðir sem eru enn ófullgerðar. Þrír umbeðnir þættir ná um 98,6 %; fjórða stefna er enn til.",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7772,7 +7775,7 @@
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "Veldu Drop features í NaN. Allar 2.341 frumurnar haldast, en áferðarbreytan er ekki notuð í greiningunni. Fjórir reitir geta verið merktir þótt aðeins þrjár breytur séu í raun greindar. Lestu niðurstöðuna og tilkynninguna um útilokun, ekki aðeins umbeðið val.",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7783,7 +7786,7 @@
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Veldu Mean-impute. Allar frumur og fjórar breytur haldast; sjö gildum er skipt út fyrir meðaltal breytunnar í útreikningnum. Þetta eru tilbúin gildi, ekki endurheimtar mælingar. Skýrslan sýnir fjölda útskipta. Greindu frá þessari ísetningu þegar niðurstaðan er kynnt; upprunagagnagrunnurinn hefur ekki verið endurskrifaður.",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7794,7 +7797,7 @@
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Veldu Complete cases. Fjórar valdar breytur haldast og sömu sjö ófullgerðu frumurnar eru fjarlægðar í þessu dæmi. Samræmið við Auto á sérstaklega við þessi gögn. Farðu aftur í Auto, afveldu áferðarbreytuna, hreinsaðu leitina, veldu Run PCA og stilltu Colour aftur á none.",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7805,19 +7808,24 @@
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Veldu Export og vistaðu grunnheiti eins og pca_example. Þrjár CSV-skrár verða til: skor hvers greinds hlutar, hleðslur og fylgni hverrar breytu og dreifni hvers höfuðþáttar. Skoraskráin varðveitir líka upprunalegu mælidálkana; hún er ekki aðeins þrír hnitadálkar.",
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "Þessi útflutningur varðveitir 2.341 hlutaröð og skilur báða gagnagrunna eftir óbreytta. Skráðu breytur, síur, kvörðun og reglur um gildi sem vantar sérstaklega: hnappurinn vistar hvorki stillingar né pakka með aðlöguðu líkani. Í kóða eru pca og PCASpec notuð úr Qt-einingunni pca_model í spaCR. Þessi CPU-töflusýn er aðskilin frá myndforskoðun, GPU-greiningu og spaCR AI.",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7826,19 +7834,18 @@
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
-      "title": "Tabulate: flokka raunverulegar mælingar, athuga fjölda og uppfæra línuritið",
-      "description": "Opnaðu Tabulate í Database Browser, taktu saman niðurhalaðar mælingar eftir brunnum og myndsviðum, skoðaðu gildi sem vantar, flyttu út sannreynda tölfræði og greindu uppfærða töflu frá úreltu eða flokkaskiptu línuriti.",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "Finna undirverkfærið og draga raunverulega dálka í hópa eftir brunnum og myndsviðum.",
-        "Lesa fjölda, samsetningar sem vantar, staðalfrávik úrtaks og hlutfallsmörk án þess að búa til óháðar endurtekningar.",
-        "Sía mælingar, uppfæra línuritið sérstaklega og greina flokkaása frá talnaásum.",
-        "Flytja út alla samantektina og skrá hópaskiptingu, tölfræði og síur."
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Notaðu niðurhalanlega Annotate-dæmið á einkaeintaki af measurements.db sem er eins bæti fyrir bæti: 2.341 hlutur, fjórir brunnar og 51 mæld samsetning brunns og myndsviðs. Þetta eru ekki 2.341 óháðar tilraunir; rowID er staðsetningarmerking, ekki staðfest meðferð. Öll sýnd tölfræðigildi, CSV-reitir og 51 lokahæð punkta voru athuguð óháð útreikningum appsins. Líffræðileg áhrif, ásamerkingar sem vantar, óendanleg gildi og stór takmörkuð net eru ekki staðfest. Tabulate tekur saman fyrirliggjandi gögn án eigin niðurhals, myndforskoðunar, GPU-vinnslu, gervigreindarstjórnborðs eða almenns Plot-rofa. Notaðu eigin Load table og Export CSV þess, ekki stýringar Database Browser utan um það.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Opnaðu Help, síðan Database browser, og veldu innfellda Tabulate-hnappinn. Þetta er undirverkfæri Database Browser, ekki sjálfstæður reitur á Home. Við notum einkaeintak af raunverulega niðurhalanlega Annotate-dæminu. Fyrri Annotate-leiðbeiningarnar sýna hvernig gagnasafnið er sótt.",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7847,17 +7854,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Veldu Load table innan Tabulate, opnaðu afrit mæligagnagrunnsins og veldu cell. Taflan öll inniheldur 2.341 hlut. Database Browser utan um hana hefur eigin stýringar; þær eru ekki inntak eða útflutningur þessarar samantektartöflu. Innlestur einn velur ekki hópaskiptinguna.",
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Veldu Plate / row / column. Lyklarnir þrír birtast í Rows í stigskiptri röð. Hafðu Values tómt til að telja upprunaraðir: Brunnarnir fjórir innihalda 615, 525, 700 og 501 hlut. Þetta er frumufjöldi, ekki fjöldi óháðra tilraunaendurtekninga.",
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
           "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "Leitaðu að fieldID og dragðu það í Columns. Fjórir brunnar og 13 myndsviðsmerkingar gefa 52 mögulegar samsetningar, en aðeins 51 inniheldur mælingar. Haltu bendlinum yfir auða reitnum fyrir raðmerkingu 5, dálkamerkingu 2 og myndsvið 20. Engar upprunaraðir eru fyrir þá samsetningu; þetta er ekki mælt núllgildi.",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7868,12 +7875,12 @@
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Tæmdu Columns-svæðið, leitaðu að cell_area og dragðu það í Values. Sjálfgefin tölfræði er fjöldi, meðaltal og staðalfrávik úrtaks. Taflan reiknast aftur þegar ásar eða tölfræði breytast. Leitarglugginn síar dálkanöfn, ekki frumuhópinn.",
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "Í þessari útgáfu geta lágar töfluraðir falið síðari textalínur, þar á meðal n. Haltu bendlinum yfir niðurstöðureit til að lesa alla tölfræðina og fjöldann á bak við hana. Staðalfrávikið lýsir breytileika milli hluta, ekki óvissu milli óháðra brunna. Hjálpartextinn námundar tölurnar sem birtast.",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7884,7 +7891,7 @@
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "Kveiktu á median, sem og quantile. Við 0,75 er quantile efra fjórðungsmarkið, reiknað með línulegri brúun. SEM er staðalfrávik úrtaks deilt með kvaðratrót fjölda tiltækra mælinga. Það leiðréttir ekki fyrir því að hlutir deili myndsviði eða brunni og er því ekki óháð líffræðileg óvissa.",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7895,7 +7902,7 @@
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Breyttu Quantile at í 0,5. Hlutfallsmarkið er nú jafnt miðgildinu: 22.400 í fyrsta brunninum. Hin tölfræðin breytist ekki. Settu aftur 0,75 og slökktu á viðbótartölfræðinni áður en þú ferð aftur í einfaldari samantektina.",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7906,7 +7913,7 @@
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "Skiptu flatarmáli út fyrir einsleitnimælingu rásar 0 við fjarlægð 32. Þar vantar í raun sjö gildi, svo 2.334 mæligildi eru tiltæk. Í þessum brunni gefur 501 upprunaröð aðeins 498 gildi. Fjöldinn fer eftir völdum mæliþætti; mælingar sem vantar eru ekki núll.",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7917,12 +7924,12 @@
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "Veldu aftur cell_area og Export CSV í Tabulate með nýju skráarnafni. Brunnasamantektin hefur fjórar raðir og sex dálka: þrjá hóplykla, n, meðaltal og staðalfrávik. Hvert útflutt gildi var borið saman við upprunann. Skráðu hópaskiptingu, tölfræði og síur sérstaklega; CSV-skráin er ekki vistuð gagnvirk forskrift.",
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
           "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Veldu Plot this table og dragðu columnID á X, mean á Y og rowID á Colour. Línuritið fær fjórar samantektarraðir, ekki þúsundir einstakra frumna. Athugaðu: Automatic meðhöndlar þessi fjögur ólíku meðaltöl sem flokka og teiknar hitakort. Það sýnir ekki stærðir þeirra á samfelldum kvarða.",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -7936,12 +7943,12 @@
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "Bættu cell_area við síuna hægra megin og stilltu lágmarkið á 21.925. Taflan tekur strax saman þá 1.171 hluti sem eftir eru. Línuritið heldur gömlu samantektinni þar til þú ýtir aftur á Plot this table. Sýnilegt línurit sannar ekki að það endurspegli núverandi síu.",
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
           "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "Ýttu aftur á Plot this table til að flytja endurreiknuð meðaltöl yfir. Línuritið inniheldur nú fjóra síaða hópa, þó Automatic meðhöndli meðaltölin enn sem flokka. Athugasemd segir að upprunalega flatarmálssían geti ekki beinst að samantektinni: Hún inniheldur mean, ekki cell_area. Það þýðir ekki að taflan fyrr í vinnslunni hafi hunsað síuna.",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7952,7 +7959,7 @@
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "Veldu Clear all í síunni hægra megin og síðan Plot this table aftur. Upprunalegir 2.341 hlutir og brunnsmeðaltöl koma aftur. Síun hér eyðir ekki upprunamælingum. Flyttu síaðar og ósíaðar samantektir út undir mismunandi nöfnum ef þú þarft báðar.",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7963,17 +7970,17 @@
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "Til að fá aðra sýn á myndsviðsstigi skaltu draga fieldID í Rows á eftir brunnslyklunum. Netið hefur 52 raðir og 51 mældan hóp. Tölfræðin lýsir nú myndsviði innan brunns, ekki öllum brunninum. Hver mældur hópur inniheldur 15–88 hluti; fleiri hópar búa ekki til óháðar tilraunir.",
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Ýttu á Plot this table, settu fieldID á X, haltu mean á Y og rowID á Colour og veldu Scatter undir Plot. Með þessum 51 ólíku myndsviðsmeðaltölum merkir raunverulegi dálkalistinn mean sem samfellt. Athugaðu hlutverk og ásamerkingar í stað þess að gera ráð fyrir að tölur séu alltaf meðhöndlaðar tölulega.",
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
           "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "Línuritið sýnir nú 51 raunverulegt myndsviðsmeðaltal á samfelldum lóðréttum kvarða. Hæð hvers punkts var athuguð gegn sjálfstætt reiknaðri samantekt. Endurteknar myndsviðsmerkingar tilheyra mismunandi brunnum; litir sýna staðsetningarmerkingar raða, ekki staðfestar meðferðir. Þessi hópaða tafla hefur enga hlutalykla, svo val með bursta getur ekki valið einstakar myndir.",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -7988,14 +7995,19 @@
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "Flyttu myndsviðssamantektina út: 52 raðir og sjö dálkar, þar sem ein raunverulega tóm samsetning er áfram auð. Við flutning í línuritið er þeim hópi sleppt og því verða punktarnir 51. Í endurtakanlegum kóða taka pivot og PivotSpec í Qt-einingunni pivot_spec í spaCR við þessum valkostum og to_csv skrifar niðurstöðuna. Varðveittu upprunann og skráðu nákvæma hópaskiptingu og síu.",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8128,19 +8140,18 @@
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
-      "title": "Small Multiples: raunverulegir hópar, síur í rauntíma og réttir áskvarðar",
-      "description": "Opnaðu Small Multiples innan Graph Builder, berðu niðurhalaðar mælingar saman á sameiginlegum eða sjálfstæðum ásum, skoðaðu tóma hópa og takmörkuð flokkunargildi og búðu til afleiddan dálk sem má fjarlægja aftur.",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "Finna undireininguna og búa til dreifiritafylki úr raunverulegum mældum hlutum.",
-        "Bera saman sameiginlega, frjálsa, línuskipta og dálkaskipta kvarða án þess að rugla kvarðabreytingu saman við gagnabreytingu.",
-        "Sía í rauntíma, greina tóma hópa frá ónotuðum sætum og telja flokkunargildi sem ekki birtast.",
-        "Bæta við og fjarlægja tölulega umkvörðun í minni, varðveita upprunann og skrá valkosti myndarinnar."
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Notaðu bæti-fyrir-bæti eins einkaeintak af measurements.db úr niðurhalanlega Annotate-dæminu: 2.341 hlut, fjóra brunna, 13 sjónsviðsauðkenni og 51 raunverulega brunns/sjónsviðs-samsetningu. Fjöldi hluta er ekki fjöldi óháðra tilraunaendurtekninga og staðsetningarauðkenni eru ekki staðfestar meðferðir. Hnit allra sýndra punkta, nákvæm hópaðild, ásmörk, titlar og sýnileiki reita eru sannreynd óháð út frá upprunaröðunum. Sannprófunin nær til endanlegra samfelldra ása með breytileika í þessu gagnasafni án úrtaks; hún staðfestir ekki handahófskennd myndrit, val milli sýna, líffræðileg áhrif eða kvörðun í eðlisfræðilegar einingar. Small Multiples er töfluundireining Graph Builder án eigin niðurhals, forskoðunar mynda, GPU-vinnslukeðju, AI-stjórnborðs, almenns Plot-rofa eða útflutningshnapps. Endurnýttu Annotate-gögnin og Load table í undireiningunni sjálfri.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Opnaðu Graph Builder frá Home og veldu innfellda Small Multiples-hnappinn. Þetta er núverandi leið að undireiningunni, ekki sjálfstæður Home-reitur. Við endurnýtum raunverulegar niðurhalanlegar Annotate-mælingar í einkaeintaki; Annotate-kennslan sýnir hvernig dæmið er sótt.",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8149,12 +8160,12 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Notaðu Load table inni í Small Multiples, veldu einkaeintak mæligagnagrunnsins og síðan cell. Þar eru 2.341 mældur hlutur úr fjórum brunnum. Yfireiningin Graph Builder hefur annan Load table-hnapp. Notaðu hér þann við fyrirsögnina Small Multiples.",
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
           "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Leitaðu að cell_area og dragðu á X; settu cell_channel_1_mean_intensity á Y. Veldu Scatter undir Plot. Dragðu rowID á Facet niður og columnID á Facet til hægri. Leitin þrengir dálkalistann, ekki frumuhópinn. Hver punktur er hér hlutur sem þegar hefur verið mældur.",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -8165,37 +8176,37 @@
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Með báða kvarða á shared nota allir fjórir myndreitir sömu láréttu og lóðréttu mörk. Titlarnir sýna 615, 525, 700 og 501 hlut. Línu- og dálkaauðkennin lýsa staðsetningu, ekki sannreyndum meðferðum. Þessar frumur eru ekki óháðar tilraunaendurtekningar.",
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
           "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "Stilltu bæði X scale og Y scale á free. Hver myndreitur notar nú sitt eigið bil. Það sýnir lögun innan hóps, en jafn breið punktaský þurfa ekki að ná yfir jafn stórt mæligildabil. Lestu ásgildin áður en þú berð saman. Breyttur kvarði breytir engum upprunamælingum.",
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
           "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "Veldu per row fyrir báða kvarða. Myndreitir í sömu línu fylkisins deila mörkum, en mismunandi línur geta haft mismunandi mörk. Þetta er hópun kvarða eftir uppsetningu, ekki tölfræðileg leiðrétting. Hér má bera dálkana tvo í hverri línu saman á samræmdum ásum.",
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
           "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "Veldu per column fyrir báða kvarða. Myndreitir í sama dálki deila mörkum. Einnig má stilla X og Y sitt í hvoru lagi; hér breytum við báðum saman. Endurstilltu báða á shared áður en þú berð alla fjóra brunnana saman. Sameiginlegt merkir sameiginlegt innan núverandi fylkis, ekki óbreytt eftir hverja síðari síu.",
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
           "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Bættu cell_area við undir Filter og settu neðri mörkin í 21.925. Raunverulega fylkið uppfærist strax í 1.171 hlut. Fjöldi og punktar myndreitanna breytast saman. Þetta er rauntímasía á mælingar, ekki myndaskipting eða ný greiningarkeyrsla.",
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
           "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Veldu Clear all undir Filter. Allir 2.341 hlutirnir koma aftur með upprunaleg punkthnit og sameiginleg ásmörk. Þessi hnappur hreinsar síuna; Clear all channels vinstra megin fjarlægir hins vegar dálkaval myndritsins. Hvorug aðgerðin eyðir röðum úr gagnagrunninum.",
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "Til að skoða raunverulega vantaðan hóp skaltu sía columnID að c2 og fieldID að f20 og f21; skrunaðu í flokkalistanum eftir þörfum. Settu fieldID á Facet til hægri og haltu rowID á Facet niður. Eftir standa 174 frumur. Myndreiturinn með línuauðkenni 5 og sjónsviði 20 hefur n = 0: engir upprunahlutir, ekki mældur ljósstyrkur núll.",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -8203,17 +8214,17 @@
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "Hreinsaðu síurnar og settu columnID aftur á Facet til hægri. Stilltu Wrap at á 5 meðan báðar flokkunarrásir eru fylltar. Fylkið helst 2 × 2 og tilkynningin segir að línuskiptingin sé hunsuð. Wrap virkar með einni flokkunarrás, ekki til að endurraða tvívíðu fylki.",
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Tæmdu Facet niður, settu fieldID á Facet til hægri og haltu Wrap at í 5. Sjónsviðin sem tekin eru með mynda þrjár línur með fimm sætum hver. Aðeins 12 flokkunargildi eru teiknuð þótt uppruninn hafi 13. Ónotuðu sætin þrjú eru falið fyllirými, ekki raunverulegir hópar sem birtast með n = 0.",
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Lestu tilkynninguna undir fylkinu. Sjónsvið 21 fellur utan þeirra 12 gilda sem birtast og 264 upprunahlutir eru því ekki í myndreitunum. Í raun eru 2.077 punktar teiknaðir þótt innlesna taflan hafi enn 2.341 röð. Fjöldi innlesinna raða sannar ekki að þær séu allar sýnilegar.",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
@@ -8224,7 +8235,7 @@
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Slökktu á Wrap og endurheimtu rowID og columnID sem flokkunarrásir. Skrifaðu area_k sem heiti undir Columns og cell_area deilt með 1.000 sem segð, nákvæmlega eins og sýnt er. Forskoðunin athugar fyrstu 2.000 raðirnar. Veldu Add column til að reikna afleidd gildi fyrir alla töfluna án þess að endurskrifa gagnagrunninn.",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
@@ -8235,17 +8246,17 @@
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "Dragðu area_k á X. Hvert lárétt hnit er nú upprunalegt flatarmál frumunnar deilt með 1.000; Y-gildi og hópaðild eru óbreytt. Þetta er töluleg umkvörðun, ekki kvörðun í fermíkrómetra, ný mæling eða sönnun um líffræðileg áhrif. Öll 2.341 afleiddu gildin voru sannreynd.",
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Settu cell_area aftur á X áður en þú velur area_k undir Columns og smellir á Remove. Upprunalega myndritið með fjórum reitum kemur aftur og afleiddi dálkurinn hverfur. Einkagagnagrunnurinn og upprunalegu niðurhöluðu gögnin eru bæði óbreytt. Skráðu breytur, hópun, síur og kvarða svo aðrir geti endurskapað sýnina.",
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Í kóða skilgreina trellis og TrellisSpec í Qt-einingu spaCR, trellis_spec, hópun, kvarða og Wrap; GraphSpec skilgreinir myndritsrásirnar. Þessi skjár hefur hvorki eigin útflutningshnapp né eigið niðurhalanlegt gagnasafn. Notaðu Tabulate fyrir sannreyndan CSV-útflutning samantekta. Myndaforskoðun, GPU-vinnslukeðjur og spaCR AI tilheyra viðeigandi greiningarkennslu, ekki þessari töflusýn.",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8253,7 +8264,12 @@
           ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

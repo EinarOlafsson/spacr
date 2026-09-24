@@ -7486,26 +7486,25 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: 현재 경로와 검증된 API 우회 방법",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
       "section": "Measure",
-      "description": "중첩된 내보내기 도구, 결측 메타데이터 오류, 실제 예제에 적용한 명시적이고 검증된 Python 우회 방법을 살펴봅니다.",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Measure 안의 AnnData Export와 원본 측정 데이터베이스를 찾습니다.",
-        "GUI 실패와 API 우회 방법을 구분하고 메타데이터를 꾸며내지 않습니다.",
-        "결합·세포·핵 행렬과 네 가지 결측값 정책을 비교합니다.",
-        "저장 파일을 다시 열어 식별자, 주석, 이미지와 출처를 보존합니다."
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Annotate에서 내려받은 실제 예제의 measurements.db 사본을 사용하고 원본과 이미지를 보관하세요. 연결된 ZIP을 풀고 스크립트를 사본 옆에 두어 spaCR 환경에서 실행합니다. spacr.anndata_export.build_anndata를 호출하고 obs에서 모두 결측인 object 형식 열만 빈 범주형 열로 인코딩합니다. 결측은 유지되며 보정값이나 라벨을 만들지 않고 이 인코딩 단계는 X를 변경하지 않습니다. GUI 수정이 아닙니다. 기존 출력은 거부하며 새 파일을 쓴 뒤 다시 읽어 검사합니다. 독립 SQLite 검증: 결합/keep 2341x1136; cell/keep 및 mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. UMAP, GPU 연산, 이미지 삽입, AI 요청, 생물학적 검증 또는 공개를 수행하지 않습니다. 원래 GUI 실패 기록은 보존됩니다.",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Measure를 열고 그 안의 AnnData Export를 선택합니다. AnnData는 객체 행과 특성 열로 구성된 행렬을 관측 메타데이터 및 특성 이름과 함께 저장합니다. 이 강의는 현재 GUI 경로를 보여주지만, 성공한 내보내기에는 명시적인 Python 우회 방법을 사용합니다. GUI 내보내기 결함이 수정되었다고 주장하지 않습니다.",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
@@ -7514,12 +7513,12 @@
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "만들어 낸 표가 아니라 실제로 내려받은 측정 데이터베이스의 사본을 사용합니다. 이미지와 원본 데이터베이스는 변경하지 마세요. GUI는 프로젝트 폴더를 받지만, 명령행 예제는 측정 데이터베이스 파일 자체를 받습니다. 비교를 위해 선택적 임베딩 계산을 끄세요. 행렬 내보내기에는 GPU가 필요하지 않습니다.",
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
           "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "먼저 수정하지 않은 저장 기능이 실패하는 모습을 확인합니다. 일부 관측 열은 object 형식의 결측값만 있어 이 저장 기능이 직렬화하지 못합니다. 알려지지 않은 복셀 보정값이 한 예입니다. 종료 코드 1과 불완전한 파일은 성공이 아닙니다. 오류를 숨기려고 알 수 없는 값을 0이나 문자열 None으로 바꾸지 마세요.",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
@@ -7530,7 +7529,7 @@
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "연결된 보조 스크립트를 내려받아 저장 우회 방법을 살펴봅니다. 실제 build_anndata 함수를 사용한 뒤, 모두 결측인 object 메타데이터만 빈 범주형 열로 인코딩합니다. 결측은 그대로 유지되며 알려진 메타데이터와 특성 행렬은 이 인코딩으로 바뀌지 않습니다. 물리적 보정이 과학적으로 범주형 수량이라는 뜻은 아닙니다.",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7544,7 +7543,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "원본 데이터베이스, 새로운 출력 경로와 keep 정책을 지정해 실행합니다. 결합 예제에는 세포 2341행과 특성 1136개가 있습니다. 관련 핵과 병원체 측정값은 세포별로 집계됩니다. 결측 특성값 400320개는 0이 아니라 결측으로 유지됩니다.",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
@@ -7555,7 +7554,7 @@
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "한 객체 유형 자체의 측정값만 원하면 single-table cell을 추가하고 결측값을 유지합니다. 동일한 세포 2341행이 있지만 특성은 261개뿐입니다. 값 28개가 결측입니다. 파일 크기나 열 개수만 보지 말고 특성 이름과 행 식별자를 비교하세요.",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
@@ -7566,7 +7565,7 @@
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "mean 정책은 저장 우회 방법과 별개인 분석 선택입니다. 여기서는 결측 특성값 28개를 해당 열의 관측된 평균으로 채웁니다. 내보낸 결측값 레이어는 원래 위치를 기록합니다. 대치가 분석에 적합한지 확인하세요. 완전한 행렬이 자동으로 더 좋거나 편향이 없는 데이터는 아닙니다.",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
@@ -7577,7 +7576,7 @@
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "drop-features 정책은 결측값이 있는 열을 제거합니다. 이 예제에서는 네 열이 제거되어 특성 257개와 모든 세포 행이 남습니다. 어떤 측정이 왜 제거되었는지 살펴보세요. 이 정책은 특성 집합을 바꾸고 유용한 정보를 버릴 수 있으므로 보편적인 정리 방법으로 권장하는 것이 아닙니다.",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
@@ -7588,7 +7587,7 @@
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "반대로 drop-objects 정책은 결측 특성값이 있는 행을 제거합니다. 여기서는 세포 7개가 제거되어 2334행과 특성 261개 모두가 남습니다. 결측은 표현형, 영상 획득 또는 분할과 관련될 수 있습니다. 남은 세포가 대표적이라고 판단하기 전에 제외된 대상을 확인하세요.",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
@@ -7599,7 +7598,7 @@
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "세포 행에 핵 특성을 집계하는 대신 핵마다 한 행을 만들려면 single-table nucleus를 선택합니다. 이 예제에는 핵 2682개와 특성 341개가 있습니다. 부모 객체 연결과 객체 식별자를 보존하세요. 핵이 세포보다 많다고 해서 내보내기 중 세포가 추가로 생긴 것은 아닙니다.",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
@@ -7610,7 +7609,7 @@
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "저장된 각 파일을 다시 엽니다. 스크립트는 전체 행렬, 순서가 있는 객체·특성 식별자, 결측 상태와 관측 메타데이터를 비교합니다. 여섯 파일 모두 독립 SQLite 검사도 통과했습니다. 주석은 메타데이터이며 행렬에 삽입된 학습 특성이 아닙니다. 이미지는 포함되지 않으므로 원본 파일과 경로를 함께 보관하세요.",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
@@ -7621,7 +7620,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "정책마다 새로운 출력 이름을 쓰고 스크립트, 설정과 패키지 버전을 보관하세요. 스크립트는 기존 출력을 덮어쓰지 않고 거부합니다. 이 검사는 이 예제의 데이터 보존을 확인할 뿐, 생물학적 타당성이나 GUI 수정을 증명하지 않습니다. 전체 흐름은 연결된 API 및 측정 강의를 참고하세요.",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7634,7 +7633,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7644,19 +7648,18 @@
       "app_key": "pca",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "PCA: 실제 측정값, 실시간 재적합과 결측값",
-      "description": "Image UMAP 안의 PCA에서 다운로드한 실제 세포 데이터로 검증된 점수, 되돌릴 수 있는 필터, 명시적인 결측값 처리와 세 가지 CSV 내보내기를 확인합니다.",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "Image UMAP 안에서 PCA를 찾고 분석할 측정 특성을 명시적으로 선택합니다.",
-        "설명 분산과 상관 화살표를 읽되 생물학적 분리를 주장하지 않습니다.",
-        "표준화, 필터 후 재적합, 네 가지 결측값 정책을 비교합니다.",
-        "원본을 보존하면서 객체 점수, 특성 적재량과 주성분 분산을 내보냅니다."
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Annotate의 다운로드 가능한 예제를 바이트 단위로 동일한 개인 복사본에서 사용합니다. 세포 2,341행, 원본 열 276개, 웰 네 개입니다. cell_area, cell_channel_1_mean_intensity, cell_perimeter를 적합한 뒤 실제 결측값 일곱 개가 있는 cell_channel_0_homogeneity_distance_32를 추가합니다. 결측 원인과 처리 조건은 확인되지 않았습니다. 독립적인 공분산 고유값 분해로 앱의 소규모 표 SVD, 유지된 행 위치, 점수, 적재량, 상관과 분산을 검증하며, 그려진 좌표와 내보낸 원본 데이터의 모든 셀도 확인합니다. 검증 범위는 이 비퇴화·완전계수의 세 특성 및 네 특성 적합에 한정됩니다. 자동 선택된 모든 특성, 화살표 픽셀 기하, 계수 부족 입력, 이미지 연동 선택이나 생물학적 결론은 검증하지 않습니다. CPU에서 수행하는 NumPy PCA는 UMAP 및 그 GPU 옵션과 별개입니다. 전용 다운로드, 이미지 미리보기, AI 콘솔, 실행 전체의 Plot 스위치는 없습니다. 세 CSV는 적합된 모델 묶음, 저장 설정 또는 내보낸 그림이 아닙니다. API: spacr.qt.widgets.pca_model.pca와 PCASpec; PCAResult.scores_frame, loadings_frame, variance_frame.",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Home에서 Image UMAP을 열고 그 안의 PCA 버튼을 선택합니다. PCA는 측정값을 선형으로 요약하는 방법이지 또 다른 UMAP 임베딩이 아닙니다. 다운로드 가능한 실제 Annotate 예제를 개인 복사본에서 재사용합니다. 데이터를 받는 방법은 Annotate 튜토리얼을 참고하세요.",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7665,12 +7668,12 @@
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "PCA 제목 옆의 Load table에서 복사한 측정 데이터베이스를 고른 다음 cell을 선택합니다. 웰 네 개에 객체 2,341개가 있습니다. 측정 CSV도 읽을 수 있습니다. 상위 모듈에서 이전에 불러온 경로만으로 현재 올바른 표가 열렸다고 판단할 수는 없습니다.",
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "None을 누르기 전에 특성 검색을 비우세요. 이 버튼은 현재 표시된 특성만 선택 해제합니다. cell_area, cell_channel_1_mean_intensity, cell_perimeter를 검색해 선택합니다. 검색을 다시 비우고 Components를 3으로 설정한 다음 Run PCA를 선택합니다. 검색은 특성 목록을 좁힐 뿐 세포 집단을 줄이지 않습니다.",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7684,7 +7687,7 @@
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Standardise를 유지하고 스크리 도표를 읽습니다. 첫 주성분은 세 특성의 표준화된 분산 중 약 65.7%, 두 번째는 31.7%를 설명합니다. 각 점은 측정된 개별 세포이며 독립적인 실험 반복이 아닙니다. 설명 분산은 분류 정확도가 아닙니다.",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7695,7 +7698,7 @@
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Colour에서 rowID를, X에서 PC3을, Y에서 PC1을 선택합니다. 이 설정은 다시 적합하지 않고 기존 분해 결과를 새로 그립니다. 색은 공간적 행을 구분하며 확인된 처리 조건이 아닙니다. 분리되어 보이는 점군은 측정값과 교란요인을 조사할 단서이지 생물학적 효과의 증거가 아닙니다.",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -7706,7 +7709,7 @@
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "PC1과 PC2로 돌아갑니다. Loadings biplot을 껐다가 다시 켭니다. 화살표는 각 특성과 두 주성분 사이의 상관을 나타냅니다. 절대 길이는 화면에 맞게 조정되며 점선 원이 기준 척도입니다. 비슷한 화살표 방향이 인과관계를 확립하지는 않습니다.",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
@@ -7717,7 +7720,7 @@
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Scale을 Centre only로 바꿉니다. 원래 측정 척도가 분석을 바꾸므로 첫 주성분의 설명 비율이 약 90.1%가 됩니다. 비율이 높아졌다고 더 좋은 모델은 아닙니다. 계속하기 전에 Standardise로 복원합니다. 각 특성을 중심화한 뒤 표본 표준편차로 나눕니다.",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7728,7 +7731,7 @@
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "오른쪽 필터에 cell_area를 추가하고 최솟값을 21,925로 설정합니다. 이제 세포 1,171개를 적합합니다. 집단 평균, 척도, 주성분 방향이 바뀌는 실시간 재적합입니다. 이전 좌표축에서 점만 숨기는 것이 아닙니다.",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
@@ -7739,7 +7742,7 @@
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "필터에서 Clear all을 선택합니다. 세포 2,341개와 원래 분해 결과가 모두 돌아옵니다. 필터는 데이터베이스 행을 삭제하지 않습니다. 변경할 때마다 집단과 보고서를 확인하세요. 서로 다른 집단을 따로 적합한 점수는 자동으로 같은 좌표계를 공유하지 않습니다.",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
@@ -7750,7 +7753,7 @@
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "이제 cell_channel_0_homogeneity_distance_32를 검색해 선택합니다. Run PCA를 누르기 전까지 기존 결과는 여전히 특성 세 개를 포함합니다. 이 텍스처 특성에는 실제 결측값 일곱 개가 있습니다. 원인을 모르므로 해당 세포를 비감염이라고 부르거나 빠진 측정값을 0으로 대체해서는 안 됩니다.",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7761,7 +7764,7 @@
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Auto로 실행합니다. 특성 네 개는 모두 남지만 세포 일곱 개가 제외되어 2,334개가 됩니다. Auto는 2%를 초과하는 행에서 누락된 특성을 제거한 뒤 남은 불완전한 행을 제거합니다. 요청한 주성분 세 개가 약 98.6%를 담으며 네 번째 방향은 여전히 존재합니다.",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7772,7 +7775,7 @@
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "NaN에서 Drop features를 선택합니다. 세포 2,341개는 모두 남지만 텍스처 특성은 이번 적합에서 제외됩니다. 네 개가 체크되어 있어도 실제 분석에는 특성 세 개만 쓰일 수 있습니다. 요청한 선택뿐 아니라 결과와 특성 제외 안내를 읽으세요.",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7783,7 +7786,7 @@
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Mean-impute를 선택합니다. 모든 세포와 네 특성을 유지하며, 계산에서는 일곱 값을 해당 특성의 평균으로 대체합니다. 이는 만들어 넣은 값이지 복구된 측정값이 아닙니다. 보고서에 대체 개수가 표시됩니다. 결과를 제시할 때 대치를 밝혀야 합니다. 원본 데이터베이스는 덮어쓰지 않았습니다.",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7794,7 +7797,7 @@
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Complete cases를 선택합니다. 이 예제에서는 선택한 네 특성을 유지하면서 같은 일곱 불완전한 세포를 제외합니다. Auto와 일치하는 것은 이 데이터에 한정됩니다. Auto로 돌아가 텍스처 특성의 선택을 해제하고 검색을 비운 뒤 Run PCA를 선택하고 Colour를 none으로 돌립니다.",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7805,19 +7808,24 @@
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Export를 선택하고 pca_example 같은 기본 이름으로 저장합니다. 분석된 각 객체의 점수, 각 특성의 적재량과 상관, 각 주성분의 분산을 담은 CSV 세 개를 만듭니다. 점수 파일에는 원래 측정 열도 남습니다. 좌표 열 세 개만 있는 파일이 아닙니다.",
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "내보낸 파일은 객체 2,341행을 보존하며 두 데이터베이스는 그대로 유지됩니다. 특성 목록, 필터, 척도, 결측값 정책은 별도로 기록하세요. 이 버튼은 설정이나 적합된 모델 묶음을 저장하지 않습니다. 코드에서는 spaCR의 Qt pca_model 모듈에 있는 pca와 PCASpec을 사용합니다. 이 CPU 표 보기는 이미지 미리보기, GPU 분석, spaCR AI와 별개입니다.",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7826,19 +7834,18 @@
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
-      "title": "Tabulate: 실제 측정값을 그룹화하고 개수를 확인하며 요약 그래프 갱신하기",
-      "description": "Database Browser 안의 Tabulate에서 내려받은 측정값을 웰과 시야별로 요약합니다. 실제 결측값, 검증한 CSV, 갱신되지 않은 그래프, 범주형 축과 수치 축의 차이를 확인합니다.",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "중첩된 모듈을 찾아 실제 열을 끌어 웰·시야별 요약을 만든다.",
-        "독립 반복 실험을 만들어 해석하지 않고 개수, 누락 조합, 표본 표준편차와 분위수를 읽는다.",
-        "측정값을 필터링하고 그래프를 명시적으로 갱신하며 범주형 축과 수치 축을 구분한다.",
-        "전체 요약을 내보내고 그룹, 통계량과 필터를 기록한다."
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Annotate의 다운로드 예제에서 measurements.db를 바이트 단위로 동일하게 복사한 전용 사본을 사용합니다. cell 테이블은 객체 2,341개, 웰 4개, 관측된 웰/시야 조합 51개입니다. 독립 실험 2,341회가 아니며 rowID는 공간적 행 표지이지 확인된 처리군이 아닙니다. 제시한 모든 통계량, CSV 셀과 최종 산점도 점 51개의 세로 좌표를 독립적으로 확인했습니다. 생물학적 효과, 결측 축 이름, 무한값, 상한이 적용된 큰 격자는 검증 범위 밖입니다. Tabulate는 기존 데이터를 요약하며 전용 다운로드, 이미지 미리보기, GPU 파이프라인, AI 콘솔 또는 전체 실행용 Plot 스위치가 없습니다. 바깥 Database Browser가 아니라 Tabulate 자체의 Load table과 Export CSV를 사용하세요.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Help를 연 다음 Database browser를 열고 안에 있는 Tabulate 버튼을 선택합니다. Database Browser의 하위 모듈이며 Home의 별도 타일이 아닙니다. 실제로 내려받을 수 있는 Annotate 예제의 전용 사본을 사용합니다. 앞의 Annotate 튜토리얼에서 데이터 받는 방법을 확인하세요.",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7847,17 +7854,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Tabulate 안에서 Load table을 선택하고 복사한 측정 데이터베이스를 열어 cell을 고릅니다. 전체 테이블에는 객체 2,341개가 있습니다. 바깥 Database Browser에도 자체 제어가 있지만 이 피벗의 입력이나 내보내기 제어가 아닙니다. 데이터를 불러오기만 해서는 그룹이 정해지지 않습니다.",
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Plate / row / column을 선택합니다. 세 키가 계층 순서대로 Rows에 들어갑니다. 원본 행 수를 세려면 Values를 비워 둡니다. 네 웰의 객체 수는 615, 525, 700, 501개입니다. 이는 세포 수이지 독립된 실험 반복 수가 아닙니다.",
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
           "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "fieldID를 검색하여 Columns로 끕니다. 웰 4개와 시야 이름 13개를 조합하면 가능한 조합은 52개지만 측정값이 있는 것은 51개입니다. 행 표지 5, 열 표지 2, 시야 20의 빈칸에 마우스를 올립니다. 해당 조합에 원본 데이터 행이 없다는 뜻이지 측정값이 0이라는 뜻은 아닙니다.",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7868,12 +7875,12 @@
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Columns 영역을 비운 뒤 cell_area를 검색해 Values로 끕니다. 기본 통계량은 개수, 평균과 표본 표준편차입니다. 축이나 통계량을 바꾸면 테이블이 다시 계산됩니다. 검색 상자는 열 이름을 좁힐 뿐 세포 집단을 필터링하지 않습니다.",
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "이 빌드에서는 낮은 테이블 행 높이 때문에 n을 포함한 뒤쪽 텍스트 줄이 숨겨질 수 있습니다. 결과 셀에 마우스를 올려 전체 통계량과 계산에 기여한 개수를 확인하세요. 표준편차는 객체 사이의 변동이지 독립된 웰 사이의 불확실성이 아닙니다. 툴팁 숫자는 표시를 위해 반올림됩니다.",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7884,7 +7891,7 @@
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "median, sem과 quantile을 켭니다. 0.75에서 quantile은 선형 보간으로 계산한 상위 사분위수입니다. SEM은 표본 표준편차를 사용 가능한 개수의 제곱근으로 나눈 값입니다. 같은 시야나 웰을 공유하는 객체 사이의 의존성을 보정하지 않으므로 독립적인 생물학적 불확실성으로 해석하지 마세요.",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7895,7 +7902,7 @@
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Quantile at을 0.5로 바꿉니다. 분위수가 중앙값과 같아지며 첫 웰에서는 22,400입니다. 다른 통계량은 바뀌지 않습니다. 0.75로 되돌리고 추가 통계량을 끈 뒤 간단한 요약으로 돌아갑니다.",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7906,7 +7913,7 @@
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "면적을 채널 0, 거리 32의 균질성 특징값으로 바꿉니다. 이 특징에는 실제 결측값 7개가 있어 사용 가능한 측정값은 2,334개입니다. 이 웰에서는 원본 501행이 값 498개만 제공합니다. 개수는 선택한 특징에 따라 달라지며 결측 측정값은 0이 아닙니다.",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7917,12 +7924,12 @@
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "cell_area로 복원하고 Tabulate의 Export CSV에서 새 파일 이름을 지정합니다. 웰 요약은 4행 6열로, 그룹 키 세 개, n, 평균과 표준편차를 담습니다. 내보낸 모든 값을 원본과 대조했습니다. 그룹, 통계량과 필터 선택은 따로 기록하세요. CSV는 실시간으로 갱신되는 설정 명세를 저장하는 파일이 아닙니다.",
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
           "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Plot this table을 누르고 columnID를 X, mean을 Y, rowID를 Colour로 끕니다. 그래프가 받는 것은 요약 4행이지 수천 개의 개별 세포가 아닙니다. 주의할 점이 있습니다. Automatic은 서로 다른 평균 네 개를 범주로 취급하여 히트맵을 그립니다. 크기를 연속 척도로 나타낸 그래프가 아닙니다.",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -7936,12 +7943,12 @@
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "오른쪽 필터에 cell_area를 추가하고 최솟값을 21,925로 설정합니다. 피벗은 남은 객체 1,171개를 즉시 요약합니다. 하지만 그래프는 Plot this table을 다시 누를 때까지 이전 요약을 유지합니다. 그래프가 보인다는 사실만으로 현재 필터가 반영되었다고 판단하면 안 됩니다.",
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
           "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "Plot this table을 다시 눌러 새로 계산한 평균을 전달합니다. 그래프에는 필터링된 네 그룹이 들어가지만 Automatic은 여전히 평균을 범주로 취급합니다. 원래 면적 필터를 요약 테이블에 직접 적용할 수 없다는 안내가 나옵니다. 요약에는 cell_area 대신 mean이 있기 때문입니다. 앞 단계 피벗이 필터를 무시했다는 뜻은 아닙니다.",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7952,7 +7959,7 @@
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "오른쪽 필터에서 Clear all을 선택하고 Plot this table을 다시 누릅니다. 원래 객체 2,341개와 웰 평균이 돌아옵니다. 여기서 필터링해도 원본 측정값은 삭제되지 않습니다. 두 요약이 모두 필요하면 필터링 전후 결과를 다른 이름으로 내보내세요.",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7963,17 +7970,17 @@
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "별도의 시야 단위 보기를 만들려면 fieldID를 Rows의 웰 키 뒤로 끕니다. 격자는 52행이고 관측 그룹은 51개입니다. 통계량은 이제 전체 웰이 아니라 웰 안의 한 시야를 설명합니다. 각 관측 그룹에는 객체 15~88개가 기여합니다. 그룹을 늘려도 독립 실험이 늘어나는 것은 아닙니다.",
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Plot this table을 누르고 fieldID를 X에 놓고 mean은 Y, rowID는 Colour로 유지한 다음 Plot에서 Scatter를 선택합니다. 서로 다른 시야 평균 51개가 있는 이번 경우에는 실제 열 목록에서 mean을 연속형으로 식별합니다. 숫자가 항상 수치로 처리된다고 가정하지 말고 역할과 축 이름을 확인하세요.",
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
           "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "이제 연속적인 세로 척도에 실제 시야 평균 51개가 표시됩니다. 각 점의 높이를 독립적으로 계산한 요약과 대조했습니다. 반복되는 시야 이름은 서로 다른 웰에 속합니다. 색은 공간적 행 표지이지 검증된 처리군이 아닙니다. 이 그룹 요약 테이블에는 객체 키가 없으므로 브러시 선택으로 개별 이미지를 선택할 수 없습니다.",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -7988,14 +7995,19 @@
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "시야 요약을 내보냅니다. 52행 7열이며 실제로 비어 있는 조합 하나는 빈칸으로 유지합니다. 그래프에 전달할 때는 그 그룹을 생략하므로 점은 51개입니다. 재현 가능한 코드에서는 spaCR의 Qt pivot_spec 모듈에 있는 pivot과 PivotSpec이 이 선택을 받아들이고 to_csv가 결과를 씁니다. 원본을 보존하고 정확한 그룹과 필터를 기록하세요.",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8128,19 +8140,18 @@
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
-      "title": "Small Multiples: 실제 그룹, 실시간 필터, 정확한 축 범위",
-      "description": "Graph Builder 안의 Small Multiples에서 내려받은 실제 측정값을 공통 또는 독립 축으로 비교하고, 빈 그룹과 분할 수준 제한을 확인하며 되돌릴 수 있는 파생 열을 만듭니다.",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "현재 하위 모듈 경로를 찾아 실제 측정 개체로 산점도 격자를 구성합니다.",
-        "공유·개별·행별·열별 축을 비교하고 축척 변화와 데이터 변화를 구분합니다.",
-        "실시간 필터를 적용하고 빈 그룹과 미사용 배치 공간을 구분하며 제외된 수준을 셉니다.",
-        "메모리 내 수치 재조정 열을 추가·삭제하고 원본과 재현 가능한 차트 설정을 보존합니다."
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Annotate 다운로드 예제의 measurements.db와 바이트 단위로 동일한 개인 복사본을 사용합니다. 개체 2,341개, 웰 4개, 시야 라벨 13개, 실제 웰·시야 조합 51개가 있습니다. 개체 수는 독립 실험 반복 수가 아니며 공간 라벨도 확인된 처리 조건이 아닙니다. 시연한 모든 연속 산점 좌표, 정확한 그룹 구성, 축 범위, 제목, 패널 표시 여부는 원본 행을 기준으로 독립 검증했습니다. 검증 범위는 부분추출하지 않은 이 데이터의 유한하고 퇴화하지 않은 연속 축이며, 임의 차트·뷰 간 선택·생물학적 효과·물리 단위 보정을 보장하지 않습니다. Small Multiples는 Graph Builder의 표 전용 하위 모듈로, 전용 다운로드·이미지 미리 보기·GPU 파이프라인·AI 콘솔·실행 단위 Plot 스위치·내보내기 버튼이 없습니다. Annotate 데이터를 재사용하고 하위 모듈 자체의 Load table을 사용하세요.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Home에서 Graph Builder를 열고 그 안에 있는 Small Multiples 버튼을 선택합니다. 이것이 현재 하위 모듈의 진입 경로이며 별도의 Home 타일이 아닙니다. Annotate에서 내려받을 수 있는 실제 측정 데이터의 개인 복사본을 재사용합니다. 예제를 얻는 방법은 Annotate 튜토리얼에 나옵니다.",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8149,12 +8160,12 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Small Multiples 안의 Load table로 측정 데이터베이스의 개인 복사본을 고른 뒤 cell을 선택합니다. 웰 4개에서 측정한 개체 2,341개가 있습니다. 상위 Graph Builder에도 별도의 Load table 버튼이 있습니다. 여기서는 Small Multiples 제목 옆의 버튼을 사용합니다.",
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
           "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "cell_area를 검색해 X로 끌고 cell_channel_1_mean_intensity를 Y에 놓습니다. Plot에서 Scatter를 선택합니다. rowID는 아래 방향 Facet에, columnID는 오른쪽 방향 Facet에 놓습니다. 검색은 열 목록만 좁히며 세포 집단을 걸러내지 않습니다. 각 점은 이미 측정된 개체 하나입니다.",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -8165,37 +8176,37 @@
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "두 축이 shared이면 패널 4개의 가로·세로 범위가 같습니다. 제목에는 개체 수 615, 525, 700, 501이 표시됩니다. 행·열 라벨은 위치를 나타내며 검증된 처리 조건이 아닙니다. 이 세포들은 독립적인 실험 반복이 아닙니다.",
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
           "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "X scale과 Y scale을 모두 free로 바꿉니다. 각 패널이 자체 범위를 사용합니다. 그룹 내부의 형태를 보기 쉽지만, 폭이 같은 점 구름이 같은 측정값 범위를 뜻하지는 않습니다. 비교 전에 축 눈금을 읽으세요. 축척을 바꿔도 원본 측정값은 바뀌지 않습니다.",
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
           "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "두 축에서 per row를 선택합니다. 같은 격자 행의 패널끼리는 범위를 공유하고 서로 다른 행은 다른 범위를 쓸 수 있습니다. 이것은 배치에 따른 축 그룹화이지 통계 보정이 아닙니다. 여기서는 각 행의 두 열을 일치하는 축으로 비교할 수 있습니다.",
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
           "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "두 축에서 per column을 선택합니다. 같은 격자 열의 패널들이 범위를 공유합니다. X와 Y를 따로 설정할 수도 있지만 여기서는 함께 바꿉니다. 모든 웰을 비교하기 전에 두 축을 shared로 복원합니다. 공유는 현재 격자 안에서 공통이라는 뜻이지 이후 모든 필터에서도 고정된다는 뜻은 아닙니다.",
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
           "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Filter 탭에서 cell_area를 추가하고 하한을 21,925로 설정합니다. 실제 격자가 즉시 개체 1,171개로 갱신됩니다. 패널의 개체 수와 점들이 함께 바뀝니다. 이는 측정값의 실시간 필터이지 이미지 분할이나 새 분석 실행이 아닙니다.",
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
           "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Filter 탭에서 Clear all을 선택합니다. 개체 2,341개가 원래의 점 위치와 공유 축 범위로 돌아옵니다. 이 버튼은 필터를 지우지만 왼쪽의 Clear all channels는 차트에 배정한 열을 지웁니다. 어느 쪽도 데이터베이스 행을 삭제하지 않습니다.",
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "실제로 없는 그룹을 확인하려면 columnID는 c2만, fieldID는 f20과 f21만 남기고 필요하면 범주 목록을 스크롤합니다. 오른쪽 Facet을 fieldID로 바꾸고 아래 Facet은 rowID로 둡니다. 세포 174개가 남습니다. 행 라벨 5, 시야 20의 패널은 n = 0입니다. 원본 개체가 없는 것이며 강도가 0으로 측정되었다는 뜻이 아닙니다.",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -8203,17 +8214,17 @@
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "필터를 지우고 오른쪽 Facet을 columnID로 되돌립니다. 두 분할 채널에 열이 배정된 상태에서 Wrap at을 5로 설정합니다. 격자는 여전히 2 × 2이고 안내문에는 줄바꿈이 무시되었다고 나옵니다. Wrap은 한 분할 채널만 사용할 때 적용되며 양방향 격자를 재배열하지 않습니다.",
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "아래 Facet을 비우고 오른쪽에 fieldID를 놓은 뒤 Wrap at은 5로 유지합니다. 표시 대상 시야가 행당 다섯 자리씩 세 행으로 배치됩니다. 원본에는 13개 수준이 있지만 12개만 그립니다. 사용하지 않는 세 자리는 숨겨진 배치 공간으로, n = 0이라고 표시되는 실제 그룹과 다릅니다.",
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "격자 아래의 안내문을 읽습니다. 시야 21이 표시된 12개 수준에서 제외되어 원본 개체 264개가 패널에 포함되지 않습니다. 실제 그려지는 점은 2,077개이지만 불러온 표에는 여전히 2,341행이 있습니다. 불러온 행 수가 모든 행의 표시를 보장하지는 않습니다.",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
@@ -8224,7 +8235,7 @@
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Wrap을 끄고 두 Facet을 rowID와 columnID로 복원합니다. Columns에서 이름을 area_k로, 수식을 cell_area를 1,000으로 나누는 식으로 화면과 똑같이 입력합니다. 미리 보기는 처음 2,000행을 검사합니다. Add column을 선택하면 전체 표의 파생값을 계산하지만 데이터베이스를 다시 쓰지 않습니다.",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
@@ -8235,17 +8246,17 @@
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "area_k를 X로 끕니다. 모든 가로 좌표가 원래 세포 면적을 1,000으로 나눈 값이 되고 Y값과 그룹 구성은 그대로입니다. 이는 수치 재조정이지 제곱마이크로미터 보정, 새로운 측정, 생물학적 효과의 증거가 아닙니다. 파생값 2,341개를 모두 검증했습니다.",
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "X를 cell_area로 먼저 복원한 뒤 Columns에서 area_k를 선택하고 Remove를 누릅니다. 원래의 네 패널 차트가 돌아오고 파생 열은 사라집니다. 개인 데이터베이스와 원래 내려받은 데이터 모두 바뀌지 않습니다. 다른 사람이 뷰를 재현하도록 변수, 그룹, 필터, 축척을 기록하세요.",
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "코드에서는 spaCR의 Qt trellis_spec 모듈에 있는 trellis와 TrellisSpec이 그룹, 축척, Wrap을 정의하고 GraphSpec이 차트 채널을 정의합니다. 이 화면에는 전용 내보내기 버튼이나 자체 다운로드 데이터가 없습니다. 검증한 요약 CSV를 내보내려면 Tabulate를 사용하세요. 이미지 미리 보기, GPU 파이프라인, spaCR AI는 해당 분석 튜토리얼의 내용이지 이 표 전용 뷰의 기능이 아닙니다.",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8253,7 +8264,12 @@
           ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

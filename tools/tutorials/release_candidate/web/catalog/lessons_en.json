@@ -7547,26 +7547,25 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: current route and a verified API workaround",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
       "section": "Measure",
-      "description": "Find the nested exporter, understand the observed missing-metadata failure, and export the real downloaded measurement example through an explicit, checked Python workaround.",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Find AnnData Export inside Measure and identify the source measurements database.",
-        "Distinguish a failed GUI export from the verified API workaround without inventing missing metadata.",
-        "Compare joined, cell-only and nucleus-only matrices and four missing-value policies.",
-        "Reopen saved files and preserve object identities, annotations, source images and provenance."
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Use the real downloaded measurement example from Annotate, retaining an untouched measurements.db and its source images. The recording uses spaCR 1.5.0.6 and AnnData in the same Python environment. Download the linked helper beside a COPY of measurements.db; it imports spacr.anndata_export.build_anndata. The unmodified GUI/API writer fails on entirely missing object-typed observation metadata, including unknown voxel calibration. A partial .h5ad is not a valid export. The helper explicitly encodes ONLY all-missing object metadata as empty pandas categoricals; it preserves missingness, does not invent calibration or labels, does not change X for this storage step, and does not repair the GUI. It writes a new destination, reloads and compares all values before accepting it; existing destinations are refused. Six exports were independently checked against SQLite: joined/keep 2341x1136 (400320 missing); cell/keep 2341x261 (28 missing); cell/mean 2341x261 (28 imputed); cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341 (1912 missing). No UMAP, GPU operation, image embedding, AI request, biological validation or publication is claimed. API: spacr.anndata_export.build_anndata and export_anndata. The original GUI failure remains preserved separately.",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Open Measure, then its nested AnnData Export workflow. AnnData stores an object-by-feature matrix together with observation metadata and feature names. This lesson shows the current GUI route, but the demonstrated successful exports use an explicit Python workaround. We are not claiming that the GUI export defect is fixed.",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
@@ -7575,12 +7574,12 @@
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "Use a copy of the real downloaded measurements database, not an invented table. Keep its images and original database unchanged. The GUI accepts the project folder; our command-line example takes the measurements database file itself. Disable the optional embedding for this export comparison. Exporting a matrix does not require a GPU.",
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
           "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "First observe the unmodified writer failing. Some observation columns contain only missing values with an object data type, which this writer cannot serialize. Unknown voxel calibration is one example. Exit status one and a partial file are not success. Do not replace unknown values with zero or the text None to silence the error.",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
@@ -7591,7 +7590,7 @@
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "Download the linked helper and inspect its storage workaround. It uses the real build_anndata function, then encodes only entirely missing object metadata as empty categorical columns. Missing values remain missing; known metadata and the feature matrix are not changed by that encoding. This does not mean that physical calibration is a categorical scientific quantity.",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7605,7 +7604,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Run the helper with your source database, a new output path, and the keep policy. The joined example has two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells. Four hundred thousand three hundred twenty missing feature values remain missing, not zero.",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
@@ -7616,7 +7615,7 @@
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "For one object's own measurements, add single-table cell and keep the missing values. This file has the same two thousand three hundred forty-one cell rows but only two hundred sixty-one features. Twenty-eight feature values are missing. Compare feature names and row identities, not just file size or the number of columns.",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
@@ -7627,7 +7626,7 @@
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "The mean policy is a separate analytical choice, not part of the storage workaround. Here it fills twenty-eight missing feature values using the observed column means. The exported missing-value layer records their original positions. Check that imputation is appropriate for your analysis; a complete matrix is not automatically a better or unbiased dataset.",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
@@ -7638,7 +7637,7 @@
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "The drop-features policy removes columns containing missing values. In this example four columns are removed, leaving two hundred fifty-seven features and every cell row. Inspect which measurements were removed and why. This policy changes the feature set and can discard useful information; it is not a universal cleaning recommendation.",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
@@ -7649,7 +7648,7 @@
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "The drop-objects policy instead removes rows containing missing feature values. Seven cells are removed here, leaving two thousand three hundred thirty-four rows and all two hundred sixty-one features. Missingness can be related to phenotype, acquisition or segmentation. Check what was excluded before treating the retained cells as representative.",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
@@ -7660,7 +7659,7 @@
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus, rather than aggregated nucleus features on cell rows. This example has two thousand six hundred eighty-two nuclei and three hundred forty-one features. Keep the parent links and object identities. More nuclei than cells does not mean that extra cells appeared during export.",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
@@ -7671,7 +7670,7 @@
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "Reopen each saved file. The helper compares the full matrix, ordered object and feature identities, missingness, and observation metadata; independent SQLite checks also passed for all six files. Annotations remain metadata, not training features inserted into the matrix. Images are not embedded, so retain the source files and their paths with the export.",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
@@ -7682,7 +7681,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Use a new output name for each policy and keep the script, settings and package versions. The helper refuses an existing destination instead of overwriting it. These checks establish data preservation for this example, not biological validity or a repaired GUI. Return to the linked API and measurement lessons for the surrounding workflow.",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7695,7 +7694,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7705,19 +7709,18 @@
       "app_key": "pca",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "PCA: real measurements, live refits and missing values",
-      "description": "Explore the PCA submodule inside Image UMAP using genuine downloaded cells, checked component scores, reversible filters, explicit missing-value policies and three real CSV exports.",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "Find PCA inside Image UMAP and choose an explicit measurement feature set.",
-        "Read component variance and correlation arrows without claiming biological separation.",
-        "Compare standardisation, live population refits and four missing-value policies.",
-        "Export object scores, feature loadings and component variance while preserving the source."
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Reuse a private byte-identical copy of the downloadable Annotate example: 2,341 cell rows, 276 source columns and four wells. This lesson fits cell_area, cell_channel_1_mean_intensity and cell_perimeter, then adds cell_channel_0_homogeneity_distance_32, which has seven genuinely missing values. The missingness mechanism and treatment identities are not established. Independent covariance eigendecomposition checks the application's small-table SVD, retained row positions, scores, loadings, correlations and variances; actual plotted coordinates and every exported source cell are checked. This is bounded to these full-rank, nondegenerate three- and four-feature fits, not a validation of all automatic features, arrow pixel geometry, rank-deficient inputs, image-linked brushing or biological conclusions. CPU NumPy PCA is separate from UMAP fitting and its GPU options. PCA has no dedicated test-data downloader, image preview, AI console or Run-level Plot switch. The three CSVs are not a fitted-model bundle, saved settings or exported figure. API: spacr.qt.widgets.pca_model.pca and PCASpec; PCAResult.scores_frame, loadings_frame and variance_frame.",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP from Home, then choose its nested PCA button. PCA is a linear summary of measurements, not another UMAP embedding. We reuse the downloadable Annotate example on a private copy. The Annotate tutorial shows where to obtain that real dataset.",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7726,12 +7729,12 @@
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "Use Load table beside the PCA heading and choose the copied measurements database, then cell. There are two thousand three hundred forty-one objects across four wells. This screen can also read a measurement CSV. A previously loaded host path is not proof that the intended table is open.",
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "Clear the feature search before choosing None, because that button unticks only the features currently shown. Search and tick cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, and choose Run PCA. Searching narrows the feature list, not the cell population.",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7745,7 +7748,7 @@
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Keep Standardise and read the scree plot. The first component explains about sixty-five point seven percent of these three features' standardised variance; the second explains thirty-one point seven percent. The points are individual measured cells, not independent experimental replicates. Explained variance is not classification accuracy.",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7756,7 +7759,7 @@
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Choose rowID in Colour, then PC three on X and PC one on Y. These controls redraw the existing decomposition without fitting again. The colours identify spatial rows, not established treatments. A separated-looking cloud is a prompt to investigate measurements and confounding, not proof of a biological effect.",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -7767,7 +7770,7 @@
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "Return to PC one and PC two. Toggle Loadings biplot off and back on. The arrows show feature correlations with these two components; their absolute length is scaled for display, with the dashed circle as a ruler. Nearby arrow directions do not establish causation.",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
@@ -7778,7 +7781,7 @@
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Change Scale to Centre only. The first component now explains about ninety point one percent, because the raw measurement scales change the analysis. That higher percentage does not make the model better. Restore Standardise before continuing; it centres each feature and divides by its sample standard deviation.",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7789,7 +7792,7 @@
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The fit now uses one thousand one hundred seventy-one cells. This is a live refit: the population mean, scale and component directions change. It is not merely hiding points on the old axes.",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
@@ -7800,7 +7803,7 @@
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "Choose Clear all in the filter. All two thousand three hundred forty-one cells return, and the original decomposition is restored. Filtering never deletes database rows. Compare the population and report after every change; scores from separately fitted populations do not automatically share a common coordinate system.",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
@@ -7811,7 +7814,7 @@
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "Now search for cell_channel_0_homogeneity_distance_32 and tick it. The existing result still contains three features until you choose Run PCA. This texture feature has seven genuinely missing values. We do not know why they are missing, so we must not call these cells uninfected or replace missing measurements with zero.",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7822,7 +7825,7 @@
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Run with Auto. All four features remain, but seven cells are removed, leaving two thousand three hundred thirty-four. Auto drops features missing in more than two percent of rows, then drops remaining incomplete rows. The three requested components capture about ninety-eight point six percent; a fourth direction still exists.",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7833,7 +7836,7 @@
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "Choose Drop features in NaN. All two thousand three hundred forty-one cells remain, but the texture feature is excluded from this fit. Four checkboxes can remain ticked while only three features are actually analysed. Read the result and dropped-feature notice, not just the requested selections.",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7844,7 +7847,7 @@
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Choose Mean-impute. All cells and all four features remain, with seven values replaced by that feature's mean for the calculation. These are invented values, not recovered measurements. The report states the replacement count. Disclose imputation whenever you present this result; the source database has not been rewritten.",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7855,7 +7858,7 @@
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Choose Complete cases. It keeps the four selected features and removes the same seven incomplete cells in this example. That agreement with Auto is specific to these data. Return to Auto, untick the texture feature, clear the search, choose Run PCA, and set Colour back to none.",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7866,19 +7869,24 @@
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Choose Export and save a base name such as pca_example. The screen writes three CSV files: scores for each analysed object, loadings and correlations for each feature, and variance for each component. The scores file also retains the original measurement columns; it is not just three coordinate columns.",
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "These exports preserve two thousand three hundred forty-one object rows and leave both databases unchanged. Record your feature list, filters, scaling and missing-value policy separately: this button does not save settings or a fitted-model bundle. For code, use pca and PCASpec in spaCR's Qt pca_model module. This CPU table view is separate from image previews, GPU analysis and spaCR AI.",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7887,19 +7895,18 @@
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
-      "title": "Tabulate: group real measurements, inspect counts and refresh the summary plot",
-      "description": "Open Tabulate inside Database Browser, pivot downloaded measurements by well and field, inspect real missing values, export checked statistics and distinguish a live pivot from a stale or categorical chart.",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "Find the nested Tabulate route and build well and field summaries with actual column drags.",
-        "Read counts, missing combinations, sample standard deviations and quantiles without inventing independent replicates.",
-        "Apply a live measurement filter, explicitly refresh its summary chart and distinguish categorical from numeric axes.",
-        "Export the full checked pivot and keep a reproducible record of its grouping, statistics and filter."
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Use the downloadable Annotate example on a byte-identical private copy of its measurements.db. The cell table contains 2,341 measured objects across four wells and 51 observed well/field combinations. These are not 2,341 independent experiments, and rowID is a spatial label, not an established treatment assignment. This lesson independently checks every demonstrated pivot statistic and CSV cell, plus all 51 final scatter-point ordinates. It does not validate biological effects, arbitrary missing axis labels, infinite values or capped large grids. Tabulate has no dedicated test-data downloader, image preview, GPU pipeline, AI console or run-level Plot switch; it summarizes existing data. Use its own Load table and Export CSV controls, not the surrounding Database Browser controls.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Open Help, then Database browser, and choose the nested Tabulate button. This is a submodule of Database Browser, not a separate Home tile. We use the real downloadable Annotate example on a private copy. The earlier Annotate lesson shows how to obtain that dataset.",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7908,17 +7915,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Inside Tabulate, choose Load table, open the private measurements database and select cell. The full table contains two thousand three hundred forty-one objects. The surrounding Database Browser has its own controls; those are not this pivot's input or export. Loading alone does not choose your grouping.",
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Choose Plate slash row slash column. The three keys appear in Rows in hierarchy order. Leave Values empty to count source rows: four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one objects. These counts are cells, not independent experimental replicates.",
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
           "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "Search for fieldID and drag it into Columns. Four wells by thirteen field labels gives fifty-two possible combinations, but only fifty-one contain measurements. Hover over the blank at row five, column two, field twenty. It means no source rows for that combination, not a measured value of zero.",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7929,12 +7936,12 @@
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Clear the Columns well, then search for cell_area and drag it into Values. The default statistics are count, mean and sample standard deviation. The table recomputes as you change the axes or statistics. The search box filters column names, not the cell population.",
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "In this build, the short table rows can hide the later lines, including n. Hover over a result cell to read its complete statistics and contributing count. Standard deviation describes variation among those objects; it is not uncertainty across independent wells. The popup rounds numbers for display.",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7945,7 +7952,7 @@
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "Turn on median, sem and quantile. At zero point seven five, quantile is the upper quartile, using linear interpolation. SEM is sample standard deviation divided by the square root of the available count. It does not correct for objects sharing a field or well, so do not treat it as independent biological uncertainty.",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7956,7 +7963,7 @@
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Change Quantile at to zero point five. The quantile now matches the median: twenty-two thousand four hundred in the first well. The other statistics remain unchanged. Restore zero point seven five and turn the extra statistics off before returning to the simpler summary.",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7967,7 +7974,7 @@
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "Replace area with the channel-zero homogeneity feature at distance thirty-two. It has seven genuinely missing values, leaving two thousand three hundred thirty-four available measurements. In this well, five hundred one source rows contribute only four hundred ninety-eight values. Count depends on the selected feature; missing measurements are not zeros.",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7978,12 +7985,12 @@
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "Restore cell_area and choose Tabulate's Export CSV with a new filename. This well summary has four rows and six columns: three grouping keys, n, mean and standard deviation. We checked every exported value against the source. Keep the grouping, statistic and filter choices separately; the CSV is not a saved live specification.",
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
           "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Choose Plot this table, then drag columnID onto X, mean onto Y and rowID onto Colour. The chart receives four summary rows, not thousands of individual cells. There is a trap: Automatic treats these four distinct means as categories and draws a heatmap. This is not a continuous-scale plot of their magnitudes.",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -7997,12 +8004,12 @@
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "Use the right-hand filter to add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The pivot immediately summarizes one thousand one hundred seventy-one remaining objects. The chart still contains the old summary until you press Plot this table again. A visible chart is not proof that it reflects the current filter.",
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
           "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "Press Plot this table again to transfer the newly computed means. The chart now holds the four filtered groups, though Automatic still treats those means categorically. A note says the original area filter cannot apply directly to this summary table: it has mean, not cell_area. That does not mean the upstream pivot ignored the filter.",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8013,7 +8020,7 @@
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "Choose Clear all in the right-hand filter, then Plot this table again. The original two thousand three hundred forty-one objects and well means return. Filtering here does not delete source measurements. Export the filtered and unfiltered summaries under different names if both are needed.",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8024,17 +8031,17 @@
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "For a separate field-level view, drag fieldID into Rows after the well keys. There are fifty-two grid rows and fifty-one observed groups. The statistic now describes a field within a well, not the whole well. Fifteen to eighty-eight objects contribute to each observed group; adding groups does not create independent experiments.",
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Press Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. With these fifty-one distinct field means, the actual column list identifies mean as continuous. Check the role and axis labels rather than assuming that a number is always treated numerically.",
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
           "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "The chart now displays fifty-one real field means on a continuous vertical scale. Each plotted height was checked against the independently computed summary. Repeated field labels belong to different wells; colours show spatial row labels, not verified treatments. This grouped table has no object keys, so brushing cannot select individual images.",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -8049,14 +8056,19 @@
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "Export the field summary: fifty-two rows and seven columns, with one genuinely empty combination kept blank. The plotting hand-off omits that empty group, leaving fifty-one points. For reproducible code, pivot and PivotSpec in spacr's Qt pivot_spec module consume these choices, and to_csv writes the result. Preserve your source and record the exact grouping and filter.",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8189,19 +8201,18 @@
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
-      "title": "Small Multiples: real groups, live filters and honest scales",
-      "description": "Open the nested Small Multiples view, compare genuine downloaded measurements on matched or independent scales, inspect real empty groups and capped wrapping, and create a reversible derived column.",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "Find Small Multiples inside Graph Builder and build a real object-level scatter grid.",
-        "Compare shared, free, per-row and per-column limits without confusing scale changes with data changes.",
-        "Filter live, distinguish empty groups from unused wrap slots and account for omitted facet levels.",
-        "Create and remove an in-memory rescaling, preserving the source and recording reproducible chart choices."
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Use the downloadable Annotate example on a byte-identical private copy of measurements.db: 2,341 objects across four wells. The source includes 13 field labels and 51 observed well/field combinations. Object counts are not independent experimental replication, and spatial labels are not established treatments. All demonstrated continuous scatter-point coordinates, exact group memberships, axis limits, group titles and visible-versus-hidden panels are independently checked against source rows. The proof is bounded to finite, nondegenerate axes and this unsampled dataset; it does not validate arbitrary plots, linked-view brushing, biological effects or physical-unit calibration. Small Multiples is a table-only Graph Builder submodule, with no dedicated download, image preview, GPU pipeline, AI console, Run-level Plot switch or export button. Reuse Annotate's test data and its own Load table control.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Open Graph Builder from Home, then choose its nested Small Multiples button. This is the current submodule route, not a separate Home tile. We reuse the genuine downloadable Annotate measurements on a private copy; the Annotate tutorial shows how to obtain that example.",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8210,12 +8221,12 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Use Load table inside Small Multiples and select the private measurements database, then cell. It contains two thousand three hundred forty-one measured objects across four wells. The host Graph Builder has a separate Load table button. Use the one beside the Small Multiples heading for this workflow.",
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
           "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Search for cell_area and drag it onto X, then put cell_channel_1_mean_intensity on Y. Choose Scatter in Plot. Drag rowID onto Facet down and columnID onto Facet across. Search narrows the column list, not the cell population. Each plotted point here is an existing measured object.",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -8226,37 +8237,37 @@
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "With both scales shared, all four panels use the same horizontal and vertical limits. Their titles report six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one objects. The row and column labels describe position, not verified treatments. These cells are not independent experimental replicates.",
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
           "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "Set both X scale and Y scale to free. Each panel now uses its own range. This reveals within-group shape, but equally wide clouds need not span equal measurement values. Read the tick labels before comparing panels. Changing the scales does not alter any source measurements.",
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
           "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "Choose per row for both scales. Panels on the same grid row now share limits, while different grid rows can differ. This is a layout-based scale group, not a statistical correction. Here the two columns within each row are directly comparable on their matched axes.",
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
           "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "Choose per column for both scales. Panels in the same grid column now share limits. X and Y can also be configured separately; this demonstration changes both together. Restore shared for both before comparing all four wells. Shared means common within the current grid, not fixed across every later filter.",
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
           "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "In the Filter tab, add cell_area and set its lower bound to twenty-one thousand nine hundred twenty-five. The actual grid updates immediately to one thousand one hundred seventy-one objects. The panel counts and points change together. This is a live measurement filter, not image segmentation or a new analysis run.",
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
           "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Choose Clear all in the Filter tab. All two thousand three hundred forty-one objects return, with their original point positions and shared limits. This button clears the filter; Clear all channels on the left instead removes the chart assignments. Neither action deletes rows from the database.",
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "To inspect a genuine missing group, filter columnID to c two and fieldID to f twenty and f twenty-one, scrolling the category list as needed. Put fieldID on Facet across and keep rowID on Facet down. One hundred seventy-four cells remain. The row-five, field-twenty panel has n equals zero: no source objects, not a measured zero intensity.",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -8264,17 +8275,17 @@
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five while both facet channels are assigned. The grid remains two by two, and the notice says wrapping is ignored. Wrapping applies when only one facet channel is in use; it does not rearrange a two-way grid.",
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Clear Facet down, put fieldID on Facet across and keep Wrap at five. The retained fields now form three rows, five slots wide. Only twelve field levels are drawn, although the source has thirteen. The three unused positions are hidden layout padding, unlike a real group displayed with n equals zero.",
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Read the notice below the grid. Field twenty-one falls outside the twelve displayed levels, excluding two hundred sixty-four source objects from the panels. Two thousand seventy-seven points are actually drawn, even though the loaded table still contains two thousand three hundred forty-one rows. A loaded-row count is not proof that every row is visible.",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
@@ -8285,7 +8296,7 @@
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, enter area_k as the name and cell_area divided by one thousand as the expression, exactly as shown. The preview checks the first two thousand rows. Choose Add column to compute the derived values for the full table, without rewriting the database.",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
@@ -8296,17 +8307,17 @@
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "Drag area_k onto X. Every horizontal coordinate is now the original cell area divided by one thousand; Y values and group membership remain unchanged. This is a numerical rescaling, not calibration to square micrometres, a new measurement or evidence of a biological effect. All two thousand three hundred forty-one derived values were checked.",
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Put cell_area back on X before selecting area_k in Columns and choosing Remove. The original four-panel plot returns and the derived column disappears. Both the private database and the original downloaded data remain unchanged. Record your variables, grouping, filters and scale choices so someone else can reproduce the view.",
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "For code, trellis and TrellisSpec in spaCR's Qt trellis_spec module define the grouping, scales and wrap; GraphSpec defines the chart channels. This screen has no dedicated export button or downloadable dataset of its own. Use Tabulate for checked summary CSV exports. Image previews, GPU pipelines and spaCR AI belong to the relevant analysis lessons, not this table-only view.",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8314,7 +8325,12 @@
           ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

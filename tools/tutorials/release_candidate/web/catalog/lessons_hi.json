@@ -7628,54 +7628,50 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: मौजूदा रास्ता और जाँचा हुआ API वैकल्पिक तरीका",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "अन्वेषण",
-      "description": "नेस्टेड एक्सपोर्टर, गायब मेटाडेटा की त्रुटि और वास्तविक उदाहरण को निर्यात करने का स्पष्ट, सत्यापित Python तरीका समझें।",
+      "section": "Measure",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Measure में AnnData Export और स्रोत मापन डेटाबेस खोजें।",
-        "GUI की विफलता और API के वैकल्पिक तरीके को अलग रखें; मेटाडेटा न गढ़ें।",
-        "संयुक्त, कोशिका और केंद्रक मैट्रिक्स तथा चार गायब-मूल्य नीतियों की तुलना करें।",
-        "सहेजी फ़ाइलें खोलकर पहचान, टिप्पणियाँ, चित्र और स्रोत विवरण सुरक्षित रखें।"
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Annotate से डाउनलोड किए उदाहरण के measurements.db की एक कॉपी इस्तेमाल करें; मूल डेटाबेस और चित्र सुरक्षित रखें। जुड़े ZIP को निकालें और स्क्रिप्ट को कॉपी के पास रखकर spaCR वातावरण में चलाएँ। यह spacr.anndata_export.build_anndata बुलाती है और obs की केवल पूरी तरह गायब object-टाइप कॉलम को खाली categorical कॉलम में बदलती है। गायब मान गायब रहते हैं; अंशांकन या लेबल नहीं गढ़े जाते और इस भंडारण परिवर्तन में X नहीं बदलता। GUI ठीक नहीं होती। मौजूद आउटपुट अस्वीकार होता है; नई फ़ाइल लिखकर दोबारा पढ़ने की जाँच होती है। स्वतंत्र SQLite परिणाम: joined/keep 2341x1136; cell/keep और mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341। UMAP, GPU गणना, चित्र समावेशन, AI अनुरोध, जैविक सत्यापन या प्रकाशन नहीं। मूल GUI विफलता सुरक्षित है।",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Measure खोलें, फिर उसके भीतर AnnData Export चुनें। AnnData वस्तुओं की पंक्तियों और विशेषताओं के स्तंभों का मैट्रिक्स रखता है, साथ में अवलोकन मेटाडेटा और विशेषताओं के नाम भी। यहाँ मौजूदा GUI रास्ता दिखता है, लेकिन सफल निर्यात स्पष्ट Python वैकल्पिक तरीके से होते हैं। हम GUI की निर्यात त्रुटि ठीक होने का दावा नहीं करते।",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Measure खोलें, फिर उसके भीतर AnnData Export चुनें। AnnData वस्तुओं की पंक्तियों और विशेषताओं के स्तंभों का मैट्रिक्स रखता है, साथ में अवलोकन मेटाडेटा और विशेषताओं के नाम भी। यहाँ मौजूदा GUI रास्ता दिखता है, लेकिन सफल निर्यात स्पष्ट Python वैकल्पिक तरीके से होते हैं। हम GUI की निर्यात त्रुटि ठीक होने का दावा नहीं करते।"
+          "hold_after": 0.7
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "वास्तव में डाउनलोड किए मापन डेटाबेस की कॉपी लें, कोई बनाई हुई तालिका नहीं। चित्र और मूल डेटाबेस अपरिवर्तित रखें। GUI परियोजना का फ़ोल्डर लेती है; हमारा कमांड-लाइन उदाहरण मापन डेटाबेस की फ़ाइल सीधे लेता है। इस तुलना के लिए वैकल्पिक एम्बेडिंग बंद करें। मैट्रिक्स निर्यात करने के लिए GPU आवश्यक नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "वास्तव में डाउनलोड किए मापन डेटाबेस की कॉपी लें, कोई बनाई हुई तालिका नहीं। चित्र और मूल डेटाबेस अपरिवर्तित रखें। GUI परियोजना का फ़ोल्डर लेती है; हमारा कमांड-लाइन उदाहरण मापन डेटाबेस की फ़ाइल सीधे लेता है। इस तुलना के लिए वैकल्पिक एम्बेडिंग बंद करें। मैट्रिक्स निर्यात करने के लिए GPU आवश्यक नहीं है।"
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "पहले मूल फ़ाइल-लेखन प्रक्रिया को विफल होते देखें। कुछ अवलोकन कॉलम में object प्रकार के केवल गायब मान हैं, जिन्हें यह प्रक्रिया क्रमबद्ध करके सहेज नहीं सकती। अज्ञात वॉक्सेल अंशांकन इसका एक उदाहरण है। निकास स्थिति एक और अधूरी फ़ाइल सफलता नहीं हैं। त्रुटि दबाने के लिए अज्ञात मानों को शून्य या None पाठ से न बदलें।",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
             3450,
             340
           ],
-          "hold_after": 0.7,
-          "speech_text": "पहले मूल फ़ाइल-लेखन प्रक्रिया को विफल होते देखें। कुछ अवलोकन कॉलम में object प्रकार के केवल गायब मान हैं, जिन्हें यह प्रक्रिया क्रमबद्ध करके सहेज नहीं सकती। अज्ञात वॉक्सेल अंशांकन इसका एक उदाहरण है। निकास स्थिति एक और अधूरी फ़ाइल सफलता नहीं हैं। त्रुटि दबाने के लिए अज्ञात मानों को शून्य या None पाठ से न बदलें।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "जुड़ी स्क्रिप्ट डाउनलोड करके उसका भंडारण समाधान देखें। वह असली build_anndata फ़ंक्शन इस्तेमाल करती है और केवल पूरी तरह गायब object मेटाडेटा को खाली categorical कॉलम में बदलती है। गायब मान गायब रहते हैं; इस परिवर्तन से ज्ञात मेटाडेटा या विशेषता मैट्रिक्स नहीं बदलता। इसका अर्थ यह नहीं कि भौतिक अंशांकन वैज्ञानिक रूप से कोई श्रेणीबद्ध मात्रा है।",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7685,96 +7681,88 @@
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "जुड़ी स्क्रिप्ट डाउनलोड करके उसका भंडारण समाधान देखें। वह असली build_anndata फ़ंक्शन इस्तेमाल करती है और केवल पूरी तरह गायब object मेटाडेटा को खाली categorical कॉलम में बदलती है। गायब मान गायब रहते हैं; इस परिवर्तन से ज्ञात मेटाडेटा या विशेषता मैट्रिक्स नहीं बदलता। इसका अर्थ यह नहीं कि भौतिक अंशांकन वैज्ञानिक रूप से कोई श्रेणीबद्ध मात्रा है।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "स्रोत डेटाबेस, नया आउटपुट पथ और keep नीति देकर स्क्रिप्ट चलाएँ। संयुक्त उदाहरण में दो हज़ार तीन सौ इकतालीस कोशिका पंक्तियाँ और एक हज़ार एक सौ छत्तीस विशेषताएँ हैं। संबंधित केंद्रक और रोगजनक माप कोशिका स्तर पर एकत्र होते हैं। चार लाख तीन सौ बीस गायब विशेषता मान गायब रहते हैं, शून्य नहीं बनते।",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्रोत डेटाबेस, नया आउटपुट पथ और keep नीति देकर स्क्रिप्ट चलाएँ। संयुक्त उदाहरण में दो हज़ार तीन सौ इकतालीस कोशिका पंक्तियाँ और एक हज़ार एक सौ छत्तीस विशेषताएँ हैं। संबंधित केंद्रक और रोगजनक माप कोशिका स्तर पर एकत्र होते हैं। चार लाख तीन सौ बीस गायब विशेषता मान गायब रहते हैं, शून्य नहीं बनते।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "केवल एक प्रकार की वस्तु के अपने माप चाहिए तो single-table cell जोड़ें और गायब मान बनाए रखें। फ़ाइल में वही दो हज़ार तीन सौ इकतालीस कोशिकाएँ हैं, लेकिन केवल दो सौ इकसठ विशेषताएँ। अट्ठाईस मान गायब हैं। सिर्फ़ फ़ाइल आकार या कॉलम की संख्या नहीं, विशेषता नाम और पंक्ति पहचान भी मिलाएँ।",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "केवल एक प्रकार की वस्तु के अपने माप चाहिए तो single-table cell जोड़ें और गायब मान बनाए रखें। फ़ाइल में वही दो हज़ार तीन सौ इकतालीस कोशिकाएँ हैं, लेकिन केवल दो सौ इकसठ विशेषताएँ। अट्ठाईस मान गायब हैं। सिर्फ़ फ़ाइल आकार या कॉलम की संख्या नहीं, विशेषता नाम और पंक्ति पहचान भी मिलाएँ।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "mean नीति अलग विश्लेषणात्मक निर्णय है, भंडारण समाधान का हिस्सा नहीं। यहाँ अट्ठाईस गायब विशेषता मानों को संबंधित कॉलम के देखे गए मानों के औसत से भरा जाता है। निर्यात की गायब-मूल्य परत मूल स्थान दर्ज करती है। जाँचें कि भरना आपके विश्लेषण के लिए उचित है; पूरा मैट्रिक्स अपने आप बेहतर या पूर्वाग्रह-मुक्त नहीं होता।",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "mean नीति अलग विश्लेषणात्मक निर्णय है, भंडारण समाधान का हिस्सा नहीं। यहाँ अट्ठाईस गायब विशेषता मानों को संबंधित कॉलम के देखे गए मानों के औसत से भरा जाता है। निर्यात की गायब-मूल्य परत मूल स्थान दर्ज करती है। जाँचें कि भरना आपके विश्लेषण के लिए उचित है; पूरा मैट्रिक्स अपने आप बेहतर या पूर्वाग्रह-मुक्त नहीं होता।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "drop-features नीति गायब मानों वाले कॉलम हटाती है। यहाँ चार कॉलम हटते हैं, और दो सौ सत्तावन विशेषताएँ तथा सभी कोशिका पंक्तियाँ बचती हैं। देखें कौन से माप क्यों हटे। यह नीति विशेषताओं का समूह बदलती है और उपयोगी सूचना हटा सकती है; यह हर मामले के लिए सफ़ाई की सिफारिश नहीं है।",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "drop-features नीति गायब मानों वाले कॉलम हटाती है। यहाँ चार कॉलम हटते हैं, और दो सौ सत्तावन विशेषताएँ तथा सभी कोशिका पंक्तियाँ बचती हैं। देखें कौन से माप क्यों हटे। यह नीति विशेषताओं का समूह बदलती है और उपयोगी सूचना हटा सकती है; यह हर मामले के लिए सफ़ाई की सिफारिश नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "इसके विपरीत drop-objects नीति गायब विशेषता मानों वाली पंक्तियाँ हटाती है। यहाँ सात कोशिकाएँ हटती हैं, जिससे दो हज़ार तीन सौ चौंतीस पंक्तियाँ और सभी दो सौ इकसठ विशेषताएँ बचती हैं। गायब होना फीनोटाइप, चित्र अधिग्रहण या विभाजन से जुड़ा हो सकता है। बची कोशिकाओं को प्रतिनिधि मानने से पहले बहिष्करण जाँचें।",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "इसके विपरीत drop-objects नीति गायब विशेषता मानों वाली पंक्तियाँ हटाती है। यहाँ सात कोशिकाएँ हटती हैं, जिससे दो हज़ार तीन सौ चौंतीस पंक्तियाँ और सभी दो सौ इकसठ विशेषताएँ बचती हैं। गायब होना फीनोटाइप, चित्र अधिग्रहण या विभाजन से जुड़ा हो सकता है। बची कोशिकाओं को प्रतिनिधि मानने से पहले बहिष्करण जाँचें।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "हर केंद्रक के लिए एक पंक्ति चाहिए तो single-table nucleus चुनें, कोशिका पंक्तियों पर केंद्रक विशेषताएँ एकत्र करने के बजाय। इस उदाहरण में दो हज़ार छह सौ बयासी केंद्रक और तीन सौ इकतालीस विशेषताएँ हैं। मूल वस्तु से संबंध और वस्तु पहचान सुरक्षित रखें। कोशिकाओं से अधिक केंद्रक होने का अर्थ निर्यात में नई कोशिकाएँ बनना नहीं है।",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "हर केंद्रक के लिए एक पंक्ति चाहिए तो single-table nucleus चुनें, कोशिका पंक्तियों पर केंद्रक विशेषताएँ एकत्र करने के बजाय। इस उदाहरण में दो हज़ार छह सौ बयासी केंद्रक और तीन सौ इकतालीस विशेषताएँ हैं। मूल वस्तु से संबंध और वस्तु पहचान सुरक्षित रखें। कोशिकाओं से अधिक केंद्रक होने का अर्थ निर्यात में नई कोशिकाएँ बनना नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "हर सहेजी फ़ाइल दोबारा खोलें। स्क्रिप्ट पूरा मैट्रिक्स, वस्तु और विशेषता पहचान का क्रम, गायब मान और अवलोकन मेटाडेटा मिलाती है; छहों फ़ाइलों की स्वतंत्र SQLite जाँच भी सफल रही। टिप्पणियाँ मेटाडेटा रहती हैं, मैट्रिक्स में जोड़ी गई प्रशिक्षण विशेषताएँ नहीं। चित्र अंदर नहीं रखे जाते, इसलिए स्रोत चित्र और उनके पथ निर्यात के साथ बचाएँ।",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "हर सहेजी फ़ाइल दोबारा खोलें। स्क्रिप्ट पूरा मैट्रिक्स, वस्तु और विशेषता पहचान का क्रम, गायब मान और अवलोकन मेटाडेटा मिलाती है; छहों फ़ाइलों की स्वतंत्र SQLite जाँच भी सफल रही। टिप्पणियाँ मेटाडेटा रहती हैं, मैट्रिक्स में जोड़ी गई प्रशिक्षण विशेषताएँ नहीं। चित्र अंदर नहीं रखे जाते, इसलिए स्रोत चित्र और उनके पथ निर्यात के साथ बचाएँ।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "हर नीति के लिए नया आउटपुट नाम चुनें और स्क्रिप्ट, सेटिंग तथा पैकेज संस्करण रखें। स्क्रिप्ट मौजूद फ़ाइल को अधिलेखित करने के बजाय अस्वीकार करती है। ये जाँचें इस उदाहरण के डेटा संरक्षण को सिद्ध करती हैं, जैविक वैधता या GUI सुधार को नहीं। पूरी प्रक्रिया के लिए जुड़े API और मापन पाठ देखें।",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7785,10 +7773,14 @@
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "हर नीति के लिए नया आउटपुट नाम चुनें और स्क्रिप्ट, सेटिंग तथा पैकेज संस्करण रखें। स्क्रिप्ट मौजूद फ़ाइल को अधिलेखित करने के बजाय अस्वीकार करती है। ये जाँचें इस उदाहरण के डेटा संरक्षण को सिद्ध करती हैं, जैविक वैधता या GUI सुधार को नहीं। पूरी प्रक्रिया के लिए जुड़े API और मापन पाठ देखें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7797,36 +7789,33 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "अन्वेषण",
-      "title": "PCA: वास्तविक माप, लाइव पुनः गणना और अनुपस्थित मान",
-      "description": "Image UMAP के भीतर PCA में डाउनलोड किए गए वास्तविक कोशिका डेटा से सत्यापित स्कोर, वापस हटाए जा सकने वाले फ़िल्टर, स्पष्ट अनुपस्थित-मान नीतियाँ और तीन CSV निर्यात देखें।",
+      "section": "Explore",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "Image UMAP में PCA खोजें और माप वाले फ़ीचर स्पष्ट रूप से चुनें।",
-        "जैविक अलगाव का दावा किए बिना घटकों का प्रसरण और सहसंबंध के तीर पढ़ें।",
-        "मानकीकरण, फ़िल्टर के बाद पुनः गणना और अनुपस्थित मानों की चार नीतियों की तुलना करें।",
-        "मूल डेटा सुरक्षित रखते हुए ऑब्जेक्ट स्कोर, फ़ीचर लोडिंग और घटक प्रसरण निर्यात करें।"
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Annotate के डाउनलोड योग्य उदाहरण की बाइट-दर-बाइट समान निजी प्रति इस्तेमाल करें: 2,341 कोशिका पंक्तियाँ, 276 मूल कॉलम और चार वेल। पहले cell_area, cell_channel_1_mean_intensity और cell_perimeter, फिर सात वास्तविक अनुपस्थित मानों वाला cell_channel_0_homogeneity_distance_32 शामिल किया जाता है। अनुपस्थिति का कारण और उपचार पहचान स्थापित नहीं हैं। स्वतंत्र सहप्रसरण आइगेनवैल्यू विघटन से ऐप के छोटे-टेबल SVD, बची पंक्तियों की स्थितियों, स्कोर, लोडिंग, सहसंबंध और प्रसरण की जाँच की गई है; चित्रित निर्देशांक और निर्यात की हर मूल डेटा सेल भी जाँची गई है। प्रमाण केवल इन पूर्ण-रैंक, गैर-अपकृष्ट तीन और चार फ़ीचर वाले विश्लेषणों तक सीमित है; सभी स्वतः चुने फ़ीचर, तीरों की पिक्सेल ज्यामिति, कम-रैंक इनपुट, छवियों से जुड़ा चयन या जैविक निष्कर्ष सत्यापित नहीं हैं। CPU पर NumPy PCA, UMAP और उसके GPU विकल्पों से अलग है। यहाँ अपना डेटा डाउनलोड, छवि पूर्वावलोकन, AI कंसोल या पूरे रन का Plot स्विच नहीं है। तीन CSV, फिट किए मॉडल का पैकेज, सहेजी सेटिंग या निर्यात किया चित्र नहीं हैं। API: spacr.qt.widgets.pca_model.pca और PCASpec; PCAResult.scores_frame, loadings_frame और variance_frame।",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Home से Image UMAP खोलें, फिर उसके भीतर PCA बटन चुनें। PCA मापों का रैखिक सार है, कोई दूसरा UMAP एम्बेडिंग नहीं। हम Annotate के डाउनलोड योग्य वास्तविक उदाहरण की निजी प्रति इस्तेमाल करते हैं। यह डेटा कहाँ से मिलता है, Annotate ट्यूटोरियल में दिखाया गया है।",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ],
-          "speech_text": "Home से Image यू मैप खोलें, फिर उसके भीतर PCA बटन चुनें। PCA मापों का रैखिक सार है, कोई दूसरा यू मैप एम्बेडिंग नहीं। हम Annotate के डाउनलोड योग्य वास्तविक उदाहरण की निजी प्रति इस्तेमाल करते हैं। यह डेटा कहाँ से मिलता है, Annotate ट्यूटोरियल में दिखाया गया है।"
+          ]
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "PCA शीर्षक के पास Load table चुनें, कॉपी किया गया माप डेटाबेस खोलें और फिर cell चुनें। चार वेल में दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट हैं। यह स्क्रीन मापों का CSV भी पढ़ सकती है। मुख्य मॉड्यूल में पहले लोड किया गया पथ इस बात का प्रमाण नहीं कि सही टेबल खुली है।",
-          "hold_after": 0.7,
-          "speech_text": "PCA शीर्षक के पास Load table चुनें, कॉपी किया गया माप डेटाबेस खोलें और फिर cell चुनें। चार वेल में दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट हैं। यह स्क्रीन मापों का CSV भी पढ़ सकती है। मुख्य मॉड्यूल में पहले लोड किया गया पथ इस बात का प्रमाण नहीं कि सही टेबल खुली है।"
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "None चुनने से पहले फ़ीचर खोज खाली करें, क्योंकि यह बटन केवल अभी दिखाई दे रहे फ़ीचरों के चेक हटाता है। cell_area, cell_channel_1_mean_intensity और cell_perimeter खोजकर चुनें। खोज फिर खाली करें, Components को तीन रखें और Run PCA चुनें। खोज फ़ीचर सूची को छोटा करती है, कोशिका समूह को नहीं।",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7836,158 +7825,149 @@
             1490,
             3350,
             610
-          ],
-          "speech_text": "None चुनने से पहले फ़ीचर खोज खाली करें, क्योंकि यह बटन केवल अभी दिखाई दे रहे फ़ीचरों के चेक हटाता है। cell_area, cell_channel_1_mean_intensity और cell_perimeter खोजकर चुनें। खोज फिर खाली करें, Components को तीन रखें और Run PCA चुनें। खोज फ़ीचर सूची को छोटा करती है, कोशिका समूह को नहीं।"
+          ]
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Standardise बनाए रखें और स्क्री प्लॉट पढ़ें। पहला घटक इन तीन फ़ीचरों के मानकीकृत प्रसरण का लगभग पैंसठ दशमलव सात प्रतिशत, और दूसरा इकतीस दशमलव सात प्रतिशत समझाता है। बिंदु मापी गई व्यक्तिगत कोशिकाएँ हैं, स्वतंत्र प्रयोगात्मक पुनरावृत्तियाँ नहीं। समझाया गया प्रसरण, वर्गीकरण की सटीकता नहीं है।",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Standardise बनाए रखें और स्क्री प्लॉट पढ़ें। पहला घटक इन तीन फ़ीचरों के मानकीकृत प्रसरण का लगभग पैंसठ दशमलव सात प्रतिशत, और दूसरा इकतीस दशमलव सात प्रतिशत समझाता है। बिंदु मापी गई व्यक्तिगत कोशिकाएँ हैं, स्वतंत्र प्रयोगात्मक पुनरावृत्तियाँ नहीं। समझाया गया प्रसरण, वर्गीकरण की सटीकता नहीं है।"
+          ]
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Colour में rowID, X पर PC तीन और Y पर PC एक चुनें। ये नियंत्रण मौजूदा विघटन को फिर बनाकर दिखाते हैं, दोबारा फिट नहीं करते। रंग स्थानिक पंक्तियाँ पहचानते हैं, स्थापित उपचार नहीं। अलग दिखता बिंदु-समूह मापों और भ्रमकारी कारकों की जाँच का संकेत है, जैविक प्रभाव का प्रमाण नहीं।",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
             335,
             2220,
             1600
-          ],
-          "speech_text": "Colour में rowID, X पर PC तीन और Y पर PC एक चुनें। ये नियंत्रण मौजूदा विघटन को फिर बनाकर दिखाते हैं, दोबारा फिट नहीं करते। रंग स्थानिक पंक्तियाँ पहचानते हैं, स्थापित उपचार नहीं। अलग दिखता बिंदु-समूह मापों और भ्रमकारी कारकों की जाँच का संकेत है, जैविक प्रभाव का प्रमाण नहीं।"
+          ]
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "PC एक और PC दो पर लौटें। Loadings biplot बंद करके फिर चालू करें। तीर फ़ीचरों का इन दो घटकों के साथ सहसंबंध दिखाते हैं; उनकी कुल लंबाई प्रदर्शन के लिए बदली जाती है और टूटी रेखा वाला वृत्त पैमाना है। पास-पास की दिशाएँ कारण और परिणाम का संबंध स्थापित नहीं करतीं।",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
             500,
             1660,
             1070
-          ],
-          "speech_text": "PC एक और PC दो पर लौटें। Loadings biplot बंद करके फिर चालू करें। तीर फ़ीचरों का इन दो घटकों के साथ सहसंबंध दिखाते हैं; उनकी कुल लंबाई प्रदर्शन के लिए बदली जाती है और टूटी रेखा वाला वृत्त पैमाना है। पास-पास की दिशाएँ कारण और परिणाम का संबंध स्थापित नहीं करतीं।"
+          ]
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Scale को Centre only करें। पहला घटक अब लगभग नब्बे दशमलव एक प्रतिशत समझाता है, क्योंकि मूल मापों के पैमाने विश्लेषण बदल देते हैं। बड़ा प्रतिशत मॉडल को बेहतर नहीं बनाता। आगे बढ़ने से पहले Standardise वापस रखें: यह हर फ़ीचर को केंद्रित करके उसके नमूना मानक विचलन से भाग देता है।",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Scale को Centre only करें। पहला घटक अब लगभग नब्बे दशमलव एक प्रतिशत समझाता है, क्योंकि मूल मापों के पैमाने विश्लेषण बदल देते हैं। बड़ा प्रतिशत मॉडल को बेहतर नहीं बनाता। आगे बढ़ने से पहले Standardise वापस रखें: यह हर फ़ीचर को केंद्रित करके उसके नमूना मानक विचलन से भाग देता है।"
+          ]
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "दाईं ओर के फ़िल्टर में cell_area जोड़ें और न्यूनतम मान इक्कीस हज़ार नौ सौ पच्चीस रखें। अब विश्लेषण में एक हज़ार एक सौ इकहत्तर कोशिकाएँ हैं। यह लाइव पुनः गणना है: समूह का औसत, पैमाना और घटकों की दिशाएँ बदलती हैं। केवल पुराने अक्षों पर कुछ बिंदु छिपाए नहीं जाते।",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
             325,
             470,
             620
-          ],
-          "speech_text": "दाईं ओर के फ़िल्टर में cell_area जोड़ें और न्यूनतम मान इक्कीस हज़ार नौ सौ पच्चीस रखें। अब विश्लेषण में एक हज़ार एक सौ इकहत्तर कोशिकाएँ हैं। यह लाइव पुनः गणना है: समूह का औसत, पैमाना और घटकों की दिशाएँ बदलती हैं। केवल पुराने अक्षों पर कुछ बिंदु छिपाए नहीं जाते।"
+          ]
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "फ़िल्टर में Clear all चुनें। सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ और मूल विघटन वापस आते हैं। फ़िल्टर डेटाबेस की पंक्तियाँ कभी नहीं मिटाता। हर बदलाव के बाद समूह और रिपोर्ट जाँचें; अलग-अलग समूहों पर फिट किए स्कोर अपने आप एक ही निर्देशांक प्रणाली साझा नहीं करते।",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
             1890,
             2400,
             225
-          ],
-          "speech_text": "फ़िल्टर में Clear all चुनें। सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ और मूल विघटन वापस आते हैं। फ़िल्टर डेटाबेस की पंक्तियाँ कभी नहीं मिटाता। हर बदलाव के बाद समूह और रिपोर्ट जाँचें; अलग-अलग समूहों पर फिट किए स्कोर अपने आप एक ही निर्देशांक प्रणाली साझा नहीं करते।"
+          ]
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "अब cell_channel_0_homogeneity_distance_32 खोजकर चुनें। Run PCA चुनने तक मौजूदा परिणाम में तीन फ़ीचर ही रहते हैं। इस टेक्सचर फ़ीचर के सात मान वास्तव में अनुपस्थित हैं। कारण अज्ञात है, इसलिए इन कोशिकाओं को असंक्रमित न कहें और अनुपस्थित मापों की जगह शून्य न रखें।",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "अब cell_channel_0_homogeneity_distance_32 खोजकर चुनें। Run PCA चुनने तक मौजूदा परिणाम में तीन फ़ीचर ही रहते हैं। इस टेक्सचर फ़ीचर के सात मान वास्तव में अनुपस्थित हैं। कारण अज्ञात है, इसलिए इन कोशिकाओं को असंक्रमित न कहें और अनुपस्थित मापों की जगह शून्य न रखें।"
+          ]
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Auto के साथ चलाएँ। चारों फ़ीचर रहते हैं, लेकिन सात कोशिकाएँ हटती हैं और दो हज़ार तीन सौ चौंतीस बचती हैं। Auto पहले दो प्रतिशत से अधिक पंक्तियों में अनुपस्थित फ़ीचर हटाता है, फिर बाकी अधूरी पंक्तियाँ। चुने गए तीन घटक लगभग अट्ठानबे दशमलव छह प्रतिशत पकड़ते हैं; चौथी दिशा अभी भी मौजूद है।",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Auto के साथ चलाएँ। चारों फ़ीचर रहते हैं, लेकिन सात कोशिकाएँ हटती हैं और दो हज़ार तीन सौ चौंतीस बचती हैं। Auto पहले दो प्रतिशत से अधिक पंक्तियों में अनुपस्थित फ़ीचर हटाता है, फिर बाकी अधूरी पंक्तियाँ। चुने गए तीन घटक लगभग अट्ठानबे दशमलव छह प्रतिशत पकड़ते हैं; चौथी दिशा अभी भी मौजूद है।"
+          ]
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "NaN में Drop features चुनें। सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ रहती हैं, लेकिन टेक्सचर फ़ीचर इस फिट से बाहर हो जाता है। चार बॉक्स चुने रहने पर भी वास्तविक विश्लेषण में केवल तीन फ़ीचर हो सकते हैं। केवल अनुरोधित चयन नहीं, परिणाम और हटे फ़ीचर की सूचना पढ़ें।",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "NaN में Drop features चुनें। सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ रहती हैं, लेकिन टेक्सचर फ़ीचर इस फिट से बाहर हो जाता है। चार बॉक्स चुने रहने पर भी वास्तविक विश्लेषण में केवल तीन फ़ीचर हो सकते हैं। केवल अनुरोधित चयन नहीं, परिणाम और हटे फ़ीचर की सूचना पढ़ें।"
+          ]
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Mean-impute चुनें। सभी कोशिकाएँ और चारों फ़ीचर रहते हैं; गणना में सात मान उस फ़ीचर के औसत से बदले जाते हैं। ये बनाए गए मान हैं, वापस मिली मापें नहीं। रिपोर्ट प्रतिस्थापन संख्या बताती है। परिणाम पेश करते समय इम्प्यूटेशन बताएँ; मूल डेटाबेस फिर से नहीं लिखा गया है।",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Mean-impute चुनें। सभी कोशिकाएँ और चारों फ़ीचर रहते हैं; गणना में सात मान उस फ़ीचर के औसत से बदले जाते हैं। ये बनाए गए मान हैं, वापस मिली मापें नहीं। रिपोर्ट प्रतिस्थापन संख्या बताती है। परिणाम पेश करते समय इम्प्यूटेशन बताएँ; मूल डेटाबेस फिर से नहीं लिखा गया है।"
+          ]
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Complete cases चुनें। इस उदाहरण में चारों चुने फ़ीचर रखे जाते हैं और वही सात अधूरी कोशिकाएँ हटती हैं। Auto से यह मेल केवल इन डेटा का परिणाम है। Auto पर लौटें, टेक्सचर फ़ीचर का चेक हटाएँ, खोज खाली करें, Run PCA चुनें और Colour को none करें।",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "Complete cases चुनें। इस उदाहरण में चारों चुने फ़ीचर रखे जाते हैं और वही सात अधूरी कोशिकाएँ हटती हैं। Auto से यह मेल केवल इन डेटा का परिणाम है। Auto पर लौटें, टेक्सचर फ़ीचर का चेक हटाएँ, खोज खाली करें, Run PCA चुनें और Colour को none करें।"
+          ]
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Export चुनें और pca_example जैसा आधार नाम सहेजें। स्क्रीन तीन CSV लिखती है: हर विश्लेषित ऑब्जेक्ट के स्कोर, हर फ़ीचर की लोडिंग और सहसंबंध, तथा हर घटक का प्रसरण। स्कोर फ़ाइल मूल माप कॉलम भी रखती है; यह सिर्फ तीन निर्देशांक कॉलम नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "Export चुनें और pca_example जैसा आधार नाम सहेजें। स्क्रीन तीन CSV लिखती है: हर विश्लेषित ऑब्जेक्ट के स्कोर, हर फ़ीचर की लोडिंग और सहसंबंध, तथा हर घटक का प्रसरण। स्कोर फ़ाइल मूल माप कॉलम भी रखती है; यह सिर्फ तीन निर्देशांक कॉलम नहीं है।"
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "ये निर्यात दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट पंक्तियाँ सुरक्षित रखते हैं और दोनों डेटाबेस अपरिवर्तित रहते हैं। फ़ीचर सूची, फ़िल्टर, पैमाना और अनुपस्थित-मान नीति अलग लिखें: यह बटन सेटिंग या फिट किए मॉडल का पैकेज नहीं सहेजता। कोड में spaCR के Qt pca_model मॉड्यूल के pca और PCASpec इस्तेमाल करें। यह CPU टेबल दृश्य, छवि पूर्वावलोकन, GPU विश्लेषण और spaCR AI से अलग है।",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
-          ],
-          "speech_text": "ये निर्यात दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट पंक्तियाँ सुरक्षित रखते हैं और दोनों डेटाबेस अपरिवर्तित रहते हैं। फ़ीचर सूची, फ़िल्टर, पैमाना और अनुपस्थित-मान नीति अलग लिखें: यह बटन सेटिंग या फिट किए मॉडल का पैकेज नहीं सहेजता। कोड में स्पेकर के क्यू टी pca_model मॉड्यूल के pca और PCASpec इस्तेमाल करें। यह CPU टेबल दृश्य, छवि पूर्वावलोकन, GPU विश्लेषण और स्पेकर AI से अलग है।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7995,114 +7975,103 @@
       "slug": "tabulate",
       "series": 5,
       "app_key": "tabulate",
-      "section": "अन्वेषण",
-      "title": "Tabulate: वास्तविक मापों का समूहवार सार, गिनती और अद्यतन ग्राफ",
-      "description": "Database Browser में Tabulate खोलें, डाउनलोड किए गए मापों को वेल और दृश्य-क्षेत्र के अनुसार संक्षेपित करें, वास्तविक अनुपलब्ध मान देखें, जाँचे हुए आँकड़े निर्यात करें और अद्यतन सारणी को पुराने या श्रेणीगत ग्राफ से अलग पहचानें।",
+      "section": "Explore",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "नेस्टेड मॉड्यूल तक पहुँचें और असली कॉलम खींचकर वेल तथा दृश्य-क्षेत्र के सार बनाएँ।",
-        "गिनती, अनुपस्थित संयोजन, नमूना मानक विचलन और क्वांटाइल समझें; स्वतंत्र प्रयोगात्मक दोहराव न मानें।",
-        "मापों पर फ़िल्टर लगाएँ, ग्राफ स्पष्ट रूप से फिर अद्यतन करें और श्रेणीगत तथा संख्यात्मक अक्ष पहचानें।",
-        "पूरा सार निर्यात करें और समूह, आँकड़े तथा फ़िल्टर दर्ज करें।"
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Annotate के डाउनलोड योग्य उदाहरण की measurements.db की बाइट-दर-बाइट समान निजी प्रति इस्तेमाल करें। cell तालिका में 2,341 वस्तुएँ, चार वेल और 51 देखे गए वेल/दृश्य-क्षेत्र संयोजन हैं। ये 2,341 स्वतंत्र प्रयोग नहीं हैं; rowID स्थान का लेबल है, प्रमाणित उपचार-समूह नहीं। प्रदर्शित सभी आँकड़ों, CSV के हर खाने और अंतिम 51 बिंदुओं की ऊँचाइयों की स्वतंत्र जाँच हुई है। जैविक प्रभाव, अनुपलब्ध अक्ष-लेबल, अनंत मान या सीमित बड़ी ग्रिड सत्यापित नहीं की गई हैं। Tabulate मौजूदा मापों का सार बनाता है; इसमें अपना डाउनलोडर, चित्र-पूर्वावलोकन, GPU प्रक्रिया, AI कंसोल या पूरे रन का Plot स्विच नहीं है। इसके अपने Load table और Export CSV इस्तेमाल करें, आसपास के Database Browser के बटन नहीं।",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Help खोलें, फिर Database browser, और उसके भीतर Tabulate बटन चुनें। यह Database Browser का उपमॉड्यूल है, Home का अलग टाइल नहीं। हम Annotate के वास्तविक डाउनलोड योग्य उदाहरण की निजी प्रति इस्तेमाल करते हैं। डेटा पाने का तरीका पिछले Annotate ट्यूटोरियल में बताया गया है।",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ],
-          "speech_text": "Help खोलें, फिर Database browser, और उसके भीतर Tabulate बटन चुनें। यह Database Browser का उपमॉड्यूल है, Home का अलग टाइल नहीं। हम Annotate के वास्तविक डाउनलोड योग्य उदाहरण की निजी प्रति इस्तेमाल करते हैं। डेटा पाने का तरीका पिछले Annotate ट्यूटोरियल में बताया गया है।"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Tabulate में Load table चुनें, मापों के डेटाबेस की निजी प्रति खोलें और cell चुनें। पूरी तालिका में दो हज़ार तीन सौ इकतालीस वस्तुएँ हैं। आसपास के Database Browser के अपने नियंत्रण हैं; वे इस पिवट के इनपुट या निर्यात के नियंत्रण नहीं हैं। डेटा लोड करने से समूह अपने आप नहीं चुने जाते।",
-          "hold_after": 0.7,
-          "speech_text": "Tabulate में Load table चुनें, मापों के डेटाबेस की निजी प्रति खोलें और cell चुनें। पूरी तालिका में दो हज़ार तीन सौ इकतालीस वस्तुएँ हैं। आसपास के Database Browser के अपने नियंत्रण हैं; वे इस पिवट के इनपुट या निर्यात के नियंत्रण नहीं हैं। डेटा लोड करने से समूह अपने आप नहीं चुने जाते।"
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Plate slash row slash column चुनें। Rows में तीनों कुंजियाँ पदानुक्रम के क्रम में आती हैं। मूल पंक्तियाँ गिनने के लिए Values खाली रखें। चार वेल में छह सौ पंद्रह, पाँच सौ पच्चीस, सात सौ और पाँच सौ एक वस्तुएँ हैं। ये कोशिकाओं की गिनतियाँ हैं, स्वतंत्र प्रयोगात्मक दोहराव नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Plate slash row slash column चुनें। Rows में तीनों कुंजियाँ पदानुक्रम के क्रम में आती हैं। मूल पंक्तियाँ गिनने के लिए Values खाली रखें। चार वेल में छह सौ पंद्रह, पाँच सौ पच्चीस, सात सौ और पाँच सौ एक वस्तुएँ हैं। ये कोशिकाओं की गिनतियाँ हैं, स्वतंत्र प्रयोगात्मक दोहराव नहीं।"
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
+          "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "fieldID खोजें और Columns में खींचें। चार वेल और तेरह दृश्य-क्षेत्र लेबल से बावन संभावित संयोजन बनते हैं, लेकिन केवल इक्यावन में माप हैं। पंक्ति-लेबल पाँच, कॉलम-लेबल दो और दृश्य-क्षेत्र बीस के खाली खाने पर माउस रखें। उस संयोजन में मूल डेटा की पंक्तियाँ नहीं हैं; इसका अर्थ मापा गया शून्य नहीं है।",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
             405,
             2300,
             260
-          ],
-          "speech_text": "fieldID खोजें और Columns में खींचें। चार वेल और तेरह दृश्य-क्षेत्र लेबल से बावन संभावित संयोजन बनते हैं, लेकिन केवल इक्यावन में माप हैं। पंक्ति-लेबल पाँच, कॉलम-लेबल दो और दृश्य-क्षेत्र बीस के खाली खाने पर माउस रखें। उस संयोजन में मूल डेटा की पंक्तियाँ नहीं हैं; इसका अर्थ मापा गया शून्य नहीं है।"
+          ]
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Columns क्षेत्र साफ़ करें, cell_area खोजें और Values में खींचें। डिफ़ॉल्ट आँकड़े गिनती, माध्य और नमूना मानक विचलन हैं। अक्ष या आँकड़े बदलने पर तालिका फिर गणना करती है। खोज बॉक्स कॉलम के नाम छाँटता है, कोशिकाओं की आबादी नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Columns क्षेत्र साफ़ करें, cell_area खोजें और Values में खींचें। डिफ़ॉल्ट आँकड़े गिनती, माध्य और नमूना मानक विचलन हैं। अक्ष या आँकड़े बदलने पर तालिका फिर गणना करती है। खोज बॉक्स कॉलम के नाम छाँटता है, कोशिकाओं की आबादी नहीं।"
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "इस संस्करण में तालिका की कम ऊँचाई वाली पंक्तियाँ बाद की पंक्तियों को, n सहित, छिपा सकती हैं। पूरे आँकड़े और योगदान देने वाली गिनती पढ़ने के लिए परिणाम के खाने पर माउस रखें। मानक विचलन इन वस्तुओं के बीच भिन्नता बताता है, स्वतंत्र वेल के बीच अनिश्चितता नहीं। टूलटिप संख्याएँ दिखाने के लिए गोल करता है।",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
             405,
             1190,
             450
-          ],
-          "speech_text": "इस संस्करण में तालिका की कम ऊँचाई वाली पंक्तियाँ बाद की पंक्तियों को, n सहित, छिपा सकती हैं। पूरे आँकड़े और योगदान देने वाली गिनती पढ़ने के लिए परिणाम के खाने पर माउस रखें। मानक विचलन इन वस्तुओं के बीच भिन्नता बताता है, स्वतंत्र वेल के बीच अनिश्चितता नहीं। टूलटिप संख्याएँ दिखाने के लिए गोल करता है।"
+          ]
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "median, sem और quantile चालू करें। शून्य दशमलव सात पाँच पर quantile ऊपरी चतुर्थक है, जिसकी गणना रैखिक अंतर्वेशन से होती है। SEM नमूना मानक विचलन को उपलब्ध गिनती के वर्गमूल से भाग देने पर मिलता है। यह एक ही दृश्य-क्षेत्र या वेल की वस्तुओं के बीच निर्भरता नहीं सुधारता, इसलिए इसे स्वतंत्र जैविक अनिश्चितता न मानें।",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             2050,
             890
-          ],
-          "speech_text": "median, sem और quantile चालू करें। शून्य दशमलव सात पाँच पर quantile ऊपरी चतुर्थक है, जिसकी गणना रैखिक अंतर्वेशन से होती है। SEM नमूना मानक विचलन को उपलब्ध गिनती के वर्गमूल से भाग देने पर मिलता है। यह एक ही दृश्य-क्षेत्र या वेल की वस्तुओं के बीच निर्भरता नहीं सुधारता, इसलिए इसे स्वतंत्र जैविक अनिश्चितता न मानें।"
+          ]
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Quantile at को शून्य दशमलव पाँच करें। अब क्वांटाइल माध्यिका के बराबर है: पहले वेल में बाईस हज़ार चार सौ। अन्य आँकड़े नहीं बदलते। शून्य दशमलव सात पाँच वापस करें और सरल सार पर लौटने से पहले अतिरिक्त आँकड़े बंद करें।",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             2050,
             890
-          ],
-          "speech_text": "Quantile at को शून्य दशमलव पाँच करें। अब क्वांटाइल माध्यिका के बराबर है: पहले वेल में बाईस हज़ार चार सौ। अन्य आँकड़े नहीं बदलते। शून्य दशमलव सात पाँच वापस करें और सरल सार पर लौटने से पहले अतिरिक्त आँकड़े बंद करें।"
+          ]
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "क्षेत्रफल की जगह चैनल शून्य की बत्तीस दूरी वाली समरूपता विशेषता चुनें। इसके सात मान वास्तव में अनुपलब्ध हैं, इसलिए दो हज़ार तीन सौ चौंतीस माप उपलब्ध हैं। इस वेल की पाँच सौ एक मूल पंक्तियाँ केवल चार सौ अट्ठानवे मान देती हैं। गिनती चुनी गई विशेषता पर निर्भर है; अनुपलब्ध माप शून्य नहीं हैं।",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             1760,
             890
-          ],
-          "speech_text": "क्षेत्रफल की जगह चैनल शून्य की बत्तीस दूरी वाली समरूपता विशेषता चुनें। इसके सात मान वास्तव में अनुपलब्ध हैं, इसलिए दो हज़ार तीन सौ चौंतीस माप उपलब्ध हैं। इस वेल की पाँच सौ एक मूल पंक्तियाँ केवल चार सौ अट्ठानवे मान देती हैं। गिनती चुनी गई विशेषता पर निर्भर है; अनुपलब्ध माप शून्य नहीं हैं।"
+          ]
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "cell_area वापस चुनें और Tabulate के Export CSV से नया फ़ाइल नाम दें। इस वेल-सार में चार पंक्तियाँ और छह कॉलम हैं: तीन समूह-कुंजियाँ, n, माध्य और मानक विचलन। निर्यात का हर मान मूल डेटा से जाँचा गया है। समूह, आँकड़े और फ़िल्टर अलग दर्ज करें; CSV सहेजा हुआ गतिशील विनिर्देश नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "cell_area वापस चुनें और Tabulate के Export CSV से नया फ़ाइल नाम दें। इस वेल-सार में चार पंक्तियाँ और छह कॉलम हैं: तीन समूह-कुंजियाँ, n, माध्य और मानक विचलन। निर्यात का हर मान मूल डेटा से जाँचा गया है। समूह, आँकड़े और फ़िल्टर अलग दर्ज करें; CSV सहेजा हुआ गतिशील विनिर्देश नहीं है।"
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Plot this table चुनें, फिर columnID को X, mean को Y और rowID को Colour में खींचें। ग्राफ को सार की चार पंक्तियाँ मिलती हैं, हज़ारों अलग कोशिकाएँ नहीं। एक सावधानी है: Automatic इन चार अलग माध्यों को श्रेणियाँ मानकर हीटमैप बनाता है। यह उनके परिमाणों का सतत पैमाने वाला ग्राफ नहीं है।",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -8112,54 +8081,48 @@
             1300,
             3340,
             690
-          ],
-          "speech_text": "Plot this table चुनें, फिर columnID को X, mean को Y और rowID को Colour में खींचें। ग्राफ को सार की चार पंक्तियाँ मिलती हैं, हज़ारों अलग कोशिकाएँ नहीं। एक सावधानी है: Automatic इन चार अलग माध्यों को श्रेणियाँ मानकर हीटमैप बनाता है। यह उनके परिमाणों का सतत पैमाने वाला ग्राफ नहीं है।"
+          ]
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "दाएँ फ़िल्टर में cell_area जोड़ें और न्यूनतम इक्कीस हज़ार नौ सौ पच्चीस रखें। पिवट तुरंत बचे हुए एक हज़ार एक सौ इकहत्तर वस्तुओं का सार दिखाता है। ग्राफ में पुराना सार रहता है, जब तक आप Plot this table फिर न दबाएँ। ग्राफ दिखने से यह साबित नहीं होता कि वह वर्तमान फ़िल्टर को दर्शाता है।",
-          "hold_after": 0.7,
-          "speech_text": "दाएँ फ़िल्टर में cell_area जोड़ें और न्यूनतम इक्कीस हज़ार नौ सौ पच्चीस रखें। पिवट तुरंत बचे हुए एक हज़ार एक सौ इकहत्तर वस्तुओं का सार दिखाता है। ग्राफ में पुराना सार रहता है, जब तक आप Plot this table फिर न दबाएँ। ग्राफ दिखने से यह साबित नहीं होता कि वह वर्तमान फ़िल्टर को दर्शाता है।"
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "नए गणना किए गए माध्य भेजने के लिए Plot this table फिर दबाएँ। अब ग्राफ में चार फ़िल्टर किए गए समूह हैं, हालांकि Automatic उनके माध्यों को अभी भी श्रेणियाँ मानता है। एक सूचना कहती है कि मूल क्षेत्रफल फ़िल्टर सीधे सार-तालिका पर लागू नहीं हो सकता: उसमें mean है, cell_area नहीं। इसका अर्थ यह नहीं कि पहले के पिवट ने फ़िल्टर को अनदेखा किया।",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
             1300,
             3340,
             690
-          ],
-          "speech_text": "नए गणना किए गए माध्य भेजने के लिए Plot this table फिर दबाएँ। अब ग्राफ में चार फ़िल्टर किए गए समूह हैं, हालांकि Automatic उनके माध्यों को अभी भी श्रेणियाँ मानता है। एक सूचना कहती है कि मूल क्षेत्रफल फ़िल्टर सीधे सार-तालिका पर लागू नहीं हो सकता: उसमें mean है, cell_area नहीं। इसका अर्थ यह नहीं कि पहले के पिवट ने फ़िल्टर को अनदेखा किया।"
+          ]
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "दाएँ फ़िल्टर में Clear all चुनें, फिर Plot this table दोबारा दबाएँ। मूल दो हज़ार तीन सौ इकतालीस वस्तुएँ और वेल के माध्य लौट आते हैं। यहाँ फ़िल्टर लगाने से मूल माप मिटते नहीं हैं। दोनों सार चाहिए हों तो फ़िल्टर किए गए और पूरे सार को अलग नामों से निर्यात करें।",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
             1300,
             3340,
             690
-          ],
-          "speech_text": "दाएँ फ़िल्टर में Clear all चुनें, फिर Plot this table दोबारा दबाएँ। मूल दो हज़ार तीन सौ इकतालीस वस्तुएँ और वेल के माध्य लौट आते हैं। यहाँ फ़िल्टर लगाने से मूल माप मिटते नहीं हैं। दोनों सार चाहिए हों तो फ़िल्टर किए गए और पूरे सार को अलग नामों से निर्यात करें।"
+          ]
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "अलग दृश्य-क्षेत्र स्तर की जानकारी के लिए fieldID को Rows में वेल-कुंजियों के बाद खींचें। ग्रिड में बावन पंक्तियाँ और इक्यावन देखे गए समूह हैं। आँकड़ा अब पूरे वेल के बजाय वेल के भीतर एक दृश्य-क्षेत्र बताता है। हर देखे गए समूह में पंद्रह से अट्ठासी वस्तुएँ योगदान देती हैं। समूह बढ़ाने से स्वतंत्र प्रयोग नहीं बनते।",
-          "hold_after": 0.7,
-          "speech_text": "अलग दृश्य-क्षेत्र स्तर की जानकारी के लिए fieldID को Rows में वेल-कुंजियों के बाद खींचें। ग्रिड में बावन पंक्तियाँ और इक्यावन देखे गए समूह हैं। आँकड़ा अब पूरे वेल के बजाय वेल के भीतर एक दृश्य-क्षेत्र बताता है। हर देखे गए समूह में पंद्रह से अट्ठासी वस्तुएँ योगदान देती हैं। समूह बढ़ाने से स्वतंत्र प्रयोग नहीं बनते।"
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Plot this table दबाएँ, fieldID को X पर रखें, mean को Y और rowID को Colour पर रहने दें, फिर Plot में Scatter चुनें। इन इक्यावन अलग दृश्य-क्षेत्र माध्यों के साथ असली कॉलम सूची mean को सतत बताती है। यह मान लेने के बजाय कि हर संख्या संख्यात्मक ही मानी जाएगी, उसकी भूमिका और अक्ष-लेबल देखें।",
-          "hold_after": 0.7,
-          "speech_text": "Plot this table दबाएँ, fieldID को X पर रखें, mean को Y और rowID को Colour पर रहने दें, फिर Plot में Scatter चुनें। इन इक्यावन अलग दृश्य-क्षेत्र माध्यों के साथ असली कॉलम सूची mean को सतत बताती है। यह मान लेने के बजाय कि हर संख्या संख्यात्मक ही मानी जाएगी, उसकी भूमिका और अक्ष-लेबल देखें।"
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "ग्राफ अब सतत ऊर्ध्वाधर पैमाने पर इक्यावन वास्तविक दृश्य-क्षेत्र माध्य दिखाता है। हर बिंदु की ऊँचाई स्वतंत्र गणना वाले सार से जाँची गई है। दोहराए हुए दृश्य-क्षेत्र लेबल अलग वेल के हैं; रंग स्थान की पंक्ति के लेबल दिखाते हैं, प्रमाणित उपचार नहीं। इस समूह-सारणी में वस्तु-कुंजियाँ नहीं हैं, इसलिए ब्रश से अलग-अलग चित्र नहीं चुने जा सकते।",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -8170,20 +8133,23 @@
             1300,
             3340,
             690
-          ],
-          "speech_text": "ग्राफ अब सतत ऊर्ध्वाधर पैमाने पर इक्यावन वास्तविक दृश्य-क्षेत्र माध्य दिखाता है। हर बिंदु की ऊँचाई स्वतंत्र गणना वाले सार से जाँची गई है। दोहराए हुए दृश्य-क्षेत्र लेबल अलग वेल के हैं; रंग स्थान की पंक्ति के लेबल दिखाते हैं, प्रमाणित उपचार नहीं। इस समूह-सारणी में वस्तु-कुंजियाँ नहीं हैं, इसलिए ब्रश से अलग-अलग चित्र नहीं चुने जा सकते।"
+          ]
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "दृश्य-क्षेत्र सार निर्यात करें: बावन पंक्तियाँ और सात कॉलम, जिनमें वास्तव में खाली एक संयोजन खाली ही रहता है। ग्राफ को डेटा देते समय वह समूह छोड़ दिया जाता है, इसलिए इक्यावन बिंदु हैं। दोहराने योग्य कोड में spaCR के Qt pivot_spec मॉड्यूल के pivot और PivotSpec ये विकल्प लेते हैं, और to_csv परिणाम लिखता है। मूल डेटा सुरक्षित रखें तथा ठीक-ठीक समूह और फ़िल्टर दर्ज करें।",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "दृश्य-क्षेत्र सार निर्यात करें: बावन पंक्तियाँ और सात कॉलम, जिनमें वास्तव में खाली एक संयोजन खाली ही रहता है। ग्राफ को डेटा देते समय वह समूह छोड़ दिया जाता है, इसलिए इक्यावन बिंदु हैं। दोहराने योग्य कोड में स्पेकर के क्यू टी pivot_spec मॉड्यूल के pivot और PivotSpec ये विकल्प लेते हैं, और to_csv परिणाम लिखता है। मूल डेटा सुरक्षित रखें तथा ठीक-ठीक समूह और फ़िल्टर दर्ज करें।"
+          ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8315,150 +8281,137 @@
       "slug": "small_multiples",
       "series": 5,
       "app_key": "trellis",
-      "section": "अन्वेषण",
-      "title": "Small Multiples: वास्तविक समूह, लाइव फ़िल्टर और सही अक्ष-पैमाने",
-      "description": "Graph Builder के भीतर Small Multiples खोलकर डाउनलोड किए गए मापों की साझा या स्वतंत्र अक्षों पर तुलना करें, खाली समूह और फ़ैसेट सीमा देखें, और हटाया जा सकने वाला व्युत्पन्न कॉलम बनाएँ।",
+      "section": "Explore",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "वर्तमान उप-मॉड्यूल तक पहुँचकर वास्तविक मापित ऑब्जेक्टों का स्कैटर ग्रिड बनाना।",
-        "साझा, स्वतंत्र, प्रति-पंक्ति और प्रति-कॉलम अक्षों की तुलना करना और पैमाने को डेटा में बदलाव न समझना।",
-        "लाइव फ़िल्टर लगाना, खाली समूह और अनुपयोगी स्थान अलग पहचानना तथा छूटे स्तर गिनना।",
-        "मेमोरी में संख्यात्मक पुनर्पैमाना जोड़ना और हटाना, स्रोत बचाना और पुनरुत्पादन योग्य विकल्प लिखना।"
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Annotate के डाउनलोड योग्य उदाहरण से measurements.db की बाइट-दर-बाइट समान निजी कॉपी लें: 2,341 ऑब्जेक्ट, चार वेल, 13 दृश्य-क्षेत्र लेबल और 51 वास्तविक वेल/दृश्य-क्षेत्र संयोजन। ऑब्जेक्टों की संख्या स्वतंत्र प्रयोगात्मक पुनरावृत्ति नहीं है और स्थानिक लेबल स्थापित उपचार नहीं दर्शाते। दिखाए गए निरंतर स्कैटर बिंदुओं, समूह सदस्यता, अक्ष सीमाओं, शीर्षकों और पैनल दृश्यता का स्रोत से स्वतंत्र सत्यापन किया गया है। यह प्रमाण सीमित, गैर-अपकृष्ट निरंतर अक्षों और बिना सबसैंपलिंग के इस डेटा तक सीमित है; मनमाने ग्राफ़, अन्य व्यू में चयन, जैविक प्रभाव या भौतिक इकाइयों का अंशांकन सत्यापित नहीं करता। Small Multiples, Graph Builder का तालिका-आधारित उप-मॉड्यूल है। इसमें अपना डाउनलोड, इमेज प्रीव्यू, GPU पाइपलाइन, AI कंसोल, रन-स्तरीय Plot स्विच या निर्यात बटन नहीं है। Annotate डेटा और उप-मॉड्यूल का अपना Load table इस्तेमाल करें।",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Home से Graph Builder खोलें और उसके अंदर का Small Multiples बटन चुनें। यह उप-मॉड्यूल का वर्तमान रास्ता है, Home की अलग टाइल नहीं। हम Annotate के वास्तविक डाउनलोड योग्य मापों की निजी कॉपी इस्तेमाल करते हैं। यह उदाहरण कैसे प्राप्त करें, Annotate ट्यूटोरियल में बताया गया है।",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
-          ],
-          "speech_text": "Home से Graph Builder खोलें और उसके अंदर का Small Multiples बटन चुनें। यह उप-मॉड्यूल का वर्तमान रास्ता है, Home की अलग टाइल नहीं। हम Annotate के वास्तविक डाउनलोड योग्य मापों की निजी कॉपी इस्तेमाल करते हैं। यह उदाहरण कैसे प्राप्त करें, Annotate ट्यूटोरियल में बताया गया है।"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Small Multiples के अंदर Load table से मापों के डेटाबेस की निजी कॉपी चुनें, फिर cell चुनें। इसमें चार वेल में मापे गए दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट हैं। बाहरी Graph Builder का अपना अलग Load table है। इस प्रक्रिया में Small Multiples शीर्षक के पास वाला बटन इस्तेमाल करें।",
-          "hold_after": 0.7,
-          "speech_text": "Small Multiples के अंदर Load table से मापों के डेटाबेस की निजी कॉपी चुनें, फिर cell चुनें। इसमें चार वेल में मापे गए दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट हैं। बाहरी Graph Builder का अपना अलग Load table है। इस प्रक्रिया में Small Multiples शीर्षक के पास वाला बटन इस्तेमाल करें।"
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "cell_area खोजकर X पर खींचें और cell_channel_1_mean_intensity को Y पर रखें। Plot में Scatter चुनें। rowID को नीचे की दिशा वाले Facet पर और columnID को दाईं दिशा वाले Facet पर खींचें। खोज केवल कॉलम सूची सीमित करती है, कोशिकाओं की आबादी नहीं। यहाँ प्रत्येक बिंदु पहले से मापा गया एक ऑब्जेक्ट है।",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
             1720,
             700,
             390
-          ],
-          "speech_text": "cell_area खोजकर X पर खींचें और cell_channel_1_mean_intensity को Y पर रखें। Plot में Scatter चुनें। rowID को नीचे की दिशा वाले Facet पर और columnID को दाईं दिशा वाले Facet पर खींचें। खोज केवल कॉलम सूची सीमित करती है, कोशिकाओं की आबादी नहीं। यहाँ प्रत्येक बिंदु पहले से मापा गया एक ऑब्जेक्ट है।"
+          ]
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "दोनों पैमाने shared होने पर चारों पैनलों की क्षैतिज और ऊर्ध्वाधर सीमाएँ समान होती हैं। शीर्षक छह सौ पंद्रह, पाँच सौ पच्चीस, सात सौ और पाँच सौ एक ऑब्जेक्ट बताते हैं। पंक्ति और कॉलम के लेबल स्थान बताते हैं, सत्यापित उपचार नहीं। ये कोशिकाएँ स्वतंत्र प्रयोगात्मक पुनरावृत्तियाँ नहीं हैं।",
-          "hold_after": 0.7,
-          "speech_text": "दोनों पैमाने shared होने पर चारों पैनलों की क्षैतिज और ऊर्ध्वाधर सीमाएँ समान होती हैं। शीर्षक छह सौ पंद्रह, पाँच सौ पच्चीस, सात सौ और पाँच सौ एक ऑब्जेक्ट बताते हैं। पंक्ति और कॉलम के लेबल स्थान बताते हैं, सत्यापित उपचार नहीं। ये कोशिकाएँ स्वतंत्र प्रयोगात्मक पुनरावृत्तियाँ नहीं हैं।"
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "X scale और Y scale दोनों में free चुनें। हर पैनल अब अपनी अलग सीमा इस्तेमाल करता है। इससे समूह के भीतर का आकार दिखता है, लेकिन समान चौड़ाई के बिंदु-समूह समान माप-सीमा नहीं दर्शाते। तुलना से पहले अक्षों के अंक पढ़ें। पैमाना बदलने से स्रोत माप नहीं बदलते।",
-          "hold_after": 0.7,
-          "speech_text": "X scale और Y scale दोनों में free चुनें। हर पैनल अब अपनी अलग सीमा इस्तेमाल करता है। इससे समूह के भीतर का आकार दिखता है, लेकिन समान चौड़ाई के बिंदु-समूह समान माप-सीमा नहीं दर्शाते। तुलना से पहले अक्षों के अंक पढ़ें। पैमाना बदलने से स्रोत माप नहीं बदलते।"
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "दोनों पैमानों में per row चुनें। ग्रिड की एक ही पंक्ति के पैनल सीमाएँ साझा करते हैं; अलग पंक्तियों की सीमाएँ अलग हो सकती हैं। यह लेआउट के आधार पर अक्षों का समूह है, सांख्यिकीय सुधार नहीं। यहाँ हर पंक्ति के दो कॉलम समान अक्षों पर सीधे तुलना योग्य हैं।",
-          "hold_after": 0.7,
-          "speech_text": "दोनों पैमानों में per row चुनें। ग्रिड की एक ही पंक्ति के पैनल सीमाएँ साझा करते हैं; अलग पंक्तियों की सीमाएँ अलग हो सकती हैं। यह लेआउट के आधार पर अक्षों का समूह है, सांख्यिकीय सुधार नहीं। यहाँ हर पंक्ति के दो कॉलम समान अक्षों पर सीधे तुलना योग्य हैं।"
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "दोनों पैमानों में per column चुनें। एक ही ग्रिड कॉलम के पैनल सीमाएँ साझा करते हैं। X और Y अलग भी सेट किए जा सकते हैं; इस प्रदर्शन में दोनों साथ बदलते हैं। चारों वेल की तुलना से पहले दोनों में shared वापस चुनें। साझा का अर्थ वर्तमान ग्रिड में समान है, हर अगले फ़िल्टर के बाद स्थिर रहना नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "दोनों पैमानों में per column चुनें। एक ही ग्रिड कॉलम के पैनल सीमाएँ साझा करते हैं। X और Y अलग भी सेट किए जा सकते हैं; इस प्रदर्शन में दोनों साथ बदलते हैं। चारों वेल की तुलना से पहले दोनों में shared वापस चुनें। साझा का अर्थ वर्तमान ग्रिड में समान है, हर अगले फ़िल्टर के बाद स्थिर रहना नहीं।"
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Filter टैब में cell_area जोड़ें और निचली सीमा इक्कीस हज़ार नौ सौ पच्चीस रखें। वास्तविक ग्रिड तुरंत एक हज़ार एक सौ इकहत्तर ऑब्जेक्टों पर आ जाता है। पैनलों की गिनती और बिंदु साथ बदलते हैं। यह मापों का लाइव फ़िल्टर है, इमेज सेगमेंटेशन या नया विश्लेषण रन नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Filter टैब में cell_area जोड़ें और निचली सीमा इक्कीस हज़ार नौ सौ पच्चीस रखें। वास्तविक ग्रिड तुरंत एक हज़ार एक सौ इकहत्तर ऑब्जेक्टों पर आ जाता है। पैनलों की गिनती और बिंदु साथ बदलते हैं। यह मापों का लाइव फ़िल्टर है, इमेज सेगमेंटेशन या नया विश्लेषण रन नहीं।"
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Filter टैब में Clear all चुनें। सभी दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट अपनी मूल स्थितियों और साझा अक्ष सीमाओं के साथ लौटते हैं। यह बटन फ़िल्टर हटाता है; बाईं ओर Clear all channels ग्राफ़ के कॉलम आवंटन हटाता है। दोनों में से कोई कार्रवाई डेटाबेस की पंक्तियाँ नहीं मिटाती।",
-          "hold_after": 0.7,
-          "speech_text": "Filter टैब में Clear all चुनें। सभी दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट अपनी मूल स्थितियों और साझा अक्ष सीमाओं के साथ लौटते हैं। यह बटन फ़िल्टर हटाता है; बाईं ओर Clear all channels ग्राफ़ के कॉलम आवंटन हटाता है। दोनों में से कोई कार्रवाई डेटाबेस की पंक्तियाँ नहीं मिटाती।"
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "वास्तव में अनुपस्थित समूह देखने के लिए columnID में केवल सी दो और fieldID में एफ बीस तथा एफ इक्कीस रखें। ज़रूरत हो तो श्रेणी सूची स्क्रॉल करें। दाईं दिशा वाले Facet में fieldID रखें और नीचे वाले में rowID रहने दें। एक सौ चौहत्तर कोशिकाएँ बचती हैं। पंक्ति लेबल पाँच, दृश्य-क्षेत्र बीस वाले पैनल में n शून्य है: कोई स्रोत ऑब्जेक्ट नहीं, शून्य तीव्रता का माप नहीं।",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "वास्तव में अनुपस्थित समूह देखने के लिए columnID में केवल सी दो और fieldID में एफ बीस तथा एफ इक्कीस रखें। ज़रूरत हो तो श्रेणी सूची स्क्रॉल करें। दाईं दिशा वाले Facet में fieldID रखें और नीचे वाले में rowID रहने दें। एक सौ चौहत्तर कोशिकाएँ बचती हैं। पंक्ति लेबल पाँच, दृश्य-क्षेत्र बीस वाले पैनल में n शून्य है: कोई स्रोत ऑब्जेक्ट नहीं, शून्य तीव्रता का माप नहीं।"
+          ]
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "फ़िल्टर हटाएँ और दाईं दिशा के Facet में columnID वापस रखें। दोनों फ़ैसेट चैनलों में कॉलम रहते हुए Wrap at को पाँच करें। ग्रिड दो बाई दो ही रहता है और सूचना बताती है कि रैपिंग अनदेखी की गई है। Wrap केवल एक फ़ैसेट चैनल होने पर लागू होता है, दो-तरफ़ा ग्रिड का क्रम नहीं बदलता।",
-          "hold_after": 0.7,
-          "speech_text": "फ़िल्टर हटाएँ और दाईं दिशा के Facet में columnID वापस रखें। दोनों फ़ैसेट चैनलों में कॉलम रहते हुए Wrap at को पाँच करें। ग्रिड दो बाई दो ही रहता है और सूचना बताती है कि रैपिंग अनदेखी की गई है। Wrap केवल एक फ़ैसेट चैनल होने पर लागू होता है, दो-तरफ़ा ग्रिड का क्रम नहीं बदलता।"
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "नीचे की दिशा वाला Facet खाली करें, दाईं दिशा वाले में fieldID रखें और Wrap at पाँच रहने दें। चुने हुए दृश्य-क्षेत्र तीन पंक्तियों में, हर पंक्ति में पाँच स्थानों पर आते हैं। स्रोत में तेरह स्तर हैं, लेकिन केवल बारह बनाए जाते हैं। तीन अनुपयोगी स्थान छिपी हुई लेआउट जगह हैं; वे n शून्य वाला वास्तविक समूह नहीं हैं।",
-          "hold_after": 0.7,
-          "speech_text": "नीचे की दिशा वाला Facet खाली करें, दाईं दिशा वाले में fieldID रखें और Wrap at पाँच रहने दें। चुने हुए दृश्य-क्षेत्र तीन पंक्तियों में, हर पंक्ति में पाँच स्थानों पर आते हैं। स्रोत में तेरह स्तर हैं, लेकिन केवल बारह बनाए जाते हैं। तीन अनुपयोगी स्थान छिपी हुई लेआउट जगह हैं; वे n शून्य वाला वास्तविक समूह नहीं हैं।"
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "ग्रिड के नीचे की सूचना पढ़ें। दृश्य-क्षेत्र इक्कीस बारह प्रदर्शित स्तरों से बाहर है, इसलिए दो सौ चौंसठ स्रोत ऑब्जेक्ट पैनलों में नहीं आते। वास्तव में दो हज़ार सतहत्तर बिंदु दिखते हैं, जबकि लोड की गई तालिका में दो हज़ार तीन सौ इकतालीस पंक्तियाँ हैं। लोड की गई गिनती यह साबित नहीं करती कि हर पंक्ति दिख रही है।",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
             1460,
             2150,
             650
-          ],
-          "speech_text": "ग्रिड के नीचे की सूचना पढ़ें। दृश्य-क्षेत्र इक्कीस बारह प्रदर्शित स्तरों से बाहर है, इसलिए दो सौ चौंसठ स्रोत ऑब्जेक्ट पैनलों में नहीं आते। वास्तव में दो हज़ार सतहत्तर बिंदु दिखते हैं, जबकि लोड की गई तालिका में दो हज़ार तीन सौ इकतालीस पंक्तियाँ हैं। लोड की गई गिनती यह साबित नहीं करती कि हर पंक्ति दिख रही है।"
+          ]
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Wrap बंद करें और दोनों फ़ैसेट में rowID तथा columnID वापस रखें। Columns में नाम area_k और अभिव्यक्ति cell_area को एक हज़ार से भाग देने वाली रखें, बिल्कुल स्क्रीन की तरह। प्रीव्यू केवल पहली दो हज़ार पंक्तियाँ जाँचता है। Add column चुनने पर पूरी तालिका के व्युत्पन्न मान बनते हैं, डेटाबेस दोबारा नहीं लिखा जाता।",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
             315,
             460,
             940
-          ],
-          "speech_text": "Wrap बंद करें और दोनों फ़ैसेट में rowID तथा columnID वापस रखें। Columns में नाम area_k और अभिव्यक्ति cell_area को एक हज़ार से भाग देने वाली रखें, बिल्कुल स्क्रीन की तरह। प्रीव्यू केवल पहली दो हज़ार पंक्तियाँ जाँचता है। Add column चुनने पर पूरी तालिका के व्युत्पन्न मान बनते हैं, डेटाबेस दोबारा नहीं लिखा जाता।"
+          ]
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "area_k को X पर खींचें। हर क्षैतिज निर्देशांक अब मूल कोशिका क्षेत्रफल का एक हज़ारवाँ हिस्सा है; Y और समूह सदस्यता नहीं बदलते। यह संख्यात्मक पुनर्पैमाना है, वर्ग माइक्रोमीटर में अंशांकन, नया माप या जैविक प्रभाव का प्रमाण नहीं। सभी दो हज़ार तीन सौ इकतालीस व्युत्पन्न मान जाँचे गए हैं।",
-          "hold_after": 0.7,
-          "speech_text": "area_k को X पर खींचें। हर क्षैतिज निर्देशांक अब मूल कोशिका क्षेत्रफल का एक हज़ारवाँ हिस्सा है; Y और समूह सदस्यता नहीं बदलते। यह संख्यात्मक पुनर्पैमाना है, वर्ग माइक्रोमीटर में अंशांकन, नया माप या जैविक प्रभाव का प्रमाण नहीं। सभी दो हज़ार तीन सौ इकतालीस व्युत्पन्न मान जाँचे गए हैं।"
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Columns में area_k चुनकर Remove दबाने से पहले cell_area को X पर वापस रखें। मूल चार-पैनल ग्राफ़ लौटता है और व्युत्पन्न कॉलम हट जाता है। निजी डेटाबेस और मूल डाउनलोड डेटा दोनों अपरिवर्तित रहते हैं। चर, समूह, फ़िल्टर और पैमाने लिख लें ताकि दूसरा व्यक्ति यही व्यू बना सके।",
-          "hold_after": 0.7,
-          "speech_text": "Columns में area_k चुनकर Remove दबाने से पहले cell_area को X पर वापस रखें। मूल चार-पैनल ग्राफ़ लौटता है और व्युत्पन्न कॉलम हट जाता है। निजी डेटाबेस और मूल डाउनलोड डेटा दोनों अपरिवर्तित रहते हैं। चर, समूह, फ़िल्टर और पैमाने लिख लें ताकि दूसरा व्यक्ति यही व्यू बना सके।"
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "कोड में spaCR के Qt trellis_spec मॉड्यूल के trellis और TrellisSpec समूह, पैमाने और Wrap तय करते हैं; GraphSpec ग्राफ़ चैनल तय करता है। इस स्क्रीन का अपना निर्यात बटन या डाउनलोड योग्य डेटा नहीं है। सत्यापित सारांश CSV निर्यात के लिए Tabulate इस्तेमाल करें। इमेज प्रीव्यू, GPU पाइपलाइन और spaCR AI संबंधित विश्लेषण ट्यूटोरियल के विषय हैं, इस केवल-तालिका व्यू के नहीं।",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "61_tabulate"
-          ],
-          "speech_text": "कोड में स्पेकर के क्यू टी trellis_spec मॉड्यूल के trellis और TrellisSpec समूह, पैमाने और Wrap तय करते हैं; GraphSpec ग्राफ़ चैनल तय करता है। इस स्क्रीन का अपना निर्यात बटन या डाउनलोड योग्य डेटा नहीं है। सत्यापित सारांश CSV निर्यात के लिए Tabulate इस्तेमाल करें। इमेज प्रीव्यू, GPU पाइपलाइन और स्पेकर AI संबंधित विश्लेषण ट्यूटोरियल के विषय हैं, इस केवल-तालिका व्यू के नहीं।"
+          ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

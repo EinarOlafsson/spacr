@@ -7486,26 +7486,25 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: aktuel vej og afprøvet API-omvej",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
       "section": "Measure",
-      "description": "Find den indlejrede eksport, forstå fejlen med manglende metadata, og eksportér det virkelige eksempel med en udtrykkelig, kontrolleret Python-omvej.",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Find AnnData Export i Measure og måledatabasen.",
-        "Skeln mellem GUI-fejl og API-omvej uden at opfinde metadata.",
-        "Sammenlign sammenføjede, celle- og kernematricer og fire strategier for manglende værdier.",
-        "Genåbn filer og bevar identiteter, annoteringer, billeder og oprindelse."
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Brug en KOPI af measurements.db fra det downloadede Annotate-eksempel; bevar originalen og billederne. Pak den tilknyttede ZIP ud og læg scriptet ved kopien i spaCR-miljøet. Det kalder spacr.anndata_export.build_anndata og koder kun helt manglende object-kolonner i obs som tomme kategorier. Manglende værdier forbliver manglende; ingen kalibrering eller etiketter opfindes, og denne kodning ændrer ikke X. GUI-fejlen er IKKE rettet. Eksisterende mål afvises; nye filer genindlæses og kontrolleres. SQLite-kontroller: sammenføjet/keep 2341x1136; cell/keep og mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Ingen UMAP, GPU-kørsel, indlejrede billeder, AI-forespørgsel, biologisk validering eller publicering. Den oprindelige GUI-fejl bevares.",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Åbn Measure og derefter det indlejrede AnnData Export. AnnData gemmer en matrix med objektrækker og egenskabskolonner sammen med observationsmetadata og egenskabsnavne. Lektionen viser den aktuelle GUI-vej, men de vellykkede eksporter bruger en udtrykkelig Python-omvej. Vi påstår ikke, at GUI-eksportfejlen er rettet.",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
@@ -7514,12 +7513,12 @@
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "Brug en kopi af den reelt downloadede måledatabase, ikke en opdigtet tabel. Bevar billeder og originaldatabase uændret. GUI tager projektmappen; vores kommandolinjeeksempel tager selve måledatabasefilen. Slå den valgfrie indlejringsberegning fra til denne sammenligning. Matrixeksport kræver ingen GPU.",
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
           "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "Se først den uændrede skriver fejle. Nogle observationskolonner indeholder kun manglende værdier med datatypen object, som skriveren ikke kan serialisere. Ukendt voxelkalibrering er et eksempel. Afslutningskode én og en delvis fil er ikke succes. Erstat ikke ukendte værdier med nul eller teksten None for at skjule fejlen.",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
@@ -7530,7 +7529,7 @@
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "Hent hjælpescriptet og undersøg dets lagringsomvej. Det bruger den rigtige funktion build_anndata og koder derefter kun helt manglende object-metadata som tomme kategoriske kolonner. Manglende værdier forbliver manglende; kendte metadata og egenskabsmatricen ændres ikke af kodningen. Det gør ikke fysisk kalibrering til en videnskabeligt kategorisk størrelse.",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7544,7 +7543,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Kør scriptet med kildedatabasen, en ny outputsti og strategien keep. Det sammenføjede eksempel har to tusind tre hundrede enogfyrre cellerækker og et tusind et hundrede seksogtredive egenskaber. Tilknyttede kerne- og patogenmålinger samles pr. celle. Fire hundrede tusind tre hundrede tyve manglende egenskabsværdier forbliver manglende, ikke nul.",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
@@ -7555,7 +7554,7 @@
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "Tilføj single-table cell for én objekttypes egne målinger, og behold manglende værdier. Filen har de samme to tusind tre hundrede enogfyrre cellerækker, men kun to hundrede enogtres egenskaber. Otteogtyve værdier mangler. Sammenlign egenskabsnavne og rækkeidentiteter, ikke kun filstørrelse eller kolonneantal.",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
@@ -7566,7 +7565,7 @@
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "Strategien mean er et særskilt analytisk valg, ikke en del af lagringsomvejen. Her udfylder den otteogtyve manglende værdier med kolonnernes observerede gennemsnit. Det eksporterede lag for manglende værdier registrerer de oprindelige positioner. Kontrollér, at imputering passer til analysen; en komplet matrix er ikke automatisk bedre eller uden skævhed.",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
@@ -7577,7 +7576,7 @@
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "Strategien drop-features fjerner kolonner med manglende værdier. Her fjernes fire kolonner, så to hundrede syvoghalvtreds egenskaber og alle cellerækker bevares. Undersøg hvilke målinger der blev fjernet og hvorfor. Strategien ændrer egenskabssættet og kan kassere nyttig information; den er ingen generel anbefaling til datarensning.",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
@@ -7588,7 +7587,7 @@
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "Strategien drop-objects fjerner i stedet rækker med manglende egenskabsværdier. Her fjernes syv celler; to tusind tre hundrede fireogtredive rækker og alle to hundrede enogtres egenskaber er tilbage. Manglende værdier kan hænge sammen med fænotype, billedoptagelse eller segmentering. Undersøg udelukkelserne, før de resterende celler anses for repræsentative.",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
@@ -7599,7 +7598,7 @@
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "Vælg single-table nucleus for én række pr. kerne frem for sammenfattede kerneegenskaber på cellerækker. Eksemplet indeholder to tusind seks hundrede toogfirs kerner og tre hundrede enogfyrre egenskaber. Bevar forbindelser til overordnede objekter og objektidentiteter. Flere kerner end celler betyder ikke, at eksporten skabte ekstra celler.",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
@@ -7610,7 +7609,7 @@
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "Genåbn hver gemt fil. Scriptet sammenligner hele matricen, ordnede objekt- og egenskabsidentiteter, manglende værdier og observationsmetadata; uafhængige SQLite-kontroller bestod også for alle seks filer. Annoteringer forbliver metadata, ikke træningsvariable indsat i matricen. Billeder er ikke indlejret: bevar kildefiler og stier med eksporten.",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
@@ -7621,7 +7620,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Brug et nyt outputnavn for hver strategi, og gem script, indstillinger og pakkeversioner. Scriptet afviser et eksisterende mål frem for at overskrive det. Kontrollerne dokumenterer databevarelse for eksemplet, ikke biologisk gyldighed eller en repareret GUI. Se de tilknyttede API- og målelektioner for resten af arbejdsgangen.",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7634,7 +7633,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7644,19 +7648,18 @@
       "app_key": "pca",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "PCA: ægte målinger, løbende genberegning og manglende værdier",
-      "description": "Udforsk PCA i Image UMAP med ægte downloadede celledata, kontrollerede scorer, reversible filtre, tydelige regler for manglende værdier og tre CSV-eksporter.",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "Find PCA i Image UMAP, og vælg målevariable eksplicit.",
-        "Læs forklaret varians og korrelationspile uden at påstå biologisk adskillelse.",
-        "Sammenlign standardisering, genberegning efter filtrering og fire regler for manglende værdier.",
-        "Eksportér objektscorer, variabelladninger og komponentvarians uden at ændre kilden."
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Brug en byte-identisk privat kopi af det downloadbare Annotate-eksempel: 2.341 cellerækker, 276 oprindelige kolonner og fire brønde. Først bruges cell_area, cell_channel_1_mean_intensity og cell_perimeter, dernæst tilføjes cell_channel_0_homogeneity_distance_32 med syv reelt manglende værdier. Årsagen til de manglende værdier og behandlingernes identitet er ikke fastslået. En uafhængig egenværdidekomponering af kovariansen kontrollerer appens SVD, bevarede rækkepositioner, scorer, ladninger, korrelationer og varianser; tegnede koordinater og hver oprindelig eksporteret datacelle kontrolleres også. Beviset gælder kun disse ikke-degenererede beregninger med fuld rang og tre eller fire variable, ikke alle automatisk valgte variable, pilenes pixelgeometri, rangdeficiente input, billedkoblet markering eller biologiske konklusioner. NumPy-PCA på CPU er adskilt fra UMAP og dets GPU-valg. Ingen særskilt download, billedforhåndsvisning, AI-konsol eller overordnet Plot-kontakt. De tre CSV-filer er hverken en tilpasset modelpakke, gemte indstillinger eller en eksporteret figur. API: spacr.qt.widgets.pca_model.pca og PCASpec; PCAResult.scores_frame, loadings_frame og variance_frame.",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Åbn Image UMAP fra Home, og vælg den indlejrede PCA-knap. PCA er en lineær opsummering af målinger, ikke endnu en UMAP-indlejring. Vi genbruger det ægte downloadbare Annotate-eksempel i en privat kopi. Annotate-vejledningen viser, hvor du henter datasættet.",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7665,12 +7668,12 @@
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "Brug Load table ved PCA-overskriften, vælg den kopierede måledatabase og derefter cell. Der er 2.341 objekter fordelt på fire brønde. Skærmen kan også læse en CSV med målinger. En tidligere indlæst sti i hovedmodulet beviser ikke, at den rigtige tabel er åben.",
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "Ryd variabelsøgningen, før du vælger None, da knappen kun fjerner markeringer fra de aktuelt viste variable. Find og markér cell_area, cell_channel_1_mean_intensity og cell_perimeter. Ryd søgningen igen, sæt Components til 3, og vælg Run PCA. Søgningen indsnævrer variabellisten, ikke cellepopulationen.",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7684,7 +7687,7 @@
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Behold Standardise, og læs scree-plottet. Første komponent forklarer cirka 65,7 % af disse tre variables standardiserede varians; anden komponent forklarer 31,7 %. Punkterne er enkelte målte celler, ikke uafhængige eksperimentelle gentagelser. Forklaret varians er ikke klassifikationsnøjagtighed.",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7695,7 +7698,7 @@
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Vælg rowID i Colour, derefter PC3 på X og PC1 på Y. Disse valg tegner den eksisterende dekomponering igen uden en ny tilpasning. Farverne viser rumlige rækker, ikke fastslåede behandlinger. En tilsyneladende adskilt punktsky opfordrer til at undersøge målinger og konfunderende faktorer; den beviser ikke en biologisk effekt.",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -7706,7 +7709,7 @@
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "Gå tilbage til PC1 og PC2. Slå Loadings biplot fra og til igen. Pilene viser variablenes korrelationer med de to komponenter; den absolutte længde skaleres til visningen, og den stiplede cirkel er målestok. Nærliggende pilretninger fastslår ikke årsagssammenhæng.",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
@@ -7717,7 +7720,7 @@
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Skift Scale til Centre only. Første komponent forklarer nu cirka 90,1 %, fordi målingernes rå skalaer ændrer analysen. Den højere procentdel gør ikke modellen bedre. Gendan Standardise før næste trin: hver variabel centreres og divideres med sin stikprøvestandardafvigelse.",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7728,7 +7731,7 @@
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "Tilføj cell_area i filteret til højre, og sæt minimum til 21.925. Beregningen bruger nu 1.171 celler. Dette er løbende genberegning: populationens middelværdier, skalaer og komponentretninger ændres. Det er ikke blot punkter, der skjules på de gamle akser.",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
@@ -7739,7 +7742,7 @@
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "Vælg Clear all i filteret. Alle 2.341 celler og den oprindelige dekomponering vender tilbage. Filtrering sletter aldrig databaserækker. Kontrollér population og rapport efter hver ændring; scorer fra separat tilpassede populationer deler ikke automatisk samme koordinatsystem.",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
@@ -7750,7 +7753,7 @@
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "Find nu cell_channel_0_homogeneity_distance_32, og markér den. Det eksisterende resultat indeholder stadig tre variable, indtil du vælger Run PCA. Denne teksturvariabel har syv reelt manglende værdier. Vi kender ikke årsagen og må derfor ikke kalde disse celler uinficerede eller erstatte manglende målinger med nul.",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7761,7 +7764,7 @@
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Kør med Auto. Alle fire variable beholdes, men syv celler fjernes, så 2.334 er tilbage. Auto fjerner variable, som mangler i over 2 % af rækkerne, og derefter de resterende ufuldstændige rækker. De tre ønskede komponenter dækker cirka 98,6 %; en fjerde retning findes stadig.",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7772,7 +7775,7 @@
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "Vælg Drop features i NaN. Alle 2.341 celler beholdes, men teksturvariablen udelades fra beregningen. Fire afkrydsninger kan stadig stå, selv om kun tre variable faktisk analyseres. Læs resultatet og beskeden om udeladelse, ikke blot de ønskede valg.",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7783,7 +7786,7 @@
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Vælg Mean-impute. Alle celler og fire variable beholdes; syv værdier erstattes med variablens middelværdi til beregningen. Det er opdigtede værdier, ikke genfundne målinger. Rapporten angiver antallet af erstatninger. Oplys om imputationen, når du viser resultatet; kildedatabasen er ikke omskrevet.",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7794,7 +7797,7 @@
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Vælg Complete cases. De fire valgte variable beholdes, og de samme syv ufuldstændige celler fjernes i dette eksempel. Overensstemmelsen med Auto gælder netop disse data. Gå tilbage til Auto, fjern markeringen af teksturvariablen, ryd søgningen, vælg Run PCA, og sæt Colour tilbage til none.",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7805,19 +7808,24 @@
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Vælg Export, og gem et basisnavn som pca_example. Der skrives tre CSV-filer: scorer for hvert analyseret objekt, ladninger og korrelationer for hver variabel samt varians for hver komponent. Scorefilen indeholder også de oprindelige målekolonner; ikke blot tre koordinatkolonner.",
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "Eksporterne bevarer 2.341 objektrækker og lader begge databaser være uændrede. Notér variable, filtre, skalering og regler for manglende værdier separat; denne knap gemmer hverken indstillinger eller en tilpasset modelpakke. I kode bruges pca og PCASpec i spaCRs Qt-modul pca_model. Denne CPU-tabelvisning er adskilt fra billedforhåndsvisninger, GPU-analyse og spaCR AI.",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7826,19 +7834,18 @@
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
-      "title": "Tabulate: gruppér virkelige målinger, kontrollér antal og opdatér diagrammet",
-      "description": "Åbn Tabulate i Database Browser, sammenfat downloadede målinger efter brønd og billedfelt, undersøg manglende værdier, eksportér kontrollerede statistikker, og skeln mellem en opdateret tabel og et forældet eller kategorisk diagram.",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "Find undermodulet, og træk faktiske kolonner til grupper efter brønd og billedfelt.",
-        "Læs antal, manglende kombinationer, stikprøvestandardafvigelser og fraktiler uden at opfinde uafhængige gentagelser.",
-        "Filtrér målinger, opdatér diagrammet udtrykkeligt, og skeln mellem kategoriske og numeriske akser.",
-        "Eksportér hele sammenfatningen, og registrér gruppering, statistikker og filtre."
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Brug det downloadbare Annotate-eksempel på en byteidentisk privat kopi af measurements.db: 2.341 objekter, fire brønde og 51 observerede brønd/billedfelt-kombinationer. Det er ikke 2.341 uafhængige forsøg; rowID er en rumlig mærkning, ikke en fastslået behandling. Alle viste statistikker, CSV-celler og 51 endelige punkthøjder er kontrolleret uafhængigt. Biologiske virkninger, manglende akselabels, uendelige værdier og store begrænsede gitre er ikke valideret. Tabulate sammenfatter eksisterende data uden egen download, billedforhåndsvisning, GPU-pipeline, AI-konsol eller overordnet Plot-kontakt. Brug dets egne Load table og Export CSV, ikke det omgivende Database Browsers kontroller.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Åbn Help, derefter Database browser, og vælg den indlejrede Tabulate-knap. Det er et undermodul af Database Browser, ikke en selvstændig Home-flise. Vi bruger en privat kopi af det virkelige downloadbare Annotate-eksempel. Det tidligere Annotate-kursus viser, hvordan dataene hentes.",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7847,17 +7854,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Vælg Load table inde i Tabulate, åbn den kopierede måledatabase, og vælg cell. Hele tabellen indeholder 2.341 objekter. Det omgivende Database Browser har egne kontroller; de er ikke denne pivottabels input eller eksport. Indlæsning alene vælger ikke grupperingen.",
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Vælg Plate / row / column. De tre nøgler står i Rows i hierarkisk rækkefølge. Lad Values være tom for at tælle kilderækker: De fire brønde indeholder 615, 525, 700 og 501 objekter. Det er celletal, ikke uafhængige forsøgsreplikater.",
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
           "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "Søg efter fieldID, og træk det til Columns. Fire brønde gange 13 billedfeltlabels giver 52 mulige kombinationer, men kun 51 indeholder målinger. Hold musen over den tomme celle for rækkelabel 5, kolonnelabel 2 og billedfelt 20. Kombinationen har ingen kilderækker; det er ikke en målt nulværdi.",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7868,12 +7875,12 @@
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Tøm Columns-området, søg efter cell_area, og træk det til Values. Standardstatistikkerne er antal, gennemsnit og stikprøvestandardafvigelse. Tabellen genberegnes, når akser eller statistikker ændres. Søgefeltet filtrerer kolonnenavne, ikke cellepopulationen.",
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "I denne version kan lave tabelrækker skjule de efterfølgende tekstlinjer, inklusive n. Hold musen over en resultatcelle for at læse alle statistikker og det tilhørende antal. Standardafvigelsen beskriver variation mellem objekter, ikke usikkerhed mellem uafhængige brønde. Værktøjstippet afrunder de viste tal.",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7884,7 +7891,7 @@
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "Slå median, sem og quantile til. Ved 0,75 er quantile den øvre kvartil, beregnet med lineær interpolation. SEM er stikprøvestandardafvigelsen divideret med kvadratroden af det tilgængelige antal. Det korrigerer ikke for objekter i samme billedfelt eller brønd og er derfor ikke et mål for uafhængig biologisk usikkerhed.",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7895,7 +7902,7 @@
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Skift Quantile at til 0,5. Fraktilen svarer nu til medianen: 22.400 i den første brønd. De øvrige statistikker ændres ikke. Gendan 0,75, og slå de ekstra statistikker fra, før du vender tilbage til den enkle sammenfatning.",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7906,7 +7913,7 @@
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "Erstat areal med homogenitetsmålingen for kanal 0 ved afstand 32. Den har syv reelt manglende værdier, så 2.334 målinger er tilgængelige. I denne brønd bidrager 501 kilderækker kun med 498 værdier. Antallet afhænger af den valgte måling; manglende målinger er ikke nuller.",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7917,12 +7924,12 @@
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "Gendan cell_area, og vælg Tabulates Export CSV med et nyt filnavn. Brøndsammenfatningen har fire rækker og seks kolonner: tre grupperingsnøgler, n, gennemsnit og standardafvigelse. Hver eksporteret værdi er kontrolleret mod kilden. Gem gruppering, statistikker og filtre separat; CSV-filen er ikke en gemt dynamisk specifikation.",
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
           "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Vælg Plot this table, og træk columnID til X, mean til Y og rowID til Colour. Diagrammet modtager fire sammenfattede rækker, ikke tusindvis af enkeltceller. Pas på: Automatic behandler de fire forskellige gennemsnit som kategorier og tegner et varmekort. Det viser ikke deres størrelser på en kontinuert skala.",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -7936,12 +7943,12 @@
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "Tilføj cell_area i filteret til højre, og sæt minimum til 21.925. Pivottabellen sammenfatter straks de 1.171 tilbageværende objekter. Diagrammet beholder den gamle sammenfatning, indtil du igen trykker Plot this table. At et diagram er synligt, beviser ikke, at det følger det aktuelle filter.",
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
           "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "Tryk igen på Plot this table for at overføre de genberegnede gennemsnit. Diagrammet indeholder nu de fire filtrerede grupper, men Automatic behandler stadig gennemsnittene kategorisk. En besked siger, at det oprindelige arealfilter ikke kan anvendes direkte på sammenfatningen: Den har mean, ikke cell_area. Det betyder ikke, at pivottabellen ignorerede filteret.",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7952,7 +7959,7 @@
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "Vælg Clear all i filteret til højre og derefter Plot this table igen. De oprindelige 2.341 objekter og brøndgennemsnit vender tilbage. Filtrering her sletter ikke kildemålinger. Eksportér filtrerede og ufiltrerede sammenfatninger med forskellige navne, hvis du skal bruge begge.",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7963,17 +7970,17 @@
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "For en separat visning på billedfeltniveau trækkes fieldID til Rows efter brøndnøglerne. Gitteret har 52 rækker og 51 observerede grupper. Statistikken beskriver nu et billedfelt i en brønd, ikke hele brønden. Hver observeret gruppe har 15–88 objekter; flere grupper skaber ikke uafhængige forsøg.",
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Tryk Plot this table, sæt fieldID på X, behold mean på Y og rowID på Colour, og vælg Scatter under Plot. Med disse 51 forskellige billedfeltgennemsnit identificerer den faktiske kolonneliste mean som kontinuert. Kontrollér rollen og akselabels i stedet for at antage, at et tal altid behandles numerisk.",
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
           "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "Diagrammet viser nu 51 virkelige billedfeltgennemsnit på en kontinuert lodret skala. Hver punkthøjde er kontrolleret mod den uafhængigt beregnede sammenfatning. Gentagne billedfeltlabels tilhører forskellige brønde; farver viser rumlige rækkelabels, ikke bekræftede behandlinger. Denne grupperede tabel har ingen objektnøgler, så markering i diagrammet kan ikke vælge enkeltbilleder.",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -7988,14 +7995,19 @@
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "Eksportér billedfeltsammenfatningen: 52 rækker og syv kolonner, hvor én reelt tom kombination forbliver tom. Overførslen til diagrammet udelader gruppen, så der er 51 punkter. I reproducerbar kode modtager pivot og PivotSpec i spaCRs Qt-modul pivot_spec disse valg, og to_csv skriver resultatet. Bevar kilden, og registrér præcis gruppering og filter.",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8128,19 +8140,18 @@
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
-      "title": "Small Multiples: virkelige grupper, livefiltre og retvisende akser",
-      "description": "Åbn Small Multiples inde i Graph Builder, sammenlign downloadede målinger med fælles eller uafhængige akser, undersøg tomme grupper og begrænsede facetter, og opret en afledt kolonne, der kan fjernes igen.",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "Find undermodulet og byg et punktdiagramgitter af virkelige målte objekter.",
-        "Sammenlign fælles, frie, rækkevise og kolonnevise akser uden at forveksle skalaændringer med dataændringer.",
-        "Filtrér direkte, skeln mellem tomme grupper og ubrugte pladser, og optæl udeladte niveauer.",
-        "Opret og fjern en omskalering i hukommelsen, bevar kilden og dokumentér figurens valg."
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Brug en byteidentisk privat kopi af measurements.db fra Annotates downloadbare eksempel: 2.341 objekter i fire brønde, 13 feltetiketter og 51 observerede brønd/felt-kombinationer. Objektantal er ikke uafhængige forsøgsreplikater, og stedetiketter er ikke fastlagte behandlinger. De viste kontinuerte punkter, gruppetilhørsforhold, aksegrænser, titler og synlige/skjulte paneler er kontrolleret uafhængigt mod kilderækkerne. Kontrollen gælder endelige, ikke-degenererede akser i dette datasæt uden deludtagning; den validerer ikke vilkårlige diagrammer, markering på tværs af visninger, biologiske effekter eller fysisk kalibrering. Small Multiples er et tabelundermodul i Graph Builder uden egen download, billedforhåndsvisning, GPU-pipeline, AI-konsol, generel Plot-kontakt eller eksportknap. Genbrug Annotate-data og undermodulets egen Load table.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Åbn Graph Builder fra Home, og vælg den indlejrede knap Small Multiples. Det er undermodulets aktuelle adgangsvej, ikke en separat Home-flise. Vi genbruger rigtige downloadbare Annotate-målinger i en privat kopi; Annotate-vejledningen viser, hvordan eksemplet hentes.",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8149,12 +8160,12 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Brug Load table inde i Small Multiples, vælg den private måledatabase og derefter cell. Den indeholder 2.341 målte objekter fra fire brønde. Den overordnede Graph Builder har en anden Load table-knap. Her skal du bruge den ved overskriften Small Multiples.",
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
           "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Søg efter cell_area, og træk den til X; læg cell_channel_1_mean_intensity på Y. Vælg Scatter under Plot. Træk rowID til Facet nedad og columnID til Facet mod højre. Søgningen indsnævrer kolonnelisten, ikke cellepopulationen. Hvert punkt er her et allerede målt objekt.",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -8165,37 +8176,37 @@
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Med begge akser på shared bruger alle fire paneler samme vandrette og lodrette grænser. Titlerne viser 615, 525, 700 og 501 objekter. Række- og kolonneetiketter beskriver placering, ikke verificerede behandlinger. Cellerne er ikke uafhængige forsøgsreplikater.",
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
           "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "Sæt både X scale og Y scale til free. Hvert panel bruger nu sit eget interval. Det viser formen inden for gruppen, men lige brede punktskyer behøver ikke spænde over samme måleværdier. Læs aksemærkerne før sammenligning. Nye akser ændrer ikke kildemålingerne.",
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
           "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "Vælg per row for begge akser. Paneler i samme gitterrække deler grænser; forskellige rækker kan have forskellige grænser. Det er en layoutbaseret skalagruppe, ikke en statistisk korrektion. Her kan de to kolonner i hver række sammenlignes på ens akser.",
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
           "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "Vælg per column for begge akser. Paneler i samme gitterkolonne deler grænser. X og Y kan også indstilles hver for sig; her ændrer vi begge sammen. Gendan shared på begge før sammenligning af alle fire brønde. Fælles betyder fælles i det aktuelle gitter, ikke fast efter ethvert senere filter.",
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
           "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Tilføj cell_area under Filter, og sæt nedre grænse til 21.925. Gitteret opdateres straks til 1.171 objekter. Panelernes antal og punkter ændres sammen. Det er et livefilter på målinger, ikke billedsegmentering eller en ny analysekørsel.",
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
           "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Vælg Clear all under Filter. Alle 2.341 objekter vender tilbage med deres oprindelige punkter og fælles aksegrænser. Denne knap fjerner filteret; Clear all channels til venstre fjerner i stedet diagrammets kolonnevalg. Ingen af handlingerne sletter databaserækker.",
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "For at se en virkelig manglende gruppe filtreres columnID til c2 og fieldID til f20 og f21; rul i kategorilisten efter behov. Sæt fieldID på Facet mod højre, og behold rowID på Facet nedad. Der er 174 celler tilbage. Panelet med rækkeetiket 5 og felt 20 har n = 0: ingen kildeobjekter, ikke en målt intensitet på nul.",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -8203,17 +8214,17 @@
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "Ryd filtrene, og gendan columnID på Facet mod højre. Sæt Wrap at til 5 med begge facetkanaler udfyldt. Gitteret forbliver 2 × 2, og beskeden siger, at ombrydningen ignoreres. Wrap gælder ved én facetkanal, ikke til omarrangering af et todimensionalt gitter.",
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Ryd Facet nedad, læg fieldID på Facet mod højre, og behold Wrap at på 5. De viste felter danner tre rækker med fem pladser i hver. Kun 12 feltniveauer tegnes, selv om kilden har 13. De tre ubrugte pladser er skjult layoutfyld, ikke virkelige grupper vist med n = 0.",
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Læs beskeden under gitteret. Felt 21 falder uden for de 12 viste niveauer, så 264 kildeobjekter ikke kommer med i panelerne. Der tegnes faktisk 2.077 punkter, selv om den indlæste tabel stadig har 2.341 rækker. Antallet af indlæste rækker beviser ikke, at alle er synlige.",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
@@ -8224,7 +8235,7 @@
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Slå Wrap fra, og gendan rowID og columnID som facetter. Under Columns skrives area_k som navn og cell_area divideret med 1.000 som udtryk, præcis som vist. Forhåndsvisningen kontrollerer de første 2.000 rækker. Vælg Add column for at beregne afledte værdier for hele tabellen uden at omskrive databasen.",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
@@ -8235,17 +8246,17 @@
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "Træk area_k til X. Hver vandret koordinat er nu det oprindelige celleareal divideret med 1.000; Y og gruppetilhørsforhold er uændrede. Det er numerisk omskalering, ikke kalibrering til kvadratmikrometer, en ny måling eller bevis for en biologisk effekt. Alle 2.341 afledte værdier er kontrolleret.",
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Læg cell_area tilbage på X, før area_k vælges under Columns og Remove trykkes. Det oprindelige firepanelsdiagram vender tilbage, og den afledte kolonne forsvinder. Både den private database og de oprindelige downloadede data er uændrede. Notér variabler, grupper, filtre og akser, så andre kan genskabe visningen.",
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "I kode definerer trellis og TrellisSpec i spaCRs Qt-modul trellis_spec grupper, akser og Wrap; GraphSpec definerer diagramkanalerne. Denne skærm har ingen egen eksportknap eller downloadbart datasæt. Brug Tabulate til kontrollerede CSV-oversigter. Billedforhåndsvisning, GPU-pipelines og spaCR AI hører til de relevante analysevejledninger, ikke denne tabelvisning.",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8253,7 +8264,12 @@
           ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

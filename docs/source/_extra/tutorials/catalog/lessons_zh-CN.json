@@ -7628,54 +7628,50 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export：当前入口与经过验证的 API 变通方案",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "探索",
-      "description": "找到嵌套导出工具，了解缺失元数据造成的错误，并用明确、经过核验的 Python 方案导出真实示例。",
+      "section": "Measure",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "找到 Measure 内的 AnnData Export 和源测量数据库。",
-        "区分 GUI 导出失败与 API 变通方案，不编造缺失元数据。",
-        "比较合并、细胞和细胞核矩阵及四种缺失值策略。",
-        "重新读取文件，保留对象身份、注释、图像和来源记录。"
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "使用 Annotate 下载示例中的 measurements.db 副本，保留原库和图像。把链接的脚本放在副本旁，在 spaCR 环境中运行。它调用 spacr.anndata_export.build_anndata，仅把 obs 中全部缺失的 object 类型列编码为空分类列。缺失仍为缺失，不编造校准值或标签，此编码步骤不改变 X，也不修复 GUI。拒绝已有目标，写入新文件后重新读取核验。独立 SQLite 比较：合并/keep 2341x1136；cell/keep 和 mean 2341x261；cell/drop_features 2341x257；cell/drop_objects 2334x261；nucleus/keep 2682x341。不运行 UMAP 或 GPU 分析，不嵌入图像、不发送 AI 请求，也不宣称生物学验证或发布。原始 GUI 失败记录仍被保留。",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "打开 Measure，再选择其内部的 AnnData Export。AnnData 保存对象行与特征列组成的矩阵，同时保存观测元数据和特征名称。本课展示当前的 GUI 入口，但成功的导出使用明确的 Python 变通方案。我们并未宣称 GUI 导出缺陷已经修复。",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开 Measure，再选择其内部的 AnnData Export。AnnData 保存对象行与特征列组成的矩阵，同时保存观测元数据和特征名称。本课展示当前的 GUI 入口，但成功的导出使用明确的 Python 变通方案。我们并未宣称 GUI 导出缺陷已经修复。"
+          "hold_after": 0.7
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "使用实际下载的测量数据库副本，而不是编造的表。保持图像和原始数据库不变。GUI 接受项目文件夹；命令行示例接受测量数据库文件本身。为进行导出比较，关闭可选的嵌入计算。导出矩阵不需要 GPU。",
-          "hold_after": 0.7,
-          "speech_text": "使用实际下载的测量数据库副本，而不是编造的表。保持图像和原始数据库不变。GUI 接受项目文件夹；命令行示例接受测量数据库文件本身。为进行导出比较，关闭可选的嵌入计算。导出矩阵不需要 GPU。"
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "先观察未经修改的写入程序报错。某些观测列全部为缺失值，且数据类型为 object，这个写入程序无法序列化它们。未知的体素校准值就是一例。退出状态一和部分写入的文件不代表成功。不要为了消除错误，把未知值换成零或文本 None。",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
             3450,
             340
           ],
-          "hold_after": 0.7,
-          "speech_text": "先观察未经修改的写入程序报错。某些观测列全部为缺失值，且数据类型为 object，这个写入程序无法序列化它们。未知的体素校准值就是一例。退出状态一和部分写入的文件不代表成功。不要为了消除错误，把未知值换成零或文本 None。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "下载链接中的辅助脚本，检查其存储变通方法。它使用真正的 build_anndata 函数，然后只将全部缺失的 object 类型元数据编码为空分类列。缺失值仍然缺失，已知元数据和特征矩阵不会在此编码步骤中改变。这不表示物理校准在科学上属于分类量。",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7685,96 +7681,88 @@
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "下载链接中的辅助脚本，检查其存储变通方法。它使用真正的 build_anndata 函数，然后只将全部缺失的 object 类型元数据编码为空分类列。缺失值仍然缺失，已知元数据和特征矩阵不会在此编码步骤中改变。这不表示物理校准在科学上属于分类量。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "指定源数据库、新的输出路径和 keep 策略运行脚本。合并示例包含两千三百四十一行细胞和一千一百三十六个特征。相关细胞核与病原体的测量值按细胞聚合。四十万零三百二十个缺失特征值仍然缺失，而不是零。",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "指定源数据库、新的输出路径和 keep 策略运行脚本。合并示例包含两千三百四十一行细胞和一千一百三十六个特征。相关细胞核与病原体的测量值按细胞聚合。四十万零三百二十个缺失特征值仍然缺失，而不是零。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "如果只需要某类对象本身的测量值，增加 single-table cell，并保留缺失值。文件仍有两千三百四十一行细胞，但只有二百六十一个特征。共有二十八个值缺失。比较特征名称和行身份，不要只看文件大小或列数。",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "如果只需要某类对象本身的测量值，增加 single-table cell，并保留缺失值。文件仍有两千三百四十一行细胞，但只有二百六十一个特征。共有二十八个值缺失。比较特征名称和行身份，不要只看文件大小或列数。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "mean 策略是独立的分析选择，不属于存储变通方法。这里用各列已观测值的均值填补二十八个缺失特征值。导出的缺失值层记录它们原来的位置。请确认插补适合你的分析；完整矩阵并不自动意味着更好或没有偏差。",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "mean 策略是独立的分析选择，不属于存储变通方法。这里用各列已观测值的均值填补二十八个缺失特征值。导出的缺失值层记录它们原来的位置。请确认插补适合你的分析；完整矩阵并不自动意味着更好或没有偏差。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "drop-features 策略删除包含缺失值的列。此例删除四列，保留二百五十七个特征和全部细胞行。检查删除了哪些测量以及原因。这会改变特征集合，并可能丢弃有用信息，不是普遍适用的数据清理建议。",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "drop-features 策略删除包含缺失值的列。此例删除四列，保留二百五十七个特征和全部细胞行。检查删除了哪些测量以及原因。这会改变特征集合，并可能丢弃有用信息，不是普遍适用的数据清理建议。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "相反，drop-objects 策略删除包含缺失特征值的行。这里删除七个细胞，保留两千三百三十四行和全部二百六十一个特征。缺失可能与表型、采集或分割有关。先检查排除了什么，再判断剩余细胞是否具有代表性。",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "相反，drop-objects 策略删除包含缺失特征值的行。这里删除七个细胞，保留两千三百三十四行和全部二百六十一个特征。缺失可能与表型、采集或分割有关。先检查排除了什么，再判断剩余细胞是否具有代表性。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "选择 single-table nucleus，可以让每个细胞核占一行，而不是把核特征聚合到细胞行。此例包含两千六百八十二个细胞核和三百四十一个特征。保留父对象关联和对象身份。细胞核比细胞多，并不意味着导出过程中产生了额外细胞。",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择 single-table nucleus，可以让每个细胞核占一行，而不是把核特征聚合到细胞行。此例包含两千六百八十二个细胞核和三百四十一个特征。保留父对象关联和对象身份。细胞核比细胞多，并不意味着导出过程中产生了额外细胞。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "重新打开每个保存的文件。脚本比较完整矩阵、有序的对象与特征身份、缺失状态和观测元数据；六个文件也全部通过独立的 SQLite 检查。注释仍是元数据，不是插入矩阵的训练特征。图像没有嵌入，因此应随导出文件保留原图及其路径。",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
             3450,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "重新打开每个保存的文件。脚本比较完整矩阵、有序的对象与特征身份、缺失状态和观测元数据；六个文件也全部通过独立的 SQLite 检查。注释仍是元数据，不是插入矩阵的训练特征。图像没有嵌入，因此应随导出文件保留原图及其路径。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "每种策略使用新的输出名称，并保留脚本、设置和软件版本。脚本拒绝已有目标，而不是覆盖它。这些检查证明此示例的数据得到保留，不证明生物学有效性或 GUI 已被修复。完整流程请参阅链接的 API 和测量课程。",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7785,10 +7773,14 @@
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "每种策略使用新的输出名称，并保留脚本、设置和软件版本。脚本拒绝已有目标，而不是覆盖它。这些检查证明此示例的数据得到保留，不证明生物学有效性或 GUI 已被修复。完整流程请参阅链接的 API 和测量课程。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7797,36 +7789,33 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "探索",
-      "title": "PCA：真实测量、实时重拟合与缺失值",
-      "description": "在 Image UMAP 中使用 PCA，通过下载的真实细胞数据查看经过核验的得分、可逆筛选、明确的缺失值策略和三份真实 CSV 导出。",
+      "section": "Explore",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "在 Image UMAP 中找到 PCA，明确选择测量特征。",
-        "解读解释方差和相关箭头，不把它们当作生物学分离的证据。",
-        "比较标准化、筛选后的重拟合以及四种缺失值策略。",
-        "导出对象得分、特征载荷和主成分方差，同时保留原始数据。"
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "使用 Annotate 可下载示例的逐字节一致的私有副本：2,341 行细胞、276 个原始列、四个孔。首先拟合 cell_area、cell_channel_1_mean_intensity 和 cell_perimeter，再加入确有七个缺失值的 cell_channel_0_homogeneity_distance_32。缺失原因和处理条件均未确认。独立的协方差特征值分解核验应用的小数据表 SVD、保留行位置、得分、载荷、相关和方差；同时检查实际绘制坐标及导出的每个原始单元格。证据仅适用于这些满秩、非退化的三特征和四特征拟合，并不验证全部自动特征、箭头像素几何、秩亏输入、图像联动选择或生物学结论。CPU 上的 NumPy PCA 与 UMAP 拟合及其 GPU 选项不同。PCA 没有专用示例下载、图像预览、AI 控制台或运行级 Plot 开关。三份 CSV 不是已拟合模型包、保存的设置或导出图。API：spacr.qt.widgets.pca_model.pca、PCASpec，以及 PCAResult.scores_frame、loadings_frame、variance_frame。",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "从 Home 打开 Image UMAP，然后选择其中的 PCA 按钮。PCA 是对测量值的线性概括，不是另一种 UMAP 嵌入。这里使用 Annotate 可下载真实示例的私有副本。如何获取该数据，请参看 Annotate 教程。",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ],
-          "speech_text": "从 主页 打开 Image 优麦普，然后选择其中的 PCA 按钮。PCA 是对测量值的线性概括，不是另一种 优麦普 嵌入。这里使用 Annotate 可下载真实示例的私有副本。如何获取该数据，请参看 Annotate 教程。"
+          ]
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "点击 PCA 标题旁的 Load table，选择复制的测量数据库，再选择 cell。四个孔中共有两千三百四十一个对象。这个界面也能读取测量 CSV。主模块先前载入的路径，并不能证明当前打开的就是目标表。",
-          "hold_after": 0.7,
-          "speech_text": "点击 PCA 标题旁的 Load table，选择复制的测量数据库，再选择 cell。四个孔中共有两千三百四十一个对象。这个界面也能读取测量 CSV。主模块先前载入的路径，并不能证明当前打开的就是目标表。"
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "选择 None 前先清空特征搜索，因为该按钮只取消当前显示特征的勾选。搜索并勾选 cell_area、cell_channel_1_mean_intensity 和 cell_perimeter。再次清空搜索，将 Components 设为三，再选择 Run PCA。搜索缩小的是特征列表，不是细胞群体。",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7836,158 +7825,149 @@
             1490,
             3350,
             610
-          ],
-          "speech_text": "选择 None 前先清空特征搜索，因为该按钮只取消当前显示特征的勾选。搜索并勾选 cell_area、cell_channel_1_mean_intensity 和 cell_perimeter。再次清空搜索，将 Components 设为三，再选择 Run PCA。搜索缩小的是特征列表，不是细胞群体。"
+          ]
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "保留 Standardise 并阅读碎石图。第一主成分解释这三个特征标准化方差的约百分之六十五点七，第二主成分解释百分之三十一点七。每个点是一个已测量细胞，不是独立实验重复。解释方差不是分类准确率。",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "保留 Standardise 并阅读碎石图。第一主成分解释这三个特征标准化方差的约百分之六十五点七，第二主成分解释百分之三十一点七。每个点是一个已测量细胞，不是独立实验重复。解释方差不是分类准确率。"
+          ]
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "在 Colour 中选择 rowID，再把 X 设为 PC 三、Y 设为 PC 一。这些控件只重绘已有分解，不重新拟合。颜色代表空间行位置，不是已确认的处理条件。看似分离的点云提示我们检查测量和混杂因素，而不是证明生物学效应。",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
             335,
             2220,
             1600
-          ],
-          "speech_text": "在 Colour 中选择 rowID，再把 X 设为 PC 三、Y 设为 PC 一。这些控件只重绘已有分解，不重新拟合。颜色代表空间行位置，不是已确认的处理条件。看似分离的点云提示我们检查测量和混杂因素，而不是证明生物学效应。"
+          ]
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "返回 PC 一和 PC 二。关闭再打开 Loadings biplot。箭头表示各特征与这两个主成分的相关性；绝对长度经过显示缩放，虚线圆是标尺。箭头方向相近，并不确立因果关系。",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
             500,
             1660,
             1070
-          ],
-          "speech_text": "返回 PC 一和 PC 二。关闭再打开 Loadings biplot。箭头表示各特征与这两个主成分的相关性；绝对长度经过显示缩放，虚线圆是标尺。箭头方向相近，并不确立因果关系。"
+          ]
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "把 Scale 改为 Centre only。第一主成分现在解释约百分之九十点一，因为原始测量尺度改变了分析。比例更高并不意味着模型更好。继续前恢复 Standardise，它对每个特征进行中心化，再除以样本标准差。",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "把 Scale 改为 Centre only。第一主成分现在解释约百分之九十点一，因为原始测量尺度改变了分析。比例更高并不意味着模型更好。继续前恢复 Standardise，它对每个特征进行中心化，再除以样本标准差。"
+          ]
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "在右侧筛选器中添加 cell_area，把最小值设为两万一千九百二十五。拟合现在使用一千一百七十一个细胞。这是实时重拟合：群体均值、尺度和主成分方向都会改变，并非仅在原坐标轴上隐藏一些点。",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
             325,
             470,
             620
-          ],
-          "speech_text": "在右侧筛选器中添加 cell_area，把最小值设为两万一千九百二十五。拟合现在使用一千一百七十一个细胞。这是实时重拟合：群体均值、尺度和主成分方向都会改变，并非仅在原坐标轴上隐藏一些点。"
+          ]
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "在筛选器中选择 Clear all。两千三百四十一个细胞全部恢复，原来的分解也恢复。筛选从不删除数据库行。每次修改后都应检查群体和报告；分别拟合的群体，其得分并不会自动使用共同坐标系。",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
             1890,
             2400,
             225
-          ],
-          "speech_text": "在筛选器中选择 Clear all。两千三百四十一个细胞全部恢复，原来的分解也恢复。筛选从不删除数据库行。每次修改后都应检查群体和报告；分别拟合的群体，其得分并不会自动使用共同坐标系。"
+          ]
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "现在搜索并勾选 cell_channel_0_homogeneity_distance_32。选择 Run PCA 之前，已有结果仍只包含三个特征。这个纹理特征确有七个缺失值。我们不知道缺失原因，因此不能把这些细胞称为未感染，也不能用零代替缺失测量。",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "现在搜索并勾选 cell_channel_0_homogeneity_distance_32。选择 Run PCA 之前，已有结果仍只包含三个特征。这个纹理特征确有七个缺失值。我们不知道缺失原因，因此不能把这些细胞称为未感染，也不能用零代替缺失测量。"
+          ]
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "使用 Auto 运行。四个特征都保留，但七个细胞被移除，剩下两千三百三十四个。Auto 先移除在超过百分之二的行中缺失的特征，再移除剩余不完整行。请求的三个主成分解释约百分之九十八点六，第四个方向仍然存在。",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "使用 Auto 运行。四个特征都保留，但七个细胞被移除，剩下两千三百三十四个。Auto 先移除在超过百分之二的行中缺失的特征，再移除剩余不完整行。请求的三个主成分解释约百分之九十八点六，第四个方向仍然存在。"
+          ]
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "在 NaN 中选择 Drop features。两千三百四十一个细胞全部保留，但纹理特征不参与拟合。界面可以仍勾选四个框，而实际只分析三个特征。要阅读结果和特征排除提示，不能只看请求的选择。",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "在 NaN 中选择 Drop features。两千三百四十一个细胞全部保留，但纹理特征不参与拟合。界面可以仍勾选四个框，而实际只分析三个特征。要阅读结果和特征排除提示，不能只看请求的选择。"
+          ]
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "选择 Mean-impute。所有细胞和四个特征均保留，计算时将七个值替换成该特征的均值。这些是人为填入的值，不是找回的测量值。报告会写明替换数量。展示这个结果时必须说明插补；原数据库并没有被重写。",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "选择 Mean-impute。所有细胞和四个特征均保留，计算时将七个值替换成该特征的均值。这些是人为填入的值，不是找回的测量值。报告会写明替换数量。展示这个结果时必须说明插补；原数据库并没有被重写。"
+          ]
         },
         {
           "visual": "20_complete_cases",
-          "narration": "选择 Complete cases。本例保留四个已选特征，并移除同样七个不完整细胞。它与 Auto 一致只是本数据的具体情况。返回 Auto，取消纹理特征，清空搜索，选择 Run PCA，再将 Colour 恢复为 none。",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
             1490,
             3350,
             610
-          ],
-          "speech_text": "选择 Complete cases。本例保留四个已选特征，并移除同样七个不完整细胞。它与 Auto 一致只是本数据的具体情况。返回 Auto，取消纹理特征，清空搜索，选择 Run PCA，再将 Colour 恢复为 none。"
+          ]
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "选择 Export，用 pca_example 等基本名称保存。界面写出三份 CSV：每个分析对象的得分、每个特征的载荷与相关，以及每个主成分的方差。得分文件也保留原测量列，并非只有三个坐标列。",
-          "hold_after": 0.7,
-          "speech_text": "选择 Export，用 pca_example 等基本名称保存。界面写出三份 CSV：每个分析对象的得分、每个特征的载荷与相关，以及每个主成分的方差。得分文件也保留原测量列，并非只有三个坐标列。"
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "这些导出保留两千三百四十一行对象，两个数据库均保持不变。请另行记录特征列表、筛选、缩放和缺失值策略；这个按钮不保存设置或已拟合模型包。编程可使用 spaCR 的 Qt pca_model 模块中的 pca 和 PCASpec。这个 CPU 表格视图与图像预览、GPU 分析和 spaCR AI 是不同功能。",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
-          ],
-          "speech_text": "这些导出保留两千三百四十一行对象，两个数据库均保持不变。请另行记录特征列表、筛选、缩放和缺失值策略；这个按钮不保存设置或已拟合模型包。编程可使用 斯佩克尔 的 Q T pca_model 模块中的 pca 和 PCASpec。这个 CPU 表格视图与图像预览、GPU 分析和 斯佩克尔 AI 是不同功能。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7995,114 +7975,103 @@
       "slug": "tabulate",
       "series": 5,
       "app_key": "tabulate",
-      "section": "探索",
-      "title": "Tabulate：汇总真实测量值、核对计数并更新汇总图",
-      "description": "在Database Browser中打开Tabulate，按孔和视野汇总下载的测量数据，查看真实缺失值，导出已核对的统计量，并区分实时汇总表、过期图表和分类坐标轴。",
+      "section": "Explore",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "找到嵌套模块，通过真实的列拖放按孔和视野汇总。",
-        "理解计数、缺失组合、样本标准差和分位数，不把对象数当作独立重复实验。",
-        "筛选测量值，明确更新汇总图，并区分分类轴和数值轴。",
-        "导出完整汇总结果，记录分组、统计量和筛选条件以便复现。"
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "使用Annotate可下载示例中measurements.db的逐字节相同的私有副本。cell表包含2,341个对象、4个孔和51个实际观测到的孔/视野组合。这不是2,341次独立实验；rowID只是空间行标签，不是已确认的处理分组。教程独立核对了展示的统计量、每个CSV单元格及最终51个散点的纵坐标，不验证生物学效应、缺失轴标签、无穷值或受限的大型网格。Tabulate只汇总已有数据，没有专用下载器、图像预览、GPU流程、AI控制台或运行级Plot开关。请使用Tabulate自己的Load table和Export CSV，而非外围Database Browser的控件。",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "打开Help，再打开Database browser，然后选择嵌套的Tabulate按钮。它是Database Browser的子模块，不是Home上的独立卡片。这里使用可下载的真实Annotate示例的私有副本。之前的Annotate教程介绍了如何获取这些数据。",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ],
-          "speech_text": "打开Help，再打开Database browser，然后选择嵌套的Tabulate按钮。它是Database Browser的子模块，不是主页上的独立卡片。这里使用可下载的真实Annotate示例的私有副本。之前的Annotate教程介绍了如何获取这些数据。"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "在Tabulate内选择Load table，打开复制的测量数据库并选择cell。完整表包含两千三百四十一个对象。外围的Database Browser也有自己的控件，但它们并不是这张汇总表的输入或导出控件。加载数据本身不会替你选择分组。",
-          "hold_after": 0.7,
-          "speech_text": "在Tabulate内选择Load table，打开复制的测量数据库并选择cell。完整表包含两千三百四十一个对象。外围的Database Browser也有自己的控件，但它们并不是这张汇总表的输入或导出控件。加载数据本身不会替你选择分组。"
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "选择Plate slash row slash column。三个键按层级顺序出现在Rows中。Values留空时统计原始行数：四个孔分别有六百一十五、五百二十五、七百和五百零一个对象。这些是细胞计数，不是独立实验重复数。",
-          "hold_after": 0.7,
-          "speech_text": "选择Plate slash row slash column。三个键按层级顺序出现在Rows中。Values留空时统计原始行数：四个孔分别有六百一十五、五百二十五、七百和五百零一个对象。这些是细胞计数，不是独立实验重复数。"
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
+          "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "搜索fieldID并拖到Columns。四个孔乘以十三个视野标签，共有五十二种可能组合，但只有五十一种含有测量数据。悬停在行标签五、列标签二、视野二十的空白处。这表示该组合没有原始数据行，而不是测得的数值为零。",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
             405,
             2300,
             260
-          ],
-          "speech_text": "搜索fieldID并拖到Columns。四个孔乘以十三个视野标签，共有五十二种可能组合，但只有五十一种含有测量数据。悬停在行标签五、列标签二、视野二十的空白处。这表示该组合没有原始数据行，而不是测得的数值为零。"
+          ]
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "清空Columns区域，再搜索cell_area并拖到Values。默认统计量是计数、均值和样本标准差。更改轴或统计量时，表会重新计算。搜索框筛选的是列名，不是细胞群体。",
-          "hold_after": 0.7,
-          "speech_text": "清空Columns区域，再搜索cell_area并拖到Values。默认统计量是计数、均值和样本标准差。更改轴或统计量时，表会重新计算。搜索框筛选的是列名，不是细胞群体。"
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "这个版本的表格行较矮，可能隐藏后续文本，包括n。将鼠标停在结果单元格上，读取完整统计量和参与计算的数量。标准差描述这些对象之间的变异，不是独立孔之间的不确定性。提示框会对显示的数值进行舍入。",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
             405,
             1190,
             450
-          ],
-          "speech_text": "这个版本的表格行较矮，可能隐藏后续文本，包括n。将鼠标停在结果单元格上，读取完整统计量和参与计算的数量。标准差描述这些对象之间的变异，不是独立孔之间的不确定性。提示框会对显示的数值进行舍入。"
+          ]
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "打开median、sem和quantile。当数值为零点七五时，quantile是通过线性插值计算的上四分位数。SEM等于样本标准差除以可用计数的平方根。它不会校正同一视野或孔内对象之间的依赖关系，因此不要把它视为独立的生物学不确定性。",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             2050,
             890
-          ],
-          "speech_text": "打开median、sem和quantile。当数值为零点七五时，quantile是通过线性插值计算的上四分位数。SEM等于样本标准差除以可用计数的平方根。它不会校正同一视野或孔内对象之间的依赖关系，因此不要把它视为独立的生物学不确定性。"
+          ]
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "把Quantile at改为零点五。此时分位数与中位数相同，第一个孔为两万两千四百。其他统计量保持不变。恢复零点七五，并关闭额外统计量，回到较简单的汇总。",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             2050,
             890
-          ],
-          "speech_text": "把Quantile at改为零点五。此时分位数与中位数相同，第一个孔为两万两千四百。其他统计量保持不变。恢复零点七五，并关闭额外统计量，回到较简单的汇总。"
+          ]
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "把面积替换为通道零、距离三十二的同质性特征。该特征确实缺失七个值，剩下两千三百三十四个可用测量值。这个孔的五百零一行原始数据只贡献四百九十八个有效值。计数取决于所选特征，缺失测量值不是零。",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
             410,
             1760,
             890
-          ],
-          "speech_text": "把面积替换为通道零、距离三十二的同质性特征。该特征确实缺失七个值，剩下两千三百三十四个可用测量值。这个孔的五百零一行原始数据只贡献四百九十八个有效值。计数取决于所选特征，缺失测量值不是零。"
+          ]
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "恢复cell_area，然后选择Tabulate的Export CSV并指定新文件名。按孔汇总的结果有四行六列：三个分组键、n、均值和标准差。每个导出值都与原始数据核对过。分组、统计量和筛选条件需要另外记录；CSV不是保存的动态配置。",
-          "hold_after": 0.7,
-          "speech_text": "恢复cell_area，然后选择Tabulate的Export CSV并指定新文件名。按孔汇总的结果有四行六列：三个分组键、n、均值和标准差。每个导出值都与原始数据核对过。分组、统计量和筛选条件需要另外记录；CSV不是保存的动态配置。"
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "选择Plot this table，然后把columnID拖到X、mean拖到Y、rowID拖到Colour。图表接收的是四行汇总结果，不是数千个单独细胞。注意：Automatic把这四个不同均值当作类别，绘制热图。这不是在连续尺度上展示均值大小的图。",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -8112,54 +8081,48 @@
             1300,
             3340,
             690
-          ],
-          "speech_text": "选择Plot this table，然后把columnID拖到X、mean拖到Y、rowID拖到Colour。图表接收的是四行汇总结果，不是数千个单独细胞。注意：Automatic把这四个不同均值当作类别，绘制热图。这不是在连续尺度上展示均值大小的图。"
+          ]
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "在右侧筛选器中添加cell_area，将最小值设为两万一千九百二十五。汇总表会立即统计剩下的一千一百七十一个对象。但图表仍保留旧汇总，直到再次按下Plot this table。看到图表并不能证明它反映了当前筛选条件。",
-          "hold_after": 0.7,
-          "speech_text": "在右侧筛选器中添加cell_area，将最小值设为两万一千九百二十五。汇总表会立即统计剩下的一千一百七十一个对象。但图表仍保留旧汇总，直到再次按下Plot this table。看到图表并不能证明它反映了当前筛选条件。"
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "再次按Plot this table，传入重新计算的均值。图表现在包含筛选后的四组，不过Automatic仍然按类别处理这些均值。提示说明原始面积筛选条件不能直接用于汇总表，因为汇总中有mean而没有cell_area。这并不代表上游汇总表忽略了筛选。",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
             1300,
             3340,
             690
-          ],
-          "speech_text": "再次按Plot this table，传入重新计算的均值。图表现在包含筛选后的四组，不过Automatic仍然按类别处理这些均值。提示说明原始面积筛选条件不能直接用于汇总表，因为汇总中有mean而没有cell_area。这并不代表上游汇总表忽略了筛选。"
+          ]
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "在右侧筛选器中选择Clear all，然后再次按Plot this table。原来的两千三百四十一个对象及各孔均值就会恢复。这里的筛选不会删除原始测量值。如果需要两份汇总，请用不同文件名分别导出筛选前后的结果。",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
             1300,
             3340,
             690
-          ],
-          "speech_text": "在右侧筛选器中选择Clear all，然后再次按Plot this table。原来的两千三百四十一个对象及各孔均值就会恢复。这里的筛选不会删除原始测量值。如果需要两份汇总，请用不同文件名分别导出筛选前后的结果。"
+          ]
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "若要另外查看视野级结果，把fieldID拖入Rows，放在孔键之后。网格有五十二行，实际观测到五十一组。此时统计量描述的是孔内的一个视野，不再是整个孔。每个实际组有十五到八十八个对象。增加分组不会创造独立实验。",
-          "hold_after": 0.7,
-          "speech_text": "若要另外查看视野级结果，把fieldID拖入Rows，放在孔键之后。网格有五十二行，实际观测到五十一组。此时统计量描述的是孔内的一个视野，不再是整个孔。每个实际组有十五到八十八个对象。增加分组不会创造独立实验。"
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "按Plot this table，将fieldID放在X，保留mean为Y、rowID为Colour，然后在Plot中选择Scatter。对于这五十一个不同的视野均值，实际列列表将mean识别为连续类型。要检查类型和轴标签，不要假定数字一定会按数值处理。",
-          "hold_after": 0.7,
-          "speech_text": "按Plot this table，将fieldID放在X，保留mean为Y、rowID为Colour，然后在Plot中选择Scatter。对于这五十一个不同的视野均值，实际列列表将mean识别为连续类型。要检查类型和轴标签，不要假定数字一定会按数值处理。"
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "图表现在在连续的纵轴上显示五十一个真实视野均值。每个点的高度都已与独立计算的汇总结果核对。重复的视野标签属于不同孔；颜色代表空间行标签，而非已验证的处理组。该分组表没有对象键，因此框选不能选中单张图像。",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -8170,20 +8133,23 @@
             1300,
             3340,
             690
-          ],
-          "speech_text": "图表现在在连续的纵轴上显示五十一个真实视野均值。每个点的高度都已与独立计算的汇总结果核对。重复的视野标签属于不同孔；颜色代表空间行标签，而非已验证的处理组。该分组表没有对象键，因此框选不能选中单张图像。"
+          ]
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "导出视野汇总：五十二行七列，其中一个确实没有数据的组合保留为空白。传给图表时会省略这个空组，因此只有五十一个点。要用代码复现，可由spaCR的Qt pivot_spec模块中的pivot和PivotSpec接收这些选项，再由to_csv写出结果。保留原始数据，记录准确的分组和筛选条件。",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "导出视野汇总：五十二行七列，其中一个确实没有数据的组合保留为空白。传给图表时会省略这个空组，因此只有五十一个点。要用代码复现，可由斯佩克尔的Qt pivot_spec模块中的pivot和PivotSpec接收这些选项，再由to_csv写出结果。保留原始数据，记录准确的分组和筛选条件。"
+          ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8315,150 +8281,137 @@
       "slug": "small_multiples",
       "series": 5,
       "app_key": "trellis",
-      "section": "探索",
-      "title": "Small Multiples：真实分组、实时筛选与准确的坐标尺度",
-      "description": "在Graph Builder中打开Small Multiples，以共享或独立坐标范围比较下载的真实测量数据，检查空组与分面显示上限，并创建可撤销的派生列。",
+      "section": "Explore",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "找到当前子模块入口，用真实测量对象建立散点图网格。",
-        "比较共享、独立、按行和按列的坐标范围，区分尺度变化与数据变化。",
-        "实时筛选，区分真实空组和未使用的布局位置，并统计未显示的分面层级。",
-        "添加和删除内存中的数值缩放列，保护源数据并记录可复现的绘图选择。"
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "使用Annotate可下载示例中measurements.db的逐字节相同的私有副本：2,341个对象、4个孔、13个视野标签以及51个实际存在的孔与视野组合。对象数不是独立实验重复数，空间标签也不是已确认的处理条件。演示的所有连续散点坐标、精确分组成员、坐标范围、标题和面板可见性均独立核对源数据。验证仅限此未抽样数据中的有限、非退化连续轴，不代表任意图形、跨视图框选、生物效应或物理单位校准均已验证。Small Multiples是Graph Builder内的表格子模块，没有专属下载、图像预览、GPU流程、AI控制台、运行级Plot开关或导出按钮。复用Annotate数据，并使用子模块自身的Load table按钮。",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "从Home打开Graph Builder，再选择其中嵌套的Small Multiples按钮。这是当前子模块的入口，不是Home上的独立磁贴。我们使用Annotate真实可下载测量数据的私有副本。如何取得这个示例，请参阅Annotate教程。",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
-          ],
-          "speech_text": "从主页打开Graph Builder，再选择其中嵌套的Small Multiples按钮。这是当前子模块的入口，不是主页上的独立磁贴。我们使用Annotate真实可下载测量数据的私有副本。如何取得这个示例，请参阅Annotate教程。"
+          ]
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "使用Small Multiples内的Load table，选择测量数据库的私有副本，然后选择cell。表中包含四个孔的两千三百四十一个测量对象。外层Graph Builder也有一个Load table按钮。本流程要用Small Multiples标题旁边的按钮。",
-          "hold_after": 0.7,
-          "speech_text": "使用Small Multiples内的Load table，选择测量数据库的私有副本，然后选择cell。表中包含四个孔的两千三百四十一个测量对象。外层Graph Builder也有一个Load table按钮。本流程要用Small Multiples标题旁边的按钮。"
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "搜索cell_area并拖到X，再把cell_channel_1_mean_intensity放到Y。在Plot中选择Scatter。把rowID拖到向下的Facet，把columnID拖到向右的Facet。搜索只缩小列名列表，不筛选细胞群体。这里每个点都是一个已有测量对象。",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
             1720,
             700,
             390
-          ],
-          "speech_text": "搜索cell_area并拖到X，再把cell_channel_1_mean_intensity放到Y。在Plot中选择Scatter。把rowID拖到向下的Facet，把columnID拖到向右的Facet。搜索只缩小列名列表，不筛选细胞群体。这里每个点都是一个已有测量对象。"
+          ]
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "两轴都选shared时，四个面板使用相同的横纵坐标范围。标题中的对象数分别为六百一十五、五百二十五、七百和五百零一。行列标签描述位置，不代表已验证的处理条件。这些细胞不是独立的实验重复。",
-          "hold_after": 0.7,
-          "speech_text": "两轴都选shared时，四个面板使用相同的横纵坐标范围。标题中的对象数分别为六百一十五、五百二十五、七百和五百零一。行列标签描述位置，不代表已验证的处理条件。这些细胞不是独立的实验重复。"
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "把X scale和Y scale都设为free。每个面板现在使用自己的范围，便于观察组内分布形状。但看起来同样宽的点云，不一定跨越同样大小的测量值范围。比较之前先读刻度。改变坐标尺度不会改变源测量数据。",
-          "hold_after": 0.7,
-          "speech_text": "把X scale和Y scale都设为free。每个面板现在使用自己的范围，便于观察组内分布形状。但看起来同样宽的点云，不一定跨越同样大小的测量值范围。比较之前先读刻度。改变坐标尺度不会改变源测量数据。"
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "两轴都选择per row。同一网格行中的面板共享范围，不同行之间可以不同。这是按布局分组坐标尺度，不是统计校正。这里每一行中的两列可以在一致的坐标范围下直接比较。",
-          "hold_after": 0.7,
-          "speech_text": "两轴都选择per row。同一网格行中的面板共享范围，不同行之间可以不同。这是按布局分组坐标尺度，不是统计校正。这里每一行中的两列可以在一致的坐标范围下直接比较。"
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "两轴都选择per column。同一网格列中的面板共享范围。X和Y也能分别设置；本演示同时改变二者。比较四个孔之前，把两轴恢复为shared。共享是指当前网格内一致，不是指之后无论怎样筛选都固定不变。",
-          "hold_after": 0.7,
-          "speech_text": "两轴都选择per column。同一网格列中的面板共享范围。X和Y也能分别设置；本演示同时改变二者。比较四个孔之前，把两轴恢复为shared。共享是指当前网格内一致，不是指之后无论怎样筛选都固定不变。"
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "在Filter标签页添加cell_area，把下限设为两万一千九百二十五。实际网格立即更新为一千一百七十一个对象。各面板的计数和散点一起变化。这是测量值的实时筛选，不是图像分割，也不是启动一次新的分析。",
-          "hold_after": 0.7,
-          "speech_text": "在Filter标签页添加cell_area，把下限设为两万一千九百二十五。实际网格立即更新为一千一百七十一个对象。各面板的计数和散点一起变化。这是测量值的实时筛选，不是图像分割，也不是启动一次新的分析。"
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "在Filter标签页选择Clear all。两千三百四十一个对象全部恢复，点的位置和共享坐标范围也回到原来状态。这个按钮清除筛选；左边的Clear all channels则清除图表通道分配。两种操作都不会删除数据库中的行。",
-          "hold_after": 0.7,
-          "speech_text": "在Filter标签页选择Clear all。两千三百四十一个对象全部恢复，点的位置和共享坐标范围也回到原来状态。这个按钮清除筛选；左边的Clear all channels则清除图表通道分配。两种操作都不会删除数据库中的行。"
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "要检查真实缺失的组合，把columnID仅保留c2，把fieldID仅保留f20和f21，必要时滚动类别列表。把向右的Facet换成fieldID，向下的Facet仍用rowID。剩下一百七十四个细胞。行标签五、视野二十的面板显示n等于零，表示没有源对象，不是测得强度为零。",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "要检查真实缺失的组合，把columnID仅保留c2，把fieldID仅保留f20和f21，必要时滚动类别列表。把向右的Facet换成fieldID，向下的Facet仍用rowID。剩下一百七十四个细胞。行标签五、视野二十的面板显示n等于零，表示没有源对象，不是测得强度为零。"
+          ]
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "清除筛选，把向右的Facet恢复为columnID。在两个分面通道都有分配时，把Wrap at设为五。网格仍是两行两列，提示说明折行设置已被忽略。Wrap只在使用一个分面通道时生效，不用于重排双向分面网格。",
-          "hold_after": 0.7,
-          "speech_text": "清除筛选，把向右的Facet恢复为columnID。在两个分面通道都有分配时，把Wrap at设为五。网格仍是两行两列，提示说明折行设置已被忽略。Wrap只在使用一个分面通道时生效，不用于重排双向分面网格。"
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "清空向下的Facet，把fieldID放到向右的Facet，保持Wrap at为五。保留的视野排成三行，每行五个位置。源数据有十三个层级，但只绘制十二个。三个未使用的位置是隐藏的布局空位，不同于显示n等于零的真实分组。",
-          "hold_after": 0.7,
-          "speech_text": "清空向下的Facet，把fieldID放到向右的Facet，保持Wrap at为五。保留的视野排成三行，每行五个位置。源数据有十三个层级，但只绘制十二个。三个未使用的位置是隐藏的布局空位，不同于显示n等于零的真实分组。"
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "阅读网格下方的提示。视野二十一不在十二个显示层级中，所以有两百六十四个源对象未进入面板。实际绘制的是两千零七十七个点，而载入表仍有两千三百四十一行。载入行数不能证明每一行都已显示。",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
             1460,
             2150,
             650
-          ],
-          "speech_text": "阅读网格下方的提示。视野二十一不在十二个显示层级中，所以有两百六十四个源对象未进入面板。实际绘制的是两千零七十七个点，而载入表仍有两千三百四十一行。载入行数不能证明每一行都已显示。"
+          ]
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "关闭Wrap，把两个分面恢复为rowID和columnID。在Columns中把名称设为area_k，表达式按画面输入cell_area除以一千。预览只检查前两千行。选择Add column后，会为整张表计算派生值，但不重写数据库。",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
             315,
             460,
             940
-          ],
-          "speech_text": "关闭Wrap，把两个分面恢复为rowID和columnID。在Columns中把名称设为area_k，表达式按画面输入cell_area除以一千。预览只检查前两千行。选择Add column后，会为整张表计算派生值，但不重写数据库。"
+          ]
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "把area_k拖到X。每个横坐标现在都是原细胞面积除以一千；Y值和分组成员不变。这只是数值缩放，不是校准为平方微米，不是新测量，也不是生物效应的证据。全部两千三百四十一个派生值都经过了核对。",
-          "hold_after": 0.7,
-          "speech_text": "把area_k拖到X。每个横坐标现在都是原细胞面积除以一千；Y值和分组成员不变。这只是数值缩放，不是校准为平方微米，不是新测量，也不是生物效应的证据。全部两千三百四十一个派生值都经过了核对。"
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "先把cell_area放回X，再在Columns中选中area_k并选择Remove。原来的四面板图恢复，派生列消失。私有数据库和原始下载数据都保持不变。请记录变量、分组、筛选和坐标尺度，让其他人能够复现视图。",
-          "hold_after": 0.7,
-          "speech_text": "先把cell_area放回X，再在Columns中选中area_k并选择Remove。原来的四面板图恢复，派生列消失。私有数据库和原始下载数据都保持不变。请记录变量、分组、筛选和坐标尺度，让其他人能够复现视图。"
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "在代码中，spaCR的Qt trellis_spec模块里的trellis和TrellisSpec定义分组、坐标尺度与Wrap；GraphSpec定义图表通道。这个界面没有专用导出按钮或自己的可下载数据集。要导出已核对的汇总CSV，请使用Tabulate。图像预览、GPU流程和spaCR AI属于相应的分析教程，而不是这个纯表格视图。",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "61_tabulate"
-          ],
-          "speech_text": "在代码中，斯佩克尔的Qt trellis_spec模块里的trellis和TrellisSpec定义分组、坐标尺度与Wrap；GraphSpec定义图表通道。这个界面没有专用导出按钮或自己的可下载数据集。要导出已核对的汇总CSV，请使用Tabulate。图像预览、GPU流程和斯佩克尔 AI属于相应的分析教程，而不是这个纯表格视图。"
+          ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",

@@ -7486,26 +7486,25 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: aktueller Zugang und geprüfter API-Umweg",
+      "title": "AnnData Export: save measured objects and features",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
       "section": "Measure",
-      "description": "Den eingebetteten Exporter, den Fehler bei fehlenden Metadaten und einen ausdrücklich geprüften Python-Umweg mit dem echten Beispiel kennenlernen.",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "AnnData Export in Measure und die Messdatenbank finden.",
-        "GUI-Fehler und API-Umweg unterscheiden, ohne Metadaten zu erfinden.",
-        "Verbundene, Zell- und Kernmatrizen sowie vier Fehlwertstrategien vergleichen.",
-        "Dateien erneut öffnen und Identitäten, Annotationen, Bilder und Herkunft erhalten."
+        "Prepare a copied measurement database and the supplied export helper.",
+        "Choose joined or single-table measurements and a missing-value policy.",
+        "Open the saved h5ad file and retain its source images and settings."
       ],
       "example_files": [
         "AnnData_API_workaround.zip"
       ],
-      "prerequisite": "Eine KOPIE von measurements.db aus dem heruntergeladenen Annotate-Beispiel verwenden; Original und Bilder behalten. Das verlinkte ZIP entpacken und das Skript neben die Kopie legen; im spaCR-Umfeld ausführen. Es nutzt spacr.anndata_export.build_anndata und kodiert ausschließlich vollständig fehlende object-Spalten in obs als leere Kategorien. Fehlwerte bleiben fehlend; keine Kalibrierung oder Labels werden erfunden und X bleibt bei dieser Kodierung gleich. Die GUI wird NICHT repariert. Vorhandene Ziele werden abgelehnt, neue Dateien nach dem Schreiben erneut geprüft. SQLite-Vergleiche: verbunden/keep 2341x1136; cell/keep und mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Kein UMAP, GPU-Lauf, eingebettetes Bild, AI-Aufruf, biologischer Gültigkeitsnachweis oder Veröffentlichung. Der ursprüngliche GUI-Fehler bleibt dokumentiert.",
+      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
       "scenes": [
         {
           "visual": "gui_02_current_anndata_form",
-          "narration": "Öffnen Sie Measure und darin AnnData Export. AnnData speichert eine Objekt-mal-Merkmal-Matrix mit Beobachtungsmetadaten und Merkmalsnamen. Diese Lektion zeigt den aktuellen GUI-Zugang, doch die erfolgreichen Exporte verwenden einen ausdrücklichen Python-Umweg. Wir behaupten nicht, dass der GUI-Exportfehler behoben ist.",
+          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
           "related_lessons": [
             "08_measure",
             "09_annotate"
@@ -7514,12 +7513,12 @@
         },
         {
           "visual": "gui_03_private_downloaded_project",
-          "narration": "Verwenden Sie eine Kopie der tatsächlich heruntergeladenen Messdatenbank, keine erfundene Tabelle. Lassen Sie Bilder und Originaldatenbank unverändert. Die GUI erwartet den Projektordner; unser Kommandozeilenbeispiel erwartet die Messdatenbankdatei selbst. Deaktivieren Sie die optionale Einbettungsberechnung für diesen Vergleich. Ein Matrixexport benötigt keine GPU.",
+          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
           "hold_after": 0.7
         },
         {
           "visual": "api_01_unmodified_failure",
-          "narration": "Beobachten Sie zunächst den unveränderten Writer beim Scheitern. Einige Beobachtungsspalten enthalten ausschließlich Fehlwerte vom Datentyp object, die dieser Writer nicht serialisieren kann. Unbekannte Voxelkalibrierung ist ein Beispiel. Exitstatus eins und eine teilweise geschriebene Datei sind kein Erfolg. Ersetzen Sie Unbekanntes nicht durch null oder den Text None, um die Fehlermeldung zu unterdrücken.",
+          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
           "focus": [
             190,
             1660,
@@ -7530,7 +7529,7 @@
         },
         {
           "visual": "api_02_explicit_workaround",
-          "narration": "Laden Sie das verlinkte Hilfsskript herunter und prüfen Sie seinen Speicherumweg. Es verwendet die echte Funktion build_anndata und kodiert nur vollständig fehlende object-Metadaten als leere kategorische Spalten. Fehlwerte bleiben fehlend; bekannte Metadaten und Merkmalsmatrix werden durch diese Kodierung nicht verändert. Physikalische Kalibrierung wird dadurch nicht wissenschaftlich zu einer kategorialen Größe.",
+          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
           "focus": [
             190,
             80,
@@ -7544,7 +7543,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Starten Sie das Skript mit Quelldatenbank, neuem Ausgabepfad und der Strategie keep. Das verbundene Beispiel hat zweitausenddreihunderteinundvierzig Zellzeilen und eintausendeinhundertsechsunddreißig Merkmale. Zugehörige Kern- und Pathogenmessungen werden auf Zellen aggregiert. Vierhunderttausenddreihundertzwanzig fehlende Merkmalswerte bleiben fehlend statt null.",
+          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
           "focus": [
             190,
             80,
@@ -7555,7 +7554,7 @@
         },
         {
           "visual": "api_04_cell_keep",
-          "narration": "Für die eigenen Messungen eines Objekttyps ergänzen Sie single-table cell und behalten Fehlwerte. Die Datei hat dieselben zweitausenddreihunderteinundvierzig Zellzeilen, aber nur zweihunderteinundsechzig Merkmale. Achtundzwanzig Werte fehlen. Vergleichen Sie Merkmalsnamen und Zeilenidentitäten, nicht nur Dateigröße oder Spaltenzahl.",
+          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
           "focus": [
             190,
             80,
@@ -7566,7 +7565,7 @@
         },
         {
           "visual": "api_05_cell_mean",
-          "narration": "Die Strategie mean ist eine eigenständige analytische Entscheidung, kein Teil des Speicherumwegs. Hier ersetzt sie achtundzwanzig Fehlwerte durch beobachtete Spaltenmittelwerte. Die exportierte Fehlwertebene hält die ursprünglichen Positionen fest. Prüfen Sie, ob Imputation zur Analyse passt; eine vollständige Matrix ist nicht automatisch besser oder unverzerrt.",
+          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
           "focus": [
             190,
             80,
@@ -7577,7 +7576,7 @@
         },
         {
           "visual": "api_06_cell_drop_features",
-          "narration": "Die Strategie drop-features entfernt Spalten mit Fehlwerten. Hier entfallen vier Spalten; zweihundertsiebenundfünfzig Merkmale und alle Zellzeilen bleiben. Prüfen Sie, welche Messungen warum entfernt wurden. Diese Strategie ändert den Merkmalsumfang und kann nützliche Information verwerfen; sie ist keine allgemeine Bereinigungsempfehlung.",
+          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
           "focus": [
             190,
             80,
@@ -7588,7 +7587,7 @@
         },
         {
           "visual": "api_07_cell_drop_objects",
-          "narration": "Die Strategie drop-objects entfernt dagegen Zeilen mit fehlenden Merkmalswerten. Hier entfallen sieben Zellen; zweitausenddreihundertvierunddreißig Zeilen und alle zweihunderteinundsechzig Merkmale bleiben. Fehlwerte können mit Phänotyp, Aufnahme oder Segmentierung zusammenhängen. Prüfen Sie die Ausschlüsse, bevor Sie die verbleibenden Zellen als repräsentativ betrachten.",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
           "focus": [
             190,
             80,
@@ -7599,7 +7598,7 @@
         },
         {
           "visual": "api_08_nucleus_keep",
-          "narration": "Wählen Sie single-table nucleus für eine Zeile je Kern statt aggregierter Kernmerkmale auf Zellzeilen. Das Beispiel enthält zweitausendsechshundertzweiundachtzig Kerne und dreihunderteinundvierzig Merkmale. Bewahren Sie Elternverknüpfungen und Objektidentitäten. Mehr Kerne als Zellen bedeutet nicht, dass beim Export zusätzliche Zellen entstanden.",
+          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
           "focus": [
             190,
             80,
@@ -7610,7 +7609,7 @@
         },
         {
           "visual": "api_09_saved_shape",
-          "narration": "Öffnen Sie jede gespeicherte Datei erneut. Das Skript vergleicht die ganze Matrix, geordnete Objekt- und Merkmalsidentitäten, Fehlwerte und Beobachtungsmetadaten; unabhängige SQLite-Prüfungen bestanden ebenfalls für alle sechs Dateien. Annotationen bleiben Metadaten, keine eingefügten Trainingsmerkmale. Bilder sind nicht eingebettet: Behalten Sie Originaldateien und Pfade beim Export.",
+          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
           "focus": [
             190,
             80,
@@ -7621,7 +7620,7 @@
         },
         {
           "visual": "api_03_joined_keep",
-          "narration": "Verwenden Sie je Strategie einen neuen Ausgabenamen und behalten Sie Skript, Einstellungen und Paketversionen. Das Skript lehnt ein vorhandenes Ziel ab, statt es zu überschreiben. Die Prüfungen belegen Datenerhalt für dieses Beispiel, keine biologische Gültigkeit oder GUI-Reparatur. Die verlinkten API- und Messlektionen erklären den umgebenden Ablauf.",
+          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
           "focus": [
             190,
             80,
@@ -7634,7 +7633,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "60_pca",
@@ -7644,19 +7648,18 @@
       "app_key": "pca",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "PCA: echte Messwerte, Live-Neuberechnung und fehlende Werte",
-      "description": "Erkunden Sie PCA innerhalb von Image UMAP mit heruntergeladenen echten Zelldaten, geprüften Scores, reversiblen Filtern, expliziten Regeln für fehlende Werte und drei CSV-Exporten.",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
       "objectives": [
-        "PCA innerhalb von Image UMAP finden und Messmerkmale ausdrücklich auswählen.",
-        "Erklärte Varianz und Korrelationspfeile ohne behauptete biologische Trennung lesen.",
-        "Standardisierung, Neuberechnung nach Filtern und vier Regeln für fehlende Werte vergleichen.",
-        "Objekt-Scores, Merkmalsladungen und Komponentenvarianz exportieren und Quelldaten erhalten."
+        "Load a measurement database or CSV and select features.",
+        "Choose scaling, missing-value handling and filters.",
+        "Inspect component scores and loadings, then export three result tables."
       ],
-      "prerequisite": "Verwenden Sie eine bytegleiche private Kopie des herunterladbaren Annotate-Beispiels: 2.341 Zellzeilen, 276 ursprüngliche Spalten, vier Wells. Zunächst werden cell_area, cell_channel_1_mean_intensity und cell_perimeter angepasst, dann cell_channel_0_homogeneity_distance_32 mit sieben tatsächlich fehlenden Werten hinzugefügt. Ursache des Fehlens und Behandlungsidentitäten sind nicht belegt. Eine unabhängige Eigenwertzerlegung der Kovarianz prüft die SVD der Anwendung, behaltene Zeilenpositionen, Scores, Ladungen, Korrelationen und Varianzen; gezeichnete Koordinaten und jede exportierte ursprüngliche Datenzelle werden ebenfalls geprüft. Der Nachweis gilt nur für diese nicht entarteten Anpassungen mit vollem Rang und drei beziehungsweise vier Merkmalen, nicht für sämtliche automatisch gewählten Merkmale, Pfeil-Pixelgeometrie, rangdefiziente Eingaben, bildverknüpfte Auswahl oder biologische Schlussfolgerungen. NumPy-PCA auf der CPU ist von UMAP und dessen GPU-Optionen getrennt. Kein eigener Download, keine Bildvorschau, KI-Konsole oder allgemeiner Plot-Schalter. Die drei CSV-Dateien sind weder Modellpaket noch gespeicherte Einstellungen oder exportierte Abbildung. API: spacr.qt.widgets.pca_model.pca und PCASpec; PCAResult.scores_frame, loadings_frame und variance_frame.",
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Öffnen Sie Image UMAP über Home und wählen Sie die darin verschachtelte Schaltfläche PCA. PCA fasst Messwerte linear zusammen; es ist keine weitere UMAP-Einbettung. Wir verwenden eine private Kopie des echten herunterladbaren Annotate-Beispiels. Dessen Beschaffung zeigt das Annotate-Tutorial.",
+          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7665,12 +7668,12 @@
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "Verwenden Sie Load table neben der PCA-Überschrift, wählen Sie die kopierte Messdatenbank und dann cell. Sie enthält 2.341 Objekte aus vier Wells. Auch eine Messwert-CSV lässt sich einlesen. Ein zuvor im Hauptmodul geladener Pfad beweist nicht, dass die gewünschte Tabelle offen ist.",
+          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "Leeren Sie die Merkmalssuche vor None, denn die Schaltfläche entfernt nur Häkchen bei momentan sichtbaren Merkmalen. Suchen und markieren Sie cell_area, cell_channel_1_mean_intensity und cell_perimeter. Leeren Sie die Suche erneut, setzen Sie Components auf 3 und wählen Sie Run PCA. Die Suche verkürzt die Merkmalsliste, nicht die Zellpopulation.",
+          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -7684,7 +7687,7 @@
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Behalten Sie Standardise bei und lesen Sie den Scree-Plot. Die erste Komponente erklärt etwa 65,7 % der standardisierten Varianz dieser drei Merkmale, die zweite 31,7 %. Jeder Punkt ist eine einzelne gemessene Zelle, keine unabhängige experimentelle Wiederholung. Erklärte Varianz ist keine Klassifikationsgenauigkeit.",
+          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7695,7 +7698,7 @@
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Wählen Sie rowID unter Colour, dann PC3 für X und PC1 für Y. Diese Einstellungen zeichnen die vorhandene Zerlegung neu, ohne erneute Anpassung. Die Farben kennzeichnen räumliche Reihen, keine belegten Behandlungen. Eine scheinbar getrennte Punktwolke regt zur Prüfung von Messwerten und Störfaktoren an, beweist aber keinen biologischen Effekt.",
+          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -7706,7 +7709,7 @@
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "Kehren Sie zu PC1 und PC2 zurück. Schalten Sie Loadings biplot aus und wieder ein. Die Pfeile zeigen Merkmalskorrelationen mit diesen beiden Komponenten; ihre absolute Länge wird für die Darstellung skaliert, der gestrichelte Kreis dient als Maßstab. Ähnliche Pfeilrichtungen belegen keine Kausalität.",
+          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
           "hold_after": 0.7,
           "focus": [
             1600,
@@ -7717,7 +7720,7 @@
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Stellen Sie Scale auf Centre only. Die erste Komponente erklärt nun etwa 90,1 %, weil die ursprünglichen Messskalen die Analyse verändern. Der höhere Anteil macht das Modell nicht besser. Stellen Sie wieder Standardise ein: Jedes Merkmal wird zentriert und durch seine Stichprobenstandardabweichung geteilt.",
+          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7728,7 +7731,7 @@
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "Fügen Sie im rechten Filter cell_area hinzu und setzen Sie das Minimum auf 21.925. Die Anpassung verwendet jetzt 1.171 Zellen. Dies ist eine Live-Neuberechnung: Populationsmittelwerte, Skalen und Komponentenrichtungen ändern sich. Es werden nicht bloß Punkte auf den alten Achsen ausgeblendet.",
+          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
           "hold_after": 0.7,
           "focus": [
             3360,
@@ -7739,7 +7742,7 @@
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "Wählen Sie Clear all im Filter. Alle 2.341 Zellen und die ursprüngliche Zerlegung kehren zurück. Filtern löscht niemals Datenbankzeilen. Prüfen Sie nach jeder Änderung Population und Bericht: Scores getrennt angepasster Populationen besitzen nicht automatisch ein gemeinsames Koordinatensystem.",
+          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
           "hold_after": 0.7,
           "focus": [
             1410,
@@ -7750,7 +7753,7 @@
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "Suchen und markieren Sie jetzt cell_channel_0_homogeneity_distance_32. Das vorhandene Ergebnis enthält bis zum Klick auf Run PCA weiterhin drei Merkmale. Dieses Texturmerkmal hat sieben tatsächlich fehlende Werte. Der Grund ist unbekannt; daher dürfen wir diese Zellen nicht als uninfiziert bezeichnen oder fehlende Messwerte durch null ersetzen.",
+          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7761,7 +7764,7 @@
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "Führen Sie die Analyse mit Auto aus. Alle vier Merkmale bleiben, aber sieben Zellen werden entfernt: 2.334 bleiben übrig. Auto entfernt Merkmale, die in mehr als 2 % der Zeilen fehlen, und anschließend noch unvollständige Zeilen. Die drei angeforderten Komponenten erfassen etwa 98,6 %; eine vierte Richtung existiert weiterhin.",
+          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7772,7 +7775,7 @@
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "Wählen Sie Drop features unter NaN. Alle 2.341 Zellen bleiben, das Texturmerkmal wird jedoch nicht angepasst. Vier Häkchen können gesetzt bleiben, obwohl tatsächlich nur drei Merkmale analysiert werden. Lesen Sie Ergebnis und Ausschlusshinweis, nicht nur die angeforderte Auswahl.",
+          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7783,7 +7786,7 @@
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Wählen Sie Mean-impute. Alle Zellen und vier Merkmale bleiben; sieben Werte werden für die Berechnung durch den Mittelwert dieses Merkmals ersetzt. Das sind erfundene Werte, keine wiedergefundenen Messungen. Der Bericht nennt die Zahl der Ersetzungen. Legen Sie diese Imputation bei der Ergebnisdarstellung offen; die Quelldatenbank wurde nicht überschrieben.",
+          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7794,7 +7797,7 @@
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Wählen Sie Complete cases. In diesem Beispiel bleiben die vier ausgewählten Merkmale, und dieselben sieben unvollständigen Zellen werden entfernt. Diese Übereinstimmung mit Auto gilt speziell für diese Daten. Kehren Sie zu Auto zurück, entfernen Sie das Häkchen am Texturmerkmal, leeren Sie die Suche, wählen Sie Run PCA und setzen Sie Colour auf none.",
+          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -7805,19 +7808,24 @@
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Wählen Sie Export und speichern Sie unter einem Basisnamen wie pca_example. Drei CSV-Dateien entstehen: Scores jedes analysierten Objekts, Ladungen und Korrelationen jedes Merkmals sowie Varianz jeder Komponente. Die Score-Datei behält auch die ursprünglichen Messspalten; sie enthält nicht nur drei Koordinatenspalten.",
+          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
           "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "Diese Exporte erhalten 2.341 Objektzeilen und lassen beide Datenbanken unverändert. Notieren Sie Merkmale, Filter, Skalierung und Regeln für fehlende Werte gesondert: Diese Schaltfläche speichert weder Einstellungen noch ein angepasstes Modellpaket. Im Code verwenden Sie pca und PCASpec im Qt-Modul pca_model von spaCR. Diese CPU-Tabellenansicht ist von Bildvorschauen, GPU-Analysen und spaCR AI getrennt.",
+          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "15_image_umap"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "61_tabulate",
@@ -7826,19 +7834,18 @@
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
-      "title": "Tabulate: reale Messwerte gruppieren, Fallzahlen prüfen und das Diagramm aktualisieren",
-      "description": "Öffnen Sie Tabulate im Database Browser, fassen Sie heruntergeladene Messungen nach Well und Bildfeld zusammen, prüfen Sie fehlende Werte und exportieren Sie kontrollierte Statistiken. Unterscheiden Sie eine aktualisierte Tabelle von einem veralteten oder kategorialen Diagramm.",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
       "objectives": [
-        "Den verschachtelten Zugang finden und echte Spalten in Well- und Bildfeldgruppen ziehen.",
-        "Fallzahlen, fehlende Kombinationen, Stichprobenstandardabweichungen und Quantile ohne erfundene unabhängige Wiederholungen lesen.",
-        "Messwerte filtern, das Diagramm ausdrücklich aktualisieren und kategoriale von numerischen Achsen unterscheiden.",
-        "Die vollständige Zusammenfassung exportieren und Gruppierung, Statistiken und Filter dokumentieren."
+        "Load measurements and group them by well or field.",
+        "Choose values, statistics and filters while checking contributing counts.",
+        "Export CSV summaries and refresh their Graph Builder plots."
       ],
-      "prerequisite": "Verwenden Sie das herunterladbare Annotate-Beispiel auf einer bytegleichen privaten Kopie von measurements.db: 2.341 Objekte, vier Wells und 51 beobachtete Well/Bildfeld-Kombinationen. Das sind keine 2.341 unabhängigen Experimente; rowID ist eine räumliche Kennzeichnung, keine bestätigte Behandlung. Alle gezeigten Statistiken, CSV-Zellen und 51 endgültigen Punktordinaten wurden unabhängig geprüft. Biologische Effekte, fehlende Achsenlabels, unendliche Werte und begrenzte große Raster sind nicht validiert. Tabulate fasst vorhandene Daten zusammen und hat keinen eigenen Download, keine Bildvorschau, GPU-Pipeline, KI-Konsole oder übergreifenden Plot-Schalter. Nutzen Sie seine eigenen Schaltflächen Load table und Export CSV, nicht die des umgebenden Database Browser.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Öffnen Sie Help, dann Database browser, und wählen Sie darin Tabulate. Dies ist ein Untermodul von Database Browser, keine eigene Home-Kachel. Wir verwenden eine private Kopie des echten herunterladbaren Annotate-Beispiels. Das frühere Annotate-Tutorial erklärt, wie Sie diese Daten erhalten.",
+          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7847,17 +7854,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Wählen Sie innerhalb von Tabulate Load table, öffnen Sie die kopierte Messdatenbank und wählen Sie cell. Die vollständige Tabelle enthält zweitausenddreihunderteinundvierzig Objekte. Der umgebende Database Browser besitzt eigene Bedienelemente; diese sind nicht die Eingabe oder der Export dieser Pivot-Tabelle. Laden allein legt noch keine Gruppierung fest.",
+          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Wählen Sie Plate slash row slash column. Die drei Schlüssel stehen in Rows in hierarchischer Reihenfolge. Lassen Sie Values leer, um Quellzeilen zu zählen: Die vier Wells enthalten sechshundertfünfzehn, fünfhundertfünfundzwanzig, siebenhundert und fünfhundertein Objekte. Das sind Zellzahlen, keine unabhängigen experimentellen Wiederholungen.",
+          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
           "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "Suchen Sie fieldID und ziehen Sie es nach Columns. Vier Wells mit dreizehn Bildfeldlabels ergeben zweiundfünfzig mögliche Kombinationen; einundfünfzig enthalten Messungen. Zeigen Sie auf die leere Zelle für Zeilenlabel fünf, Spaltenlabel zwei und Bildfeld zwanzig. Dort fehlen Quellzeilen für diese Kombination; das ist kein gemessener Nullwert.",
+          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7868,12 +7875,12 @@
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Leeren Sie den Bereich Columns, suchen Sie cell_area und ziehen Sie es nach Values. Standardmäßig werden Anzahl, Mittelwert und Stichprobenstandardabweichung berechnet. Die Tabelle berechnet sich beim Ändern der Achsen oder Statistiken neu. Das Suchfeld filtert Spaltennamen, nicht die Zellpopulation.",
+          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "In dieser Version können niedrige Tabellenzeilen spätere Textzeilen einschließlich n verbergen. Zeigen Sie auf eine Ergebniszelle, um sämtliche Statistiken und die zugehörige Anzahl zu lesen. Die Standardabweichung beschreibt die Streuung zwischen Objekten, nicht die Unsicherheit zwischen unabhängigen Wells. Der Tooltip rundet die angezeigten Zahlen.",
+          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -7884,7 +7891,7 @@
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "Aktivieren Sie median, sem und quantile. Bei null Komma fünfundsiebzig ist quantile das obere Quartil, mit linearer Interpolation. SEM ist die Stichprobenstandardabweichung geteilt durch die Quadratwurzel der verfügbaren Anzahl. Es korrigiert nicht die Abhängigkeit von Objekten desselben Bildfelds oder Wells und ist daher keine unabhängige biologische Unsicherheit.",
+          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7895,7 +7902,7 @@
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Ändern Sie Quantile at auf null Komma fünf. Nun entspricht das Quantil dem Median: zweiundzwanzigtausendvierhundert im ersten Well. Die anderen Statistiken bleiben gleich. Stellen Sie null Komma fünfundsiebzig wieder her und deaktivieren Sie die zusätzlichen Statistiken, bevor Sie zur einfachen Zusammenfassung zurückkehren.",
+          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7906,7 +7913,7 @@
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "Ersetzen Sie die Fläche durch das Homogenitätsmerkmal von Kanal null bei Distanz zweiunddreißig. Sieben Werte fehlen tatsächlich; zweitausenddreihundertvierunddreißig Messwerte sind verfügbar. In diesem Well liefern fünfhundertein Quellzeilen nur vierhundertachtundneunzig Werte. Die Anzahl hängt vom gewählten Merkmal ab; fehlende Messungen sind keine Nullen.",
+          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7917,12 +7924,12 @@
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "Stellen Sie cell_area wieder her und wählen Sie Tabulates Export CSV mit einem neuen Dateinamen. Diese Well-Zusammenfassung hat vier Zeilen und sechs Spalten: drei Gruppierungsschlüssel, n, Mittelwert und Standardabweichung. Jeder exportierte Wert wurde gegen die Quelle geprüft. Dokumentieren Sie Gruppierung, Statistiken und Filter separat; die CSV speichert keine dynamische Spezifikation.",
+          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
           "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Wählen Sie Plot this table und ziehen Sie columnID auf X, mean auf Y und rowID auf Colour. Das Diagramm erhält vier Zusammenfassungszeilen, nicht Tausende einzelner Zellen. Achtung: Automatic behandelt diese vier verschiedenen Mittelwerte als Kategorien und zeichnet eine Heatmap. Das ist keine Darstellung ihrer Größen auf einer kontinuierlichen Skala.",
+          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -7936,12 +7943,12 @@
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "Fügen Sie im rechten Filter cell_area hinzu und setzen Sie das Minimum auf einundzwanzigtausendneunhundertfünfundzwanzig. Die Tabelle fasst sofort die verbleibenden eintausendeinhunderteinundsiebzig Objekte zusammen. Das Diagramm behält die alte Zusammenfassung, bis Sie erneut Plot this table drücken. Ein sichtbares Diagramm beweist nicht, dass es den aktuellen Filter widerspiegelt.",
+          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
           "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "Drücken Sie erneut Plot this table, um die neu berechneten Mittelwerte zu übertragen. Das Diagramm enthält jetzt die vier gefilterten Gruppen, doch Automatic behandelt deren Mittelwerte weiterhin kategorial. Ein Hinweis meldet, dass der ursprüngliche Flächenfilter nicht direkt auf die Zusammenfassung passt: Sie hat mean, nicht cell_area. Das heißt nicht, dass die vorgelagerte Pivot-Tabelle den Filter ignoriert hat.",
+          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7952,7 +7959,7 @@
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "Wählen Sie Clear all im rechten Filter und anschließend erneut Plot this table. Die ursprünglichen zweitausenddreihunderteinundvierzig Objekte und Well-Mittelwerte kehren zurück. Filtern löscht hier keine Quellmessungen. Exportieren Sie gefilterte und ungefilterte Zusammenfassungen unter verschiedenen Namen, falls Sie beide benötigen.",
+          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7963,17 +7970,17 @@
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "Ziehen Sie für eine getrennte Betrachtung auf Bildfeldebene fieldID nach den Well-Schlüsseln in Rows. Das Raster hat zweiundfünfzig Zeilen und einundfünfzig beobachtete Gruppen. Die Statistik beschreibt jetzt ein Bildfeld innerhalb eines Wells, nicht das ganze Well. Jede beobachtete Gruppe umfasst fünfzehn bis achtundachtzig Objekte; zusätzliche Gruppen schaffen keine unabhängigen Experimente.",
+          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Drücken Sie Plot this table, setzen Sie fieldID auf X, behalten Sie mean auf Y und rowID auf Colour und wählen Sie Scatter unter Plot. Bei diesen einundfünfzig verschiedenen Bildfeldmittelwerten erkennt die tatsächliche Spaltenliste mean als kontinuierlich. Prüfen Sie Rolle und Achsenlabels, statt jede Zahl automatisch für numerisch behandelt zu halten.",
+          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
           "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "Das Diagramm zeigt nun einundfünfzig reale Bildfeldmittelwerte auf einer kontinuierlichen vertikalen Skala. Jede Punkthöhe wurde mit der unabhängig berechneten Zusammenfassung verglichen. Gleiche Bildfeldlabels gehören zu unterschiedlichen Wells; Farben zeigen räumliche Zeilenlabels, keine bestätigten Behandlungen. Die gruppierte Tabelle besitzt keine Objektschlüssel, deshalb kann eine Bürstenauswahl keine Einzelbilder auswählen.",
+          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -7988,14 +7995,19 @@
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "Exportieren Sie die Bildfeldzusammenfassung: zweiundfünfzig Zeilen und sieben Spalten, wobei eine tatsächlich leere Kombination leer bleibt. Die Übergabe an das Diagramm lässt diese Gruppe weg; es bleiben einundfünfzig Punkte. Für reproduzierbaren Code verarbeiten pivot und PivotSpec im Qt-Modul pivot_spec von spaCR diese Auswahl, und to_csv schreibt das Ergebnis. Bewahren Sie die Quelle und dokumentieren Sie Gruppierung und Filter genau.",
+          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
       ],
-      "host_app_key": "db_browser"
+      "host_app_key": "db_browser",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "62_feature_dictionary",
@@ -8128,19 +8140,18 @@
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
-      "title": "Small Multiples: reale Gruppen, Live-Filter und verlässliche Achsenskalierung",
-      "description": "Öffnen Sie Small Multiples in Graph Builder, vergleichen Sie heruntergeladene Messungen auf gemeinsamen oder unabhängigen Achsen, prüfen Sie leere Gruppen und begrenzte Facetten und erstellen Sie eine wieder entfernbare abgeleitete Spalte.",
+      "title": "Small Multiples: compare groups with shared or separate axes",
+      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
       "objectives": [
-        "Das Untermodul finden und ein Streudiagrammraster aus realen Messobjekten erstellen.",
-        "Gemeinsame, freie, zeilenweise und spaltenweise Achsen vergleichen, ohne Skalen- und Datenänderungen zu verwechseln.",
-        "Live filtern, leere Gruppen von ungenutzten Rasterplätzen unterscheiden und ausgelassene Ebenen mitzählen.",
-        "Eine Skalierung im Arbeitsspeicher hinzufügen und entfernen, die Quelle erhalten und Diagrammoptionen dokumentieren."
+        "Load measurements and assign axes and facets.",
+        "Choose shared, independent or grouped axis limits.",
+        "Inspect filters and displayed groups, then add or remove a derived column."
       ],
-      "prerequisite": "Verwenden Sie eine bytegleiche private Kopie von measurements.db aus dem herunterladbaren Annotate-Beispiel: 2.341 Objekte, vier Wells, 13 Gesichtsfeldkennungen und 51 beobachtete Well/Gesichtsfeld-Kombinationen. Objektzahlen sind keine unabhängigen experimentellen Replikate; räumliche Kennungen sind keine nachgewiesenen Behandlungen. Alle gezeigten kontinuierlichen Streupunktkoordinaten, Gruppenmitglieder, Achsengrenzen, Titel und Sichtbarkeiten wurden unabhängig anhand der Quellzeilen geprüft. Der Nachweis gilt für endliche, nicht entartete kontinuierliche Achsen dieses nicht ausgedünnten Datensatzes; beliebige Diagramme, Auswahl zwischen Ansichten, biologische Effekte und physikalische Kalibrierung sind nicht validiert. Small Multiples ist ein Tabellen-Untermodul von Graph Builder ohne eigenen Download, Bildvorschau, GPU-Pipeline, KI-Konsole, allgemeinen Plot-Schalter oder Exportknopf. Nutzen Sie Annotate-Daten und Load table im Untermodul.",
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Öffnen Sie Graph Builder über Home und wählen Sie die verschachtelte Schaltfläche Small Multiples. Dies ist der aktuelle Weg zum Untermodul, keine eigene Home-Kachel. Wir verwenden echte herunterladbare Annotate-Messungen in einer privaten Kopie. Das Annotate-Tutorial zeigt, wie Sie das Beispiel erhalten.",
+          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8149,12 +8160,12 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Verwenden Sie Load table innerhalb von Small Multiples, wählen Sie die private Messdatenbank und anschließend cell. Sie enthält 2.341 gemessene Objekte aus vier Wells. Der übergeordnete Graph Builder hat eine eigene Load table-Schaltfläche. Für diesen Ablauf nehmen Sie die neben der Überschrift Small Multiples.",
+          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
           "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Suchen Sie cell_area und ziehen Sie es auf X, dann cell_channel_1_mean_intensity auf Y. Wählen Sie Scatter unter Plot. Ziehen Sie rowID auf Facet nach unten und columnID auf Facet nach rechts. Die Suche beschränkt die Spaltenliste, nicht die Zellpopulation. Jeder Punkt ist hier ein bereits gemessenes Objekt.",
+          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -8165,37 +8176,37 @@
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Mit beiden Achsen auf shared verwenden alle vier Teilbilder dieselben horizontalen und vertikalen Grenzen. Die Titel nennen 615, 525, 700 und 501 Objekte. Zeilen- und Spaltenkennungen beschreiben Positionen, keine überprüften Behandlungen. Diese Zellen sind keine unabhängigen experimentellen Replikate.",
+          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
           "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "Stellen Sie X scale und Y scale auf free. Jedes Teilbild nutzt nun einen eigenen Bereich. Das zeigt die Form innerhalb der Gruppe, aber gleich breite Punktwolken müssen nicht denselben Wertebereich abdecken. Lesen Sie vor Vergleichen die Achsenwerte. Eine neue Skalierung verändert keine Quellmessung.",
+          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
           "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "Wählen Sie per row für beide Achsen. Teilbilder derselben Rasterzeile teilen sich Grenzen; verschiedene Zeilen können unterschiedliche Grenzen haben. Das ist eine layoutbezogene Skalengruppe, keine statistische Korrektur. Hier lassen sich die beiden Spalten einer Zeile auf übereinstimmenden Achsen vergleichen.",
+          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
           "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "Wählen Sie per column für beide Achsen. Teilbilder derselben Rasterspalte teilen sich Grenzen. X und Y sind auch getrennt einstellbar; hier ändern wir beide gemeinsam. Stellen Sie beide auf shared zurück, bevor Sie alle Wells vergleichen. Gemeinsam bedeutet innerhalb des aktuellen Rasters gleich, nicht nach jedem späteren Filter unverändert.",
+          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
           "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Fügen Sie im Reiter Filter cell_area hinzu und setzen Sie die Untergrenze auf 21.925. Das tatsächliche Raster aktualisiert sich sofort auf 1.171 Objekte. Die Punktzahlen und Punkte der Teilbilder ändern sich gemeinsam. Das ist ein Live-Filter auf Messwerte, keine Bildsegmentierung und kein neuer Analyselauf.",
+          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
           "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Wählen Sie Clear all im Reiter Filter. Alle 2.341 Objekte kehren mit ihren ursprünglichen Punktpositionen und gemeinsamen Achsengrenzen zurück. Diese Schaltfläche entfernt den Filter; Clear all channels links entfernt dagegen die Diagrammzuweisungen. Keine dieser Aktionen löscht Datenbankzeilen.",
+          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "Für eine tatsächlich fehlende Gruppe beschränken Sie columnID auf c2 und fieldID auf f20 und f21; scrollen Sie bei Bedarf durch die Kategorien. Setzen Sie fieldID auf Facet nach rechts und lassen Sie rowID auf Facet nach unten. Es bleiben 174 Zellen. Das Teilbild mit Zeilenkennung 5 und Gesichtsfeld 20 zeigt n = 0: keine Quellobjekte, nicht eine gemessene Intensität von null.",
+          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -8203,17 +8214,17 @@
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "Löschen Sie die Filter und setzen Sie columnID wieder auf Facet nach rechts. Stellen Sie Wrap at bei zwei belegten Facettenkanälen auf 5. Das Raster bleibt 2 × 2, und der Hinweis meldet, dass der Umbruch ignoriert wird. Wrap gilt bei einem Facettenkanal, nicht zur Umordnung eines zweidimensionalen Rasters.",
+          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Leeren Sie Facet nach unten, setzen Sie fieldID auf Facet nach rechts und behalten Sie Wrap at = 5. Die berücksichtigten Gesichtsfelder bilden drei Zeilen mit je fünf Plätzen. Nur zwölf Ebenen werden gezeichnet, obwohl die Quelle dreizehn enthält. Die drei ungenutzten Plätze sind ausgeblendeter Layoutfüllraum, keine echten Gruppen mit angezeigtem n = 0.",
+          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Lesen Sie den Hinweis unter dem Raster. Gesichtsfeld 21 liegt außerhalb der zwölf gezeigten Ebenen; damit fehlen 264 Quellobjekte in den Teilbildern. Tatsächlich werden 2.077 Punkte gezeichnet, während die geladene Tabelle weiterhin 2.341 Zeilen enthält. Die Zahl geladener Zeilen beweist nicht, dass jede sichtbar ist.",
+          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
           "hold_after": 0.7,
           "focus": [
             1000,
@@ -8224,7 +8235,7 @@
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Schalten Sie Wrap aus und stellen Sie rowID und columnID als Facetten wieder her. Geben Sie in Columns area_k als Namen und cell_area geteilt durch 1.000 als Ausdruck ein, genau wie gezeigt. Die Vorschau prüft die ersten 2.000 Zeilen. Add column berechnet die abgeleiteten Werte für die ganze Tabelle, ohne die Datenbank neu zu schreiben.",
+          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
           "hold_after": 0.7,
           "focus": [
             3120,
@@ -8235,17 +8246,17 @@
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "Ziehen Sie area_k auf X. Jede horizontale Koordinate entspricht nun der ursprünglichen Zellfläche geteilt durch 1.000; Y-Werte und Gruppenmitglieder bleiben gleich. Das ist numerische Skalierung, keine Kalibrierung auf Quadratmikrometer, keine neue Messung und kein Beleg für einen biologischen Effekt. Alle 2.341 abgeleiteten Werte wurden geprüft.",
+          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Setzen Sie cell_area wieder auf X, bevor Sie area_k in Columns markieren und Remove wählen. Das ursprüngliche Diagramm mit vier Teilbildern kehrt zurück, die abgeleitete Spalte verschwindet. Private Datenbank und heruntergeladene Originaldaten bleiben unverändert. Notieren Sie Variablen, Gruppierung, Filter und Skalen, damit andere die Ansicht reproduzieren können.",
+          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Im Code definieren trellis und TrellisSpec aus spaCRs Qt-Modul trellis_spec Gruppierung, Achsen und Wrap; GraphSpec legt die Diagrammkanäle fest. Diese Ansicht hat keinen eigenen Exportknopf oder herunterladbaren Datensatz. Nutzen Sie Tabulate für geprüfte CSV-Zusammenfassungen. Bildvorschauen, GPU-Pipelines und spaCR AI gehören in die entsprechenden Analyse-Tutorials, nicht in diese reine Tabellenansicht.",
+          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8253,7 +8264,12 @@
           ]
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "64_gate_editor",
