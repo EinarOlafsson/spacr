@@ -5240,3 +5240,20 @@ Failed writes leave the old bytes readable, clean temporary files, and do
 not register an unsuccessful export. Both injected partial-write cases fail
 before this fix and pass afterwards. All six export test files pass264checks
 with one expected missing-extra skip. No global settings/signatures changed.
+
+2026-09-24 — Close-mark hover CI failures traced to unfinished test gestures
+Qt1's four close-mark failures reproduce after test_layer_viewer:4failed,
+72passed. QTest.mouseDClick leaves QApplication.mouseButtons pressed even
+when its window closes. The layer-viewer tests omitted the final release;
+all four double-click sites now complete that gesture. The exact recorded
+1570-node/28-file worker sequence passes in480.37seconds. No close-mark
+styling, hover assertions, serial scheduling or application behavior changed.
+The only other real QTest.mouseDClick site, ROI polygon closure, independently
+reproduces the same four failures (4failed/30passed); its release is fixed too.
+The three complete ROI/layer/close-mark files pass97checks after both fixes.
+
+Full-control107483090509 on old452f88cf1 is now terminal/failure, with eight
+unique failures: old module denominator, animation verdict, README size and
+five tutorial inventory/objective/gap checks. Current five-file recheck:
+46passed, two existing registered translation incompatibilities report-only.
+Coverage5107483091050 remains live; the protected run is not restarted.

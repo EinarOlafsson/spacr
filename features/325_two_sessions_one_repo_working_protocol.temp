@@ -16769,3 +16769,16 @@ bytes before the fix;264export tests now pass, one extra-absence test skips.
 API handoff: export_anndata docstring describes preservation; new private
 _write_h5ad_atomic(adata, path, **kwargs) is shared by both writing paths.
 No settings/UI strings. Reconciled364ledger also passed505consistency checks.
+
+2026-09-24 — IMPLEMENTATION: CLOSE-MARK CI ISOLATION FIX
+Traced all four Qt1 close-mark failures to unfinished test double-clicks.
+Qt keeps the mouse pressed after QTest.mouseDClick and even window closure.
+Four layer-viewer sites and the one ROI site now explicitly release it.
+Each file independently reproduced the four hover failures beforehand.
+Exact1570-node/28-file CI worker replay passes; final three-file gesture/
+close-mark cohort passes97checks. Test-only; no API/translation changes.
+
+Full-control107483090509 finished/failure on452f88cf1. Its eight unique
+failures are the already-repaired denominator, animation, README and tutorial
+checks. Current five-file run:46passed,2registered translation xfails.
+Coverage5107483091050 is still running. No new full CI dispatched.
