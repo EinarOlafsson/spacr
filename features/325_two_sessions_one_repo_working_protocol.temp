@@ -15778,3 +15778,18 @@ differ from the candidate's frozen public snapshot). I will run its integrated
 checks before main. No new scientific engine is being added to release scope.
 The standalone coverage90percent backlog remains item288and is not itself a
 release gate; introduced failures and actual behavior regressions are addressed.
+
+2026-09-24 AXIS SIZING FOLLOW-UP VERIFIED IN THE FULL SEQUENCE
+The initial vertical-layout repair passed8isolated checks but failed after the
+full dialog sequence (candidate core run396pass/2fail/5release-only skips).
+Measured actual geometry:533x354dialog,491x153label,582x144sizeHint and180px
+heightForWidth at the actual491px width. Qt constrained the initial dialog
+width without raising its height to fit the new wrapping. The explanation
+now tracks its minimum height on resize/font/style events; no text removed,
+font reduced or test tolerance changed. The full173-dialog sweep now passes.
+One existing ModelZooPicker parked thread was reported separately; not claimed
+fixed by this layout change. New documented private-class Qt override:
+qt/screens/gate_editor._AxisCutoffDialog.eventFilter(watched,event), for source
+inventory refresh. Real wheel/sdist fromcandidate1f270both build and pass
+strict Twine checks; remaining test issue above has this runtime fix pending
+candidate integration.95suite-hygiene/drop-lifetime checks also passed.
