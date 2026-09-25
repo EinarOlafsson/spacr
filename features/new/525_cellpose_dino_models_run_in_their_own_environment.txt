@@ -1,0 +1,27 @@
+CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 504 (bioimage.io lists Cellpose-DINO ViT-L and
+ViT-B but refuses them: Cellpose 4 needs the `dinov3` package, not installed),
+503/446 (Cellpose 3 in its own environment), 475 (SpotNet), 469 (figure
+reader).
+
+REQUEST (the maintainer, 2026-09-25)
+    "dinov3 ... should get its own env"
+
+WHAT TO BUILD
+  * A `cellpose_dino` backend that installs into its own environment under
+    ~/.spacr/backends/, with Cellpose 4 plus `dinov3` and the torch build the
+    installer already chooses (CPU/CUDA), through the same installer, install
+    button feedback (507) and out-of-process worker route as the other
+    backends. Nothing is added to spaCR's own environment.
+  * The two bioimage.io Cellpose-DINO rows (ViT-L, ViT-B) become usable once
+    that backend is installed: download, then Mask generation and Make Masks
+    run them through the worker, writing the same mask arrays as Cellpose-SAM.
+    Until then the rows say the backend is needed and offer to install it.
+
+DONE WHEN
+The backend installs for real on this machine; one Cellpose-DINO model from
+bioimage.io segments a real Toxo PV field through Mask generation, with
+objects, F1 against the ground truth at IoU 0.5 and the wall time recorded
+here; the rows refuse with an install offer when the backend is missing.
