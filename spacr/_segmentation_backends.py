@@ -432,7 +432,41 @@ class _BackendError(RuntimeError):
 
 
 class _BackendCancelled(RuntimeError):
-    """A request was abandoned mid-flight; its worker was stopped."""
+    """A request was abandoned mid-flight; its worker was stopped, or, for a
+    request sent with ``keep_on_cancel``, left to finish unheard."""
+
+
+def _final_lines(lines):
+    """What a terminal would show after ``lines``: a carriage return
+    overwrites.
+
+    A progress bar (tqdm, a download) redraws itself on one line by
+    printing ``\\r`` and the new state. Read as text, every redraw became a
+    line of its own, and an error that quoted the worker's last output
+    quoted forty stacked copies of one bar (item 507). Each line keeps the
+    text after its last carriage return that has any; a line that ENDS in a
+    carriage return is replaced by the next line, the way the bar replaced
+    it on screen.
+
+    :param lines: raw lines, with their line endings, as a stream reader
+        opened with ``newline=''`` returns them; a plain string is split.
+    :returns: the lines as they would stand, without their endings.
+    """
+    if isinstance(lines, str):
+        lines = lines.splitlines(keepends=True)
+    shown = []
+    overwrite = False
+    for raw in lines:
+        text = raw[:-2] if raw.endswith("\r\n") else raw.rstrip("\n")
+        pending = text.endswith("\r") and not raw.endswith("\r\n")
+        parts = [part for part in text.split("\r") if part.strip()]
+        text = parts[-1] if parts else ""
+        if overwrite and shown:
+            shown[-1] = text if text else shown[-1]
+        elif text or not pending:
+            shown.append(text)
+        overwrite = pending
+    return shown
 
 
 @dataclass(frozen=True)
@@ -1064,6 +1098,27 @@ def _kill_tree(proc, grace=5.0, windows=None):
     proc.wait(timeout=grace)
 
 
+_MAX_ABANDONED = 2
+
+
+def _raw_lines(stream):
+    """``stream``'s lines with their carriage returns kept.
+
+    A pipe opened as text translates every ``\\r`` into a line break, and
+    a progress bar's redraws then read as separate lines. Reading the
+    underlying bytes with ``newline=''`` keeps each line's own ending, so
+    :func:`_final_lines` can tell a redraw from a new line. A stand-in
+    stream without bytes underneath is returned as it is.
+    """
+    import io
+
+    raw = getattr(stream, "buffer", None)
+    if raw is None:
+        return stream
+    return io.TextIOWrapper(raw, encoding="utf-8", errors="replace",
+                            newline="")
+
+
 def _pump(stream, sink, done=None):
     """Copy ``stream``'s lines into ``sink`` until it ends, then ``done``."""
     try:
@@ -1388,6 +1443,9 @@ class _WorkerProcess:
     :param worker: the worker script; this file when None.
     """
 
+    _abandoned = frozenset()
+    _overwrite = False
+
     def __init__(self, name, env, *, popen=None, worker=None):
         """Start the worker and ask it hello, which loads the package."""
         spec = _spec(name)
@@ -1397,6 +1455,8 @@ class _WorkerProcess:
         self.last_used = time.monotonic()
         self._replies = queue.Queue()
         self._stderr = collections.deque(maxlen=200)
+        self._overwrite = False
+        self._abandoned = set()
         self._lock = threading.Lock()
         self._next_id = 0
         self._proc = (popen or subprocess.Popen)(
@@ -1407,12 +1467,12 @@ class _WorkerProcess:
             text=True, encoding="utf-8", errors="replace", bufsize=1,
             **_detached())
         threading.Thread(
-            target=_pump, args=(self._proc.stdout, self._replies.put,
+            target=_pump, args=(self._proc.stdout, self._took,
                                 lambda: self._replies.put(None)),
             daemon=True).start()
         threading.Thread(
-            target=_pump, args=(self._proc.stderr, self._said), daemon=True
-        ).start()
+            target=_pump, args=(_raw_lines(self._proc.stderr), self._said),
+            daemon=True).start()
         try:
             self.hello = self.request("hello")
         except BaseException:
@@ -1420,10 +1480,33 @@ class _WorkerProcess:
             raise
 
     def _said(self, line):
-        """Keep the worker's own output for an error message."""
-        text = line.rstrip("\r\n")
-        self._stderr.append(text)
-        LOG.debug("%s: %s", self.name, text)
+        """Keep the worker's own output for an error message.
+
+        A line that ended in a carriage return is a progress bar about to
+        redraw itself, and the next line takes its place (see
+        :func:`_final_lines`), so the tail an error quotes holds each bar
+        once, in its last state.
+        """
+        shown = _final_lines([line])
+        text = shown[-1] if shown else ""
+        if self._overwrite and self._stderr:
+            self._stderr[-1] = text or self._stderr[-1]
+        elif text or not line.endswith("\r"):
+            self._stderr.append(text)
+        self._overwrite = line.endswith("\r") and not line.endswith("\r\n")
+        if not self._overwrite:
+            LOG.debug("%s: %s", self.name, text)
+
+    def _took(self, line):
+        """Queue one reply, dropping those to requests nobody waits for."""
+        try:
+            ident = json.loads(line).get("id")
+        except (ValueError, AttributeError):
+            ident = None
+        if ident is not None and ident in self._abandoned:
+            self._abandoned.discard(ident)
+            return
+        self._replies.put(line)
 
     @property
     def alive(self):
@@ -1432,8 +1515,32 @@ class _WorkerProcess:
 
     @property
     def busy(self):
-        """Whether a request is in flight."""
-        return self._lock.locked()
+        """Whether a request is in flight, heard or abandoned."""
+        return self._lock.locked() or bool(self._abandoned)
+
+    def _abandon(self, ident):
+        """Stop waiting for request ``ident`` without stopping the worker.
+
+        The worker is told, so a request still in its queue is skipped
+        rather than run; one already running finishes and its reply is
+        dropped. The worker keeps its loaded models, which is the point:
+        restarting it costs the environment's Python, torch, and every
+        model again (item 507 measured about 17 seconds for Cellpose 3's
+        restoration on this machine). Past :data:`_MAX_ABANDONED` requests
+        still owed, or when the worker cannot be told, it is stopped as
+        before.
+        """
+        self._abandoned.add(ident)
+        if len(self._abandoned) > _MAX_ABANDONED:
+            self.kill()
+            return
+        try:
+            self._proc.stdin.write(json.dumps(
+                {"protocol": _PROTOCOL, "id": 0, "op": "cancel",
+                 "target": ident}) + "\n")
+            self._proc.stdin.flush()
+        except (OSError, ValueError):
+            self.kill()
 
     def _stopped(self):
         """The error for a worker that went away, with its last words."""
@@ -1441,16 +1548,22 @@ class _WorkerProcess:
             code = self._proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             code = None
-        tail = "\n".join(list(self._stderr)[-40:]) or "(it printed nothing)"
+        tail = "\n".join(_final_lines(
+            "\n".join(list(self._stderr)[-40:]))) or "(it printed nothing)"
         return _BackendError(
             f"The {self.label} backend stopped (exit code {code}). Its last "
             f"output:\n{tail}")
 
-    def request(self, op, *, should_cancel=None, **payload):
+    def request(self, op, *, should_cancel=None, keep_on_cancel=False,
+                **payload):
         """Send one request and wait for its reply.
 
         :param op: ``hello``, ``segment`` or ``shutdown``.
         :param should_cancel: polled while waiting; True stops the worker.
+        :param keep_on_cancel: on a cancel, leave the worker running and
+            abandon the request instead (:meth:`_abandon`). For short
+            requests on a worker whose loaded models are worth keeping; a
+            long batch should stop, which is the default.
         :param payload: the request's other fields.
         :returns: the reply.
         :raises _BackendError: with the backend's own message, verbatim.
@@ -1470,7 +1583,10 @@ class _WorkerProcess:
                     line = self._replies.get(timeout=0.2)
                 except queue.Empty:
                     if should_cancel is not None and should_cancel():
-                        self.kill()
+                        if keep_on_cancel:
+                            self._abandon(ident)
+                        else:
+                            self.kill()
                         raise _BackendCancelled(
                             f"the {self.label} request was cancelled") from None
                     continue
@@ -1483,6 +1599,9 @@ class _WorkerProcess:
                         f"The {self.label} backend answered with something "
                         f"that is not a reply: {line.strip()[:500]}") from None
                 if not isinstance(reply, dict) or reply.get("id") != ident:
+                    if (isinstance(reply, dict)
+                            and reply.get("id") in self._abandoned):
+                        self._abandoned.discard(reply.get("id"))
                     continue
                 self.last_used = time.monotonic()
                 if reply.get("protocol") != _PROTOCOL:
@@ -1631,7 +1750,8 @@ def _restoration_plan(model, diameter, *, root=None, device="cpu",
         raise ImportError(_not_installed_message(_CELLPOSE3, state))
     worker = (worker_for or _worker_for)(_CELLPOSE3, state.env)
     reply = worker.request("restoration_model", should_cancel=should_cancel,
-                           model=model, device=device or "cpu")
+                           keep_on_cancel=True, model=model,
+                           device=device or "cpu")
     _check_restoration_cancel(should_cancel)
     identity = reply["identity"]
     return _RestorationPlan(
@@ -1644,6 +1764,25 @@ def _check_restoration_cancel(should_cancel):
     """Discard cancelled work even when its reply has already arrived."""
     if should_cancel is not None and should_cancel():
         raise _BackendCancelled("the restoration request was cancelled")
+
+
+_KEEP_PIXELS = 1 << 20
+
+
+def _keep_restoring(source, plan):
+    """Whether a cancelled restoration should finish in its worker rather
+    than stop it.
+
+    Stopping the worker throws away its Python, torch and loaded models,
+    about 5 to 10 seconds to rebuild on this machine's CPU (item 507), and
+    the next request pays that. Letting the cancelled request finish costs
+    whatever it had left. On a GPU, or on a CPU for a plane of at most
+    :data:`_KEEP_PIXELS` (a magnifier box: about half a second), finishing
+    is the cheaper; a whole field on a CPU (18 seconds for 1994 x 1994) is
+    cheaper to stop.
+    """
+    on_cpu = str(getattr(plan, "device", "cpu") or "cpu").startswith("cpu")
+    return not on_cpu or int(np.asarray(source).size) <= _KEEP_PIXELS
 
 
 def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
@@ -1664,7 +1803,8 @@ def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
         output_path = os.path.join(scratch, "output.npy")
         np.save(input_path, source, allow_pickle=False)
         reply = worker.request(
-            "restore", should_cancel=should_cancel, model=plan.model,
+            "restore", should_cancel=should_cancel,
+            keep_on_cancel=_keep_restoring(source, plan), model=plan.model,
             diameter=plan.diameter, device=plan.device,
             expected_identity=plan._identity(), input=input_path,
             output=output_path)
@@ -2619,17 +2759,54 @@ def _handle(name, request, adapters):
 
 
 def _serve(name, stdin, stdout):
-    """Answer requests from ``stdin`` on ``stdout`` until shutdown or EOF."""
+    """Answer requests from ``stdin`` on ``stdout`` until shutdown or EOF.
+
+    ``stdin`` is read on a thread of its own, so a ``cancel`` naming a
+    request that is still queued is heard while another one runs: the
+    cancelled one is answered with a ``Cancelled`` error and never started.
+    spaCR has already stopped waiting for it (item 507).
+    """
     adapters = {}
-    for line in stdin:
-        text = line.strip()
-        if not text:
-            continue
+    pending = queue.Queue()
+    cancelled = set()
+    guard = threading.Lock()
+    finished = object()
+
+    def read():
+        """Queue each request; note each cancel at once."""
         try:
-            request = json.loads(text)
-        except ValueError:
-            request = text
-        reply = _handle(name, request, adapters)
+            for line in stdin:
+                text = line.strip()
+                if not text:
+                    continue
+                try:
+                    request = json.loads(text)
+                except ValueError:
+                    request = text
+                if isinstance(request, dict) and request.get("op") == "cancel":
+                    with guard:
+                        cancelled.add(request.get("target"))
+                    continue
+                pending.put(request)
+        except (OSError, ValueError):
+            pass
+        pending.put(finished)
+
+    threading.Thread(target=read, daemon=True).start()
+    while True:
+        request = pending.get()
+        if request is finished:
+            break
+        ident = request.get("id") if isinstance(request, dict) else None
+        with guard:
+            skip = ident is not None and ident in cancelled
+            cancelled.discard(ident)
+        if skip:
+            reply = {"protocol": _PROTOCOL, "id": ident, "ok": False,
+                     "error": {"type": "Cancelled", "traceback": "",
+                               "message": "cancelled before it started"}}
+        else:
+            reply = _handle(name, request, adapters)
         stdout.write(json.dumps(reply) + "\n")
         stdout.flush()
         if isinstance(request, dict) and request.get("op") == "shutdown":

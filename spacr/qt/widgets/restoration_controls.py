@@ -14,6 +14,55 @@ from ..i18n import tr
 from ..job_runner import JobRunner
 
 
+def _restoration_device() -> str:
+    """The device restoration asks the Cellpose 3 worker for.
+
+    ``$SPACR_DEVICE`` when set. Otherwise ``'auto'`` -- the worker's CUDA,
+    or Apple's Metal, when it has one, and its CPU when not -- if the
+    environment was installed with a GPU build of torch, and ``'cpu'`` for a
+    CPU build or an environment that is not there. Item 507: restoration
+    was pinned to the CPU, where a whole 1994 x 1994 field took 18 seconds,
+    on a machine whose environment ran it in 0.6 seconds on the GPU. File
+    checks only (the backend's marker and lock): no subprocess, no network.
+    """
+    import os
+
+    from ... import _segmentation_backends as backends
+
+    wanted = os.environ.get(backends._DEVICE_ENV, '').strip()
+    if wanted:
+        return wanted
+    try:
+        state = backends._backend_state(backends._CELLPOSE3)
+    except (OSError, ValueError):
+        return 'cpu'
+    built = str((state.record or {}).get('device') or '').lower()
+    if state.state == backends._INSTALLED and built in ('cuda', 'mps'):
+        return 'auto'
+    return 'cpu'
+
+
+def _install_with(parent, name: str, watch) -> bool:
+    """Run :func:`~spacr.qt.widgets.model_zoo_picker.install_backend`,
+    followed by ``watch`` when it takes one.
+
+    Looked up at call time, so a test's stand-in -- which may take only
+    ``(parent, name)`` -- is the one called.
+    """
+    import inspect
+
+    from . import model_zoo_picker
+
+    installer = model_zoo_picker.install_backend
+    try:
+        takes = inspect.signature(installer).parameters
+    except (TypeError, ValueError):
+        takes = {}
+    if 'watch' in takes or any(p.kind is p.VAR_KEYWORD for p in takes.values()):
+        return installer(parent, name, watch=watch)
+    return installer(parent, name)
+
+
 class _RestorationControls(QWidget):
     """Capture model identity off-thread and invalidate obsolete loading results.
 
@@ -76,11 +125,19 @@ class _RestorationControls(QWidget):
         self.reload.setToolTip(tr(
             'Load the selected Cellpose 3 restoration weights on the CPU. '
             'First use may download weights. The captured package version, '
+            'checkpoint hash and diameter are recorded with applied enhancement.')
+            if _restoration_device() == 'cpu' else tr(
+            'Load the selected Cellpose 3 restoration weights on the GPU. '
+            'First use may download weights. The captured package version, '
             'checkpoint hash and diameter are recorded with applied enhancement.'))
         form.addRow(self.reload)
-        from .model_zoo_picker import BackendInstallButton
+        from .model_zoo_picker import _BackendInstallButton
 
-        self.install = BackendInstallButton('cellpose3')
+        self.install = _BackendInstallButton(
+            'cellpose3', installer=lambda _button, name, watch=None:
+            _install_with(self, name, watch),
+            captions=(tr('Install Cellpose 3…'), tr('Installing Cellpose 3…'),
+                      tr('Cellpose 3 is installed')))
         self.install.setToolTip(tr(
             'Open the Model Zoo installer for the isolated Cellpose 3 environment. '
             'The Cellpose version used by spaCR itself is unchanged.'))
@@ -141,17 +198,19 @@ class _RestorationControls(QWidget):
         diameter = self.diameter.value()
         generation = self._generation
         cancel = self._cancel = threading.Event()
+        device = _restoration_device()
 
         def work():
             """Return captured model identity or the original loading error."""
             try:
-                plan = _restoration_plan(model, diameter, device='cpu',
+                plan = _restoration_plan(model, diameter, device=device,
                                          should_cancel=cancel.is_set)
                 return generation, plan, ''
             except Exception as exc:
                 return generation, None, str(exc)
 
-        self.status.setText(tr('Loading restoration model on CPU…'))
+        self.status.setText(tr('Loading restoration model on CPU…') if device == 'cpu'
+                            else tr('Loading restoration model on the GPU…'))
         self.said.emit(self.status.text(), 'progress')
         self._jobs.submit(work, self._loaded)
 
@@ -161,10 +220,18 @@ class _RestorationControls(QWidget):
         if self._closed or generation != self._generation:
             return
         self._plan, self._error = plan, error
-        self.status.setText(
-            tr('Restoration ready: {model}. CPU processing; original intensities retained for measurements.',
-               model=plan.model) if plan is not None else
-            tr('Restoration unavailable: {error}', error=error))
+        if plan is None:
+            self.status.setText(tr('Restoration unavailable: {error}', error=error))
+        elif str(plan.device).startswith('cpu'):
+            self.status.setText(' '.join((
+                tr('Restoration ready: {model}. CPU processing; original intensities retained for measurements.',
+                   model=plan.model),
+                tr('On the CPU a whole field takes tens of seconds and the '
+                   'magnifier box about a second.'))))
+        else:
+            self.status.setText(tr(
+                'Restoration ready: {model} on {device}; original intensities '
+                'retained for measurements.', model=plan.model, device=plan.device))
         self.said.emit(self.status.text(), 'info' if plan is not None else 'warning')
         self.install.sync()
         self.changed.emit()

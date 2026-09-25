@@ -786,14 +786,10 @@ def install_backend(parent, name: str, *, watch=None) -> bool:
     return dialog.installed
 
 
-#: How often a button whose backend another window is installing re-reads
-#: the disk, in milliseconds. File checks only, so cheap.
-POLL_MS = 2000
-
-#: The three faces, as :meth:`BackendInstallButton.face` names them.
-NOT_INSTALLED = "not installed"
-INSTALLING = "installing"
-INSTALLED = "installed"
+_POLL_MS = 2000
+_NOT_INSTALLED = "not installed"
+_INSTALLING_FACE = "installing"
+_INSTALLED_FACE = "installed"
 
 
 def _disk_state(name: str):
@@ -806,11 +802,11 @@ def _disk_state(name: str):
         return None
 
 
-class BackendInstallButton(QPushButton):
+class _BackendInstallButton(QPushButton):
     """Install one backend; the caption always says where it stands.
 
-    Item 507. The maintainer pressed "Install Cellpose 3…", saw a dialog,
-    pressed Install, and was told nothing afterwards: not that it was
+    Item 507. Pressing "Install Cellpose 3…" opened a dialog, and after
+    Install nothing said anything more: not that it was
     installing, not that it had finished, and not that Cellpose 3 was already
     there. This button has three faces, and each is read from the backend's
     environment ON DISK (:func:`spacr._segmentation_backends._backend_state`
@@ -838,6 +834,9 @@ class BackendInstallButton(QPushButton):
         them; the real on-disk check when None. Tests pass a fake.
     :param installer: ``installer(parent, name, watch=...) -> bool``;
         :func:`install_backend` when None.
+    :param captions: ``(install, installing, installed)``, already
+        translated, for an owner whose captions have reviewed translations
+        of their own; built from the backend's name when None.
     :ivar said: ``(text, kind)`` for the screen's console. ``kind`` is
         ``progress`` (one line, rewritten while the install runs), ``info``,
         ``warning`` or ``error``.
@@ -847,19 +846,24 @@ class BackendInstallButton(QPushButton):
     said = Signal(str, str)
     installed = Signal()
 
-    def __init__(self, name: str, parent=None, *, probe=None, installer=None):
+    def __init__(self, name: str, parent=None, *, probe=None, installer=None,
+                 captions=None):
         """Build the button and read where the backend stands."""
         super().__init__(parent)
         from ... import _segmentation_backends as backends
 
         self._name = str(name)
         self._label = tr(backends._spec(self._name).label)
+        self._captions = tuple(captions) if captions else (
+            tr("Install {name}…", name=self._label),
+            tr("Installing {name}…", name=self._label),
+            tr("{name} is installed", name=self._label))
         self._probe = probe or _disk_state
         self._installer = installer
         self._running = False
         self._face = ""
         self._poll = QTimer(self)
-        self._poll.setInterval(POLL_MS)
+        self._poll.setInterval(_POLL_MS)
         self._poll.timeout.connect(self.sync)
         self.clicked.connect(self._install)
         self.sync()
@@ -878,16 +882,16 @@ class BackendInstallButton(QPushButton):
         state = None if self._running else self._probe(self._name)
         kind = getattr(state, "state", "")
         if self._running or kind == backends._INSTALLING:
-            face = INSTALLING
-            self.setText(tr("Installing {name}…", name=self._label))
+            face = _INSTALLING_FACE
+            self.setText(self._captions[1])
         elif kind == backends._INSTALLED:
-            face = INSTALLED
-            self.setText(tr("{name} is installed", name=self._label))
+            face = _INSTALLED_FACE
+            self.setText(self._captions[2])
         else:
-            face = NOT_INSTALLED
-            self.setText(tr("Install {name}…", name=self._label))
-        self.setEnabled(face == NOT_INSTALLED)
-        polling = face == INSTALLING and not self._running
+            face = _NOT_INSTALLED
+            self.setText(self._captions[0])
+        self.setEnabled(face == _NOT_INSTALLED)
+        polling = face == _INSTALLING_FACE and not self._running
         if polling and not self._poll.isActive():
             self._poll.start()
         elif not polling:
@@ -912,7 +916,7 @@ class BackendInstallButton(QPushButton):
         finally:
             self._running = False
         face = self.sync()
-        if ready or face == INSTALLED:
+        if ready or face == _INSTALLED_FACE:
             self.said.emit(tr("{name} is installed", name=self._label), "info")
             self.installed.emit()
         elif not failed:
