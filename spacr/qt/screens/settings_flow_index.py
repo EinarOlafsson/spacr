@@ -876,6 +876,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'regression_panel_manifest',
     'regression_qc',
     'regression_type',
+    'rejections',
     'remove_background',
     'remove_background_cell',
     'remove_background_nucleus',
