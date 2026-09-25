@@ -205,6 +205,10 @@ def _awaiting_translation(screen) -> set:
     correction, Classes, adaptive Offset and Grow until help have source-bound
     translations in all nine languages and are no longer excluded here.
     The Apply and Compare enhancement help also have source-bound translations.
+
+    Owed since 2026-09-25 by item 509 (deconvolution infers its own values):
+    the PSF objective, camera, fluorophore and optics fields, and the image
+    pixel help, which no longer says that no calibration is inferred.
     """
     widgets = [screen._btn_otsu]
     widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
@@ -218,6 +222,13 @@ def _awaiting_translation(screen) -> set:
                  "_enh_sharpen", "_enh_sharpen_radius", "_enh_sharpen_amount",
                  "_enh_morphology", "_enh_morphology_radius", "_enh_split"):
         widget = getattr(screen, name, None)
+        if widget is not None:
+            widgets.append(widget)
+    psf = getattr(screen, "_psf_controls", None)
+    for name in ("objective", "infer", "camera", "fluorophore", "magnification",
+                 "numerical_aperture", "refractive_index", "emission_nm",
+                 "camera_pixel_um", "image_y", "image_x"):
+        widget = getattr(psf, name, None)
         if widget is not None:
             widgets.append(widget)
     owed = set()

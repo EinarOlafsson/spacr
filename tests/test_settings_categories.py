@@ -355,6 +355,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "tta_vertical_flip", "tta_aggregation", "tta_min_agreement", "tta_max_std",
     "psf_operation", "psf_source", "psf_path", "psf_image_sampling_um",
     "psf_kernel_sampling_um", "psf_fwhm_um", "psf_iterations",
+    # 509, 2026-09-25: the objective missing PSF calibration is inferred from.
+    "psf_objective",
     # 468, 2026-09-21: Plaque Assay's Plaque/Figure mode and the Figure
     # mode's detector, text reading and review switch.
     "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",

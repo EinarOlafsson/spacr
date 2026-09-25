@@ -10512,7 +10512,7 @@ class MakeMasksScreen(QWidget):
             "illumination that changes over a short distance.")
         form.addRow("Background scale", self._enh_background_scale)
 
-        self._psf_controls = _PSFControls()
+        self._psf_controls = _PSFControls(image_paths=self._current_image_paths)
         form.addRow(self._psf_controls)
         self._restoration_controls = _RestorationControls()
         self._restoration_controls.said.connect(self._report)
@@ -10565,7 +10565,9 @@ class MakeMasksScreen(QWidget):
             "noise in empty tiles, which is what the clip limit is for.")
         card.body_layout.addWidget(self._enh_clahe)
 
-        clahe_form = QFormLayout()
+        clahe_body = QWidget()
+        clahe_form = QFormLayout(clahe_body)
+        clahe_form.setContentsMargins(0, 0, 0, 0)
         self._enh_clahe_tile = QSpinBox()
         self._enh_clahe_tile.setRange(8, 1024)
         self._enh_clahe_tile.setValue(64)
@@ -10587,7 +10589,13 @@ class MakeMasksScreen(QWidget):
             "contrast and more amplified noise in tiles that hold only "
             "background.")
         clahe_form.addRow("CLAHE clip limit", self._enh_clahe_clip)
-        card.body_layout.addLayout(clahe_form)
+        from ..widgets.collapsible_splitter import FoldSection
+
+        self._enh_clahe_details = FoldSection(
+            clahe_body, "CLAHE settings", persist_key="make_masks/clahe_details",
+            follow_body=False, stretch=0, folded=True)
+        self._enh_clahe_details.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        card.body_layout.addWidget(self._enh_clahe_details)
 
         self._enh_equalize = Toggle("Histogram equalisation (whole image)")
         self._enh_equalize.setToolTip(
@@ -10713,6 +10721,14 @@ class MakeMasksScreen(QWidget):
         self._restoration_controls.changed.connect(self._on_chain_changed)
         self._on_chain_changed()
         return card
+
+    def _current_image_paths(self) -> list:
+        """The open field's file, which "Infer from images…" reads first."""
+        files = getattr(self, "_image_files", None) or []
+        index = getattr(self, "_current_index", 0)
+        if not files or not 0 <= index < len(files):
+            return []
+        return [os.path.join(self._folder, files[index])]
 
     def _detect_chain(self) -> "detect_chain.Chain":
         """The applied enhancement chain, or no changes while Apply is off."""

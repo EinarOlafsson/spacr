@@ -770,7 +770,10 @@ _KEY_FOLDED = "ui/folded_panels"
 
 
 def get_folded_panels() -> dict:
-    """Which bottom panels the user left folded, ``{key: True}``.
+    """Which panels the user left folded, ``{key: True}``, or opened, ``{key: False}``.
+
+    False is stored only for a panel that starts folded; see
+    :func:`set_folded_panel`.
 
     Keyed by ``"<module>/<panel>"`` so folding the console on Mask does not
     fold it on Sequencing -- the same rule the console/chat splitter already
@@ -790,17 +793,20 @@ def get_folded_panels() -> dict:
         return {}
 
 
-def set_folded_panel(key: str, shut: bool) -> None:
+def set_folded_panel(key: str, shut: bool, *, default_shut: bool = False) -> None:
     """Remember that ``key`` is folded, or is not.
 
-    A PANEL THAT IS OPEN IS REMOVED rather than stored as False. The default
-    is open, so storing it would grow the dict by one entry for every panel
-    the user has ever touched and never shrink it.
+    A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels
+    default to open, so storing that would grow the dict by one entry for
+    every panel the user has ever touched and never shrink it. A panel that
+    starts folded (item 509: the advanced PSF, restoration and CLAHE rows)
+    passes ``default_shut=True``, so opening it is what gets stored, as
+    False, and folding it again forgets it.
 
     :param key: the panel key, ``"<module>/<panel>"``; stripped, and an empty
         key does nothing.
-    :param shut: true to record the panel as folded, false to forget it (open
-        is the default).
+    :param shut: true to record the panel as folded, false as open.
+    :param default_shut: the panel's state when nothing is stored.
     """
     import json
 
@@ -808,10 +814,10 @@ def set_folded_panel(key: str, shut: bool) -> None:
     if not key:
         return
     state = get_folded_panels()
-    if shut:
-        state[key] = True
-    else:
+    if bool(shut) == bool(default_shut):
         state.pop(key, None)
+    else:
+        state[key] = bool(shut)
     _settings().setValue(_KEY_FOLDED, json.dumps(state))
 
 
