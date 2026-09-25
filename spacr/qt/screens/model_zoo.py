@@ -82,7 +82,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QSizePolicy,
     QSpinBox,
@@ -547,7 +546,9 @@ class ModelZooScreen(QWidget):
             "masks.")
         dl.addWidget(self._allow_unverified)
 
-        self._progress = QProgressBar(download)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress = ProgressLine(download, detail=False)
         self._progress.setRange(0, 100)
         self._progress.setValue(0)
         self._progress.setTextVisible(True)

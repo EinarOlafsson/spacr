@@ -74,7 +74,6 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -601,7 +600,9 @@ class ForeignScreen(QWidget):
         dst_row.addWidget(self._btn_import)
         outer.addLayout(dst_row)
 
-        self._progress_bar = QProgressBar(self)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress_bar = ProgressLine(self, detail=False)
         self._progress_bar.setRange(0, 100)
         self._progress_bar.setValue(0)
         self._progress_bar.setVisible(False)

@@ -587,7 +587,9 @@ class BackendInstallDialog(QDialog):
         self.reason.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self.reason)
 
-        self.progress = QProgressBar(self)
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
 
@@ -858,7 +860,9 @@ class ModelZooPicker(QDialog):
         folder_row.addWidget(add)
         layout.addLayout(folder_row)
 
-        self.progress = QProgressBar(self)
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
 

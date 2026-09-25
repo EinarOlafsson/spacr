@@ -6863,6 +6863,7 @@ class AppScreen(QWidget):
 
         self._progress = QProgressBar()
         self._progress.setRange(0, 0)
+        self._progress.setTextVisible(False)
         self._progress.setVisible(False)
         self._progress.setFixedWidth(240)
         row.addWidget(self._progress)

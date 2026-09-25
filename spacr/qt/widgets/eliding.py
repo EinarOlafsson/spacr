@@ -3,12 +3,45 @@
 The widgets render an ellipsis when space is limited and expose the complete
 text in a tooltip. Stable size hints prevent layouts from oscillating between
 full and shortened text.
+
+PROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit
+beside it, where nothing can cut them.
+
+WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track
+(``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also
+paints its own text -- "step 2 of 3", "45%", "312 MB / 690 MB (45%)" -- draws
+a 13 px caption into those 8 px, so only the top half of each glyph reaches
+the screen, and at 50 % GUI scale the track is 4 px and almost nothing does.
+The maintainer's report was "the text e.g. step 1 of 3 or 10% is cut off".
+
+THE DESIGN the maintainer chose is "thin bar + label":
+
+    [████████░░░░░░░░░░░░]  step 2 of 3 · 45%
+    Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left
+
+* the bar paints no text at all and stays the slim track the theme draws;
+* the COUNT beside it (the step and the percentage, the numbers a person is
+  watching) is a plain label that is never elided -- its horizontal size
+  policy is ``Minimum``, so a layout cannot give it less than its text needs;
+* an optional DETAIL line below carries the part that changes and can be
+  long (a file name, a speed, a time left); that part elides, and
+  :meth:`ProgressLine.displayed_text` reports what is really painted.
+
+No size here is computed from font metrics and then handed to a size setter,
+so the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the
+label follows the scaled font, the spacing follows the scaled layout.
+
+The widget answers the parts of ``QProgressBar``'s API the call sites use
+(``setRange``, ``setValue``, ``setFormat`` with ``%p``/``%v``/``%m``,
+``setTextVisible``, ``format``, ``value`` ...), so swapping one in for a bar
+changes one line at each site.
 """
 from __future__ import annotations
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFontMetrics
-from PySide6.QtWidgets import QLabel, QPushButton, QSizePolicy
+from PySide6.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
+                               QSizePolicy, QVBoxLayout, QWidget)
 
 
 class ElidingLabel(QLabel):
@@ -226,3 +259,204 @@ class ElidingPushButton(QPushButton):
         self._elided = True
         QPushButton.setText(
             self, fm.elidedText(self._full_text, self._elide_mode, available))
+
+
+SEPARATOR = " · "
+
+
+class ProgressLine(QWidget):
+    """A thin bar with its count beside it and an optional detail line below.
+
+    :param parent: parent widget, or ``None``.
+    :param detail: whether to build the eliding detail line under the bar.
+    :param count_below: put the count on its own line under the bar, at the
+        left, instead of beside it -- for a side panel whose content can be
+        wider than the pane, where the right end of a row is scrolled away.
+    """
+
+    def __init__(self, parent=None, *, detail: bool = True,
+                 count_below: bool = False):
+        """Build the bar, the count label and, if asked, the detail line.
+
+        :param parent: parent widget, or ``None``.
+        :param detail: build the detail line under the bar.
+        :param count_below: the count under the bar instead of beside it.
+        """
+        super().__init__(parent)
+        self.setObjectName("ProgressLine")
+        self._format = "%p%"
+        self._text_visible = True
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(2)
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(8)
+
+        self.bar = QProgressBar(self)
+        self.bar.setTextVisible(False)
+        self.bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        row.addWidget(self.bar, 1, Qt.AlignVCenter)
+
+        self.count = QLabel("", self)
+        self.count.setObjectName("ProgressLineCount")
+        self.count.setTextFormat(Qt.PlainText)
+        self.count.setWordWrap(False)
+        self.count.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        if count_below:
+            self.count.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            outer.addLayout(row)
+            outer.addWidget(self.count)
+        else:
+            self.count.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            row.addWidget(self.count, 0, Qt.AlignVCenter)
+            outer.addLayout(row)
+
+        self.detail = None
+        if detail:
+            self.detail = ElidingLabel("", self)
+            self.detail.setObjectName("ProgressLineDetail")
+            self.detail.setTextFormat(Qt.PlainText)
+            self.detail.setSizePolicy(QSizePolicy.Ignored,
+                                      QSizePolicy.Preferred)
+            self.detail.hide()
+            outer.addWidget(self.detail)
+        self._refresh()
+
+    def setRange(self, minimum: int, maximum: int) -> None:
+        """Set the bar's range; ``(0, 0)`` is the busy state with no number.
+
+        :param minimum: the value at an empty bar.
+        :param maximum: the value at a full bar.
+        """
+        self.bar.setRange(int(minimum), int(maximum))
+        self._refresh()
+
+    def setMinimum(self, minimum: int) -> None:
+        """Set the value at an empty bar.
+
+        :param minimum: the new minimum.
+        """
+        self.bar.setMinimum(int(minimum))
+        self._refresh()
+
+    def setMaximum(self, maximum: int) -> None:
+        """Set the value at a full bar.
+
+        :param maximum: the new maximum.
+        """
+        self.bar.setMaximum(int(maximum))
+        self._refresh()
+
+    def setValue(self, value: int) -> None:
+        """Move the bar and the numbers beside it.
+
+        :param value: the new value, clamped by the bar to its range.
+        """
+        self.bar.setValue(int(value))
+        self._refresh()
+
+    def reset(self) -> None:
+        """Empty the bar the way ``QProgressBar.reset`` does."""
+        self.bar.reset()
+        self._refresh()
+
+    def value(self) -> int:
+        """The bar's current value."""
+        return self.bar.value()
+
+    def minimum(self) -> int:
+        """The value at an empty bar."""
+        return self.bar.minimum()
+
+    def maximum(self) -> int:
+        """The value at a full bar."""
+        return self.bar.maximum()
+
+    def setFormat(self, text: str) -> None:
+        """Set the count template, with ``QProgressBar``'s ``%p %v %m``.
+
+        A template with no ``%p`` gets the percentage appended after a
+        separator whenever the bar has a range, so the number is never lost.
+
+        :param text: the template, e.g. ``"step 2 of 3"`` or
+            ``"%v / %m jobs"``.
+        """
+        self._format = str(text or "")
+        self._refresh()
+
+    def format(self) -> str:
+        """The count template last handed to :meth:`setFormat`."""
+        return self._format
+
+    def setTextVisible(self, visible: bool) -> None:
+        """Show or hide the count beside the bar; the bar never paints text.
+
+        :param visible: whether the count label is shown.
+        """
+        self._text_visible = bool(visible)
+        self.count.setVisible(self._text_visible)
+        self._refresh()
+
+    def isTextVisible(self) -> bool:
+        """Whether the count beside the bar is shown."""
+        return self._text_visible
+
+    def set_detail(self, text: str) -> None:
+        """Set the line under the bar; it elides when the window is narrow.
+
+        :param text: the changing part -- a file name, a speed, a time left.
+        """
+        if self.detail is None:
+            return
+        self.detail.setText(str(text or ""))
+        self.detail.setVisible(bool(text))
+
+    def percent(self):
+        """The whole percentage the bar shows, or ``None`` while busy."""
+        low, high = self.bar.minimum(), self.bar.maximum()
+        value = self.bar.value()
+        if high <= low or value < low:
+            return None
+        return int((value - low) * 100 / (high - low))
+
+    def text(self) -> str:
+        """The count as it is written beside the bar."""
+        return self.count.text()
+
+    def count_text(self) -> str:
+        """The count as it is written beside the bar (never elided)."""
+        return self.count.text()
+
+    def detail_text(self) -> str:
+        """The full detail line, before any eliding."""
+        return self.detail.full_text() if self.detail is not None else ""
+
+    def displayed_text(self) -> str:
+        """What is really painted: the count, then the detail as elided.
+
+        Hidden parts are left out, so a test compares against the screen.
+        """
+        parts = []
+        if self._text_visible and self.count.text():
+            parts.append(self.count.text())
+        if self.detail is not None and not self.detail.isHidden():
+            parts.append(QLabel.text(self.detail))
+        return "\n".join(parts)
+
+    def _refresh(self) -> None:
+        """Write the count from the template and the bar's position."""
+        percent = self.percent()
+        value, top = self.bar.value(), self.bar.maximum()
+        busy = percent is None
+        text = self._format
+        if "%p" in text and busy:
+            for token in ("(%p%)", "%p%", "%p"):
+                text = text.replace(token, "")
+        text = (text.replace("%p", "" if busy else str(percent))
+                .replace("%v", str(max(value, self.bar.minimum())))
+                .replace("%m", str(top))).strip()
+        if not busy and "%p" not in self._format:
+            text = f"{text}{SEPARATOR}{percent}%" if text else f"{percent}%"
+        self.count.setText(text)

@@ -154,6 +154,7 @@ class SraPicker(QDialog):
 
         self._progress = QProgressBar(self)
         self._progress.setRange(0, 0)
+        self._progress.setTextVisible(False)
         self._progress.setVisible(False)
         layout.addWidget(self._progress)
 

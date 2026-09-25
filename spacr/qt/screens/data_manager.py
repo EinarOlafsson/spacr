@@ -509,6 +509,7 @@ class DataManagerScreen(QWidget):
         self.progress = QProgressBar(frame)
         self.progress.setObjectName("DataManagerProgress")
         self.progress.setRange(0, 0)
+        self.progress.setTextVisible(False)
         self.progress.setMaximumWidth(140)
         self.progress.setVisible(False)
         row.addWidget(self.progress)
