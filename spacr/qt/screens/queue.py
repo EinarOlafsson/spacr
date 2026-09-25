@@ -236,6 +236,11 @@ class QueueScreen(QWidget):
         active AppScreen's settings dict and returns
         ``(app_key, settings_dict)``. This screen calls
         :meth:`add_item` with that pair.
+
+        :param callback: a no-argument callable returning ``(app_key,
+            settings_dict)``. It is called on every click; an exception it
+            raises, or a settings dict without ``src``, is shown in a message
+            box instead of adding an item.
         """
         def _on_click():
             """Add the current screen's settings to the queue."""
@@ -317,6 +322,9 @@ class QueueScreen(QWidget):
         It also does not go through :func:`spacr.qt.bridge.make_thread`, so
         the process-wide run registry — and therefore
         ``MainWindow.closeEvent``'s drain — has never been able to see it.
+
+        :param event: the close event; it is passed on to the base class once
+            the queue runner has been aborted and drained.
         """
         from ..bridge import drain_thread
 

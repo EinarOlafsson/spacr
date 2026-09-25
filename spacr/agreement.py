@@ -155,6 +155,8 @@ _MODEL_COLUMN_PREFIXES = ("prediction_probability_class_",)
 #: called ``blind_random`` is still offered.
 _SAMPLED_COLUMN_SUFFIX = "_random"
 
+_VERDICT_COLUMN_SUFFIX = "_verdict"
+
 
 def _is_model_column(name: str, table_columns: Sequence[str] = ()) -> bool:
     """True when ``name`` is written by a model rather than by an annotator.
@@ -163,15 +165,22 @@ def _is_model_column(name: str, table_columns: Sequence[str] = ()) -> bool:
     :param table_columns: the table's other columns, used to recognise a
         ``<col>_random`` sampling column by the column it was derived from.
     :returns: True to exclude it from the annotation-column guess.
+
+    ``<col>_verdict`` is excluded on the same rule as ``<col>_random``. It
+    is the judgement column the Annotate screen keeps beside an annotation
+    column (item 512, :func:`spacr.suggest.verdict_column`): +c for a
+    confirmed suggestion, -c for a rejected one. It is about the machine's
+    proposals, not a second annotator's answers.
     """
     if name in _MODEL_COLUMNS:
         return True
     if any(name.startswith(prefix) for prefix in _MODEL_COLUMN_PREFIXES):
         return True
-    if name.endswith(_SAMPLED_COLUMN_SUFFIX):
-        base = name[: -len(_SAMPLED_COLUMN_SUFFIX)]
-        if base and base in set(table_columns):
-            return True
+    for suffix in (_SAMPLED_COLUMN_SUFFIX, _VERDICT_COLUMN_SUFFIX):
+        if name.endswith(suffix):
+            base = name[: -len(suffix)]
+            if base and base in set(table_columns):
+                return True
     return False
 
 

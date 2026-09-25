@@ -29,6 +29,14 @@ THREE RULES THAT PROTECT THE ANNOTATIONS
    gets a suggestion, sorted most-confident first, and the reviewer stops
    where they stop agreeing. A threshold would make that decision for them,
    with a number nobody chose.
+4. A JUDGEMENT IS RECORDED, NOT INFERRED (item 512). Confirming a suggestion
+   turns it into an ordinary label and rejecting one clears it -- and both
+   are written down beside the column, in ``<column>_verdict``, as the class
+   that was confirmed (``+c``) or rejected (``-c``). A rejection is
+   information the next round can train on -- "not class 1" is an example
+   of class 2 in a two-class column -- where a NULL would have been silence.
+   The verdict column is added the first time a source is opened, so tables
+   made before it existed gain it without a migration step.
 """
 from __future__ import annotations
 
@@ -297,6 +305,13 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     :param png_table: the crop table.
     :param paths: restrict to these crops; None means every suggestion.
     :returns: how many rows changed.
+
+    A bulk KEEP is a confirmation of every suggestion it keeps, so it is
+    recorded in the verdict column too (when the column exists): the crops
+    then wear the same mark as ones confirmed one at a time, and the count
+    the screen shows agrees with what happened. A bulk THROW is not a
+    judgement -- "I do not want to review these" is not "these are wrong"
+    -- so it records nothing.
     """
     column = f'"{annotation_column}"'
     where = f"{column} > {SUGGESTION_OFFSET}"
@@ -311,6 +326,11 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
         if not _has_column(db, png_table, annotation_column):
             return 0
         if keep:
+            verdict = verdict_column(annotation_column)
+            if _has_column(db, png_table, verdict):
+                db.execute(
+                    f'UPDATE "{png_table}" SET "{verdict}" = {column} - '
+                    f"{SUGGESTION_OFFSET} WHERE {where}", params)
             sql = (f'UPDATE "{png_table}" SET {column} = {column} - '
                    f"{SUGGESTION_OFFSET} WHERE {where}")
         else:
@@ -340,3 +360,166 @@ def pending_suggestions(db_path: str, annotation_column: str, *,
         except sqlite3.Error:
             return 0
     return int(row[0]) if row else 0
+
+
+VERDICT_SUFFIX = "_verdict"
+
+
+def verdict_column(annotation_column: str) -> str:
+    """The column beside ``annotation_column`` that records judgements.
+
+    One value per crop: ``+c`` when a suggested class ``c`` was confirmed,
+    ``-c`` when it was rejected, NULL when nothing was judged. It lives in
+    the crop table rather than in the screen so a judgement survives a
+    restart and reaches the next round of training.
+
+    :param annotation_column: the column the suggestions were written into.
+    :returns: the verdict column's name.
+    """
+    return f"{annotation_column}{VERDICT_SUFFIX}"
+
+
+def ensure_verdict_column(db_path: str, annotation_column: str, *,
+                          png_table: str = "png_list") -> bool:
+    """Add the verdict column to ``png_table`` if it is missing.
+
+    Called when a source is opened, which is how a table made before the
+    column existed gains it: an ``ALTER TABLE ... ADD COLUMN`` with no
+    default is a metadata change in SQLite and rewrites no rows.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column whose judgements it will hold.
+    :param png_table: the crop table.
+    :returns: True when the column exists afterwards.
+    """
+    if not annotation_column:
+        return False
+    verdict = verdict_column(annotation_column)
+    with _connect_writable(db_path) as db:
+        try:
+            rows = db.execute(f'PRAGMA table_info("{png_table}")').fetchall()
+        except sqlite3.Error:
+            return False
+        if not rows:
+            return False
+        if any(row[1] == verdict for row in rows):
+            return True
+        safe = verdict.replace('"', '""')
+        try:
+            db.execute(f'ALTER TABLE "{png_table}" ADD COLUMN "{safe}" INTEGER')
+            db.commit()
+        except sqlite3.Error:
+            return False
+    return True
+
+
+def fetch_verdicts(db_path: str, annotation_column: str,
+                   paths: Sequence[str], *,
+                   png_table: str = "png_list") -> Dict[str, int]:
+    """The recorded judgement of each of ``paths`` that has one.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column the judgements belong to.
+    :param paths: the crops on the page.
+    :param png_table: the crop table.
+    :returns: ``{png_path: verdict}`` for the crops that carry one; empty
+        when the column does not exist yet.
+    """
+    paths = [str(p) for p in paths]
+    if not paths:
+        return {}
+    verdict = verdict_column(annotation_column)
+    out: Dict[str, int] = {}
+    with _connect_read_only(db_path) as db:
+        if not _has_column(db, png_table, verdict):
+            return {}
+        for start in range(0, len(paths), 500):
+            chunk = paths[start:start + 500]
+            marks = ",".join("?" * len(chunk))
+            try:
+                rows = db.execute(
+                    f'SELECT png_path, "{verdict}" FROM "{png_table}" '
+                    f'WHERE "{verdict}" IS NOT NULL AND png_path IN ({marks})',
+                    chunk).fetchall()
+            except sqlite3.Error:
+                return out
+            for path, value in rows:
+                try:
+                    out[str(path)] = int(value)
+                except (TypeError, ValueError):
+                    continue
+    return out
+
+
+def judgement_counts(db_path: str, annotation_column: str, *,
+                     png_table: str = "png_list") -> Dict[str, int]:
+    """How the column's suggestions stand: judged, and still to judge.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column the suggestions were written into.
+    :param png_table: the crop table.
+    :returns: ``{"left": n, "confirmed": n, "rejected": n}`` -- ``left`` is
+        the suggestions nobody has judged yet, the other two are every
+        judgement recorded in the column so far.
+    """
+    counts = {"left": 0, "confirmed": 0, "rejected": 0}
+    verdict = verdict_column(annotation_column)
+    with _connect_read_only(db_path) as db:
+        if _has_column(db, png_table, annotation_column):
+            try:
+                row = db.execute(
+                    f'SELECT COUNT(*) FROM "{png_table}" '
+                    f'WHERE "{annotation_column}" > ?',
+                    (SUGGESTION_OFFSET,)).fetchone()
+                counts["left"] = int(row[0]) if row else 0
+            except sqlite3.Error:
+                pass
+        if _has_column(db, png_table, verdict):
+            try:
+                row = db.execute(
+                    f'SELECT SUM("{verdict}" > 0), SUM("{verdict}" < 0) '
+                    f'FROM "{png_table}" WHERE "{verdict}" IS NOT NULL'
+                ).fetchone()
+            except sqlite3.Error:
+                row = None
+            if row:
+                counts["confirmed"] = int(row[0] or 0)
+                counts["rejected"] = int(row[1] or 0)
+    return counts
+
+
+def rejected_suggestions(db_path: str, annotation_column: str, *,
+                         png_table: str = "png_list") -> Dict[str, int]:
+    """The crops whose suggestion was rejected, and the class that was refused.
+
+    Only crops the annotator has NOT since labelled are returned: a label
+    made after a rejection is the stronger statement and is what the fit
+    reads from the column itself, so handing the rejection over as well
+    would count the crop twice.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column the suggestions were written into.
+    :param png_table: the crop table.
+    :returns: ``{png_path: rejected class}``; empty when nothing was rejected
+        or the verdict column does not exist.
+    """
+    verdict = verdict_column(annotation_column)
+    out: Dict[str, int] = {}
+    with _connect_read_only(db_path) as db:
+        if not _has_column(db, png_table, verdict):
+            return out
+        if not _has_column(db, png_table, annotation_column):
+            return out
+        try:
+            rows = db.execute(
+                f'SELECT png_path, "{verdict}" FROM "{png_table}" '
+                f'WHERE "{verdict}" < 0 AND "{annotation_column}" IS NULL'
+            ).fetchall()
+        except sqlite3.Error:
+            return out
+    for path, value in rows:
+        try:
+            out[str(path)] = -int(value)
+        except (TypeError, ValueError):
+            continue
+    return out

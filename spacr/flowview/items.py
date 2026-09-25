@@ -95,7 +95,12 @@ else:
 
 
     def edge_width(volume: int | None) -> float:
-        """Map transfer volume to the same restrained logarithmic scale as SVG."""
+        """Map transfer volume to the same restrained logarithmic scale as SVG.
+
+        :param volume: the edge's transfer volume (objects, files or rows), or
+            ``None``. ``None`` or a value <= 0 gives the minimum width of 1.0;
+            larger volumes grow logarithmically up to a cap of 6.0.
+        """
 
         if volume is None or volume <= 0:
             return 1.0
@@ -153,7 +158,14 @@ else:
             return QRectF(0.0, 0.0, self.box.width, self.box.height)
 
         def update_node(self, node: Node, box: NodeLayout) -> bool:
-            """Replace displayed data, returning whether any paint data changed."""
+            """Replace displayed data, returning whether any paint data changed.
+
+            :param node: the node's new state, label, metrics, progress and
+                thumbnail to display.
+            :param box: the node's new layout; the card is moved to its
+                ``x``/``y``.
+            :returns: False when both equal what is already shown, else True.
+            """
 
             if node == self.node and box == self.box:
                 return False
@@ -167,7 +179,13 @@ else:
             return True
 
         def paint(self, painter: QPainter, option: object, widget: object = None) -> None:
-            """Paint one restrained card using the shared FlowView visual tokens."""
+            """Paint one restrained card using the shared FlowView visual tokens.
+
+            :param painter: the painter to draw with; its state is saved and
+                restored around the drawing.
+            :param option: the style option Qt passes; not used.
+            :param widget: the widget being painted on; not used.
+            """
 
             del option, widget
             rect = self.boundingRect()
@@ -317,7 +335,12 @@ else:
             return self._path.boundingRect().adjusted(-padding, -padding, padding, padding)
 
         def set_source_running(self, running: bool) -> bool:
-            """Update the non-colour running marker only when it changed."""
+            """Update the non-colour running marker only when it changed.
+
+            :param running: whether the edge's source node is running; a true
+                value draws the edge dashed. Coerced to ``bool``.
+            :returns: True when the marker changed and a repaint was queued.
+            """
 
             normalised = bool(running)
             if normalised == self._source_running:
@@ -327,7 +350,13 @@ else:
             return True
 
         def paint(self, painter: QPainter, option: object, widget: object = None) -> None:
-            """Paint a cubic edge, label, and optional running dash pattern."""
+            """Paint a cubic edge, label, and optional running dash pattern.
+
+            :param painter: the painter to draw with; its state is saved and
+                restored around the drawing.
+            :param option: the style option Qt passes; not used.
+            :param widget: the widget being painted on; not used.
+            """
 
             del option, widget
             painter.save()

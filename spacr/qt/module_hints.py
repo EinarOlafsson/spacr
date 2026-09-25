@@ -65,6 +65,11 @@ def module_hint_text(widget: QWidget) -> str:
     Name and summary are read from PROPERTIES rather than from the
     tooltip, so the text is the canonical English source and a language
     switch retranslates it rather than translating a translation.
+
+    :param widget: the hovered widget; its module name and summary Qt
+        properties are read. ``None`` or a deleted widget gives ``""``, and a
+        line longer than :data:`MAX_HINT_CHARS` is cut at a word with an
+        ellipsis.
     """
     if widget is None:
         return ""
@@ -168,6 +173,9 @@ def install_module_hints(window) -> Optional[_ModuleHints]:
     strip builds its buttons lazily, per host masthead, and a filter
     installed per widget would miss every one made after this ran.
 
+    :param window: the main window; it parents the filter, and its
+        ``_show_module_hint(key)`` method is called to show each hovered
+        module's hint.
     :returns: the filter, so a caller can remove it; ``None`` when there
         is no application to install it on.
     """

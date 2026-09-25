@@ -623,6 +623,12 @@ class DoseResponseScreen(QWidget):
         The one call a host needs. It deliberately does **not** fit: which
         column is the dose is not guessable from a measurement table, and a
         curve through the wrong pair of columns is worse than an empty axis.
+
+        :param frame: the measurement table; its columns fill the
+            concentration, response, group, plate, control, host and
+            second-dose pickers.
+        :param label: the source line to show; empty shows the row and column
+            counts.
         """
         self._frame = frame
         self._set = None
@@ -850,6 +856,13 @@ class DoseResponseScreen(QWidget):
         before the read is dispatched, to know which table to read. The same
         shape :class:`spacr.qt.screens.trellis.TrellisScreen` uses, for the
         same reasons.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
         """
         self._path = path
         names: List[str] = []
@@ -1005,7 +1018,11 @@ class DoseResponseScreen(QWidget):
         self.show_group(sorted(rows)[0] if fit is None else int(fit))
 
     def show_group(self, index: int) -> None:
-        """Draw and describe the ``index``-th curve of the last fit."""
+        """Draw and describe the ``index``-th curve of the last fit.
+
+        :param index: position of the curve in the last fit's groups; out of
+            range, or with no fit yet, nothing happens.
+        """
         if self._set is None or not 0 <= index < len(self._set.fits):
             return
         fit = self._set.fits[index]

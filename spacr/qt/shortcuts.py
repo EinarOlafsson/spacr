@@ -128,6 +128,10 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Annotate screen"),
     ShortcutSpec("Alt+Right",    "Next image",             "Annotate",
                  "the Annotate screen"),
+    ShortcutSpec("Y",            "Confirm the suggested label", "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("N",            "Reject the suggested label", "Annotate",
+                 "the Annotate screen"),
 
     ShortcutSpec("B",            "Brush",                  "Make Masks",
                  "the Make Masks screen"),

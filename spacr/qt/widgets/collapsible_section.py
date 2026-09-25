@@ -121,7 +121,12 @@ class CollapsibleSection(QWidget):
         return self._content
 
     def set_open_minimum(self, height: int) -> None:
-        """How short the section may be dragged while it is open."""
+        """How short the section may be dragged while it is open.
+
+        :param height: the smallest body height, in pixels, the open section
+            may be dragged to; converted to ``int`` and floored at 0. The
+            header's folded height is added on top.
+        """
         self._open_minimum = max(int(height), 0)
         if self.is_expanded():
             self.setMinimumHeight(self._open_minimum + self.FOLDED_HEIGHT)
