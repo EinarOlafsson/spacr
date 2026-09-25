@@ -1307,11 +1307,19 @@ def clear_column(db_path: str, annotation_column: str, *,
     """
     if not os.path.isfile(db_path):
         return
+    from ..suggest import verdict_column
+
     col = (annotation_column or "").replace('"', '""')
+    verdict = verdict_column(annotation_column or "").replace('"', '""')
     conn = connect_database(db_path, timeout=30)
     try:
+        has_verdict = any(
+            row[1] == verdict_column(annotation_column or "")
+            for row in conn.execute(f'PRAGMA table_info("{table}")'))
         with transaction(conn):
             conn.execute(f'UPDATE "{table}" SET "{col}" = NULL')
+            if has_verdict:
+                conn.execute(f'UPDATE "{table}" SET "{verdict}" = NULL')
     finally:
         conn.close()
 
@@ -1370,6 +1378,7 @@ class SaveWorker:
         self._last_save_ts: Optional[float] = None
         self._last_error: Optional[str] = None
         self._failed_batch: Optional[dict] = None
+        self._failed_extra: Dict[str, dict] = {}
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
 
@@ -1407,19 +1416,39 @@ class SaveWorker:
         """Whether the SQLite writer thread is still running."""
         return bool(self._thread and self._thread.is_alive())
 
-    def submit(self, batch: dict) -> None:
-        """Enqueue a copy of the batch for saving."""
+    def submit(self, batch: dict, column: Optional[str] = None) -> None:
+        """Enqueue a copy of the batch for saving.
+
+        :param batch: ``{png_path: value}``; ``None`` clears.
+        :param column: the column to write; the annotation column when
+            omitted. The Annotate screen's judgements (item 512) go to the
+            ``<column>_verdict`` column through this same writer rather than
+            through a second connection: one writer, one queue, one order.
+            A batch for another column that cannot be written is kept in
+            ``_failed_extra`` under its column, apart from
+            ``_failed_batch``, so the annotation batch keeps the shape
+            every reader of it expects.
+        """
         if not batch:
             return
+        other = None
+        if column is not None and column != self.annotation_column:
+            other = str(column)
         with self._lock:
             if self._last_error is not None:
+                if other is not None:
+                    self._failed_extra.setdefault(other, {}).update(batch)
+                    return
                 if self._failed_batch is None:
                     self._failed_batch = {}
                     self._pending_batches += 1
                 self._failed_batch.update(batch)
                 return
             self._pending_batches += 1
-        self._q.put(dict(batch))
+        if other is not None:
+            self._q.put((other, dict(batch)))
+        else:
+            self._q.put(dict(batch))
 
     @property
     def busy(self) -> bool:
@@ -1442,6 +1471,51 @@ class SaveWorker:
         """Actionable message for the latest writer failure, if any."""
         with self._lock:
             return self._last_error
+
+    @staticmethod
+    def _absorb(item, pending: dict, others: Dict[str, dict]) -> None:
+        """Fold one queued item into the batch being coalesced.
+
+        A plain dict is the annotation column's; a ``(column, dict)`` pair
+        is another column's, kept under its name so one transaction writes
+        every column that was queued.
+
+        :param item: one queued batch, in either shape.
+        :param pending: the annotation column's batch, updated in place.
+        :param others: the other columns' batches by name, updated in place.
+        """
+        if isinstance(item, tuple):
+            name, batch = item
+            others.setdefault(str(name), {}).update(batch)
+        else:
+            pending.update(item)
+
+    def _write_column(self, cur, col: str, pending: dict) -> None:
+        """Write one coalesced ``{png_path: value}`` batch into ``col``.
+
+        :param cur: a cursor inside the caller's transaction.
+        :param col: the column, already quoted-safe (``"`` doubled).
+        :param pending: ``{png_path: value}``; ``None`` clears.
+        """
+        if not pending:
+            return
+        to_null = [p for p, v in pending.items() if v is None]
+        to_set = [
+            (int(v), p) for p, v in pending.items()
+            if v is not None
+        ]
+        if to_null:
+            cur.executemany(
+                f'UPDATE "{self.table}" SET "{col}" = NULL '
+                'WHERE png_path = ?',
+                [(p,) for p in to_null],
+            )
+        if to_set:
+            cur.executemany(
+                f'UPDATE "{self.table}" SET "{col}" = ? '
+                'WHERE png_path = ?',
+                to_set,
+            )
 
     def _run(self) -> None:
         """Drain the annotation queue into the database until told to stop.
@@ -1466,7 +1540,9 @@ class SaveWorker:
                 if item is self._SENTINEL:
                     self._q.task_done()
                     break
-                pending = item
+                pending: dict = {}
+                others: Dict[str, dict] = {}
+                self._absorb(item, pending, others)
                 while True:
                     try:
                         extra = self._q.get_nowait()
@@ -1474,7 +1550,7 @@ class SaveWorker:
                             self._q.task_done()
                             self._q.put(self._SENTINEL)
                             break
-                        pending.update(extra)
+                        self._absorb(extra, pending, others)
                         with self._lock:
                             self._pending_batches -= 1
                         self._q.task_done()
@@ -1482,24 +1558,11 @@ class SaveWorker:
                         break
                 self._busy = True
                 try:
-                    to_null = [p for p, v in pending.items() if v is None]
-                    to_set = [
-                        (int(v), p) for p, v in pending.items()
-                        if v is not None
-                    ]
                     with transaction(conn):
-                        if to_null:
-                            cur.executemany(
-                                f'UPDATE "{self.table}" SET "{col}" = NULL '
-                                'WHERE png_path = ?',
-                                [(p,) for p in to_null],
-                            )
-                        if to_set:
-                            cur.executemany(
-                                f'UPDATE "{self.table}" SET "{col}" = ? '
-                                'WHERE png_path = ?',
-                                to_set,
-                            )
+                        self._write_column(cur, col, pending)
+                        for name, batch in others.items():
+                            self._write_column(
+                                cur, name.replace('"', '""'), batch)
                 except BaseException as exc:
                     with self._lock:
                         self._last_error = (
@@ -1507,6 +1570,9 @@ class SaveWorker:
                             "not saved; resolve the database problem before "
                             "closing this module.")
                         self._failed_batch = pending
+                        for name, batch in others.items():
+                            self._failed_extra.setdefault(
+                                name, {}).update(batch)
                     self._busy = False
                     LOG.exception(
                         "Annotate database save failed for %s; the transaction "
