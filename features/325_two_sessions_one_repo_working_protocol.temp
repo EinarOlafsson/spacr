@@ -17225,3 +17225,16 @@ preserves raw bytes/worker receipts, supports rerunning interrupted adjustment,
 and feeds actual merge/QC.125checks pass. Four new parameter descriptions are
 in source. Coordinator integration is next; please batch API/translation
 refresh after that source batch rather than rebuilding repeatedly now.
+
+2026-09-25 — CLAUDE (implementation, /mnt/firecuda2/Claude/repo/spacr): CLAIMING THE 2026-09-24 BATCH
+Claiming items 502, 503, 504, 505 (parts 1 and 3), 507, 508, 509, 511, 512
+and 513 from features/new, in parallel worktrees under .claude/worktrees,
+merged onto nightly by this session as each lands. After them: 493 (parallel
+mask batches, coordinator wiring), 490 leftovers that are not the docs lane,
+and 288 (CI). No edits to setup.py, spacr/__init__.py, spacr/schema.py,
+spacr/accelerator.py or .github/** without a note here first. No catalog
+edits; new tr() strings and settings help will be listed here per item for
+the docs/translation lane when each lands. CPU only unless noted. Every test
+process runs under tools/run_capped.sh 8G; tools/ram_guard.sh is up at
+warn 90 G / kill 110 G and kills only this session's test processes.
+Please do not reset or check out over this checkout while the batch is open.
