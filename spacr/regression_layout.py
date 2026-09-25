@@ -48,6 +48,9 @@ def infer_regression_layout(
     A table containing exactly one of the two columns is malformed rather
     than wide.  Treating it as wide would accidentally melt the existing
     value column into a gRNA.
+
+    :param frame: the independent-variable table; only its column names are
+        read.
     """
     has_predictor = predictor_column in frame.columns
     has_value = value_column in frame.columns
@@ -79,6 +82,10 @@ def wide_to_long_regression_data(
     observation metadata is used.  Non-numeric unclassified columns are
     rejected because guessing whether they are metadata or a predictor would
     change the model silently.
+
+    :param frame: wide table with one predictor per column plus observation
+        metadata columns; anything but a :class:`pandas.DataFrame` raises
+        :class:`TypeError`.
     """
     if not isinstance(frame, pd.DataFrame):
         raise TypeError("frame must be a pandas DataFrame")
@@ -154,6 +161,10 @@ def long_to_wide_regression_data(
     observation/predictor rows must agree.  Repeated identical rows (for
     example after a harmless join) are collapsed once; conflicting values are
     refused.
+
+    :param frame: long table with one row per observation and predictor; it
+        must carry the index, predictor and value columns, and the values must
+        be finite numbers.
     """
     indices = _names(index_columns)
     required = indices + [predictor_column, value_column]
@@ -210,7 +221,11 @@ def normalise_count_table_layout(
     count_column: str = "count",
     wide_predictor_columns: Sequence[str] | None = None,
 ) -> tuple[pd.DataFrame, str]:
-    """Return a canonical long ``grna``/``count`` count table and its input layout."""
+    """Return a canonical long ``grna``/``count`` count table and its input layout.
+
+    :param frame: count table in long or wide layout. A ``grna_name`` column is
+        read as ``grna`` when the default guide column is absent.
+    """
     wanted = str(layout or "auto").strip().lower()
     if wanted not in REGRESSION_LAYOUTS:
         raise ValueError(
