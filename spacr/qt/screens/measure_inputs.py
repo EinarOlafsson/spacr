@@ -16,6 +16,20 @@ Three things stacked, and the order is the order the questions come in:
    itself. The database and the folder tree are Measure's because Measure
    makes them.
 
+IT IS A ``QDialog``, AND THAT IS WHAT MAKES IT LOOK LIKE spaCR. It used to
+be a bare ``QWidget`` shown with the ``Qt.Window`` flag, which meant the
+operating system's own title bar, square corners, an opaque background and
+minimise/maximise/close buttons -- a window from a different program sitting
+in the middle of this one. :mod:`spacr.qt.widgets.glass` gives every dialog
+in the package the translucent card, the rounded corners and the travelling
+rim, and it recognises a dialog by its TYPE. So the dress is not applied
+here; being a dialog is.
+
+Its actions are at the bottom right, in the order every spaCR dialog uses:
+the thing you came to do in the accent colour (Measure, ``PrimaryButton``),
+and the way out in red beside it (Close, ``DangerButton``). Escape is the
+other way out, and closes rather than hides -- see :meth:`reject`.
+
 THE SETTINGS THE TABLE DECIDES ARE SHOWN AND DISABLED rather than hidden.
 ``cell_mask_dim`` is not a question once the table says which column holds
 the cell masks, but a user who has read the Measure documentation comes here
@@ -33,6 +47,7 @@ from typing import Any, Dict, List, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QDialog,
     QFormLayout,
     QHBoxLayout,
     QLabel,
@@ -131,7 +146,7 @@ def write_setting_value(widget, value) -> bool:
     return False
 
 
-class MeasureInputsScreen(QWidget):
+class MeasureInputsScreen(QDialog):
     """Table, Measure's settings, and a Run that goes through Measure.
 
     :param parent: parent widget, or ``None``.
@@ -155,6 +170,7 @@ class MeasureInputsScreen(QWidget):
         """Build the window and its three parts."""
         super().__init__(parent)
         self.setWindowTitle("Features -- measure hand-drawn masks")
+        self.setSizeGripEnabled(False)
         self._runner = JobRunner(self, threaded=threaded,
                                  app_key=SETTINGS_APP_KEY)
         self._runner.job_failed.connect(self._on_failed)
@@ -212,12 +228,23 @@ class MeasureInputsScreen(QWidget):
         actions = QHBoxLayout()
         actions.addStretch(1)
         self.run_button = QPushButton("Measure", self)
+        self.run_button.setObjectName("PrimaryButton")
+        self.run_button.setAutoDefault(False)
+        self.run_button.setDefault(False)
         self.run_button.setToolTip(
             "Write the merged arrays this table describes and measure them "
             "with the Measure module itself. The output folders and the "
             "measurements database are the ones a Measure run produces.")
         self.run_button.clicked.connect(self.run)
         actions.addWidget(self.run_button)
+        self.close_button = QPushButton("Close", self)
+        self.close_button.setObjectName("DangerButton")
+        self.close_button.setAutoDefault(False)
+        self.close_button.setDefault(False)
+        self.close_button.setToolTip(
+            "Close this window. A measurement already running is stopped.")
+        self.close_button.clicked.connect(self.close)
+        actions.addWidget(self.close_button)
         outer.addLayout(actions)
 
         self._on_table_changed()
@@ -508,13 +535,33 @@ class MeasureInputsScreen(QWidget):
 
         :param event: the Qt close event.
         """
+        self.stop_the_runners()
+        super().closeEvent(event)
+
+    def done(self, result):  # noqa: N802 - Qt contract
+        """Stop the run whichever way the window is dismissed.
+
+        THE HOOK IS ``done`` AND NOT ``reject``, and not ``closeEvent``
+        alone. Escape reaches ``reject``, which hides the window WITHOUT a
+        close event, and that would leave a measure run -- minutes of work,
+        on a thread -- going behind a window nobody can see; a running
+        ``QThread`` destroyed at exit aborts the process. Overriding
+        ``reject`` to close instead looks like the fix and is a loop:
+        ``QDialog.closeEvent`` itself calls ``reject``.
+
+        :param result: Qt's dialog code, passed straight on.
+        """
+        self.stop_the_runners()
+        super().done(result)
+
+    def stop_the_runners(self) -> None:
+        """Shut down the measure worker and the folder scanner, if any."""
         for runner in (self._runner, getattr(self.inputs, '_scanner', None)):
             if runner is not None:
                 try:
                     runner.shutdown()
                 except Exception:                                # noqa: BLE001
                     LOG.debug("a runner would not shut down", exc_info=True)
-        super().closeEvent(event)
 
 
 def open_measure_inputs(owner: Optional[QWidget] = None, *,

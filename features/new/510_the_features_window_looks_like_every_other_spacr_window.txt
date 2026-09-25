@@ -1,7 +1,7 @@
 THE FEATURES WINDOW LOOKS LIKE EVERY OTHER spaCR WINDOW
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned.
+Status: DONE, 2026-09-25. Filed 2026-09-24.
+Owner: Claude.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "in make masks, the features button spawns a window that should have an
@@ -19,3 +19,43 @@ Close in red to its right.
 DONE WHEN
 Side by side with another spaCR dialog, the two look like the same program,
 and a screenshot proves it.
+
+DONE, 2026-09-25
+THE CAUSE WAS THE TYPE, NOT THE STYLING. spaCR already dresses every dialog
+through `spacr.qt.widgets.glass`, one application event filter that gives a
+dialog the translucent card, the rounded corners and the travelling rim the
+first time it is shown -- and it recognises a dialog by `isinstance(widget,
+QDialog)`. The FEATURES window was a bare `QWidget` shown with the
+`Qt.Window` flag, so the sweep never saw it and it kept the operating
+system's title bar, its minimise/maximise/close buttons, its square corners
+and its opaque background: a window from another program in the middle of
+this one.
+
+`MeasureInputsScreen` is now a `QDialog`. Nothing about the look is written
+into `measure_inputs.py`; the dress arrives because the window is finally
+the kind of thing the sweep was built for, which also means it follows the
+rim settings and any future change to that look without being edited again.
+
+At the bottom right, in the order the request names: Measure as
+`PrimaryButton` (the accent blue) and Close as `DangerButton` (red) to its
+right. Neither is auto-default, so Return in the file table cannot start a
+measurement nobody asked for.
+
+Escape is the other way out now that there is no x, and it CLOSES rather
+than hides. The hook is `done`, which every dismissal goes through; putting
+it on `reject` looks right and is a loop, because `QDialog.closeEvent` calls
+`reject` itself. Either way the measure worker and the folder scanner are
+shut down, which is what keeps a destroyed running QThread from aborting the
+process.
+
+Screenshot: rendered offscreen at 760x560 with the glass filter installed,
+the window grabbed over a dark page. It shows the rounded translucent card,
+no title bar, and Measure in blue with Close in red beside it -- the same
+dress as any other spaCR dialog.
+
+Tests: `tests/qt/test_the_features_window_wears_spacrs_dress.py`, 8 cases --
+the type, the card, the frameless flags, the rounded mask, the two buttons
+and their order, the Return key, and both ways out stopping the run. The
+window's own 18 cases in
+`tests/qt/test_features_button_opens_the_measure_table.py` and the 27 in
+`tests/qt/test_every_popup_has_the_card_and_the_rim.py` still pass.
