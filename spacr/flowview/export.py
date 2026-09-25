@@ -207,7 +207,12 @@ def _render_node(node: Node, box: NodeLayout) -> str:
 
 
 def render_svg(graph: RunGraph) -> str:
-    """Render *graph* as a standalone SVG string with editable text."""
+    """Render *graph* as a standalone SVG string with editable text.
+
+    :param graph: the run snapshot to draw; nodes are placed by
+        :func:`~spacr.flowview.layout.layout_graph` and edges are drawn beneath
+        them.
+    """
 
     layout = layout_graph(graph)
     pieces = [
@@ -284,7 +289,12 @@ def _inspector(graph: RunGraph) -> str:
 
 
 def render_html(graph: RunGraph) -> str:
-    """Render one self-contained HTML record containing SVG and inspector."""
+    """Render one self-contained HTML record containing SVG and inspector.
+
+    :param graph: the run snapshot to render; its SVG drawing, run id, spaCR
+        version, settings digest and one inspector section per node are
+        embedded in the page.
+    """
 
     svg = render_svg(graph)
     return (
@@ -312,7 +322,12 @@ def export(
     path: str | os.PathLike[str],
     fmt: str = "svg",
 ) -> Path:
-    """Write a deterministic SVG, HTML, or JSON representation of *graph*."""
+    """Write a deterministic SVG, HTML, or JSON representation of *graph*.
+
+    :param graph: the run snapshot to export.
+    :param path: destination file, overwritten with the UTF-8 encoded output.
+        Its suffix is not consulted; ``fmt`` alone picks the format.
+    """
 
     format_name = fmt.casefold().lstrip(".")
     if format_name == "svg":
