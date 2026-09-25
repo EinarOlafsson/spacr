@@ -100,8 +100,11 @@ TESTS
   (docs lane); 508 adds seven public callables to those counts.
   tests/qt/test_external_i18n_catalogs.py now lists the 19 enhance_* keys in
   _AWAITING_CATALOG_REBUILD (self-emptying) until the catalog lane rebuilds
-  en.SETTING_TOOLTIPS. test_i18n_caption_ratchet's two failures are on
-  nightly too.
+  en.SETTING_TOOLTIPS, and tests/qt/test_i18n_caption_ratchet.py lists the
+  20 new tr() captions in _AWAITING_CATALOG_REBUILD the same way (after the
+  merge of nightly 8fc848e6a they were the only thing failing its two
+  catalog-candidate tests). Its remaining failure (sv lacks 'Show tooltips'
+  and the News-panel caption) is on nightly too.
   Selection run: non-Qt settings/PSF/validate/docstring 8 files -> 3 failed
   (the nightly docstring pins), rest pass; Qt 20 files -> 305 passed, 19
   xfailed, 4 failed before the catalog-list fix (2 are nightly's), 29/29 of
