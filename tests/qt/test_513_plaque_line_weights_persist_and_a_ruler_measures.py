@@ -275,7 +275,7 @@ def test_the_ruler_reports_pixels_and_microns_from_a_known_pixel_size(
     _drag(view, (10, 10), (13, 14))
     assert ruler.length() == 5
     assert ruler.label() == "5.00 px · 2.50 µm"
-    assert panel._objects_view.ruler is ruler, "one line on every tab"
+    assert panel.views().canvas is view, "one canvas, one line on every view"
     endpoints = ruler.start, ruler.end
     view.zoom(2.0)
     assert ruler.length() == 5 and (ruler.start, ruler.end) == endpoints, (

@@ -57,6 +57,10 @@ from PySide6.QtWidgets import (
 from ..i18n import tr
 from ..job_runner import JobRunner
 from .sortable_table import install_sorting, table_item
+from .segmentation_views import (
+    CELLPROB, FLOWS, MASKS, OVERLAY, VIEWS, SegmentationViews,
+    picture_name_of, render_cellprob, render_labels,
+)
 from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
     LivePreviewContract, preview_failure_message,
@@ -101,6 +105,7 @@ __all__ = [
     "object_palette",
     "render_overlay",
     "render_objects",
+    "boxed_picture",
     "render_cellprob",
     "PlaqueOverlayDialog",
     "plaque_model_choices",
@@ -406,7 +411,11 @@ MAX_BOX_THICKNESS = 20
 AUTOMATIC_BOX_THICKNESS = 0
 """The box weight that means: pick one from the figure's size."""
 
-IMAGE_TABS = ("Overlay", "Objects", "Cell probability", "Flows")
+IMAGE_TABS = VIEWS
+"""The views of the plaque picture, the ones Mask generation's live preview
+offers: :data:`spacr.qt.widgets.segmentation_views.VIEWS`."""
+
+NO_PLAQUES = "No plaques were found in this image."
 
 OUTLINE_WEIGHT_HELP = (
     "The width of each plaque outline, in image pixels. It is drawn on the "
@@ -713,47 +722,18 @@ def render_overlay(rgb: np.ndarray, labels: np.ndarray,
 def render_objects(labels: Optional[np.ndarray]) -> Optional[np.ndarray]:
     """The label image alone, one colour per object on black.
 
+    Drawn by :func:`spacr.qt.widgets.segmentation_views.render_labels`, so a
+    plaque mask has the colours a Mask generation mask has.
+
     :param labels: a label image, 0 = background, or None.
     :returns: ``H x W x 3`` ``uint8``, or None when there is nothing to draw.
     """
     if labels is None:
         return None
-    labels = np.asarray(labels).astype(np.int64)
+    labels = np.asarray(labels)
     if labels.ndim != 2:
         return None
-    out = np.zeros(labels.shape + (3,), dtype=np.uint8)
-    where = labels > 0
-    if where.any():
-        out[where] = _per_pixel(labels, where, RANDOM_COLOUR)
-    return out
-
-
-def render_cellprob(cellprob: Optional[np.ndarray]) -> Optional[np.ndarray]:
-    """Cellpose's cell probability as a colour image.
-
-    Cellpose hands the probability back in logits; it is drawn as the
-    probability itself, 0 to 1 on a fixed scale, so two images can be
-    compared by eye and the ``CP_prob`` threshold (a logit) sits at the
-    colour of ``1 / (1 + e^-CP_prob)``.
-
-    :param cellprob: ``H x W`` logits, or None.
-    :returns: ``H x W x 3`` ``uint8`` on the ``magma`` scale, or None.
-    """
-    if cellprob is None:
-        return None
-    logits = np.asarray(cellprob, dtype=np.float32)
-    if logits.ndim != 2:
-        return None
-    prob = 1.0 / (1.0 + np.exp(-np.clip(logits, -30.0, 30.0)))
-    try:
-        from matplotlib import colormaps
-
-        rgba = colormaps["magma"](prob)
-        return np.ascontiguousarray(
-            (rgba[..., :3] * 255.0).round().astype(np.uint8))
-    except Exception:
-        grey = (prob * 255.0).round().astype(np.uint8)
-        return np.ascontiguousarray(np.stack([grey] * 3, axis=-1))
+    return render_labels(labels.astype(np.int64))
 
 
 def _match_image(array: Optional[np.ndarray], shape: Tuple[int, int]
@@ -1932,6 +1912,48 @@ class PlaqueModeSwitch(QWidget):
         return self._buttons[normalise_mode(mode)]
 
 
+def boxed_picture(rgb: np.ndarray, boxes: Sequence[Tuple[Any, bool]] = (),
+                  selected: Optional[int] = None,
+                  box_thickness: int = AUTOMATIC_BOX_THICKNESS) -> QPixmap:
+    """``rgb`` as a picture, with the numbered well boxes painted on it.
+
+    :param rgb: ``H x W x 3`` ``uint8``.
+    :param boxes: ``(region, approved)`` pairs, numbered from 1.
+    :param selected: the index of the box to highlight.
+    :param box_thickness: the boxes' line weight in image pixels, or
+        :data:`AUTOMATIC_BOX_THICKNESS`; see :func:`box_thickness_for`.
+        The highlighted box is drawn twice as wide.
+    :returns: the picture, at the image's own size.
+    """
+    rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
+    height, width = rgb.shape[:2]
+    image = QImage(rgb.data, width, height, 3 * width,
+                   QImage.Format_RGB888).copy()
+    pixmap = QPixmap.fromImage(image)
+    if boxes:
+        painter = QPainter(pixmap)
+        thickness = box_thickness_for(width, height, box_thickness)
+        font = QFont()
+        font.setBold(True)
+        font.setPixelSize(max(12, int(max(width, height) / 45)))
+        painter.setFont(font)
+        for number, (region, approved) in enumerate(boxes, start=1):
+            chosen = selected == number - 1
+            colour = BOX_SELECTED if chosen else (
+                BOX_OK if approved else BOX_WAITING)
+            rect = QRectF(region.x0, region.y0, region.width,
+                          region.height)
+            if chosen:
+                painter.fillRect(rect, QColor(0, 200, 255, 50))
+            painter.setPen(QPen(colour, thickness * (2 if chosen else 1)))
+            painter.drawRect(rect)
+            painter.drawText(region.x0 + thickness + 2,
+                             region.y0 + font.pixelSize() + thickness,
+                             str(number))
+        painter.end()
+    return pixmap
+
+
 class _ImageView(QLabel):
     """A native image with a modest initial scale and explicit user zoom/pan.
 
@@ -1978,8 +2000,44 @@ class _ImageView(QLabel):
         ruler.changed.connect(self.update)
 
     def array(self) -> Optional[np.ndarray]:
-        """The pixels last shown, before any box was painted, or None."""
+        """The pixels last shown, as ``H x W x 3`` ``uint8``, or None.
+
+        For a picture from :meth:`set_image` they are the pixels before any
+        box was painted; for one from :meth:`set_pixmap`, the picture's own.
+        """
         return self._array
+
+    def picture(self) -> Optional[QPixmap]:
+        """The picture shown, at its own resolution, or None."""
+        return self._pixmap
+
+    def picture_name(self) -> str:
+        """The name a saved copy of the picture is offered under."""
+        return getattr(self, "_picture_name", "") or "plaque_preview"
+
+    def set_picture_name(self, name: str) -> None:
+        """Name what the view shows, for the save dialog.
+
+        :param name: a file name without its suffix.
+        """
+        self._picture_name = str(name or "")
+
+    def set_pixmap(self, pixmap: Optional[QPixmap]) -> None:
+        """Show a finished picture, as :class:`SegmentationViews` hands it.
+
+        :param pixmap: the picture, or None to clear.
+        """
+        if pixmap is None or pixmap.isNull():
+            self.set_image(None)
+            return
+        image = pixmap.toImage().convertToFormat(QImage.Format_RGB888)
+        width, height = image.width(), image.height()
+        rows = np.array(image.constBits(), dtype=np.uint8, copy=True)
+        rows = rows[:image.bytesPerLine() * height].reshape(
+            height, image.bytesPerLine())
+        self._array = np.ascontiguousarray(
+            rows[:, :3 * width].reshape(height, width, 3))
+        self._show(pixmap)
 
     def show_message(self, text: str) -> None:
         """Show a line of text in place of a picture.
@@ -2013,39 +2071,20 @@ class _ImageView(QLabel):
             return
         rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
         self._array = rgb
+        self._show(boxed_picture(rgb, boxes, selected, box_thickness))
+
+    def _show(self, pixmap: QPixmap) -> None:
+        """Put ``pixmap`` up, keeping the zoom unless its size changed."""
         self.setAlignment(Qt.AlignCenter)
         self.setMargin(0)
-        height, width = rgb.shape[:2]
-        image = QImage(rgb.data, width, height, 3 * width,
-                       QImage.Format_RGB888).copy()
-        pixmap = QPixmap.fromImage(image)
-        if boxes:
-            painter = QPainter(pixmap)
-            thickness = box_thickness_for(width, height, box_thickness)
-            font = QFont()
-            font.setBold(True)
-            font.setPixelSize(max(12, int(max(width, height) / 45)))
-            painter.setFont(font)
-            for number, (region, approved) in enumerate(boxes, start=1):
-                chosen = selected == number - 1
-                colour = BOX_SELECTED if chosen else (
-                    BOX_OK if approved else BOX_WAITING)
-                rect = QRectF(region.x0, region.y0, region.width,
-                              region.height)
-                if chosen:
-                    painter.fillRect(rect, QColor(0, 200, 255, 50))
-                painter.setPen(QPen(colour, thickness * (2 if chosen else 1)))
-                painter.drawRect(rect)
-                painter.drawText(region.x0 + thickness + 2,
-                                 region.y0 + font.pixelSize() + thickness,
-                                 str(number))
-            painter.end()
-        changed_shape = self._pixmap is None or self._pixmap.size() != pixmap.size()
+        changed_shape = (self._pixmap is None
+                         or self._pixmap.size() != pixmap.size())
         self._pixmap = pixmap
         self.clear()
         if changed_shape or self._scale is None:
             self.fit_image(initial=True)
         self.update()
+
 
     def has_image(self) -> bool:
         """Whether an image is shown."""
@@ -2457,32 +2496,25 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._pictures_split = pictures
         self._view = _ImageView(self)
         self._view.clicked.connect(self._on_figure_clicked)
-        self._objects_view = _ImageView(self)
-        self._objects_view.setObjectName("PlaqueObjectsImage")
-        self._prob_view = _ImageView(self)
-        self._prob_view.setObjectName("PlaqueCellprobImage")
-        self._flow_view = _ImageView(self)
-        self._flow_view.setObjectName("PlaqueFlowsImage")
-        self._image_tabs = QTabWidget(self)
-        self._image_tabs.setObjectName("PlaqueImageTabs")
-        tips = (tr("The image with the plaques drawn over it. Right-click "
-                   "for outlines or a filled overlay, colour, thickness and "
-                   "opacity.") + " " + tr("The line weight of the well "
-                                          "boxes is set there too."),
-                tr("The plaque mask alone, one colour per plaque."),
-                tr("Cellpose's cell probability, 0 to 1."),
-                tr("Cellpose's flow field: direction as hue, strength as "
-                   "brightness."))
-        for index, (view, title) in enumerate(zip(
-                (self._view, self._objects_view, self._prob_view,
-                 self._flow_view), IMAGE_TABS)):
-            self._image_tabs.addTab(view, tr(title))
-            self._image_tabs.setTabToolTip(index, tips[index])
-            view.context_requested.connect(self._on_view_context)
-            if view is not self._view:
-                view.share_ruler(self._view.ruler)
+        self._view.context_requested.connect(self._on_view_context)
+        self._overlay_source: Dict[str, Any] = {"rgb": None}
+        self._views = SegmentationViews(self, canvas=self._view)
+        self._views.setObjectName("PlaqueImageViews")
+        self._views.set_renderer(OVERLAY, self._render_overlay_view)
+        self._views.set_renderer(MASKS, self._render_masks_view)
+        self._view_selector = self._views.make_selector(self)
+        self._view_selector.setObjectName("PlaqueViewSelector")
+        self._view_selector.setToolTip(" ".join(
+            [tr("The image with the plaques drawn over it. Right-click "
+                "for outlines or a filled overlay, colour, thickness and "
+                "opacity.") + " " + tr("The line weight of the well "
+                                       "boxes is set there too."),
+             tr("The plaque mask alone, one colour per plaque."),
+             tr("Cellpose's flow field: direction as hue, strength as "
+                "brightness."),
+             tr("Cellpose's cell probability, 0 to 1.")]))
         self._sections = {}
-        pictures.add_pane(self._image_tabs, "Image", stretch=3)
+        pictures.add_pane(self._views, "Image", stretch=3)
         self._well_side = QWidget(self)
         side = QVBoxLayout(self._well_side)
         side.setContentsMargins(0, 0, 0, 0)
@@ -2500,10 +2532,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         picture_col = QVBoxLayout(picture_host)
         picture_col.setContentsMargins(0, 0, 0, 0)
         zoom_row = QHBoxLayout()
+        zoom_row.addWidget(self._view_selector)
         for title, action in (
-                (tr("−"), lambda: self._image_tabs.currentWidget().zoom(1/1.2)),
-                (tr("+"), lambda: self._image_tabs.currentWidget().zoom(1.2)),
-                (tr("Fit image"), lambda: self._image_tabs.currentWidget().fit_image())):
+                (tr("−"), lambda: self._view.zoom(1/1.2)),
+                (tr("+"), lambda: self._view.zoom(1.2)),
+                (tr("Fit image"), lambda: self._view.fit_image())):
             button = QPushButton(title)
             button.clicked.connect(action)
             zoom_row.addWidget(button)
@@ -2825,9 +2858,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if dialog is not None:
             dialog.show_mode(mode)
         self._tabs.setVisible(figure)
-        self._image_tabs.tabBar().setVisible(not figure)
+        self._view_selector.setVisible(not figure)
         if figure:
-            self._image_tabs.setCurrentIndex(0)
+            self._views.set_view(OVERLAY)
         self._plaque_result = None
         self._well_side.setVisible(figure)
         self._well_btn.setVisible(figure)
@@ -2846,7 +2879,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._install_btn.setVisible(True)
         if self._figure is not None and not figure:
             self._clear_figure()
-        self._view.set_image(None)
+        self._show_overlay(None)
         self._show_selected_image()
 
     def open_settings(self, tab: Optional[str] = None) -> "PlaqueSettingsDialog":
@@ -2922,7 +2955,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._legend_box.hide()
             self.set_preview_status(tr("No images found in {path}.",
                                        path=self._src))
-            self._view.set_image(None)
+            self._show_overlay(None)
             self._position.setText("")
             return
         self._picker.setCurrentIndex(0)
@@ -2966,7 +2999,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._load_jobs.submit(
             lambda: load_display_image(path),
             lambda rgb, t=token: t == self._load_token
-            and self._view.set_image(rgb))
+            and self._show_overlay(rgb))
 
     def apply_settings(self, settings: Dict[str, Any]) -> None:
         """Seed every control from the module's settings.
@@ -3303,56 +3336,87 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 self._show_well(self._selected)
 
     def _show_plaque_tabs(self) -> None:
-        """Fill the Overlay, Objects, Cell probability and Flows tabs.
+        """Hand the run's arrays to the four views: overlay, masks, flows
+        and cell probability.
 
-        Before a run, and for a run that gave no flows, a tab says what is
-        missing instead of staying blank. The Overlay tab keeps the plain
-        image until there is something to draw on it.
+        The drawing is :class:`SegmentationViews`', the widget Mask
+        generation's live preview shows its run with, so both previews name
+        the views alike, colour masks and probability alike and say alike
+        what a run did not give. Only the overlay is the plaque preview's
+        own: it carries the outline or fill style and the well boxes. Before
+        a run the overlay keeps the plain image.
         """
         result = self._plaque_result
         if result is None:
-            waiting = tr("Press Run preview to see this.")
-            for view in (self._objects_view, self._prob_view,
-                         self._flow_view):
-                view.show_message(waiting)
+            self._views.set_arrays()
             return
         image = result.get("image")
         labels = result.get("labels")
         if image is not None and labels is not None:
-            self._view.set_image(render_overlay(
-                np.array(image, dtype=np.uint8, copy=True), labels,
-                self._overlay_style))
+            overlay = render_overlay(np.array(image, dtype=np.uint8,
+                                              copy=True),
+                                     labels, self._overlay_style)
         else:
-            self._view.set_image(result.get("overlay"))
-        objects = render_objects(labels)
-        if objects is None:
-            self._objects_view.show_message(tr("This run gave no mask."))
-        elif not np.any(np.asarray(labels) > 0):
-            self._objects_view.show_message(tr(
-                "No plaques were found in this image."))
-        else:
-            self._objects_view.set_image(objects)
-        prob = render_cellprob(result.get("cellprob"))
-        if prob is None:
-            self._prob_view.show_message(tr(
-                "This run gave no cell probability map."))
-        else:
-            self._prob_view.set_image(prob)
-        flows = result.get("flow_rgb")
-        if flows is None:
-            self._flow_view.show_message(tr("This run gave no flows."))
-        else:
-            self._flow_view.set_image(flows)
+            overlay = result.get("overlay")
+        self._overlay_source = {"rgb": overlay}
+        self._views.set_arrays(image=image, labels=labels,
+                               flows=result.get("flow_rgb"),
+                               cellprob=result.get("cellprob"))
+
+    def _show_overlay(self, rgb: Optional[np.ndarray],
+                      boxes: Sequence[Tuple[Any, bool]] = (),
+                      selected: Optional[int] = None) -> None:
+        """Make ``rgb`` the overlay view's picture, with the well boxes.
+
+        :param rgb: ``H x W x 3`` ``uint8``, or None for nothing yet.
+        :param boxes: ``(region, approved)`` pairs, numbered from 1.
+        :param selected: the index of the box to highlight.
+        """
+        self._overlay_source = {"rgb": rgb, "boxes": list(boxes),
+                                "selected": selected}
+        if rgb is None:
+            self._view.set_image(None)
+        if self._views.view() == OVERLAY:
+            self._views.refresh()
+
+    def _render_overlay_view(self, _arrays: Any) -> Optional[QPixmap]:
+        """The overlay view: the picture with plaques and boxes drawn in."""
+        source = self._overlay_source
+        rgb = source.get("rgb")
+        if rgb is None:
+            return None
+        return boxed_picture(rgb, source.get("boxes") or (),
+                             source.get("selected"),
+                             self._overlay_style.box_thickness)
+
+    def _render_masks_view(self, arrays: Any) -> Any:
+        """The masks view, saying so when the run found no plaque."""
+        labels = arrays.get("labels") or {}
+        if labels and not any(np.any(mask > 0) for mask in labels.values()):
+            return tr(NO_PLAQUES)
+        if not labels:
+            return None
+        return render_labels(labels)
+
+    def views(self) -> SegmentationViews:
+        """The four views of the preview picture."""
+        return self._views
 
     def overlay_menu(self) -> QMenu:
         """The right-click menu of the preview images.
 
         :returns: a menu with Outlines / Filled overlay, a random-colour
-            toggle for whichever is shown, and the full overlay settings.
+            toggle for whichever is shown, and the full overlay settings,
+            then Save picture. On the masks, flows and cell probability
+            views, which carry no outline, only Save picture.
         """
         style = self._overlay_style
         menu = QMenu(self)
         menu.setObjectName("PlaqueOverlayMenu")
+        if self._menu_view is not self._well_view \
+                and self._views.view() != OVERLAY:
+            self._add_save_action(menu)
+            return menu
         group = QActionGroup(menu)
         group.setExclusive(True)
         for display, label in ((OVERLAY_OUTLINES, tr("Outlines")),
@@ -3377,11 +3441,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         settings.setObjectName("PlaqueOverlaySettings")
         settings.triggered.connect(lambda _checked=False:
                                    self.open_overlay_settings())
+        self._add_save_action(menu)
+        return menu
+
+    def _add_save_action(self, menu: QMenu) -> None:
+        """Put Save picture on ``menu``."""
         save = menu.addAction(tr("Save picture…"))
         save.setObjectName("PlaqueSavePicture")
         save.setToolTip(tr(SAVE_PICTURE_HELP))
         save.triggered.connect(lambda _checked=False: self.save_picture())
-        return menu
 
     def _set_display(self, display: str) -> None:
         """Switch between outlines and a filled overlay."""
@@ -3426,17 +3494,22 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         :param path: where to write; None asks.
         :param view: the picture to save; None means the one last
-            right-clicked, else the shown tab.
+            right-clicked, else the view shown in the image pane.
         :returns: the path written, or None when nothing was written.
         """
-        view = view or self._menu_view or self._image_tabs.currentWidget()
-        pixmap = getattr(view, "_pixmap", None)
+        view = view or self._menu_view or self._view
+        if view is self._view:
+            pixmap = self._views.picture()
+            name = f"plaque_{self._views.picture_name()}.png"
+        else:
+            pixmap = getattr(view, "_pixmap", None)
+            name = "plaque_preview.png"
         if pixmap is None or pixmap.isNull():
             self.set_preview_status(tr("There is no picture to save yet."))
             return None
         if not path:
             path, _selected = QFileDialog.getSaveFileName(
-                self, tr("Save picture"), "plaque_preview.png",
+                self, tr("Save picture"), name,
                 tr("Pictures") + " (*.png *.tif *.tiff *.jpg);;"
                 + tr("All files") + " (*)")
             if not path:
@@ -3689,7 +3762,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         return self._ruler_btn.isChecked()
 
     def _rulers(self) -> Tuple[Any, Any]:
-        """The figure's ruler, shared by the four tabs, and the well crop's."""
+        """The image pane's ruler, on all four views, and the well crop's."""
         return (self._view.ruler, self._well_view.ruler)
 
     def _on_ruler_toggled(self, on: bool) -> None:
@@ -3750,10 +3823,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if result is None:
             return
         ticks = [self._row_ok(i) for i in range(len(self._annotations))]
-        self._view.set_image(result["overlay"],
-                             list(zip(result["regions"], ticks)),
-                             selected=self._selected,
-                             box_thickness=self._overlay_style.box_thickness)
+        self._show_overlay(result["overlay"],
+                           list(zip(result["regions"], ticks)),
+                           selected=self._selected)
 
     def _fill_table(self) -> None:
         """One row per plaque image.

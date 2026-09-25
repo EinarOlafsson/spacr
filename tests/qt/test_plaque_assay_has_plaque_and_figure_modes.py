@@ -814,36 +814,53 @@ def _overlay(panel):
     return panel._view.array()
 
 
-def test_the_image_has_four_tabs_in_order(panel):
-    tabs = panel._image_tabs
-    assert [tabs.tabText(i) for i in range(tabs.count())] == [
-        "Overlay", "Objects", "Cell probability", "Flows"]
-    assert tabs.currentIndex() == 0
-    assert tabs.widget(0) is panel._view
+def _shown(panel, view):
+    """Switch the image pane to ``view``; the picture's pixels or sentence."""
+    views = panel.views()
+    views.set_view(view)
+    if views.is_showing_message():
+        return views.message_text()
+    return panel._view.array()
 
 
-def test_tabs_without_data_say_so_instead_of_staying_blank(
+def test_the_image_offers_the_four_views_of_mask_generation(panel):
+    from spacr.qt.widgets import segmentation_views as sv
+
+    selector = panel._view_selector
+    assert [selector.itemData(i) for i in range(selector.count())] == [
+        "Overlay", "Masks", "Flows", "Cell probability"]
+    assert list(ppv.IMAGE_TABS) == list(sv.VIEWS)
+    assert isinstance(panel.views(), sv.SegmentationViews)
+    assert panel.views().view() == "Overlay"
+    assert panel.views().canvas is panel._view
+
+
+def test_views_without_data_say_so_instead_of_staying_blank(
         panel, tmp_path, fresh_style):
     _flat_png(tmp_path / "a.png")
     panel.load_source_async(str(tmp_path))
-    for view in (panel._objects_view, panel._prob_view, panel._flow_view):
-        assert view.text() == "Press Run preview to see this."
+    for view in ("Masks", "Flows", "Cell probability"):
+        assert _shown(panel, view) == "Press Run preview to see this."
+    panel.views().set_view("Overlay")
     assert panel.run_preview(segment=lambda p: _square())
-    assert panel._objects_view.array() is not None
-    assert panel._prob_view.text() == "This run gave no cell probability map."
-    assert panel._flow_view.text() == "This run gave no flows."
+    assert _shown(panel, "Masks") is not None
+    assert not panel.views().is_showing_message()
+    assert _shown(panel, "Cell probability") == (
+        "This run gave no cell probability map.")
+    assert _shown(panel, "Flows") == "This run gave no flows."
 
 
-def test_the_tabs_show_the_mask_cellprob_and_flows_of_the_run(ran):
-    objects = ran._objects_view.array()
+def test_the_views_show_the_mask_cellprob_and_flows_of_the_run(ran):
+    objects = _shown(ran, "Masks")
     assert objects.shape == (60, 60, 3)
     assert not objects[0, 0].any(), "background is black, no image"
     assert objects[20, 20].any() and objects[40, 45].any()
     assert tuple(objects[20, 20]) != tuple(objects[40, 45]), (
         "one colour per object")
-    prob = ran._prob_view.array()
+    prob = _shown(ran, "Cell probability")
     assert prob[20, 20].sum() > prob[0, 0].sum(), "high probability is bright"
-    assert (ran._flow_view.array() == _fake_flows()["flow_rgb"]).all()
+    assert (_shown(ran, "Flows") == _fake_flows()["flow_rgb"]).all()
+    ran.views().set_view("Overlay")
 
 
 def test_the_default_overlay_is_the_yellow_outline(ran):
@@ -884,7 +901,8 @@ def test_a_real_right_click_event_reaches_the_menu(ran, monkeypatch):
                         staticmethod(lambda menu, pos: shown.append(pos)))
     event = QContextMenuEvent(QContextMenuEvent.Mouse, QPoint(3, 3),
                               QPoint(30, 40))
-    ran._objects_view.contextMenuEvent(event)
+    ran.views().set_view("Masks")
+    ran._view.contextMenuEvent(event)
     assert shown == [QPoint(30, 40)]
 
 
@@ -976,7 +994,8 @@ def test_figure_mode_draws_wells_in_the_chosen_style(panel, tmp_path,
     from dataclasses import replace
 
     _figure_panel(panel, tmp_path)
-    assert not panel._image_tabs.tabBar().isVisibleTo(panel)
+    assert not panel._view_selector.isVisibleTo(panel)
+    assert panel.views().view() == "Overlay"
     panel.select_well(0)
     assert panel.preview_selected_well(segment=_segment_crop)
     crop = panel._well_view.array()
