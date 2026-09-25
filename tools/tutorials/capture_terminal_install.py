@@ -124,6 +124,16 @@ def steps(route, version, phase):
                 ('run', 'conda activate spacr-conda'), ('run', 'conda list spacr', 300),
                 ('evidence', 'recreated_environment'),
             ]
+        if phase == 'relaunch':
+            # conda-forge's 1.5.0.8 follows the system theme, which is light on
+            # the private display. The Dark choice its Theme slide offers is
+            # made off camera with spaCR's own preference call, then the
+            # second launch opens Home.
+            return [
+                ('quiet', 'conda activate spacr-conda'),
+                ('quiet', 'python -c "from spacr.qt.preferences import set_theme; set_theme(\'dark\')"'),
+                ('clear',), ('gui', 'spacr', None, '06_installed_home'),
+            ]
         if phase == 'update':
             return [
                 ('quiet', 'conda activate spacr-conda'),
@@ -627,7 +637,7 @@ def main():
     parser.add_argument('--version', default='1.5.1.0', help='Release expected from the route')
     parser.add_argument('--capture-name')
     parser.add_argument('--phase', choices=('install', 'recreate', 'reinstall', 'update', 'resume', 'relist',
-                                            'gpu'),
+                                            'relaunch', 'gpu'),
                         default='install',
                         help='install/update: CUDA hidden, no GPU turn. gpu: inside tools/gpu_turn.sh')
     parser.add_argument('--installation', type=Path,
@@ -709,6 +719,11 @@ def main():
         started = time.time()
         result = subprocess.run(command, env=env, timeout=8 * 3600)
         shutil.copyfile(ctl / 'transcript.log', capture / f'transcript.{args.phase}.log')
+        if args.phase == 'relaunch':
+            provenance['application_preferences_modified'] = True
+            provenance['preference_choices'] = dict(
+                theme='dark', how='spacr.qt.preferences.set_theme in the private home, the choice '
+                'the first-launch Theme slide offers; 1.5.0.8 otherwise follows the light system theme')
         provenance['phases'][args.phase] = dict(returncode=result.returncode, cuda_visible=args.phase == 'gpu',
                                                 gpu_turn=args.phase == 'gpu', started=started,
                                                 seconds=round(time.time() - started))
