@@ -1,7 +1,7 @@
 Classifier evaluation workbench
 ===============================
 
-Classifier cross-validation now retains every out-of-fold probability instead
+Classifier cross-validation retains every out-of-fold probability instead
 of reducing a fold to one accuracy number. The workbench has no tile of its
 own: it opens from the **Classify** masthead, because judging a classifier is
 the sentence after training one. Press **Classifier Evaluation** there and
@@ -119,8 +119,9 @@ The Python entry points are
 Orientation stability during inference
 ------------------------------------------
 
-In **Classify → Classify CV**, the **Test-time augmentation** settings apply
-selected rotations and reflections when scoring phenotype crops. This is an
+In **Classify**, with ``classifier_family`` set to ``cv``, the **Test-time
+augmentation** settings apply selected rotations and reflections when scoring
+phenotype crops. This is an
 inference option; it does not change training augmentation or the held-out
 evaluation procedure described above. Leave it disabled when orientation is
 biologically meaningful.

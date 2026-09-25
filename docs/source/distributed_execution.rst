@@ -4,8 +4,7 @@ Remote and distributed execution
 spaCR can submit any module exposed by ``spacr-run`` to another workstation,
 a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote
 system when the spaCR GUI closes. Their identifiers, status, settings hashes
-and latest logs are stored locally and appear in **Data & batch → Distributed
-Jobs**.
+and latest logs are stored locally and appear in **Help → Distributed Jobs**.
 
 Execution profiles
 ------------------
