@@ -205,7 +205,6 @@
     }
   },
   "app_notes": [
-    "Run prints \"[settings] ERROR [src]: src is missing from the settings\" for OPS, which has no src; the run completes. Visible in scene 10.",
     "Load test data rewrites settings/ops_settings.csv with the local paths (dataset placeholder), so that file differs from the archive manifest by design.",
     "The first run downloads the 1.15 GB cpsam weights; its progress lines are in the console of scene 11 context."
   ],
@@ -225,5 +224,32 @@
     "verify_staged_lesson --sentence-cues passed",
     "verify_staged_lesson --web-rendition passed (2560x1440)"
   ],
-  "published": false
+  "published": false,
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "release-candidate-append-31kkmyz_",
+    "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+    "tag": "tutorials-hosted-20260925-31kkmyz_",
+    "readback_files": 650,
+    "web_copy_hosted_on_media_revision": true,
+    "narration": "English af_heart only; other voices fall back to English",
+    "all_ready_local_and_hosted_playback": true
+  },
+  "item_520_update": {
+    "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/ops_walkthrough_520",
+    "commit": "a6868d6096bde0d3addbf5660156feb057310e8a",
+    "note": "Scene 10 retaken on item-520 code: a real Run press whose live console shows the stitch line and no false src error; the process ended after the frame. All other frames and the completed run are reused from ops_current_walkthrough.",
+    "media": {
+      "master_sha256": "62a06f623f7154109e01418a81ca8b9f77e782df1abf819b7e4b56134077f37f",
+      "web_sha256": "6818113ae82f58c75192d9429d4180b4cd37eac2f32f5fff11648ab2382ed1ce",
+      "web_bytes": 7204723,
+      "audio_sha256": "5257b1e4e70fd290402ac8863345f774529f702027a4597085be35cef204d77c"
+    },
+    "checks": [
+      "check_current_english_tracks passed",
+      "verify_staged_lesson --sentence-cues passed",
+      "verify_staged_lesson --web-rendition passed"
+    ],
+    "scene_10_console": "Downloading the test data into /tmp/spacr-tutorials/profile/.cache/spacr/example_data/ops_screen\nOPS test data ready: /tmp/spacr-tutorials/profile/.cache/spacr/example_data/ops_screen\n→ Starting ops (run_ops) with src=None + 16 settings…\nRecording reproducibility input hashes…\nReproducibility manifest: /tmp/spacr-tutorials/profile/.spacr/runs/2026-09-25_195722_82ef960e__ops\nOPS: A1 stitch: 2 of 333 placed  1/1 edges  residual median 0.00 px  max 0.00 px  canvas 2,747 x 1,489 (layout says 26,820 x 26,820); 2 of 2 in the solved component, 2.8 s\n"
+  }
 }

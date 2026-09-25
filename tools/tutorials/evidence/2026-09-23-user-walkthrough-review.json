@@ -179,8 +179,8 @@
     },
     {
       "lesson": "02_conda_install",
-      "english_sha256": "70777f35eb490577823324653b0995324654a76cef065b6385edb80ef9584eb9",
-      "scene_count": 8,
+      "english_sha256": "bd6c60f01901809050a21eef5511d84dba6220200285260e3aec4a1faab042ed",
+      "scene_count": 9,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
@@ -205,7 +205,7 @@
     },
     {
       "lesson": "03_pip_install",
-      "english_sha256": "0f755b354cf2ffe14f5d1a0bcff3c65342a26fe3ac7353378f67d9d9dfa581fe",
+      "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
@@ -231,7 +231,7 @@
     },
     {
       "lesson": "04_platform_installers",
-      "english_sha256": "147f79a79b8516b8e5be04425967630fc128c880a595362640e07088e537ca0d",
+      "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
       "scene_count": 10,
       "source_revised": true,
       "newly_authored": false,
@@ -557,7 +557,7 @@
     },
     {
       "lesson": "17_timelapse",
-      "english_sha256": "a0f1cb83e9d50282cf63fbccfa9af8c250b876621bae84f1b7482b0d5e6146af",
+      "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
@@ -2069,7 +2069,7 @@
     },
     {
       "lesson": "76_ops",
-      "english_sha256": "0751f2a4314ddf45f67d2cf4cf8c8bd91174326c7f28a4ae3c234a015ea929a2",
+      "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
@@ -2090,7 +2090,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {

@@ -1697,6 +1697,26 @@ def _segment_plaque_folder(settings, model_path):
     return len(names)
 
 
+def _add_figure_summaries(total, part):
+    """Add one paper's Figure-mode summary to the run's.
+
+    Several papers read at once are measured one folder after another into
+    one database (item 526); their counts add up, and the run keeps the
+    first folder's ``run_id`` and database.
+
+    :param total: the summary so far.
+    :param part: the next folder's summary.
+    :returns: ``total``, with ``part``'s counts added.
+    """
+    for key, value in part.items():
+        if key == 'run_id' or isinstance(value, bool):
+            continue
+        if isinstance(value, (int, float)) and isinstance(
+                total.get(key), (int, float)):
+            total[key] += value
+    return total
+
+
 def _analyze_plaque_figures(settings, model_path):
     """Plaque Assay's Figure mode: published figures in, annotated plaques out.
 
@@ -1718,18 +1738,22 @@ def _analyze_plaque_figures(settings, model_path):
                   if part.strip())
     read_text = None if settings.get('figure_read_text', True) else (
         lambda _path: [])
-    summary = plaque_papers.measure_figure_folder(
-        settings['src'], os.path.join(settings['src'], 'plaque_figures'),
-        detector=str(settings.get('figure_detector')
-                     or plaque_papers.DEFAULT_DETECTOR),
-        segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
-        confidence=float(settings.get('figure_confidence', 0.25)),
-        confirm_each=bool(settings.get('confirm_annotations', False)),
-        plate_format=settings.get('plate_format'),
-        pixels_per_um=settings.get("plaque_pixels_per_um"),
-        formation_hours=settings.get("plaque_formation_hours"),
-        growth_settings=settings, read_text=read_text,
-        text_options=plaque_papers.text_options_from_settings(settings))
+    summary = None
+    for folder in plaque_papers.figure_folders(settings['src']):
+        part = plaque_papers.measure_figure_folder(
+            folder, os.path.join(settings['src'], 'plaque_figures'),
+            detector=str(settings.get('figure_detector')
+                         or plaque_papers.DEFAULT_DETECTOR),
+            segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
+            confidence=float(settings.get('figure_confidence', 0.25)),
+            confirm_each=bool(settings.get('confirm_annotations', False)),
+            plate_format=settings.get('plate_format'),
+            pixels_per_um=settings.get("plaque_pixels_per_um"),
+            formation_hours=settings.get("plaque_formation_hours"),
+            growth_settings=settings, read_text=read_text,
+            text_options=plaque_papers.text_options_from_settings(settings))
+        summary = part if summary is None else _add_figure_summaries(
+            summary, part)
     print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
           f"plaque image(s), {summary['plaques']} plaque(s) -> "
           f"{summary['database']}")

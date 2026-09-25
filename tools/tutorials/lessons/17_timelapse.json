@@ -35,13 +35,13 @@
     },
     {
       "visual": "09_actual_track_preview",
-      "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+      "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
       "hold_after": 0.7,
       "focus": [
         360,
         230,
-        3460,
-        1760
+        3480,
+        1900
       ]
     },
     {
