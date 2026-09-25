@@ -73,6 +73,13 @@ def flood_region(image: np.ndarray, seed_x: int, seed_y: int,
     ``tolerance`` -- absolute difference on a grey image, Euclidean
     distance across channels on a colour one -- and it is reachable from
     the seed through four-connected steps. Both rules are
+    :func:`spacr.qt.mask_engine.magic_wand`'s, so the region this returns
+    is the region that wand would fill given no pixel budget.
+
+    Uncapped on purpose: the runaway detector has to see how far the leak
+    went to recognise it as one. A flood truncated at the budget looks
+    like a large compact object, which is exactly what a leak is not.
+
     :param image: 2-D greyscale image, or a colour image with channels last;
         pixel values are compared as float32.
     :param seed_x: column of the click in pixels; a seed outside the image
@@ -81,12 +88,6 @@ def flood_region(image: np.ndarray, seed_x: int, seed_y: int,
     :param tolerance: largest distance from the seed's value a pixel may have
         and still join, in the image's intensity units; negative values count
         as 0.
-    :func:`spacr.qt.mask_engine.magic_wand`'s, so the region this returns
-    is the region that wand would fill given no pixel budget.
-
-    Uncapped on purpose: the runaway detector has to see how far the leak
-    went to recognise it as one. A flood truncated at the budget looks
-    like a large compact object, which is exactly what a leak is not.
     """
     from skimage.segmentation import flood as _sk_flood
 
@@ -419,17 +420,18 @@ def magic_wand(image: np.ndarray, mask: np.ndarray, seed_x: int, seed_y: int,
 
     Writes 255 where the region landed for ``action="add"`` and 0 for
     ``action="erase"``, matching
+    :func:`spacr.qt.mask_engine.magic_wand`, and returns the report beside
+    the new mask. A rejected flood leaves the mask untouched.
+
     :param image: 2-D greyscale image, or a colour image with channels last;
         pixel values are compared as float32. None returns ``mask`` unchanged
         with a rejected report.
-    :param mask: 2-D mask of shape (H, W) that is copied and written
-        into; None is returned as is with a rejected report.
+    :param mask: 2-D mask of shape (H, W) that is copied and written into;
+        None is returned as is with a rejected report.
     :param seed_x: column of the click in pixels.
     :param seed_y: row of the click in pixels.
     :param tolerance: flood tolerance in the image's intensity units, as in
         :func:`flood_region`.
-    :func:`spacr.qt.mask_engine.magic_wand`, and returns the report beside
-    the new mask. A rejected flood leaves the mask untouched.
     """
     if mask is None or image is None:
         return mask, {"flooded_px": 0, "kept_px": 0, "cuts": [],

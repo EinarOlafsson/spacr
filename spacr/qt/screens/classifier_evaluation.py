@@ -811,9 +811,6 @@ class ClassifierEvaluationScreen(QWidget):
         """Route one half of the open cell to whatever shows crops.
 
         Nothing here imports Annotate: the request travels through
-        :param which: ``"high"`` for the confident (sure and wrong) half of the
-            open cell or ``"low"`` for the unconfident half; a value the cell
-            rejects is reported in the status line.
         :func:`spacr.qt.linked_selection.open_objects`, so a second
         destination added later needs no change in this file.
 
@@ -821,6 +818,9 @@ class ClassifierEvaluationScreen(QWidget):
         show *why* this order, and the threshold so it can say where the split
         was made.
 
+        :param which: ``"high"`` for the confident (sure and wrong) half of the
+            open cell or ``"low"`` for the unconfident half; a value the cell
+            rejects is reported in the status line.
         :returns: whatever the opener returned, or ``None`` when there was
             nothing to open or nowhere to open it.
         """

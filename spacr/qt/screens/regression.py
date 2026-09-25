@@ -712,8 +712,6 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Regression's fold strip on ``screen``'s masthead.
 
     Built here rather than through
-    :param screen: app screen whose masthead receives the strip; it must have
-        ``app_key`` ``"regression"`` and a ``_header`` with ``add_trailing``.
     :func:`spacr.qt.screens.map_barcodes.install_fold_strip` because one of
     the three buttons does not open a window: the Hits button raises a tab
     on the screen the user is already looking at.
@@ -722,6 +720,8 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     fold buttons is a smaller screen, while an exception raised here would
     be no regression screen at all.
 
+    :param screen: app screen whose masthead receives the strip; it must have
+        ``app_key`` ``"regression"`` and a ``_header`` with ``add_trailing``.
     :returns: the strip, or None when this screen cannot carry one -- it is
         not the host, it has no masthead, or one is already installed.
     """

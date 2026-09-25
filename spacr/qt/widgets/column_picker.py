@@ -277,13 +277,14 @@ class SchemaReader:
         exists to avoid), and then ``int('r16')`` raised ``ValueError``,
         which is not a ``sqlite3.Error`` and so escaped the caller's
         handler into the Qt event loop. :mod:`spacr.predictions`,
-        :param table: name of the table or view; it is quoted as an identifier.
         :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a
         comment about this shadowing; this method had not got the memo.
 
         The remaining spellings are tried in turn for the pathological
         table that declares ``_rowid_`` as well, and a value that will not
         convert is treated as a shadowed column rather than as an answer.
+
+        :param table: name of the table or view; it is quoted as an identifier.
         """
         for alias in ROWID_ALIASES:
             try:
@@ -1364,13 +1365,14 @@ def chip_editor(field: Optional[QWidget]) -> Optional[QWidget]:
     """Return ``field`` when it is a chip-strip list editor, else ``None``.
 
     Duck-typed on purpose: the editor lives in
-    :param field: the widget to test, or None; line edits and combo boxes
-        always yield None.
     :mod:`spacr.qt.screens.settings_model` and importing a *screen* from a
     *widget* would invert the dependency (and, in practice, cycle). The test
     is "not a text field, but speaks ``get_value``/``set_value``" — the
     settings screen's ``_ScalarEdit`` and ``_ListEdit`` speak those too, but
     they are ``QLineEdit`` subclasses and are caught by the branch above.
+
+    :param field: the widget to test, or None; line edits and combo boxes
+        always yield None.
     """
     if field is None or isinstance(field, (QLineEdit, QComboBox)):
         return None

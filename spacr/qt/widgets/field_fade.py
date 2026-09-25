@@ -317,10 +317,11 @@ def field_fade_qss(palette: dict, opacity: Optional[float] = None) -> str:
     Signature is :func:`spacr.qt.theme.register_widget_qss`'s contract;
     neither argument is used, and that is the point — a field is exempt
     from ``opacity``, and its colours come from
-    :param palette: the theme palette passed by
-        :func:`spacr.qt.theme.register_widget_qss`; unused.
     :func:`spacr.qt.theme.field_chrome` at paint time so they survive a
     theme switch without the stylesheet having baked them in.
+
+    :param palette: the theme palette passed by
+        :func:`spacr.qt.theme.register_widget_qss`; unused.
     """
     if not field_fade_enabled():
         return ""

@@ -231,9 +231,10 @@ class PCAScreen(QWidget):
         table to read.
 
         Returns as soon as the read is dispatched;
+        :meth:`_on_frame_loaded` finishes on the GUI thread.
+
         :param path: CSV, TSV or TXT file, or a SQLite measurement database
             whose table names fill the table picker.
-        :meth:`_on_frame_loaded` finishes on the GUI thread.
         """
         self._path = path
         names: List[str] = []

@@ -284,7 +284,6 @@ def candidate_features(frame: pd.DataFrame,
     """Every numeric column that is a measurement, minus the label.
 
     **Not** ``column_kinds() == CONTINUOUS``, and the difference matters.
-    :param frame: measurement table whose columns are screened.
     :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a
     numeric column with twelve or fewer distinct values a *category*, which is
     the right rule for deciding whether to offer a slider or a tick list — and
@@ -301,6 +300,8 @@ def candidate_features(frame: pd.DataFrame,
     included too, deliberately: if ``plateID`` ranks near the top, the classes
     are separated by which plate they were on, and that is the most useful
     thing this screen can tell anyone.
+
+    :param frame: measurement table whose columns are screened.
     """
     kinds = column_kinds(frame)
     out = []
@@ -916,13 +917,14 @@ def distributions(frame: pd.DataFrame, feature: str, label: str, *,
 
     The edges are computed over **every** class together, so the per-class
     histograms are comparable — the same rule
+    :func:`spacr.qt.widgets.graph_spec.scales_for` applies to facets, and for
+    the same reason.
+
     :param frame: measurement table holding both columns.
     :param feature: column to histogram; values that are not numeric count as
         missing, and an all-missing column gives empty edges and no counts.
     :param label: class column that splits the rows; :class:`ExplorerError` is
         raised when it is absent or has fewer than two classes.
-    :func:`spacr.qt.widgets.graph_spec.scales_for` applies to facets, and for
-    the same reason.
     """
     values = pd.to_numeric(frame[feature], errors="coerce").to_numpy(float)
     keys, levels = _class_levels(frame, label)
