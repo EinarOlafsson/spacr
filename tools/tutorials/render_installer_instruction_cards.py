@@ -14,37 +14,47 @@ from stage_lesson import DEFAULT_STAGE, REPO, read, write
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capture-name', required=True)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--version', default='1.5.0.5',
+                        help='Release the verified installation and the cards describe')
+    parser.add_argument('--cards', default='09_windows_guidance,10_macos_guidance,'
+                        '11_linux_commands,12_logs_and_versions',
+                        help='Comma-separated subset of cards to render')
+    parser.add_argument('--release-capture', default='installation_sources_centred_elements',
+                        help='Capture folder holding the genuine 04_github_current_assets frame')
     args = parser.parse_args()
     if Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}:
         parser.error('Choose one private capture directory name')
-    capture = DEFAULT_STAGE / 'captures' / args.capture_name
+    stage = args.stage.resolve()
+    version = args.version
+    capture = stage / 'captures' / args.capture_name
     provenance = read(capture / 'provenance.json')
-    if not provenance.get('completed_capture') or provenance['installed_identity']['version'] != '1.5.0.5':
+    if not provenance.get('completed_capture') or provenance['installed_identity']['version'] != version:
         raise ValueError('The real public-installer verification must finish first')
-    style_path = DEFAULT_STAGE.parent / 'tools/render_install_keyframes.py'
+    style_path = DEFAULT_STAGE.parent / 'tools/render_install_keyframes.py'  # shared card style
     spec = importlib.util.spec_from_file_location('existing_installer_style', style_path)
     style = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(style)
     cards = [
         ('09_windows_guidance', 'Windows: select the online setup executable', [
             ('Official release asset — source-reviewed guidance, not a Windows recording',
-             'spaCR-1.5.0.5-Windows-Online-Setup.exe'),
+             f'spaCR-{version}-Windows-Online-Setup.exe'),
             ('Current installer source enables automatic acceleration by default',
              'Untick acceleration only when you want the CPU-only option')],
          'A private Python runtime is downloaded. Windows installation was not executed on this Linux host.'),
         ('10_macos_guidance', 'macOS: the universal online package', [
             ('Official package for Intel and Apple silicon — not a macOS recording',
-             'spaCR-1.5.0.5-macOS-Universal-Online.pkg'),
+             f'spaCR-{version}-macOS-Universal-Online.pkg'),
             ('The app launcher starts per-user setup if its runtime is not yet installed',
              'Open spaCR from Applications; allow time for downloads')],
          'Verify the official source before approving OS security prompts. Do not disable system protections.'),
         ('11_linux_commands', 'Linux x86-64: run the verified download', [
             ('From the folder containing the official downloaded installer',
-             'chmod +x spaCR-1.5.0.5-Linux-x86_64-Online.run'),
+             f'chmod +x spaCR-{version}-Linux-x86_64-Online.run'),
             ('Normal launch uses automatic accelerator selection',
-             './spaCR-1.5.0.5-Linux-x86_64-Online.run'),
+             f'./spaCR-{version}-Linux-x86_64-Online.run'),
             ('An explicit CPU-only choice is available',
-             './spaCR-1.5.0.5-Linux-x86_64-Online.run --torch-backend cpu')],
+             f'./spaCR-{version}-Linux-x86_64-Online.run --torch-backend cpu')],
          'Our isolated run supplied private paths, --skip-system-deps and --no-launch. These are instructions.'),
         ('12_logs_and_versions', 'Keep installation evidence with the analysis', [
             ('Inside the chosen private installation root', 'install.log'),
@@ -52,8 +62,12 @@ def main():
             ('Diagnostic command from the installed runtime', 'spacr-doctor')],
          'Review logs for private paths or data before sharing. Keep the version used for an ongoing analysis.'),
     ]
+    selected = set(args.cards.split(','))
+    if not selected or selected - {card[0] for card in cards}:
+        parser.error('Unknown card name')
+    cards = [card for card in cards if card[0] in selected]
     frames = read(capture / 'frames.json')
-    source = DEFAULT_STAGE / 'captures/installation_sources_centred_elements'
+    source = stage / 'captures' / args.release_capture
     name = '04_github_current_assets'
     original = read(source / 'frames.json')[name]
     incoming = source / original['image']
