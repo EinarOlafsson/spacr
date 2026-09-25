@@ -90,7 +90,13 @@ _PREFERRED_TABLES = ("object", "cell", "nucleus", "pathogen", "cytoplasm",
 
 
 def table_names(path: str) -> List[str]:
-    """Every user table in the SQLite file at ``path``, in a useful order."""
+    """Every user table in the SQLite file at ``path``, in a useful order.
+
+    :param path: path to a SQLite measurement database, opened read-only;
+        the preferred tables (``object``, ``cell``, ``nucleus``, …) come
+        first, then the rest alphabetically, with ``sqlite_`` internals left
+        out.
+    """
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
@@ -274,7 +280,12 @@ class GraphBuilderScreen(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Plot ``frame``. The one call a host needs."""
+        """Plot ``frame``. The one call a host needs.
+
+        :param frame: the table to chart; handed to the graph builder and
+            the filter panel, and its row and column counts label the source
+            unless ``label`` is given.
+        """
         self._frame = frame
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
@@ -316,6 +327,9 @@ class GraphBuilderScreen(QWidget):
         comes back as data in the :class:`_Loaded` rather than as an
         exception, so that it is dropped along with everything else when the
         load it belongs to has been superseded.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` file, read as delimited
+            text, or any other file, opened read-only as a SQLite database.
         """
         self._path = path
         self._jobs.cancel()
