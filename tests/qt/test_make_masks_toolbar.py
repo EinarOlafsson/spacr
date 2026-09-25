@@ -12,7 +12,8 @@ from pathlib import Path
 import imageio.v2 as imageio
 import numpy as np
 import pytest
-from PySide6.QtWidgets import QHBoxLayout, QPushButton
+from PySide6.QtCore import QPoint
+from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton
 
 import spacr.qt.screens.make_masks as mm
 from spacr.qt.screens.make_masks import (
@@ -113,10 +114,12 @@ def test_a_new_tool_is_enabled_with_the_rest_when_a_folder_opens(
 
 
 def test_an_action_button_joins_the_same_row(qtbot, qt_theme_applied):
-    """A non-mode button lands in the one row, left of the settings toggle.
+    """A non-mode button lands in the scrolling row, never in the pinned pair.
 
-    Item 419 put the toggle directly right of the Magnifier, so the pair ends
-    the row's buttons and only the stretch that holds them left comes after.
+    Item 419 put the toggle directly right of the Magnifier, and the
+    maintainer's answer of 2026-09-25 pinned that pair outside the scroller
+    at the right end, so an action added later scrolls with the tools and
+    the stretch that holds them left stays last.
     """
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
@@ -126,12 +129,69 @@ def test_an_action_button_joins_the_same_row(qtbot, qt_theme_applied):
     row = screen._tool_row_layout
     where = row.indexOf(button)
     assert where >= 0, "the action did not land in the tool row"
-    assert where < row.indexOf(screen._btn_magnifier), (
-        "the action came between the Magnifier and the settings toggle")
-    assert row.indexOf(screen._btn_settings) == \
-        row.indexOf(screen._btn_magnifier) + 1
-    assert row.indexOf(screen._btn_settings) == row.count() - 2
+    assert screen._tool_scroll.isAncestorOf(button)
+    assert screen._tool_pin_layout.indexOf(button) < 0, (
+        "the action came into the pinned Magnifier + Settings pair")
     assert row.itemAt(row.count() - 1).spacerItem() is not None
+    pin = screen._tool_pin_layout
+    assert pin.count() == 2
+    assert pin.indexOf(screen._btn_magnifier) == 0
+    assert pin.indexOf(screen._btn_settings) == 1
+
+
+def test_the_magnifier_and_settings_are_pinned_outside_the_scroller(
+        qtbot, qt_theme_applied):
+    """The maintainer, 2026-09-25: pin the pair at the right end; only the
+    other tools scroll."""
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    for button in (screen._btn_magnifier, screen._btn_settings):
+        assert not screen._tool_scroll.isAncestorOf(button), (
+            f"{button.text()} scrolls with the tools")
+        assert screen._tool_row.isAncestorOf(button)
+    line = screen._tool_row.layout()
+    assert line.indexOf(screen._tool_scroll) == 0
+    assert line.indexOf(screen._tool_pin) == line.count() - 1, (
+        "the pinned pair is not at the right end of the row")
+    for mode, button in screen._mode_buttons.items():
+        assert screen._tool_scroll.isAncestorOf(button), (
+            f"{mode} is pinned; only the pair is")
+
+
+@pytest.mark.parametrize("width", [1280, 1600, 1920])
+def test_the_pinned_pair_is_whole_on_screen_at_common_widths(
+        qtbot, qt_theme_applied, folder_2: Path, width: int):
+    """Measured off a shown screen: both buttons lie wholly inside it.
+
+    Before the pin the row needed about 1750 px, so at 1280 px the pair
+    was off the right end and at 1600 px the Magnifier was cut in two.
+    """
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    screen.resize(width, 800)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._open_folder(str(folder_2))
+    qtbot.waitUntil(lambda: screen._tool_row.isVisible())
+    screen.layout().activate()
+    QApplication.processEvents()
+
+    bar = screen._tool_scroll.widget()
+    if width < 1600:
+        assert bar.sizeHint().width() > screen._tool_scroll.viewport().width(), (
+            "the tools fit without scrolling, so this width proves nothing")
+    for button in (screen._btn_magnifier, screen._btn_settings):
+        assert button.isVisible()
+        left = button.mapTo(screen, QPoint(0, 0)).x()
+        right = left + button.width()
+        assert left >= 0 and right <= screen.width(), (
+            f"{button.text()} spans {left}..{right} in a {width} px screen")
+        assert button.visibleRegion().boundingRect() == button.rect(), (
+            f"{button.text()} is clipped at {width} px")
+    gap = (screen._btn_settings.mapTo(screen, QPoint(0, 0)).x()
+           - screen._btn_magnifier.mapTo(screen, QPoint(0, 0)).x()
+           - screen._btn_magnifier.width())
+    assert gap == screen._tool_pin_layout.spacing()
 
 
 def test_the_row_cannot_force_the_window_wide(qtbot, qt_theme_applied):
@@ -141,17 +201,19 @@ def test_the_row_cannot_force_the_window_wide(qtbot, qt_theme_applied):
     row wants well over 1300px. If that were the screen's layout minimum,
     the window could not be made narrower than the row and the canvas
     would sit off the right edge of a 1366px laptop. The row scrolls
-    instead, so it keeps its natural width without imposing it.
+    instead, so it keeps its natural width without imposing it; the
+    pinned pair adds only its own width to the minimum.
     """
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen.layout().activate()
 
-    bar = screen._tool_row.widget()
+    bar = screen._tool_scroll.widget()
     natural = bar.sizeHint().width()
     assert natural > 600, "no real row of tools here to measure"
-    assert screen._tool_row.minimumSizeHint().width() < natural, (
+    assert screen._tool_scroll.minimumSizeHint().width() < natural, (
         "the row imposes its own width on everything above it")
+    assert screen._tool_row.minimumSizeHint().width() < natural
     assert screen.layout().minimumSize().width() < natural, (
         f"the screen cannot be narrowed below {natural}px because of the row")
 
