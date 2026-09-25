@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "home",
-      "narration": "Choose a module by the files you have and the result you need. Start from its Home tile, or open the related tool inside its parent module. Use the chapter list to find a module, check its required inputs and identify the output to pass to the next step. Keep object, plate and well identifiers with your data.",
+      "narration": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
       "hold_after": 0.7,
       "related_lessons": [
         "05_home"
@@ -24,7 +24,7 @@
     },
     {
       "visual": "module_mask",
-      "narration": "Open Mask from Home. Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table. Input data: Microscope images; Segmentation checkpoint. Microscope images: Source image folder; original files, supported vendor files or imported TIFFs. Segmentation checkpoint: Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration. Output data: Images and label masks; Label masks; Object counts. Images and label masks: merged/*.npy in the project; channels and integer label planes share each field array. Label masks: masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup. Object counts: measurements/measurements.db; Mask counts alone are not per-object feature measurements. Mask to Measure: Use the same project and the correct image/mask channel indices. Cellpose Workbench to Mask: Select the saved compatible checkpoint in Mask. Import Images to Mask: Use imported image planes and identities; image-only imports still need segmentation. Format Converter to Mask: Use the converted layout and preserve source identity mappings. Mask to Timelapse: Enable the nested time-series route before generating linked labels. Import to Mask: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "narration": "Open Mask from Home. Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table. Mask reads the microscope images and the segmentation checkpoint. Look for the microscope images here: Source image folder; original files, supported vendor files or imported TIFFs. Look for the segmentation checkpoint here: Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration. From those, Mask produces the images and label masks, the label masks, and the object counts. You'll find the images and label masks here: merged/*.npy in the project; channels and integer label planes share each field array. You'll find the label masks here: masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup. You'll find the object counts here: measurements/measurements.db; Mask counts alone are not per-object feature measurements. Measure picks up the images and label masks next. Use the same project and the correct image/mask channel indices. Cellpose Workbench can supply the segmentation checkpoint. Select the saved compatible checkpoint in Mask. If you start in Import Images, it provides the microscope images. Use imported image planes and identities; image-only imports still need segmentation. Format Converter can supply them as well. Use the converted layout and preserve source identity mappings. You can also take the microscope images on to Timelapse. Enable the nested time-series route before generating linked labels. The microscope images from Import work here too. For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -38,7 +38,7 @@
     },
     {
       "visual": "module_measure",
-      "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Input data: Images and label masks; Label masks. Output data: Measured objects; Object crops. Measured objects: measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Relevant tables depend on the selected route: cell, nucleus, pathogen, cytoplasm. Relevant columns depend on the selected route: plateID, rowID, columnID, fieldID. Object crops: data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Relevant tables depend on the selected route: png_list. Relevant columns depend on the selected route: png_path, prcfo. Mask to Measure: Use the same project and the correct image/mask channel indices. Measure to Annotate: Save or stream crops with stable object identities. Measure to Classify: Choose the image or tabular family to match your input. Make Masks to Measure: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. External Masks to Measure: Re-measure only when needed; External Masks can already perform measurement. Measure to Image UMAP: Choose feature columns and inspect representative crops. Measure to Embeddings: Retain encoder and channel-policy provenance. Measure to Gate Editor: Use the actual measured feature definitions and units. Measure to Graph Builder: Choose explicit variables, groups and filters. Measure to QC: Review available checks and missing evidence. Measure to Recruitment: Require the intended compartment intensities and identities. Measure to Invasion Assay: Require two-colour stain measurements and appropriate baseline controls. Measure to Replication Assay: Require explicit parasite-to-vacuole identities. Timelapse to Measure: Use the time-series project with stable frame/object identities. Measure to Motility Assay: Combine measured objects with matching tracks. Measure to Feature Explorer: Define the class comparison and inspect filtering. Measure to Database Browser: Inspect actual tables before exporting. Measure to AnnData Export: Export compatible feature and metadata columns. Measure to Dose–Response: Join the measured response to explicit doses and controls. Measure to Endodyogeny size proxy: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient. Import to Measure: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. Measure to Host–Pathogen Analysis: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Measure reads the images and label masks, and the label masks. From those, Measure produces the measured objects and the object crops. You'll find the measured objects here: measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Depending on the route, the tables that matter are cell, nucleus, pathogen, cytoplasm. The columns to keep an eye on are plateID, rowID, columnID, fieldID. You'll find the object crops here: data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are png_path, prcfo. Mask can supply the images and label masks. Use the same project and the correct image/mask channel indices. Annotate picks up the measured objects and the object crops next. Save or stream crops with stable object identities. Classify uses them too. Choose the image or tabular family to match your input. If you start in Make Masks, it provides the label masks. Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. The images and label masks from External Masks work here too. Re-measure only when needed; External Masks can already perform measurement. You can also take the measured objects and the object crops on to Image UMAP. Choose feature columns and inspect representative crops. They also feed Embeddings. Retain encoder and channel-policy provenance. Gate Editor reads the measured objects as well. Use the actual measured feature definitions and units. Graph Builder is another place they go. Choose explicit variables, groups and filters. QC uses them too. Review available checks and missing evidence. They also feed Recruitment. Require the intended compartment intensities and identities. Invasion Assay is another place they go. Require two-colour stain measurements and appropriate baseline controls. Replication Assay uses them too. Require explicit parasite-to-vacuole identities. Timelapse can supply the images and label masks. Use the time-series project with stable frame/object identities. Motility Assay picks up the measured objects next. Combine measured objects with matching tracks. They also feed Feature Explorer. Define the class comparison and inspect filtering. Database Browser is another place they go. Inspect actual tables before exporting. AnnData Export uses them too. Export compatible feature and metadata columns. They also feed Dose–Response. Join the measured response to explicit doses and controls. Endodyogeny size proxy is another place they go. Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient. If you start in Import, it provides the images and label masks, and the label masks. Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. You can also take the measured objects on to Host–Pathogen Analysis. Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -67,7 +67,7 @@
     },
     {
       "visual": "module_annotate",
-      "narration": "Open Annotate from Home. Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent. Input data: Measured objects; Object crops; Reusable gates. Reusable gates: Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions. Output data: Training annotations. Training annotations: A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Relevant tables depend on the selected route: png_list. Relevant columns depend on the selected route: prcfo. Measure to Annotate: Save or stream crops with stable object identities. Annotate to Classify: Keep labelled training and evaluation groups separate. External Masks to Annotate: Keep the newly measured project and crop index together. Import to Annotate: Imported tables require explicit column and object-identity mappings. Gate Editor to Annotate: Apply compatible gates, then review candidate labels. Annotate to Annotator Agreement: Choose independent annotation columns for the same objects.",
+      "narration": "Open Annotate from Home. Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent. Annotate reads the measured objects, the object crops and the reusable gates. Look for the reusable gates here: Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions. From those, Annotate produces the training annotations. You'll find the training annotations here: A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are prcfo. Measure can supply the measured objects and the object crops. Save or stream crops with stable object identities. Classify picks up the training annotations next. Keep labelled training and evaluation groups separate. If you start in External Masks, it provides the measured objects and the object crops. Keep the newly measured project and crop index together. Import can supply them as well. Imported tables require explicit column and object-identity mappings. The reusable gates from Gate Editor work here too. Apply compatible gates, then review candidate labels. You can also take the training annotations on to Annotator Agreement. Choose independent annotation columns for the same objects.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -81,7 +81,7 @@
     },
     {
       "visual": "module_classify_merged",
-      "narration": "Open Classify from Home. Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs. Input data: Measured objects; Object crops; Training annotations. Output data: Object classification scores; Trained image classifier; Fitted feature classifier; Classifier evaluation bundle. Object classification scores: Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Relevant tables depend on the selected route: png_list. Relevant columns depend on the selected route: pred, cv_predictions, ml_pred, predictions. Trained image classifier: Saved classifier checkpoint, model settings and matching channel/preprocessing configuration. Fitted feature classifier: The fitted tabular classifier and its recorded feature list, training settings and validation results. Classifier evaluation bundle: Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run. Measure to Classify: Choose the image or tabular family to match your input. Annotate to Classify: Keep labelled training and evaluation groups separate. Classify to Regression: Select the intended CV or ML score column and preserve plate/well identity. Classify to Classifier Evaluation: Use the matching held-out predictions and split metadata. Classify to Activation: Also provide the matching crops and channel preprocessing. Classify to Explain CV Model: Select CV predictions and the matching measured objects. Gate Editor to Classify: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels. Image UMAP to Classify: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "narration": "Open Classify from Home. Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs. Classify reads the measured objects, the object crops and the training annotations. From those, Classify produces the object classification scores, the trained image classifier, the fitted feature classifier and the classifier evaluation bundle. You'll find the object classification scores here: Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are pred, cv_predictions, ml_pred, predictions. You'll find the trained image classifier here: Saved classifier checkpoint, model settings and matching channel/preprocessing configuration. You'll find the fitted feature classifier here: The fitted tabular classifier and its recorded feature list, training settings and validation results. You'll find the classifier evaluation bundle here: Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run. Measure can supply the measured objects and the object crops. Choose the image or tabular family to match your input. If you start in Annotate, it provides the training annotations. Keep labelled training and evaluation groups separate. Regression picks up the object classification scores next. Select the intended CV or ML score column and preserve plate/well identity. You can also take the classifier evaluation bundle on to Classifier Evaluation. Use the matching held-out predictions and split metadata. Activation reads the trained image classifier as well. Also provide the matching crops and channel preprocessing. Explain CV Model picks up the object classification scores next. Select CV predictions and the matching measured objects. The training annotations from Gate Editor work here too. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels. Image UMAP can supply them as well. Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -97,7 +97,7 @@
     },
     {
       "visual": "module_map_barcodes",
-      "narration": "Open Map Barcodes from Home. Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores. Input data: Sequencing reads. Sequencing reads: Single-end or paired FASTQ files, with the matching barcode reference tables. Output data: Guide counts per well. Guide counts per well: Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns depend on the selected route: count. Map Barcodes to Regression: Pair guide counts with phenotype scores using consistent plate/well keys. Map Barcodes to Barcode QC: Check mapping and coverage before guide filtering.",
+      "narration": "Open Map Barcodes from Home. Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores. Map Barcodes reads the sequencing reads. Look for the sequencing reads here: Single-end or paired FASTQ files, with the matching barcode reference tables. From those, Map Barcodes produces the guide counts per well. You'll find the guide counts per well here: Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. The columns to keep an eye on are count. Regression picks up the guide counts per well next. Pair guide counts with phenotype scores using consistent plate/well keys. Barcode QC uses them too. Check mapping and coverage before guide filtering.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -107,7 +107,7 @@
     },
     {
       "visual": "module_regression",
-      "narration": "Open Regression from Home. Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported. Input data: Object classification scores; Guide counts per well; Optical barcode assignments; Measured objects. Optical barcode assignments: OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Relevant tables depend on the selected route: ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads. Output data: Regression results and hits. Regression results and hits: Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures. Classify to Regression: Select the intended CV or ML score column and preserve plate/well identity. Map Barcodes to Regression: Pair guide counts with phenotype scores using consistent plate/well keys. OPS to Regression: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff. Regression to Run Compare: Compare compatible saved result sets and their settings. Regression to Hit List: Inspect ranked hits and guide agreement. Regression to Volcano Explorer: Inspect saved effects and adjusted significance. Regression to Diagnostics: Open the diagnostics actually written by this run. Regression to Methods & Results: Review exported prose and every traced result. Regression to Investigate Hit: Join compatible phenotype and object data for the chosen hit.",
+      "narration": "Open Regression from Home. Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported. Regression reads the object classification scores, the guide counts per well, the optical barcode assignments and the measured objects. Look for the optical barcode assignments here: OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Depending on the route, the tables that matter are ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads. From those, Regression produces the regression results and hits. You'll find the regression results and hits here: Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures. Classify can supply the object classification scores. Select the intended CV or ML score column and preserve plate/well identity. If you start in Map Barcodes, it provides the guide counts per well. Pair guide counts with phenotype scores using consistent plate/well keys. The optical barcode assignments from OPS work here too. Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff. Run Compare picks up the regression results and hits next. Compare compatible saved result sets and their settings. Hit List uses them too. Inspect ranked hits and guide agreement. They also feed Volcano Explorer. Inspect saved effects and adjusted significance. Diagnostics is another place they go. Open the diagnostics actually written by this run. Methods & Results uses them too. Review exported prose and every traced result. They also feed Investigate Hit. Join compatible phenotype and object data for the chosen hit.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -123,7 +123,7 @@
     },
     {
       "visual": "module_feature_explorer",
-      "narration": "Open Classify from Home, then choose Feature Explorer. Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking. Input data: Measured objects; Training annotations. Output data: Figures and table exports. Figures and table exports: The output location chosen by the tool; exports describe the selected data and filters. Measure to Feature Explorer: Define the class comparison and inspect filtering.",
+      "narration": "Open Classify from Home, then choose Feature Explorer. Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking. Feature Explorer reads the measured objects and the training annotations. From those, Feature Explorer produces the figures and table exports. You'll find the figures and table exports here: The output location chosen by the tool; exports describe the selected data and filters. Measure can supply the measured objects. Define the class comparison and inspect filtering.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -132,7 +132,7 @@
     },
     {
       "visual": "module_convert",
-      "narration": "Open Import from Home, then choose Format Converter. Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements. Input data: Microscope images. Output data: Microscope images. Format Converter to Mask: Use the converted layout and preserve source identity mappings.",
+      "narration": "Open Import from Home, then choose Format Converter. Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements. Format Converter reads the microscope images. From those, Format Converter produces the microscope images. Mask picks up the microscope images next. Use the converted layout and preserve source identity mappings.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -141,7 +141,7 @@
     },
     {
       "visual": "module_foreign",
-      "narration": "Open Import from Home. Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements. Input data: Microscope images; Label masks; External measurements. External measurements: Third-party measurement CSV/database tables and their image, mask and object-identity mappings. Output data: Measured objects; Object crops; Images and label masks; Label masks. Import to Annotate: Imported tables require explicit column and object-identity mappings. Import to Measure: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. Import to Mask: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "narration": "Open Import from Home. Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements. Import reads the microscope images, the label masks and the external measurements. Look for the external measurements here: Third-party measurement CSV/database tables and their image, mask and object-identity mappings. From those, Import produces the measured objects, the object crops, the images and label masks, and the label masks. Annotate picks up the measured objects and the object crops next. Imported tables require explicit column and object-identity mappings. You can also take the images and label masks, and the label masks on to Measure. Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. Mask reads the microscope images as well. For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -152,7 +152,7 @@
     },
     {
       "visual": "module_external_masks",
-      "narration": "Open Import from Home, then choose External Masks. Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation. Input data: Microscope images; Label masks. Output data: Images and label masks; Measured objects; Object crops. External Masks to Measure: Re-measure only when needed; External Masks can already perform measurement. External Masks to Annotate: Keep the newly measured project and crop index together. Direct Cellpose mask generation to External Masks: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "narration": "Open Import from Home, then choose External Masks. Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation. External Masks reads the microscope images and the label masks. From those, External Masks produces the images and label masks, the measured objects, and the object crops. Measure picks up the images and label masks next. Re-measure only when needed; External Masks can already perform measurement. You can also take the measured objects and the object crops on to Annotate. Keep the newly measured project and crop index together. Direct Cellpose mask generation can supply the direct Cellpose TIFF masks. Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -162,7 +162,7 @@
     },
     {
       "visual": "module_queue",
-      "narration": "Find Plate Queue in the application's Help or tools menus. Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately. Input data: Run queue. Run queue: Saved module/plate/settings job definitions and dependency order. Output data: Run history and artifacts. Run history and artifacts: Project run records, settings, output paths, artifact provenance, status and logs.",
+      "narration": "Find Plate Queue in the application's Help or tools menus. Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately. Plate Queue reads the run queue. Look for the run queue here: Saved module/plate/settings job definitions and dependency order. From those, Plate Queue produces the run history and artifacts. You'll find the run history and artifacts here: Project run records, settings, output paths, artifact provenance, status and logs.",
       "hold_after": 0.7,
       "related_lessons": [
         "30_plate_queue"
@@ -170,7 +170,7 @@
     },
     {
       "visual": "module_batch",
-      "narration": "Find Batch Runner in the application's Help or tools menus. Validate and execute module jobs in dependency order. Each job writes its own module outputs and log. Input data: Run queue. Output data: Run history and artifacts.",
+      "narration": "Find Batch Runner in the application's Help or tools menus. Validate and execute module jobs in dependency order. Each job writes its own module outputs and log. Batch Runner reads the run queue. From those, Batch Runner produces the run history and artifacts.",
       "hold_after": 0.7,
       "related_lessons": [
         "37_batch"
@@ -178,7 +178,7 @@
     },
     {
       "visual": "module_distributed_jobs",
-      "narration": "Find Distributed Jobs in the application's Help or tools menus. Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis. Input data: Run queue. Output data: Run history and artifacts.",
+      "narration": "Find Distributed Jobs in the application's Help or tools menus. Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis. Distributed Jobs reads the run queue. From those, Distributed Jobs produces the run history and artifacts.",
       "hold_after": 0.7,
       "related_lessons": [
         "38_distributed_jobs"
@@ -186,7 +186,7 @@
     },
     {
       "visual": "module_db_browser",
-      "narration": "Find Database Browser in the application's Help or tools menus. Browse selected tables and export rows; table inspection does not rerun image analysis. Input data: Measured objects. Output data: Figures and table exports. Measure to Database Browser: Inspect actual tables before exporting.",
+      "narration": "Find Database Browser in the application's Help or tools menus. Browse selected tables and export rows; table inspection does not rerun image analysis. Database Browser reads the measured objects. From those, Database Browser produces the figures and table exports. Measure can supply the measured objects. Inspect actual tables before exporting.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -195,7 +195,7 @@
     },
     {
       "visual": "module_run_history",
-      "narration": "Find Run History in the application's Help or tools menus. Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity. Input data: Run history and artifacts. Output data: Run history and artifacts.",
+      "narration": "Find Run History in the application's Help or tools menus. Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity. Run History reads the run history and artifacts. From those, Run History produces the run history and artifacts.",
       "hold_after": 0.7,
       "related_lessons": [
         "40_run_history"
@@ -203,7 +203,7 @@
     },
     {
       "visual": "module_report",
-      "narration": "Find Report in the application's Help or tools menus. Package recorded results, settings and QC into a shareable report without silently rerunning the analysis. Input data: Run history and artifacts; Quality-control results; Figures and table exports. Quality-control results: Stored project checks and QC reports; a missing check is not a passing result. Output data: Shareable reports. Shareable reports: Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
+      "narration": "Find Report in the application's Help or tools menus. Package recorded results, settings and QC into a shareable report without silently rerunning the analysis. Report reads the run history and artifacts, the quality-control results, and the figures and table exports. Look for the quality-control results here: Stored project checks and QC reports; a missing check is not a passing result. From those, Report produces the shareable reports. You'll find the shareable reports here: Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
       "hold_after": 0.7,
       "related_lessons": [
         "29_report"
@@ -211,7 +211,7 @@
     },
     {
       "visual": "module_data_manager",
-      "narration": "Find Data Manager in the application's Help or tools menus. Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable. Input data: Run history and artifacts. Output data: Run history and artifacts.",
+      "narration": "Find Data Manager in the application's Help or tools menus. Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable. Data Manager reads the run history and artifacts. From those, Data Manager produces the run history and artifacts.",
       "hold_after": 0.7,
       "related_lessons": [
         "44_data_manager"
@@ -219,7 +219,7 @@
     },
     {
       "visual": "module_pipeline_graph",
-      "narration": "Find Pipeline Graph in the application's Help or tools menus. Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts. Input data: Run history and artifacts. Output data: Figures and table exports.",
+      "narration": "Find Pipeline Graph in the application's Help or tools menus. Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts. Pipeline Graph reads the run history and artifacts. From those, Pipeline Graph produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "52_pipeline_graph"
@@ -227,7 +227,7 @@
     },
     {
       "visual": "module_qc_dashboard",
-      "narration": "Open QC from Home. Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection. Input data: Measured objects; Quality-control results. Output data: Quality-control results; Figures and table exports. Measure to QC: Review available checks and missing evidence.",
+      "narration": "Open QC from Home. Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection. QC reads the measured objects and the quality-control results. From those, QC produces the quality-control results, and the figures and table exports. Measure can supply the measured objects. Review available checks and missing evidence.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -236,7 +236,7 @@
     },
     {
       "visual": "module_lineage",
-      "narration": "Open Database Browser through Help search, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Input data: Measured objects. Output data: Figures and table exports.",
+      "narration": "Open Database Browser through Help search, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Lineage reads the measured objects. From those, Lineage produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "56_lineage"
@@ -244,7 +244,7 @@
     },
     {
       "visual": "module_experiment_design",
-      "narration": "Open Experiment Design from Home. Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition. Input data: Screen design and power estimates. Screen design and power estimates: Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions. Output data: Experimental layout. Experimental layout: Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data. Experiment Design to Power / Design: Use the experimental layout to define sampling assumptions, then revise the design. Experiment Design to Dose–Response: Acquire and measure the experiment first, preserving dose/condition identities.",
+      "narration": "Open Experiment Design from Home. Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition. Experiment Design reads the screen design and power estimates. Look for the screen design and power estimates here: Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions. From those, Experiment Design produces the experimental layout. You'll find the experimental layout here: Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data. Power / Design picks up the experimental layout next. Use the experimental layout to define sampling assumptions, then revise the design. Dose–Response uses them too. Acquire and measure the experiment first, preserving dose/condition identities.",
       "hold_after": 0.7,
       "related_lessons": [
         "67_experiment_design",
@@ -254,7 +254,7 @@
     },
     {
       "visual": "module_layer_viewer",
-      "narration": "Open QC from Home, then choose Layer Viewer. Inspect aligned image, label and point/ROI layers for the selected field. Input data: Microscope images; Label masks. Output data: Figures and table exports.",
+      "narration": "Open QC from Home, then choose Layer Viewer. Inspect aligned image, label and point/ROI layers for the selected field. Layer Viewer reads the microscope images and the label masks. From those, Layer Viewer produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "57_layer_viewer"
@@ -262,7 +262,7 @@
     },
     {
       "visual": "module_power",
-      "narration": "Open Power / Design from Home. Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions. Input data: Screen design and power estimates; Measured objects; Experimental layout. Output data: Screen design and power estimates. Experiment Design to Power / Design: Use the experimental layout to define sampling assumptions, then revise the design.",
+      "narration": "Open Power / Design from Home. Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions. Power / Design reads the screen design and power estimates, the measured objects, and the experimental layout. From those, Power / Design produces the screen design and power estimates. Experiment Design can supply the experimental layout. Use the experimental layout to define sampling assumptions, then revise the design.",
       "hold_after": 0.7,
       "related_lessons": [
         "67_experiment_design",
@@ -271,7 +271,7 @@
     },
     {
       "visual": "module_run_compare",
-      "narration": "Open Run Compare from Home. Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison. Input data: Run history and artifacts; Regression results and hits. Output data: Run/model comparison. Run/model comparison: Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy. Regression to Run Compare: Compare compatible saved result sets and their settings.",
+      "narration": "Open Run Compare from Home. Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison. Run Compare reads the run history and artifacts, and the regression results and hits. From those, Run Compare produces the run/model comparison. You'll find the run/model comparison here: Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy. Regression can supply the regression results and hits. Compare compatible saved result sets and their settings.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -280,7 +280,7 @@
     },
     {
       "visual": "module_tabulate",
-      "narration": "Open Database Browser through Help search, then choose Tabulate. Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes. Input data: Measured objects. Output data: Figures and table exports.",
+      "narration": "Open Database Browser through Help search, then choose Tabulate. Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes. Tabulate reads the measured objects. From those, Tabulate produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "61_tabulate"
@@ -288,7 +288,7 @@
     },
     {
       "visual": "module_dose_response",
-      "narration": "Open Dose–Response from Home. Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing. Input data: Measured objects; Experimental layout. Output data: Assay results; Figures and table exports. Assay results: Assay-specific result tables and figures in the configured destination, preserving well and condition identities. Experiment Design to Dose–Response: Acquire and measure the experiment first, preserving dose/condition identities. Measure to Dose–Response: Join the measured response to explicit doses and controls.",
+      "narration": "Open Dose–Response from Home. Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing. Dose–Response reads the measured objects and the experimental layout. From those, Dose–Response produces the assay results, and the figures and table exports. You'll find the assay results here: Assay-specific result tables and figures in the configured destination, preserving well and condition identities. Experiment Design can supply the experimental layout. Acquire and measure the experiment first, preserving dose/condition identities. If you start in Measure, it provides the measured objects. Join the measured response to explicit doses and controls.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -298,7 +298,7 @@
     },
     {
       "visual": "module_project_browser",
-      "narration": "Find Project Browser in the application's Help or tools menus. Locate projects and inspect their stage, last run, disk use and stale outputs. Input data: Run history and artifacts. Output data: Run history and artifacts.",
+      "narration": "Find Project Browser in the application's Help or tools menus. Locate projects and inspect their stage, last run, disk use and stale outputs. Project Browser reads the run history and artifacts. From those, Project Browser produces the run history and artifacts.",
       "hold_after": 0.7,
       "related_lessons": [
         "45_project_browser"
@@ -306,7 +306,7 @@
     },
     {
       "visual": "module_outliers",
-      "narration": "Open QC from Home, then choose Outliers. Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis. Input data: Measured objects. Output data: Quality-control results; Figures and table exports.",
+      "narration": "Open QC from Home, then choose Outliers. Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis. Outliers reads the measured objects. From those, Outliers produces the quality-control results, and the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "66_outliers"
@@ -314,7 +314,7 @@
     },
     {
       "visual": "module_embeddings",
-      "narration": "Open Embeddings from Home. Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration. Input data: Measured objects; Object crops. Output data: Image embeddings. Image embeddings: Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent. Measure to Embeddings: Retain encoder and channel-policy provenance. Embeddings to Image UMAP: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "narration": "Open Embeddings from Home. Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration. Embeddings reads the measured objects and the object crops. From those, Embeddings produces the image embeddings. You'll find the image embeddings here: Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent. Measure can supply the measured objects and the object crops. Retain encoder and channel-policy provenance. Image UMAP picks up the image embeddings next. Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -324,7 +324,7 @@
     },
     {
       "visual": "module_control_chart",
-      "narration": "Open QC from Home, then choose Control Charts. Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment. Input data: Measured objects; Experimental layout. Output data: Quality-control results; Figures and table exports.",
+      "narration": "Open QC from Home, then choose Control Charts. Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment. Control Charts reads the measured objects and the experimental layout. From those, Control Charts produces the quality-control results, and the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "51_control_charts"
@@ -332,7 +332,7 @@
     },
     {
       "visual": "module_train_compare",
-      "narration": "Open Classify from Home, then choose Training Runs. Compare saved training histories, metrics and settings from compatible model runs. Input data: Run history and artifacts. Output data: Run/model comparison.",
+      "narration": "Open Classify from Home, then choose Training Runs. Compare saved training histories, metrics and settings from compatible model runs. Training Runs reads the run history and artifacts. From those, Training Runs produces the run/model comparison.",
       "hold_after": 0.7,
       "related_lessons": [
         "28_training_runs"
@@ -340,7 +340,7 @@
     },
     {
       "visual": "module_align",
-      "narration": "Open Align & Stitch from Home. Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities. Input data: Microscope images. Output data: Aligned mosaic and coordinates. Aligned mosaic and coordinates: Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it. Align & Stitch to OPS: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
+      "narration": "Open Align & Stitch from Home. Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities. Align & Stitch reads the microscope images. From those, Align & Stitch produces the aligned mosaic and coordinates. You'll find the aligned mosaic and coordinates here: Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it. OPS picks up the aligned mosaic and coordinates next. Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
       "hold_after": 0.7,
       "related_lessons": [
         "32_align_stitch",
@@ -349,7 +349,7 @@
     },
     {
       "visual": "module_make_masks",
-      "narration": "Open Make Masks from Home. Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier. Input data: Microscope images; Label masks. Output data: Curated training fields; Label masks. Curated training fields: Separate image and integer-mask files with matching field identities; preserve original images and labels. Make Masks to Cellpose Workbench: Use independently checked image/mask pairs. Make Masks to Measure: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Make Masks to Plaque Assay: Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "narration": "Open Make Masks from Home. Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier. Make Masks reads the microscope images and the label masks. From those, Make Masks produces the curated training fields and the label masks. You'll find the curated training fields here: Separate image and integer-mask files with matching field identities; preserve original images and labels. Cellpose Workbench picks up the curated training fields next. Use independently checked image/mask pairs. You can also take the label masks on to Measure. Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Plaque Assay uses them too. Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -360,13 +360,13 @@
     },
     {
       "visual": "module_plate_view",
-      "narration": "Open Graph Builder from Home, then choose Plate Viewer. Aggregate the selected measurement by well and inspect plate patterns and controls. Input data: Measured objects; Experimental layout. Output data: Figures and table exports.",
+      "narration": "Open Graph Builder from Home, then choose Plate Viewer. Aggregate the selected measurement by well and inspect plate patterns and controls. Plate Viewer reads the measured objects and the experimental layout. From those, Plate Viewer produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": []
     },
     {
       "visual": "module_umap",
-      "narration": "Open Image UMAP from Home. Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype. Input data: Measured objects; Object crops; Image embeddings. Output data: Projection and clusters; Training annotations. Projection and clusters: Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data. Measure to Image UMAP: Choose feature columns and inspect representative crops. Embeddings to Image UMAP: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it. Image UMAP to Gate Editor: Supply the matching coordinate/feature columns when defining a selection. Image UMAP to Classify: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "narration": "Open Image UMAP from Home. Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype. Image UMAP reads the measured objects, the object crops and the image embeddings. From those, Image UMAP produces the projection and clusters, and the training annotations. You'll find the projection and clusters here: Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data. Measure can supply the measured objects and the object crops. Choose feature columns and inspect representative crops. If you start in Embeddings, it provides the image embeddings. Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it. Gate Editor picks up the projection and clusters next. Supply the matching coordinate/feature columns when defining a selection. You can also take the training annotations on to Classify. Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -378,7 +378,7 @@
     },
     {
       "visual": "module_profiler",
-      "narration": "Open Regression from Home, then choose Prediction Profiler. Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects. Input data: Fitted feature classifier. Output data: Figures and table exports.",
+      "narration": "Open Regression from Home, then choose Prediction Profiler. Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects. Prediction Profiler reads the fitted feature classifier. From those, Prediction Profiler produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "53_prediction_profiler"
@@ -386,7 +386,7 @@
     },
     {
       "visual": "module_graph_builder",
-      "narration": "Open Graph Builder from Home. Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context. Input data: Measured objects. Output data: Figures and table exports. Measure to Graph Builder: Choose explicit variables, groups and filters.",
+      "narration": "Open Graph Builder from Home. Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context. Graph Builder reads the measured objects. From those, Graph Builder produces the figures and table exports. Measure can supply the measured objects. Choose explicit variables, groups and filters.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -395,7 +395,7 @@
     },
     {
       "visual": "module_investigate_hit",
-      "narration": "Open Regression from Home, then choose Investigate Hit. Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit. Input data: Regression results and hits; Object classification scores; Measured objects. Output data: Figures and table exports. Regression to Investigate Hit: Join compatible phenotype and object data for the chosen hit.",
+      "narration": "Open Regression from Home, then choose Investigate Hit. Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit. Investigate Hit reads the regression results and hits, the object classification scores, and the measured objects. From those, Investigate Hit produces the figures and table exports. Regression can supply the regression results and hits. Join compatible phenotype and object data for the chosen hit.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression"
@@ -403,7 +403,7 @@
     },
     {
       "visual": "module_gate_editor",
-      "narration": "Open Gate Editor from Home. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Input data: Measured objects; Projection and clusters. Output data: Reusable gates; Training annotations. Image UMAP to Gate Editor: Supply the matching coordinate/feature columns when defining a selection. Gate Editor to Annotate: Apply compatible gates, then review candidate labels. Measure to Gate Editor: Use the actual measured feature definitions and units. Gate Editor to Classify: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "narration": "Open Gate Editor from Home. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Gate Editor reads the measured objects, and the projection and clusters. From those, Gate Editor produces the reusable gates and the training annotations. Image UMAP can supply the projection and clusters. Supply the matching coordinate/feature columns when defining a selection. Annotate picks up the reusable gates next. Apply compatible gates, then review candidate labels. If you start in Measure, it provides the measured objects. Use the actual measured feature definitions and units. You can also take the training annotations on to Classify. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -415,7 +415,7 @@
     },
     {
       "visual": "module_feature_dict",
-      "narration": "Find Feature Dictionary in the application's Help or tools menus. Look up feature definitions and units before choosing measurement columns. Input data: Feature definitions. Feature definitions: The installed feature dictionary; definitions describe existing measurements and do not compute them. Output data: Feature definitions.",
+      "narration": "Find Feature Dictionary in the application's Help or tools menus. Look up feature definitions and units before choosing measurement columns. Feature Dictionary reads the feature definitions. Look for the feature definitions here: The installed feature dictionary; definitions describe existing measurements and do not compute them. From those, Feature Dictionary produces the feature definitions.",
       "hold_after": 0.7,
       "related_lessons": [
         "62_feature_dictionary"
@@ -423,7 +423,7 @@
     },
     {
       "visual": "module_trellis",
-      "narration": "Open Graph Builder from Home, then choose Small Multiples. Compare groups in small-multiple plots with explicit shared or independent axes. Input data: Measured objects. Output data: Figures and table exports.",
+      "narration": "Open Graph Builder from Home, then choose Small Multiples. Compare groups in small-multiple plots with explicit shared or independent axes. Small Multiples reads the measured objects. From those, Small Multiples produces the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "63_small_multiples"
@@ -431,7 +431,7 @@
     },
     {
       "visual": "module_analyze_plaques",
-      "narration": "Open Toxoplasma from Home, then choose Plaque Assay. Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example. Input data: Microscope images; Label masks. Output data: Assay results; Label masks. Make Masks to Plaque Assay: Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "narration": "Open Toxoplasma from Home, then choose Plaque Assay. Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example. Plaque Assay reads the microscope images and the label masks. From those, Plaque Assay produces the assay results and the label masks. Make Masks can supply the label masks. Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
       "hold_after": 0.7,
       "related_lessons": [
         "14_make_masks",
@@ -440,7 +440,7 @@
     },
     {
       "visual": "module_recruitment",
-      "narration": "Open Toxoplasma from Home, then choose Recruitment. Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios. Input data: Measured objects. Output data: Assay results. Measure to Recruitment: Require the intended compartment intensities and identities.",
+      "narration": "Open Toxoplasma from Home, then choose Recruitment. Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios. Recruitment reads the measured objects. From those, Recruitment produces the assay results. Measure can supply the measured objects. Require the intended compartment intensities and identities.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -449,7 +449,7 @@
     },
     {
       "visual": "module_host_pathogen",
-      "narration": "Open Toxoplasma from Home, then choose Host–Pathogen Analysis. Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown. Input data: Measured objects. Output data: Assay results. Measure to Host–Pathogen Analysis: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "narration": "Open Toxoplasma from Home, then choose Host–Pathogen Analysis. Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown. Host–Pathogen Analysis reads the measured objects. From those, Host–Pathogen Analysis produces the assay results. Measure can supply the measured objects. Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -458,7 +458,7 @@
     },
     {
       "visual": "module_invasion",
-      "narration": "Open Toxoplasma from Home, then choose Invasion Assay. Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion. Input data: Measured objects. Output data: Assay results. Measure to Invasion Assay: Require two-colour stain measurements and appropriate baseline controls.",
+      "narration": "Open Toxoplasma from Home, then choose Invasion Assay. Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion. Invasion Assay reads the measured objects. From those, Invasion Assay produces the assay results. Measure can supply the measured objects. Require two-colour stain measurements and appropriate baseline controls.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -467,7 +467,7 @@
     },
     {
       "visual": "module_replication",
-      "narration": "Open Toxoplasma from Home, then choose Replication Assay. Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole. Input data: Measured objects. Output data: Assay results. Measure to Replication Assay: Require explicit parasite-to-vacuole identities.",
+      "narration": "Open Toxoplasma from Home, then choose Replication Assay. Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole. Replication Assay reads the measured objects. From those, Replication Assay produces the assay results. Measure can supply the measured objects. Require explicit parasite-to-vacuole identities.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -476,7 +476,7 @@
     },
     {
       "visual": "module_train_cellpose",
-      "narration": "Open Make Masks from Home, then choose Cellpose Workbench. Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask. Input data: Curated training fields. Output data: Segmentation checkpoint. Make Masks to Cellpose Workbench: Use independently checked image/mask pairs. Cellpose Workbench to Mask: Select the saved compatible checkpoint in Mask. Cellpose Workbench to Direct Cellpose mask generation: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
+      "narration": "Open Make Masks from Home, then choose Cellpose Workbench. Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask. Cellpose Workbench reads the curated training fields. From those, Cellpose Workbench produces the segmentation checkpoint. Make Masks can supply the curated training fields. Use independently checked image/mask pairs. Mask picks up the segmentation checkpoint next. Select the saved compatible checkpoint in Mask. Direct Cellpose mask generation uses them too. Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -486,7 +486,7 @@
     },
     {
       "visual": "module_cellpose_all",
-      "narration": "Open Make Masks from Home, then choose Mask the whole folder. Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them. Input data: Microscope images; Segmentation checkpoint. Output data: Label masks.",
+      "narration": "Open Make Masks from Home, then choose Mask the whole folder. Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them. Mask the whole folder reads the microscope images and the segmentation checkpoint. From those, Mask the whole folder produces the label masks.",
       "hold_after": 0.7,
       "related_lessons": [
         "20_cellpose_masks"
@@ -494,7 +494,7 @@
     },
     {
       "visual": "module_model_compare",
-      "narration": "Open Make Masks from Home, then choose Model Compare. Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy. Input data: Microscope images; Label masks; Segmentation checkpoint. Output data: Run/model comparison.",
+      "narration": "Open Make Masks from Home, then choose Model Compare. Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy. Model Compare reads the microscope images, the label masks and the segmentation checkpoint. From those, Model Compare produces the run/model comparison.",
       "hold_after": 0.7,
       "related_lessons": [
         "21_model_compare"
@@ -502,7 +502,7 @@
     },
     {
       "visual": "module_model_zoo",
-      "narration": "Open Make Masks from Home, then choose Model Zoo. Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file. Input data: Segmentation checkpoint. Output data: Segmentation checkpoint.",
+      "narration": "Open Make Masks from Home, then choose Model Zoo. Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file. Model Zoo reads the segmentation checkpoint. From those, Model Zoo produces the segmentation checkpoint.",
       "hold_after": 0.7,
       "related_lessons": [
         "22_model_zoo"
@@ -510,7 +510,7 @@
     },
     {
       "visual": "module_curate",
-      "narration": "Open Make Masks from Home, then choose Curate. Correct labels and track assignments while retaining a record of the edits. Input data: Microscope images; Label masks; Linked time-series objects. Linked time-series objects: Tracked labels and frame/object associations from the time-series project, with frame interval and units. Output data: Label masks; Linked time-series objects.",
+      "narration": "Open Make Masks from Home, then choose Curate. Correct labels and track assignments while retaining a record of the edits. Curate reads the microscope images, the label masks and the linked time-series objects. Look for the linked time-series objects here: Tracked labels and frame/object associations from the time-series project, with frame interval and units. From those, Curate produces the label masks and the linked time-series objects.",
       "hold_after": 0.7,
       "related_lessons": [
         "42_curate"
@@ -518,7 +518,7 @@
     },
     {
       "visual": "module_napari_bridge",
-      "narration": "Open Make Masks from Home, then choose Napari Bridge. Send the matching image/labels to napari and import the revised labels back with field identity preserved. Input data: Microscope images; Label masks. Output data: Label masks.",
+      "narration": "Open Make Masks from Home, then choose Napari Bridge. Send the matching image/labels to napari and import the revised labels back with field identity preserved. Napari Bridge reads the microscope images and the label masks. From those, Napari Bridge produces the label masks.",
       "hold_after": 0.7,
       "related_lessons": [
         "46_napari_bridge"
@@ -526,7 +526,7 @@
     },
     {
       "visual": "module_import_images",
-      "narration": "Open Import from Home, then choose Import Images. Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement. Input data: Microscope images. Output data: Microscope images; Images and label masks; Label masks. Import Images to Mask: Use imported image planes and identities; image-only imports still need segmentation.",
+      "narration": "Open Import from Home, then choose Import Images. Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement. Import Images reads the microscope images. From those, Import Images produces the microscope images, the images and label masks, and the label masks. Mask picks up the microscope images next. Use imported image planes and identities; image-only imports still need segmentation.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -535,7 +535,7 @@
     },
     {
       "visual": "module_barcode_qc",
-      "narration": "Open Map Barcodes from Home, then choose Barcode QC. Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering. Input data: Guide counts per well. Output data: Quality-control results; Figures and table exports. Map Barcodes to Barcode QC: Check mapping and coverage before guide filtering.",
+      "narration": "Open Map Barcodes from Home, then choose Barcode QC. Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering. Barcode QC reads the guide counts per well. From those, Barcode QC produces the quality-control results, and the figures and table exports. Map Barcodes can supply the guide counts per well. Check mapping and coverage before guide filtering.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -544,7 +544,7 @@
     },
     {
       "visual": "module_image_scatter",
-      "narration": "Open Image UMAP from Home, then choose Image Scatter. Plot selected measurement columns with object-crop inspection. Input data: Measured objects; Object crops. Output data: Projection and clusters; Figures and table exports.",
+      "narration": "Open Image UMAP from Home, then choose Image Scatter. Plot selected measurement columns with object-crop inspection. Image Scatter reads the measured objects and the object crops. From those, Image Scatter produces the projection and clusters, and the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "55_image_scatter"
@@ -552,7 +552,7 @@
     },
     {
       "visual": "module_pca",
-      "narration": "Open Image UMAP from Home, then choose PCA. Inspect principal components and feature loadings for the selected measured objects. Input data: Measured objects. Output data: Projection and clusters; Figures and table exports.",
+      "narration": "Open Image UMAP from Home, then choose PCA. Inspect principal components and feature loadings for the selected measured objects. PCA reads the measured objects. From those, PCA produces the projection and clusters, and the figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "60_pca"
@@ -560,7 +560,7 @@
     },
     {
       "visual": "module_volcano_explorer",
-      "narration": "Open Regression from Home, then choose Volcano Explorer. Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records. Input data: Regression results and hits. Output data: Figures and table exports. Regression to Volcano Explorer: Inspect saved effects and adjusted significance.",
+      "narration": "Open Regression from Home, then choose Volcano Explorer. Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records. Volcano Explorer reads the regression results and hits. From those, Volcano Explorer produces the figures and table exports. Regression can supply the regression results and hits. Inspect saved effects and adjusted significance.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -569,7 +569,7 @@
     },
     {
       "visual": "module_hit_list",
-      "narration": "Open Regression from Home, then choose Hit List. Filter and rank saved hits with their effects, FDR and guide agreement. Input data: Regression results and hits. Output data: Figures and table exports. Regression to Hit List: Inspect ranked hits and guide agreement.",
+      "narration": "Open Regression from Home, then choose Hit List. Filter and rank saved hits with their effects, FDR and guide agreement. Hit List reads the regression results and hits. From those, Hit List produces the figures and table exports. Regression can supply the regression results and hits. Inspect ranked hits and guide agreement.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -578,7 +578,7 @@
     },
     {
       "visual": "module_methods_export",
-      "narration": "Open Regression from Home, then choose Methods & Results. Draft methods/results text from recorded settings and results; review every claim before publication. Input data: Run history and artifacts; Regression results and hits. Output data: Shareable reports. Regression to Methods & Results: Review exported prose and every traced result.",
+      "narration": "Open Regression from Home, then choose Methods & Results. Draft methods/results text from recorded settings and results; review every claim before publication. Methods & Results reads the run history and artifacts, and the regression results and hits. From those, Methods & Results produces the shareable reports. Regression can supply the regression results and hits. Review exported prose and every traced result.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -587,7 +587,7 @@
     },
     {
       "visual": "module_regression_diagnostics",
-      "narration": "Open Regression from Home, then choose Diagnostics. Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions. Input data: Regression results and hits. Output data: Quality-control results; Figures and table exports. Regression to Diagnostics: Open the diagnostics actually written by this run.",
+      "narration": "Open Regression from Home, then choose Diagnostics. Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions. Diagnostics reads the regression results and hits. From those, Diagnostics produces the quality-control results, and the figures and table exports. Regression can supply the regression results and hits. Open the diagnostics actually written by this run.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -596,7 +596,7 @@
     },
     {
       "visual": "module_illumination",
-      "narration": "Open Measure from Home, then choose Illumination. Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy. Input data: Microscope images. Output data: Microscope images.",
+      "narration": "Open Measure from Home, then choose Illumination. Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy. Illumination reads the microscope images. From those, Illumination produces the microscope images.",
       "hold_after": 0.7,
       "related_lessons": [
         "43_illumination"
@@ -604,7 +604,7 @@
     },
     {
       "visual": "module_anndata_export",
-      "narration": "Open Measure from Home, then choose AnnData Export. Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis. Input data: Measured objects. Output data: AnnData export. AnnData export: An exported .h5ad file containing measured features and object metadata. Measure to AnnData Export: Export compatible feature and metadata columns.",
+      "narration": "Open Measure from Home, then choose AnnData Export. Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis. AnnData Export reads the measured objects. From those, AnnData Export produces the AnnData export. You'll find the AnnData export here: An exported .h5ad file containing measured features and object metadata. Measure can supply the measured objects. Export compatible feature and metadata columns.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -613,7 +613,7 @@
     },
     {
       "visual": "module_motility",
-      "narration": "Open Measure from Home, then choose Motility Assay. Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration. Input data: Linked time-series objects; Measured objects. Output data: Assay results; Figures and table exports. Timelapse to Motility Assay: Supply frame interval and pixel calibration. Measure to Motility Assay: Combine measured objects with matching tracks.",
+      "narration": "Open Measure from Home, then choose Motility Assay. Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration. Motility Assay reads the linked time-series objects and the measured objects. From those, Motility Assay produces the assay results, and the figures and table exports. Timelapse can supply the linked time-series objects. Supply frame interval and pixel calibration. If you start in Measure, it provides the measured objects. Combine measured objects with matching tracks.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -623,7 +623,7 @@
     },
     {
       "visual": "module_timelapse",
-      "narration": "Open Mask from Home, then choose Timelapse. Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis. Input data: Microscope images. Output data: Images and label masks; Label masks; Linked time-series objects. Mask to Timelapse: Enable the nested time-series route before generating linked labels. Timelapse to Measure: Use the time-series project with stable frame/object identities. Timelapse to Motility Assay: Supply frame interval and pixel calibration.",
+      "narration": "Open Mask from Home, then choose Timelapse. Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis. Timelapse reads the microscope images. From those, Timelapse produces the images and label masks, the label masks, and the linked time-series objects. Mask can supply the microscope images. Enable the nested time-series route before generating linked labels. Measure picks up the images and label masks next. Use the time-series project with stable frame/object identities. You can also take the linked time-series objects on to Motility Assay. Supply frame interval and pixel calibration.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -634,7 +634,7 @@
     },
     {
       "visual": "module_ops",
-      "narration": "Open Mask from Home, then choose OPS. Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV. Input data: Microscope images; Aligned mosaic and coordinates. Output data: Optical barcode assignments. Align & Stitch to OPS: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient. OPS to Regression: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "narration": "Open Mask from Home, then choose OPS. Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV. OPS reads the microscope images, and the aligned mosaic and coordinates. From those, OPS produces the optical barcode assignments. Align & Stitch can supply the aligned mosaic and coordinates. Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient. Regression picks up the optical barcode assignments next. Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -644,7 +644,7 @@
     },
     {
       "visual": "module_classifier_evaluation",
-      "narration": "Open Classify from Home, then choose Classifier Evaluation. Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier. Input data: Classifier evaluation bundle. Output data: Quality-control results; Figures and table exports. Classify to Classifier Evaluation: Use the matching held-out predictions and split metadata.",
+      "narration": "Open Classify from Home, then choose Classifier Evaluation. Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier. Classifier Evaluation reads the classifier evaluation bundle. From those, Classifier Evaluation produces the quality-control results, and the figures and table exports. Classify can supply the classifier evaluation bundle. Use the matching held-out predictions and split metadata.",
       "hold_after": 0.7,
       "related_lessons": [
         "39_classifier_evaluation",
@@ -653,7 +653,7 @@
     },
     {
       "visual": "module_explain_cv",
-      "narration": "Open Classify from Home, then choose Explain CV Model. Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality. Input data: Measured objects; Object classification scores. Output data: Fitted feature classifier; Figures and table exports. Classify to Explain CV Model: Select CV predictions and the matching measured objects.",
+      "narration": "Open Classify from Home, then choose Explain CV Model. Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality. Explain CV Model reads the measured objects and the object classification scores. From those, Explain CV Model produces the fitted feature classifier, and the figures and table exports. Classify can supply the object classification scores. Select CV predictions and the matching measured objects.",
       "hold_after": 0.7,
       "related_lessons": [
         "41_classify",
@@ -662,7 +662,7 @@
     },
     {
       "visual": "module_activation",
-      "narration": "Open Classify from Home, then choose Activation. Apply the matching image classifier and preprocessing to inspect saliency/model-response maps. Input data: Trained image classifier; Object crops. Output data: Image attribution maps. Image attribution maps: Saved model-response/saliency images for the matching classifier and input preprocessing. Classify to Activation: Also provide the matching crops and channel preprocessing.",
+      "narration": "Open Classify from Home, then choose Activation. Apply the matching image classifier and preprocessing to inspect saliency/model-response maps. Activation reads the trained image classifier and the object crops. From those, Activation produces the image attribution maps. You'll find the image attribution maps here: Saved model-response/saliency images for the matching classifier and input preprocessing. Classify can supply the trained image classifier. Also provide the matching crops and channel preprocessing.",
       "hold_after": 0.7,
       "related_lessons": [
         "16_activation",
@@ -671,7 +671,7 @@
     },
     {
       "visual": "module_agreement",
-      "narration": "Open Annotate from Home, then choose Annotator Agreement. Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy. Input data: Training annotations; Object crops. Output data: Quality-control results; Figures and table exports. Annotate to Annotator Agreement: Choose independent annotation columns for the same objects.",
+      "narration": "Open Annotate from Home, then choose Annotator Agreement. Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy. Annotator Agreement reads the training annotations and the object crops. From those, Annotator Agreement produces the quality-control results, and the figures and table exports. Annotate can supply the training annotations. Choose independent annotation columns for the same objects.",
       "hold_after": 0.7,
       "related_lessons": [
         "09_annotate",
@@ -680,7 +680,7 @@
     },
     {
       "visual": "module_classify",
-      "narration": "Open Classify from Home, then choose Computer Vision. Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint. Input data: Measured objects; Object crops; Training annotations. Output data: Object classification scores; Trained image classifier; Classifier evaluation bundle.",
+      "narration": "Open Classify from Home, then choose Computer Vision. Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint. Computer Vision reads the measured objects, the object crops and the training annotations. From those, Computer Vision produces the object classification scores, the trained image classifier and the classifier evaluation bundle.",
       "hold_after": 0.7,
       "related_lessons": [
         "10_classify_cv"
@@ -688,7 +688,7 @@
     },
     {
       "visual": "module_ml_analyze",
-      "narration": "Open Classify from Home, then choose Tabular Machine Learning. Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores. Input data: Measured objects; Training annotations. Output data: Object classification scores; Fitted feature classifier; Classifier evaluation bundle.",
+      "narration": "Open Classify from Home, then choose Tabular Machine Learning. Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores. Tabular Machine Learning reads the measured objects and the training annotations. From those, Tabular Machine Learning produces the object classification scores, the fitted feature classifier and the classifier evaluation bundle.",
       "hold_after": 0.7,
       "related_lessons": [
         "11_classify_ml"
@@ -696,7 +696,7 @@
     },
     {
       "visual": "module_parameter_sweep",
-      "narration": "Open Regression from Home, then choose Parameter Sweep. Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed. Input data: Object classification scores; Guide counts per well. Output data: Run/model comparison; Regression results and hits.",
+      "narration": "Open Regression from Home, then choose Parameter Sweep. Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed. Parameter Sweep reads the object classification scores and the guide counts per well. From those, Parameter Sweep produces the run/model comparison, and the regression results and hits.",
       "hold_after": 0.7,
       "related_lessons": [
         "73_parameter_sweep"
@@ -704,7 +704,7 @@
     },
     {
       "visual": "module_toxoplasma",
-      "narration": "Open Toxoplasma from Home. Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table. Input data: Bundled organism reference. Bundled organism reference: Installed organism descriptions and SwissBioPics cell diagrams; no project input is required. Output data: Organism guide and assay selection. Organism guide and assay selection: GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "narration": "Open Toxoplasma from Home. Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table. Toxoplasma reads the bundled organism reference. Look for the bundled organism reference here: Installed organism descriptions and SwissBioPics cell diagrams; no project input is required. From those, Toxoplasma produces the organism guide and assay selection. You'll find the organism guide and assay selection here: GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
       "hold_after": 0.7,
       "related_lessons": [
         "82_toxoplasma"
@@ -712,7 +712,7 @@
     },
     {
       "visual": "module_plasmodium",
-      "narration": "Open Plasmodium spp. from Home. Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Input data: Bundled organism reference. Output data: Organism guide and assay selection.",
+      "narration": "Open Plasmodium spp. from Home. Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Plasmodium spp. reads the bundled organism reference. From those, Plasmodium spp. produces the organism guide and assay selection.",
       "hold_after": 0.7,
       "related_lessons": [
         "83_plasmodium"
@@ -720,7 +720,7 @@
     },
     {
       "visual": "module_candida",
-      "narration": "Open Candida spp. from Home. Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Input data: Bundled organism reference. Output data: Organism guide and assay selection.",
+      "narration": "Open Candida spp. from Home. Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Candida spp. reads the bundled organism reference. From those, Candida spp. produces the organism guide and assay selection.",
       "hold_after": 0.7,
       "related_lessons": [
         "84_candida"
@@ -728,7 +728,7 @@
     },
     {
       "visual": "module_endodyogeny",
-      "narration": "Use Endodyogeny size proxy from Python through spacr.submodules.analyze_endodyogeny. This API-only workflow has no Home tile or menu entry. Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional. Input data: Host-cell-aggregated compartment areas. Host-cell-aggregated compartment areas: Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Relevant tables depend on the selected route: cell, nucleus, pathogen, cytoplasm, png_list. Relevant columns depend on the selected route: cell_id, pathogen_area. Output data: Area-derived size-proxy results. Area-derived size-proxy results: Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. Relevant columns depend on the selected route: pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index. Measure to Endodyogeny size proxy: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "narration": "Use Endodyogeny size proxy from Python through spacr.submodules.analyze_endodyogeny. This API-only workflow has no Home tile or menu entry. Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional. Endodyogeny size proxy reads the host-cell-aggregated compartment areas. Look for the host-cell-aggregated compartment areas here: Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Depending on the route, the tables that matter are cell, nucleus, pathogen, cytoplasm, png_list. The columns to keep an eye on are cell_id, pathogen_area. From those, Endodyogeny size proxy produces the area-derived size-proxy results. You'll find the area-derived size-proxy results here: Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. The columns to keep an eye on are pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index. Measure can supply the measured objects. Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure"
@@ -736,7 +736,7 @@
     },
     {
       "visual": "module_cellpose_masks",
-      "narration": "Use Direct Cellpose mask generation from Python through spacr.spacr_cellpose.identify_masks_finetune. This API-only workflow has no Home tile or menu entry. Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project. Input data: TIFF fields for direct Cellpose inference; Segmentation checkpoint. TIFF fields for direct Cellpose inference: Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint. Output data: Direct Cellpose TIFF masks. Direct Cellpose TIFF masks: When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db. Cellpose Workbench to Direct Cellpose mask generation: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing. Direct Cellpose mask generation to External Masks: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "narration": "Use Direct Cellpose mask generation from Python through spacr.spacr_cellpose.identify_masks_finetune. This API-only workflow has no Home tile or menu entry. Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project. Direct Cellpose mask generation reads the TIFF fields for direct Cellpose inference and the segmentation checkpoint. Look for the TIFF fields for direct Cellpose inference here: Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint. From those, Direct Cellpose mask generation produces the direct Cellpose TIFF masks. You'll find the direct Cellpose TIFF masks here: When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db. Cellpose Workbench can supply the segmentation checkpoint. Pass the trained checkpoint as custom_model with the matching image channels and preprocessing. External Masks picks up the direct Cellpose TIFF masks next. Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
       "hold_after": 0.7,
       "related_lessons": [
         "19_train_cellpose",
@@ -745,13 +745,13 @@
     },
     {
       "visual": "module_simulation",
-      "narration": "Use Pooled-screen simulation sweep from Python through spacr.sim.run_multiple_simulations. This API-only workflow has no Home tile or menu entry. Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid. Input data: Pooled-screen simulation assumptions. Pooled-screen simulation assumptions: Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound. Output data: Synthetic screen simulation summaries. Synthetic screen simulation summaries: src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Relevant tables depend on the selected route: simulations.",
+      "narration": "Use Pooled-screen simulation sweep from Python through spacr.sim.run_multiple_simulations. This API-only workflow has no Home tile or menu entry. Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid. Pooled-screen simulation sweep reads the pooled-screen simulation assumptions. Look for the pooled-screen simulation assumptions here: Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound. From those, Pooled-screen simulation sweep produces the synthetic screen simulation summaries. You'll find the synthetic screen simulation summaries here: src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Depending on the route, the tables that matter are simulations.",
       "hold_after": 0.7,
       "related_lessons": []
     },
     {
       "visual": "home_summary",
-      "narration": "Choose the chapter for your next task and open its linked module lesson for the controls and example data. Keep each output with the settings that created it. The module pages and Python API list the same input files, tables and identifiers when you need to connect steps in your own analysis.",
+      "narration": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
       "hold_after": 0.7
     }
   ]
