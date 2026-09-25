@@ -26,9 +26,17 @@ unit, or before the next unit begins:
   active it polls the token, terminates that child, persists the current job as
   resumable, and then stops the queue.
 
-A Stop click therefore may wait for the current unit. The console reports
-``Stopped safely`` when the boundary is reached, and the reproducibility
-manifest records ``status: cancelled`` rather than a failure traceback.
+Stop first asks how to stop. **Finish current work** requests cancellation
+and waits for the current unit; if the run has not reached a boundary after
+five minutes, the question is asked again. The console reports ``Stopped
+safely`` when the boundary is reached, and the reproducibility manifest
+records ``status: cancelled`` rather than a failure traceback.
+
+**Force stop** gives the window back at once. A worker that does not respond
+-- typically one inside a long Cellpose or PyTorch call -- is parked rather
+than terminated: its references are kept and it finishes in the background,
+so anything it is writing may be left half-written. **Force restart** saves the
+module and its settings, then starts spaCR again and reopens that module.
 
 Shutdown behavior
 -----------------
@@ -36,8 +44,9 @@ Shutdown behavior
 The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to
 every active worker and thread. On application shutdown it requests
 cancellation for all jobs and waits against one bounded deadline. If any job
-has not reached a safe boundary, the close event is refused and the live
-references are retained. The user can close again after the current unit
+that writes results has not reached a safe boundary, the close event is refused
+and the live references are retained. Read-only housekeeping jobs, such as a
+Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit
 finishes. The same rule applies when an individual module screen is closed.
 
 ``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt

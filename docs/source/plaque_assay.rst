@@ -40,9 +40,10 @@ Read a published figure
 #. If the figure reader is missing, use the panel's **Install** action.
    It installs the YOLO/OCR reader in its own backend environment under
    ``~/.spacr/backends``. Inspect the installation result before previewing.
-#. In **Settings… → Figure**, choose the well detector, inference sizes,
-   confidence cutoff and text-reading settings. **Run preview** finds wells
-   and reads the figure text; this first pass does not segment the plaques.
+#. In **Settings… → Figure**, choose the well detector, inference sizes and
+   confidence cutoff; the text-reading settings are on the **Text detection**
+   tab. **Run preview** finds wells and reads the figure text; this first
+   pass does not segment the plaques.
 #. Click a well in the image or a table row. **Plaque preview** segments that
    well with the plaque settings. **Find plaques in all wells** processes
    the detected wells in sequence; Cancel stops after the current well.
@@ -60,7 +61,7 @@ entries. The batch figure workflow uses these files and writes its database
 under ``<src>/plaque_figures/plaque_figures.db`` by default. Reprocessing a
 figure replaces its previous rows; duplicate image content is recorded rather
 than counted as an independent image. See
-:func:`spacr.plaque_papers.analyze_figure_folder` for the full file contract.
+:func:`spacr.plaque_papers.measure_figure_folder` for the full file contract.
 
 Areas in pixels and calibrated areas are different quantities. Verify the
 reported scale and its source before comparing physical areas between images.

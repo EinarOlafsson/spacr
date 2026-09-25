@@ -1,9 +1,10 @@
 Resumable multi-objective UMAP search
 =====================================
 
-Image UMAP can search ``n_neighbors`` and ``min_dist`` using one criterion or
-a multi-objective mode. Open **UMAP settings…** from the Hyperparameter Search
-panel and choose ``multi_objective`` as the criterion.
+Image UMAP can search ``n_neighbors``, ``min_dist`` and the other structural
+UMAP parameters using one criterion or a multi-objective mode. Open **UMAP
+settings…** from the Hyperparameter search panel on the Image UMAP screen;
+``multi_objective`` is the default criterion.
 
 Why several objectives?
 -----------------------
@@ -61,14 +62,18 @@ Use three repeats for routine searches and increase the count when the leading
 Pareto configurations have similar stability or when a final analysis must be
 especially reproducible.
 
-Adaptive search and stopping
-----------------------------
+Walk search and stopping
+------------------------
 
-Adaptive 2×2 mode evaluates the four diagonal corners around the current
-``n_neighbors``/``min_dist`` centre. The weighted multi-objective score chooses
-the direction of the next move. Search stops at the maximum round count, when a
-round fails to exceed ``minimum improvement``, or after **Stop** is requested.
-A stopped result is explicitly marked partial.
+Switch on **Walk** to search locally from the values in the parameter fields
+instead of sweeping a grid. Each round scores the neighbourhood around the
+current centre and moves to the best configuration in it; with the default
+axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four
+diagonal corners. **Axes…** adds other structural parameters and sets each
+axis's step and resolution. The weighted multi-objective score chooses the
+direction of the next move. Search stops at **maximum rounds**, when a round
+fails to exceed **minimum improvement**, or after **Stop** is requested. A
+stopped result is explicitly marked partial.
 
 Resume behavior
 ---------------
@@ -77,13 +82,14 @@ Enable **Resume checkpoint** to continue from
 ``results/.spacr_checkpoints/umap_search.json`` under the current project (or
 from an explicit ``checkpoint_path`` in the Python API). Each completed trial
 is written atomically and its primary embedding is stored beside the JSON.
-An interrupted adaptive round evaluates only missing corners before choosing a
-direction.
+An interrupted Walk round evaluates only its missing candidates before choosing
+a direction.
 
 Resume refuses to combine incompatible work. Feature and label hashes, search
-space, criterion, seed, neighborhood size, adaptive increments, stopping
-threshold, stability repeat count, objective weights and embedder identity must
-match the checkpoint.
+space, criterion, seed, output dimensions, neighborhood size, the
+``n_neighbors``/``min_dist`` increments, stopping threshold, stability repeat
+count, objective weights, embedder identity, backend and the
+cluster-during-search settings must match the checkpoint.
 
 Python API
 ----------

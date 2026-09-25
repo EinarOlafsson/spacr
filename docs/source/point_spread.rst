@@ -34,8 +34,8 @@ the integrated intensity. This illustrates convolution with a Gaussian
 approximation. For your microscope, enter measured calibration values and
 inspect the resulting image with **Compare**.
 
-For a batch in **Mask** or **Timelapse**, open the **Point Spread Function**
-settings category. Set ``psf_operation`` to ``convolve`` or ``deconvolve`` and
+For a batch in **Mask**, including a run with the **Timelapse** switch on,
+open the **Point Spread Function** settings category. Set ``psf_operation`` to ``convolve`` or ``deconvolve`` and
 ``psf_image_sampling_um`` to your calibrated ``[Y, X]`` pixel spacing.
 For ``psf_source="measured"``, select ``psf_path`` and matching
 ``psf_kernel_sampling_um``. For ``psf_source="gaussian"``, supply
