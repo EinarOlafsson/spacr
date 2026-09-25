@@ -281,7 +281,7 @@ def _svg_arc(path: QPainterPath, p0: QPointF, p1: QPointF,
 def github_path(box: QRectF) -> QPainterPath:
     """GitHub's Octocat mark, scaled to fill ``box``.
 
-    Uniform scale on the larger of the two ratios and centred, so the cat
+    Uniform scale on the smaller of the two ratios and centred, so the cat
     keeps its proportions in a box of any shape.
 
     :param box: the rectangle to fit the mark into; an empty box returns the
