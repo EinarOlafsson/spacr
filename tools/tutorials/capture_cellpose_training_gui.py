@@ -104,6 +104,18 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
             out[key] = capture_rect(field.parentWidget() or field, window)
         return out
 
+    def open_fold(screen, folder, name):
+        if not folder.shut:
+            return
+        from PySide6.QtWidgets import QLabel
+        headings = [folder.heading] if folder.heading.isVisible() else [
+            h for h in screen.findChildren(QLabel) if h.isVisible() and h.text().strip() == name]
+        for heading in headings:
+            QTest.mouseClick(heading, Qt.LeftButton); settle(.4)
+            if not folder.shut:
+                return
+        raise ValueError(f'The {name} fold did not open')
+
     def foldable(widget):
         while widget is not None and not (hasattr(widget, 'is_expanded') and hasattr(widget, '_header')):
             widget = widget.parentWidget()
@@ -269,10 +281,12 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 screen._request_cooperative_stop()
                 raise TimeoutError('Training exceeded its bound')
             text = console_text(screen)
-            for marker, frame in (('Training model on', 'train_run_started'),
-                                  ('train_loss', 'train_run_progress')):
-                if marker in text and frame not in seen and screen._worker_thread_is_running():
-                    seen.add(frame); screen._console.jump_to_the_end(); settle(.3); capture(frame)
+            if 'Training model on' in text and not seen and screen._worker_thread_is_running():
+                seen.add('started'); settle(.3); capture('train_run_started')
+                open_fold(screen, screen._console_folder, 'Console')
+                screen._console.jump_to_the_end(); settle(.3)
+                if screen._worker_thread_is_running():
+                    capture('train_run_console')
             settle(.1)
         settle(1)
         proof['train_elapsed_seconds'] = time.monotonic() - started
@@ -281,7 +295,8 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         write_json(captures / 'training_outcome.json', outcome)
         if not outcome['ok'] or outcome['errors']:
             raise ValueError('Training failed: ' + repr(outcome['errors']) + text[-2000:])
-        screen._console.jump_to_the_end(); settle(.4); capture('train_checkpoint')
+        open_fold(screen, screen._console_folder, 'Console')
+        screen._console.jump_to_the_end(); settle(.6); capture('train_checkpoint')
         folder = training / 'models/cellpose_model/models'
         checkpoints = sorted(p for p in folder.glob(MODEL_NAME + '_*') if p.is_file())
         if len(checkpoints) != 1:
@@ -373,8 +388,8 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
 
         # Run the whole folder.
         QTest.mouseClick(preview.toggle, Qt.LeftButton); settle(.5)
-        if apply._console_folder.shut:
-            QTest.mouseClick(apply._console_header, Qt.LeftButton); settle(.3)
+        open_fold(apply, apply._console_folder, 'Console')
+        open_fold(apply, apply._actions_folder, 'Actions')
         QTimer.singleShot(1500, reject_prompts)
         started = time.monotonic(); click(apply._btn_run)
         worker = apply._worker
