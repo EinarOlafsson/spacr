@@ -661,6 +661,11 @@ class GateEditorScreen(QWidget):
         compute every per-well number over both at once with nothing on screen
         to say so. The user is told which plate ids clash, because they are
         the only one who can say whether they are the same plate.
+
+        :param paths: the SQLite measurement databases to merge, as paths; each
+            is converted to ``str``, and an empty list does nothing.
+        :param table: the table to read from every database; ``None`` uses the
+            first table of the first database.
         """
         from ...multi_database import (
             SOURCE_COLUMN, MergeRefused, describe_merge, read_merged)
@@ -751,7 +756,16 @@ class GateEditorScreen(QWidget):
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
-        thread."""
+        thread.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker. It becomes the only database in
+            the working set.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
+        """
         self._path = path
         if self._paths != [path]:
             self._paths = [path]
@@ -873,7 +887,11 @@ class GateEditorScreen(QWidget):
         return items
 
     def axis_column(self, axis: str) -> str:
-        """The measurement drawn on ``"x"`` or ``"y"``, or ``""``."""
+        """The measurement drawn on ``"x"`` or ``"y"``, or ``""``.
+
+        :param axis: ``"x"`` or ``"y"``; converted to ``str``, and any other
+            value gives ``""``.
+        """
         box = {"x": self._x, "y": self._y}.get(str(axis))
         return "" if box is None else box.currentText()
 
@@ -889,6 +907,9 @@ class GateEditorScreen(QWidget):
 
         Returns ``None`` for a click inside the plotting rectangle, which is
         where the plot's own menu belongs.
+
+        :param point: the click position as a ``QPoint`` in the gate canvas
+            widget's own coordinates.
         """
         canvas = getattr(self.gates, "canvas", None)
         if canvas is None:
@@ -915,6 +936,9 @@ class GateEditorScreen(QWidget):
         Separated from the QMenu for the same reason
         :meth:`graph_menu_items` is: an offscreen Qt cannot grab for a popup,
         so a test that builds a real menu hangs.
+
+        :param axis: ``"x"`` or ``"y"``; the menu is built for the measurement
+            currently drawn on it.
         """
         column = self.axis_column(axis)
         return axis_menu_items(
@@ -948,6 +972,12 @@ class GateEditorScreen(QWidget):
         The menu is a second ROUTE to the scale the settings window already
         holds, never a second copy of it: this writes the same field, so the
         two cannot come to disagree about how the plot is drawn.
+
+        :param axis: ``"x"`` or ``"y"``; it names the ``<axis>_scale`` settings
+            field, and a value with no such field does nothing.
+        :param scale: a matplotlib axis scale, one of
+            :data:`~spacr.qt.widgets.gate_settings.AXIS_SCALES` (``"linear"``,
+            ``"log"``, ``"symlog"`` or ``"logit"``).
         """
         field = f"{axis}_scale"
         if not hasattr(self._settings, field):
@@ -984,6 +1014,9 @@ class GateEditorScreen(QWidget):
 
         Returns the pair that was applied, or ``None`` when the request was
         cancelled or could not be read.
+
+        :param axis: ``"x"`` or ``"y"``; an axis with no measurement chosen
+            returns ``None`` without asking.
         """
         column = self.axis_column(axis)
         if not column:
@@ -1009,6 +1042,10 @@ class GateEditorScreen(QWidget):
 
         Either end may be ``None``, meaning the data decides it.
 
+        :param axis: ``"x"`` or ``"y"``; an axis with no measurement chosen
+            does nothing.
+        :param low: the lowest value to show, or ``None``.
+        :param high: the highest value to show, or ``None``.
         :raises spacr.qt.widgets.gate_canvas.CutoffError: when the low end is
             not below the high one.
         """
@@ -1022,7 +1059,11 @@ class GateEditorScreen(QWidget):
         self._redraw_for_cutoffs()
 
     def clear_axis_cutoffs(self, axis: str) -> bool:
-        """Let ``axis`` follow the data again. Returns whether it was cut."""
+        """Let ``axis`` follow the data again. Returns whether it was cut.
+
+        :param axis: ``"x"`` or ``"y"``; an axis with no measurement chosen, or
+            with no cutoffs set, returns False.
+        """
         column = self.axis_column(axis)
         if not column or not self._cutoffs.clear(column):
             return False
@@ -1217,6 +1258,11 @@ class GateEditorScreen(QWidget):
         Two settings cost a read -- the sample fraction and the row cap. The
         rest are drawing, and re-reading a large table because the user
         nudged a colour map is the lag this dialog exists to remove.
+
+        :param settings: the complete new
+            :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`; it
+            replaces the current settings and is passed to the gate canvas and
+            the search panel.
         """
         previous, self._settings = self._settings, settings
         self.gates.apply_settings(settings)
@@ -1634,6 +1680,9 @@ class GateEditorScreen(QWidget):
         The last one cannot be dropped: a gate editor with no table is a
         screen with nothing on it, and the user's next move would be to load
         the same table again.
+
+        :param name: the table name. A table not in the working set, or the
+            last remaining table, does nothing.
         """
         if name not in self._tables or len(self._tables) == 1:
             return
@@ -1712,6 +1761,9 @@ class GateEditorScreen(QWidget):
         inside its own id, where nothing can block on it or colour by it.
         Dropping one of the two databases keeps every remaining number
         meaning what it says.
+
+        :param name: the database's chip label or its path. An unknown name, or
+            the last remaining database, does nothing.
         """
         labels = self.database_labels()
         target = None
@@ -1850,7 +1902,11 @@ class GateEditorScreen(QWidget):
             self.save_filters(path)
 
     def save_filters(self, path: str) -> str:
-        """Write the current filter set to ``path``."""
+        """Write the current filter set to ``path``.
+
+        :param path: the file to write the current filter set to, as JSON; an
+            existing file is overwritten.
+        """
         self.filters.save(path)
         self._source.setText(f"filters saved to {os.path.basename(path)}")
         return path
@@ -1870,6 +1926,10 @@ class GateEditorScreen(QWidget):
         one plate and loaded against another is an ordinary thing to do, and
         a set that half-applies selects the wrong rows while looking like it
         worked.
+
+        :param path: a JSON filter-set file written by :meth:`save_filters`. A
+            file that cannot be read is reported on the source line and gives
+            an empty list.
         """
         try:
             missing = self.filters.load(path)
@@ -1895,7 +1955,11 @@ class GateEditorScreen(QWidget):
             self.save_gates(path)
 
     def save_gates(self, path: str) -> str:
-        """Write the gating strategy to ``path``."""
+        """Write the gating strategy to ``path``.
+
+        :param path: the file to write the gating strategy to, as JSON; an
+            existing file is overwritten.
+        """
         self.gates.gates.save(path)
         self._source.setText(f"gates saved to {os.path.basename(path)}")
         return path
@@ -1914,6 +1978,9 @@ class GateEditorScreen(QWidget):
         A strategy naming a measurement this table does not carry loads anyway
         and reports the problem: the gates are still there to look at and fix,
         which is more use than refusing the file.
+
+        :param path: a JSON gate file written by :meth:`save_gates`. A file
+            that cannot be read is reported on the source line and gives False.
         """
         try:
             self.gates.set_gates(GateSet.load(path))
