@@ -156,7 +156,7 @@
     },
     {
       "visual": "09_fold_train_cellpose",
-      "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
+      "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
       "hold_after": 0.7,
       "focus_buttons": "FoldButton",
       "related_lessons": [

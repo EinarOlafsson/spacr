@@ -1,6 +1,7 @@
 PLAQUE PREVIEW: OUTLINE AND BOX STYLING, THE FOUR VIEWS, AND A RULER
 
-Status: OPEN, filed 2026-09-24. Not started.
+Status: PART DONE 2026-09-25 (line weights and ruler built; the four views
+stay open pending 505). Filed 2026-09-24.
 Owner: unassigned. Related: 505 (the same views in Mask generation's live
 preview), and the plaque preview's existing overlay settings.
 
@@ -26,3 +27,54 @@ WHAT TO BUILD
 DONE WHEN
 Outline and box thickness are adjustable and persist, the four views are
 selectable on a real plaque field, and the ruler measures in both units.
+
+NOTE 2026-09-25 -- parts 1 and 2 built; the four views still open
+BUILT (spacr/qt/widgets/plaque_preview.py)
+  * OverlayStyle gains box_thickness (:471; 0 = Automatic, the old
+    size-based rule, box_thickness_for :583; MAX_BOX_THICKNESS :405). All
+    weights are in IMAGE pixels, baked into the picture, so they zoom with
+    it and reach a saved picture.
+  * Persistence: OVERLAY_STYLE_KEY "plaque_preview/overlay_style" (:529) in
+    the GUI preferences store, JSON via as_dict/from_dict; load_overlay_style
+    :543, store_overlay_style :558 (called from set_overlay_style :3289),
+    session_style :570 seeds each new panel.
+  * Overlay settings dialog: outline Thickness now has a tooltip; new "Well
+    boxes" group with a "Line weight" spin box (:1763, "Automatic" at 0).
+    The view paints boxes with box_thickness_for (:2024); the highlighted
+    box stays twice as wide.
+  * Right-click menu gains "Save picture..." -> save_picture (:3419), which
+    writes the right-clicked (else shown) tab's picture at native size with
+    the chosen weights and colours; the ruler line is not saved.
+  * Ruler: checkable "Ruler" button (:2510) beside the zoom buttons, reusing
+    Make Masks' ImageRuler (item 477, spacr/qt/widgets/image_ruler.py;
+    _ImageView :1968, share_ruler :1971 so one line shows on all four tabs,
+    widget_point :2073, paint :2124). Left drag measures, right-click clears,
+    no overlay menu while the ruler is on. Microns come from
+    ruler_microns_per_pixel (:3704): in Figure mode the highlighted well's
+    resolved scale (item 500: Wells-row value, else Pixels per um, else a
+    found scale bar / well diameter), in Plaque mode Pixels per um; none ->
+    pixels only, said in the note beside the button (_refresh_ruler_spacing
+    :3731). A new picture or a different well clears the line.
+TESTS
+  * tests/qt/test_513_plaque_line_weights_persist_and_a_ruler_measures.py:
+    12 passed (stroke widths measured on the painted QImage and on a saved
+    PNG; persistence across a rebuilt panel with a scratch config HOME;
+    ruler in px and um, figure-mode per-well scale).
+  * tests/qt -k plaque (all plaque preview suites incl. the above), after
+    merging nightly: 200 passed, 1 skipped (QtMultimedia lib, unrelated).
+    test_plaque_assay_has_plaque_and_figure_modes.py's menu list updated
+    for the new "Save picture..." entry.
+STILL OPEN
+  * The four views (outlines / masks / flows / cell probability) sharing
+    Mask generation's widget -- waits on item 505.
+FOR THE DOCS LANE (new tr() strings / settings)
+  * Setting: preferences key plaque_preview/overlay_style (JSON: display,
+    outline_colour, outline_thickness, fill_colour, fill_opacity,
+    box_thickness).
+  * Strings: "Well boxes", "Line weight", "Automatic", "Ruler",
+    "Pixels only: no pixel size is known.", "{value:g} px/um",
+    "Save picture...", "Save picture", "Pictures", "All files",
+    "There is no picture to save yet.", "Could not write {path}.",
+    "Saved the picture to {path}.", "The line weight of the well boxes is
+    set there too.", and the tooltips OUTLINE_WEIGHT_HELP (:411),
+    BOX_WEIGHT_HELP (:415), SAVE_PICTURE_HELP (:421), RULER_HELP (:424).

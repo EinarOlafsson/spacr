@@ -156,7 +156,12 @@ SETTINGS_KEY_FOR_DISPLAY = {
 
 
 def as_settings_keys(values: Dict) -> Dict:
-    """Map Image UMAP display keys to their persisted setting names."""
+    """Map Image UMAP display keys to their persisted setting names.
+
+    :param values: display values keyed by display name; keys in
+        :data:`SETTINGS_KEY_FOR_DISPLAY` are renamed and the rest kept as they
+        are. ``None`` gives an empty dict.
+    """
     return {SETTINGS_KEY_FOR_DISPLAY.get(key, key): value
             for key, value in (values or {}).items()}
 
@@ -624,6 +629,10 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
 
         Optional: the explorer is usable without one, and a widget built in
         a test has none.
+
+        :param callback: called with a dict of settings, keyed by their
+            persisted names, after the display settings window is accepted; any
+            exception it raises is logged and ignored.
         """
         self._propagate_cb = callback
 
@@ -660,6 +669,9 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
     def apply_display(self, values: Dict) -> bool:
         """Apply display settings to the figure that is already on screen.
 
+        :param values: ``{display key: value}``; keys the explorer does not
+            know and ``None`` values are skipped, and ``None`` for the whole
+            mapping changes nothing.
         :returns: True when something changed and the canvas was redrawn.
 
         The EMBEDDING is never touched. Only the keys in
@@ -691,6 +703,12 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         publishes and receives selections — but a filter on a measurement
         column has nothing here to test, and is reported as ignored rather
         than silently drawing everything as if it had applied.
+
+        :param payload: the dict attached by ``generate_image_umap``:
+            ``embedding`` (shape (N, 2)), ``labels`` and ``records`` of the
+            same length, and optionally ``frame`` (a DataFrame with N rows) and
+            ``display`` (initial display values). A wrong shape or length
+            raises :class:`ValueError`.
         """
         embedding = np.asarray(payload.get("embedding", []), dtype=float)
         if embedding.ndim != 2 or embedding.shape[1:] != (2,):
@@ -949,7 +967,12 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
     def on_linked_selection_changed(self, selection: Selection) -> None:
         """Ring the points somebody else selected. Nothing is hidden, and the
         local lasso — which is what the annotation buttons write — is left
-        exactly as the user drew it."""
+        exactly as the user drew it.
+
+        :param selection: the :class:`~spacr.selection.Selection` another view
+            published; the points whose object keys it names are ringed, and an
+            inactive selection rings none.
+        """
         self._recompute_linked_points(selection)
         self._draw_linked_points()
         self._canvas.draw_idle()
@@ -987,7 +1010,11 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self.show_point(int(np.argmin(distance)))
 
     def show_point(self, index: int) -> None:
-        """Preview one point's image and database identity."""
+        """Preview one point's image and database identity.
+
+        :param index: position of the point in the payload's records; converted
+            to ``int``, and an out-of-range index does nothing.
+        """
         if not (0 <= int(index) < len(self._records)):
             return
         index = int(index)

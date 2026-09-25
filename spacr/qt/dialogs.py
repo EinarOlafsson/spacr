@@ -225,6 +225,9 @@ def fields_in(dialog) -> int:
 
     Editors nested inside another field, such as a spin box's line editor,
     are not counted separately. Push buttons are not considered fields.
+
+    :param dialog: the widget whose descendant widgets are searched for
+        data-entry fields.
     """
     from PySide6.QtWidgets import QWidget
 
@@ -250,6 +253,8 @@ def more_than_a_message(dialog) -> bool:
 
     A dialog qualifies when it contains at least one data-entry field or an
     existing scroll area. Simple confirmation and message dialogs do not.
+
+    :param dialog: the widget searched for data-entry fields and scroll areas.
     """
     from PySide6.QtWidgets import QAbstractScrollArea
 
@@ -263,12 +268,16 @@ def window_floor(dialog):
 
     Unlike ``minimumSizeHint()``, this value directly constrains manual and
     initial window resizing.
+
+    :param dialog: the widget whose ``minimumSize()`` is returned.
     """
     return dialog.minimumSize()
 
 
 def content_floor(dialog):
     """Return the layout's minimum size for rendering without clipping.
+
+    :param dialog: the widget whose ``minimumSizeHint()`` is returned.
     """
     return dialog.minimumSizeHint()
 
@@ -279,6 +288,9 @@ def is_stuck_at_its_contents(dialog) -> bool:
     :data:`SLACK` defines the minimum proportional reduction required for a
     dialog to be considered usefully resizable. Call this before changing its
     layout or minimum size.
+
+    :param dialog: the dialog to measure; its size hint (at least its explicit
+        minimum) is compared with its layout's minimum size hint.
     """
     opening = dialog.sizeHint().expandedTo(window_floor(dialog))
     content = content_floor(dialog)
@@ -455,6 +467,10 @@ def wants_resizing(dialog) -> bool:
 
     The dialog must contain interactive content and must not be a specialized
     Qt dialog, explicitly exempt, or already processed.
+
+    :param dialog: the widget to judge. Only a :class:`QDialog` that is not one
+        of Qt's own specialised dialogs, is not flagged exempt or already
+        resizable, and has a non-empty layout can qualify.
     """
     from PySide6.QtWidgets import QDialog
 
@@ -475,6 +491,9 @@ def drop_the_explicit_floor(dialog) -> bool:
 
     The original value can be retained separately and passed to
     :func:`open_at_its_natural_size` so the initial window size is preserved.
+
+    :param dialog: the dialog whose explicit minimum size is reset to zero when
+        one is set.
     """
     from PySide6.QtCore import QSize
 
@@ -492,6 +511,9 @@ def let_the_content_scroll(dialog) -> bool:
     while the original outer margins remain on the dialog. The holder expands
     with the viewport, and content exceeding the current window size scrolls.
 
+    :param dialog: the dialog whose existing layout is moved into a scroll
+        area; it must already have a layout. It is flagged as scrolling
+        afterwards.
     :returns: ``True`` after the content has been moved.
     """
     from PySide6.QtWidgets import QFrame, QVBoxLayout, QWidget
@@ -529,6 +551,8 @@ def open_at_its_natural_size(dialog) -> bool:
     size does not cause a dialog to open smaller than its original layout.
     Later shows retain the size selected by the user.
 
+    :param dialog: the dialog whose stored opening size, if any, is applied
+        (never shrinking its current size) and then cleared.
     :returns: ``True`` if a stored size was applied.
     """
     floor = dialog.property(OPENS_AT)
@@ -542,6 +566,8 @@ def open_at_its_natural_size(dialog) -> bool:
 def give_it_a_size_grip(dialog) -> bool:
     """Enable a transparent corner size grip on ``dialog``.
 
+    :param dialog: the :class:`QDialog` whose size grip is enabled and made
+        transparent.
     :returns: ``True`` if the dialog contains a size-grip widget.
     """
     from PySide6.QtWidgets import QSizeGrip
@@ -562,6 +588,8 @@ def make_the_window_resizable(dialog) -> bool:
     area. A size grip is then enabled. Repeated calls leave the dialog
     unchanged.
 
+    :param dialog: the widget to process; anything :func:`wants_resizing`
+        rejects is left untouched and returns ``False``.
     :returns: ``True`` if the dialog was eligible and processed.
     """
     if not wants_resizing(dialog):
@@ -709,6 +737,10 @@ def detach_all_dialogs(app) -> bool:
     Idempotent PER APPLICATION: calling it twice on the same app leaves one
     filter, and calling it on a NEW app installs again, because the old
     filter died with the old app.
+
+    :param app: the :class:`QApplication` that receives the event filter.
+        ``None``, or the application already holding the filter, returns
+        ``False`` without installing.
     """
     global _DETACHER, _DETACHED_APP
     if app is None:

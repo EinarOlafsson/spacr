@@ -155,7 +155,12 @@ class PlanTableModel(QAbstractTableModel):
         self._columns: List[Tuple[str, str]] = list(PREVIEW_COLUMNS)
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
-        """Replace the displayed frame, keeping only the known columns."""
+        """Replace the displayed frame, keeping only the known columns.
+
+        :param frame: the plan frame from :meth:`ConversionPlan.to_frame`;
+            ``None`` or an empty frame shows an empty table with every
+            preview column.
+        """
         self.beginResetModel()
         if frame is None or not len(frame):
             self._frame = pd.DataFrame(
@@ -415,7 +420,12 @@ class ConvertScreen(QWidget):
 
 
     def set_source(self, path: str) -> None:
-        """Point the screen at a source folder without opening a dialog."""
+        """Point the screen at a source folder without opening a dialog.
+
+        :param path: the source folder; when no destination is set yet, the
+            destination becomes a sibling folder named after it with a
+            ``_yokogawa`` suffix.
+        """
         self._src_edit.setText(str(path or ""))
         if path and not self._dst_edit.text().strip():
             self._dst_edit.setText(
@@ -429,7 +439,10 @@ class ConvertScreen(QWidget):
         return self._src_edit.text().strip()
 
     def set_destination(self, path: str) -> None:
-        """Set the destination folder."""
+        """Set the destination folder.
+
+        :param path: the output folder; ``None`` or empty clears the field.
+        """
         self._dst_edit.setText(str(path or ""))
         self._update_controls()
 
@@ -453,7 +466,11 @@ class ConvertScreen(QWidget):
         box.setCurrentIndex(index)
 
     def set_layout_mode(self, value: str) -> None:
-        """Choose the source layout (see :data:`LAYOUT_CHOICES`)."""
+        """Choose the source layout (see :data:`LAYOUT_CHOICES`).
+
+        :param value: ``"auto"``, ``"plate_well"``, ``"well"`` or ``"flat"``;
+            any other value raises :class:`ValueError`.
+        """
         self._set_combo(self._layout_box, value, "layout")
 
     def layout_mode(self) -> str:
@@ -461,7 +478,12 @@ class ConvertScreen(QWidget):
         return str(self._layout_box.currentData())
 
     def set_z_handling(self, value: str) -> None:
-        """Choose how z planes are treated (see :data:`Z_CHOICES`)."""
+        """Choose how z planes are treated (see :data:`Z_CHOICES`).
+
+        :param value: ``"keep"`` (every plane), ``"max"`` (max-project) or
+            ``"first"`` (first plane only); any other value raises
+            :class:`ValueError`.
+        """
         self._set_combo(self._z_box, value, "z_handling")
 
     def z_handling(self) -> str:
@@ -469,7 +491,12 @@ class ConvertScreen(QWidget):
         return str(self._z_box.currentData())
 
     def set_plate_naming(self, value: str) -> None:
-        """Choose how output plates are named."""
+        """Choose how output plates are named.
+
+        :param value: ``"index"`` (``plate1``, ``plate2``, …) or ``"name"``
+            (keep the folder name); any other value raises
+            :class:`ValueError`.
+        """
         self._set_combo(self._plate_box, value, "plate_naming")
 
     def plate_naming(self) -> str:
@@ -477,7 +504,10 @@ class ConvertScreen(QWidget):
         return str(self._plate_box.currentData())
 
     def set_resume(self, enabled: bool) -> None:
-        """Enable or disable field-checkpoint resume."""
+        """Enable or disable field-checkpoint resume.
+
+        :param enabled: ``True`` to switch the Resume toggle on.
+        """
         self._resume.setChecked(bool(enabled))
 
     def resume_enabled(self) -> bool:
@@ -579,7 +609,12 @@ class ConvertScreen(QWidget):
         return self._model.rowCount()
 
     def preview_value(self, row: int, column: str) -> str:
-        """One preview cell by column name (test/introspection helper)."""
+        """One preview cell by column name (test/introspection helper).
+
+        :param row: zero-based row of the preview table.
+        :param column: column name in the plan frame, e.g. ``"target"``; an
+            unknown column or out-of-range row gives ``""``.
+        """
         frame = self._model.frame()
         if row < 0 or row >= len(frame) or column not in frame.columns:
             return ""

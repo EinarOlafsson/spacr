@@ -4217,76 +4217,106 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Visionneuse de plaques",
+      "title": "Plate Viewer: inspect wells and export a heatmap table",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Résultats et contrôle qualité",
-      "description": "Explorez les mesures sous forme de cartes thermiques de plaques et détectez les artefacts spatiaux ou les effets de bord.",
+      "section": "Results and quality control",
+      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
       "objectives": [
-        "Créer une carte thermique de plaque appropriée.",
-        "Reconnaître les artefacts spatiaux et ceux dus à de faibles effectifs.",
-        "Examiner et exporter des résumés traçables par puits."
+        "Open Plate Viewer from Graph Builder and load example measurements.",
+        "Choose a feature, aggregation and minimum object count.",
+        "Inspect well details and export the current well grid."
       ],
-      "prerequisite": "Mesurez une plaque dotée d'identifiants stables de plaque et de puits.",
+      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
       "scenes": [
         {
-          "narration": "Plate Viewer transforme les mesures des objets en cartes thermiques par puits et affiche à côté les contrôles de qualité spatiale.",
-          "visual": "01_overview",
+          "visual": "01_graph_builder_host",
+          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Plate Viewer transforme les mesures des objets en cartes thermiques par puits et affiche à côté les contrôles de qualité spatiale."
+          "related_lessons": [
+            "58_graph_builder"
+          ]
         },
         {
-          "narration": "Ouvrez une base de données de mesures ou un dossier d'exécution. La source est interrogée en lecture seule.",
-          "visual": "02_database",
+          "visual": "03_example_mean",
+          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "Ouvrez une base de données de mesures ou un dossier d'exécution. La source est interrogée en lecture seule."
+          "related_lessons": [
+            "08_measure",
+            "09_annotate"
+          ],
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Choisissez la table d'objets, la caractéristique numérique et la plaque à afficher.",
-          "visual": "03_measurement",
+          "visual": "03_example_mean",
+          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
           "hold_after": 0.7,
-          "focus_key": "selection",
-          "speech_text": "Choisissez la table d'objets, la caractéristique numérique et la plaque à afficher."
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Sélectionnez l'agrégation, l'échelle de couleurs et le niveau minimal de preuve requis pour un puits. Le dénombrement aide à repérer les différences de segmentation ou d'ensemencement cellulaire.",
-          "visual": "04_options",
+          "visual": "04_colour_scale",
+          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
           "hold_after": 0.7,
-          "focus_key": "options",
-          "speech_text": "Sélectionnez l'agrégation, l'échelle de couleurs et le niveau minimal de preuve requis pour un puits. Le dénombrement aide à repérer les différences de segmentation ou d'ensemencement cellulaire."
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Générez la vue, puis comparez la carte thermique aux diagnostics des lignes, des colonnes, des anneaux et des bords.",
-          "visual": "05_render",
-          "hold_after": 0.7,
-          "focus_key": "render",
-          "speech_text": "Générez la vue, puis comparez la carte thermique aux diagnostics des lignes, des colonnes, des anneaux et des bords."
+          "visual": "03_example_mean",
+          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "hold_after": 0.7
         },
         {
-          "narration": "Sélectionnez un puits pour examiner son identifiant, son nombre d'objets, la valeur affichée et sa position.",
-          "visual": "07_well_detail",
-          "hold_after": 0.7,
-          "focus_key": "well_detail",
-          "speech_text": "Sélectionnez un puits pour examiner son identifiant, son nombre d'objets, la valeur affichée et sa position."
+          "visual": "05_well_detail",
+          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "hold_after": 0.7
         },
         {
-          "narration": "Les puits situés sous le seuil de preuve deviennent des cases explicitement vides plutôt que des zéros trompeurs.",
-          "visual": "11_filtered_result",
+          "visual": "06_count",
+          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
           "hold_after": 0.7,
-          "focus_key": "result",
-          "speech_text": "Les puits situés sous le seuil de preuve deviennent des cases explicitement vides plutôt que des zéros trompeurs."
+          "focus": [
+            340,
+            300,
+            1800,
+            1300
+          ]
         },
         {
-          "narration": "Exportez la grille ordonnée actuelle des puits, avec les effectifs et les annotations spatiales, pour l'auditer ou la retracer.",
-          "visual": "13_export",
-          "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "Exportez la grille ordonnée actuelle des puits, avec les effectifs et les annotations spatiales, pour l'auditer ou la retracer."
+          "visual": "07_filtered",
+          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_save_csv",
+          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_exported",
+          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "hold_after": 0.7
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "34_database",

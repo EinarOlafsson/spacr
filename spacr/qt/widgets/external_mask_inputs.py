@@ -122,7 +122,12 @@ class ExternalMaskInputWidget(QWidget):
         self.set_value(value or [])
 
     def add_paths(self, paths: Iterable[Any]) -> int:
-        """Detect and append one drag/drop or picker batch."""
+        """Detect and append one drag/drop or picker batch.
+
+        :param paths: dropped or picked files and folders, grouped by
+            :func:`spacr.external_masks.detect_inputs`. A group already held
+            gains the new paths and keeps the lower confidence.
+        """
         detected = detect_inputs(list(paths))
         existing = {group.key: group for group in self._groups}
         for group in detected:

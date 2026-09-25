@@ -35,6 +35,10 @@ def cover_rect(pixmap: QPixmap, box: QRectF) -> QRectF:
     Crops rather than letterboxes -- the clip path trims the overflow -- so a
     tile is always a complete rounded square with no canvas showing through
     at the corners. A crop that already matches the box comes back unchanged.
+
+    :param pixmap: the image to draw; only its size is read. An empty pixmap
+        returns ``box`` unchanged.
+    :param box: the rectangle to fill.
     """
     width = float(pixmap.width())
     height = float(pixmap.height())
@@ -49,7 +53,17 @@ def cover_rect(pixmap: QPixmap, box: QRectF) -> QRectF:
 
 def stroke_ring(painter: QPainter, colour: str, width: int, inset: float,
                 w: float, h: float) -> None:
-    """Stroke one rounded rect inset by ``inset`` from the widget edge."""
+    """Stroke one rounded rect inset by ``inset`` from the widget edge.
+
+    :param painter: the active painter; its pen is replaced.
+    :param colour: stroke colour, any string :class:`QColor` accepts.
+    :param width: pen width in pixels.
+    :param inset: distance of the ring from the widget edge, in pixels; the
+        corner radius shrinks by the same amount (to at least 1).
+    :param w: widget width in pixels.
+    :param h: widget height in pixels. Nothing is drawn when the inset leaves
+        no room in either dimension.
+    """
     if w - 2 * inset <= 0 or h - 2 * inset <= 0:
         return
     pen = QPen(QColor(colour))

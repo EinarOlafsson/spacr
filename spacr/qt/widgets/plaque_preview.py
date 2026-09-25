@@ -33,10 +33,11 @@ parameters so they can be tested without a model.
 from __future__ import annotations
 
 import csv
+import json
 import logging
 import os
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import wraps
 from importlib.util import find_spec
 from pathlib import Path
@@ -85,6 +86,13 @@ __all__ = [
     "load_display_image",
     "outline_labels",
     "OverlayStyle",
+    "AUTOMATIC_BOX_THICKNESS",
+    "MAX_BOX_THICKNESS",
+    "OVERLAY_STYLE_KEY",
+    "box_thickness_for",
+    "load_overlay_style",
+    "store_overlay_style",
+    "session_style",
     "OVERLAY_OUTLINES",
     "OVERLAY_FILL",
     "RANDOM_COLOUR",
@@ -394,15 +402,54 @@ OVERLAY_FILL = "fill"
 OVERLAY_DISPLAYS = (OVERLAY_OUTLINES, OVERLAY_FILL)
 RANDOM_COLOUR = "random"
 MAX_OUTLINE_THICKNESS = 20
+MAX_BOX_THICKNESS = 20
+AUTOMATIC_BOX_THICKNESS = 0
+"""The box weight that means: pick one from the figure's size."""
 
 IMAGE_TABS = ("Overlay", "Objects", "Cell probability", "Flows")
+
+OUTLINE_WEIGHT_HELP = (
+    "The width of each plaque outline, in image pixels. It is drawn on the "
+    "image itself, so it keeps its share of the picture at any zoom and in "
+    "a saved picture. Remembered between sessions.")
+BOX_WEIGHT_HELP = (
+    "The line weight of the boxes drawn around the wells the detector found "
+    "in a figure, in image pixels. Automatic picks a width from the figure's "
+    "size: 2 px, and one more for every 400 px of its longer side. The "
+    "highlighted well's box is drawn twice as wide. Remembered between "
+    "sessions.")
+SAVE_PICTURE_HELP = (
+    "Save the picture as it is drawn here, at its full size: the outlines "
+    "and well boxes keep the line weights and colours chosen for them.")
+RULER_HELP = (
+    "Drag a line on the image to measure it in image pixels, and in microns "
+    "when the pixel size is known: Pixels per µm in the settings' Scale & "
+    "Time, or a well's own value in the Wells table. Right-click with Ruler "
+    "selected to clear the line. Turn Ruler off to pan or to pick a well.")
+
+
+def _whole(value: Any, default: int) -> int:
+    """``value`` as a whole number, or ``default`` when it is not one.
+
+    :param value: anything a setting may hold.
+    :param default: what an empty or unreadable value means.
+    :returns: an int.
+    """
+    try:
+        return int(value) if value not in (None, "") else default
+    except (TypeError, ValueError):
+        return default
 
 
 @dataclass(frozen=True)
 class OverlayStyle:
-    """How the segmented plaques are drawn over the image.
+    """How the segmented plaques and the detected wells are drawn.
 
     Changing it redraws what is already segmented; nothing is run again.
+    Every width is in IMAGE pixels: the outlines are grown on the image
+    array and the boxes are painted into the pixmap before it is shown, so
+    a line keeps its share of the picture as the view is zoomed and in a
+    saved picture, the way the outlines always did.
 
     :param display: ``'outlines'`` or ``'fill'``.
     :param outline_colour: an ``(r, g, b)`` triple, or ``'random'`` for one
@@ -410,6 +457,10 @@ class OverlayStyle:
     :param outline_thickness: outline width in pixels.
     :param fill_colour: an ``(r, g, b)`` triple, or ``'random'``.
     :param fill_opacity: fill opacity in percent, 0 to 100.
+    :param box_thickness: the line weight of the detector's well boxes in
+        pixels, or :data:`AUTOMATIC_BOX_THICKNESS` for the width the
+        preview always chose from the figure's size
+        (:func:`box_thickness_for`).
     """
 
     display: str = OVERLAY_OUTLINES
@@ -417,6 +468,7 @@ class OverlayStyle:
     outline_thickness: int = 1
     fill_colour: Any = RANDOM_COLOUR
     fill_opacity: int = 40
+    box_thickness: int = AUTOMATIC_BOX_THICKNESS
 
     def normalised(self) -> "OverlayStyle":
         """The same style with every value clamped to what can be drawn.
@@ -425,17 +477,124 @@ class OverlayStyle:
         """
         display = self.display if self.display in OVERLAY_DISPLAYS \
             else OVERLAY_OUTLINES
+        try:
+            opacity = int(round(float(self.fill_opacity or 0)))
+        except (TypeError, ValueError):
+            opacity = 0
         return OverlayStyle(
             display=display,
             outline_colour=overlay_colour(self.outline_colour, OUTLINE_COLOUR),
             outline_thickness=max(1, min(MAX_OUTLINE_THICKNESS,
-                                         int(self.outline_thickness or 1))),
+                                         _whole(self.outline_thickness, 1))),
             fill_colour=overlay_colour(self.fill_colour, RANDOM_COLOUR),
-            fill_opacity=max(0, min(100, int(round(float(
-                self.fill_opacity or 0))))))
+            fill_opacity=max(0, min(100, opacity)),
+            box_thickness=max(AUTOMATIC_BOX_THICKNESS, min(
+                MAX_BOX_THICKNESS, _whole(self.box_thickness,
+                                          AUTOMATIC_BOX_THICKNESS))))
+
+    def as_dict(self) -> Dict[str, Any]:
+        """The style as plain values that survive a JSON round trip.
+
+        :returns: ``{field: value}`` with colours as ``'random'`` or a list
+            of three ints.
+        """
+        style = self.normalised()
+        return {
+            "display": style.display,
+            "outline_colour": _colour_value(style.outline_colour),
+            "outline_thickness": style.outline_thickness,
+            "fill_colour": _colour_value(style.fill_colour),
+            "fill_opacity": style.fill_opacity,
+            "box_thickness": style.box_thickness,
+        }
+
+    @classmethod
+    def from_dict(cls, values: Any) -> "OverlayStyle":
+        """A style from :meth:`as_dict`'s values.
+
+        :param values: the mapping; keys it does not know are ignored.
+        :returns: the normalised style, or the default when ``values``
+            cannot be read.
+        """
+        if not isinstance(values, dict):
+            return cls()
+        known = {f.name for f in fields(cls)}
+        try:
+            return cls(**{k: v for k, v in values.items()
+                          if k in known}).normalised()
+        except (TypeError, ValueError):
+            return cls()
 
 
-_SESSION: Dict[str, OverlayStyle] = {"style": OverlayStyle()}
+OVERLAY_STYLE_KEY = "plaque_preview/overlay_style"
+"""Where the style is remembered between sessions, in the preferences store
+the rest of the GUI keeps its choices in (:func:`spacr.qt.preferences._settings`)."""
+
+_SESSION: Dict[str, Optional[OverlayStyle]] = {"style": None}
+
+
+def _preferences():
+    """The preferences store; see :func:`spacr.qt.preferences._settings`."""
+    from ..preferences import _settings
+
+    return _settings()
+
+
+def load_overlay_style() -> OverlayStyle:
+    """The style remembered from the last session.
+
+    :returns: the stored :class:`OverlayStyle`, or the default when nothing
+        was stored or the stored value cannot be read.
+    """
+    try:
+        raw = _preferences().value(OVERLAY_STYLE_KEY, "")
+        values = json.loads(raw) if raw else None
+    except Exception:
+        LOG.debug("could not read the plaque overlay style", exc_info=True)
+        return OverlayStyle()
+    return OverlayStyle.from_dict(values) if values else OverlayStyle()
+
+
+def store_overlay_style(style: OverlayStyle) -> None:
+    """Remember ``style`` for the next session.
+
+    :param style: the style to keep.
+    """
+    try:
+        _preferences().setValue(OVERLAY_STYLE_KEY,
+                                json.dumps(style.as_dict()))
+    except Exception:
+        LOG.debug("could not store the plaque overlay style", exc_info=True)
+
+
+def session_style() -> OverlayStyle:
+    """The style a new panel starts from.
+
+    :returns: the style this session last chose, else the one remembered
+        from the last session, else the default.
+    """
+    style = _SESSION.get("style")
+    if style is None:
+        style = load_overlay_style()
+        _SESSION["style"] = style
+    return style
+
+
+def box_thickness_for(width: int, height: int,
+                      weight: int = AUTOMATIC_BOX_THICKNESS) -> int:
+    """The line weight the well boxes are drawn with, in image pixels.
+
+    :param width: the figure's width in pixels.
+    :param height: its height.
+    :param weight: the chosen weight; :data:`AUTOMATIC_BOX_THICKNESS` picks
+        one from the figure's size, at least 2 px and one more for every
+        400 px of its longer side, which is what the preview always drew.
+    :returns: a whole number of pixels, 1 or more.
+    """
+    weight = _whole(weight, AUTOMATIC_BOX_THICKNESS)
+    if weight > AUTOMATIC_BOX_THICKNESS:
+        return min(MAX_BOX_THICKNESS, weight)
+    return max(2, int(round(max(int(width), int(height)) / 400)))
 
 
 def overlay_colour(value: Any, default: Any = OUTLINE_COLOUR) -> Any:
@@ -459,6 +618,15 @@ def overlay_colour(value: Any, default: Any = OUTLINE_COLOUR) -> Any:
     except (TypeError, ValueError):
         return default
     return tuple(max(0, min(255, v)) for v in (red, green, blue))
+
+
+def _colour_value(colour: Any) -> Any:
+    """A colour setting as JSON can hold it.
+
+    :param colour: ``'random'`` or a triple.
+    :returns: ``'random'`` or a list of three ints.
+    """
+    return RANDOM_COLOUR if colour == RANDOM_COLOUR else [int(v) for v in colour]
 
 
 def object_palette(labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -1521,7 +1689,9 @@ class PlaqueOverlayDialog(QDialog):
 
     Opened from a right-click on the preview image. Every change is applied
     at once to what is already segmented, so the window stays open beside
-    the picture it changes; nothing is segmented again. A ``QDialog``, so
+    the picture it changes; nothing is segmented again. The line weight of
+    the well boxes lives here too, because it is remembered with the rest
+    of the style. A ``QDialog``, so
     :mod:`spacr.qt.widgets.glass` gives it the rounded, translucent card of
     the other settings windows.
 
@@ -1563,6 +1733,7 @@ class PlaqueOverlayDialog(QDialog):
         self.thickness.setRange(1, MAX_OUTLINE_THICKNESS)
         self.thickness.setSuffix(" px")
         self.thickness.setValue(style.outline_thickness)
+        self.thickness.setToolTip(tr(OUTLINE_WEIGHT_HELP))
         form.addRow(tr("Thickness"), self.thickness)
         outer.addWidget(self.outline_group)
 
@@ -1587,6 +1758,18 @@ class PlaqueOverlayDialog(QDialog):
         form.addRow(tr("Opacity"), opacity_row)
         outer.addWidget(self.fill_group)
 
+        self.box_group = QGroupBox(tr("Well boxes"), self)
+        form = QFormLayout(self.box_group)
+        self.box_weight = QSpinBox(self.box_group)
+        self.box_weight.setObjectName("PlaqueBoxWeight")
+        self.box_weight.setRange(AUTOMATIC_BOX_THICKNESS, MAX_BOX_THICKNESS)
+        self.box_weight.setSuffix(" px")
+        self.box_weight.setSpecialValueText(tr("Automatic"))
+        self.box_weight.setValue(style.box_thickness)
+        self.box_weight.setToolTip(tr(BOX_WEIGHT_HELP))
+        form.addRow(tr("Line weight"), self.box_weight)
+        outer.addWidget(self.box_group)
+
         note = QLabel(tr("Applies at once to the plaques already found; "
                          "nothing is segmented again."))
         note.setWordWrap(True)
@@ -1600,6 +1783,7 @@ class PlaqueOverlayDialog(QDialog):
         self.thickness.valueChanged.connect(self._changed)
         self.fill_colour.changed.connect(self._changed)
         self.opacity.valueChanged.connect(self._changed)
+        self.box_weight.valueChanged.connect(self._changed)
         self._enable_groups()
         self.setMinimumWidth(360)
 
@@ -1610,7 +1794,8 @@ class PlaqueOverlayDialog(QDialog):
             outline_colour=self.outline_colour.value(),
             outline_thickness=self.thickness.value(),
             fill_colour=self.fill_colour.value(),
-            fill_opacity=self.opacity.value()).normalised()
+            fill_opacity=self.opacity.value(),
+            box_thickness=self.box_weight.value()).normalised()
 
     def set_overlay_style(self, style: OverlayStyle) -> None:
         """Show ``style`` without announcing it.
@@ -1619,10 +1804,11 @@ class PlaqueOverlayDialog(QDialog):
         """
         style = style.normalised()
         widgets = (self.display, self.thickness, self.opacity,
-                   self.opacity_slider)
+                   self.opacity_slider, self.box_weight)
         states = [w.blockSignals(True) for w in widgets]
         self.display.setCurrentIndex(OVERLAY_DISPLAYS.index(style.display))
         self.thickness.setValue(style.outline_thickness)
+        self.box_weight.setValue(style.box_thickness)
         self.opacity.setValue(style.fill_opacity)
         self.opacity_slider.setValue(style.fill_opacity)
         for widget, state in zip(widgets, states):
@@ -1749,7 +1935,12 @@ class PlaqueModeSwitch(QWidget):
 class _ImageView(QLabel):
     """A native image with a modest initial scale and explicit user zoom/pan.
 
-    A click is reported in IMAGE pixels, through :attr:`clicked`.
+    A click is reported in IMAGE pixels, through :attr:`clicked`. The view
+    carries an :class:`~spacr.qt.widgets.image_ruler.ImageRuler`, the same
+    one Make Masks measures with: while it is active, a left drag measures
+    instead of panning and a right-click clears the line instead of opening
+    the overlay menu. Views that show the same pixels share one ruler
+    through :meth:`share_ruler`.
     """
 
     clicked = Signal(float, float)
@@ -1772,6 +1963,19 @@ class _ImageView(QLabel):
         self._drag_pan = QPointF()
         self._pixmap: Optional[QPixmap] = None
         self._array: Optional[np.ndarray] = None
+        from .image_ruler import ImageRuler
+
+        self.ruler = ImageRuler(self)
+        self.ruler.changed.connect(self.update)
+
+    def share_ruler(self, ruler: Any) -> None:
+        """Measure with another view's ruler, so one line shows on every tab.
+
+        :param ruler: the :class:`~spacr.qt.widgets.image_ruler.ImageRuler`
+            of a view showing the same pixels as this one.
+        """
+        self.ruler = ruler
+        ruler.changed.connect(self.update)
 
     def array(self) -> Optional[np.ndarray]:
         """The pixels last shown, before any box was painted, or None."""
@@ -1789,12 +1993,16 @@ class _ImageView(QLabel):
 
     def set_image(self, rgb: Optional[np.ndarray],
                   boxes: Sequence[Tuple[Any, bool]] = (),
-                  selected: Optional[int] = None) -> None:
+                  selected: Optional[int] = None,
+                  box_thickness: int = AUTOMATIC_BOX_THICKNESS) -> None:
         """Show ``rgb`` with numbered boxes.
 
         :param rgb: ``H x W x 3`` ``uint8``, or None to clear.
         :param boxes: ``(region, approved)`` pairs, numbered from 1.
         :param selected: the index of the box to highlight.
+        :param box_thickness: the boxes' line weight in image pixels, or
+            :data:`AUTOMATIC_BOX_THICKNESS`; see :func:`box_thickness_for`.
+            The highlighted box is drawn twice as wide.
         """
         if rgb is None:
             self._pixmap = None
@@ -1813,7 +2021,7 @@ class _ImageView(QLabel):
         pixmap = QPixmap.fromImage(image)
         if boxes:
             painter = QPainter(pixmap)
-            thickness = max(2, int(round(max(width, height) / 400)))
+            thickness = box_thickness_for(width, height, box_thickness)
             font = QFont()
             font.setBold(True)
             font.setPixelSize(max(12, int(max(width, height) / 45)))
@@ -1862,6 +2070,26 @@ class _ImageView(QLabel):
             return None
         return ((x - rect.left()) / self._scale, (y - rect.top()) / self._scale)
 
+    def widget_point(self, x: float, y: float) -> Optional[QPointF]:
+        """Map native image pixels into logical widget coordinates.
+
+        The inverse of :meth:`image_point`, without its bounds check: a
+        ruler endpoint that sits off the picture is still drawn where it is.
+
+        :param x: the image column.
+        :param y: the image row.
+        :returns: the point, or None while nothing is shown.
+        """
+        rect = self.image_rect()
+        if rect.isEmpty():
+            return None
+        return QPointF(rect.left() + x * self._scale,
+                       rect.top() + y * self._scale)
+
+    def _ruler_point(self, point: QPointF) -> Optional[Tuple[float, float]]:
+        """A ruler gesture's image pixel, or None off the picture."""
+        return self.image_point(point.x(), point.y())
+
     def fit_image(self, *, initial=False):
         """Fit only on initial loading or an explicit request, without upscaling."""
         if self._pixmap is None:
@@ -1892,6 +2120,8 @@ class _ImageView(QLabel):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
         painter.drawPixmap(self.image_rect(), self._pixmap, QRectF(self._pixmap.rect()))
+        if self.ruler.start is not None:
+            self.ruler.paint(painter, self.widget_point)
 
     def wheelEvent(self, event):
         """Ctrl-wheel zooms about the pointer; plain scrolling stays with the page."""
@@ -1904,7 +2134,9 @@ class _ImageView(QLabel):
             super().wheelEvent(event)
 
     def mousePressEvent(self, event):
-        """Begin a possible pan; selection waits until a click is released."""
+        """Begin a possible pan, unless the ruler takes the press."""
+        if self._pixmap is not None and self.ruler.handle(event, self._ruler_point):
+            return
         if self._pixmap is not None and event.button() == Qt.LeftButton:
             self._drag_start = event.position()
             self._drag_pan = QPointF(self._pan)
@@ -1914,6 +2146,8 @@ class _ImageView(QLabel):
 
     def mouseMoveEvent(self, event):
         """Move the image without changing the operating-system cursor."""
+        if self._pixmap is not None and self.ruler.handle(event, self._ruler_point):
+            return
         if self._drag_start is not None and event.buttons() & Qt.LeftButton:
             self._pan = self._drag_pan + event.position() - self._drag_start
             self.update()
@@ -1923,6 +2157,8 @@ class _ImageView(QLabel):
 
     def mouseReleaseEvent(self, event):
         """A click selects a well; a drag only pans the image."""
+        if self._pixmap is not None and self.ruler.handle(event, self._ruler_point):
+            return
         if self._drag_start is not None and event.button() == Qt.LeftButton:
             distance = (event.position() - self._drag_start).manhattanLength()
             if distance < 4:
@@ -1939,9 +2175,13 @@ class _ImageView(QLabel):
     def contextMenuEvent(self, event):                       # noqa: N802
         """A right-click asks the panel for the overlay options.
 
+        Not while the ruler is out: the right button clears the ruler then,
+        and a menu appearing over that would take a tool away.
+
         :param event: the context-menu event.
         """
-        self.context_requested.emit(event.globalPos())
+        if not self.ruler.active:
+            self.context_requested.emit(event.globalPos())
         event.accept()
 
     def resizeEvent(self, event):
@@ -2007,7 +2247,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._batch_total = 0
         self._batch_segment: Optional[Callable] = None
         self._batch_settings = {}
-        self._overlay_style: OverlayStyle = _SESSION["style"]
+        self._overlay_style: OverlayStyle = session_style()
         self._fixed_colours: Dict[str, Tuple[int, int, int]] = {
             "outline": OUTLINE_COLOUR, "fill": OUTLINE_COLOUR}
         for key, colour in (("outline", self._overlay_style.outline_colour),
@@ -2015,6 +2255,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             if colour != RANDOM_COLOUR:
                 self._fixed_colours[key] = colour
         self._overlay_dialog: Optional[PlaqueOverlayDialog] = None
+        self._menu_view: Optional["_ImageView"] = None
         self._plaque_result: Optional[Dict[str, Any]] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key="plaque preview")
         self._load_jobs = JobRunner(self, threaded=threaded,
@@ -2226,7 +2467,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._image_tabs.setObjectName("PlaqueImageTabs")
         tips = (tr("The image with the plaques drawn over it. Right-click "
                    "for outlines or a filled overlay, colour, thickness and "
-                   "opacity."),
+                   "opacity.") + " " + tr("The line weight of the well "
+                                          "boxes is set there too."),
                 tr("The plaque mask alone, one colour per plaque."),
                 tr("Cellpose's cell probability, 0 to 1."),
                 tr("Cellpose's flow field: direction as hue, strength as "
@@ -2237,6 +2479,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._image_tabs.addTab(view, tr(title))
             self._image_tabs.setTabToolTip(index, tips[index])
             view.context_requested.connect(self._on_view_context)
+            if view is not self._view:
+                view.share_ruler(self._view.ruler)
         self._sections = {}
         pictures.add_pane(self._image_tabs, "Image", stretch=3)
         self._well_side = QWidget(self)
@@ -2263,6 +2507,16 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             button = QPushButton(title)
             button.clicked.connect(action)
             zoom_row.addWidget(button)
+        self._ruler_btn = QPushButton(tr("Ruler"))
+        self._ruler_btn.setObjectName("PlaqueRuler")
+        self._ruler_btn.setCheckable(True)
+        self._ruler_btn.setToolTip(tr(RULER_HELP))
+        self._ruler_btn.toggled.connect(self._on_ruler_toggled)
+        zoom_row.addWidget(self._ruler_btn)
+        self._ruler_note = QLabel("")
+        self._ruler_note.setObjectName("PlaqueRulerNote")
+        self._ruler_note.hide()
+        zoom_row.addWidget(self._ruler_note)
         from PySide6.QtGui import QKeySequence
         modifier = QKeySequence("Ctrl+Z").toString(QKeySequence.NativeText).removesuffix("Z").rstrip("+")
         self._image_navigation_hint = QLabel(tr("Hold {key} and scroll to zoom; drag the image to pan.", key=modifier))
@@ -2698,6 +2952,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _show_selected_image(self) -> None:
         """Decode the selected image off the GUI thread and show it."""
         self.cancel_preview()
+        self._view.ruler.clear()
+        self._refresh_ruler_spacing()
         path = self.current_path()
         if path is None:
             return
@@ -2746,6 +3002,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._confirm.setChecked(bool(s.get("confirm_annotations")))
         self._seed_text(s)
         self._describe_model()
+        self._refresh_ruler_spacing()
 
     def _fill_model_box(self, wanted: str) -> None:
         """Offer the plaque models and select ``wanted``."""
@@ -3016,8 +3273,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def set_overlay_style(self, style: OverlayStyle) -> None:
         """Draw the plaques another way, from what is already segmented.
 
-        The style is kept for the rest of the session: a panel built later
-        starts from it.
+        The style is kept for the rest of the session, so a panel built
+        later starts from it, and remembered for the next session in the
+        preferences store.
 
         :param style: the new :class:`OverlayStyle`.
         """
@@ -3028,6 +3286,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 self._fixed_colours[key] = colour
         self._overlay_style = style
         _SESSION["style"] = style
+        store_overlay_style(style)
         dialog = self._overlay_dialog
         if dialog is not None:
             dialog.set_overlay_style(style)
@@ -3118,6 +3377,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         settings.setObjectName("PlaqueOverlaySettings")
         settings.triggered.connect(lambda _checked=False:
                                    self.open_overlay_settings())
+        save = menu.addAction(tr("Save picture…"))
+        save.setObjectName("PlaqueSavePicture")
+        save.setToolTip(tr(SAVE_PICTURE_HELP))
+        save.triggered.connect(lambda _checked=False: self.save_picture())
         return menu
 
     def _set_display(self, display: str) -> None:
@@ -3149,7 +3412,42 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         :param position: where, in global coordinates.
         """
+        sender = self.sender()
+        self._menu_view = sender if isinstance(sender, _ImageView) else None
         self._exec_menu(self.overlay_menu(), position)
+
+    def save_picture(self, path: Optional[str] = None,
+                     view: Optional["_ImageView"] = None) -> Optional[str]:
+        """Write a preview picture as it is drawn, at its native size.
+
+        The plaque outlines and the well boxes are part of the picture's
+        pixels, so the saved file carries the chosen line weights and
+        colours; the ruler's line is not saved.
+
+        :param path: where to write; None asks.
+        :param view: the picture to save; None means the one last
+            right-clicked, else the shown tab.
+        :returns: the path written, or None when nothing was written.
+        """
+        view = view or self._menu_view or self._image_tabs.currentWidget()
+        pixmap = getattr(view, "_pixmap", None)
+        if pixmap is None or pixmap.isNull():
+            self.set_preview_status(tr("There is no picture to save yet."))
+            return None
+        if not path:
+            path, _selected = QFileDialog.getSaveFileName(
+                self, tr("Save picture"), "plaque_preview.png",
+                tr("Pictures") + " (*.png *.tif *.tiff *.jpg);;"
+                + tr("All files") + " (*)")
+            if not path:
+                return None
+        if not Path(path).suffix:
+            path = f"{path}.png"
+        if not pixmap.save(str(path)):
+            self.set_preview_status(tr("Could not write {path}.", path=path))
+            return None
+        self.set_preview_status(tr("Saved the picture to {path}.", path=path))
+        return str(path)
 
     def open_overlay_settings(self) -> PlaqueOverlayDialog:
         """Open (or raise) the overlay settings, applied live.
@@ -3356,6 +3654,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             value = value if value is not None else global_scale
             self._scales.append(base if value is None else _Scale(
                 value * 1000, source, f"{value:g} px/µm", base.magnification))
+        self._refresh_ruler_spacing()
 
     def _on_growth_toggled(self, enabled: bool) -> None:
         """Expose optional estimates without changing entered calibration."""
@@ -3385,6 +3684,66 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self.set_preview_status(str(exc))
             return {}
 
+    def ruler_active(self) -> bool:
+        """Whether the Ruler button is down."""
+        return self._ruler_btn.isChecked()
+
+    def _rulers(self) -> Tuple[Any, Any]:
+        """The figure's ruler, shared by the four tabs, and the well crop's."""
+        return (self._view.ruler, self._well_view.ruler)
+
+    def _on_ruler_toggled(self, on: bool) -> None:
+        """Hand the pointer to the rulers, or take it back.
+
+        :param on: whether the Ruler button is down.
+        """
+        for ruler in self._rulers():
+            ruler.set_active(on)
+        self._refresh_ruler_spacing()
+
+    def ruler_microns_per_pixel(self) -> Optional[float]:
+        """The pixel size the ruler measures microns with, or None.
+
+        In Figure mode it is the highlighted well's resolved scale: the
+        value typed into its Wells row, else the settings' Pixels per µm,
+        else a scale bar or whole well the run found. In Plaque mode it is
+        the settings' Pixels per µm. None means the ruler reports pixels
+        only, and the note beside the Ruler button says so.
+
+        :returns: microns per image pixel, or None when no size is known.
+        """
+        from ...plaque_papers import calibration_number
+
+        index = self._selected
+        if self._figure is not None and index is not None \
+                and index < len(self._scales):
+            px_per_mm = getattr(self._scales[index], "px_per_mm", None)
+            if px_per_mm:
+                return 1000.0 / float(px_per_mm)
+        try:
+            value = calibration_number(
+                self.current_settings().get("plaque_pixels_per_um"),
+                name="pixels_per_um")
+        except ValueError:
+            return None
+        return None if not value else 1.0 / float(value)
+
+    def _refresh_ruler_spacing(self) -> None:
+        """Calibrate the rulers from what is known now, and say what that is."""
+        spacing = self.ruler_microns_per_pixel()
+        for ruler in self._rulers():
+            try:
+                ruler.set_spacing(spacing, unit="µm")
+            except ValueError:
+                ruler.set_spacing()
+        if spacing is None:
+            self._ruler_note.setText(tr(
+                "Pixels only: no pixel size is known."))
+        else:
+            self._ruler_note.setText(tr("{value:g} px/µm",
+                                        value=1.0 / spacing))
+        self._ruler_note.setVisible(self._ruler_btn.isChecked())
+
     def _redraw_boxes(self) -> None:
         """Draw the figure with each box coloured by its OK tick."""
         result = self._figure
@@ -3393,7 +3752,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         ticks = [self._row_ok(i) for i in range(len(self._annotations))]
         self._view.set_image(result["overlay"],
                              list(zip(result["regions"], ticks)),
-                             selected=self._selected)
+                             selected=self._selected,
+                             box_thickness=self._overlay_style.box_thickness)
 
     def _fill_table(self) -> None:
         """One row per plaque image.
@@ -3502,6 +3862,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._plaque_table.setRowCount(0)
         self._tabs.setTabText(1, tr("Plaques"))
         self._well_view.set_image(None)
+        self._well_view.ruler.clear()
         self._well_title.setText(tr(PICK_A_WELL))
 
     def _on_figure_clicked(self, x: float, y: float) -> None:
@@ -3544,6 +3905,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         result = self._figure
         if result is None or not 0 <= index < len(result["regions"]):
             return
+        if index != self._selected:
+            self._well_view.ruler.clear()
         self._selected = index
         if not from_table:
             self._table.blockSignals(True)
@@ -3551,6 +3914,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._table.blockSignals(False)
         self._redraw_boxes()
         self._show_well(index)
+        self._refresh_ruler_spacing()
 
     def _show_well(self, index: int) -> None:
         """Draw the well's crop, with its plaques once they are found."""

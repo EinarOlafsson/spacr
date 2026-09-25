@@ -109,7 +109,12 @@ def figure_text_items(fig):
 
 
 def figure_text_size_override(fig) -> int:
-    """The text size the user set on THIS figure, or 0 for "no override"."""
+    """The text size the user set on THIS figure, or 0 for "no override".
+
+    :param fig: a Matplotlib figure; the size is read from an attribute set
+        by :func:`set_figure_text_size_override`, and a missing or unreadable
+        value gives 0.
+    """
     try:
         return max(0, int(getattr(fig, FIGURE_TEXT_SIZE_ATTR, 0) or 0))
     except (TypeError, ValueError):
@@ -124,6 +129,11 @@ def set_figure_text_size_override(fig, size: int) -> None:
     :func:`render_figure_to_png`, which is the whole point: without it the
     next full render puts the global preference straight back over the user's
     choice, which is issue #108's "the font size has been returned to 10".
+
+    :param fig: the Matplotlib figure to tag; a figure that refuses the
+        attribute is logged and left alone.
+    :param size: text size in points; ``0`` (or a negative value) clears the
+        override.
     """
     try:
         setattr(fig, FIGURE_TEXT_SIZE_ATTR, max(0, int(size or 0)))
@@ -310,6 +320,11 @@ def render_figure_to_png(fig, png_path: str) -> bool:
     its own results directory: those go through ``savefig`` calls in
     :mod:`spacr.plot`, :mod:`spacr.submodules` and friends, which hard-code
     their own format and DPI and never consult preferences at all.
+
+    :param fig: the Matplotlib figure; it is restyled in place with the
+        theme's colours and text size before saving.
+    :param png_path: destination PNG path; in PDF mode the ``.pdf`` is
+        written beside it with the same stem.
     """
     with FIGURE_LOCK:
         try:
@@ -373,6 +388,9 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
     and is not an error: :class:`FigureQueue` deletes its temp directory when
     it closes, and a render already in flight is expected to survive that
     rather than raise on the worker thread.
+
+    :param pdf_path: path to the PDF; only its first page is rendered, scaled
+        so its longer side is ``max_px`` pixels.
     """
     try:
         from PySide6.QtCore import QEventLoop, QSize as _QSize, QTimer
@@ -666,7 +684,12 @@ class FigureQueue(QWidget):
         self._refresh_nav()
 
     def eventFilter(self, obj, event):
-        """Debounce the view's resizes into one re-render."""
+        """Debounce the view's resizes into one re-render.
+
+        :param obj: the watched object; only the figure view is acted on.
+        :param event: the filtered event; a ``Resize`` of the view restarts
+            the resize timer, and every event is passed on to the base class.
+        """
         # Qt can deliver an event here while the queue has no view -- before
         # `_build_ui` made one, or while a teardown takes the widget apart --
         # and an unguarded `self._view` raised inside the event loop. With no
@@ -743,6 +766,10 @@ class FigureQueue(QWidget):
         is saved with the run instead of living in a dialog that is about to
         close. Optional: a queue built in a test has none, and the button
         says so rather than doing nothing.
+
+        :param callback: called with a dict of setting key to value when the
+            figure settings window's Propagate is pressed; ``None`` (or any
+            non-callable) leaves Propagate with nothing to call.
         """
         self._propagate_cb = callback
 
@@ -795,6 +822,9 @@ class FigureQueue(QWidget):
 
         The view is deliberately not touched: the whole point of editing from
         the grid is that the grid stays put.
+
+        :param index: zero-based figure index in the queue; the figure on
+            screen is refreshed through :meth:`refresh_current_figure`.
         """
         index = int(index)
         if index == self._current:
@@ -909,7 +939,11 @@ class FigureQueue(QWidget):
         ``prerendered_png`` is a PNG the pipeline bridge already rendered in a
         WORKER thread — when supplied we just adopt it (a fast file move + a
         cheap QPixmap load) instead of doing the expensive savefig on the GUI
-        thread, so the UI stays responsive while many figures stream in."""
+        thread, so the UI stays responsive while many figures stream in.
+
+        :param fig: the Matplotlib figure to append; recognised by object
+            identity, so the same object is never queued twice.
+        """
         if id(fig) in self._fig_index:
             idx = self._fig_index[id(fig)]
             if idx in self._figures:
@@ -1482,6 +1516,9 @@ class FigureQueue(QWidget):
         at the widget's device resolution every time it changes size or zoom,
         so there is never a raster being stretched to fit. It is also what
         makes it fast -- looking at a figure costs no render at all.
+
+        :param fig: the Matplotlib figure to embed in a Qt canvas with its
+            navigation toolbar; the canvas already showing it is just redrawn.
         """
         if not self._live_canvas_enabled:
             return False
@@ -1535,6 +1572,9 @@ class FigureQueue(QWidget):
         or loaded from a PDF has no Figure to draw and can only be a picture.
         This makes that path reachable on demand, so the machinery that keeps
         it off the GUI thread stays under test.
+
+        :param enabled: ``False`` switches the view to the raster at once;
+            ``True`` allows the live canvas for the next figure shown.
         """
         self._live_canvas_enabled = bool(enabled)
         if not enabled:
@@ -1905,7 +1945,13 @@ class FigureQueue(QWidget):
         return rows
 
     def drop_cache_budget_entry(self, record_key) -> bool:
-        """Evict one policy-selected entry, rechecking its live-use pin."""
+        """Evict one policy-selected entry, rechecking its live-use pin.
+
+        :param record_key: ``(kind, index)`` pair, where kind is ``"figure"``
+            (a live Figure, spilled to disk) or ``"pixmap"`` (a cached
+            raster); the figure on screen, or a figure while a render is
+            running, is never evicted.
+        """
         kind, idx = record_key
         idx = int(idx)
         if idx == self._current:
@@ -2002,11 +2048,17 @@ class FigureQueue(QWidget):
 
         A query, not a use: it does not promote the entry, so asking whether
         something is live cannot change what gets evicted next.
+
+        :param idx: zero-based figure index in the queue.
         """
         return idx in self._figures
 
     def is_restorable(self, idx: int) -> bool:
-        """Whether ``idx`` can be made editable again from its spill."""
+        """Whether ``idx`` can be made editable again from its spill.
+
+        :param idx: zero-based figure index; true when it is live or its
+            pickled spill file exists.
+        """
         if idx in self._figures:
             return True
         path = self._spill_path(idx)
@@ -2022,6 +2074,9 @@ class FigureQueue(QWidget):
         thumbnail) has to be pointed at the new one together or the menu
         looks broken while the tile keeps the old picture.
 
+        :param idx: zero-based index of an existing figure in the queue;
+            out of range swaps nothing.
+        :param fig: the new Matplotlib figure; ``None`` swaps nothing.
         :returns: whether the swap happened.
         """
         index = int(idx)
@@ -2055,6 +2110,8 @@ class FigureQueue(QWidget):
         window is returned directly; one past it is unpickled, put back into
         the live set (so repeated edits do not re-read the disk) and the cap
         re-applied. Returns ``None`` only when the figure was never spillable.
+
+        :param idx: zero-based figure index in the queue.
         """
         if idx in self._figures:
             self._figures.move_to_end(idx)

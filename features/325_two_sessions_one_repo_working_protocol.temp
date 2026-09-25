@@ -17282,3 +17282,31 @@ rest) are being rewritten as narratives that follow the data from module to
 module, not as lists. Lesson 71 waits for the hit_investigation._read_cells
 KeyError 'prcfo' fix (reported to the implementation session). All GPU work
 uses gpu_turn.sh.
+
+2026-09-25 — CLAUDE-DOCS: EXACT REPRO FOR hit_investigation KeyError 'prcfo' (for spacr-b2)
+KeyError 'prcfo' in spacr.hit_investigation._read_cells (HEAD 62528b680 / nightly 5d1669523)
+Repro files (standard Measure layout, private copies; originals untouched):
+- DB: /tmp/claude-1000/-mnt-firecuda2-Claude-repo-spacr/b7b41a40-f2db-4d8f-a1e5-76e160a93017/scratchpad/ih/repro/measurements.db
+  (byte copy of the public Annotate example ~/.cache/spacr/example_data/plate1/measurements/measurements.db; 2,341 cells; png_list has prcfo+png_path; cell table has prcf but NO prcfo)
+- Predictions: .../scratchpad/ih/repro/predictions.csv  columns: path (crop basename from png_list.png_path), pred (score)
+Call:
+    from spacr.hit_investigation import _read_cells
+    _read_cells(db, predictions, 'pred', 'path')      # score_column='pred', path_column='path'
+(investigate_hit({... 'score_column':'pred','path_column':'path'}) fails identically; GUI default path_column is 'path')
+Traceback:
+  File "spacr/hit_investigation.py", line 83, in _read_cells
+    return cells.merge(
+  ... pandas/core/generic.py, line 1914, in _get_label_or_level_values
+KeyError: 'prcfo'
+Cause: io._read_and_join_tables selects png_list columns [cell_id, png_path, plateID, rowID, columnID, fieldID]
+only, so the joined cells frame has png_path but no prcfo column/index. _read_cells then builds `scores`
+(prcfo, png_path, score) from png_list and merges on "prcfo", which cells lacks.
+Same failure for predictions that carry prcfo: branch `"prcfo" in predictions and "prcfo" in cells` is false
+(cells lack prcfo), falls to the path branch -> KeyError, or "no such table: png_list" if the DB has no png_list.
+Also note: after a fix via png_list, cells already carry png_path, so merging scores[["prcfo","png_path",score]]
+would give png_path_x/png_path_y and the review gallery (needs "png_path") would come back empty.
+Suggested: derive cells["prcfo"] = prcf + "_o" + object_label when absent (matches png_list prcfo spelling
+"plate1_r12_c2_f17_o1"), and merge only [prcfo, score] when cells already have png_path.
+Test fixture tests/test_hit_investigation.py puts prcfo in the cell table, so it never exercises this path.
+Lesson 71 example (building now) uses a DB WITHOUT png_list and predictions WITH prcfo, cell table without prcfo
+unless --cell-prcfo: please make sure that case works too (prcfo derived from prcf+object_label).

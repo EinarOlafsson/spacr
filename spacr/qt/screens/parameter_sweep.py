@@ -748,5 +748,8 @@ def sweepable(app_key: str) -> bool:
 
     Only the regression module for now: the sweep axes, the legality filters
     and the row-to-regression round trip are all specific to it.
+
+    :param app_key: the module's registry key; only ``"regression"`` gives
+        ``True``.
     """
     return app_key == "regression"

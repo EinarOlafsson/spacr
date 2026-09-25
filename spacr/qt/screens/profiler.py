@@ -187,7 +187,12 @@ class CurveCanvas(QWidget):
         self.setMinimumSize(360, 240)
 
     def set_curve(self, curve: Optional[Profile], message: str = "") -> None:
-        """Show ``curve``; ``None`` shows ``message`` instead."""
+        """Show ``curve``; ``None`` shows ``message`` instead.
+
+        :param curve: the :class:`~spacr.profiler.Profile` to draw, or
+            ``None``; a profile with fewer than two points also shows the
+            message.
+        """
         self._curve = curve
         if message:
             self._message = message
@@ -202,7 +207,11 @@ class CurveCanvas(QWidget):
         return curve_points(self._curve, self.width(), self.height())
 
     def paintEvent(self, event) -> None:           # noqa: N802 - Qt override
-        """Axes, then the curve, then the labels."""
+        """Axes, then the curve, then the labels.
+
+        :param event: the paint event; not read, since the whole canvas is
+            redrawn every time.
+        """
         painter = QPainter(self)
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
@@ -434,7 +443,12 @@ class ProfilerScreen(QWidget):
 
 
     def load_coefficients(self, path: str) -> None:
-        """Read a coefficient table and profile the model it describes."""
+        """Read a coefficient table and profile the model it describes.
+
+        :param path: CSV file with ``feature`` and ``coefficient`` columns;
+            read on a worker thread and rebuilt with the chosen link. An
+            empty path only asks for a table.
+        """
         path = str(path or "").strip()
         self.last_error = ""
         self._path_edit.setText(path)
@@ -453,13 +467,24 @@ class ProfilerScreen(QWidget):
 
     def set_model(self, model: Any, *,
                   design: Optional[pd.DataFrame] = None) -> None:
-        """Profile an already-fitted object, skipping the file entirely."""
+        """Profile an already-fitted object, skipping the file entirely.
+
+        :param model: a fitted object :func:`spacr.profiler.predict` accepts
+            (a statsmodels result, a scikit-learn estimator, anything with
+            ``params`` or ``coef_``, or a :class:`~spacr.profiler.FittedLinear`);
+            ``None`` reports that the model could not be read.
+        """
         if design is not None:
             self._design = design
         self._on_model_ready(model)
 
     def set_design(self, design: Optional[pd.DataFrame]) -> None:
-        """Supply the design matrix, so the sweeps use observed ranges."""
+        """Supply the design matrix, so the sweeps use observed ranges.
+
+        :param design: the design matrix the model was fitted on, one column
+            per input; ``None`` or an empty frame falls back to a synthetic
+            design. A loaded model is re-profiled at once.
+        """
         self._design = design
         if self._model is not None:
             self._on_model_ready(self._model)
@@ -614,7 +639,13 @@ class ProfilerScreen(QWidget):
         return dict(self._held)
 
     def set_held(self, name: str, value: float) -> None:
-        """Hold one input at ``value`` and redraw."""
+        """Hold one input at ``value`` and redraw.
+
+        :param name: the input to hold; it must have a held-value slider or
+            :class:`KeyError` is raised.
+        :param value: the value to hold it at, clamped to the slider's range
+            and snapped to its nearest step.
+        """
         if name not in self._sliders:
             raise KeyError(f"{name!r} has no held-value control")
         self._sliders[name].setValue(self._to_step(name, value))
@@ -741,7 +772,11 @@ class ProfilerScreen(QWidget):
         return self._jobs.active_jobs()
 
     def closeEvent(self, event) -> None:             # noqa: N802 - Qt override
-        """Drain the worker before the widget goes."""
+        """Drain the worker before the widget goes.
+
+        :param event: the close event; passed to the base class after the
+            worker threads are shut down.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 

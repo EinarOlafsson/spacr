@@ -576,6 +576,13 @@ class InvestigateHitPanel(QWidget):
         :param gene: the gene under investigation.
         :param guides: the guides supporting the hit.
         :param score: which score column to investigate.
+        :param direction: ``'positive'`` or ``'negative'``: whether larger or
+            smaller scores rank first, passed as ``hit_direction``.
+        :param features: measured feature columns for the attribution model,
+            passed as ``hit_feature_columns``; empty lets the investigation
+            choose numeric features itself.
+        :param folder: the regression results folder the hit came from, passed
+            as ``results_folder``; outputs are written below it.
         """
         source_fdr = self.gene.property("source_fdr")
         source_agreement = self.gene.property("source_guide_agreement")
@@ -812,7 +819,13 @@ class InvestigateHitScreen(QWidget):
         self.investigate.configure_hit(**request)
 
     def apply_seed(self, seed: Dict[str, Any]) -> None:
-        """Accept the normal MainWindow hand-off from Hit List."""
+        """Accept the normal MainWindow hand-off from Hit List.
+
+        :param seed: hand-off settings from the hit list. ``results_folder``,
+            ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``,
+            ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` and
+            ``hit_well_support`` are read, each with a fallback when missing.
+        """
         self.configure_hit(
             folder=str(seed.get("results_folder", "")),
             gene=str(seed.get("target_gene", "")),

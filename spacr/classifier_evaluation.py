@@ -101,7 +101,12 @@ class SplitReport:
 
 
 def normalize_split_level(group_by: Any) -> str:
-    """Return a canonical split level; legacy ``none`` means ``cell``."""
+    """Return a canonical split level; legacy ``none`` means ``cell``.
+
+    :param group_by: requested split level: ``cell``, ``field``, ``well`` or
+        ``plate`` (exact, lower-case). ``None``, ``False``, ``'none'`` and
+        ``'off'`` map to ``cell``; anything else raises :class:`ValueError`.
+    """
     if group_by in (None, False, "none", "off"):
         return "cell"
     level = str(group_by)
@@ -123,6 +128,10 @@ def split_columns_for(group_by: Any, columns: Sequence[str],
     this helper describes the direct-column route used by measurement tables.
     Partial keys are never accepted because, for example, ``columnID='c1'``
     is not a well identity across rows and plates.
+
+    :param group_by: split level, normalised by :func:`normalize_split_level`.
+    :param columns: column names available in the table; every identity column
+        the level needs must be present or :class:`ValueError` is raised.
     """
     level = normalize_split_level(group_by)
     wanted = list(_SPLIT_COLUMNS[level])
@@ -507,6 +516,10 @@ def augmentation_family(path: Any) -> str:
     In-memory spaCR augmentations retain the exact source filename, while
     older exported datasets use suffixes such as ``_aug3``, ``_rot90`` or
     ``_flip_h``. Both forms collapse to one family.
+
+    :param path: crop path or file name; only its basename without the final
+        extension is used, with trailing augmentation suffixes stripped
+        repeatedly.
     """
     stem = _stem(path)
     previous = None
@@ -521,6 +534,10 @@ def sample_identity(path: Any) -> Dict[str, str]:
 
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
+
+    :param path: crop path or file name. Augmentation suffixes are removed and
+        the stem is split on underscores to find the plate, well and field
+        parts.
     """
     family = augmentation_family(path)
     parts = family.split("_")
@@ -967,7 +984,14 @@ def audit_cv_folds(
 
 
 def dataset_split_paths(root: Any, split: str) -> List[str]:
-    """Return sorted image paths under ``root/<split>/<class>/``."""
+    """Return sorted image paths under ``root/<split>/<class>/``.
+
+    :param root: dataset folder that contains the split folders; ``~`` is
+        expanded.
+    :param split: name of the split subfolder, such as ``train`` or ``test``. A
+        missing folder returns an empty list; files with an image or ``.npy``
+        suffix are collected recursively below it.
+    """
     folder = Path(str(root)).expanduser() / str(split)
     if not folder.is_dir():
         return []
@@ -1035,7 +1059,13 @@ def audit_dataset_splits(
 
 
 def write_leakage_audit(path: Any, audit: Any) -> Path:
-    """Atomically write a leakage report/audit as JSON and return its path."""
+    """Atomically write a leakage report/audit as JSON and return its path.
+
+    :param path: destination JSON file; ``~`` is expanded and missing parent
+        folders are created. It is replaced atomically.
+    :param audit: leakage report or audit to write: any object with a
+        ``to_dict()`` method, or a mapping.
+    """
     destination = Path(str(path)).expanduser()
     destination.parent.mkdir(parents=True, exist_ok=True)
     payload = audit.to_dict() if hasattr(audit, "to_dict") else dict(audit)
@@ -1052,7 +1082,12 @@ def normalize_probabilities(
     *,
     n_classes: Optional[int] = None,
 ) -> np.ndarray:
-    """Return a finite, row-normalized ``(n_samples, n_classes)`` matrix."""
+    """Return a finite, row-normalized ``(n_samples, n_classes)`` matrix.
+
+    :param probabilities: a one-dimensional positive-class vector, a one-column
+        matrix (both expanded to two classes), or a samples-by-classes matrix.
+        Values must be finite and within 0 to 1, and no row may sum to zero.
+    """
     matrix = np.asarray(probabilities, dtype=float)
     if matrix.ndim == 1:
         matrix = np.column_stack([1.0 - matrix, matrix])
@@ -1085,7 +1120,15 @@ def expected_calibration_error(
     *,
     n_bins: int = 10,
 ) -> float:
-    """Return top-label expected calibration error (ECE)."""
+    """Return top-label expected calibration error (ECE).
+
+    :param y_true: true class index per sample, aligned with the rows of
+        ``probabilities``.
+    :param probabilities: predicted probabilities, either a positive-class
+        vector or a samples-by-classes matrix; validated and row-normalised by
+        :func:`normalize_probabilities`. Its length must equal that of
+        ``y_true``.
+    """
     y = np.asarray(y_true, dtype=int)
     probs = normalize_probabilities(probabilities)
     if len(y) != len(probs):
@@ -1125,7 +1168,14 @@ def fit_temperature(
     y_true: Sequence[int],
     probabilities: Any,
 ) -> float:
-    """Fit one scalar temperature by minimizing multiclass log loss."""
+    """Fit one scalar temperature by minimizing multiclass log loss.
+
+    :param y_true: true class index per sample; at least two samples and two
+        distinct classes are required.
+    :param probabilities: uncalibrated predicted probabilities, a
+        positive-class vector or a samples-by-classes matrix, normalised by
+        :func:`normalize_probabilities` before the fit.
+    """
     from scipy.optimize import minimize_scalar
 
     y = np.asarray(y_true, dtype=int)
@@ -1624,7 +1674,14 @@ def write_evaluation_bundle(
     *,
     leakage_reports: Optional[Sequence[LeakageReport]] = None,
 ) -> Path:
-    """Atomically write a complete evaluation bundle and diagnostic figures."""
+    """Atomically write a complete evaluation bundle and diagnostic figures.
+
+    :param output_dir: folder that receives the bundle; created with its
+        parents if needed.
+    :param evaluation: mapping as returned by :func:`evaluate_predictions`,
+        with ``summary``, ``predictions``, ``confusion_counts``,
+        ``confusion_normalized``, ``per_plate`` and ``calibration`` entries.
+    """
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
 
@@ -1751,7 +1808,12 @@ def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
 
 
 def find_evaluation_bundles(root: Any) -> List[Path]:
-    """Return evaluation manifests below ``root``, newest first."""
+    """Return evaluation manifests below ``root``, newest first.
+
+    :param root: folder searched recursively for evaluation manifests, or a
+        manifest file (returned alone) or any other file (its folder is
+        searched). A missing path raises :class:`FileNotFoundError`.
+    """
     source = Path(root).expanduser()
     if source.is_file():
         if source.name == EVALUATION_FILES["manifest"]:
@@ -1768,7 +1830,12 @@ def find_evaluation_bundles(root: Any) -> List[Path]:
 
 
 def load_evaluation_bundle(path: Any) -> Dict[str, Any]:
-    """Load one evaluation bundle for the Qt workbench."""
+    """Load one evaluation bundle for the Qt workbench.
+
+    :param path: an evaluation manifest file, or the bundle folder that
+        contains it; ``~`` is expanded. Tables named by the manifest that are
+        absent load as empty frames.
+    """
     source = Path(path).expanduser()
     manifest_path = (
         source if source.is_file()

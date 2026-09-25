@@ -218,7 +218,7 @@
     },
     "plate_view": {
       "lesson": "33_plate_viewer",
-      "title": "Plate Viewer"
+      "title": "Plate Viewer: inspect wells and export a heatmap table"
     },
     "power": {
       "lesson": "68_power_design",

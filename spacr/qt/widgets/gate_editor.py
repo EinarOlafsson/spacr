@@ -392,7 +392,13 @@ class GateCanvas(GraphCanvas):
         return self._tool
 
     def set_tool(self, tool: str) -> None:
-        """Arm a drawing tool, or ``""`` to go back to brushing."""
+        """Arm a drawing tool, or ``""`` to go back to brushing.
+
+        :param tool: a gate kind from
+            :data:`~spacr.qt.widgets.gate_spec.GATE_KINDS` (e.g.
+            ``"rectangle"``, ``"polygon"``), or ``""``; anything else raises
+            :class:`GateError`. Any part-drawn gate is discarded.
+        """
         if tool and tool not in GATE_KINDS:
             raise GateError(
                 f"unknown gate tool {tool!r}; the tools are "
@@ -424,7 +430,10 @@ class GateCanvas(GraphCanvas):
         return self._gates
 
     def set_gates(self, gates: GateSet, *, active: Optional[str] = None) -> None:
-        """Display ``gates`` and select ``active`` as the hierarchy parent."""
+        """Display ``gates`` and select ``active`` as the hierarchy parent.
+
+        :param gates: the gate set to draw; it replaces the current one.
+        """
         self._gates = gates
         self._active = active
         self.render_now()
@@ -450,6 +459,12 @@ class GateCanvas(GraphCanvas):
 
         Missing attributes retain their defaults so older saved settings and
         lightweight settings objects remain usable.
+
+        :param settings: a
+            :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings` or any
+            object with some of its attributes (``default_tool``,
+            ``point_size``, ``colour_map``, ``log_x`` and so on), read with
+            :func:`getattr`.
         """
         self._settings = settings
         tool = getattr(settings, "default_tool", None)
@@ -493,6 +508,8 @@ class GateCanvas(GraphCanvas):
         Log is applied only where it is legal: a log axis over data that
         reaches zero or below draws nothing at all, which reads as the plot
         having broken rather than as the setting being inapplicable.
+
+        :param ax: the Matplotlib axes to decorate in place.
         """
         palette = active_palette()
         if self._show_grid:
@@ -630,7 +647,10 @@ class GateCanvas(GraphCanvas):
 
     def is_gate_enabled(self, name: str) -> bool:
         """Whether ``name`` is drawn. Unknown gates are on: a gate that has
-        never been toggled has never been turned off."""
+        never been toggled has never been turned off.
+
+        :param name: the gate's name.
+        """
         return name not in self._disabled
 
     def set_gate_enabled(self, name: str, on: bool) -> None:
@@ -640,6 +660,9 @@ class GateCanvas(GraphCanvas):
         the gate keeps its shape, its parent and its children, and comes back
         exactly as it was. Its rows stay on the plot either way -- toggling
         changes what is marked, not what exists.
+
+        :param name: the gate's name.
+        :param on: ``True`` draws it, ``False`` hides it.
         """
         if on:
             self._disabled.discard(name)
@@ -654,7 +677,11 @@ class GateCanvas(GraphCanvas):
                      if self.is_gate_enabled(g.name))
 
     def set_mode(self, mode: str, *, z_column: str = "") -> None:
-        """Switch between the 2D scatter and the 3D volume."""
+        """Switch between the 2D scatter and the 3D volume.
+
+        :param mode: ``"2D"``, ``"3D"`` or ``"xD"``; anything else is taken
+            as ``"2D"``.
+        """
         self._mode = mode if mode in ("2D", "3D", "xD") else "2D"
         self._z_column = z_column or self._z_column
         self.render_now()
@@ -837,7 +864,13 @@ class GateCanvas(GraphCanvas):
         return first, second, invert, depth
 
     def screen_to_volume(self, event):
-        """Data coordinates on the explicitly selected anchor plane."""
+        """Data coordinates on the explicitly selected anchor plane.
+
+        :param event: a Matplotlib mouse event; its ``x`` and ``y`` display
+            (pixel) coordinates are projected onto the anchor plane.
+        :returns: ``(first column, value, second column, value)``, or
+            ``None`` when there is no volume view.
+        """
         ax = self.axes_at(0, 0)
         mapping = self.volume_axis_map()
         if mapping is None or ax is None:
@@ -1161,6 +1194,8 @@ class GateCanvas(GraphCanvas):
 
         Falls back to the accent when a gate is not in the set (a shape being
         dragged out has no position yet).
+
+        :param name: the gate's name.
         """
         names = list(self._gates.names)
         if name not in names:
@@ -1263,6 +1298,9 @@ class GateCanvas(GraphCanvas):
         Only ENABLED gates are grabbable. A hidden gate is not on screen, and
         an invisible anchor that catches the mouse is indistinguishable from
         the plot being broken.
+
+        :param event: a Matplotlib mouse event; its ``inaxes`` and its ``x``
+            and ``y`` display (pixel) coordinates are read.
         """
         ax = getattr(event, "inaxes", None)
         ex, ey = getattr(event, "x", None), getattr(event, "y", None)
@@ -1468,6 +1506,11 @@ class GateCanvas(GraphCanvas):
 
         Only gates on the current axes are tested, so a gate belonging to a
         different pair cannot be grabbed invisibly.
+
+        :param x: the point's x coordinate in data units; tested as the value
+            of each gate's first column.
+        :param y: the point's y coordinate in data units; tested as the value
+            of a two-column gate's second column.
         """
         probe = pd.DataFrame({})
         hit: Optional[str] = None
@@ -1942,6 +1985,11 @@ class GateCanvas(GraphCanvas):
 
         ``(None, None)`` means full depth, which is what an undragged shape
         means and what the 2D gate on that plane already meant.
+
+        :param low: lower bound along the plane's normal axis, in data units,
+            or ``None`` for unbounded.
+        :param high: upper bound likewise; the two are swapped if given in
+            the wrong order.
         """
         if low is not None and high is not None and low > high:
             low, high = high, low
@@ -2047,6 +2095,9 @@ class GateCanvas(GraphCanvas):
         nothing unless the view was square-on, so turning the volume silently
         changed what the next gate would mean. The user picks a plane and it
         stays picked.
+
+        :param axis: ``"x"``, ``"y"`` or ``"z"``, the normal of the plane
+            drawn on; anything else is taken as ``"z"``.
         """
         self._anchor_axis = axis if axis in ("x", "y", "z") else "z"
         self._draw_gates()
@@ -2059,7 +2110,11 @@ class GateCanvas(GraphCanvas):
         return getattr(self, "_anchor_axis", "z")
 
     def set_drag_mode(self, mode: str) -> None:
-        """``'spin'`` or ``'draw'``. They were competing for one button."""
+        """``'spin'`` or ``'draw'``. They were competing for one button.
+
+        :param mode: ``"spin"`` or ``"draw"``; anything else is taken as
+            ``"spin"``.
+        """
         self._drag_mode = mode if mode in ("spin", "draw") else "spin"
 
     def drag_mode(self) -> str:
@@ -2070,7 +2125,11 @@ class GateCanvas(GraphCanvas):
         return getattr(self, "_drag_mode", "spin")
 
     def set_volume_shape(self, shape: str) -> None:
-        """Which of :data:`VOLUME_SHAPES` a drag draws."""
+        """Which of :data:`VOLUME_SHAPES` a drag draws.
+
+        :param shape: a shape key such as ``"box"``, ``"lasso"`` or
+            ``"polygon"``; empty is taken as ``"box"``.
+        """
         self._volume_shape = str(shape or "box")
 
     def volume_shape(self) -> str:
@@ -2484,6 +2543,15 @@ class GateCanvas(GraphCanvas):
 
         Public so the interaction can be driven without synthesising mouse
         events — the same seam the Graph Builder's :meth:`brush` provides.
+
+        :param x0: x of the drag's start, in data units; the low bound of a
+            threshold gate.
+        :param y0: y of the drag's start, in data units.
+        :param x1: x of the drag's end; the high bound of a threshold gate.
+        :param y1: y of the drag's end.
+        :returns: a threshold, rectangle or ellipse gate for the armed tool,
+            or ``None`` for any other tool, missing columns, or a degenerate
+            ellipse.
         """
         spec = self._spec
         if self._tool == THRESHOLD:
@@ -2745,7 +2813,11 @@ class GateTree(QWidget):
             return ""
 
     def set_colour_source(self, source) -> None:
-        """Tell the tree where gate colours come from -- see `_colour_for`."""
+        """Tell the tree where gate colours come from -- see `_colour_for`.
+
+        :param source: callable taking a gate name and returning a colour
+            string, normally :meth:`GateCanvas.gate_colour`, or ``None``.
+        """
         self._colour_source = source
         self.refresh()
 
@@ -2764,7 +2836,10 @@ class GateTree(QWidget):
         self.enabled_changed.emit(name, on)
 
     def is_enabled(self, name: str) -> bool:
-        """Whether ``name`` is ticked. Unknown gates are on."""
+        """Whether ``name`` is ticked. Unknown gates are on.
+
+        :param name: the gate's name.
+        """
         return name not in self._disabled
 
     def active_gate(self) -> str:
@@ -3310,7 +3385,10 @@ class GateEditorPanel(QWidget):
         return self._gates
 
     def set_gates(self, gates: GateSet) -> None:
-        """Replace the whole set — loading a saved gating strategy."""
+        """Replace the whole set — loading a saved gating strategy.
+
+        :param gates: the gate set, handed to both the canvas and the tree.
+        """
         self._gates = gates
         self.canvas.set_gates(gates, active=self.tree.active_gate() or None)
         self.tree.set_gates(gates, self._frame)
@@ -3324,6 +3402,8 @@ class GateEditorPanel(QWidget):
         a headless run's way — the same reason
         :class:`~spacr.qt.widgets.data_filter_panel.DataFilterPanel` takes an
         injectable link.
+
+        :param namer: zero-argument callable returning the new gate's name.
         """
         self._namer = namer
 
@@ -3619,6 +3699,8 @@ class GateEditorPanel(QWidget):
 
         Used when a projection was asked for and could not be made: the
         button must not keep claiming something that did not happen.
+
+        :param on: the checked state to show.
         """
         button = getattr(self, "_xd_button", None)
         if button is None:
@@ -3676,6 +3758,11 @@ class GateEditorPanel(QWidget):
 
         The CLUSTERING ones are kept here rather than passed on, because the
         Cluster button is on this panel and used to ignore them entirely.
+
+        :param settings: a
+            :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings` (or a
+            compatible object); kept by the panel and passed to
+            :meth:`GateCanvas.apply_settings`.
         """
         self._settings = settings
         self.canvas.apply_settings(settings)

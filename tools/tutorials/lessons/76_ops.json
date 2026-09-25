@@ -72,7 +72,7 @@
     },
     {
       "visual": "12_next_steps",
-      "narration": "Use the nucleus identifiers and image coordinates to connect decoded barcodes with your phenotype measurements. Keep the database, reports and analysis settings together. The pipeline overview shows how these results connect to the rest of your screen.",
+      "narration": "Those nucleus identifiers and image coordinates are the bridge to the rest of your screen: join the decoded barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and analysis settings together; the pipeline overview shows where this fits.",
       "hold_after": 0.7
     }
   ]
