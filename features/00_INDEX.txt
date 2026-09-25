@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-496 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
+497 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -609,3 +609,4 @@ NEW FEATURES
   524  PLAQUE FIGURE MODE SHOWS THE FOUR VIEWS: OVERLAY, MASKS, FLOWS, CELL PROBABILITY
   525  CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
   526  PLAQUE ASSAY READS ANY NUMBER OF PDFS AND IMAGES
+  527  THE EMBEDDING ICON'S LINES ARE THINNER

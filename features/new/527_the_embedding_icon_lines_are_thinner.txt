@@ -1,0 +1,18 @@
+THE EMBEDDING ICON'S LINES ARE THINNER
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the lines on the embedding icon are to thick."
+
+WHAT TO BUILD
+Redraw the Embedding module's icon (spacr/resources/icons/embeddings.png,
+and whatever generator or chosen_icons.json entry produces it) with thinner
+strokes, matching the line weight of the neighbouring module icons on Home
+and in the menus, at every size the icon is shown.
+
+DONE WHEN
+A side-by-side render of the embedding icon next to two neighbouring module
+icons, at the sizes Home and the menu use, shows matching line weights
+(measured stroke width in pixels within 1 px of the neighbours).
