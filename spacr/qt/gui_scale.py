@@ -63,6 +63,7 @@ goes to the content.
 from __future__ import annotations
 
 import logging
+import math
 import re
 import weakref
 from typing import Callable, List, Optional
@@ -115,12 +116,26 @@ def scale_int(value, factor: Optional[float] = None) -> int:
     return max(1, int(round(value * factor)))
 
 
-def _scaled_px(match, factor: float) -> str:
-    """One ``Npx`` at ``factor``, never rounding a non-zero size to nothing."""
+def _scaled_px(match, factor: float, prop: str = "") -> str:
+    """One ``Npx`` at ``factor``, never rounding a non-zero size to nothing.
+
+    A radius rounds down, not to nearest. Qt drops every corner of a box
+    whose two radii add up to more than its side, so a circle or a pill
+    whose radius is half its size turns square the moment the radius rounds
+    up past half of the rounded side: 8px of 16px at 70 % is 6 of 11.
+
+    :param match: the ``Npx`` match.
+    :param factor: the scale.
+    :param prop: the property the value belongs to.
+    """
     value = float(match.group(1))
     if value == 0:
         return match.group(0)
-    scaled = int(round(abs(value) * factor)) or 1
+    size = abs(value) * factor
+    if prop.lower().endswith("radius"):
+        scaled = int(math.floor(size + 1e-9)) or 1
+    else:
+        scaled = int(round(size)) or 1
     return f"{-scaled if value < 0 else scaled}px"
 
 
@@ -144,7 +159,8 @@ def scale_qss_text(text: str, factor: Optional[float] = None) -> str:
         return hit
     scaled = _QSS_SIZE.sub(
         lambda m: m.group(1) + m.group(2)
-        + _PX.sub(lambda p: _scaled_px(p, factor), m.group(3)), text)
+        + _PX.sub(lambda p: _scaled_px(p, factor, m.group(1)), m.group(3)),
+        text)
     if len(_SHEET_CACHE) > 256:
         _SHEET_CACHE.clear()
     _SHEET_CACHE[key] = scaled

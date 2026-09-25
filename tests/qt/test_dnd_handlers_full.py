@@ -1234,11 +1234,15 @@ def test_make_masks_accepts_an_image_folder(tmp_path):
     assert MakeMasksDropHandler().can_accept(tmp_path) is True
 
 
-def test_make_masks_rejects_a_file_and_an_empty_folder(tmp_path):
+def test_make_masks_takes_an_image_file_and_rejects_an_empty_folder(
+        tmp_path):
     f = _mkimg(tmp_path / "a.tif")
+    other = tmp_path / "notes.txt"
+    other.write_text("x")
     empty = tmp_path / "empty"
     empty.mkdir()
-    assert MakeMasksDropHandler().can_accept(f) is False
+    assert MakeMasksDropHandler().can_accept(f) is True
+    assert MakeMasksDropHandler().can_accept(other) is False
     assert MakeMasksDropHandler().can_accept(empty) is False
 
 
@@ -1437,10 +1441,10 @@ def test_database_handler_opens_any_supported_shape(tmp_path):
     ("recruitment", MeasurementsDropHandler),
     ("activation", MeasurementsDropHandler),
     ("invasion", MeasurementsDropHandler),
-    ("analyze_plaques", MakeMasksDropHandler),
-    ("train_cellpose", MakeMasksDropHandler),
-    ("cellpose_masks", MakeMasksDropHandler),
-    ("cellpose_all", MakeMasksDropHandler),
+    ("analyze_plaques", dh.PlaqueDropHandler),
+    ("train_cellpose", dh.CellposeFolderDropHandler),
+    ("cellpose_masks", dh.CellposeFolderDropHandler),
+    ("cellpose_all", dh.CellposeFolderDropHandler),
     ("db_browser", DatabaseDropHandler),
     ("foreign", dh.ForeignProjectDropHandler),
     ("align", dh.AlignDropHandler),

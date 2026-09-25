@@ -119,6 +119,22 @@ class DropHandler(ABC):
         """Return True to be called per-folder on multi-item drops."""
         return False
 
+    def apply_all(self, paths: Sequence[Path], screen) -> bool:
+        """Wire every accepted path of ONE drop in at once, in drop order.
+
+        A handler whose screen builds one list out of a drop -- Make Masks'
+        queue, Plaque Assay's selection -- overrides this, because
+        :meth:`apply` called once per path cannot tell the second file of a
+        drop from the first file of the next one. The default declines, and
+        each path goes through :meth:`apply` as before.
+
+        :param paths: the paths :meth:`can_accept` accepted, in drop order.
+        :param screen: the screen to wire the drop into.
+        :returns: True when the drop was handled here; False sends every
+            path through :meth:`apply` instead.
+        """
+        return False
+
 
 def install_dropzone(target: QWidget, handler: DropHandler,
                        screen: QWidget) -> None:
@@ -349,11 +365,27 @@ def _deliver_drop(report: Sequence[dict], handler: DropHandler,
         if entry.get("csv") is not None:
             _apply_settings_csv(entry["path"], screen, scan=entry["csv"])
 
+    together = [entry["path"] for entry in report
+                if entry.get("csv") is None and entry.get("accepted")]
+    applied_together = False
+    if together:
+        try:
+            applied_together = bool(handler.apply_all(together, screen))
+        except Exception as e:
+            applied_together = True
+            _report_drop_problem(
+                screen, together[0], f"The drop handler failed: {e}",
+                "Check that the paths are readable and that their contents "
+                "match this module, then try again.",
+            )
+
     for entry in report:
         if entry.get("csv") is not None:
             continue
         path = entry["path"]
         if entry.get("accepted"):
+            if applied_together:
+                continue
             try:
                 handler.apply(path, screen)
             except Exception as e:

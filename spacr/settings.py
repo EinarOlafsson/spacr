@@ -1015,6 +1015,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
     _set_psf_defaults(settings)
+    settings.setdefault('psf_objective', 'auto')
     _set_enhancement_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
@@ -3071,7 +3072,7 @@ descriptions = {
 
 expected_types = {
     "psf_measurement_source": str,
-    "psf_operation": str, "psf_source": str,
+    "psf_operation": str, "psf_source": str, "psf_objective": str,
     "psf_path": (str, type(None)),
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
@@ -3976,10 +3977,11 @@ tooltips = {
     'psf_measurement_source': "(str) - original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
     'psf_operation': "(str) - Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
     'psf_source': "(str) - gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+    'psf_objective': "(str) - Objective used to infer PSF calibration that is left unset: auto reads magnification, numerical aperture, immersion and pixel size from the first source image's OME metadata and otherwise assumes a 20x/0.75 air objective; a table row such as 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil or 100x/1.45 oil uses that objective's values, with a 6.5 µm camera pixel and 520 nm emission unless the metadata says otherwise. Explicit psf_image_sampling_um and psf_fwhm_um always win. Default auto.",
     'psf_path': "(str or None) - Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
-    'psf_image_sampling_um': "(list or None) - Default None (unset). Explicit image pixel spacing [Y, X] in micrometers. Required when PSF processing is on; neither magnification nor pixel spacing is guessed. Both numbers must be positive and finite.",
+    'psf_image_sampling_um': "(list or None) - Default None (unset). Image pixel spacing [Y, X] in micrometers; both numbers must be positive and finite. Unset with a Gaussian PSF, Mask and timelapse infer it from the first source image's OME/ImageJ calibration, else camera pixel / magnification of psf_objective (6.5 µm / 20 = 0.325 µm by default), and print each value's source. Measure and measured kernels require it explicitly.",
     'psf_kernel_sampling_um': "(list or None) - Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
-    'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers. Required for a Gaussian approximation. Both values must be positive and finite; these are user supplied approximation parameters, not measured resolution.",
+    'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
     'enhance_background': "(str) - Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
     'enhance_background_radius': "(int) - Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
@@ -5020,8 +5022,8 @@ categories = {
         "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
         "hp_count_column"],
 
-    "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_path",
-                              "psf_image_sampling_um", "psf_kernel_sampling_um",
+    "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_objective",
+                              "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 
     "Image Enhancement": ["enhance_background", "enhance_background_radius",

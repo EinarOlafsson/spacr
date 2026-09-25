@@ -3836,8 +3836,12 @@ def api_docs_url(
     chosen_by_hand = True
     if key == "psf_measurement_source":
         module, anchor = "psf_measurement", "spacr.psf_measurement.prepare_measurement_psf"
+    elif key == "psf_objective":
+        module, anchor = "point_spread", "spacr.point_spread.fill_psf_settings"
     elif key.startswith("psf_"):
         module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_psf"
+    elif app_key == "make_masks" and key.startswith("make_masks_psf_optics_"):
+        module, anchor = "point_spread", "spacr.point_spread.infer_optics"
     elif key.startswith("enhance_"):
         module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_chain"
     elif app_key == "make_masks" and key.startswith("make_masks_psf_"):

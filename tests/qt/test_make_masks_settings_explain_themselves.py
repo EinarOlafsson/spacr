@@ -208,6 +208,10 @@ def _awaiting_translation(screen) -> set:
     translations in all nine languages and are no longer excluded here.
     The Apply and Compare enhancement help also have source-bound translations.
 
+    Owed since 2026-09-25 by item 509 (deconvolution infers its own values):
+    the PSF objective, camera, fluorophore and optics fields, and the image
+    pixel help, which no longer says that no calibration is inferred.
+
     Owed since 2026-09-25 by item 511 (filters are any regionprop): the
     Filter category's property box.
     """
@@ -226,6 +230,13 @@ def _awaiting_translation(screen) -> set:
                  "_enh_percentile_high", "_enh_log", "_enh_log_gain",
                  "_enh_sqrt", "_filter_property"):
         widget = getattr(screen, name, None)
+        if widget is not None:
+            widgets.append(widget)
+    psf = getattr(screen, "_psf_controls", None)
+    for name in ("objective", "infer", "camera", "fluorophore", "magnification",
+                 "numerical_aperture", "refractive_index", "emission_nm",
+                 "camera_pixel_um", "image_y", "image_x"):
+        widget = getattr(psf, name, None)
         if widget is not None:
             widgets.append(widget)
     owed = set()

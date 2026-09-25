@@ -27,7 +27,8 @@ import tempfile
 
 import numpy as np
 
-from .point_spread import PSF, apply_psf, gaussian_psf, load_psf, _spacing
+from .point_spread import (PSF, apply_psf, describe_optics, fill_psf_settings,
+                           gaussian_psf, load_psf, _spacing)
 from .cancellation import checkpoint
 
 
@@ -382,6 +383,7 @@ def validate_psf_resume(settings, root, channels, *, expected_fields):
     :returns: None for a compatible completed set or untouched legacy inputs.
     :raises ValueError: if archives cannot be proven to match this request.
     """
+    fill_psf_settings(settings, root)
     plan = prepare_psf(settings)
     chain = prepare_chain(settings, plan)
     path = _record_path(root)
@@ -477,6 +479,11 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1'):
     :returns: a new session, or None for an untracked run with the PSF and
         the chain both off.
     """
+    inferred = fill_psf_settings(settings, root)
+    if inferred is not None:
+        print('PSF calibration was not set; inferred values (source in brackets):')
+        for line in describe_optics(inferred):
+            print('  ' + line)
     plan = prepare_psf(settings)
     chain = prepare_chain(settings, plan)
     if plan is None and chain is None and not _record_path(root).exists():

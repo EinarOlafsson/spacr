@@ -575,3 +575,11 @@ def test_no_cards_are_told_when_there_is_no_application(monkeypatch):
     monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
 
     assert prefs._tell_the_cards_the_rim_changed() == 0
+
+
+def test_a_panel_that_starts_folded_stores_being_opened_and_forgets_being_shut(store):
+    """509: a default-folded panel keeps its opening, and folding it again is the default."""
+    prefs.set_folded_panel("make_masks/psf_details", False, default_shut=True)
+    assert prefs.get_folded_panels() == {"make_masks/psf_details": False}
+    prefs.set_folded_panel("make_masks/psf_details", True, default_shut=True)
+    assert prefs.get_folded_panels() == {}

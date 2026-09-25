@@ -1,0 +1,42 @@
+THE PLAQUE SIZE SLIDER HANDLE IS A CIRCLE
+
+Status: DONE 2026-09-25 (implemented, tests pass; awaiting the maintainer's
+check in the real app). Filed 2026-09-25.
+Owner: unassigned. Related: 517/518 (plaque preview), the per-preview scale
+slider (preview_scale.py), the GUI scale layer (gui_scale.py).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the size slider in the plaque modual has a square on the slider, this
+    should be a circle"
+
+ROOT CAUSE
+Not plaque-specific: every QSlider in spaCR had it, at some GUI scales.
+The theme's handle (theme.py) was 16px long (its `width`) and its thickness
+was the groove's `height: 4px` plus two `margin: -6px`. The GUI scale layer
+rounds each of those numbers on its own, so at 75 % the handle came out
+12 x (3 + 4 + 4) = 11, and at 70 % 11 x 11 with a radius that rounded UP
+to 6. Qt (qNormalizeRadii) drops every corner radius of a box whose two
+radii add up to more than its side, so 6 + 6 > 11 painted a square. The
+plaque preview's own scale slider shows it whatever its own percentage,
+because its restated sheet (_pin_the_control_text) carries the same
+GUI-scaled sizes. Separately, the slider widget was 15px tall for a 16px
+handle, so at 100 % and above the circle's top was clipped.
+
+FIX
+  spacr/qt/theme.py:4805  slider block: the groove is as tall as the handle
+      (16px, the 4px track painted across its middle by a hard-stop
+      gradient), the handle has no margin, and QSlider has min-height
+      (min-width vertical) 16px. Length and thickness are then one rounded
+      number at any scale.
+  spacr/qt/gui_scale.py:119  _scaled_px rounds radii DOWN, so a radius of
+      half the size never outgrows half the rounded size.
+  spacr/qt/widgets/preview_scale.py:137  _scaled_px delegates to it, so the
+      per-preview scaler rounds radii the same way.
+
+TESTS
+  tests/qt/test_519_the_slider_handle_is_a_circle.py: grabs the plaque
+  preview's scale slider and a plain slider at GUI scale 100/75/70/125 %
+  and preview scale 100/75 %; the handle box is square, its centre is the
+  accent colour and its four corner pixels are not (8 cases, all failed
+  before the fix), plus a scaler check that 2 x radius <= width at five
+  factors. The gui-scale, preview-scale and theme suites (496 tests) pass.

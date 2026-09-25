@@ -6,7 +6,8 @@ from dataclasses import replace
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QPushButton, QVBoxLayout, QWidget,
+    QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget,
 )
 
 from ..._segmentation_backends import _restoration_plan
@@ -100,6 +101,10 @@ class _RestorationControls(QWidget):
             'Compare previews the result; Apply enables it for subsequent detection. '
             'Source pixels and measurement intensities remain unchanged.'))
         form.addRow(tr('Deep image enhancement'), self.operation)
+        details = QWidget()
+        more = QFormLayout(details)
+        more.setContentsMargins(0, 0, 0, 0)
+        more.setRowWrapPolicy(QFormLayout.WrapLongRows)
         self.structure = QComboBox()
         for label, value in ((tr('Cells (cyto3)'), 'cyto3'),
                              (tr('Cells (cyto2)'), 'cyto2'), (tr('Nuclei'), 'nuclei')):
@@ -110,7 +115,7 @@ class _RestorationControls(QWidget):
             'normalized model output, not calibrated fluorescence. Inspect '
             'the comparison before accepting new masks. Upsampling is excluded '
             'so image and mask coordinates stay aligned.'))
-        form.addRow(tr('Restoration model'), self.structure)
+        more.addRow(tr('Restoration model'), self.structure)
         self.diameter = QDoubleSpinBox()
         self.diameter.setRange(1, 2000)
         self.diameter.setDecimals(1)
@@ -120,7 +125,7 @@ class _RestorationControls(QWidget):
             'Approximate diameter of the selected cells or nuclei in pixels. '
             'Controls model rescaling; output dimensions remain unchanged. '
             'This does not estimate microscope calibration.'))
-        form.addRow(tr('Restoration diameter'), self.diameter)
+        more.addRow(tr('Restoration diameter'), self.diameter)
         self.reload = QPushButton(tr('Load / retry model'))
         self.reload.setToolTip(tr(
             'Load the selected Cellpose 3 restoration weights on the CPU. '
@@ -130,7 +135,7 @@ class _RestorationControls(QWidget):
             'Load the selected Cellpose 3 restoration weights on the GPU. '
             'First use may download weights. The captured package version, '
             'checkpoint hash and diameter are recorded with applied enhancement.'))
-        form.addRow(self.reload)
+        more.addRow(self.reload)
         from .model_zoo_picker import _BackendInstallButton
 
         self.install = _BackendInstallButton(
@@ -143,6 +148,13 @@ class _RestorationControls(QWidget):
             'The Cellpose version used by spaCR itself is unchanged.'))
         form.addRow(self.install)
         layout.addLayout(form)
+        from .collapsible_splitter import FoldSection
+
+        self.details = FoldSection(details, 'Restoration model settings',
+                                   persist_key='make_masks/restoration_details',
+                                   follow_body=False, stretch=0, folded=True)
+        self.details.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        layout.addWidget(self.details)
         self.status = QLabel()
         self.status.setWordWrap(True)
         layout.addWidget(self.status)

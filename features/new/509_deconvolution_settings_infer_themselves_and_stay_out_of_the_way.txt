@@ -1,7 +1,7 @@
 DECONVOLUTION INFERS ITS OWN VALUES, AND THE ADVANCED SETTINGS COLLAPSE
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned. Related: 490 (measured and calculated PSFs), 473, 508.
+Status: BUILT 2026-09-25 (worktree, not pushed). Inference, one-click PSF and the folds are done; translations owed to the catalog lane.
+Owner: 509 agent. Related: 490 (measured and calculated PSFs), 473, 508.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "for the deconvolution, there should be a button for infering or choosing a
@@ -35,3 +35,77 @@ DONE WHEN
 Someone who knows none of the optics can deconvolve a real plate from the
 defaults, the inferred values are shown and editable, and none of the four
 groups shows more than its essential rows until it is opened.
+
+2026-09-25 — BUILT: OPTICS INFER THEMSELVES, ADVANCED ROWS FOLD SHUT
+Engine (spacr/point_spread.py, no new module):
+  OBJECTIVES :414 (10x/0.30 air ... 100x/1.45 oil, 11 rows), IMMERSION_INDEX
+  air 1.0 / water 1.33 / oil 1.515, CAMERAS 6.5/4.54/3.45/11/16 µm,
+  FLUOROPHORES DAPI 461, GFP 520, Cy3 600, Cy5 670 nm.
+  pixel_size_um :457 = camera pixel / magnification.
+  lateral_fwhm_um :474 = 0.51 λ/NA (Born & Wolf §8.5.2 Airy FWHM 0.514 λ/NA;
+  Zhang, Zerubia & Olivo-Marin 2007 Appl Opt 46:1819, Gaussian σ≈0.21 λ/NA).
+  image_optics_metadata :635 reads the TIFF header only: OME-XML pixel size,
+  Objective LensNA/NominalMagnification/Immersion, RefractiveIndex, Channel
+  EmissionWavelength; ImageJ micron calibration; cm resolution tags (dpi is
+  ignored); a "_40x_" file-name token.
+  infer_optics :679 returns every value as OpticalValue(value, source, detail);
+  precedence chosen > metadata > objective table > defaults (20x/0.75 air,
+  6.5 µm, 520 nm). describe_optics prints one line per value.
+  fill_psf_settings :786 fills only unset Gaussian psf_image_sampling_um /
+  psf_fwhm_um, never a user's value; called by psf_pipeline.py:386
+  (validate_psf_resume), :482 (_prepare_segmentation_psf, which prints each
+  inferred value and source) and validate.py:1484 (preflight, on a copy).
+  prepare_psf itself stays strict, so Measure and live preview still refuse
+  unset calibration.
+New Mask setting psf_objective (auto or a table row; settings.py:1018, tooltip
+  :3966, spec combo, category Point Spread Function, KEYS_ADDED_BY_REGROUP,
+  api link -> fill_psf_settings). psf_image_sampling_um and psf_fwhm_um help
+  now say unset values are inferred for Mask/timelapse.
+Make Masks (spacr/qt/widgets/psf_controls.py): visible rows are the operation
+  and Objective (chooser + "Infer from images…"); a summary line names the
+  pixel size, FWHM and their sources. Fold "PSF optics and kernel" (:221,
+  starts shut) holds camera, fluorophore, magnification, NA, refractive index,
+  emission, camera pixel, image dimensions, PSF source, pixel size, FWHM,
+  measured kernel and iterations; each optical field has a source label
+  (default / from objective / from OME metadata / calculated / entered by
+  you ...). Fields start filled with the defaults, so choosing Deconvolve is
+  one click (0.325 µm, FWHM 0.3536 µm, 5×5 kernel). infer_from :400 runs off
+  the GUI thread; with no open field it asks for a file. mask_settings :566
+  also exports psf_objective. Restoration (restoration_controls.py:153):
+  operation and Install visible, model/diameter/reload folded. Make Masks
+  _folded_rows make_masks.py:10795 folds CLAHE tile/clip, and 508's
+  percentile low/high, logarithm gain and unsharp radius/amount under their
+  own switches (:10584, :10604, :10647, :10689).
+Fold store: preferences.set_folded_panel(key, shut, *, default_shut) :796
+  stores an OPENED default-shut panel as False and forgets it when shut;
+  foldable.make_foldable(..., shut_by_default) :220; FoldSection(..., folded).
+Real data: Toxo PV (~/.cache/spacr/example_data/make_masks_toxo_pv,
+  plate1_A02_12.tif, no OME/ImageJ tags) infers image_shape 1994 × 1994 from
+  the image, objective/NA/n/emission/camera as defaults, pixel 0.325 µm and
+  FWHM 0.3536 µm calculated, in 0.014 s; fill_psf_settings then prepare_psf
+  gives a 5×5 kernel at 0.325 µm. No GPU used.
+Tests: new tests/test_psf_optics_inference.py (8: formulae, table, metadata
+  absent/OME/ImageJ/cm/dpi, file-name token, fill rules, real Toxo PV) and
+  tests/qt/test_make_masks_psf_infers_and_folds.py (7: six groups show only
+  their essential rows until opened, fold persistence, one-click deconvolve,
+  chooser recalculation with sources, Infer from OME and plain TIFF, cancel);
+  updated test_make_masks_psf (defaults filled; uncalibrated = pixel cleared),
+  test_psf_mask_pipeline (preflight infers; measured without file still fails;
+  new segmentation-inference test), test_cov_3_qt_preferences (+1).
+  Before: 345 passed on the PSF/restoration/settings set. After merging
+  nightly 3950a9a95: 482 passed, 3 skipped, 1 xfailed; 2 failures in
+  test_i18n_caption_ratchet are other items' captions (511 filters, SpotNet,
+  sv rows), not 509's. Six API-inventory audits (docstring_correctness x3,
+  api_i18n_extractor x2, documentation_i18n[en]) fail identically on nightly.
+For the docs lane: new setting psf_objective; public API Objective,
+  OpticalValue, OBJECTIVES, CAMERAS, FLUOROPHORES, IMMERSION_INDEX, objective,
+  pixel_size_um, lateral_fwhm_um, image_optics_metadata, infer_optics,
+  describe_optics, fill_psf_settings. 45 new tr() captions are listed in
+  tests/qt/test_i18n_caption_ratchet.py _AWAITING_CATALOG_REBUILD, the PSF
+  widgets in _awaiting_translation; fold names "PSF optics and kernel",
+  "Restoration model settings", "CLAHE settings", "Percentile clip settings",
+  "Logarithm settings", "Unsharp mask settings" need rows too. The old image
+  pixel help's reviewed translations moved to superseded_records in
+  docs/i18n/reviewed/runtime/*/2026-09-23-psf-help.json.
+Left: Mask live preview still requires explicit calibration (pinned by
+  test_live_preview_psf); non-TIFF formats contribute only the file-name token.

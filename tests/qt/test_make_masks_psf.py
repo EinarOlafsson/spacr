@@ -34,10 +34,13 @@ def _gaussian(screen, qtbot, operation='convolve'):
     return widget
 
 
-def test_default_psf_is_off_and_does_not_invent_calibration(screen):
+def test_default_psf_is_off_and_its_common_calibration_says_so(screen):
+    """509: off by default, but already filled with common optics that name their source."""
     widget = screen._psf_controls
     assert widget.operation.currentData() == 'none'
-    assert widget.image_x.value() == widget.image_y.value() == 0
+    assert widget.image_x.value() == widget.image_y.value() == 0.325
+    assert widget.source_of('image_x')[0] == 'calculated'
+    assert widget.source_of('magnification') == ('default', '20x/0.75 air')
     assert screen._enhancement_chain() == dc.NO_CHAIN
     assert not widget._jobs.is_busy()
     assert widget.operation.property('apiTooltipHtml')
@@ -138,8 +141,11 @@ def test_compare_and_apply_use_actual_psf_without_modifying_source(screen, qtbot
 
 
 def test_uncalibrated_psf_fails_visibly_and_never_floods_raw_pixels(screen, qtbot):
+    """509 fills common values, so the uncalibrated case is a pixel size cleared by hand."""
     widget = screen._psf_controls
     widget.operation.setCurrentIndex(widget.operation.findData('convolve'))
+    widget.image_y.setValue(0)
+    assert widget.source_of('image_y')[0] == 'entered'
     qtbot.waitUntil(lambda: 'positive' in widget._error)
     screen._btn_apply.click()
     qtbot.waitUntil(lambda: screen._canvas._enhance_failure is not None)

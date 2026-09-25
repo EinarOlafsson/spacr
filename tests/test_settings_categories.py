@@ -356,6 +356,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "tta_vertical_flip", "tta_aggregation", "tta_min_agreement", "tta_max_std",
     "psf_operation", "psf_source", "psf_path", "psf_image_sampling_um",
     "psf_kernel_sampling_um", "psf_fwhm_um", "psf_iterations",
+    # 509, 2026-09-25: the objective missing PSF calibration is inferred from.
+    "psf_objective",
     # 508, 2026-09-25: the Make Masks enhancement chain as Mask settings.
     "enhance_background", "enhance_background_radius", "enhance_background_scale",
     "enhance_denoise", "enhance_denoise_strength",
