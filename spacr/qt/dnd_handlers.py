@@ -43,7 +43,7 @@ import threading
 import time
 from itertools import chain, islice
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QObject
 
@@ -1562,6 +1562,81 @@ def _plaque_images_in(folder: Path) -> List[Path]:
                   if child.is_file() and child.suffix.lower() in suffixes)
 
 
+def plaque_inputs(paths: Sequence[Path], *, limit: int = 20000
+                  ) -> Tuple[List[Path], List[Path], List[Path]]:
+    """What a drop or a ``src`` holds for each Plaque Assay mode.
+
+    Only the top level of a folder is read, as the plaque run reads it, and
+    at most ``limit`` entries of each, so a huge folder on a slow share
+    cannot hold the window for long.
+
+    :param paths: dropped files and folders, or ``[src]``.
+    :param limit: entries read per folder.
+    :returns: ``(pdfs, images, paper_folders)``. A paper folder -- one a
+        paper was fetched into, holding its ``paper.json``, ``legends.csv``
+        or ``text_layer.json`` -- is Figure mode's input, and its figure
+        images are not counted as plaque images.
+    """
+    from ..plaque_papers import LEGENDS_FILE, PAPER_FILE, TEXT_LAYER_FILE
+
+    suffixes = _plaque_image_suffixes()
+    pdfs: List[Path] = []
+    images: List[Path] = []
+    papers: List[Path] = []
+    for path in paths:
+        path = Path(path)
+        if path.is_file():
+            suffix = path.suffix.lower()
+            if suffix == ".pdf":
+                pdfs.append(path)
+            elif suffix in suffixes:
+                images.append(path)
+            continue
+        if not path.is_dir():
+            continue
+        if any((path / marker).is_file()
+               for marker in (PAPER_FILE, LEGENDS_FILE, TEXT_LAYER_FILE)):
+            papers.append(path)
+            continue
+        found_pdfs: List[Path] = []
+        found_images: List[Path] = []
+        try:
+            with os.scandir(path) as entries:
+                for count, entry in enumerate(entries):
+                    if count >= limit:
+                        break
+                    suffix = os.path.splitext(entry.name)[1].lower()
+                    if suffix != ".pdf" and suffix not in suffixes:
+                        continue
+                    try:
+                        if not entry.is_file():
+                            continue
+                    except OSError:
+                        continue
+                    (found_pdfs if suffix == ".pdf" else found_images).append(
+                        Path(entry.path))
+        except OSError:
+            continue
+        pdfs.extend(sorted(found_pdfs))
+        images.extend(sorted(found_images))
+    return pdfs, images, papers
+
+
+def _pdfs_in(folder: Path) -> List[Path]:
+    """The PDFs directly inside ``folder``, sorted by name.
+
+    :param folder: a folder.
+    :returns: PDF paths; empty for a folder with none, or not a folder.
+    """
+    if not folder.is_dir():
+        return []
+    try:
+        return sorted(child for child in folder.iterdir()
+                      if child.is_file() and child.suffix.lower() == ".pdf")
+    except OSError:
+        return []
+
+
 def _plaque_mode_of(screen) -> str:
     """Whether Plaque Assay is in Plaque or Figure mode now.
 
@@ -1665,7 +1740,7 @@ class PlaqueDropHandler(DropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
-        """A plaque image, a PDF, or a folder with plaque images in it.
+        """A plaque image, a PDF, or a folder with plaque images or PDFs in it.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
@@ -1673,7 +1748,7 @@ class PlaqueDropHandler(DropHandler):
         if path.is_file():
             suffix = path.suffix.lower()
             return suffix == ".pdf" or suffix in _plaque_image_suffixes()
-        return bool(_plaque_images_in(path))
+        return bool(_plaque_images_in(path)) or bool(_pdfs_in(path))
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
         """Nearby folders that hold plaque images.
@@ -1720,18 +1795,38 @@ class PlaqueDropHandler(DropHandler):
     def apply_all(self, paths: Sequence[Path], screen) -> bool:
         """Point Plaque Assay at the drop: PDFs to Figure mode, images to src.
 
+        The mode follows what was dropped (item 518): PDFs, or a folder of
+        them, dropped in Plaque mode ask to switch to Figure mode; images
+        dropped in Figure mode ask to switch to Plaque mode; PDFs and images
+        together say that PDFs are read in Figure mode and images in Plaque
+        mode, and ask which to read. Staying in Figure mode reads the images
+        as figures; staying in Plaque mode leaves the PDFs unread.
+
         :param paths: the accepted files and folders, in drop order.
         :param screen: the Plaque Assay screen.
         :returns: True; the drop is always handled here.
         """
+        from .i18n import tr
+        from .widgets.plaque_preview import FIGURE_MODE, follow_the_input
+
         paths = [Path(path) for path in paths]
-        pdfs = [path for path in paths
-                if path.suffix.lower() == ".pdf" and path.is_file()]
-        rest = [path for path in paths if path not in pdfs]
-        if pdfs:
+        pdfs, images, papers = plaque_inputs(paths)
+        name = paths[0].name if len(paths) == 1 else tr(
+            "The {n} dropped items", n=len(paths))
+        mode = follow_the_input(screen, pdfs, images, papers, name)
+        if mode is None:
+            _log(screen, "[drop] left unread\n")
+            return True
+        rest = [path for path in paths
+                if not (path.is_file() and path.suffix.lower() == ".pdf")
+                and (path.is_file() or _plaque_images_in(path))]
+        if mode == FIGURE_MODE and pdfs:
             self._take_pdfs(pdfs, screen)
-        if rest:
+        elif rest:
             self._take_images(rest, screen)
+        elif pdfs:
+            _log(screen, f"[drop] {len(pdfs)} PDF(s) left unread in Plaque "
+                 f"mode\n")
         return True
 
     @staticmethod
@@ -1783,7 +1878,10 @@ class PlaqueDropHandler(DropHandler):
         :param paths: the dropped image files and folders, in drop order.
         :param screen: the Plaque Assay screen.
         """
+        from .widgets.plaque_preview import remember_the_input
+
         if len(paths) == 1 and paths[0].is_dir():
+            remember_the_input(screen, paths[0])
             _set_src_on(screen, str(paths[0]))
             _log(screen, f"[drop] plaque folder = {paths[0]}\n")
             return
@@ -1797,10 +1895,12 @@ class PlaqueDropHandler(DropHandler):
         if len(parents) == 1:
             folder = next(iter(parents))
             if set(_plaque_images_in(folder)) == set(images):
+                remember_the_input(screen, folder)
                 _set_src_on(screen, str(folder))
                 _log(screen, f"[drop] plaque folder = {folder}\n")
                 return
         folder = plaque_selection_folder(images)
+        remember_the_input(screen, folder)
         _set_src_on(screen, str(folder))
         _log(screen, f"[drop] plaque selection of {len(images)} image(s) "
              f"= {folder}\n")

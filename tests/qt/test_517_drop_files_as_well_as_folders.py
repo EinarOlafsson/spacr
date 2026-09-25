@@ -273,7 +273,13 @@ def test_plaque_takes_a_mix_of_files_and_folders(plaque_screen, tmp_path,
 
 
 def test_plaque_refusals_never_mention_make_masks(plaque_screen, tmp_path,
-                                                  said):
+                                                  said, monkeypatch):
+    from spacr.qt.widgets import plaque_preview as ppv
+
+    asked = []
+    monkeypatch.setattr(ppv, "ask_input_mode",
+                        lambda parent, question, name, mode, **kw:
+                        asked.append(question) or mode)
     empty = tmp_path / "nothing_here"
     empty.mkdir()
     (empty / "readme.txt").write_text("x")
@@ -282,7 +288,9 @@ def test_plaque_refusals_never_mention_make_masks(plaque_screen, tmp_path,
     pdf = tmp_path / "paper.pdf"
     pdf.write_bytes(b"%PDF-1.4\n%%EOF\n")
     _drop(plaque_screen, [pdf])
-    assert len(said) == 3
+    assert asked == [ppv.TO_FIGURE], (
+        "item 518: a PDF in Plaque mode asks to switch instead of refusing")
+    assert len(said) == 2
     for reason, suggestion in said:
         assert "Plaque Assay" in reason
         assert "Make Masks" not in reason + suggestion

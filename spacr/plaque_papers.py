@@ -106,6 +106,8 @@ __all__ = [
     "reread_around",
     "console_legend_prompt",
     "console_review",
+    "ReaderNeedsInstall",
+    "reader_problem",
 ]
 
 EPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest"
@@ -676,11 +678,20 @@ def _pdf_pages_in_reader(pdf: Any, dest: Path, dpi: int) -> List[Dict[str, Any]]
     :param dpi: render resolution.
     :returns: the same per-page records.
     """
-    from ._segmentation_backends import _worker_for
+    from ._segmentation_backends import _BackendError, _worker_for
 
-    reply = _worker_for(READER_BACKEND, reader_environment()).request(
-        "read_pdf", pdf=str(Path(pdf).resolve()), dest=str(dest.resolve()),
-        dpi=int(dpi), x_tolerance=PDF_X_TOLERANCE)
+    kind, why = reader_problem(pdf=True)
+    if kind:
+        raise ReaderNeedsInstall(why, reinstall=kind == "reinstall")
+    try:
+        reply = _worker_for(READER_BACKEND, reader_environment()).request(
+            "read_pdf", pdf=str(Path(pdf).resolve()), dest=str(dest.resolve()),
+            dpi=int(dpi), x_tolerance=PDF_X_TOLERANCE)
+    except _BackendError as exc:
+        if getattr(exc, "remote_type", "") == "ModuleNotFoundError" and \
+                "pdfplumber" in str(exc):
+            raise ReaderNeedsInstall(str(exc), reinstall=True) from exc
+        raise
     return list(reply.get("pages", []))
 
 
@@ -716,7 +727,7 @@ def figures_from_pdf(pdf: Any, dest: Any, *, dpi: int = 200,
             try:
                 import pdfplumber
             except ImportError as exc:
-                raise ImportError(
+                raise ReaderNeedsInstall(
                     "Reading a PDF needs 'pdfplumber'. Install the plaque "
                     "figure reader from Plaque Assay's Figure mode or the "
                     "Model Zoo, or install it here with:\n  "
@@ -863,6 +874,61 @@ def reader_environment() -> Optional[str]:
     return state.env if state.ready and not state.in_process else None
 
 
+class ReaderNeedsInstall(ImportError):
+    """The figure reader must be installed, or installed again, first.
+
+    An :class:`ImportError`, so every caller that already reported a missing
+    reader still does; Plaque Assay catches this one to offer the install
+    in place (item 518).
+
+    :param message: what is missing and why.
+    :param reinstall: True when the reader is installed but was built
+        before a package it now needs was pinned.
+    """
+
+    def __init__(self, message: str, *, reinstall: bool = False) -> None:
+        """Keep whether this is a first install or a reinstall."""
+        super().__init__(message)
+        self.reinstall = bool(reinstall)
+
+
+def reader_problem(*, pdf: bool = False) -> Tuple[str, str]:
+    """Whether Figure mode can read now, and what to do when it cannot.
+
+    Read from disk only -- spaCR's own packages and the reader's install
+    record (:func:`spacr._segmentation_backends._stale_requirements`) -- so
+    it is cheap enough for the GUI thread.
+
+    :param pdf: the question is about reading a PDF, which needs
+        pdfplumber; otherwise the detector and OCR.
+    :returns: ``('', '')`` when ready; ``('install', why)`` when the reader
+        is not installed; ``('reinstall', why)`` when it is installed
+        without a package spaCR now pins for it.
+    """
+    if pdf and _importable("pdfplumber"):
+        return "", ""
+    if not pdf and _importable("ultralytics") and _importable("rapidocr_onnxruntime"):
+        return "", ""
+    try:
+        from ._segmentation_backends import _backend_state, _stale_requirements
+
+        state = _backend_state(READER_BACKEND)
+    except Exception as exc:
+        return "install", str(exc)
+    if state.in_process:
+        return "", ""
+    if not state.ready:
+        return "install", state.reason
+    stale = [item for item in _stale_requirements(READER_BACKEND, state.record)
+             if pdf or not item.lower().startswith("pdfplumber")]
+    if stale:
+        return "reinstall", (
+            "The plaque figure reader in {env} was installed before spaCR "
+            "pinned {packages} for it; installing it again adds them.".format(
+                env=state.env, packages=", ".join(stale)))
+    return "", ""
+
+
 def _reader_request(op: str, image: Any, **payload: Any) -> Dict[str, Any]:
     """Send one image to the figure reader's worker and return its reply.
 
@@ -878,7 +944,7 @@ def _reader_request(op: str, image: Any, **payload: Any) -> Dict[str, Any]:
 
     env = reader_environment()
     if env is None:
-        raise ImportError(
+        raise ReaderNeedsInstall(
             "Figure mode needs the plaque figure reader (YOLO and RapidOCR). "
             "Install it from Plaque Assay's Figure mode or the Model Zoo; it "
             "goes into an environment of its own.")
@@ -946,7 +1012,7 @@ def _rapidocr() -> Callable:
         elif reader_environment() is not None:
             return _reader_ocr
         else:
-            raise ImportError(
+            raise ReaderNeedsInstall(
                 "Reading the text in figure images needs RapidOCR. Install "
                 "the plaque figure reader from Plaque Assay's Figure mode or "
                 "the Model Zoo; it goes into an environment of its own.")
