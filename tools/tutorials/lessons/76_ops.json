@@ -11,7 +11,7 @@
   "objectives": [
     "Open OPS inside Mask and load its example images and barcode library.",
     "Choose the input and output folders and understand the main alignment and decoding settings.",
-    "Run OPS and inspect nucleus barcode assignments and the run report."
+    "Run OPS and inspect nucleus barcode assignments in the output database."
   ],
   "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
   "scenes": [
@@ -23,57 +23,123 @@
     {
       "visual": "02_load_test_data",
       "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        480,
+        1150,
+        270
+      ]
     },
     {
       "visual": "03_inputs",
       "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        530,
+        1150,
+        210
+      ]
     },
     {
       "visual": "04_phenotype",
       "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        625,
+        1150,
+        80
+      ]
     },
     {
       "visual": "05_alignment",
       "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        795,
+        1150,
+        180
+      ]
     },
     {
       "visual": "06_window_overlap",
       "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        945,
+        1150,
+        80
+      ]
     },
     {
       "visual": "07_base_channels",
       "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        1070,
+        1150,
+        80
+      ]
     },
     {
       "visual": "08_read_settings",
       "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        1115,
+        1150,
+        135
+      ]
     },
     {
       "visual": "09_store_reads",
       "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        1220,
+        1150,
+        60
+      ]
     },
     {
       "visual": "10_run",
       "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        360,
+        1380,
+        1300,
+        520
+      ]
     },
     {
-      "visual": "11_outputs",
-      "narration": "Open the selected output folder. The measurements database contains nucleus and barcode tables, and each well has an OPS report. Inspect the barcode assignments, library matches and any warnings before continuing.",
-      "hold_after": 0.7
+      "visual": "11_output_folder",
+      "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+      "hold_after": 0.7,
+      "focus": [
+        1020,
+        480,
+        1800,
+        1200
+      ]
     },
     {
-      "visual": "12_next_steps",
-      "narration": "Those nucleus identifiers and image coordinates are the bridge to the rest of your screen: join the decoded barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and analysis settings together; the pipeline overview shows where this fits.",
-      "hold_after": 0.7
+      "visual": "12_barcode_table",
+      "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+      "hold_after": 0.7,
+      "focus": [
+        330,
+        280,
+        2100,
+        1700
+      ]
     }
   ]
 }

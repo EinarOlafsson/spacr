@@ -1,0 +1,229 @@
+{
+  "lesson": "76_ops",
+  "date": "2026-09-25",
+  "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/ops_current_walkthrough",
+  "capture_commit": "f27e87e311c57ba53e3e919e77b43b7a93903041",
+  "version": "1.5.1.0",
+  "recorder": "tools/tutorials/capture_ops.py with SPACR_OPS_WALKTHROUGH=1 (neutral wrapper, CPU-only, dark/Blobs)",
+  "accepted": true,
+  "scope": "Real downloaded OPS example, complete native stitch/objects/decode run and written tables checked with SQLite; not a biological validation",
+  "test_data": {
+    "files": 85,
+    "sites": [
+      "331",
+      "332"
+    ],
+    "cycle_folders": [
+      "c1",
+      "c10",
+      "c11",
+      "c2",
+      "c3",
+      "c4",
+      "c5",
+      "c6",
+      "c7",
+      "c8",
+      "c9"
+    ],
+    "library": "library/pool10_prefixes.csv",
+    "downloaded_in_this_recording": true
+  },
+  "inputs_verified_against_manifest": true,
+  "inputs_unchanged": true,
+  "run": {
+    "seconds": 1235.3,
+    "device": "CPU (GPU queue held by an unqueued CUDA process; CPU preferred per brief)",
+    "n_workers": 2,
+    "stitch": {
+      "sites": 2,
+      "placed": 2,
+      "edges_proposed": 1,
+      "edges_accepted": 1,
+      "residual_median_px": 4.547508203201813e-13,
+      "residual_max_px": 4.547508203201813e-13,
+      "canvas": [
+        2747,
+        1489
+      ],
+      "expected_canvas": [
+        26820,
+        26820
+      ],
+      "canvas_agrees": false,
+      "raster_overlap": 213,
+      "unreadable": [],
+      "seconds": 2.0
+    },
+    "objects": {
+      "canvas": [
+        2748,
+        1490
+      ],
+      "windows": 6,
+      "objects": 10673,
+      "total_seconds": 1213.4
+    },
+    "decode": {
+      "fields": 2,
+      "fields_decoded": 2,
+      "skipped": {},
+      "cycles_used": {
+        "11": 2
+      },
+      "cycles_missing": {},
+      "cycles_refused": {},
+      "channels_refused": 0,
+      "unreadable": [],
+      "spots": 22733,
+      "library_exact_rate": 0.8003,
+      "containment": 0.9986,
+      "containment_below_gate": false,
+      "reads_ambiguous": 2622,
+      "reads_owned": 19046,
+      "objects_owned_by_decoded_fields": 10673,
+      "objects_with_a_read": 8541,
+      "objects_assigned": 3729,
+      "objects_assigned_library_exact": 3549,
+      "objects_mapped": 3600,
+      "ops_barcodes_rows": 3729,
+      "ops_reads_rows": null,
+      "read_threshold": 315.0,
+      "footprint": 10.0,
+      "spot_detector": "native",
+      "base_channels": [
+        "CY3",
+        "A594",
+        "CY5",
+        "CY7"
+      ],
+      "workers": 2,
+      "field_seconds": {
+        "read": 1.82,
+        "align": 17.03,
+        "spots": 5.49,
+        "call_attribute": 0.29000000000000004
+      },
+      "total_seconds": 13.5
+    },
+    "peak_rss_gb": 7.19,
+    "phenotype": {
+      "skipped": "no phenotype_source, so nothing to place"
+    }
+  },
+  "tables": {
+    "ops_barcodes": {
+      "rows": 3729,
+      "columns": [
+        "plate",
+        "well",
+        "object_id",
+        "barcode",
+        "quality",
+        "n_reads",
+        "n_agreeing",
+        "fraction",
+        "n_cycles",
+        "mapped_guide"
+      ]
+    },
+    "ops_geometry": {
+      "rows": 2,
+      "columns": [
+        "plate",
+        "well",
+        "cycle",
+        "site",
+        "y",
+        "x",
+        "origin_y",
+        "origin_x",
+        "tile_height",
+        "tile_width"
+      ]
+    },
+    "ops_objects": {
+      "rows": 10673,
+      "columns": [
+        "plate",
+        "well",
+        "object_id",
+        "centroid_x",
+        "centroid_y",
+        "area",
+        "bbox_top",
+        "bbox_left",
+        "bbox_bottom",
+        "bbox_right",
+        "window_top",
+        "window_left",
+        "n_observations"
+      ]
+    }
+  },
+  "independent_recount": {
+    "assigned": 3729,
+    "library_exact": 3549
+  },
+  "database_browser": {
+    "ops_barcodes": {
+      "columns": [
+        "plate",
+        "well",
+        "object_id",
+        "barcode",
+        "quality",
+        "n_reads",
+        "n_agreeing",
+        "fraction",
+        "n_cycles",
+        "mapped_guide"
+      ],
+      "loaded_rows": 100,
+      "total_rows": 3729,
+      "rows_label": "showing 100 of 3,729 rows"
+    },
+    "ops_objects": {
+      "columns": [
+        "plate",
+        "well",
+        "object_id",
+        "centroid_x",
+        "centroid_y",
+        "area",
+        "bbox_top",
+        "bbox_left",
+        "bbox_bottom",
+        "bbox_right",
+        "window_top",
+        "window_left",
+        "n_observations"
+      ],
+      "loaded_rows": 100,
+      "total_rows": 10673,
+      "rows_label": "showing 100 of 10,673 rows"
+    }
+  },
+  "app_notes": [
+    "Run prints \"[settings] ERROR [src]: src is missing from the settings\" for OPS, which has no src; the run completes. Visible in scene 10.",
+    "Load test data rewrites settings/ops_settings.csv with the local paths (dataset placeholder), so that file differs from the archive manifest by design.",
+    "The first run downloads the 1.15 GB cpsam weights; its progress lines are in the console of scene 11 context."
+  ],
+  "narration_changes": [
+    "scene 11 now opens measurements.db through Help > Database Browser and names the A1 report folder",
+    "scene 12 shows ops_barcodes and names ops_objects coordinates; keeps the Regression handoff from aef2013f8",
+    "objective 3 wording"
+  ],
+  "media": {
+    "master_sha256": "de79ee837a6b7a2260fa31752f58fab8d5c9d86a397a25af1b94690393d0302f",
+    "web_sha256": "077f84c49ea7d9c88fc2f3f7a338a4a6438c4a1f0789ac20d5a82a8dc32a8d17",
+    "web_bytes": 7226218,
+    "audio_sha256": "5257b1e4e70fd290402ac8863345f774529f702027a4597085be35cef204d77c"
+  },
+  "checks": [
+    "check_current_english_tracks passed",
+    "verify_staged_lesson --sentence-cues passed",
+    "verify_staged_lesson --web-rendition passed (2560x1440)"
+  ],
+  "published": false
+}
