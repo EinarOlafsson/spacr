@@ -250,6 +250,7 @@ class SchemaReader:
         ``PRAGMA table_info`` reads the stored schema text; it never
         touches a data page, so this stays free on a huge table.
 
+        :param table: name of the table or view; it is quoted as an identifier.
         :raises sqlite3.Error: for a view whose base table has been
             dropped — SQLite resolves the view here and says so.
         """
@@ -276,6 +277,7 @@ class SchemaReader:
         exists to avoid), and then ``int('r16')`` raised ``ValueError``,
         which is not a ``sqlite3.Error`` and so escaped the caller's
         handler into the Qt event loop. :mod:`spacr.predictions`,
+        :param table: name of the table or view; it is quoted as an identifier.
         :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a
         comment about this shadowing; this method had not got the memo.
 
@@ -302,6 +304,11 @@ class SchemaReader:
 
         This one is a real scan — it exists only behind an explicit
         button, never on the path that opens the dialog.
+
+        :param table: name of the table or view to scan; quoted as an
+            identifier.
+        :param column: name of the column whose non-NULL values are counted;
+            quoted as an identifier.
         """
         sql = (f"SELECT COUNT({quote_ident(column)}) "
                f"FROM {quote_ident(table)}")
@@ -465,6 +472,10 @@ def read_table(reader: Optional[SchemaReader],
     thread or from an inline call, and the painting code does not have to
     know which it was.
 
+    :param reader: open schema reader for the database; None returns the empty
+        payload.
+    :param table: table name to read; None or an empty name returns the empty
+        payload.
     :returns: ``{"table", "columns", "rows", "error"}``. ``error`` is the
         sentence to put in the banner; an empty ``columns`` list with no
         ``error`` means the table honestly has none.
@@ -1067,7 +1078,11 @@ class ColumnPickerDialog(QDialog):
         return list(dict.fromkeys(picked))
 
     def select_columns(self, names: Sequence[str]) -> List[str]:
-        """Highlight several columns at once. Returns the ones that existed."""
+        """Highlight several columns at once. Returns the ones that existed.
+
+        :param names: column names to select, converted with ``str()`` and
+            matched exactly; the previous selection is cleared first.
+        """
         tree = self._column_tree
         wanted = [str(n) for n in names]
         tree.clearSelection()
@@ -1127,7 +1142,11 @@ class ColumnPickerDialog(QDialog):
         return self._jobs.active_jobs()
 
     def select_table(self, name: str) -> bool:
-        """Select ``name`` in the table list. Returns False if absent."""
+        """Select ``name`` in the table list. Returns False if absent.
+
+        :param name: table name, converted with ``str()`` and matched exactly
+            against the table list.
+        """
         items = self._tables.findItems(str(name), Qt.MatchExactly)
         if not items:
             return False
@@ -1135,7 +1154,11 @@ class ColumnPickerDialog(QDialog):
         return True
 
     def select_column(self, name: str) -> bool:
-        """Select ``name`` in the column list (and fill the name box)."""
+        """Select ``name`` in the column list (and fill the name box).
+
+        :param name: column name, converted with ``str()`` and matched exactly
+            against the first column of the list.
+        """
         matches = self._column_tree.findItems(str(name), Qt.MatchExactly, 0)
         if not matches:
             return False
@@ -1144,7 +1167,10 @@ class ColumnPickerDialog(QDialog):
         return True
 
     def set_name(self, text: str) -> None:
-        """Type ``text`` into the name box (as if the user had)."""
+        """Type ``text`` into the name box (as if the user had).
+
+        :param text: text for the name box, converted with ``str()``.
+        """
         self._name.setText(str(text))
 
     def is_accept_enabled(self) -> bool:
@@ -1166,6 +1192,9 @@ class ColumnPickerDialog(QDialog):
         the ordinary case — the user clicked ``SQL`` on the wrong field.
         ``JobRunner.shutdown`` drops the results and waits briefly so
         nothing destroys a running QThread.
+
+        :param result: the dialog result code, passed unchanged to
+            ``QDialog.done``.
         """
         self._jobs.shutdown()
         super().done(result)
@@ -1253,6 +1282,10 @@ class ColumnPickerButton(QToolButton):
         inspects the dialog and returns ``QDialog.Accepted``/``Rejected``
         without ever blocking — which is also how a host could swap in a
         non-modal presentation later.
+
+        :param runner: callable that takes the :class:`ColumnPickerDialog`,
+            presents it and returns its result code (``QDialog.Accepted`` or
+            ``QDialog.Rejected``).
         """
         self._runner = runner
 
@@ -1331,6 +1364,8 @@ def chip_editor(field: Optional[QWidget]) -> Optional[QWidget]:
     """Return ``field`` when it is a chip-strip list editor, else ``None``.
 
     Duck-typed on purpose: the editor lives in
+    :param field: the widget to test, or None; line edits and combo boxes
+        always yield None.
     :mod:`spacr.qt.screens.settings_model` and importing a *screen* from a
     *widget* would invert the dependency (and, in practice, cycle). The test
     is "not a text field, but speaks ``get_value``/``set_value``" — the
@@ -1346,12 +1381,21 @@ def chip_editor(field: Optional[QWidget]) -> Optional[QWidget]:
 
 
 def field_is_list(field: Optional[QWidget]) -> bool:
-    """Whether ``field`` holds a list of names rather than a single one."""
+    """Whether ``field`` holds a list of names rather than a single one.
+
+    :param field: the settings field: a ``QLineEdit``, a ``QComboBox``, a
+        chip-strip list editor, or None.
+    """
     return chip_editor(field) is not None
 
 
 def field_values(field: Optional[QWidget]) -> List[str]:
-    """Return the column names ``field`` currently holds, in order."""
+    """Return the column names ``field`` currently holds, in order.
+
+    :param field: the settings field: a ``QLineEdit``, a ``QComboBox``, a
+        chip-strip list editor, or None. Text is split on commas, and a
+        bracketed ``[...]`` list has its quotes stripped.
+    """
     editor = chip_editor(field)
     if editor is not None:
         value = editor.get_value()
@@ -1370,7 +1414,12 @@ def field_values(field: Optional[QWidget]) -> List[str]:
 
 
 def field_text(field: Optional[QWidget]) -> str:
-    """Return the text of a line edit / combo box / chip strip."""
+    """Return the text of a line edit / combo box / chip strip.
+
+    :param field: the settings field: a ``QLineEdit``, a ``QComboBox``, a
+        chip-strip list editor, or None. Any other widget reads as an empty
+        string.
+    """
     if isinstance(field, QComboBox):
         return field.currentText()
     if isinstance(field, QLineEdit):
@@ -1388,6 +1437,11 @@ def set_field_values(field: Optional[QWidget], names: Sequence[str],
     The multi-column half of :func:`set_field_text`. A chip strip is set
     from a real list — no punctuation round trip — and anything else keeps
     its own list style through :func:`_appended`.
+
+    :param field: the settings field: a ``QLineEdit``, a ``QComboBox``, a
+        chip-strip list editor, or None. None returns False.
+    :param names: column names to write; blank entries are dropped, and an
+        empty result returns False.
     """
     wanted = [str(n).strip() for n in names if str(n).strip()]
     if field is None or not wanted:

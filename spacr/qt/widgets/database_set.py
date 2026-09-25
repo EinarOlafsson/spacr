@@ -329,7 +329,12 @@ class DatabaseSetWidget(QWidget):
         return list(self._sources)
 
     def set_value(self, value) -> None:
-        """Replace the set. Accepts a list, a bare string, or ``None``."""
+        """Replace the set. Accepts a list, a bare string, or ``None``.
+
+        :param value: a list of source paths, a single path string, or None;
+            paths are stripped and de-duplicated, and settings placeholders
+            such as ``path`` are dropped.
+        """
         self._sources = self._clean(value)
         self._rebuild()
 
@@ -394,6 +399,10 @@ class DatabaseSetWidget(QWidget):
         and the alternative is blocking the restore on the stat, which is the
         freeze. Unthreaded (a test, and every other test file here) the check
         has already run by the time this returns, so the old answer stands.
+
+        :param state: dict saved by :meth:`workspace_state`; only its
+            ``sources`` list is read, and anything that is not a dict, or has
+            no sources, returns False.
         """
         if not isinstance(state, dict):
             return False
@@ -448,7 +457,11 @@ class DatabaseSetWidget(QWidget):
         self._presence_jobs.shutdown()
 
     def closeEvent(self, event):        # noqa: N802 - Qt override
-        """Closing mid-read must not leave a worker behind."""
+        """Closing mid-read must not leave a worker behind.
+
+        :param event: the close event; it is not inspected, only passed on to
+            the base class after :meth:`shutdown`.
+        """
         self.shutdown()
         super().closeEvent(event)
 
@@ -475,6 +488,9 @@ class DatabaseSetWidget(QWidget):
     def add_sources(self, paths: Sequence[str]) -> int:
         """Add sources, ignoring the ones already in the set.
 
+        :param paths: source folders or database paths to append; each is
+            converted with ``str()`` and stripped, and blanks and duplicates
+            are skipped. None adds nothing.
         :returns: how many were actually added.
         """
         added = 0
@@ -495,6 +511,9 @@ class DatabaseSetWidget(QWidget):
         ``/data/plate1/measurements/measurements.db`` -- because that is what
         a legend and the provenance column say. Both are accepted so a caller
         with the path does not have to work out the label first.
+
+        :param name: the source's path or its chip label; nothing is removed
+            when it matches neither or the set is already at its minimum size.
         """
         target = None
         if name in self._sources:
