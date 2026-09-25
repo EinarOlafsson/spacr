@@ -742,10 +742,14 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Compared with the actual 0a4f5aa75 package: +43 pairs, none removed.
     # Plaque calibration +4, TTA +6, PSF +15, Host–Pathogen +4,
     # Mask image QC/metadata +6 and restored Replication settings +8.
-    assert comparisons == 716
+    # 716 -> 717 on 2026-09-25, item 511: the new object_filters setting
+    # states "Default {}." and is compared once. The 491 census stays the
+    # record of the 673 -> 716 step, so it is checked one comparison back.
+    assert comparisons == 717
+    assert any(key == "object_filters" for _app, key in compared_pairs)
     census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                          '491_default_claim_census_2026-09-23.json').read_text())
-    assert census['comparisons_after'] == comparisons
+    assert census['comparisons_after'] == comparisons - 1
     assert census['removed_pairs'] == []
     assert len(census['added_pairs']) == 43
     assert {tuple(pair) for pair in census['added_pairs']} <= compared_pairs

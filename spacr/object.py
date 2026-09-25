@@ -124,10 +124,12 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     minimum, maximum = _validated_intensity_bounds(
         settings.get(f'{object_type}_min_intensity', 0),
         settings.get(f'{object_type}_max_intensity', 0))
+    from .qt.mask_engine import settings_filters
+    object_filters = settings_filters(settings, object_type)
 
     needs_work = (
         pf > 0 or mna > 0 or (mxa and mxa > 0) or rb or
-        minimum > 0 or maximum > 0
+        minimum > 0 or maximum > 0 or bool(object_filters)
     )
 
     if not needs_work:
@@ -140,7 +142,8 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     print(f"merge_split_filter_masks({object_type}): "
           f"perimeter_merge={pf > 0}(frac={pf}), "
           f"min_area={mna}, max_area={mxa}, remove_border={rb}, "
-          f"min_intensity={minimum}, max_intensity={maximum}")
+          f"min_intensity={minimum}, max_intensity={maximum}, "
+          f"object_filters={object_filters}")
 
     if isinstance(masks, np.ndarray):
         if masks.ndim == 2:
@@ -202,6 +205,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
             remove_border_objects=rb,
             min_intensity=minimum,
             max_intensity=maximum,
+            filters=object_filters,
             progress_callback=_progress,
             fov_index=idx,
             total_fovs=total,
@@ -769,7 +773,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     intensity_bounds = _validated_intensity_bounds(
         settings.get(f'{object_type}_min_intensity', 0),
         settings.get(f'{object_type}_max_intensity', 0))
-    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+    from .qt.mask_engine import filters_need_intensity, settings_filters
+    object_filters = settings_filters(settings, object_type)
+    filter_by_raw_intensity = (any(value > 0 for value in intensity_bounds)
+                               or filters_need_intensity(object_filters))
 
     if t_plan is not None:
         beta_mode = None if t_plan.z_axis is None else t_plan.z_mode
@@ -996,11 +1003,12 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     f"applied per z plane, breaking the 3-D labels that "
                     f"z_segmentation_mode='{beta_mode}' just produced"
                 )
-                if filter_by_raw_intensity:
+                if filter_by_raw_intensity or object_filters:
                     from .utils import _filter_objects
                     masks = [_filter_objects(
                         np.asarray(mask).copy(), plane,
-                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1])
+                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
+                        filters=object_filters)
                         for mask, plane in zip(masks, filter_images)]
             
             if timelapse:
@@ -1475,7 +1483,12 @@ def generate_organelle_masks_sam(src, settings, object_type):
     intensity_bounds = _validated_intensity_bounds(
         settings.get('organelle_min_intensity', 0),
         settings.get('organelle_max_intensity', 0))
-    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+    from .qt.mask_engine import filters_need_intensity, settings_filters
+    slot_filters = settings_filters(settings, object_type)
+    filter_by_raw_intensity = (any(value > 0 for value in intensity_bounds)
+                               or filters_need_intensity(slot_filters))
+    if object_type != 'organelle':
+        settings['object_filters'] = {'organelle': slot_filters}
     settings['organelle_remove_border_objects'] = bool(
         settings.get('organelle_remove_border_objects', False)
         or settings.get('organelle_remove_border', False))

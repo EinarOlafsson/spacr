@@ -1123,6 +1123,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_max_intensity', 0.0)
     settings.setdefault('pathogen_min_intensity', 0.0)
     settings.setdefault('pathogen_max_intensity', 0.0)
+    settings.setdefault('object_filters', {})
     settings.setdefault('cell_remove_border_objects', False)
     settings.setdefault('nucleus_remove_border_objects', False)
     settings.setdefault('pathogen_remove_border_objects', False)
@@ -3561,6 +3562,7 @@ expected_types = {
     'image_qc_mode':str,
     'image_qc_channels':list,
     'image_qc_min_focus':dict,
+    'object_filters':dict,
     'image_qc_max_saturation':dict,
     'image_qc_saturation_level':dict,
     'image_qc_max_nonfinite':float,
@@ -4126,6 +4128,7 @@ tooltips = {
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
     'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
     'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
+    'object_filters': "(dict) - Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
     'image_qc_min_focus': '(dict) - Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.',
     'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
@@ -4918,7 +4921,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 categories = {
     "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters"],
 
     "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
         "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",
@@ -5114,6 +5117,14 @@ _ADVANCED_FAMILIES = (
     ), ()),
 )
 
+_FAMILY_SHARED_KEYS = {"Object filtration": ("object_filters",)}
+"""Keys a family heading takes whole rather than one per object.
+
+``object_filters`` (item 511) holds every object type's filter list in one
+mapping, so it has no object prefix for the suffix match to find, and it
+belongs beside the per-object area and intensity bounds it extends.
+"""
+
 #: Which heading each category nests under when the panel can draw a tree.
 #:
 #: DECLARED BESIDE THE CATEGORIES, NOT BY RENAMING THEM. Encoding the parent
@@ -5231,6 +5242,12 @@ def _regroup_advanced(table):
     by_family = [
         (heading, _advanced_family_members(out, suffixes, prefixes))
         for heading, suffixes, prefixes in _ADVANCED_FAMILIES
+    ]
+    filed_anywhere = {key for keys in out.values() for key in keys}
+    by_family = [
+        (heading, members + [key for key in _FAMILY_SHARED_KEYS.get(heading, ())
+                             if key in filed_anywhere and key not in members])
+        for heading, members in by_family
     ]
     moved = set()
     for _heading, members in by_family:

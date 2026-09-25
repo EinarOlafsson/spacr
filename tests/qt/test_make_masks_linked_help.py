@@ -44,7 +44,7 @@ def test_matching_animations_are_offered_without_replacing_original_descriptions
         assert animation_key in animation.settings
         assert animation.path.is_file()
     assert 'Expected object diameter' in screen._cp_diameter.property('apiTooltipDescriptionSource')
-    assert 'raw' in screen._filter_min_int.property('apiTooltipDescriptionSource')
+    assert 'raw pixel values' in screen._filter_property.property('apiTooltipDescriptionSource')
 
 
 def test_make_masks_animation_reveal_keeps_separate_state_for_each_control(screen, qtbot):

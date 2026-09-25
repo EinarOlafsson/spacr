@@ -205,6 +205,9 @@ def _awaiting_translation(screen) -> set:
     correction, Classes, adaptive Offset and Grow until help have source-bound
     translations in all nine languages and are no longer excluded here.
     The Apply and Compare enhancement help also have source-bound translations.
+
+    Owed since 2026-09-25 by item 511 (filters are any regionprop): the
+    Filter category's property box.
     """
     widgets = [screen._btn_otsu]
     widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
@@ -216,7 +219,8 @@ def _awaiting_translation(screen) -> set:
                  "_enh_denoise_strength", "_enh_gamma", "_enh_clahe",
                  "_enh_clahe_tile", "_enh_clahe_clip", "_enh_equalize",
                  "_enh_sharpen", "_enh_sharpen_radius", "_enh_sharpen_amount",
-                 "_enh_morphology", "_enh_morphology_radius", "_enh_split"):
+                 "_enh_morphology", "_enh_morphology_radius", "_enh_split",
+                 "_filter_property"):
         widget = getattr(screen, name, None)
         if widget is not None:
             widgets.append(widget)

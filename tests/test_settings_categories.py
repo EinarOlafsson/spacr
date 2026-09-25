@@ -340,6 +340,7 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    "object_filters",
     "psf_measurement_source",
     "mask_src", "test_src", "test_mask_src", "save_path", "channel_axis",
     "min_train_masks", "max_train_images", "nimg_per_epoch", "nimg_test_per_epoch",

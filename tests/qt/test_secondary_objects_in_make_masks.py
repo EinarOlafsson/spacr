@@ -139,7 +139,7 @@ def test_missing_and_orphan_objects_are_reported_after_filter_and_undo(screen):
     screen._canvas.mask[0:3, 0:3] = 7
     screen._refresh_secondary_report()
     assert 'No primary: 1 (7)' in screen._secondary_relations.text()
-    screen._filter_min_area.setValue(5000)
+    screen._filter_list.set_filter("area", 5000)
     screen.apply_object_filter()
     assert not screen._canvas.mask.any()
     assert 'Missing secondary: 1 (900)' in screen._secondary_relations.text()

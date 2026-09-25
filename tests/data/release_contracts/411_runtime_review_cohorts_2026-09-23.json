@@ -8,7 +8,7 @@
       "current_total": 1700,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 782,
+      "later_distinct_additions": 781,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -79,9 +79,9 @@
         },
         {
           "name": "2026-09-23-data-controls.json",
-          "records": 32,
-          "sources": 32,
-          "sha256": "1d1252525e4018e1ed97b73b04a101545829fcd73f7ba9e067662b10875ba29b"
+          "records": 31,
+          "sources": 31,
+          "sha256": "512b1961aaecdcc5493aa6a5e080a11c974b23cad037c424f41aa1f4a748795d"
         },
         {
           "name": "2026-09-23-flowchart-chrome.json",
@@ -276,14 +276,14 @@
           "sha256": "2ad1f04060ecb740e69ba91e478d9d1b914a7e6576802d18201d61b5b64a1263"
         }
       ],
-      "added_sources_sha256": "358d85b2b92d9527719b305e2eb18a54115875f48cdd79fac06cfd3333ea7f25"
+      "added_sources_sha256": "d86bb624ce4f35b2a247d60df22c6a26cdd18156ff67c30b3d48c6a3e6bcf7d4"
     },
     "fr": {
       "previous_total": 926,
       "current_total": 1696,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 782,
+      "later_distinct_additions": 781,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -354,9 +354,9 @@
         },
         {
           "name": "2026-09-23-data-controls.json",
-          "records": 32,
-          "sources": 32,
-          "sha256": "4108177eb5357ccdf74fff98333c6a31fb8bfca5ddbb3faf0575586541c68fe3"
+          "records": 31,
+          "sources": 31,
+          "sha256": "f1cefe43ba17f28a106ec3ace169db2b5f74524c8b41d6eeee18c02baa7996e8"
         },
         {
           "name": "2026-09-23-flowchart-chrome.json",
@@ -551,7 +551,7 @@
           "sha256": "53917479df2ce0a03389ccd24e558ca7c32a5580fac313c766372750bd52b87c"
         }
       ],
-      "added_sources_sha256": "358d85b2b92d9527719b305e2eb18a54115875f48cdd79fac06cfd3333ea7f25"
+      "added_sources_sha256": "d86bb624ce4f35b2a247d60df22c6a26cdd18156ff67c30b3d48c6a3e6bcf7d4"
     }
   }
 }
