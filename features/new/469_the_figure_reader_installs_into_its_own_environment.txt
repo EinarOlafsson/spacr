@@ -2,7 +2,10 @@
 THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
 ================================================================================
 
-Status:    BUILDING 2026-09-21.
+Status:    DONE 2026-09-21 (a1ca9387a), re-verified on nightly 2026-09-25.
+           The one new runtime string is in seven catalogs; Hindi and
+           Icelandic carry it as part of item 316's translation debt (docs
+           lane), not as work owed by this item.
 
 Requested: 2026-09-21, verbatim -- "if the downlode changes the dependencies
            and so on it would be great if we could contain it in a different
@@ -46,3 +49,12 @@ installs run at once into the same folder, one deleting the environment the
 other was testing -- not a defect of the install, and not reproduced alone.
 
 STATUS: DONE.
+
+2026-09-25 -- RE-VERIFIED ON NIGHTLY
+tests/test_backends_live_in_their_own_environment.py and
+tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py: 186 passed (17 s,
+offscreen) on nightly a93f937d2. The sandbox install from 2026-09-21 is still
+at /mnt/wd4tb/spacr_testdata/backends_sandbox/papers. The header said
+BUILDING while the body said DONE; the header now says DONE. The single tr()
+string this item added ("Figure mode needs {names}...") is translated in
+de/es/fr/ko/pt/zh_CN; hi and is are covered by 316's catalog debt.
