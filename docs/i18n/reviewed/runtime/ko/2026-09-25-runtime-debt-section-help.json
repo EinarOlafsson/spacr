@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source_sha256": "98e442532c56044e2aca2f66f22cf008ca9c149676e55c0ab3211bc2dafd6b65",
+      "translation": "Cellpose 4 미세 조정은 AdamW를 사용합니다. 100 에포크, 학습률 0.00001, 가중치 감쇠 0.1, 미니배치 크기 1로 시작하세요."
+    },
+    {
+      "table": "categories",
+      "key": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source_sha256": "13105e7ae7024e883b3f8dca9456225007943d9b2c11c4ab35ac3d71949a3cf2",
+      "translation": "명시적인 상위 공포 연결이 있는 개별 기생충 테이블 또는 각 공포에서 측정한 개수 열 중 하나를 선택하세요. 둘 다 지정하지 마세요. 개수 입력이 없으면 증식은 리크루트먼트나 숙주 정보로부터 추정되지 않고 측정되지 않은 상태로 남습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source_sha256": "28d5ad28bdefea580a16d38e4739bbc5bb55822f453670d5546e875e1e2ccece",
+      "translation": "직접 기생충 계수 또는 기존의 숙주 단위 집계 면적 대리 지표를 선택하세요. 전체 공포 딥러닝 분류기는 곧 제공될 예정이며, 학습된 모델이 준비될 때까지 실행할 수 없습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source_sha256": "f9f27be334385474852d77b130f190a56369e08640b1909b3bdfb8b5336c8f8a",
+      "translation": "학습된 가중치를 저장할 위치와 중간 에포크 체크포인트를 보존할지 선택하세요."
+    },
+    {
+      "table": "categories",
+      "key": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source_sha256": "942a690aaf94696a0c0e39a77f0f5237ff323c230926d67e8188f27ea1a20ff8",
+      "translation": "각 공포의 마커 강도를 해당 숙주의 기준 구획과 비교하고, 명시적 비율 임계값으로 마커 조합 상태를 분류하세요. 임계값은 어세이 대조군으로 보정하세요. 기준값이 없거나 유효하지 않으면 알 수 없음으로 남습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source_sha256": "181a6d6dcb6feafb389528d1881bbfd2799b37f890843e2dc0b6f2540235cbce",
+      "translation": "기존 증식 추정치의 면적 구간과 스케일을 설정하세요. 이 방법은 숙주 안의 병원체 면적을 합산하며, 직접적인 기생충 수도 아니고 측정된 3차원 부피도 아닙니다."
+    },
+    {
+      "table": "categories",
+      "key": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source_sha256": "90d1efbd2c76c9df20d6b7209f50ff0b73f1a49592c17f22d1d78bef1ea3632f",
+      "translation": "중복 이미지를 만들지 않고 희소 시야 필터링, 데이터셋 크기, Cellpose의 온라인 무작위 스케일 증강을 조절하세요."
+    },
+    {
+      "table": "categories",
+      "key": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source_sha256": "438ffe2486a47178e78c2753cbe756d3d9ab35e7556c9b9e036c487953b9d812",
+      "translation": "기본 Cellpose-SAM 또는 기존 체크포인트를 미세 조정하고, 새로 학습한 모델에는 별도의 이름을 지정하세요."
+    },
+    {
+      "table": "categories",
+      "key": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source_sha256": "d9cce8c2fdd211143c253bf43bcd68377a010872613fe0279ad95295a987c4ea",
+      "translation": "표현형 예측 중 선택적으로 회전과 반사를 적용합니다. 평균 또는 투표로 예측을 결합하고, 원래 예측을 보존하며, 불일치를 검토 대상으로 표시합니다. 모든 증강 스위치는 기본적으로 꺼져 있습니다. 일치도는 방향 안정성을 측정할 뿐이며, 보정된 신뢰도나 생물학적 정확도가 아닙니다."
+    },
+    {
+      "table": "categories",
+      "key": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source_sha256": "9fc32374a0b052ef77ce0ec86653b68a05edfbb17ed4d142c7cfa2aa013cad01",
+      "translation": "현미경 이미지를 정수 객체 레이블 마스크와 짝짓고, 필요하면 별도의 검증 세트를 지정하세요."
+    },
+    {
+      "table": "categories",
+      "key": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source_sha256": "6e08ff71703b82990f1492044eb89a24852852501e9e15c2b604022bdbd52b0b",
+      "translation": "분할 전에 채널별 초점, 포화, 비유한 픽셀 기준으로 원시 시야를 검사하세요. 보고 전용 검토 또는 명시적으로 저장되는 제외를 선택하고, 획득 조건에 맞게 임계값을 보정하세요. 검사는 기본적으로 꺼져 있으며, 객체 수가 적다는 이유로 이미지를 제외하지 않습니다."
+    }
+  ]
+}
