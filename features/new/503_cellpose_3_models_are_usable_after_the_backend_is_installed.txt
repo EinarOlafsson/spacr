@@ -1,7 +1,8 @@
 CELLPOSE 3 MODELS ARE USABLE AFTER THE BACKEND IS INSTALLED
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned. Related: 423 (backends in the zoo), 446 (Cellpose 3 and
+Status: BUILT 2026-09-25, ~90%. Built, tested, real CPU run and Measure done;
+the GPU run is queued behind other sessions (see the trailing note).
+Owner: Claude (503 worktree). Related: 423 (backends in the zoo), 446 (Cellpose 3 and
 Cellpose-SAM take different settings), 473 (detection methods).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
@@ -36,3 +37,148 @@ Installing the Cellpose 3 backend makes cyto, cyto2, cyto3 and nuclei
 selectable in Mask generation; choosing one shows its own settings; a real run
 on real images writes masks that Measure reads unchanged; and a Cellpose-SAM
 run is bit-identical to before.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- BUILT: WHAT CHANGED, WHAT WAS MEASURED, WHAT IS STILL OWED
+--------------------------------------------------------------------------------
+
+WHY THEY WERE INVISIBLE. The four rows were in the zoo all along
+(spacr/model_zoo.py _cellpose3_model_entries) under the "cellpose3" heading,
+which DEFAULT_ZOO_SOURCES leaves off. And choosing one wrote a bare "cyto3",
+which under segmentation_backend='cellpose' is a retired name that runs as
+cpsam. Both are fixed.
+
+HOW A CELLPOSE 3 MODEL IS CHOSEN. An object's model setting reads
+`cellpose3:<model>` -- cellpose3:cyto3, cellpose3:nuclei, or
+cellpose3:/path/to/any_cellpose3_weights -- the same prefix as Make Masks'
+Mode keys (so 507's Diameter-0 note fires on it). Per object: the cell can
+run cyto3 while nuclei stay on Cellpose-SAM. segmentation_backend='cellpose3'
+still works and takes the same route.
+
+  spacr/_segmentation_backends.py:132   _CELLPOSE3_PREFIX
+  spacr/_segmentation_backends.py:583   _cellpose3_choice / :598 _cellpose3_value
+                                        / :610 _cellpose3_is_chosen
+  spacr/_segmentation_backends.py       _cellpose3_model strips the prefix; a
+                                        missing weights path is refused
+  spacr/_segmentation_backends.py:2607  _accepted reads the inner
+                                        CellposeModel.eval (.cp) of a named
+                                        model, not Cellpose.eval's **kwargs
+  spacr/_segmentation_backends.py       _RemoteBackend.eval forwards augment
+                                        (only when given); _plain carries the
+                                        normalization dict to the worker
+  spacr/object.py:72                    _cellpose3_eval_settings
+  spacr/object.py:120                   _cellpose3_masks -- THE MASK FUNCTION
+  spacr/object.py:1029                  the one dispatch line in
+                                        generate_cellpose_masks_sam
+  spacr/_mask_workers.py                parallel preparation refuses a
+                                        Cellpose 3 run (it signs Cellpose 4
+                                        weights only)
+  spacr/qt/widgets/model_zoo_picker.py:135  cellpose3 heading comes on ONCE
+                                        when the backend is installed; turned
+                                        off afterwards it stays off
+  spacr/qt/widgets/model_zoo_picker.py:1818 a cellpose3 row returns
+                                        cellpose3:<name or path>
+  spacr/qt/screens/settings_model.py:621 Cellpose 3 rows hidden unless chosen
+  spacr/qt/screens/app_screen.py:3001   the model fields' text is followed
+                                        (the zoo's setText is not a commit)
+
+_cellpose3_masks: INPUT -- a cell batch is [cell, nucleus]; sent as
+(H, W, 2) -> channels [1, 2] = [cyto, nucleus], or the 2-D first plane ->
+[0, 0] when cellpose3_add_nucleus_channel is off or there is one plane.
+SETTINGS -- the object's own diameter, flow and cellprob thresholds; a blank
+diameter becomes the object's magnification default, NOT 0 (507's numbers:
+diameter 0 was 153 s and 7/33 matched); 0 only with cellpose3_size_model;
+resample, augment, and normalize={"normalize": True, "percentile": [low,
+high]}. OUTPUT -- (masks, flows, None) through parse_cellpose4_output, then
+the Cellpose-SAM path's own merge/filter, counts, saving and QC.
+
+NET AVERAGE IS NOT OFFERED: cellpose 3.1.1.3 has no net_avg. `augment` (tiles
+averaged over flips) is offered instead, and its tooltip says so.
+
+NEW SETTINGS (category "Cellpose 3", Mask and Timelapse; hidden until an
+object's model reads cellpose3:... or segmentation_backend is cellpose3), for
+the docs lane -- tooltips in spacr/settings.py near :4195:
+  cellpose3_add_nucleus_channel (True), cellpose3_size_model (False),
+  cellpose3_resample (True), cellpose3_augment (False),
+  cellpose3_percentile_low (1.0), cellpose3_percentile_high (99.0)
+New CATEGORY_TOOLTIPS["CELLPOSE 3"]. New tr() strings (model_zoo_picker.py
+_cellpose3_card): "Runs through the Cellpose 3 backend, which is installed.
+Choosing it writes cellpose3:{name} into the object's model setting, ..." and
+"Runs through the Cellpose 3 backend, which is not installed — press Install
+to install it." Both are in test_i18n_caption_ratchet's
+missing-from-UI_SOURCES list, beside ~40 other sessions' strings; the catalog
+rebuild is the docs lane's.
+
+SAM IS UNTOUCHED, MEASURED TWO WAYS.
+  * tests/test_cellpose_3_models_are_usable.py pins a digest over a
+    Cellpose-SAM run's saved masks, object_counts rows, and the CellposeModel
+    build/eval arguments with a hash of every image handed to eval, for cell
+    and nucleus; the digests were taken on nightly c2def6baa BEFORE any 503
+    edit and match after.
+  * A real cpsam run (768x768 crop of plate1_A02_12, CPU, cell and nucleus)
+    on a clean nightly copy and on this branch: identical sha256 for both
+    saved masks (cell 69c77426..., 11 objects; nucleus c2ead167..., 9) and
+    identical database rows.
+
+REAL CELLPOSE 3 RUN, CPU (SPACR_DEVICE=cpu, CUDA hidden). The whole Mask
+pipeline (preprocess_generate_masks) on plate1_A02_12 and plate2_E08_13,
+cell = cellpose3:cyto3, nucleus = cellpose3:nuclei, both on the PV channel,
+diameter 44, cellpose3_add_nucleus_channel False. F1 at IoU 0.5 against
+ground_truth_masks:
+
+  field          model   objects  GT  matched  F1     wall (both fields)
+  plate1_A02_12  cyto3      57    33    30     0.667  94.0 s incl. worker
+  plate2_E08_13  cyto3      23    23     6     0.261     start and load
+  plate1_A02_12  nuclei      5    33     3     0.158  37.2 s
+  plate2_E08_13  nuclei      4    23     0     0.000
+  whole Mask run 139.2 s. One field alone through _cellpose3_masks: worker
+  start + load 7.6 s, cyto3 19.2 s (resample on) / 18.3 s (off).
+
+nuclei is a nucleus model and PVs are not nuclei; it runs, which is what was
+asked, and it is the wrong model for PVs. None of these is the PV model.
+
+MEASURE READS THEM. measure_crop on the run's merged/ folder (shape 1994 x
+1994 x 4: two image planes, cell mask, nucleus mask): 80 cell rows (57 + 23,
+exactly the mask label counts), 9 nucleus rows (5 + 4), 80 cytoplasm rows,
+47.5 s. The database relationships warning printed during mask generation
+("no object table to build relationships from") is the same one any mask run
+prints before Measure.
+
+TESTS. tests/test_cellpose_3_models_are_usable.py (new, 42 cases) and
+tests/qt/test_cellpose_3_models_are_selectable.py (new, 11 cases), plus the
+existing selection: test_segmentation_backends, test_cellpose_3_and_sam_take_
+different_settings, test_the_zoo_lists_every_backend_and_cellpose3_model,
+test_backends_live_in_their_own_environment, test_each_segmentation_backend_
+drives_its_own_package, test_settings_categories, test_settings_tooltip_
+quality, test_dead_settings, test_mask_worker_model_identity, test_cellpose_
+api_contract, qt/test_a_cellpose3_model_is_one_click_away, qt/test_the_model_
+zoo_picker_groups_by_source, qt/test_model_zoo_picker, qt/test_category_
+tooltips, qt/test_i18n_caption_ratchet, qt/test_make_masks_console_and_
+install_feedback: 810 passed, 2 failed, 2 skipped, 1 xfailed after merging
+nightly 5665f0c95. The 2 failures are both in test_i18n_caption_ratchet and
+fail on a clean nightly copy too (baseline 3 failed / 751 passed on
+c2def6baa, the third being test_cellpose_api_contract's installed-signature
+check, which passes now). Tests changed: qt/test_a_cellpose3_model_is_one_
+click_away now expects cellpose3:cyto3 / cellpose3:cyto2 from the zoo;
+test_settings_categories lists the six keys and the "Cellpose 3" category;
+test_settings_tooltip_quality's default-claim census 735 -> 741, the six
+pairs pinned by name.
+
+FOR 504 (bioimage.io). Put `cellpose3:<path to the downloaded weights>` in
+the object's model setting -- the picker already does that for any zoo row of
+kind "cellpose3", including bioimage.io downloads -- and Mask generation runs
+it. Lower down: `_cellpose3_masks(_load_backend('cellpose3',
+model_name='cellpose3:/path/w', object_type=obj), images, settings, obj,
+min_size=..., default_diameter=...)`. A file that is not there is refused
+rather than silently run as cyto3. model_zoo.py's _CELLPOSE3_USE text for
+bioimage rows still says "set segmentation_backend to cellpose3"; 504 owns it.
+
+NOT DONE.
+  * The GPU run: queued through tools/gpu_turn.sh (label 503-cellpose3-real)
+    behind other sessions' turns; see the next note if it lands.
+  * pipeline_style 'v2' (core.run_v2) and the Cellpose 4 preview boxes do not
+    understand cellpose3:...; they still load Cellpose 4 only.
+  * Adding six defaults changes the material-settings hash, so resuming a
+    pre-503 Mask run counts as a settings change (as every new setting does).
+  * The i18n catalogs for the new strings and tooltips (docs lane).
