@@ -1,0 +1,32 @@
+PLAQUE ASSAY READS ANY NUMBER OF PDFS AND IMAGES
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 517 (drop files), 518 (mode follows the input),
+524 (four views in Figure mode).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "plaque assay should be able to read an arbitrary number of figures or
+    images. so if i drop a file with one or 10 pdfs both should be fine.
+    there might be other files in the folder, if these are not images or
+    pdfs they are ignored."
+
+WHAT IS WRONG
+Dropping a folder with two PDFs reads the first and rejects the second
+("Plaque Assay reads one paper at a time; 1 more PDF(s) were left out."),
+shown as an ERROR. 517 left this open on purpose; it is now asked for.
+
+WHAT TO BUILD
+  * Any number of PDFs (dropped, in a dropped folder, or in src) are all read,
+    one after another in the background, each paper's figures going into its
+    own figure folder, and all of them shown in the preview (page/paper
+    navigation), then run together.
+  * Any number of images likewise, as 517 already does for images.
+  * Files that are neither images nor PDFs are ignored quietly (at most one
+    info line naming how many were skipped), never an error.
+  * Progress says which paper of how many is being read; one failing PDF does
+    not stop the others and is reported by name.
+
+DONE WHEN
+An offscreen test drops a folder with 10 PDFs plus unrelated files and sees
+all 10 read (reader faked) with no error, and one real run reads the
+maintainer's two Plate PDFs (or two test PDFs) end to end.
