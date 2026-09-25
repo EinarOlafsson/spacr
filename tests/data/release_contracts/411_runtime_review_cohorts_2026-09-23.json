@@ -8,7 +8,7 @@
       "current_total": 1700,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 781,
+      "later_distinct_additions": 780,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -157,9 +157,10 @@
         },
         {
           "name": "2026-09-23-psf-help.json",
-          "records": 11,
-          "sources": 11,
-          "sha256": "2b74b16add25765967adad4e629e20a689479fd02f3cbc4d0875440477dcbc54"
+          "records": 10,
+          "sources": 10,
+          "sha256": "452937b6dbb53788458a6c2f5d4a0abd5fb92178c81417bec92d81b9486d7ccb",
+          "note": "Re-pinned 2026-09-25 (maintainer-approved): nightly merge 5c03e8bda removed one retired PSF help record, 11 -> 10."
         },
         {
           "name": "2026-09-23-psf-measure-live.json",
@@ -276,14 +277,14 @@
           "sha256": "2ad1f04060ecb740e69ba91e478d9d1b914a7e6576802d18201d61b5b64a1263"
         }
       ],
-      "added_sources_sha256": "d86bb624ce4f35b2a247d60df22c6a26cdd18156ff67c30b3d48c6a3e6bcf7d4"
+      "added_sources_sha256": "404c8478f98b44b211eaefc15b8d25fc158cbb0df2c3efb8f72280547d1ee70c"
     },
     "fr": {
       "previous_total": 926,
       "current_total": 1696,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 781,
+      "later_distinct_additions": 780,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -432,9 +433,10 @@
         },
         {
           "name": "2026-09-23-psf-help.json",
-          "records": 11,
-          "sources": 11,
-          "sha256": "1775a953e87b0a0525471be92b9d64f4c62e9ee4aa0b0d9dca2a08501515f41d"
+          "records": 10,
+          "sources": 10,
+          "sha256": "75abb2d1daaa062840600200949cd661ae7ada811ab1e2cb508c964308ad13d5",
+          "note": "Re-pinned 2026-09-25 (maintainer-approved): nightly merge 5c03e8bda removed one retired PSF help record, 11 -> 10."
         },
         {
           "name": "2026-09-23-psf-measure-live.json",
@@ -551,7 +553,7 @@
           "sha256": "53917479df2ce0a03389ccd24e558ca7c32a5580fac313c766372750bd52b87c"
         }
       ],
-      "added_sources_sha256": "d86bb624ce4f35b2a247d60df22c6a26cdd18156ff67c30b3d48c6a3e6bcf7d4"
+      "added_sources_sha256": "404c8478f98b44b211eaefc15b8d25fc158cbb0df2c3efb8f72280547d1ee70c"
     }
   }
 }
