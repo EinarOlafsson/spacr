@@ -363,6 +363,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "base_model",
     # 468, 2026-09-21: Figure mode's text-detection knobs.
     "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale",
+    # 503, 2026-09-25: the legacy Cellpose 3 settings group.
+    "cellpose3_add_nucleus_channel", "cellpose3_size_model",
+    "cellpose3_resample", "cellpose3_augment", "cellpose3_percentile_low",
+    "cellpose3_percentile_high",
     # Feature 418: absolute object-mean intensity bounds in each own channel.
     # Numbered organelle slots use the existing dynamic registry expansion.
     "cell_min_intensity", "cell_max_intensity",
@@ -1384,6 +1388,9 @@ def _rendered_sections(app_key):
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # 503, 2026-09-25: the legacy Cellpose 3 settings, shown only
+            # once an object's model setting names a Cellpose 3 model.
+            "Cellpose 3",
             # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
@@ -1416,6 +1423,9 @@ def _rendered_sections(app_key):
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # 503, 2026-09-25: the legacy Cellpose 3 settings, shown only
+            # once an object's model setting names a Cellpose 3 model.
+            "Cellpose 3",
             # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which

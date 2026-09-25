@@ -742,10 +742,19 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Compared with the actual 0a4f5aa75 package: +43 pairs, none removed.
     # Plaque calibration +4, TTA +6, PSF +15, Host–Pathogen +4,
     # Mask image QC/metadata +6 and restored Replication settings +8.
-    assert comparisons == 716
+    # 716 -> 722 on 2026-09-25, +6/-0: item 503's six legacy Cellpose 3
+    # settings, each ending in a parseable "Default X.", declared where
+    # only `mask` resolves them. The 491 census below is the record of 716
+    # and stays as it was; the six arriving pairs are pinned by name.
+    item_503 = {("mask", key) for key in (
+        "cellpose3_add_nucleus_channel", "cellpose3_size_model",
+        "cellpose3_resample", "cellpose3_augment",
+        "cellpose3_percentile_low", "cellpose3_percentile_high")}
+    assert item_503 <= compared_pairs
+    assert comparisons == 722
     census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                          '491_default_claim_census_2026-09-23.json').read_text())
-    assert census['comparisons_after'] == comparisons
+    assert census['comparisons_after'] + len(item_503) == comparisons
     assert census['removed_pairs'] == []
     assert len(census['added_pairs']) == 43
     assert {tuple(pair) for pair in census['added_pairs']} <= compared_pairs
