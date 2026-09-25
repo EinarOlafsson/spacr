@@ -1,10 +1,7 @@
 LIVE VIEW: CELL PROBABILITY, SAVING A PANEL, AND COMPARING MASKS
 
-Status: PART DONE, 2026-09-25. Filed 2026-09-24.
-  Part 2 (right-click save as PNG or PDF) is done, 95344ebee:
-  spacr/qt/widgets/picture_export.py, on both live preview views.
-  Part 1 (the cell probability view) and part 3 (the comparison panel)
-  are still open.
+Status: DONE, 2026-09-25. Filed 2026-09-24.
+  Part 2 (right-click save as PNG or PDF) 95344ebee; parts 1 and 3 below.
 Owner: unassigned. Related: the plaque preview's Overlay/Objects/Cell
 probability/Flows tabs, which are the nearest existing pattern.
 
@@ -34,3 +31,71 @@ DONE WHEN
 All four views are present, any of them saves as PNG or PDF from a right
 click, and two masks generated in one session can be laid over each other with
 chosen opacities and order, in a panel of their own.
+
+BUILT, 2026-09-25 (parts 1 and 3)
+  Part 1, the cell probability view. Added in live_preview's OWN pattern,
+  not by wrapping its canvas in the shared widget: the live preview's
+  _mask_view is also driven by the run history scrubber and the ruler, and
+  putting it inside SegmentationViews' stacked pages would have been a
+  refactor of _refresh_canvases. The drawing IS shared: the view is drawn by
+  segmentation_views.render_cellprob, the renderer the plaque preview (513)
+  is to use, so both put a threshold at the same magma colour.
+    spacr/qt/widgets/live_preview.py:252 VIEW_MODES gains "Cell probability"
+    live_preview.py:985 _cellprob_of: flows[2] of model.eval, batched
+      answers unwrapped; _segment_multi keeps it per object in
+      PreviewRequest.cellprob_maps (its two-value return is unchanged)
+    live_preview.py:788 _PreviewWorker.cellprob_ready(object, int), emitted
+      after flows_ready; a stubbed segmenter may return a third value
+    live_preview.py:1189 _ZoomView.show_message: a sentence instead of a
+      picture, so the right-click then says there is nothing to save
+    live_preview.py:4563 _on_cellprob_ready, 4576 _show_cellprob: a
+      classical method is named ("No cell probability map: organelle
+      (otsu) came from a method that does not make one. Only Cellpose
+      does."); saved as cell_probability.png/.pdf
+  Part 3, the comparison panel.
+    spacr/qt/widgets/mask_comparison.py: composite() (black canvas, "over"
+      bottom first, a mask covers its objects only, rounded), Layer,
+      MaskComparisonDialog (tick, 0-100 % opacity slider, up/down order,
+      top of the stack listed first; a plain QDialog so the glass filter
+      gives it the card and rim)
+    live_preview.py:254 SESSION_MASK_LIMIT = 8: the last eight masks of the
+      session, one per object per run, oldest dropped
+    live_preview.py:2192 "Compare masks…" button, shown once two masks fit
+      the field on screen; 2227 the third panel (_compare_view, a _ZoomView,
+      right-click save as mask_comparison); 4870 _record_session_masks,
+      4897 comparable_masks, 4911 comparison_layers (masks newest on top at
+      50 %, "Field as shown" at 100 %, each channel unticked), 4943
+      open_mask_comparison, 4961 show_comparison (nothing ticked hides it)
+  Shared widget (untouched in structure; two fixes): module
+    spacr/qt/widgets/segmentation_views.py, class SegmentationViews,
+    constructor SegmentationViews(parent=None, *, canvas=None); canvas is
+    any view with set_pixmap/picture/set_picture_name (the live preview's
+    _ZoomView works), else a PictureCanvas is built. Fixes: a view with no
+    array after a run now says NO_CELLPROB/NO_FLOWS/NO_MASKS instead of
+    "Press Run preview"; picture names use underscores (cell_probability).
+  live_preview.py:3063 retranslate_dynamic_content re-renders the view
+    dropdown: the generic pass leaves a caption alone when its source has
+    no hand row in _ROWS, so "Cell probability" stayed Swedish after a
+    switch back to English. (A generic fix in i18n.py was tried and broke
+    the dose-response pickers, so it stays local.)
+  Tests: tests/qt/test_505_cell_probability_and_mask_comparison.py 14,
+    tests/qt/test_segmentation_views.py 9, all pass; test_live_preview.py's
+    view-mode list updated to four. Live preview, picture export, popup
+    dress, Cellpose-contract and language suites: 442 passed after, 419
+    before (the 23 new); the 47 i18n/language files fail the same 5 tests
+    before and after (nightly's own). Screenshot /tmp/spacr-505-scratch/three_panels.png.
+  NEW tr() STRINGS for the docs lane: "Cell probability" (dropdown entry);
+    "Right canvas: outline overlay · label masks · Cellpose flows · cell
+    probability"; "This run gave no cell probability map."; "No cell
+    probability map: {objects} came from a method that does not make one.
+    Only Cellpose does."; "Compare masks…"; "Lay this session's masks and
+    the field over one another, with an opacity and a stacking order for
+    each, in a third panel. The last {count} masks are kept."; "Run {n}";
+    "Field as shown"; "Channel {n}"; "Compare masks"; "Tick the masks and
+    images to lay over one another. The top row is drawn on top; the arrows
+    move a row up or down the stack."; "Show"; "Opacity"; "Order"; "Move up
+    the stack"; "Move down the stack"; and from segmentation_views
+    "This run gave no flows.", "This run gave no mask.".
+  Not reconciled: the frozen public-callable inventory
+    (test_docstring_correctness) already failed on nightly (9572 vs 9527);
+    this adds the new module's and widget's callables to the gap.

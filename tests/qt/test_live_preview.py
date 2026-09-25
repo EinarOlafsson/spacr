@@ -637,7 +637,7 @@ class TestViewModes:
     def test_view_mode_options(self, qtbot):
         p = self._panel_with_image(qtbot)
         opts = [p._view_mode.itemText(i) for i in range(p._view_mode.count())]
-        assert opts == ["Overlay", "Masks", "Flows"]
+        assert opts == ["Overlay", "Masks", "Flows", "Cell probability"]
 
     def test_masks_mode_renders_label_rgb(self, qtbot):
         p = self._panel_with_image(qtbot)
