@@ -3,10 +3,10 @@ CELLPOSE 3 AND CELLPOSE-SAM TAKE DIFFERENT SETTINGS, AND MASK GENERATION HANDS
 THEM THE SAME ONES
 ================================================================================
 
-Status:    BUILT 2026-09-20, ~85%. Both defects below are fixed, tested and
-           on nightly. What is left is a real Cellpose 3 run over the ten-image
-           set of item 412, which needs the backend installed and the GPU idle;
-           see the trailing note.
+Status:    DONE, 100%, closed 2026-09-25. Both defects below are fixed,
+           tested and on nightly; the real Cellpose 3 run over item 412's ten
+           fields was done 2026-09-22; the settings surface this item left
+           open was built by item 503 (2c63b3695). See the trailing notes.
 
 Requested: 2026-09-20 -- "now that we are also supporting cellpose 3 type
            models make sure that there is logic for these in mask generation
@@ -198,3 +198,24 @@ arithmetic argument above and its tests. None of these stock models is the
 PV model (cpsam_v2_toxo), which is the one to use for PVs.
 
 STATUS: DONE.
+
+2026-09-25 -- CLOSED: WHAT THE LAST OPEN POINT BECAME
+--------------------------------------------------------------------------------
+
+The header still read ~85% after the 2026-09-22 note had closed the real run;
+it is brought into line here. The one thing the 2026-09-20 note set aside --
+"the Mask panel still offers the same settings whatever the backend, and a
+Cellpose 3 user sees Cellpose-SAM's wording" -- is item 503's, built and on
+nightly in 2c63b3695 (note 9683584ba): a "Cellpose 3" settings category
+(cellpose3_add_nucleus_channel, _size_model, _resample, _augment,
+_percentile_low/_high) that stays hidden until an object's model reads
+cellpose3:<model> or segmentation_backend is cellpose3, and a per-object
+Cellpose 3 mask function, spacr/object.py _cellpose3_masks, that sends the
+object's own diameter and thresholds. Nothing is left for this item.
+
+MEASURED on nightly e49d86073, one capped offscreen CPU process:
+tests/test_cellpose_3_and_sam_take_different_settings.py passes beside 503's
+changes to _Cellpose3Adapter (162 passed together with the 419 Make Masks
+files). test_every_converted_double_declares_the_installed_signature in
+tests/test_cellpose_api_contract.py, which the 2026-09-20 note recorded as
+failing on a clean nightly, now PASSES.
