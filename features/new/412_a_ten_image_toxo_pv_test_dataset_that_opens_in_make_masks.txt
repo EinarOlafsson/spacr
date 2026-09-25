@@ -7,7 +7,9 @@ Status:    BUILT, ON NIGHTLY (20199e598), 2026-09-15. Ten in-house Toxo PV image
            (datasets/einarolafsson/spacr-example-make-masks); Make Masks'
            "Load test data…" downloads them off the GUI thread and opens the
            first image, translated in nine languages; the module is at 100%.
-           OWED: one press on a real machine with an empty cache.
+           The owed press with an empty cache was made 2026-09-25 (note at
+           the foot): download, open on the first image, cached second press.
+           Made on the offscreen Qt platform, not watched on a display.
 Requested: 2026-09-15, by the maintainer, in these words:
            "also based on 10 images in the toxo PV training set uploade these
            images to huggingface and make a small test dataset for make masks,
@@ -62,3 +64,36 @@ HOW TO KNOW IT WORKED
   * Tests prove the load-then-open sequence with the download mocked (no
     network in tests), and prove the button does nothing harmful offline:
     it says why, rather than failing silently.
+
+2026-09-25 -- THE OWED PRESS, WITH AN EMPTY CACHE
+
+What was done. `MakeMasksScreen()` built from this checkout (spacr imported
+from the worktree), shown, and its real `_btn_test_data` clicked once --
+`QPushButton.click()`, so the same `clicked` signal a mouse press sends, the
+real `load_the_test_data`, the real `_MakeMasksTarWorker`, the real network.
+HOME, XDG_CACHE_HOME/CONFIG/DATA and HF_HOME all pointed at a fresh scratch
+folder, so `make_masks_example_folder()` did not exist before the press and
+the maintainer's own ~/.cache/spacr was verified unchanged after it. CPU only.
+
+What happened, in order:
+
+  * On the press: button disabled, relabelled "Fetching test data…", status
+    line "Downloading the Make Masks test data".
+  * 22.9 s later (download, unpack and first-image decode together): 22
+    files, 37,883,223 bytes -- ten `plateN_WELL_F.tif` fields, their ten
+    masks under `ground_truth_masks/`, `README.md`, `manifest.csv`. No `.part`
+    file left behind. No warning raised.
+  * The screen was on the unpacked folder with the ten fields listed, on
+    `plate1_A02_12.tif` -- the first by name, as asked -- showing a
+    1994 x 1994 uint16 image; status "plate1_A02_12.tif  (1/10)". The button
+    was back to "Load test data…" and enabled.
+  * A second press opened from the cache: no download, no "Fetching" label,
+    same first field.
+
+The one qualification. It ran on Qt's offscreen platform, so the progress
+dialog and the canvas were drawn but not looked at on a monitor; everything a
+test could only mock (the Hugging Face fetch, the tar stream, the unpack into
+an empty cache, the hand-off to `_open_folder` and the decode) was real. The
+driver is kept outside the repository (scratch), since it is a one-off
+receipt rather than a test: a test that downloads 38 MB is not one the suite
+should run.
