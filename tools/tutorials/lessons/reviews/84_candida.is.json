@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Candida: skoðaðu leiðarvísi lífverunnar",
+  "description": "Flettu í leiðarvísi Candida, skoðaðu skýringarmynd gersveppsins og finndu almenn myndgreiningarferli sem eru í boði.",
+  "objectives": [
+    "Opna síðuna frá Home og finna helstu stýringar hennar.",
+    "Greina tiltæk inntök, aðgerðir og úttök.",
+    "Velja næstu tiltæku greiningu eða heimild."
+  ],
+  "prerequisite": "Opnaðu Home í spaCR. Leiðarvísirinn þarf engar inntaksskrár. Greiningarreitir sem eru sérstakir fyrir Candida sýna Coming soon eins og er.",
+  "scenes": [
+    "Frá Home velurðu Candida. Leiðarvísir hennar fjallar um lögun, þráðamyndun, líffilmur og hvernig gersveppurinn hefur samskipti við hýsilfrumur.",
+    "Lestu upplýsingaspjaldið með lýsingar eininganna við hliðina og dragðu skilrúmið til að breikka þá hlið sem þú ert að lesa.",
+    "Skýringarmyndin af brumandi gersveppnum virkar eins og í hinum leiðarvísunum. Haltu bendlinum yfir hluta til að lesa lýsingu hans, veldu nokkra til að halda þeim auðkenndum, og Clear components hreinsar valið.",
+    "Greiningarreitirnir sem eru sérstakir fyrir Candida eru merktir Coming soon í bili, en þú getur samt greint myndirnar þínar með almennu verkfærunum. Farðu aftur í Home, aðgreindu þær í Mask og mældu í Measure, og veldu rásir og grímur sem henta tegundinni þinni og tilrauninni.",
+    "Fyrir upplýsingar um gen og prótein opnast tenglarnir á Candida Genome Database og UniProt í vafranum þínum. Leiðarvísirinn þarf engar inntaksskrár og skrifar ekkert úttak, svo þegar þú ert tilbúin til að vinna úr myndum fylgirðu kennslu keyranlegrar einingar."
+  ]
+}
