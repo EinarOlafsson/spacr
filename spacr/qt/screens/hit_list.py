@@ -380,7 +380,12 @@ class HitListScreen(QWidget):
 
 
     def load_folder(self, folder: str) -> None:
-        """Build the hit list for ``folder``, off the GUI thread."""
+        """Build the hit list for ``folder``, off the GUI thread.
+
+        :param folder: the regression results folder, shown in the folder field
+            and read by :func:`spacr.hits.build_hit_list` on a worker. An empty
+            value only asks the user to choose one.
+        """
         folder = str(folder or "").strip()
         self.last_error = ""
         self._folder_edit.setText(folder)
@@ -404,7 +409,11 @@ class HitListScreen(QWidget):
         self._jobs.submit(build, self._on_hits_ready)
 
     def set_metadata_files(self, paths: Sequence[str]) -> None:
-        """Replace the annotation files and rebuild if a folder is loaded."""
+        """Replace the annotation files and rebuild if a folder is loaded.
+
+        :param paths: annotation files to join to the hit list, replacing the
+            current ones; each is stored as a string.
+        """
         self._metadata_files = [str(p) for p in paths]
         if self._folder_edit.text().strip():
             self.load_folder(self._folder_edit.text())
@@ -632,7 +641,11 @@ class HitListScreen(QWidget):
         return self._jobs.active_jobs()
 
     def closeEvent(self, event) -> None:             # noqa: N802 - Qt override
-        """Drain the worker before the widget goes."""
+        """Drain the worker before the widget goes.
+
+        :param event: the close event, passed on to the base class after the
+            worker is shut down.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 
