@@ -201,12 +201,13 @@ def _awaiting_translation(screen) -> set:
 
     Owed since 2026-09-22 by item 473 (Make Masks offers every detection
     method): the detection button, most organelle-method and propagation
-    parameters, and the Image enhancement card. The Method, Local k,
+    parameters, and the Image enhancement card; since 2026-09-25 by item
+    508, the card's "Use in Mask generation" button. The Method, Local k,
     correction, Classes, adaptive Offset and Grow until help have source-bound
     translations in all nine languages and are no longer excluded here.
     The Apply and Compare enhancement help also have source-bound translations.
     """
-    widgets = [screen._btn_otsu]
+    widgets = [screen._btn_otsu, screen._btn_to_mask]
     widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
                 if key != "adaptive_offset"]
     widgets += [widget for key, widget in getattr(screen, "_propagate_widgets", {}).items()

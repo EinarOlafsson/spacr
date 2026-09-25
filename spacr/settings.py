@@ -972,6 +972,35 @@ def _set_psf_defaults(settings):
     settings.setdefault('psf_iterations', 20)
 
 
+def _set_enhancement_defaults(settings):
+    """Populate the dormant enhancement-chain settings, every step off.
+
+    One ``enhance_<field>`` per :data:`spacr.qt.detect_chain.SETTINGS_FIELDS`
+    entry, with the value :data:`spacr.qt.detect_chain.NO_CHAIN` holds --
+    pinned to it by test rather than imported, so that importing this module
+    costs no imaging code. Read back by :func:`spacr.psf_pipeline.prepare_chain`.
+    """
+    settings.setdefault('enhance_background', 'none')
+    settings.setdefault('enhance_background_radius', 50)
+    settings.setdefault('enhance_background_scale', 0.5)
+    settings.setdefault('enhance_denoise', 'none')
+    settings.setdefault('enhance_denoise_strength', 1.0)
+    settings.setdefault('enhance_percentile_clip', False)
+    settings.setdefault('enhance_percentile_low', 1.0)
+    settings.setdefault('enhance_percentile_high', 99.0)
+    settings.setdefault('enhance_gamma', 1.0)
+    settings.setdefault('enhance_log', False)
+    settings.setdefault('enhance_log_gain', 10.0)
+    settings.setdefault('enhance_sqrt', False)
+    settings.setdefault('enhance_clahe', False)
+    settings.setdefault('enhance_clahe_tile', 64)
+    settings.setdefault('enhance_clahe_clip', 0.01)
+    settings.setdefault('enhance_equalize', False)
+    settings.setdefault('enhance_sharpen', False)
+    settings.setdefault('enhance_sharpen_radius', 1.0)
+    settings.setdefault('enhance_sharpen_amount', 1.0)
+
+
 def set_default_settings_preprocess_generate_masks(settings=None):
     """Populate default settings for the preprocess/generate-masks pipeline.
 
@@ -986,6 +1015,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
     _set_psf_defaults(settings)
+    _set_enhancement_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
         settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
@@ -3039,6 +3069,17 @@ expected_types = {
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
+    "enhance_background": str, "enhance_background_radius": int,
+    "enhance_background_scale": float,
+    "enhance_denoise": str, "enhance_denoise_strength": float,
+    "enhance_percentile_clip": bool, "enhance_percentile_low": float,
+    "enhance_percentile_high": float,
+    "enhance_gamma": float, "enhance_log": bool, "enhance_log_gain": float,
+    "enhance_sqrt": bool,
+    "enhance_clahe": bool, "enhance_clahe_tile": int, "enhance_clahe_clip": float,
+    "enhance_equalize": bool,
+    "enhance_sharpen": bool, "enhance_sharpen_radius": float,
+    "enhance_sharpen_amount": float,
     "src": (str, list),
     "illumination_correction": bool,
     "illumination_per_plate": bool,
@@ -3926,6 +3967,25 @@ tooltips = {
     'psf_kernel_sampling_um': "(list or None) - Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
     'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers. Required for a Gaussian approximation. Both values must be positive and finite; these are user supplied approximation parameters, not measured resolution.",
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+    'enhance_background': "(str) - Background subtraction applied to every selected segmentation channel after illumination correction and before normalization, the first step of the image enhancement chain Make Masks tunes. none is off (default); rolling_ball fits and removes a surface of the radius below, which flattens uneven illumination; tophat keeps only what is brighter than its surroundings within that radius and is faster. Set the radius larger than the largest object. Changing any enhance_ setting rebuilds Mask inputs; a resumed run refuses inputs made with a different chain.",
+    'enhance_background_radius': "(int) - Radius in pixels of the rolling ball or the top-hat disk; default 50. Larger than the largest object and smaller than the scale the illumination varies on. A radius under the object size removes the objects with the background.",
+    'enhance_background_scale': "(float) - Fraction of full size the background is estimated at, above 0 and at most 1; default 0.5. The surface is scaled back up before subtraction, so only the estimate is smaller. 1.0 is scikit-image's exact answer and is slow on large fields; lower it on very large fields.",
+    'enhance_denoise': "(str) - Smoothing applied after background subtraction and the PSF and before the contrast curves. none is off (default); gaussian blurs with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv (total-variation, Chambolle) is the edge-preserving smoother scikit-image provides in place of anisotropic diffusion.",
+    'enhance_denoise_strength': "(float) - How much smoothing, above 0; default 1.0. The Gaussian's sigma in pixels, the median's and the bilateral's disk radius, the non-local means cut-off in multiples of the measured noise, or ten times the total-variation weight on 0..1.",
+    'enhance_percentile_clip': "(bool) - Clip each channel plane to two percentiles of its own intensities before the contrast curves; default False. Removes hot and dead pixels from the range the curves are drawn on without stretching anything, so intensity thresholds keep their units.",
+    'enhance_percentile_low': "(float) - Lower percentile of the clip, at least 0 and below the upper; default 1.0.",
+    'enhance_percentile_high': "(float) - Upper percentile of the clip, at most 100 and above the lower; default 99.0.",
+    'enhance_gamma': "(float) - Exponent the intensities are raised to on 0..1, above 0; default 1.0, which is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones.",
+    'enhance_log': "(bool) - Logarithmic transform on 0..1, log(1 + gain·x) / log(1 + gain); default False. Compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1.",
+    'enhance_log_gain': "(float) - Factor the unit-interval intensities are scaled by before the logarithm, above 0; default 10.0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity.",
+    'enhance_sqrt': "(bool) - Square root on 0..1, the curve gamma 0.5 draws, offered by name; default False.",
+    'enhance_clahe': "(bool) - Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field; default False. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds.",
+    'enhance_clahe_tile': "(int) - Side of one CLAHE tile in pixels, at least 8; default 64. Larger than one object and smaller than the scale the illumination varies on.",
+    'enhance_clahe_clip': "(float) - CLAHE clip limit, above 0 and at most 1; default 0.01. Higher is more contrast and more amplified noise in tiles that hold only background.",
+    'enhance_equalize': "(bool) - Global histogram equalisation of each plane, the strongest of the contrast curves; default False. A field that is mostly background has its background stretched across half the range.",
+    'enhance_sharpen': "(bool) - Unsharp mask after the contrast curves; default False. Makes edges steeper so a threshold lands on the boundary; too much amount puts a bright rim around every object and a dark moat outside it.",
+    'enhance_sharpen_radius': "(float) - Blur radius in pixels the unsharp mask is built from, above 0; default 1.0. About the scale of the edges to sharpen.",
+    'enhance_sharpen_amount': "(float) - How much of the mask is added back, at least 0; default 1.0. Above 2 the halos start to become objects of their own.",
     'image_source':
         "(str) - Source of classification images. 'load_images' reads "
         "previously exported object crops; 'stream_images' generates crops "
@@ -4942,6 +5002,18 @@ categories = {
     "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_path",
                               "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
+
+    "Image Enhancement": ["enhance_background", "enhance_background_radius",
+                          "enhance_background_scale",
+                          "enhance_denoise", "enhance_denoise_strength",
+                          "enhance_percentile_clip", "enhance_percentile_low",
+                          "enhance_percentile_high",
+                          "enhance_gamma", "enhance_log", "enhance_log_gain",
+                          "enhance_sqrt",
+                          "enhance_clahe", "enhance_clahe_tile", "enhance_clahe_clip",
+                          "enhance_equalize",
+                          "enhance_sharpen", "enhance_sharpen_radius",
+                          "enhance_sharpen_amount"],
 
     "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
                       'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],

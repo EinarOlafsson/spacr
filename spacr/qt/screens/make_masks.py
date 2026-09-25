@@ -10152,9 +10152,11 @@ class MakeMasksScreen(QWidget):
         switch for it on this card.
 
         Apply enables the configured chain for image display and detection;
-        Compare previews it independently. This configures Make Masks only.
-        The Mask module uses its own preprocessing settings. Training and
-        inference on enhanced images require matching preprocessing there.
+        Compare previews it independently. "Use in Mask generation" writes
+        the configured chain and PSF into the Mask module's settings as the
+        ``enhance_*`` and ``psf_*`` keys (:meth:`mask_settings`), so a plate
+        run applies the steps tuned here; see
+        :func:`spacr.psf_pipeline.prepare_chain`.
         """
         from ..i18n import tr
         from ..widgets.psf_controls import _PSFControls
@@ -10397,6 +10399,16 @@ class MakeMasksScreen(QWidget):
         self._enh_show = self._btn_apply
         self._btn_apply.toggled.connect(self._on_show_enhanced)
         actions.addWidget(self._btn_apply)
+        self._btn_to_mask = QPushButton(tr("Use in Mask generation"))
+        self._btn_to_mask.setCursor(Qt.PointingHandCursor)
+        self._btn_to_mask.setToolTip(tr(
+            "Write the configured chain and PSF into the Mask module's "
+            "Image Enhancement and Point Spread Function settings, so a "
+            "plate run applies these steps to every selected channel after "
+            "illumination correction and before normalization. Morphology "
+            "and split reshape a detector's labels and stay here."))
+        self._btn_to_mask.clicked.connect(self._send_chain_to_mask)
+        actions.addWidget(self._btn_to_mask)
         card.body_layout.addLayout(actions)
 
         for widget in (self._enh_background, self._enh_denoise,
@@ -10451,6 +10463,58 @@ class MakeMasksScreen(QWidget):
             **self._psf_controls._chain_fields(),
             **self._restoration_controls._chain_fields(),
         )
+
+    def mask_settings(self) -> dict:
+        """The configured chain and PSF as the Mask module's settings.
+
+        :func:`spacr.qt.detect_chain.chain_settings` writes the image steps
+        as ``enhance_*`` keys and the PSF controls write the ``psf_*`` keys,
+        which is exactly what :func:`spacr.psf_pipeline.prepare_chain` reads
+        back, so the chain a plate run applies is the chain configured here
+        -- whether or not Apply is on, since Apply is this screen's switch.
+        """
+        settings = detect_chain.chain_settings(self._enhancement_chain())
+        controls = getattr(self, "_psf_controls", None)
+        if controls is not None:
+            settings.update(controls.mask_settings())
+        return settings
+
+    def _send_chain_to_mask(self) -> None:
+        """Write :meth:`mask_settings` into the Mask module and show it.
+
+        The Mask screen gets the values if it is built, and is built for
+        them otherwise; a Timelapse screen already built gets them too, since
+        it runs the same preprocessing. Standalone, with no application
+        window around this screen, there is nowhere to write and the status
+        line says so.
+        """
+        from ..i18n import tr
+
+        settings = self.mask_settings()
+        window = self.window()
+        screens = getattr(window, "_screens", None)
+        written = []
+        for key in ("mask", "timelapse"):
+            screen = screens.get(key) if isinstance(screens, dict) else None
+            apply = getattr(screen, "apply_settings_dict", None)
+            if callable(apply):
+                apply(settings)
+                written.append(key)
+        rebuild = getattr(window, "rebuild_app_screen", None)
+        if "mask" not in written and callable(rebuild):
+            rebuild("mask", settings)
+            written.append("mask")
+        if not written:
+            self._status_label.setText(tr(
+                "Open spaCR's Mask module to receive the enhancement chain."))
+            return
+        self._status_label.setText(tr(
+            "Enhancement chain written to the Mask settings: {steps}.",
+            steps=detect_chain.describe(self._enhancement_chain())
+            or tr("every step off")))
+        navigate = getattr(window, "_on_nav_selected", None)
+        if callable(navigate):
+            navigate("mask")
 
     def _chain_provenance(self) -> dict:
         """The chain as a mask's ledger entry records it.

@@ -864,16 +864,26 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     Post-processing (min/max size filter, background removal) is
     applied per-object-type after the model returns, using the
     ``postprocess_settings`` dict on the request.
+
+    The ``enhance_*`` settings are the same chain a plate run applies
+    (:func:`spacr.psf_pipeline.prepare_chain`): with any step on, every
+    selected channel goes through :func:`spacr.psf_pipeline.apply_chain`,
+    the PSF folded in at the chain's own stage; with none on, the PSF path
+    is exactly what it was, kernel or no kernel.
     """
-    from ...psf_pipeline import prepare_psf
+    from ...psf_pipeline import apply_chain, prepare_chain, prepare_psf
+    from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
     plan = prepare_psf(req.preprocess_settings)
+    chain = prepare_chain(req.preprocess_settings, plan)
     _check_preview_cancel(req)
     model = None
     processed = {}
     req.provenance = {
         'processing': plan.provenance() if plan else {'operation': 'none'},
+        'enhancement': (chain_provenance(chain)['enhancement']
+                        if chain is not None else 'none'),
         'stage': 'loaded preview field, before background and model normalization',
         'normalization': 'field-local Cellpose defaults; classical method specific',
         'illumination': 'no preview illumination correction',
@@ -898,8 +908,12 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         req.provenance['channels'][obj] = ch_idx
         if ch_idx not in processed:
             plane = _select_channel(req.image, ch_idx)
-            processed[ch_idx] = (plan.apply(plane[..., None], cancel=req.cancel)[..., 0]
-                                 if plan else plane)
+            if chain is not None:
+                processed[ch_idx] = apply_chain(
+                    plane[..., None], chain, cancel=req.cancel)[..., 0]
+            else:
+                processed[ch_idx] = (plan.apply(plane[..., None], cancel=req.cancel)[..., 0]
+                                     if plan else plane)
         image_2d = processed[ch_idx].copy()
 
         if req.preprocess_settings.get(f"remove_background_{obj}"):
@@ -4641,6 +4655,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if operation and operation != 'none':
             self._status.setText(self._status.text() + '  ' + tr(
                 'PSF: {operation} (preview field).', operation=operation))
+        enhancement = self._processing_provenance.get('enhancement')
+        if isinstance(enhancement, dict):
+            self._status.setText(self._status.text() + '  ' + tr(
+                'Enhancement: {steps} (preview field).',
+                steps=', '.join(step for step in enhancement
+                                if step != 'order')))
         self._refresh_canvases()
         if snapshot:
             self._snapshot_run(out, counts)
