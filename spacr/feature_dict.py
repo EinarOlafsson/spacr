@@ -2339,7 +2339,11 @@ _set_scope(
 
 
 def scope_for(key: str) -> FeatureScope | None:
-    """The :class:`FeatureScope` of a curated key, or ``None`` if untabulated."""
+    """The :class:`FeatureScope` of a curated key, or ``None`` if untabulated.
+
+    :param key: curated feature key, e.g. ``"area"``; looked up exactly
+        (case-sensitive) in :data:`FEATURE_SCOPE`.
+    """
     return FEATURE_SCOPE.get(key)
 
 
@@ -2539,7 +2543,11 @@ del _cname, _c, _key
 
 
 def concepts_for(key: str) -> tuple[str, ...]:
-    """Which :data:`CONCEPTS` a curated key answers to."""
+    """Which :data:`CONCEPTS` a curated key answers to.
+
+    :param key: curated feature key, matched exactly; a key in no concept
+        gives an empty tuple.
+    """
     return _KEY_CONCEPTS.get(key, ())
 
 
@@ -2547,6 +2555,9 @@ def concept_of(word: str) -> str | None:
     """Resolve a user's word to a concept name, or ``None``.
 
     Matches a concept name or any of its synonyms, case-insensitively.
+
+    :param word: the user's search word or phrase; converted to ``str``,
+        stripped of surrounding whitespace and lower-cased before lookup.
     """
     return _CONCEPT_LOOKUP.get(str(word).strip().lower())
 
@@ -3248,7 +3259,11 @@ def feature_docs() -> tuple[FeatureDoc, ...]:
 
 
 def doc_for(key: str) -> FeatureDoc | None:
-    """The :class:`FeatureDoc` for a curated key, or ``None``."""
+    """The :class:`FeatureDoc` for a curated key, or ``None``.
+
+    :param key: curated feature key, compared exactly against each
+        :attr:`FeatureDoc.key` in :func:`feature_docs`.
+    """
     for doc in feature_docs():
         if doc.key == key:
             return doc

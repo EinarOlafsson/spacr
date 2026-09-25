@@ -157,6 +157,9 @@ def grid_shape(count: int) -> Tuple[int, int]:
     and nothing in a tile index says which, so the squarest grid is taken and
     both arrangements are then scored against the pixels -- a 3x2 read as 2x3
     correlates badly, which is how the wrong one is found.
+
+    :param count: number of tiles in the field; zero or less gives ``(0, 0)``,
+        a prime count gives a single row.
     """
     if count <= 0:
         return (0, 0)
@@ -168,7 +171,17 @@ def grid_shape(count: int) -> Tuple[int, int]:
 
 def arrangement_of(index: int, rows: int, cols: int,
                    arrangement: str) -> Tuple[int, int]:
-    """``(row, col)`` for the ``index``-th tile under one arrangement."""
+    """``(row, col)`` for the ``index``-th tile under one arrangement.
+
+    :param index: zero-based position of the tile in acquisition order.
+    :param rows: number of rows in the grid; used by the column-wise
+        arrangements.
+    :param cols: number of columns in the grid; used by the row-wise
+        arrangements.
+    :param arrangement: tile order, one of ``"row_major"``,
+        ``"serpentine_rows"``, ``"column_major"`` or ``"serpentine_columns"``;
+        anything else raises :class:`ValueError`.
+    """
     if arrangement == "row_major":
         return divmod(index, cols)
     if arrangement == "serpentine_rows":
@@ -194,6 +207,9 @@ def read_stage_positions(paths: Sequence) -> Optional[List[Tuple[float, float]]]
     Returns None rather than raising for a file that cannot be read: a
     missing position is the ordinary case, not an error, and the caller has
     a second method to fall back to.
+
+    :param paths: tile TIFF paths (``str`` or path-like), each opened with
+        ``tifffile`` and read for its OME stage position and pixel size.
     """
     try:
         import tifffile
