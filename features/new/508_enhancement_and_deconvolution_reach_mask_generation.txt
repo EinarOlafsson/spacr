@@ -1,7 +1,8 @@
 EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned. Related: 473 (the chain), 479, 489, 490 (PSF).
+Status: BUILT 2026-09-25 on branch worktree-agent-a3910aee4312c5567; awaiting
+        merge, docs lane and catalog rows (see the trailing note).
+Owner: Claude (item 508 session). Related: 473 (the chain), 479, 489, 490 (PSF).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "all of the deconvolution and image enhancement stuff should be available
@@ -23,3 +24,90 @@ WHAT TO BUILD
 DONE WHEN
 A chain built in Make Masks can be applied unchanged by Mask generation, the
 new transforms are in both, and a mask records which ran.
+
+
+================================================================================
+2026-09-25 -- BUILT: THE MAKE MASKS CHAIN REACHES MASK GENERATION
+================================================================================
+
+WHAT LANDED
+* One serialisable chain: spacr/qt/detect_chain.py:811 SETTINGS_FIELDS and
+  :829 chain_settings() write a Chain's image steps as nineteen enhance_*
+  settings; spacr/psf_pipeline.py:261 prepare_chain() reads them back into
+  an equal Chain (bool/number words from a settings file are coerced) and
+  folds the psf_* PSFPlan in as the chain's PSF stage. :209 chain_problems()
+  is the validator (also the Mask preflight, spacr/validate.py:1490).
+* Applied per selected segmentation channel at the PSF stage, after
+  illumination and before normalization: :315 apply_chain() (strict -- a
+  failing step raises on a plate run instead of being skipped) through the
+  existing _SegmentationPSFSession.correct, so V1 (io.concatenate_and_
+  normalize) and V2 (pipeline_v2.stream_masks_from_stack) both get it; and in
+  the Live preview worker (spacr/qt/widgets/live_preview.py:908).
+  With the chain on, order is the chain's own: background -> PSF -> denoise
+  -> contrast -> sharpen. Morphology/split and deep restoration stay Make
+  Masks' own (label reshaping; model in an isolated backend).
+* Off by default and bit-identical when off: prepare_chain returns None, the
+  PSF-only path is untouched, and the application record gains no
+  "enhancement" key, so records made before 508 still match.
+* Provenance: psf/segmentation_application.json configuration.enhancement
+  (_configuration, :354) lists the steps that ran and the order; the Live
+  preview provenance and status line carry it too.
+* Resume: validate_psf_resume (:374) and io._resume_normalized_archives /
+  core.preprocess_generate_masks refuse archives made with another chain
+  (or with the chain switched off) via processing_requested (:298).
+* New transforms in the chain (so in Make Masks and Mask alike): percentile
+  clip, logarithm (gain), square root (contrast stage, CONTRAST_ORDER :85),
+  total-variation denoise "tv" (Chambolle; scikit-image has no anisotropic
+  diffusion, TV is its edge-preserving equivalent). The Gaussian filter is
+  denoise=gaussian (already present, named so in the tooltips).
+* Make Masks: new card rows (make_masks.py:10529, :10562) and a "Use in Mask
+  generation" button (:10834) that writes mask_settings() (:10819: chain +
+  psf_controls.mask_settings(), psf_controls.py:228) into the Mask screen
+  (and Timelapse if built) and navigates there.
+
+NEW SETTINGS (Mask, category "Image Enhancement", settings.py:975 defaults,
+tooltips from :3970): enhance_background, enhance_background_radius,
+enhance_background_scale, enhance_denoise, enhance_denoise_strength,
+enhance_percentile_clip, enhance_percentile_low, enhance_percentile_high,
+enhance_gamma, enhance_log, enhance_log_gain, enhance_sqrt, enhance_clahe,
+enhance_clahe_tile, enhance_clahe_clip, enhance_equalize, enhance_sharpen,
+enhance_sharpen_radius, enhance_sharpen_amount. API help anchors on
+spacr.psf_pipeline.prepare_chain.
+
+FOR THE DOCS / CATALOG LANE (tr() strings with no catalog rows yet)
+  "Use in Mask generation" and its tooltip; "Open spaCR's Mask module to
+  receive the enhancement chain."; "Enhancement chain written to the Mask
+  settings: {steps}."; "Enhancement: {steps} (preview field)."; "Total
+  variation"; "Percentile clip", "Clip low percentile", "Clip high
+  percentile", "Logarithm", "Logarithm gain", "Square root" and their
+  tooltips; the IMAGE ENHANCEMENT category blurb; the 19 enhance_* tooltips.
+  The Make Masks ones are listed in _awaiting_translation.
+
+TESTS
+  tests/test_enhancement_reaches_mask.py -- 37 cases: each new transform
+  against numpy/scikit-image, clip-before-curves, strict mode, settings ->
+  chain round trip equal to detect_chain.prepare applied directly, bad
+  values refused (14), preflight, V1 with and without PSF (records and
+  resumes), resume refusal (3 changes), rebuild on change, bit identity
+  off, PSF-only record unchanged, V2, cancellation.
+  tests/qt/test_enhancement_reaches_mask_preview.py -- 6 cases: Live preview
+  model input equals apply_chain (with/without PSF), off records "none",
+  Make Masks mask_settings() reads back to its chain, the hand-off button.
+  Gates updated: test_settings_tooltip_quality (radius census +2, default
+  claim census 716 -> 735 with tests/data/release_contracts/
+  508_default_claim_census_2026-09-25.json), test_settings_categories.
+  test_docstring_correctness's three inventory pins fail on nightly already
+  (docs lane); 508 adds seven public callables to those counts.
+  tests/qt/test_external_i18n_catalogs.py now lists the 19 enhance_* keys in
+  _AWAITING_CATALOG_REBUILD (self-emptying) until the catalog lane rebuilds
+  en.SETTING_TOOLTIPS. test_i18n_caption_ratchet's two failures are on
+  nightly too.
+  Selection run: non-Qt settings/PSF/validate/docstring 8 files -> 3 failed
+  (the nightly docstring pins), rest pass; Qt 20 files -> 305 passed, 19
+  xfailed, 4 failed before the catalog-list fix (2 are nightly's), 29/29 of
+  test_external_i18n_catalogs after it.
+
+NOT DONE
+  Deep restoration is not a Mask setting. Make Masks does not persist its card
+  values across sessions (unchanged). No real-field measurement of enhanced
+  plate-run masks yet.

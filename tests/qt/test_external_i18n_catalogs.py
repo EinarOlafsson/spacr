@@ -223,6 +223,28 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
         )
 
 
+#: Settings whose tooltips are in spacr.settings but not yet in the generated
+#: catalogs, which only the catalog lane rebuilds. Owed since 2026-09-25 by
+#: item 508: the nineteen enhance_* settings. The list empties itself: a key
+#: the catalogs already carry fails below and must leave it.
+_AWAITING_CATALOG_REBUILD = frozenset({
+    "enhance_background", "enhance_background_radius", "enhance_background_scale",
+    "enhance_denoise", "enhance_denoise_strength",
+    "enhance_percentile_clip", "enhance_percentile_low", "enhance_percentile_high",
+    "enhance_gamma", "enhance_log", "enhance_log_gain", "enhance_sqrt",
+    "enhance_clahe", "enhance_clahe_tile", "enhance_clahe_clip", "enhance_equalize",
+    "enhance_sharpen", "enhance_sharpen_radius", "enhance_sharpen_amount",
+})
+
+
+def _assert_setting_tooltip_inventory(sources, en):
+    """The catalogs carry every setting tooltip except the ones owed."""
+    catalogued = set(en.SETTING_TOOLTIPS)
+    assert not _AWAITING_CATALOG_REBUILD & catalogued
+    assert _AWAITING_CATALOG_REBUILD <= set(sources["setting_tooltips"])
+    assert set(sources["setting_tooltips"]) - _AWAITING_CATALOG_REBUILD == catalogued
+
+
 def test_runtime_source_inventory_is_complete_before_optional_module_imports():
     tools_dir = str(ROOT / "tools")
     sys.path.insert(0, tools_dir)
@@ -242,7 +264,7 @@ def test_runtime_source_inventory_is_complete_before_optional_module_imports():
         "Score the masks now",
     } <= short_surface
     from spacr.qt.i18n_catalogs import en
-    assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
+    _assert_setting_tooltip_inventory(sources, en)
 
 
 def test_runtime_source_inventory_is_stable_after_runctx_import():
@@ -258,7 +280,7 @@ def test_runtime_source_inventory_is_stable_after_runctx_import():
 
     from spacr.qt.i18n_catalogs import en
     sources = builder.canonical_sources()
-    assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
+    _assert_setting_tooltip_inventory(sources, en)
     assert "on_error" in sources["setting_tooltips"]
 
 
