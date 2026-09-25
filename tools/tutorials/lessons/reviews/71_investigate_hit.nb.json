@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Investigate Hit: spor et gen fra Regression tilbake til de målte cellene",
+  "description": "Send et gen fra Hit List til Investigate Hit, legg til måledatabasen, celleprediksjonene og guideandelene, og les deretter bevisene på brønnivå.",
+  "objectives": [
+    "Åpne en Regression-kjøring i Hit List, kontrollere q-verdier og sende ett gen til Investigate Hit.",
+    "Velge måledatabase, celleprediksjoner, guideandeler og poengkolonne.",
+    "Lese fanene for bevis, brønner, guider og terskel og finne de lagrede tabellene."
+  ],
+  "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. For å holde nedlastingen liten inneholder databasen 52 brønner: alle analyserte brønner med en guide for gen 225160 og, for hver av dem, tre brønner uten den fra samme plate. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
+  "scenes": [
+    "Fra Home åpner du Regression. Investigate Hit tar utgangspunkt i en ferdig Regression-kjøring. Det spør om de målte cellene i brønnene bak ett gen ser annerledes ut enn celler i brønner uten det genet.",
+    "Velg Hits for å åpne Hit List. Pakk først ut eksempelarkivet. Det inneholder en Regression-kjøring på testdataene, de tilsvarende CV-prediksjonene per celle og en måledatabase for de samme cellene. Alle tre kommer fra én og samme reelle screening.",
+    "Klikk på Browse og velg mappen guide_permutation i regression_run, results. Dette er utdataene fra testdatakjøringen i Regression-veiledningen.",
+    "Hit List rangerer 325 gener. Les effekt, P-verdi og q-verdi for hver rad samlet, sammen med antallet guider og hvor mange av dem som er enige.",
+    "Sett Max q til 0,05. Tabellen tømmes fordi ingen gener i denne kjøringen har en q-verdi på høyst 0,05. Med 199 permutasjoner er den minste mulige P-verdien 0,005, og den laveste q-verdien er omtrent 0,27. Det som følger, undersøker derfor en rangert kandidat, ikke et bekreftet treff.",
+    "Sett Max q tilbake til 1, søk etter 225160 og merk raden. Den har en effekt på 0,34, en q-verdi på 0,27 og tre guider som alle peker i samme retning.",
+    "Klikk på Investigate selected. Investigate Hit åpnes med resultatmappen, genet, de tre guidene og en positiv effektretning allerede fylt inn fra raden.",
+    "Ved siden av Measurements database klikker du på Browse og velger measurements.db fra eksemplet. Den inneholder form, størrelse og gjennomsnittlig kanalintensitet for 8 915 celler i 52 brønner.",
+    "For Existing CV predictions velger du cv_predictions.csv. Hver rad er den lagrede CV-poengsummen for én celle, koblet til det samme målte objektet. Klikk på banen og trykk på Enter slik at poengkolonnene leses inn, og behold deretter pred som fenotypepoengkolonne.",
+    "For Well/guide fractions velger du regression_data.csv i den samme resultatmappen. Denne tabellen ble skrevet av Regression. Den angir andelen for hver guide i hver analysert brønn.",
+    "La Independent morphology features stå tomt. Modulen bruker da databasens 13 numeriske cellemålinger og utelater identifikatorer, guideandeler og CV-poengsummen, slik at denne kontrollen ikke gjenbruker poengsummen. For din egen database oppgir du bare målekolonner uten manglende verdier.",
+    "Klikk på Investigate hit. Modellen tilpasses med én plate holdt utenfor om gangen, slik at ingen celle får poeng av en modell som er trent på dens egen plate. Guideandelen i en brønn setter bare utgangsforventningen for cellene i brønnen. Den merker aldri en celle som bærer av guiden. Dette eksemplet tar noen minutter.",
+    "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Cellene støtter ikke denne kandidaten.",
+    "Wells viser guideandel, gjennomsnittlig treff-lignende sannsynlighet, prevalens og celleantall for hver brønn. Hver brønn teller som én uavhengig enhet, så sammenligningen bruker 13 målbrønner og 39 kontrollbrønner, ikke enkeltceller.",
+    "Guides viser hver målguide for seg. Dose-respons-forløpene deres peker i ulike retninger, noe som er enda en grunn til ikke å behandle dette genet som et treff.",
+    "Threshold sensitivity gjentar sammenligningen ved sannsynlighetsgrenser fra 0,5 til 0,9. Ved hver grense holder forskjellen seg nær 0,01, så konklusjonen avhenger ikke av grensen.",
+    "Candidate cells rangerer cellene etter treff-lignende sannsynlighet, med den opprinnelige poengsummen og folden som ga hver celle poeng. Disse sannsynlighetene beskriver treff-lignende morfologi, ikke hvilken guide en celle bar. Overfør vurderinger til annotering bare når bevisene på brønnivå er overbevisende. Undo angrer en overføring.",
+    "Tabellene lagres i resultatmappen under hit_investigation og deretter 225160. De inneholder denne innbyggingen og et manifest, og hver kjøring lagres også som en ny versjon i databasen. Eksemplet har ingen utsnittsbilder, så gjennomgangsgalleriet forblir tomt. Undersøk deretter et gen som klarer terskelen din i en Regression-kjøring med flere permutasjoner."
+  ]
+}
