@@ -177,5 +177,7 @@ at its default 0.95 threshold -- a lower threshold or per-cycle detection
 could change the count, and is the next thing to try if anyone wants it.
 GPU: SpotNet's TensorFlow 2.8.4 finds no CUDA 11 runtime in its
 environment (libcudart.so.11.0 absent), so its detection is CPU either
-way; a gpu_turn.sh run for the native side was queued behind other
-sessions. Receipt: 475_real_install_and_native_baseline_2026-09-25.json.
+way. The gpu_turn.sh run (queued 13:55) never got a turn: an unqueued
+pytest held a CUDA context for over two hours, so the card was never idle,
+and the turn was withdrawn at 14:57 (logged in ~/.spacr/gpu/log). A GPU
+SpotNet would need CUDA 11.2 / cuDNN 8.1 wheels in its environment first. Receipt: 475_real_install_and_native_baseline_2026-09-25.json.

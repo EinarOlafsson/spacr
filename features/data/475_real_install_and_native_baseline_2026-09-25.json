@@ -175,8 +175,8 @@
     "spotnet_reads_matched_by_native": 0.7961
   },
   "comparison_gpu": {
-    "not_run": "[Errno 2] No such file or directory: '/tmp/spacr-475-scratch/compare_gpu.json'"
+    "not_run": "gpu_turn.sh never granted a turn: an unqueued CUDA process held the card for over 2 h; withdrawn 2026-09-25T14:57"
   },
-  "comparison_gpu_note": "Run through tools/gpu_turn.sh with --gpu: the native alignment and peaks may use the card; SpotNet's TensorFlow 2.8.4 finds no CUDA 11 runtime in its environment (libcudart.so.11.0 absent) and runs on the CPU in both runs.",
+  "comparison_gpu_note": "Run through tools/gpu_turn.sh with --gpu: the native alignment and peaks may use the card; SpotNet's TensorFlow 2.8.4 finds no CUDA 11 runtime in its environment (libcudart.so.11.0 absent) so SpotNet runs on the CPU whatever the card.",
   "weights": "SpotDetection-8.tar.gz fetched with the maintainer's token into ~/.spacr/backends/spotnet/home/.deepcell/models; the token appears in no log or receipt."
 }
