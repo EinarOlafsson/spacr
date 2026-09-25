@@ -97,7 +97,7 @@ def test_the_backdrop_is_handed_every_saved_control():
 
     from spacr.qt.widgets import ambient
 
-    source = inspect.getsource(ambient._the_spaceout_fractal)
+    source = inspect.getsource(ambient._build_the_spaceout_fractal)
     for name in ("follow_pointer", "pointer_size", "pointer_strength"):
         assert name in source, f"{name} is never handed to the backdrop"
 

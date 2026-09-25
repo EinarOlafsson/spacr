@@ -2383,8 +2383,10 @@ def apply_saved_controls() -> int:
     every live object so changes take effect immediately.
 
     Everything that can change while a backdrop is on screen is pushed here.
-    What cannot -- the pattern, the backend, the shader -- still needs the
-    backdrop rebuilding, which is what changing a screen does anyway.
+    What cannot -- the pattern, the backend, the quality, the scale and the
+    Mandelbrot reference orbit -- needs the backdrop rebuilding, which
+    :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does
+    when Preferences is saved (item 530).
     """
     try:
         from ..preferences import get_fractal_settings

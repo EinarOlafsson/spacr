@@ -7231,6 +7231,14 @@ class PreferencesDialog:
                     restart_the_dive()
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not restart the dive", exc_info=True)
+                try:
+                    from .widgets.ambient import (
+                        rebuild_the_spaceout_backdrops)
+
+                    rebuild_the_spaceout_backdrops()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not rebuild the backdrop",
+                              exc_info=True)
                 if complaints:
                     from PySide6.QtWidgets import QMessageBox
 
