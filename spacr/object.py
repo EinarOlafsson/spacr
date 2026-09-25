@@ -118,7 +118,7 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
 
 
 def _cellpose3_masks(model, images, settings, object_type, *, min_size,
-                     default_diameter, batch_size=8):
+                     default_diameter, batch_size=8, probabilities=False):
     """Segment a batch with a Cellpose 3 model; return what Cellpose-SAM does.
 
     Mask generation's own function for Cellpose 3 (item 503). What differs
@@ -148,8 +148,12 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
     :param min_size: smallest object Cellpose 3 keeps, in pixels.
     :param default_diameter: the object's magnification-derived diameter.
     :param batch_size: tiles per network pass.
+    :param probabilities: also return each image's cell probability, for
+        the Live preview's cell probability view.
     :returns: ``(masks, flows)``: one 2-D label image per input, and
-        per-image flows in :func:`parse_cellpose4_output`'s layout.
+        per-image flows in :func:`parse_cellpose4_output`'s layout; with
+        ``probabilities``, ``(masks, flows, cell probabilities)``, one
+        ``H x W`` array (or None) per image.
     """
     from .spacr_cellpose import parse_cellpose4_output
 
@@ -166,8 +170,37 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
             shaped.append(image)
     output = model.eval(x=shaped, batch_size=int(batch_size),
                         channel_axis=-1, min_size=min_size, **keywords)
-    masks, flows, _, _, _ = parse_cellpose4_output(output)
+    masks, flows, _, probability, _ = parse_cellpose4_output(output)
+    if probabilities:
+        return list(masks), flows, list(probability)
     return list(masks), flows
+
+
+def _prefixed_model_route(model_name, settings=None):
+    """Where a model setting that names its backend by prefix is segmented.
+
+    One table for every caller -- Mask generation's ``pipeline_style``
+    'v2' and the Live preview -- so a model value is read the same way
+    everywhere. Each row is ``(backend, reads the prefix, masks
+    function)``; the masks function takes :func:`_cellpose3_masks`'
+    arguments and returns what it returns. A backend with its own prefix
+    is one more row.
+
+    :param model_name: an object's model setting, e.g. ``'cellpose3:cyto3'``.
+    :param settings: the run's settings; ``segmentation_backend`` naming a
+        row's backend routes there as well, as it does in V1.
+    :returns: ``(backend name, masks function)``, or None for a model
+        Cellpose-SAM segments.
+    """
+    from ._segmentation_backends import _CELLPOSE3, _cellpose3_choice
+
+    backend = str((settings or {}).get('segmentation_backend')
+                  or '').strip().lower()
+    routes = ((_CELLPOSE3, _cellpose3_choice, _cellpose3_masks),)
+    for name, choice, masks in routes:
+        if choice(model_name) is not None or backend == name:
+            return name, masks
+    return None
 
 
 def _remove_objects_smaller_than(binary, min_size):
