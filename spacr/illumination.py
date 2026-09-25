@@ -1187,6 +1187,15 @@ def validate_segmentation_illumination_resume(
     covers exactly the fields already on disk.  This function never fits a
     model, creates a record, corrects pixels, or updates the run journal.
 
+    :param prepared: the loaded model and corrector whose model path and digest
+        the record must name.
+    :param provenance_path: path of the prior segmentation application record
+        (JSON) to read.
+    :param pipeline_style: segmentation pipeline style the record must match,
+        ``'v1'`` or ``'v2'`` (case-insensitive).
+    :param expected_fields: identifiers of the mask fields already on disk; the
+        record's completed-field set, compared as strings, must equal them
+        exactly.
     :returns: the validated existing application record.
     :raises IlluminationError: for an absent or incompatible record, model,
         pipeline style, or completed-field set.
@@ -1224,6 +1233,17 @@ def load_segmentation_illumination_resume(
     trust existing normalised mask NPZ files.  No model is fitted, no QC or
     application record is written, no pixels are corrected, and no Measure
     hook is installed.
+
+    :param settings: run settings; ``illumination_correction`` must be true,
+        and ``illumination_model`` (when set), ``illumination_on_missing`` and
+        ``verbose`` are read.
+    :param provenance_path: path of the prior segmentation application record
+        (JSON); its ``model_path`` is resolved relative to this file's folder
+        when not absolute.
+    :param pipeline_style: segmentation pipeline style, ``'v1'`` or ``'v2'``
+        (case-insensitive); any other value raises :class:`IlluminationError`.
+    :param expected_fields: identifiers of the mask fields already on disk; the
+        record's completed-field set must equal them exactly.
     """
     if not settings.get('illumination_correction', False):
         raise IlluminationError(
@@ -1425,7 +1445,18 @@ class SegmentationIlluminationSession:
 
     def correct(self, field_id: str, channel_arrays: np.ndarray,
                 context) -> np.ndarray:
-        """Correct a private copy of one raw field, refusing a second pass."""
+        """Correct a private copy of one raw field, refusing a second pass.
+
+        :param field_id: identifier of the raw field, compared as a string; a
+            field already corrected or marked complete raises
+            :class:`IlluminationError`.
+        :param channel_arrays: raw field intensities, ``(Y, X, C)`` or
+            ``(Z, Y, X, C)``; a copy is corrected and the input is left
+            unchanged.
+        :param context: the :class:`spacr.measure_hooks.PreprocessingContext`
+            passed to the prepared corrector; its file name selects the plate's
+            model.
+        """
         field_id = str(field_id)
         if (field_id in self._applied_fields or
                 field_id in self._completed_fields):
@@ -1452,6 +1483,9 @@ class SegmentationIlluminationSession:
     def mark_completed(self, field_id: str) -> bool:
         """Persist ``field_id`` after its corrected pipeline output is durable.
 
+        :param field_id: identifier of a field already passed to
+            :meth:`correct`, compared as a string; an uncorrected field raises
+            :class:`IlluminationError`.
         :returns: ``True`` when the record changed, ``False`` when the same
             completed field was marked again.
         """
@@ -1471,7 +1505,12 @@ class SegmentationIlluminationSession:
         return True
 
     def finish(self, expected_fields: Iterable[str]) -> None:
-        """Mark the journal stage done after every expected field is durable."""
+        """Mark the journal stage done after every expected field is durable.
+
+        :param expected_fields: identifiers of every field the run should have
+            completed; the set, compared as strings, must equal the completed
+            set exactly or :class:`IlluminationError` is raised.
+        """
         expected = {str(field_id) for field_id in expected_fields}
         if expected != self._completed_fields:
             missing = sorted(expected - self._completed_fields)
@@ -2095,6 +2134,12 @@ def prepare_segmentation_illumination(
     segmentation output exists.  The application record is stored beside the
     current run's source folder, even when the optical model is shared from an
     external path, so two runs cannot overwrite one another's completion set.
+
+    :param settings: run settings carrying the illumination controls read by
+        :func:`prepare_illumination_model`, and ``src`` when ``src`` is not
+        given.
+    :param pipeline_style: segmentation pipeline style, ``'v1'`` or ``'v2'``
+        (case-insensitive); any other value raises :class:`IlluminationError`.
     """
     prepared = prepare_illumination_model(
         settings, src=src, channels=channels,
