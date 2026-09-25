@@ -2653,6 +2653,33 @@ _ZOO_PENDING_ROLE = int(Qt.UserRole) + 18
 def _zoo_cellpose_models() -> List[tuple]:
     """``(key, path or None, entry)`` for every Cellpose model in the zoo.
 
+    :func:`_zoo_models_of_kind` for the ``cellpose`` kind.
+    """
+    return _zoo_models_of_kind("cellpose")
+
+
+def _zoo_cellpose_dino_models() -> List[tuple]:
+    """``(model setting, caption)`` for each Cellpose-DINO model downloaded.
+
+    Item 525. The setting is ``cellpose_dino:<path>``, which
+    :func:`load_cellpose_model` and :func:`_backend_model` run in the
+    Cellpose-DINO backend, and the caption is the one the Model zoo...
+    button gives such a model. A row that is not downloaded is left out:
+    the Model zoo picker is where one is downloaded, next to its backend's
+    install.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import _cellpose_dino_value
+
+    return [(_cellpose_dino_value(path),
+             tr("Cellpose-DINO · {model}", model=os.path.basename(path)))
+            for _key, path, _entry in _zoo_models_of_kind("cellpose_dino")
+            if path]
+
+
+def _zoo_models_of_kind(kind: str) -> List[tuple]:
+    """``(key, path or None, entry)`` for every zoo model of ``kind``.
+
     ``path`` is where the model is on this machine -- the entry's own path,
     or its file in the folder the Model zoo picker downloads into -- and None
     for one not downloaded. ``entry`` is the zoo's own record, which is what
@@ -2666,6 +2693,8 @@ def _zoo_cellpose_models() -> List[tuple]:
     they do not want those models, and a Mode box that listed them anyway
     would be the one place that ignored them. So the same persisted headings
     filter this list.
+
+    :param kind: the zoo kind, ``cellpose`` or ``cellpose_dino``.
     """
     try:
         from ... import model_zoo
@@ -2680,7 +2709,7 @@ def _zoo_cellpose_models() -> List[tuple]:
         return []
     found = []
     for entry in entries:
-        if getattr(entry, "kind", "") != "cellpose":
+        if getattr(entry, "kind", "") != kind:
             continue
         if model_zoo.source_of(entry) not in sources:
             continue
@@ -3237,6 +3266,29 @@ _MAGNIFIER_BACKENDS = {
     "dinocell": ("dinocell", "DINOCell"),
     "samcell": ("samcell", "SAMCell"),
 }
+
+def _offer_cellpose_dino_modes() -> List[str]:
+    """Make each downloaded Cellpose-DINO model a magnifier mode (item 525).
+
+    Unlike Cellpose 3's four stock models, a Cellpose-DINO model is a
+    checkpoint the user downloaded, so its modes are found when the Mode box
+    is built rather than written here: ``cellpose_dino:<path>`` joins
+    :data:`_MAGNIFIER_BACKENDS` under its backend and caption, and
+    :data:`_MAGNIFIER_SEGMENTERS` with :func:`_backend_segmenter`, which
+    loads it through :func:`_backend_model`. Greying and the install offer
+    then treat it as every other backend mode.
+
+    :returns: the modes added, in the zoo's order.
+    """
+    added = []
+    for mode, label in _zoo_cellpose_dino_models():
+        if mode in _MAGNIFIER_BACKENDS:
+            continue
+        _MAGNIFIER_BACKENDS[mode] = ("cellpose_dino", label)
+        _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
+        added.append(mode)
+    return added
+
 
 #: Loaded DINOCell and SAMCell models, by backend name, for the life of the
 #: process. Building one loads a ViT checkpoint, and the box asks on every
@@ -10518,6 +10570,7 @@ class MakeMasksScreen(QWidget):
         if _cellpose_installed():
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
+        _offer_cellpose_dino_modes()
         for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
         self._resync_magnifier_modes()
@@ -11563,6 +11616,9 @@ class MakeMasksScreen(QWidget):
         after the picker closes or a download ends, the zoo rows are rebuilt
         -- so a model just downloaded becomes selectable -- and the model
         chosen stays chosen, without a change signal when it did not change.
+        Each Cellpose-DINO model downloaded follows, as
+        ``cellpose_dino:<path>`` under "Cellpose-DINO · <file>" (item 525),
+        which :func:`load_cellpose_model` runs in its backend.
         """
         from ..i18n import tr
         from ..model_install import UNINSTALLED_GREY
@@ -11594,6 +11650,13 @@ class MakeMasksScreen(QWidget):
                         "from the model zoo and selects it.", name=key),
                         Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
+            for value, label in _zoo_cellpose_dino_models():
+                if combo.findData(value) >= 0:
+                    continue
+                combo.addItem(label, value)
+                row = combo.count() - 1
+                combo.setItemData(row, value, Qt.ToolTipRole)
+                combo.setItemData(row, True, _ZOO_ROLE)
             index = combo.findData(chosen) if chosen is not None else -1
             combo.setCurrentIndex(max(index, 0))
         finally:
