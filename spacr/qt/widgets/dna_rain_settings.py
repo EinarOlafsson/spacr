@@ -123,7 +123,11 @@ class DnaRainSettingsPopover(QFrame):
         self._bar.restyle_for_theme()
 
     def open_near(self, anchor: QWidget) -> None:
-        """Show the popover just above (or below) ``anchor``."""
+        """Show the popover just above (or below) ``anchor``.
+
+        :param anchor: the widget the popover is positioned against, above it
+            or else below it.
+        """
         self.apply_theme()
         self.adjustSize()
         self._position_near(anchor)
@@ -176,6 +180,9 @@ class DnaRainSettingsPopover(QFrame):
         and replays the press at the widget underneath. Only the presses
         that land on the button matter — that is the one that would
         toggle it straight back on.
+
+        :param event: the mouse press; its local and global positions decide
+            whether it landed outside the popover on the anchor button.
         """
         anchor = self.parentWidget()
         local = event.position().toPoint()
@@ -186,7 +193,11 @@ class DnaRainSettingsPopover(QFrame):
         super().mousePressEvent(event)
 
     def hideEvent(self, event):     # noqa: N802 (Qt override)
-        """Arm the guard if a click on the button is closing us."""
+        """Arm the guard if a click on the button is closing us.
+
+        :param event: the hide event; it is passed on to the base class
+            unchanged before ``closed`` is emitted.
+        """
         if self._replay_expected:
             self._hidden_at.restart()
             self._replay_expected = False
@@ -194,7 +205,11 @@ class DnaRainSettingsPopover(QFrame):
         self.closed.emit()
 
     def keyPressEvent(self, event):     # noqa: N802 (Qt override)
-        """Escape closes, like every other popup in the app."""
+        """Escape closes, like every other popup in the app.
+
+        :param event: the key event; Escape hides the popover and is accepted,
+            any other key goes to the base class.
+        """
         if event.key() == Qt.Key_Escape:
             self.hide()
             event.accept()
@@ -276,6 +291,9 @@ class DnaSettingsButton(AiToggleLabel):
         tabs hides this button rather than destroying it. Without this
         the popover would be left floating over whatever screen the user
         moved to.
+
+        :param event: the hide event; it is passed on to the base class after
+            the popover is hidden.
         """
         self._popover.hide()
         super().hideEvent(event)
