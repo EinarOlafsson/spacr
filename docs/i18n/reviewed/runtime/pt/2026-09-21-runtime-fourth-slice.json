@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "translation": "O instalador de {tools} ainda está em execução. Fechar esta tela agora interrompe a instalação.",
-      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
-    },
-    {
-      "table": "ui",
       "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
       "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
       "translation": "A última cor no céu — rosa e magenta sobre dourado suave, com o tom de ameixa que o horizonte assume pouco antes de escurecer.",
@@ -410,20 +403,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "translation": "spaCR não consegue instalar isso aqui por conta própria: precisa de {needs}, mas nenhum foi encontrado. Instale com:\n    {command}",
-      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "translation": "spaCR não consegue executar isso aqui por conta própria: precisa de {needs}, mas nenhum foi encontrado.",
-      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
-    },
-    {
-      "table": "ui",
       "key": "spaCR's own music",
       "source": "spaCR's own music",
       "translation": "Música de spaCR",
@@ -463,13 +442,6 @@
       "source": "{label} is installed.",
       "translation": "{label} está instalado.",
       "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "translation": "{label} ainda não está instalado.\n\nInstalar executa o comando abaixo neste computador: baixa e executa o instalador do próprio fornecedor e depois inicia a entrada na conta. spaCR nunca vê suas credenciais.",
-      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
     },
     {
       "table": "ui",
@@ -572,6 +544,48 @@
         "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
         "translation": "Qual modelo segmenta a região na caixa. Otsu aplica seu limiar à região e separa objetos que se tocam usando watershed; não exige instalação adicional, respeita a Área mínima em Operações de objetos, a correção do limiar e as demais opções da categoria Otsu, e é usado sempre que um modelo não pode ser carregado. Limiar adaptativo (Adaptive threshold), LoG blobs, DoG blobs, filtro de cristas (Ridge filter), histerese (Hysteresis) e U-Net são métodos próprios da detecção de organelas. Eles executam o mesmo código de uma execução de segmentação e leem a categoria Métodos de detecção; a dica de cada linha explica a que o método se adapta. Cellpose usa o modelo, os dois limiares, o diâmetro e a normalização definidos em Detecção de objetos, e é lento sem GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell e SAMCell sempre aparecem na lista, desabilitados até serem instalados; ao escolher um deles, é oferecida a instalação em um ambiente próprio. Cellpose 3 usa os dois limiares e o diâmetro de Detecção de objetos, DINOCell usa a probabilidade da célula e SAMCell usa seus próprios limiares."
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "translation": "O instalador de {tools} ainda está em execução. Fechar esta tela agora interrompe a instalação.",
+        "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "translation": "spaCR não consegue instalar isso aqui por conta própria: precisa de {needs}, mas nenhum foi encontrado. Instale com:\n    {command}",
+        "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "translation": "spaCR não consegue executar isso aqui por conta própria: precisa de {needs}, mas nenhum foi encontrado.",
+        "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "translation": "{label} ainda não está instalado.\n\nInstalar executa o comando abaixo neste computador: baixa e executa o instalador do próprio fornecedor e depois inicia a entrada na conta. spaCR nunca vê suas credenciais.",
+        "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

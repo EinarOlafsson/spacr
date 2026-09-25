@@ -25,13 +25,6 @@
     },
     {
       "table": "ui",
-      "key": "Create a GitHub account",
-      "source": "Create a GitHub account",
-      "translation": "创建一个 GitHub 帐户",
-      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
-    },
-    {
-      "table": "ui",
       "key": "Crops could not be loaded",
       "source": "Crops could not be loaded",
       "translation": "无法加载裁剪图像",
@@ -256,13 +249,6 @@
     },
     {
       "table": "ui",
-      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
-      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
-      "translation": "GitHub 登录尚未完成就已结束。请按下 Sign in（登录）重试。",
-      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
-    },
-    {
-      "table": "ui",
       "key": "Grow / shrink:",
       "source": "Grow / shrink:",
       "translation": "扩大 / 缩小：",
@@ -279,6 +265,28 @@
         "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Create a GitHub account",
+        "source": "Create a GitHub account",
+        "translation": "创建一个 GitHub 帐户",
+        "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+        "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+        "translation": "GitHub 登录尚未完成就已结束。请按下 Sign in（登录）重试。",
+        "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

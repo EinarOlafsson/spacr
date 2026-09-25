@@ -73,9 +73,9 @@
         },
         {
           "name": "2026-09-23-backend-installer.json",
-          "records": 45,
-          "sources": 45,
-          "sha256": "67ff63ebd969686783da0092a853e9f1af9b553dc594ea109a4e01489de99986"
+          "records": 44,
+          "sources": 44,
+          "sha256": "f96c968d9bba5e1cc5485490e81c342e05a7afa414ef8e7d628a26549842648d"
         },
         {
           "name": "2026-09-23-data-controls.json",
@@ -348,9 +348,9 @@
         },
         {
           "name": "2026-09-23-backend-installer.json",
-          "records": 45,
-          "sources": 45,
-          "sha256": "a154838e88a83046e261e43cf3389af057ab85be41f1b5cded2efd5a121e684c"
+          "records": 44,
+          "sources": 44,
+          "sha256": "bc6ab236e8b6014969d561fba6797cb087dc82ced9c672505ffe4d11b178b4a1"
         },
         {
           "name": "2026-09-23-data-controls.json",

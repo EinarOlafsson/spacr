@@ -68,13 +68,6 @@
     },
     {
       "table": "ui",
-      "key": "Resonance",
-      "source": "Resonance",
-      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
-      "translation": "공명"
-    },
-    {
-      "table": "ui",
       "key": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
       "source": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
       "source_sha256": "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
@@ -114,6 +107,18 @@
       "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
       "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
       "translation": "수면 아래의 바다색과 민트색, 그리고 따뜻한 색이 모두 흡수되고 마지막으로 남는 청록색입니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Resonance",
+        "source": "Resonance",
+        "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
+        "translation": "공명"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

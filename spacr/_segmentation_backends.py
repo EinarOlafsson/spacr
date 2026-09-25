@@ -171,7 +171,16 @@ _STRIPPED_VARIABLES = (
     "PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE",
     "PIP_USER", "PIP_TARGET", "PIP_PREFIX", "PIP_ROOT",
     "PIP_REQUIRE_VIRTUALENV", "__PYVENV_LAUNCHER__",
+    "DEEPCELL_ACCESS_TOKEN",
 )
+
+#: The variable DeepCell reads its access token from. It is stripped from
+#: every backend command above and handed back only to SpotNet's worker, so
+#: pip, the self-test and the other backends never see it.
+_DEEPCELL_TOKEN_ENV = "DEEPCELL_ACCESS_TOKEN"
+
+#: The archive deepcell-spots 0.4.2 fetches its SpotNet weights as.
+_SPOTNET_ARCHIVE = "SpotDetection-8.tar.gz"
 
 #: Variables that win over ``HF_HOME``, so pointing ``HF_HOME`` inside a
 #: backend's environment is not enough on its own. ``huggingface_hub``
@@ -432,7 +441,41 @@ class _BackendError(RuntimeError):
 
 
 class _BackendCancelled(RuntimeError):
-    """A request was abandoned mid-flight; its worker was stopped."""
+    """A request was abandoned mid-flight; its worker was stopped, or, for a
+    request sent with ``keep_on_cancel``, left to finish unheard."""
+
+
+def _final_lines(lines):
+    """What a terminal would show after ``lines``: a carriage return
+    overwrites.
+
+    A progress bar (tqdm, a download) redraws itself on one line by
+    printing ``\\r`` and the new state. Read as text, every redraw became a
+    line of its own, and an error that quoted the worker's last output
+    quoted forty stacked copies of one bar (item 507). Each line keeps the
+    text after its last carriage return that has any; a line that ENDS in a
+    carriage return is replaced by the next line, the way the bar replaced
+    it on screen.
+
+    :param lines: raw lines, with their line endings, as a stream reader
+        opened with ``newline=''`` returns them; a plain string is split.
+    :returns: the lines as they would stand, without their endings.
+    """
+    if isinstance(lines, str):
+        lines = lines.splitlines(keepends=True)
+    shown = []
+    overwrite = False
+    for raw in lines:
+        text = raw[:-2] if raw.endswith("\r\n") else raw.rstrip("\n")
+        pending = text.endswith("\r") and not raw.endswith("\r\n")
+        parts = [part for part in text.split("\r") if part.strip()]
+        text = parts[-1] if parts else ""
+        if overwrite and shown:
+            shown[-1] = text if text else shown[-1]
+        elif text or not pending:
+            shown.append(text)
+        overwrite = pending
+    return shown
 
 
 @dataclass(frozen=True)
@@ -1019,6 +1062,140 @@ def _worker_env(name, env):
     return environ
 
 
+def _deepcell_token_path():
+    """Where spaCR looks for a DeepCell access token on disk.
+
+    :returns: ``~/.spacr/deepcell_token``.
+    """
+    return os.path.join(os.path.expanduser("~"), ".spacr", "deepcell_token")
+
+
+def _deepcell_token(environ=None, path=None):
+    """The DeepCell access token SpotNet's weights are fetched with.
+
+    ``DEEPCELL_ACCESS_TOKEN`` wins when it is set; otherwise the first line
+    of ``~/.spacr/deepcell_token``, stripped. A token file other users can
+    read is still used, with a warning naming the file and the fix; the
+    token itself is never logged, printed or returned anywhere but here.
+
+    :param environ: the variables to read, :data:`os.environ` when None.
+    :param path: the token file, :func:`_deepcell_token_path` when None.
+    :returns: ``(token, source)``; ``(None, None)`` when there is none.
+    """
+    environ = os.environ if environ is None else environ
+    value = str(environ.get(_DEEPCELL_TOKEN_ENV, "") or "").strip()
+    if value:
+        return value, _DEEPCELL_TOKEN_ENV
+    path = path or _deepcell_token_path()
+    try:
+        with open(path, encoding="utf-8") as handle:
+            value = handle.read().strip()
+        mode = os.stat(path).st_mode
+    except (OSError, UnicodeDecodeError):
+        return None, None
+    if not value:
+        return None, None
+    if os.name != "nt" and mode & 0o077:
+        LOG.warning("%s can be read by other users; `chmod 600 %s` keeps "
+                    "the DeepCell token yours.", path, path)
+    return value, path
+
+
+def _serve_env(name, env):
+    """:func:`_worker_env` for a running worker: SpotNet's also gets the
+    DeepCell token, and no other process spaCR starts does, and a home
+    inside its environment (:func:`_spotnet_home`) so the weights it fetches
+    are removed with it. Installs keep the real home and its pip cache.
+    """
+    environ = _worker_env(name, env)
+    if name == _SPOTNET:
+        environ["HOME"] = environ["USERPROFILE"] = _spotnet_home(env)
+        token, _source = _deepcell_token()
+        if token:
+            environ[_DEEPCELL_TOKEN_ENV] = token
+    return environ
+
+
+def _spotnet_home(env):
+    """The home folder SpotNet's worker is given, inside its environment.
+
+    DeepCell caches its weights under ``Path.home() / ".deepcell"`` and
+    reads no variable that would move them, so the worker's home is this
+    folder: the weights then live and die with the environment.
+    """
+    return os.path.join(env, "home")
+
+
+def _spotnet_weights_cached(env):
+    """Whether SpotNet's weights are already inside its environment."""
+    return os.path.isfile(os.path.join(
+        _spotnet_home(env), ".deepcell", "models", _SPOTNET_ARCHIVE))
+
+
+def _credential_note(name, environ=None, token_path=None):
+    """What a backend's Model Zoo row says about its credentials, or ''.
+
+    Only SpotNet has any: where its DeepCell token goes, and whether spaCR
+    found one. The token itself is never part of the note.
+    """
+    if name != _SPOTNET:
+        return ""
+    _token, source = _deepcell_token(environ, token_path)
+    found = (f"A token was found in {source}." if source else
+             "No token was found.")
+    return (f"DeepCell access token: get a free one at users.deepcell.org, "
+            f"then set {_DEEPCELL_TOKEN_ENV} or put it alone in "
+            f"{token_path or _deepcell_token_path()} (chmod 600). Only "
+            f"SpotNet's own worker is given it. {found}")
+
+
+def _spotnet_readiness(root=None, environ=None, token_path=None):
+    """Whether SpotNet can detect spots now, and why not when it cannot.
+
+    It needs its environment installed and either its weights already
+    fetched into that environment or a DeepCell token to fetch them with.
+
+    :returns: ``(ready, reason)``; the reason says what to do.
+    """
+    state = _backend_state(_SPOTNET, root)
+    if not state.ready or state.in_process:
+        return False, (
+            f"SpotNet is not installed ({state.state}: {state.reason}) "
+            f"Install it from the Model Zoo.")
+    token, _source = _deepcell_token(environ, token_path)
+    if token or _spotnet_weights_cached(state.env):
+        return True, f"SpotNet is installed in {state.env}."
+    return False, (
+        f"SpotNet is installed but has no DeepCell access token to fetch "
+        f"its weights with. Get a free token at users.deepcell.org, then "
+        f"set {_DEEPCELL_TOKEN_ENV} or put it alone in "
+        f"{_deepcell_token_path()} (chmod 600).")
+
+
+def _detect_spots(image, threshold=0.95, root=None, worker_for=None):
+    """SpotNet's spots in one 2-D image, from its own environment.
+
+    :param image: an ``H x W`` array.
+    :param threshold: SpotNet's detection probability, 0 to 1.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :returns: an ``N x 2`` float array of ``(y, x)`` pixel coordinates.
+    :raises ImportError: when SpotNet cannot run here, with the reason.
+    """
+    ready, reason = _spotnet_readiness(root)
+    if not ready:
+        raise ImportError(reason)
+    env = _backend_state(_SPOTNET, root).env
+    with tempfile.TemporaryDirectory(prefix="spacr_spotnet_") as folder:
+        path = os.path.join(folder, "image.npy")
+        np.save(path, np.ascontiguousarray(image, dtype=np.float32),
+                allow_pickle=False)
+        reply = (worker_for or _worker_for)(_SPOTNET, env).request(
+            "detect_spots", image=path, threshold=float(threshold))
+    spots = np.asarray(reply.get("spots") or [], dtype=float)
+    return spots.reshape(-1, 2)
+
+
 def _detached(windows=None):
     """Popen arguments that give a child its own process group, so Cancel
     can stop it and everything it started.
@@ -1062,6 +1239,27 @@ def _kill_tree(proc, grace=5.0, windows=None):
     except OSError:
         pass
     proc.wait(timeout=grace)
+
+
+_MAX_ABANDONED = 2
+
+
+def _raw_lines(stream):
+    """``stream``'s lines with their carriage returns kept.
+
+    A pipe opened as text translates every ``\\r`` into a line break, and
+    a progress bar's redraws then read as separate lines. Reading the
+    underlying bytes with ``newline=''`` keeps each line's own ending, so
+    :func:`_final_lines` can tell a redraw from a new line. A stand-in
+    stream without bytes underneath is returned as it is.
+    """
+    import io
+
+    raw = getattr(stream, "buffer", None)
+    if raw is None:
+        return stream
+    return io.TextIOWrapper(raw, encoding="utf-8", errors="replace",
+                            newline="")
 
 
 def _pump(stream, sink, done=None):
@@ -1388,6 +1586,9 @@ class _WorkerProcess:
     :param worker: the worker script; this file when None.
     """
 
+    _abandoned = frozenset()
+    _overwrite = False
+
     def __init__(self, name, env, *, popen=None, worker=None):
         """Start the worker and ask it hello, which loads the package."""
         spec = _spec(name)
@@ -1397,22 +1598,24 @@ class _WorkerProcess:
         self.last_used = time.monotonic()
         self._replies = queue.Queue()
         self._stderr = collections.deque(maxlen=200)
+        self._overwrite = False
+        self._abandoned = set()
         self._lock = threading.Lock()
         self._next_id = 0
         self._proc = (popen or subprocess.Popen)(
             [_env_python(env), "-I", worker or _worker_path(), "--serve",
              spec.name],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, cwd=env, env=_worker_env(spec.name, env),
+            stderr=subprocess.PIPE, cwd=env, env=_serve_env(spec.name, env),
             text=True, encoding="utf-8", errors="replace", bufsize=1,
             **_detached())
         threading.Thread(
-            target=_pump, args=(self._proc.stdout, self._replies.put,
+            target=_pump, args=(self._proc.stdout, self._took,
                                 lambda: self._replies.put(None)),
             daemon=True).start()
         threading.Thread(
-            target=_pump, args=(self._proc.stderr, self._said), daemon=True
-        ).start()
+            target=_pump, args=(_raw_lines(self._proc.stderr), self._said),
+            daemon=True).start()
         try:
             self.hello = self.request("hello")
         except BaseException:
@@ -1420,10 +1623,33 @@ class _WorkerProcess:
             raise
 
     def _said(self, line):
-        """Keep the worker's own output for an error message."""
-        text = line.rstrip("\r\n")
-        self._stderr.append(text)
-        LOG.debug("%s: %s", self.name, text)
+        """Keep the worker's own output for an error message.
+
+        A line that ended in a carriage return is a progress bar about to
+        redraw itself, and the next line takes its place (see
+        :func:`_final_lines`), so the tail an error quotes holds each bar
+        once, in its last state.
+        """
+        shown = _final_lines([line])
+        text = shown[-1] if shown else ""
+        if self._overwrite and self._stderr:
+            self._stderr[-1] = text or self._stderr[-1]
+        elif text or not line.endswith("\r"):
+            self._stderr.append(text)
+        self._overwrite = line.endswith("\r") and not line.endswith("\r\n")
+        if not self._overwrite:
+            LOG.debug("%s: %s", self.name, text)
+
+    def _took(self, line):
+        """Queue one reply, dropping those to requests nobody waits for."""
+        try:
+            ident = json.loads(line).get("id")
+        except (ValueError, AttributeError):
+            ident = None
+        if ident is not None and ident in self._abandoned:
+            self._abandoned.discard(ident)
+            return
+        self._replies.put(line)
 
     @property
     def alive(self):
@@ -1432,8 +1658,32 @@ class _WorkerProcess:
 
     @property
     def busy(self):
-        """Whether a request is in flight."""
-        return self._lock.locked()
+        """Whether a request is in flight, heard or abandoned."""
+        return self._lock.locked() or bool(self._abandoned)
+
+    def _abandon(self, ident):
+        """Stop waiting for request ``ident`` without stopping the worker.
+
+        The worker is told, so a request still in its queue is skipped
+        rather than run; one already running finishes and its reply is
+        dropped. The worker keeps its loaded models, which is the point:
+        restarting it costs the environment's Python, torch, and every
+        model again (item 507 measured about 17 seconds for Cellpose 3's
+        restoration on this machine). Past :data:`_MAX_ABANDONED` requests
+        still owed, or when the worker cannot be told, it is stopped as
+        before.
+        """
+        self._abandoned.add(ident)
+        if len(self._abandoned) > _MAX_ABANDONED:
+            self.kill()
+            return
+        try:
+            self._proc.stdin.write(json.dumps(
+                {"protocol": _PROTOCOL, "id": 0, "op": "cancel",
+                 "target": ident}) + "\n")
+            self._proc.stdin.flush()
+        except (OSError, ValueError):
+            self.kill()
 
     def _stopped(self):
         """The error for a worker that went away, with its last words."""
@@ -1441,16 +1691,22 @@ class _WorkerProcess:
             code = self._proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             code = None
-        tail = "\n".join(list(self._stderr)[-40:]) or "(it printed nothing)"
+        tail = "\n".join(_final_lines(
+            "\n".join(list(self._stderr)[-40:]))) or "(it printed nothing)"
         return _BackendError(
             f"The {self.label} backend stopped (exit code {code}). Its last "
             f"output:\n{tail}")
 
-    def request(self, op, *, should_cancel=None, **payload):
+    def request(self, op, *, should_cancel=None, keep_on_cancel=False,
+                **payload):
         """Send one request and wait for its reply.
 
         :param op: ``hello``, ``segment`` or ``shutdown``.
         :param should_cancel: polled while waiting; True stops the worker.
+        :param keep_on_cancel: on a cancel, leave the worker running and
+            abandon the request instead (:meth:`_abandon`). For short
+            requests on a worker whose loaded models are worth keeping; a
+            long batch should stop, which is the default.
         :param payload: the request's other fields.
         :returns: the reply.
         :raises _BackendError: with the backend's own message, verbatim.
@@ -1470,7 +1726,10 @@ class _WorkerProcess:
                     line = self._replies.get(timeout=0.2)
                 except queue.Empty:
                     if should_cancel is not None and should_cancel():
-                        self.kill()
+                        if keep_on_cancel:
+                            self._abandon(ident)
+                        else:
+                            self.kill()
                         raise _BackendCancelled(
                             f"the {self.label} request was cancelled") from None
                     continue
@@ -1483,6 +1742,9 @@ class _WorkerProcess:
                         f"The {self.label} backend answered with something "
                         f"that is not a reply: {line.strip()[:500]}") from None
                 if not isinstance(reply, dict) or reply.get("id") != ident:
+                    if (isinstance(reply, dict)
+                            and reply.get("id") in self._abandoned):
+                        self._abandoned.discard(reply.get("id"))
                     continue
                 self.last_used = time.monotonic()
                 if reply.get("protocol") != _PROTOCOL:
@@ -1631,7 +1893,8 @@ def _restoration_plan(model, diameter, *, root=None, device="cpu",
         raise ImportError(_not_installed_message(_CELLPOSE3, state))
     worker = (worker_for or _worker_for)(_CELLPOSE3, state.env)
     reply = worker.request("restoration_model", should_cancel=should_cancel,
-                           model=model, device=device or "cpu")
+                           keep_on_cancel=True, model=model,
+                           device=device or "cpu")
     _check_restoration_cancel(should_cancel)
     identity = reply["identity"]
     return _RestorationPlan(
@@ -1644,6 +1907,25 @@ def _check_restoration_cancel(should_cancel):
     """Discard cancelled work even when its reply has already arrived."""
     if should_cancel is not None and should_cancel():
         raise _BackendCancelled("the restoration request was cancelled")
+
+
+_KEEP_PIXELS = 1 << 20
+
+
+def _keep_restoring(source, plan):
+    """Whether a cancelled restoration should finish in its worker rather
+    than stop it.
+
+    Stopping the worker throws away its Python, torch and loaded models,
+    about 5 to 10 seconds to rebuild on this machine's CPU (item 507), and
+    the next request pays that. Letting the cancelled request finish costs
+    whatever it had left. On a GPU, or on a CPU for a plane of at most
+    :data:`_KEEP_PIXELS` (a magnifier box: about half a second), finishing
+    is the cheaper; a whole field on a CPU (18 seconds for 1994 x 1994) is
+    cheaper to stop.
+    """
+    on_cpu = str(getattr(plan, "device", "cpu") or "cpu").startswith("cpu")
+    return not on_cpu or int(np.asarray(source).size) <= _KEEP_PIXELS
 
 
 def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
@@ -1664,7 +1946,8 @@ def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
         output_path = os.path.join(scratch, "output.npy")
         np.save(input_path, source, allow_pickle=False)
         reply = worker.request(
-            "restore", should_cancel=should_cancel, model=plan.model,
+            "restore", should_cancel=should_cancel,
+            keep_on_cancel=_keep_restoring(source, plan), model=plan.model,
             diameter=plan.diameter, device=plan.device,
             expected_identity=plan._identity(), input=input_path,
             output=output_path)
@@ -2619,17 +2902,54 @@ def _handle(name, request, adapters):
 
 
 def _serve(name, stdin, stdout):
-    """Answer requests from ``stdin`` on ``stdout`` until shutdown or EOF."""
+    """Answer requests from ``stdin`` on ``stdout`` until shutdown or EOF.
+
+    ``stdin`` is read on a thread of its own, so a ``cancel`` naming a
+    request that is still queued is heard while another one runs: the
+    cancelled one is answered with a ``Cancelled`` error and never started.
+    spaCR has already stopped waiting for it (item 507).
+    """
     adapters = {}
-    for line in stdin:
-        text = line.strip()
-        if not text:
-            continue
+    pending = queue.Queue()
+    cancelled = set()
+    guard = threading.Lock()
+    finished = object()
+
+    def read():
+        """Queue each request; note each cancel at once."""
         try:
-            request = json.loads(text)
-        except ValueError:
-            request = text
-        reply = _handle(name, request, adapters)
+            for line in stdin:
+                text = line.strip()
+                if not text:
+                    continue
+                try:
+                    request = json.loads(text)
+                except ValueError:
+                    request = text
+                if isinstance(request, dict) and request.get("op") == "cancel":
+                    with guard:
+                        cancelled.add(request.get("target"))
+                    continue
+                pending.put(request)
+        except (OSError, ValueError):
+            pass
+        pending.put(finished)
+
+    threading.Thread(target=read, daemon=True).start()
+    while True:
+        request = pending.get()
+        if request is finished:
+            break
+        ident = request.get("id") if isinstance(request, dict) else None
+        with guard:
+            skip = ident is not None and ident in cancelled
+            cancelled.discard(ident)
+        if skip:
+            reply = {"protocol": _PROTOCOL, "id": ident, "ok": False,
+                     "error": {"type": "Cancelled", "traceback": "",
+                               "message": "cancelled before it started"}}
+        else:
+            reply = _handle(name, request, adapters)
         stdout.write(json.dumps(reply) + "\n")
         stdout.flush()
         if isinstance(request, dict) and request.get("op") == "shutdown":

@@ -1,0 +1,82 @@
+{
+  "item": 475,
+  "date": "2026-09-25",
+  "install": {
+    "through": "spacr._segmentation_backends._install_backend('spotnet', torch_index=<cpu wheels>), the Model Zoo's own installer",
+    "interpreter": [
+      "/home/olafsson/anaconda3/envs/hugmunn/bin/python3.10"
+    ],
+    "python": "3.10.20",
+    "torch_index": "https://download.pytorch.org/whl/cpu",
+    "environment": "~/.spacr/backends/spotnet",
+    "seconds": 170.6,
+    "environment_bytes_apparent": 3165759137,
+    "versions": {
+      "deepcell-spots": "0.4.2",
+      "deepcell": "0.12.10",
+      "tensorflow": "2.8.4",
+      "keras": "2.8.0",
+      "torch": "2.14.0+cpu",
+      "torchvision": "0.29.0+cpu",
+      "numpy": "1.26.4",
+      "trackpy": "0.6.1",
+      "pip": "26.2.1"
+    },
+    "pip_check": "No broken requirements found.",
+    "selftest_device": "cpu"
+  },
+  "worker_without_token": {
+    "hello_seconds": 7.6,
+    "detect_spots_on": "10X_c2_A1_CY3_Site-331.tif (1480 x 1480 uint16)",
+    "result": "ValueError from deepcell.utils.fetch_data: DEEPCELL_ACCESS_TOKEN not found",
+    "worker_home_created": [
+      "~/.spacr/backends/spotnet/home/.deepcell",
+      ".keras",
+      ".cache",
+      ".config"
+    ],
+    "real_home_dot_deepcell_created": false
+  },
+  "comparison": {
+    "item": 475,
+    "plate": "20200202_6W-LaC024A",
+    "well": "A1",
+    "sites": [
+      331,
+      332
+    ],
+    "library_size": 20445,
+    "match_radius_px": 2.0,
+    "note": "Owned reads only: the positions compared are the reads each detector's field gave to a nucleus it owns.",
+    "native": {
+      "fields_decoded": 2,
+      "skipped": {},
+      "spots": 22733,
+      "reads_owned": 17668,
+      "spots_library_exact": 18194,
+      "objects_with_a_read": 7870,
+      "objects_assigned": 3476,
+      "objects_assigned_library_exact": 3314,
+      "assigned_library_exact_rate": 0.9534,
+      "seconds": 27.1,
+      "field_seconds": [
+        {
+          "read": 0.15,
+          "align": 9.72,
+          "spots": 3.02,
+          "call_attribute": 0.12
+        },
+        {
+          "read": 0.14,
+          "align": 10.87,
+          "spots": 2.92,
+          "call_attribute": 0.12
+        }
+      ]
+    },
+    "spotnet": {
+      "not_run": "SpotNet is installed but has no DeepCell access token to fetch its weights with. Get a free token at users.deepcell.org, then set DEEPCELL_ACCESS_TOKEN or put it alone in /home/olafsson/.spacr/deepcell_token (chmod 600)."
+    }
+  },
+  "scope": "Real install and a real worker start on this machine; no DeepCell token exists here, so no SpotNet weights and no SpotNet detection. The native half of the comparison is real (two real fields of plate 20200202_6W-LaC024A well A1)."
+}

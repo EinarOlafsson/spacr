@@ -410,20 +410,6 @@
     },
     {
       "table": "ui",
-      "key": "An install is still running",
-      "source": "An install is still running",
-      "translation": "Une installation est toujours en cours d'exécution",
-      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
-    },
-    {
-      "table": "ui",
-      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "translation": "Une autre installation est encore en cours. Attendez sa fin ou appuyez sur Annuler sous les repères.",
-      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
-    },
-    {
-      "table": "ui",
       "key": "At most:",
       "source": "At most:",
       "translation": "Au maximum :",
@@ -549,6 +535,28 @@
         "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "An install is still running",
+        "source": "An install is still running",
+        "translation": "Une installation est toujours en cours d'exécution",
+        "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "translation": "Une autre installation est encore en cours. Attendez sa fin ou appuyez sur Annuler sous les repères.",
+        "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

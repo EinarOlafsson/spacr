@@ -11,20 +11,6 @@
     },
     {
       "table": "ui",
-      "key": "An install is still running",
-      "source": "An install is still running",
-      "translation": "설치가 계속 진행되고 있습니다.",
-      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
-    },
-    {
-      "table": "ui",
-      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "translation": "다른 설치가 아직 진행 중입니다. 완료될 때까지 기다리거나 표시 아래의 Cancel을 누르세요.",
-      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
-    },
-    {
-      "table": "ui",
       "key": "At most:",
       "source": "At most:",
       "translation": "최대:",
@@ -151,13 +137,6 @@
     },
     {
       "table": "ui",
-      "key": "Create a GitHub account",
-      "source": "Create a GitHub account",
-      "translation": "GitHub 계정 만들기",
-      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
-    },
-    {
-      "table": "ui",
       "key": "Crops could not be loaded",
       "source": "Crops could not be loaded",
       "translation": "크롭을 불러오지 못했습니다",
@@ -273,6 +252,38 @@
         "translation": "채널",
         "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "An install is still running",
+        "source": "An install is still running",
+        "translation": "설치가 계속 진행되고 있습니다.",
+        "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "translation": "다른 설치가 아직 진행 중입니다. 완료될 때까지 기다리거나 표시 아래의 Cancel을 누르세요.",
+        "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Create a GitHub account",
+        "source": "Create a GitHub account",
+        "translation": "GitHub 계정 만들기",
+        "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

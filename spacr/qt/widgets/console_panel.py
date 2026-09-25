@@ -970,13 +970,20 @@ class ConsolePanel(QWidget):
     _relay_notice = Signal(str, object)
 
     def __init__(self, active_app_label: str = "", parent=None,
-                 persist_key: str = ""):
+                 persist_key: str = "", *, follow_log: bool = True,
+                 chat: bool = True):
         """
         :param active_app_label: the app name shown in the output banner.
         :param parent: parent widget.
         :param persist_key: screen key the console/chat split is remembered
             against (usually the screen's ``app_key``). Empty means the split
             is not persisted, which is what a bare panel in a test wants.
+        :param follow_log: False keeps the application-wide log out of this
+            panel, for a screen whose console carries only its own messages
+            (Make Masks); the log still reaches the file and the shell's
+            console.
+        :param chat: False hides the chat row, for a console that only
+            reports.
         """
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
@@ -1013,11 +1020,14 @@ class ConsolePanel(QWidget):
         self._relay_notice.connect(self._append_notice_on_gui_thread)
 
         self._build_ui()
-        try:
-            from ..logging_util import get_signal_handler
-            get_signal_handler().record_ready.connect(self._on_log_record)
-        except Exception:
-            pass
+        if not chat:
+            self._chat_row.setVisible(False)
+        if follow_log:
+            try:
+                from ..logging_util import get_signal_handler
+                get_signal_handler().record_ready.connect(self._on_log_record)
+            except Exception:
+                pass
         retranslate_widget_tree(self)
 
     def _build_ui(self):

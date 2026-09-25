@@ -1,0 +1,40 @@
+LOAD TEST DATA FILLS THE SOURCE, AND LIVE SHOWS IT AT ONCE
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 494 (demos retired in favour of test data),
+450/451/460 (the test-data buttons per module), 464 (every live preview can
+be refreshed).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "when i press the load test data button in mask generation (and i think
+    this happens in other modules to) Sours says <src> and i open live and
+    see nothing. i then have to press the loade test data button again and
+    theimages apear. this is not intuitive and the test data path should
+    automatically fill the sourse setting not <src>. so if the user presses
+    load test data and then live they should always see the test images in
+    live right away."
+
+WHAT IS WRONG
+In Mask generation, pressing "Load test data" leaves the Source (src)
+setting showing the placeholder <src>, and turning Live on shows nothing.
+Pressing "Load test data" a second time makes the images appear. The
+maintainer suspects other modules behave the same way.
+
+WHAT TO BUILD
+  * One press of "Load test data" writes the real test-data path into the
+    src setting (the field shows the path, never <src>), in every module
+    that has the button. Find them all (grep the screens for the test-data
+    action) rather than fixing Mask generation alone.
+  * If Live is already on, it reloads from the new src straight away; if it
+    is turned on afterwards, it opens on the test images. No second press.
+  * Find out why the first press does not take: whether the download or
+    extraction finishes after the setting is written, the setting is
+    written before the path exists, or the live preview reads src before
+    the signal arrives. Fix the order, not the symptom.
+
+DONE WHEN
+In every module with "Load test data": one press, then Live, shows the test
+images, and the Source field shows the real path, checked with an offscreen
+test per module that presses the button once (with the download faked or
+already cached) and asserts both the src value and that the live preview
+received a field.

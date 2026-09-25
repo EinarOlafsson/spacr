@@ -365,3 +365,64 @@ def test_a_refusal_is_explained_against_the_objects_that_were_numbered(
     # message's "raise the overlap" remedy is actually for.
     assert found["wider_than_the_overlap"] == found["groups"]
     assert objects["strict_refusal"].startswith(f"{found['groups']} group(s)")
+
+
+def test_spotnet_positions_feed_the_same_assignment(engine_run, tmp_path,
+                                                    monkeypatch):
+    """Item 475: with ``ops_spot_detector='spotnet'`` the reads are called at
+    SpotNet's positions and go through the same bases, calls and assignment.
+
+    SpotNet itself is a stand-in here -- the brightest pixels of the image
+    the engine hands it, returned off-pixel as SpotNet's floats are -- so
+    this checks the plumbing, not the model. Asking for two workers decodes
+    in one, since SpotNet runs in a single worker of its own.
+    """
+    import pandas as pd
+
+    from spacr import _segmentation_backends as backends
+    from spacr.ops_sbs import find_peaks
+
+    result, settings, library = engine_run[0], engine_run[5], engine_run[6]
+    calls = []
+
+    def fake_spotnet(image, threshold=0.95, **_):
+        calls.append(image.shape)
+        peaks = find_peaks(ndimage.gaussian_filter(image, 1.0), min_distance=2)
+        if not peaks.size:
+            return peaks.astype(float)
+        keep = image[peaks[:, 0], peaks[:, 1]] > 0.5
+        return peaks[keep].astype(float) + 0.3
+
+    monkeypatch.setattr(backends, "_spotnet_readiness", lambda: (True, ""))
+    monkeypatch.setattr(backends, "_detect_spots", fake_spotnet)
+    out = tmp_path / "spotnet"
+    again = ops_engine.run_ops({**settings, "dst_root": str(out),
+                                "ops_spot_detector": "spotnet",
+                                "n_workers": 2}, library=library)
+    decode = again["wells"]["A1"]["decode"]
+    assert decode["spot_detector"] == "spotnet"
+    assert decode["workers"] == 1
+    assert calls and decode["spots"] > 0
+    with sqlite3.connect(result["db"]) as conn:
+        native = pd.read_sql_query("SELECT object_id, barcode FROM ops_barcodes",
+                                   conn).set_index("object_id")["barcode"]
+    with sqlite3.connect(again["db"]) as conn:
+        spotnet = pd.read_sql_query("SELECT object_id, barcode FROM ops_barcodes",
+                                    conn).set_index("object_id")["barcode"]
+    shared = native.index.intersection(spotnet.index)
+    assert len(shared) >= 0.9 * len(native)
+    assert (native[shared] == spotnet[shared]).mean() >= 0.9
+
+
+def test_spotnet_that_cannot_run_stops_the_run_before_it_starts(
+        engine_run, tmp_path, monkeypatch):
+    """Refused with the reason before anything is written, never swapped."""
+    from spacr import _segmentation_backends as backends
+
+    settings = engine_run[5]
+    monkeypatch.setattr(backends, "_spotnet_readiness",
+                        lambda: (False, "SpotNet is not installed"))
+    with pytest.raises(ValueError, match="SpotNet is not installed"):
+        ops_engine.run_ops({**settings, "dst_root": str(tmp_path / "x"),
+                            "ops_spot_detector": "spotnet"})
+    assert not (tmp_path / "x" / "measurements.db").exists()

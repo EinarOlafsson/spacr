@@ -1959,7 +1959,8 @@ def _correct_v1_segmentation_batch(
     from .measure_hooks import PreprocessingContext
 
     working = np.array(stack, copy=True, dtype=(
-        np.float32 if psf_session is not None and psf_session.plan else None))
+        np.float32 if psf_session is not None and psf_session.processes
+        else None))
     field_ids = []
     for index, filename in enumerate(filenames):
         field_id = os.path.splitext(os.path.basename(str(filename)))[0]
@@ -1997,7 +1998,8 @@ def _concatenate_and_normalize_impl(
         session. It corrects private copies of the selected channels before
         normalisation and records completion only after each NPZ is durable.
     :param psf_session: optional PSF session captured for this run. Applies
-        after illumination on each field before padding or normalization;
+        the PSF, or the whole enhancement chain when one is on, after
+        illumination on each field before padding or normalization;
         preserves floating point intensities and records archive identities.
     :param only_fields: when given, the field stems to normalise; every other
         ``.npy`` in ``src`` is left out. Used, without a timelapse, to rebuild
@@ -3030,8 +3032,9 @@ def _resume_normalized_archives(settings, src, mask_channels):
     stack_path = os.path.join(src, 'stack')
     masks_path = os.path.join(src, 'masks')
     from zipfile import BadZipFile
-    from .psf_pipeline import validate_psf_resume, _record_path
-    psf_tracked = (settings.get('psf_operation', 'none') != 'none' or
+    from .psf_pipeline import (validate_psf_resume, _record_path,
+                               processing_requested)
+    psf_tracked = (processing_requested(settings) or
                    _record_path(src).exists())
     if psf_tracked:
         try:

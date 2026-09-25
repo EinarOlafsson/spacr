@@ -354,20 +354,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "translation": "spaCR no puede instalarlo aquí automáticamente: necesita {needs} y no lo ha encontrado. Instálelo con:\n    {command}",
-      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "translation": "spaCR no puede ejecutarlo aquí automáticamente: necesita {needs} y no lo ha encontrado.",
-      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
-    },
-    {
-      "table": "ui",
       "key": "spaCR's own music",
       "source": "spaCR's own music",
       "translation": "Música propia de spaCR",
@@ -407,13 +393,6 @@
       "source": "{label} is installed.",
       "translation": "{label} está instalado.",
       "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "translation": "{label} aún no está instalado.\n\nInstalar ejecuta el comando de abajo en este equipo: descarga y ejecuta el instalador del proveedor y después inicia la autenticación. spaCR nunca ve sus credenciales.",
-      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
     },
     {
       "table": "ui",
@@ -516,6 +495,38 @@
         "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
         "translation": "Modelo que segmenta la región del recuadro. Otsu aplica su umbral y separa los objetos en contacto mediante segmentación por cuencas; no requiere instalaciones adicionales, respeta el área mínima de Operaciones de objetos, la corrección del umbral y los demás ajustes de Otsu, y se usa cuando no se puede cargar un modelo. El umbral adaptativo (Adaptive threshold), LoG blobs, DoG blobs, el filtro de crestas (Ridge filter), la histéresis (Hysteresis) y U-Net son métodos propios de la detección de orgánulos. Ejecutan el mismo código que una ejecución de segmentación y leen la categoría Métodos de detección; la ayuda de cada fila explica para qué resulta adecuado el método. Cellpose usa el modelo, ambos umbrales, el diámetro y la normalización de Detección de objetos; es lento sin GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell y SAMCell siempre aparecen en la lista, atenuados hasta que se instalan. Al elegir uno, se ofrece instalarlo en su propio entorno. Cellpose 3 usa ambos umbrales y el diámetro de Detección de objetos; DINOCell usa la probabilidad celular, y SAMCell usa sus propios umbrales."
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "translation": "spaCR no puede instalarlo aquí automáticamente: necesita {needs} y no lo ha encontrado. Instálelo con:\n    {command}",
+        "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "translation": "spaCR no puede ejecutarlo aquí automáticamente: necesita {needs} y no lo ha encontrado.",
+        "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "translation": "{label} aún no está instalado.\n\nInstalar ejecuta el comando de abajo en este equipo: descarga y ejecuta el instalador del proveedor y después inicia la autenticación. spaCR nunca ve sus credenciales.",
+        "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

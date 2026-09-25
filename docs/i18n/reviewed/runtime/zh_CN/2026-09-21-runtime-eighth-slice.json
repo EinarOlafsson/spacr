@@ -95,20 +95,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "translation": "spaCR 无法在此自行安装：需要 {needs}，但未找到。请使用以下命令安装：\n    {command}",
-      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "translation": "spaCR 无法在此自行运行：需要 {needs}，但未找到。",
-      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
-    },
-    {
-      "table": "ui",
       "key": "spaCR's own music",
       "source": "spaCR's own music",
       "translation": "spaCR 自带音乐",
@@ -148,13 +134,6 @@
       "source": "{label} is installed.",
       "translation": "{label} 已安装。",
       "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "translation": "{label} 尚未安装。\n\n“安装”会在本机运行下方命令：下载并运行供应商自己的安装程序，然后启动登录。spaCR 绝不会看到您的凭据。",
-      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
     },
     {
       "table": "ui",
@@ -211,6 +190,38 @@
       "source": "{name} is not installed. Choosing it offers to install it.",
       "translation": "{name} 尚未安装。选择后会提示安装。",
       "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff"
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "translation": "spaCR 无法在此自行安装：需要 {needs}，但未找到。请使用以下命令安装：\n    {command}",
+        "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "translation": "spaCR 无法在此自行运行：需要 {needs}，但未找到。",
+        "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "translation": "{label} 尚未安装。\n\n“安装”会在本机运行下方命令：下载并运行供应商自己的安装程序，然后启动登录。spaCR 绝不会看到您的凭据。",
+        "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

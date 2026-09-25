@@ -28,6 +28,7 @@ from playwright.sync_api import sync_playwright
 from check_completed_matrix import digest
 from coming_soon import COPY, first_placeholder
 from stage_lesson import read, write
+from stage_web_renditions import web_dimensions
 from validate_candidate import validate
 from verify_staged_lesson import Handler
 
@@ -228,7 +229,7 @@ def verify(root, *, placeholders_only=False, published=None):
                     clocks['seek_elapsed_seconds'] = time.monotonic() - seek_started
                     assert requested - .25 <= clocks['audio'] < requested + clocks['seek_elapsed_seconds'] + .5, (identity, clocks)
                     assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
-                    assert (clocks['width'], clocks['height']) == (2560, 1440), (identity, clocks)
+                    assert (clocks['width'], clocks['height']) == web_dimensions(identity), (identity, clocks)
                     for _ in range(2):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')

@@ -249,13 +249,6 @@
     },
     {
       "table": "ui",
-      "key": "Resonance",
-      "source": "Resonance",
-      "translation": "Résonance",
-      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073"
-    },
-    {
-      "table": "ui",
       "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
       "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
       "translation": "Les lignes représentent les champs ; les colonnes représentent les canaux et les types de masques. Déposez des fichiers n'importe où dans ce tableau ou double-cliquez sur une cellule pour sélectionner le fichier correspondant.",
@@ -316,13 +309,6 @@
       "source": "Sending the approved report to GitHub…",
       "translation": "Envoi du rapport approuvé à GitHub…",
       "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0"
-    },
-    {
-      "table": "ui",
-      "key": "Set up the GitHub CLI",
-      "source": "Set up the GitHub CLI",
-      "translation": "Configurer GitHub CLI",
-      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029"
     },
     {
       "table": "ui",
@@ -445,13 +431,6 @@
     },
     {
       "table": "ui",
-      "key": "Stop it and close",
-      "source": "Stop it and close",
-      "translation": "Arrêter et fermer",
-      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b"
-    },
-    {
-      "table": "ui",
       "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
       "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
       "translation": "L'attente de la connexion a été interrompue. Appuyez sur Se connecter pour la relancer, ou sur Terminé une fois connecté.",
@@ -484,13 +463,6 @@
       "source": "Test on my folder",
       "translation": "Tester sur mon dossier",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592"
-    },
-    {
-      "table": "ui",
-      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
-      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
-      "translation": "GitHub CLI n'est pas installé.\n\nAvec cet outil, spaCR dépose un rapport sous votre compte GitHub sans ouvrir le navigateur. Sans lui, les rapports s'ouvrent dans votre navigateur.",
-      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
     },
     {
       "table": "ui",
@@ -540,6 +512,48 @@
         "translation": "La loupe en direct utilise aussi ces paramètres : le mode Cellpose utilise le modèle, les deux seuils, le diamètre et la normalisation ; DINOCell utilise la probabilité cellulaire. Le mode Otsu utilise les paramètres de la catégorie Otsu.",
         "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Resonance",
+        "source": "Resonance",
+        "translation": "Résonance",
+        "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Set up the GitHub CLI",
+        "source": "Set up the GitHub CLI",
+        "translation": "Configurer GitHub CLI",
+        "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Stop it and close",
+        "source": "Stop it and close",
+        "translation": "Arrêter et fermer",
+        "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+        "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+        "translation": "GitHub CLI n'est pas installé.\n\nAvec cet outil, spaCR dépose un rapport sous votre compte GitHub sans ouvrir le navigateur. Sans lui, les rapports s'ouvrent dans votre navigateur.",
+        "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

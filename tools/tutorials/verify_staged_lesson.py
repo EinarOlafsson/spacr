@@ -332,7 +332,8 @@ def main():
                             width: elements.video.videoWidth, height: elements.video.videoHeight};
                 }''')
                 assert video['sha256'] == rendition['rendition_sha256'], video
-                assert [video['width'], video['height']] == [2560, 1440], video
+                from stage_web_renditions import web_dimensions
+                assert [video['width'], video['height']] == list(web_dimensions(args.lesson)), video
                 evidence['checked_web_rendition'] = video
             page.evaluate('elements.audio.pause(); elements.video.pause()')
             # Chapter navigation can leave the viewport halfway down the page.

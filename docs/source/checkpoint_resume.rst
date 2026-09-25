@@ -12,13 +12,23 @@ Supported workflows
 -------------------
 
 Mask
-   Enable ``resume`` in Advanced settings. Complete mask and merged ``.npy``
-   fields are structurally validated. Missing, empty, or truncated arrays are
-   regenerated, and new mask arrays are written with temporary-file plus atomic
-   replace semantics.
+   Masks are matched to fields by exact filename. An object role is skipped
+   only when every ``.npy`` field in ``stack/`` has a structurally complete
+   mask of the same name; a missing, empty, or truncated mask sends the role
+   back through segmentation. An unrelated mask cannot stand in for a missing
+   field, and extra masks do not force complete fields to run again. Enable
+   ``resume`` under **Workflow & Test Run** to also keep verified
+   ``merged/*.npy`` fields instead of rebuilding them. New mask arrays are
+   written with temporary-file plus atomic replace semantics. Cell adjustment
+   first checks that the pathogen, cell, and nucleus folders hold the same
+   field filenames with complete masks of matching dimensions; if they
+   differ, it stops before changing any mask. With ``timelapse`` and
+   ``motility_analysis`` on, the motility assay runs once per plate, after
+   every object role and merged frame is complete, and rebuilds its
+   measurements from the current masks rather than reusing an earlier table.
 
 Measure
-   Enable ``resume`` in Advanced settings. A field is skipped only when every
+   Enable ``resume`` under **Runtime & Reliability**. A field is skipped only when every
    Measure-owned table in ``measurements.db`` is complete. Partial field rows
    are cleared in one transaction before remeasurement, while tables owned by
    conversion, alignment, or other modules are never deleted.

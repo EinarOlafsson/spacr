@@ -75,3 +75,22 @@ def test_encoded_video_has_frequent_seek_points_without_changing_frame_clock(tmp
     assert keyframes[0] == 0
     boundaries = [*keyframes, timestamps[-1] + 1 / 30]
     assert max(right - left for left, right in zip(boundaries, boundaries[1:])) <= 2.000001
+
+
+def test_only_the_pathway_overviews_use_an_exact_1080p_web_copy(videos):
+    from types import SimpleNamespace
+    from stage_web_renditions import REDUCED_WEB_DIMENSIONS, encoder_arguments, web_dimensions
+    assert set(REDUCED_WEB_DIMENSIONS) == {'78_spacr_screens', '79_module_inputs_outputs',
+                                           '80_image_analysis_pathways', '81_sequencing_pathways'}
+    assert web_dimensions('79_module_inputs_outputs') == (1920, 1080)
+    assert web_dimensions('07_mask') == (2560, 1440)
+    source, target = videos
+    reduced = deepcopy(target)
+    reduced['streams'][0].update(width=1920, height=1080)
+    require_video(source, reduced, web_dimensions('79_module_inputs_outputs'))
+    for lesson, copy in (('79_module_inputs_outputs', target), ('07_mask', reduced)):
+        with pytest.raises(ValueError):
+            require_video(source, copy, web_dimensions(lesson))
+    publisher = SimpleNamespace(ENCODE_ARGS=['-vf', "scale='min(2560,iw)':-2", '-g', '60'])
+    assert encoder_arguments(publisher, '80_image_analysis_pathways') == ['-vf', "scale='min(1920,iw)':-2", '-g', '60']
+    assert encoder_arguments(publisher, '07_mask') == publisher.ENCODE_ARGS

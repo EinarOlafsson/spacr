@@ -1486,6 +1486,14 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 'Set calibrated Y/X sampling and a matching measured kernel '
                 'or explicit Gaussian FWHM, or switch psf_operation to none.'))
 
+    if app in ('mask', 'timelapse'):
+        from .psf_pipeline import chain_problems
+        for key, message in chain_problems(settings):
+            problems.append(Problem(
+                ERROR, key, f'Image enhancement cannot run: {message}.',
+                'Choose one of the listed methods or a value in range, or '
+                'switch that enhancement step off.'))
+
     if app == "explain_cv":
         for key, label in (("db_path", "measurements database"),
                            ("predictions_file", "prediction CSV")):

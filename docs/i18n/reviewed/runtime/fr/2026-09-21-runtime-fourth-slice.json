@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "translation": "Le programme d'installation de {tools} est encore en cours. Fermer cette fenêtre maintenant l'arrêtera.",
-      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
-    },
-    {
-      "table": "ui",
       "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
       "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
       "translation": "Les dernières couleurs du ciel : rose et magenta sur un or poudré, avec la teinte prune que prend l'horizon juste avant la nuit.",
@@ -410,20 +403,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "translation": "spaCR ne peut pas l'installer seul ici : {needs} est nécessaire, mais introuvable. Installez avec :\n    {command}",
-      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "translation": "spaCR ne peut pas exécuter cette commande seul ici : {needs} est nécessaire, mais introuvable.",
-      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
-    },
-    {
-      "table": "ui",
       "key": "spaCR's own music",
       "source": "spaCR's own music",
       "translation": "Musique fournie par spaCR",
@@ -463,13 +442,6 @@
       "source": "{label} is installed.",
       "translation": "{label} est installé.",
       "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "translation": "{label} n'est pas encore installé.\n\nInstaller exécute la commande ci-dessous sur cet ordinateur : elle télécharge le programme d'installation du fournisseur, l'exécute, puis lance la connexion. spaCR n'a jamais accès à vos identifiants d'accès.",
-      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
     },
     {
       "table": "ui",
@@ -572,6 +544,48 @@
         "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
         "translation": "Modèle segmentant la région dans la zone. Otsu seuille la région au seuil d'Otsu et sépare les objets qui se touchent par ligne de partage des eaux ; il ne nécessite aucune installation, respecte l'aire minimale définie dans Opérations sur les objets, la correction du seuil et les autres paramètres de la catégorie Otsu, et s'exécute lorsqu'un modèle ne peut pas être chargé. Le seuillage adaptatif (Adaptive threshold), LoG blobs, DoG blobs, le filtre de crêtes (Ridge filter), l’hystérésis (Hysteresis) et U-Net sont les méthodes propres à la détection d’organites. Elles utilisent le même code qu’une exécution de segmentation et lisent la catégorie Méthodes de détection ; l’infobulle de chaque ligne précise à quoi la méthode convient. Cellpose utilise le modèle, les deux seuils, le diamètre et la normalisation définis dans Détection d'objets, et est lent sans GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell et SAMCell restent toujours dans la liste, grisés tant qu'ils ne sont pas installés. Les choisir propose de les installer dans leur propre environnement. Cellpose 3 utilise les deux seuils et le diamètre de Détection d'objets, DINOCell utilise la probabilité cellulaire et SAMCell utilise ses propres seuils."
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "translation": "Le programme d'installation de {tools} est encore en cours. Fermer cette fenêtre maintenant l'arrêtera.",
+        "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "translation": "spaCR ne peut pas l'installer seul ici : {needs} est nécessaire, mais introuvable. Installez avec :\n    {command}",
+        "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "translation": "spaCR ne peut pas exécuter cette commande seul ici : {needs} est nécessaire, mais introuvable.",
+        "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "translation": "{label} n'est pas encore installé.\n\nInstaller exécute la commande ci-dessous sur cet ordinateur : elle télécharge le programme d'installation du fournisseur, l'exécute, puis lance la connexion. spaCR n'a jamais accès à vos identifiants d'accès.",
+        "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

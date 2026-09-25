@@ -151,20 +151,6 @@
     },
     {
       "table": "ui",
-      "key": "An install is still running",
-      "source": "An install is still running",
-      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
-      "translation": "Una instalación todavía se está ejecutando"
-    },
-    {
-      "table": "ui",
-      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
-      "translation": "Otra instalación todavía está en ejecución. Espere a que termine, o presione Cancelar bajo las marcas."
-    },
-    {
-      "table": "ui",
       "key": "At most:",
       "source": "At most:",
       "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
@@ -297,6 +283,28 @@
         "translation": "Factor de corrección del umbral: el nivel de Otsu se multiplica por este valor antes de utilizarlo. Por encima de 1 es más estricto: los objetos se reducen y los tenues desaparecen; por debajo de 1 incluye píxeles más oscuros; 1 conserva el nivel original de Otsu. Lo utilizan tanto la detección con Otsu como el modo Otsu de la lupa en vivo cuando una región contiene dos poblaciones claramente diferenciadas."
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "An install is still running",
+        "source": "An install is still running",
+        "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
+        "translation": "Una instalación todavía se está ejecutando"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
+        "translation": "Otra instalación todavía está en ejecución. Espere a que termine, o presione Cancelar bajo las marcas."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }
