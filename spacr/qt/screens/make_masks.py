@@ -6884,6 +6884,210 @@ class NapariBridgeScreen(QWidget):
 
 
 
+class ObjectFilterList(QWidget):
+    """Make Masks' object filters: one row per regionprop the user added.
+
+    Item 511. The Filter category used to hold four fixed boxes -- minimum
+    and maximum area, minimum and maximum mean intensity. It now starts
+    EMPTY, and "Add a filter" offers every scalar property
+    :func:`skimage.measure.regionprops` computes (see
+    :func:`mask_engine.filter_properties`); each added row carries the
+    property, a minimum, a maximum and a Remove button. A blank bound is
+    off. The old four are two of the rows a user can add: ``area`` and
+    ``intensity_mean``.
+
+    The intensity statistics are offered only while an intensity image is
+    open (:meth:`set_intensity_available`), so a property that cannot be
+    measured is never offered, rather than offered and refused later.
+
+    :meth:`filters` is the serialised list -- the same one Mask generation
+    reads from ``object_filters`` -- and :attr:`changed` fires whenever it
+    may have changed, which is what applies the list live.
+    """
+
+    changed = Signal()
+    row_added = Signal(object)
+
+    def __init__(self, parent=None):
+        """Build the Add control and the empty row list."""
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self._rows: List[dict] = []
+        self._intensity = False
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(SPACING["xs"])
+        self._rows_layout = QVBoxLayout()
+        self._rows_layout.setSpacing(SPACING["xs"])
+        column.addLayout(self._rows_layout)
+        adder = QHBoxLayout()
+        self.property_box = QComboBox()
+        self.property_box.setToolTip(tr(
+            "The scikit-image regionprop the next filter row judges objects "
+            "by. Intensity statistics are listed only while an image is "
+            "open, since they read the raw pixel values."))
+        self.add_button = QPushButton(tr("Add a filter"))
+        self.add_button.setCursor(Qt.PointingHandCursor)
+        self.add_button.setToolTip(tr(
+            "Add a row for the property on the left, with a minimum and a "
+            "maximum. A blank bound is off; an object outside a bound is "
+            "hidden, and removing the row brings it back."))
+        self.add_button.clicked.connect(self._on_add)
+        adder.addWidget(self.property_box, 1)
+        adder.addWidget(self.add_button)
+        column.addLayout(adder)
+        self._offer()
+
+    def set_intensity_available(self, available: bool) -> None:
+        """Offer the intensity properties only when an image is open."""
+        self._intensity = bool(available)
+        self._offer()
+
+    def _offer(self) -> None:
+        """Fill the property box with what can be measured right now."""
+        chosen = self.property_box.currentText()
+        names = engine.filter_properties(intensity=self._intensity)
+        self.property_box.blockSignals(True)
+        self.property_box.clear()
+        self.property_box.addItems(list(names))
+        if chosen in names:
+            self.property_box.setCurrentText(chosen)
+        self.property_box.blockSignals(False)
+        self.add_button.setEnabled(bool(names))
+
+    def offered(self) -> List[str]:
+        """The properties the Add control offers now."""
+        return [self.property_box.itemText(i)
+                for i in range(self.property_box.count())]
+
+    def _on_add(self) -> None:
+        """Add a row for the property the box shows."""
+        name = self.property_box.currentText()
+        if name:
+            self.add_filter(name)
+
+    def _bound_edit(self, value, placeholder: str) -> QLineEdit:
+        """One bound's box: a number or blank, with blank meaning off."""
+        from PySide6.QtCore import QLocale
+        from PySide6.QtGui import QDoubleValidator
+
+        edit = QLineEdit()
+        validator = QDoubleValidator(edit)
+        validator.setLocale(QLocale.c())
+        validator.setNotation(QDoubleValidator.StandardNotation)
+        edit.setValidator(validator)
+        edit.setPlaceholderText(placeholder)
+        edit.setText("" if value is None else format(float(value), ".12g"))
+        edit.editingFinished.connect(self.changed.emit)
+        return edit
+
+    def add_filter(self, name, minimum=None, maximum=None, *,
+                   notify: bool = True) -> dict:
+        """Add one row; return it as ``{widget, property, min, max, remove}``.
+
+        :raises ValueError: when ``name`` is not a scalar regionprop, or is an
+            intensity property while no intensity image is open.
+        """
+        from ..i18n import tr
+
+        name = engine.canonical_property(name)
+        if name not in self.offered():
+            raise ValueError(tr(
+                "{name} measures pixel values, and no intensity image is "
+                "open, so it cannot filter this mask.", name=name))
+        widget = QWidget()
+        line = QHBoxLayout(widget)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setSpacing(SPACING["xs"])
+        label = QLabel(name)
+        label.setToolTip(tr(
+            "The regionprop this row judges each object by, measured once "
+            "per mask together with every other row."))
+        low = self._bound_edit(minimum, tr("no minimum"))
+        low.setToolTip(tr(
+            "Hide objects whose value is below this. Blank is no minimum; "
+            "an object equal to the bound is kept."))
+        high = self._bound_edit(maximum, tr("no maximum"))
+        high.setToolTip(tr(
+            "Hide objects whose value is above this. Blank is no maximum; "
+            "an object equal to the bound is kept."))
+        remove = QPushButton(tr("Remove"))
+        remove.setCursor(Qt.PointingHandCursor)
+        remove.setToolTip(tr(
+            "Remove this filter. The objects only it was hiding come back."))
+        line.addWidget(label, 1)
+        line.addWidget(low)
+        line.addWidget(high)
+        line.addWidget(remove)
+        row = {"widget": widget, "property": name, "min": low, "max": high,
+               "remove": remove}
+        remove.clicked.connect(lambda: self.remove_filter(self._rows.index(row)))
+        self._rows.append(row)
+        self._rows_layout.addWidget(widget)
+        self.row_added.emit(widget)
+        if notify:
+            self.changed.emit()
+        return row
+
+    def set_bounds(self, index: int, minimum=None, maximum=None) -> None:
+        """Set row ``index``'s bounds as if typed, and apply them."""
+        row = self._rows[index]
+        row["min"].setText("" if minimum is None else format(float(minimum), ".12g"))
+        row["max"].setText("" if maximum is None else format(float(maximum), ".12g"))
+        self.changed.emit()
+
+    def set_filter(self, name, minimum=None, maximum=None) -> None:
+        """Set the bounds of the first row for ``name``, adding it if absent."""
+        name = engine.canonical_property(name)
+        index = next((i for i, row in enumerate(self._rows)
+                      if row["property"] == name), None)
+        if index is None:
+            self.add_filter(name, notify=False)
+            index = len(self._rows) - 1
+        self.set_bounds(index, minimum, maximum)
+
+    def remove_filter(self, index: int) -> None:
+        """Remove row ``index``; the objects only it hid come back."""
+        row = self._rows.pop(index)
+        row["widget"].hide()
+        row["widget"].setParent(None)
+        row["widget"].deleteLater()
+        self.changed.emit()
+
+    def rows(self) -> List[dict]:
+        """The rows, in the order they were added."""
+        return list(self._rows)
+
+    def filters(self) -> List[dict]:
+        """The rows as the serialised filter list the engine and a run read.
+
+        :raises ValueError: when a row's minimum is above its maximum.
+        """
+        return engine.normalise_filters([
+            {"property": row["property"], "min": row["min"].text(),
+             "max": row["max"].text()} for row in self._rows])
+
+    def set_filters(self, filters) -> None:
+        """Replace every row with ``filters``, a list or a legacy bounds dict.
+
+        A dict of the old four bounds (``min_area`` and the rest) is migrated
+        by :func:`mask_engine.legacy_filters`, so a saved state from before
+        item 511 opens as the rows it meant.
+        """
+        if isinstance(filters, dict) and set(filters) <= set(engine.FILTER_BOUNDS):
+            filters = engine.legacy_filters(**filters)
+        entries = engine.normalise_filters(filters)
+        while self._rows:
+            row = self._rows.pop()
+            row["widget"].setParent(None)
+            row["widget"].deleteLater()
+        for entry in entries:
+            self.add_filter(entry["property"], entry["min"], entry["max"],
+                            notify=False)
+        self.changed.emit()
+
+
 class MakeMasksScreen(QWidget):
     """Qt widget for the Make Masks app — the successor to Tk ModifyMaskApp.
 
@@ -8247,45 +8451,23 @@ class MakeMasksScreen(QWidget):
 
         filter_card = self._settings_category(
             "Filter",
-            "Every bound is off at 0. Filter applies the ones that are on, "
-            "and so does opening a field; each object removed is listed "
-            "below.",
+            tr("Add a filter for any regionprop scikit-image measures. "
+               "The list applies as you edit it and when a field opens; "
+               "each object it hides is listed below, and removing a row "
+               "brings back what it hid."),
         )
-        filter_form = QFormLayout()
-        self._filter_min_area = QSpinBox()
-        self._filter_min_area.setRange(0, 100_000_000)
-        self._filter_min_area.setToolTip(
-            "Drop objects smaller than this many pixels. 0 = no minimum.")
-        self._filter_max_area = QSpinBox()
-        self._filter_max_area.setRange(0, 100_000_000)
-        self._filter_max_area.setToolTip(
-            "Drop objects larger than this many pixels. 0 = no maximum.")
-        self._filter_min_int = QDoubleSpinBox()
-        self._filter_min_int.setDecimals(2)
-        self._filter_min_int.setRange(0.0, 65535.0)
-        self._filter_min_int.setSingleStep(1.0)
-        self._filter_min_int.setToolTip(
-            "Drop objects whose MEAN value on the raw image is below this. "
-            "Measured on the raw data, not on the contrast-stretched "
-            "display, so changing the percentiles above cannot move it. "
-            "0 = no minimum.")
-        self._filter_max_int = QDoubleSpinBox()
-        self._filter_max_int.setDecimals(2)
-        self._filter_max_int.setRange(0.0, 65535.0)
-        self._filter_max_int.setSingleStep(1.0)
-        self._filter_max_int.setToolTip(
-            "Drop objects whose MEAN raw value is above this. 0 = no maximum.")
-        filter_form.addRow("Min area (px)", self._filter_min_area)
-        filter_form.addRow("Max area (px)", self._filter_max_area)
-        filter_form.addRow("Min mean intensity", self._filter_min_int)
-        filter_form.addRow("Max mean intensity", self._filter_max_int)
-        filter_card.body_layout.addLayout(filter_form)
+        self._filter_list = ObjectFilterList()
+        self._filter_list.changed.connect(self._on_filters_changed)
+        self._filter_list.row_added.connect(self._on_filter_row_added)
+        self._filter_add = self._filter_list.add_button
+        self._filter_property = self._filter_list.property_box
+        filter_card.body_layout.addWidget(self._filter_list)
         self._btn_filter = QPushButton("Filter")
         self._btn_filter.setCursor(Qt.PointingHandCursor)
-        self._btn_filter.setToolTip(
-            "Apply the bounds that are on to the mask on screen. Every "
-            "object it removes is listed below it, with the area and the "
-            "mean intensity it was judged on. One undo step.")
+        self._btn_filter.setToolTip(tr(
+            "Apply the filter list to the mask on screen again. Every "
+            "object it hides is listed below it, with the value that hid "
+            "it. One undo step."))
         self._btn_filter.clicked.connect(self._on_apply_filter)
         filter_card.body_layout.addWidget(self._btn_filter)
         self._filter_log = QPlainTextEdit()
@@ -8294,10 +8476,11 @@ class MakeMasksScreen(QWidget):
         self._filter_log.setLineWrapMode(QPlainTextEdit.NoWrap)
         self._filter_log.setFixedHeight(
             self._filter_log.fontMetrics().lineSpacing() * FILTER_LOG_ROWS + 12)
-        self._filter_log.setToolTip(
-            "What the last filter removed, one row per object: its id, the "
-            "area and mean intensity it was judged on, and the bound that "
-            "removed it. The ids are the ones the hover readout shows.")
+        self._filter_log.setToolTip(tr(
+            "What the filter list hides, one row per object: its id, its "
+            "area and mean intensity, and each bound that hid it with the "
+            "value it was judged on. The ids are the ones the hover readout "
+            "shows."))
         self._set_filter_log([])
         filter_card.body_layout.addWidget(self._filter_log)
         col.addWidget(filter_card)
@@ -8867,6 +9050,9 @@ class MakeMasksScreen(QWidget):
             return None
         if kind != "filter":
             self._set_filter_log([])
+        if kind in ("undo", "redo"):
+            self._filter_baseline = None
+            self._filter_shown = None
         if self._log is None:
             return None
         if getattr(self._canvas, 'preserve_ids', False):
@@ -8999,43 +9185,55 @@ class MakeMasksScreen(QWidget):
         """
         return self._diff(self._history.head(), after)
 
-    def _filter_bounds(self) -> dict:
-        """The four filter bounds as :func:`mask_engine.filter_objects` wants."""
-        return {
-            "min_area": int(self._filter_min_area.value()),
-            "max_area": int(self._filter_max_area.value()),
-            "min_intensity": float(self._filter_min_int.value()),
-            "max_intensity": float(self._filter_max_int.value()),
-        }
+    def _filter_rules(self) -> list:
+        """The filter list as the rows say, serialised for the engine."""
+        return self._filter_list.filters()
 
-    def _filter_removal_line(self, removal, bounds: dict) -> str:
-        """One removed object as the Filter category's ledger prints it.
+    @staticmethod
+    def _filter_number(name: str, value: float) -> str:
+        """A bound or a measurement, as the ledger prints it."""
+        value = float(value)
+        if name.startswith("intensity_"):
+            return f"{value:.2f}"
+        if value.is_integer():
+            return f"{int(value)}"
+        return f"{value:.4g}"
 
-        The line reads like "object 22 with area x and intensity y was
-        removed by minimum intensity", with the bound's own number in it: a row saying only which bound removed
-        an object leaves the reader looking for the box it came from.
+    def _filter_removal_line(self, removal) -> str:
+        """One hidden object as the Filter category's ledger prints it.
+
+        The line reads like "Object 22 with area 31 px and intensity 12.50
+        was removed by minimum area 40", with each bound the object fell
+        outside and the bound's own number: a row saying only which filter
+        removed an object leaves the reader looking for the row it came
+        from. A property other than area and mean intensity also gives the
+        object's own value, since that is what the bound judged.
 
         The id is :func:`mask_engine.canonical_labels`' id, which is the id
-        the hover readout showed for the same object, so a user who read an
-        object's numbers off the corner of the image can find it here.
+        the hover readout showed for the same object.
 
-        :param removal: a :class:`mask_engine.FilterRemoval`.
-        :param bounds: the bounds the run used, as :meth:`_filter_bounds`
-            gives them.
+        :param removal: a :class:`mask_engine.ObjectRemoval`.
         """
-        names = {"min_area": "minimum area",
-                  "max_area": "maximum area",
-                  "min_intensity": "minimum intensity",
-                  "max_intensity": "maximum intensity"}
+        from ..i18n import tr
+
+        names = {"area": tr("area"), "intensity_mean": tr("intensity")}
         reasons = []
-        for bound in removal.bounds:
-            value = bounds.get(bound, 0)
-            shown = (f"{int(value)}" if bound.endswith("area")
-                     else f"{float(value):.2f}")
-            reasons.append(f"{names[bound]} {shown}")
-        return (f"Object {removal.label} with area {removal.area} px and "
-                f"intensity {removal.mean_intensity:.2f} was removed by "
-                + " and ".join(reasons))
+        for failed in removal.failed:
+            side = tr("minimum") if failed.side == "min" else tr("maximum")
+            label = names.get(failed.property, failed.property)
+            reason = f"{side} {label} {self._filter_number(failed.property, failed.bound)}"
+            if failed.property not in names:
+                reason += " " + tr("(was {value})", value=self._filter_number(
+                    failed.property, failed.value))
+            reasons.append(reason)
+        area = int(round(removal.values.get("area", 0)))
+        mean = removal.values.get("intensity_mean")
+        head = tr("Object {label} with area {area} px", label=removal.label,
+                  area=area)
+        if mean is not None:
+            head += " " + tr("and intensity {mean}", mean=f"{mean:.2f}")
+        return (head + " " + tr("was removed by") + " "
+                + (" " + tr("and") + " ").join(reasons))
 
     def _set_filter_log(self, lines) -> None:
         """Show ``lines`` in the Filter category's removal ledger.
@@ -9045,64 +9243,128 @@ class MakeMasksScreen(QWidget):
         the last field's rows into the next field would name objects that
         are not there.
         """
+        from ..i18n import tr
+
         self._filter_log.setPlainText("\n".join(str(line) for line in lines))
-        self._filter_log.setPlaceholderText(
-            "Nothing has been removed. Set a bound above and press Filter.")
+        self._filter_log.setPlaceholderText(tr(
+            "Nothing is hidden. Add a filter above and set a bound."))
+
+    def _refresh_filter_properties(self) -> None:
+        """Offer the intensity properties only while an image is open."""
+        self._filter_list.set_intensity_available(
+            self._canvas.image is not None)
+
+    def _on_filter_row_added(self, _widget) -> None:
+        """Give a new filter row the linked help every other control has."""
+        if getattr(self, "_api_tooltip_filter", None) is None:
+            return
+        from ..widgets.make_masks_help import install_make_masks_help
+        install_make_masks_help(self)
+
+    def _on_filters_changed(self) -> None:
+        """Apply the edited filter list live to the field on screen."""
+        if self._canvas.mask is None or self._canvas.image is None:
+            return
+        self.apply_object_filter(on_load=False)
+
+    def _filter_base(self):
+        """The mask the filter list is applied to, with later edits folded in.
+
+        The list HIDES objects rather than deleting them for good: it is
+        applied to the mask as it stood before any filter ran, so removing a
+        row, or loosening a bound, brings back what that row hid. Edits made
+        since the last run (a stroke, a detect, a merge) are carried into
+        that baseline pixel for pixel, so re-applying the list does not
+        undo them. Undo, redo and opening a field start a new baseline from
+        the mask on screen.
+        """
+        mask = self._canvas.mask
+        base = getattr(self, "_filter_baseline", None)
+        shown = getattr(self, "_filter_shown", None)
+        if (base is None or shown is None or base.shape != mask.shape
+                or shown.shape != mask.shape):
+            base = np.array(mask, copy=True)
+        else:
+            edited = shown != mask
+            if edited.any():
+                base = base.copy()
+                base[edited] = mask[edited]
+        self._filter_baseline = base
+        return base
 
     def apply_object_filter(self, *, on_load: bool = False) -> int:
-        """Drop objects outside the size/intensity bounds; return how many.
+        """Apply the filter list to the field on screen; return how many it hides.
 
-        Runs itself when a field loads — a draft segmentation usually
-        arrives with the same class of junk in every field, and clearing it
-        by hand once per field is the work this exists to remove — and again
-        whenever the user asks, since the bounds are tuned by looking at
-        what the last run left behind.
+        Runs itself when a field loads -- a draft segmentation usually
+        arrives with the same class of junk in every field -- whenever the
+        list is edited, and when the user presses Filter.
 
-        The result is one undo step and one ledger entry naming every object
-        it removed, so an automatic edit is as traceable and as reversible
-        as a click.
+        One engine: :func:`mask_engine.apply_filters`, the same one Mask
+        generation's ``object_filters`` setting runs, with one
+        ``regionprops_table`` pass for every property the list names. The
+        result is one undo step and one ledger entry that records the whole
+        list, so the mask's provenance says which filters shaped it.
 
-        Every removal is also written into the Filter category's ledger, one
-        red row each. The rows are cleared at the START of
-        every run, including the run that found nothing and the one that had
-        no field: they describe the mask on screen, and a row left over from
-        the last field names an object that is not there.
+        Every hidden object is written into the Filter category's ledger,
+        one red row each, cleared at the start of every run.
 
-        :param on_load: True when this is the automatic run. It only changes
-            what the status line says and what the ledger entry records; a
-            filter that removed nothing stays quiet on load rather than
-            reporting a non-event over the name of the field just opened.
+        :param on_load: True when this is the automatic run on opening a
+            field. It starts a fresh baseline and keeps a run that hid
+            nothing quiet.
         """
+        from ..i18n import tr
+
         self._set_filter_log([])
+        self._refresh_filter_properties()
+        if on_load:
+            self._filter_baseline = None
+            self._filter_shown = None
         if self._canvas.mask is None or self._canvas.image is None:
             return 0
-        bounds = self._filter_bounds()
-        out, removals = engine.filter_report(
-            self._canvas.mask, self._canvas.image,
-            preserve_ids=getattr(self._canvas, 'preserve_ids', False), **bounds)
+        try:
+            rules = self._filter_rules()
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return 0
+        if not rules and getattr(self, "_filter_baseline", None) is None:
+            if not on_load:
+                self._status_label.setText(
+                    tr("Object filters: nothing outside the bounds."))
+            return 0
+        base = self._filter_base()
+        try:
+            out, removals = engine.apply_filters(
+                base, self._canvas.image, rules,
+                preserve_ids=getattr(self._canvas, 'preserve_ids', False))
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return 0
+        if out is base:
+            out = np.array(base, copy=True)
+        changed = int(np.count_nonzero(self._canvas.mask != out))
+        self._set_filter_log(
+            self._filter_removal_line(removal) for removal in removals)
+        if changed:
+            dropped = [removal.label for removal in removals]
+            self._canvas.mask = out
+            self._canvas.refresh()
+            self._record("filter", dropped, changed, n_objects=len(dropped),
+                         automatic=bool(on_load), filters=rules)
+            self._history.push(out)
+            self._refresh_history_buttons()
+        self._filter_shown = np.array(self._canvas.mask, copy=True)
         if not removals:
             if not on_load:
                 self._status_label.setText(
-                    "Size/intensity filter: nothing outside the bounds.")
+                    tr("Object filters: nothing outside the bounds."))
             return 0
-        dropped = [removal.label for removal in removals]
-        changed = int(np.count_nonzero(self._canvas.mask != out))
-        self._canvas.mask = out
-        self._canvas.refresh()
-        self._set_filter_log(
-            self._filter_removal_line(removal, bounds) for removal in removals)
-        self._record("filter", dropped, changed, n_objects=len(dropped),
-                      automatic=bool(on_load), **bounds)
-        self._history.push(out)
-        self._refresh_history_buttons()
-        self._status_label.setText(
-            f"Size/intensity filter removed {len(dropped)} object(s) — "
-            "Ctrl+Z to undo"
-        )
-        return len(dropped)
+        self._status_label.setText(tr(
+            "Object filter removed {count} object(s) — Ctrl+Z to undo",
+            count=len(removals)))
+        return len(removals)
 
     def _on_apply_filter(self):
-        """Apply the object filter to the mask on screen."""
+        """Apply the object filter list to the mask on screen."""
         self.apply_object_filter(on_load=False)
 
     def _cpu_detect(self, image, method: str, otsu: dict) -> tuple:

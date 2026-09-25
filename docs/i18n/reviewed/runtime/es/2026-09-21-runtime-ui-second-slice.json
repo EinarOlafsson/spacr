@@ -165,13 +165,6 @@
     },
     {
       "table": "ui",
-      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "translation": "Cada límite se desactiva con 0. Filtrar aplica los límites activos, y también se aplican al abrir un campo; abajo se enumera cada objeto eliminado.",
-      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc"
-    },
-    {
-      "table": "ui",
       "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
       "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
       "translation": "Todo permanece desactivado hasta que active el sonido. spaCR genera los sonidos en este equipo; no se graba ni se descarga nada. Se reproducen en un hilo independiente, por lo que un dispositivo de audio ausente u ocupado solo provoca silencio.",

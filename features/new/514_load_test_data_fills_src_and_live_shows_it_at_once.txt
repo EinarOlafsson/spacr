@@ -1,6 +1,6 @@
 LOAD TEST DATA FILLS THE SOURCE, AND LIVE SHOWS IT AT ONCE
 
-Status: OPEN, filed 2026-09-25. Not started.
+Status: DONE 2026-09-25 (filed 2026-09-25). See the dated note at the end.
 Owner: unassigned. Related: 494 (demos retired in favour of test data),
 450/451/460 (the test-data buttons per module), 464 (every live preview can
 be refreshed).
@@ -38,3 +38,35 @@ images, and the Source field shows the real path, checked with an offscreen
 test per module that presses the button once (with the download faked or
 already cached) and asserts both the src value and that the live preview
 received a field.
+
+NOTE 2026-09-25 (done)
+Root cause: not the download order. The shipped Mask pack
+(gen_mask_settings.csv: src,<src>, cell/nucleus/pathogen channels) changes
+the form's shape, so apply_settings_dict has the window rebuild the screen
+and destroy the one the button was on. Every route then wrote src into the
+field (and console) it had looked up BEFORE the load, which belonged to the
+retired screen; the screen on view kept the pack's <src>, its Live panel was
+never told, and a rebuild also comes back with Live off. The second press
+rebuilt nothing (the form already had the pack's shape), so its field was
+the live one, which is why it "worked".
+Fix (spacr/qt/screens/app_screen.py): the window is read before the load,
+the settings go in first, then src is written on the screen the window holds
+afterwards, then Live is told at once (no 400 ms debounce; switched back on
+if it was on before a rebuild; kept for later if off).
+  helpers  _window_of :1258, _screen_after_the_load :1271, _live_is_on :1293,
+           _show_the_src_live :1302
+  Mask     _put_the_example_images_in_place :5361
+  Measure  _put_the_measure_example_in_place :5096 (Classify's stream route too)
+  Classify, Replication, Recruitment, Invasion, Host-pathogen
+           _apply_the_example_settings :5279
+  Plaque Analysis  point_src_at :4960 (Live loads at once)
+Checked and not affected: UMAP and OPS go through apply_settings_dict with
+src inside the mapping (applied to the fresh screen); Map Barcodes applies
+no settings; Make Masks, Import, Annotate, Foreign and the stitch/align
+buttons open a folder directly and have no src field.
+Tests: tests/qt/test_one_press_of_load_test_data_fills_src_and_live.py, 6
+offscreen through a real window, data cached in tmp (mask x2 Live on
+before/after, measure, classify, replication, plaques); 4 fail on the old
+code (mask shows exactly <src>), all 6 pass. Existing example/live-preview
+suites: 477 passed after the fix (64 + 312 before). The 3 failures in
+tests/test_docstring_correctness.py are pre-existing on nightly.

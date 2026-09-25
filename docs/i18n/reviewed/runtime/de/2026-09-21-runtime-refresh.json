@@ -410,13 +410,6 @@
     },
     {
       "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "Wendet die aktivierten Grenzen auf die angezeigte Maske an. Jedes entfernte Objekt wird darunter mit seiner Fläche und der mittleren Intensität aufgeführt, auf deren Grundlage es beurteilt wurde. Als ein Schritt rückgängig zu machen."
-    },
-    {
-      "table": "ui",
       "key": "At most:",
       "source": "At most:",
       "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
@@ -687,13 +680,6 @@
       "source": "Enable — report a failed run as a GitHub issue",
       "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f",
       "translation": "Aktivieren — fehlgeschlagene Läufe als GitHub-Issues melden"
-    },
-    {
-      "table": "ui",
-      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc",
-      "translation": "Jede Grenze ist bei 0 ausgeschaltet. Filter wendet die aktivierten Grenzen an, ebenso das Öffnen eines Felds. Jedes entfernte Objekt wird unten aufgeführt."
     },
     {
       "table": "ui",
@@ -1037,13 +1023,6 @@
       "source": "Nothing called “{query}”.",
       "source_sha256": "f60811b08688ba3184efb7fa24ee0098f41b9e64a9c57ad948f59d3b89404809",
       "translation": "Kein Eintrag namens „{query}“."
-    },
-    {
-      "table": "ui",
-      "key": "Nothing has been removed. Set a bound above and press Filter.",
-      "source": "Nothing has been removed. Set a bound above and press Filter.",
-      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76",
-      "translation": "Es wurde nichts entfernt. Setzen Sie oben eine Grenze und klicken Sie auf Filter."
     },
     {
       "table": "ui",
@@ -1688,13 +1667,6 @@
       "source": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
       "source_sha256": "019f7eb09dec26f772999346db34ca3bac3a0535e60e4f98459a9521c2876134",
       "translation": "Name, unter dem die Felder in der Messdatenbank abgelegt werden. Diese Bilder stammen nicht von einer Platte; der Name beschreibt daher ihre tatsächliche Herkunft, statt eine nie aufgenommene Platte vorzutäuschen. Jede Zeile wird zu einem Feld des Wells A01, sofern Sie unten kein anderes Well festlegen."
-    },
-    {
-      "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "Vom letzten Filter entfernte Objekte, eine Zeile je Objekt: Kennung, zugrunde liegende Fläche und mittlere Intensität sowie die ausschließende Grenze. Die Kennungen entsprechen denen der Werteanzeige am Mauszeiger."
     },
     {
       "table": "ui",

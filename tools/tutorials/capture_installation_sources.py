@@ -27,7 +27,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capture-name', default='installation_sources_current')
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--pages', default='pypi,github,release,conda',
+                        help='Comma-separated subset of pypi, github, release and conda')
     args = parser.parse_args()
+    pages = set(args.pages.split(','))
+    if not pages or pages - {'pypi', 'github', 'release', 'conda'}:
+        parser.error('Choose pages from pypi, github, release and conda')
     if Path(args.capture_name).name != args.capture_name or args.capture_name in ('.', '..'):
         raise ValueError('Expected one private capture directory name')
     output = args.stage.resolve() / 'captures' / args.capture_name
@@ -45,7 +50,8 @@ def main():
              'github': dict(release_source, tag=release['tag_name'],
                             assets=[{'name': x['name'], 'url': x['browser_download_url']}
                                     for x in release['assets']]),
-             'conda': dict(conda_source, version=conda['latest_version'])}
+             'conda': dict(conda_source, version=conda['latest_version']),
+             'pages': sorted(pages)}
     frames = {}
     write(output / 'provenance.json', proof)
     with sync_playwright() as engine:
@@ -79,30 +85,34 @@ def main():
             print(f'Captured {name}: {page.url}', flush=True)
 
         try:
-            visit('https://pypi.org/project/spacr/')
-            header = page.locator('h1').filter(has_text='spacr').first
-            if pypi['info']['version'] not in header.inner_text():
-                raise RuntimeError('Live PyPI header and JSON metadata disagree')
-            capture('01_pypi_current_release', header.locator('..'))
-            links = page.get_by_role('heading', name='Project links', exact=True)
-            capture('02_pypi_project_links', links.locator('..'))
-            visit('https://github.com/EinarOlafsson/spacr/tree/main')
-            branch = page.get_by_role('button', name='main branch', exact=False)
-            if branch.count() != 1:
-                branch = page.locator('button').filter(has_text='main').first
-            capture('03_github_main_branch', branch)
-            visit(release['html_url'])
-            assets = page.locator('summary').filter(has_text='Assets').first
-            assets.scroll_into_view_if_needed()
-            details = assets.locator('..')
-            if details.get_attribute('open') is None:
-                assets.click()
-            for item in release['assets']:
-                page.get_by_role('link', name=item['name'], exact=True).wait_for(state='visible')
-            capture('04_github_current_assets', details)
-            visit('https://anaconda.org/conda-forge/spacr')
-            page.get_by_text(conda['latest_version'], exact=False).first.wait_for(state='visible')
-            capture('05_conda_current_package', page.get_by_role('heading').filter(has_text='spacr').first.locator('..'))
+            if 'pypi' in pages:
+                visit('https://pypi.org/project/spacr/')
+                header = page.locator('h1').filter(has_text='spacr').first
+                if pypi['info']['version'] not in header.inner_text():
+                    raise RuntimeError('Live PyPI header and JSON metadata disagree')
+                capture('01_pypi_current_release', header.locator('..'))
+                links = page.get_by_role('heading', name='Project links', exact=True)
+                capture('02_pypi_project_links', links.locator('..'))
+            if 'github' in pages:
+                visit('https://github.com/EinarOlafsson/spacr/tree/main')
+                branch = page.get_by_role('button', name='main branch', exact=False)
+                if branch.count() != 1:
+                    branch = page.locator('button').filter(has_text='main').first
+                capture('03_github_main_branch', branch)
+            if 'release' in pages:
+                visit(release['html_url'])
+                assets = page.locator('summary').filter(has_text='Assets').first
+                assets.scroll_into_view_if_needed()
+                details = assets.locator('..')
+                if details.get_attribute('open') is None:
+                    assets.click()
+                for item in release['assets']:
+                    page.get_by_role('link', name=item['name'], exact=True).wait_for(state='visible')
+                capture('04_github_current_assets', details)
+            if 'conda' in pages:
+                visit('https://anaconda.org/conda-forge/spacr')
+                page.get_by_text(conda['latest_version'], exact=False).first.wait_for(state='visible')
+                capture('05_conda_current_package', page.get_by_role('heading').filter(has_text='spacr').first.locator('..'))
             proof['completed_capture'] = True
             proof['frames'] = len(frames)
         except Exception as error:

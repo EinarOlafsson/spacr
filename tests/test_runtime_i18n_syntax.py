@@ -69,7 +69,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert not panel_sources & sources
     sources.update(panel_sources)
     assert len(sources) == (159 if language == "sv" else 158)
-    for filename, expected in (("form-labels-a", 78), ("sign-in-status", 1),
+    for filename, expected in (("form-labels-a", 77), ("sign-in-status", 1),
                                ("enhancement-and-scale", 9),
                                ("organism-identities", 2),
                                ("threshold-and-histogram", 13)):
@@ -84,7 +84,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (261 if language == "sv" else 260)
+    assert len(sources) == (260 if language == "sv" else 259)
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
@@ -102,7 +102,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         for record in json.loads(path.read_text())["records"]
     }
     additions = later_sources - earlier_sources
-    assert len(additions) == report["later_distinct_additions"] == 782
+    assert len(additions) == report["later_distinct_additions"] == 781
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     return sources | additions
@@ -146,8 +146,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
     ui_sources = {record["source"] for record in ui_refresh["records"]}
-    assert len(ui_refresh["records"]) == 263  # Three old threshold/histogram reviews archived.
-    assert len(ui_sources) == 260
+    # Item 511 retired four Make Masks filter captions (the fixed bounds'
+    # button, ledger, card and placeholder help): 263 -> 259, 260 -> 256.
+    assert len(ui_refresh["records"]) == 259  # Three old threshold/histogram reviews archived.
+    assert len(ui_sources) == 256
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -333,12 +335,12 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(reviewed.keys() - sample_sources) == 367  # +39 scientific sources.
     assert len(reviewed) == 370  # Features, Controls and Quality use compact rows.
     # The new panel cohort also reuses the earlier whole-field model tooltip.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 629
-    assert len(older_all_sources - preview_sources - normalized_sources) == 636
-    assert len(older_all_sources - normalized_sources) == 641
-    assert len(older_all_sources) == 646
-    assert len(all_reviewed.keys() - subsequent_sources) == 657
-    assert len(all_reviewed) == 1700  # 931 - 9 - 4 + 782; source identities pinned above.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 625  # Item 511 retired four filter captions.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 632  # Item 511 retired four filter captions.
+    assert len(older_all_sources - normalized_sources) == 637
+    assert len(older_all_sources) == 642
+    assert len(all_reviewed.keys() - subsequent_sources) == 653  # Item 511 retired four filter captions.
+    assert len(all_reviewed) == 1694  # 931 - 9 - 4 + 782, less six filter captions item 511 retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -361,20 +363,21 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
-    assert len(refresh["records"]) == len(refresh_sources) == 76
+    # Item 511 retired one filter caption from each of the four slices.
+    assert len(refresh["records"]) == len(refresh_sources) == 75
     assert not refresh_sources & _compact_tooltip_sources("fr")
     refresh_sources |= _compact_tooltip_sources("fr")
-    assert len(refresh_sources) == 78
+    assert len(refresh_sources) == 77
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
     second_sources = {record["source"] for record in second["records"]}
-    assert len(second["records"]) == len(second_sources) == 72
+    assert len(second["records"]) == len(second_sources) == 71
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
     # Two third-slice and three fourth-slice captions left with the old panel.
-    for filename, expected in (("third", 73), ("fourth", 76)):
+    for filename, expected in (("third", 72), ("fourth", 75)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                                f"2026-09-21-runtime-{filename}-slice.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -382,7 +385,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 299  # Three superseded threshold/histogram sources.
+    assert len(refresh_sources) == 295  # Three superseded threshold/histogram sources.
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -562,8 +565,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 335
     assert len(older_all_sources) == 340
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 351
-    assert len(all_reviewed.keys() - subsequent_sources) == 654
-    assert len(all_reviewed) == 1696  # 926 - 9 - 3 + 782; source identities pinned above.
+    assert len(all_reviewed.keys() - subsequent_sources) == 650  # Item 511 retired four filter captions.
+    assert len(all_reviewed) == 1690  # 926 - 9 - 3 + 782, less six filter captions item 511 retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

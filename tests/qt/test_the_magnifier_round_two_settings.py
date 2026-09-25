@@ -205,7 +205,7 @@ def test_every_category_is_the_core_applications_folding_section(
         owners = {
             "Brush": made._brush_slider, "Magic wand": made._wand_pct,
             "Display": made._norm_hi,
-            "Filter": made._filter_min_area,
+            "Filter": made._filter_add,
             "Object operations": made._btn_otsu,
             "Detection method": made._otsu_correction,
             "Image enhancement": made._enh_gamma,

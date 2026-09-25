@@ -53,13 +53,6 @@
     },
     {
       "table": "ui",
-      "key": "Nothing has been removed. Set a bound above and press Filter.",
-      "source": "Nothing has been removed. Set a bound above and press Filter.",
-      "translation": "Nada foi removido. Defina um limite acima e pressione Filtro.",
-      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76"
-    },
-    {
-      "table": "ui",
       "key": "Nothing was left over.",
       "source": "Nothing was left over.",
       "translation": "Não sobrou nada.",
