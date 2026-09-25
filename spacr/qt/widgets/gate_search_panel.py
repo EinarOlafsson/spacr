@@ -129,6 +129,11 @@ class GateSearchPanel(QWidget):
         ``valueChanged``, and a load would otherwise report every control as
         freshly edited by the user and write the values it just read back
         out.
+
+        :param settings: the screen's settings object; its ``cluster_eps``,
+            ``cluster_min_samples``, ``cluster_scale``, ``cluster_walk`` and
+            ``cluster_walk_steps`` attributes are shown, with defaults for any
+            that are missing. It is also kept for later edits.
         """
         self._settings = settings
         self._loading = True

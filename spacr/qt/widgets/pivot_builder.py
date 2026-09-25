@@ -164,7 +164,11 @@ class DropWell(QWidget):
     def set_columns(self, columns) -> None:
         """Replace the contents. Silent when nothing changes — the panel
         recomputes on every emission and a redundant pass over a million rows
-        is a visible pause for no visible difference."""
+        is a visible pause for no visible difference.
+
+        :param columns: the column names to hold, in order; empty names are
+            dropped and the rest converted to strings.
+        """
         wanted = tuple(str(c) for c in columns if c)
         if wanted == self.columns():
             return
@@ -326,7 +330,11 @@ class PivotTable(QTableWidget):
 
     def cell_text(self, row: int, col: int) -> str:
         """What is actually painted in a body cell — for a test, and for a
-        caller that wants the string rather than the float."""
+        caller that wants the string rather than the float.
+
+        :param row: the table row.
+        :param col: the body column, counted after the row-key columns.
+        """
         item = self.item(row, col + len(self._header_offset_keys()))
         return item.text() if item is not None else ""
 
@@ -596,6 +604,9 @@ class PivotPanel(QWidget):
         Axis columns the new table does not have are dropped rather than
         carried over — a pivot half-resolved against the wrong frame would
         group by fewer keys than the wells claim.
+
+        :param frame: the table to pivot, or None; axis columns it lacks are
+            removed from the wells.
         """
         self._frame = frame
         self.well.set_frame(frame)
@@ -624,7 +635,11 @@ class PivotPanel(QWidget):
             aggs=tuple(aggs), quantile=self._quantile.value())
 
     def set_spec(self, spec: PivotSpec) -> None:
-        """Push a whole spec in — restoring a saved table, or a preset."""
+        """Push a whole spec in — restoring a saved table, or a preset.
+
+        :param spec: the pivot spec whose rows, columns, values, aggregations
+            and quantile are loaded into the controls.
+        """
         self._building = True
         try:
             self.wells[AXIS_ROWS].set_columns(spec.rows)

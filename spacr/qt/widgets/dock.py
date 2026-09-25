@@ -335,6 +335,9 @@ class Dock(QWidget):
         covers one that leaves the dock altogether, including straight off
         the bottom row onto the empty stretch below it, where no other row
         will ever be entered.
+
+        :param event: the leave event, passed to the base class after every row
+            is unlit.
         """
         self._light_only(None)
         super().leaveEvent(event)
@@ -349,6 +352,11 @@ class Dock(QWidget):
         The hover state is a PROPERTY rather than a colour set from here,
         because the stylesheet is the one place that decides what the dock
         looks like.
+
+        :param watched: the object the event is for; only a
+            :class:`SectionHeader` is handled here.
+        :param event: the event; Enter and Leave set the header's ``hovered``
+            property, and a left-button release toggles its section.
         """
 
         if isinstance(watched, SectionHeader):
@@ -389,11 +397,17 @@ class Dock(QWidget):
         return list(self._rows)
 
     def section_is_open(self, section: str) -> bool:
-        """Whether ``section``'s rows are currently shown."""
+        """Whether ``section``'s rows are currently shown.
+
+        :param section: the category name.
+        """
         return section in self._open
 
     def toggle_section(self, section: str) -> bool:
-        """Open a closed category or close an open one. Returns the new state."""
+        """Open a closed category or close an open one. Returns the new state.
+
+        :param section: the category name to open or close.
+        """
         if section in self._open:
             self._open.discard(section)
         else:
@@ -408,11 +422,16 @@ class Dock(QWidget):
         that opened a host on navigation do not have to know that, and
         because a method that quietly disappeared would fail at the call
         site rather than here, where the reason is written down.
+
+        :param host_key: the app key of the host; ignored.
         """
         return None
 
     def host_is_expanded(self, host_key: str) -> bool:
-        """Always ``False``: there are no folded child rows to expand."""
+        """Always ``False``: there are no folded child rows to expand.
+
+        :param host_key: the app key of the host; ignored.
+        """
         return False
 
     def refresh_visibility(self) -> None:
