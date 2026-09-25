@@ -145,7 +145,8 @@ def _status_of(entry) -> str:
 
     A segmentation backend says its own state -- installed, installable,
     installing or not installable here -- and a Cellpose 3 model of the
-    backend's own says whether that backend is here to run it.
+    backend's own, or any Cellpose-DINO model, says whether its backend is
+    here to run it.
     """
     kind = str(getattr(entry, "kind", ""))
     if kind == "backend":
@@ -153,6 +154,11 @@ def _status_of(entry) -> str:
     path = str(getattr(entry, "path", "") or "")
     if kind == "cellpose3" and str(getattr(entry, "source", "")) == "stock":
         return "usable" if path else "needs the Cellpose 3 backend"
+    if kind == "cellpose_dino":
+        from ..widgets.model_zoo_picker import _cellpose_dino_ready
+
+        if not _cellpose_dino_ready():
+            return "needs the Cellpose-DINO backend"
     if path and os.path.isfile(path):
         state = "installed"
     elif str(getattr(entry, "source", "")) == "bundled":
