@@ -102,72 +102,129 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installazione con Conda",
+      "title": "Installare spaCR con Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installa il pacchetto ufficiale conda-forge in un ambiente separato, verifica la versione effettiva del canale e riconosci le differenze dai tutorial attuali dei moduli.",
+      "description": "Crea un ambiente Conda, installa spaCR da conda-forge e avvia l’applicazione.",
       "objectives": [
         "Creare e attivare un ambiente Conda dedicato.",
-        "Verificare il pacchetto del canale, Qt e la diagnostica.",
-        "Scegliere pip o l’installer desktop più recente quando il canale mantiene l’interfaccia precedente."
+        "Installare spaCR da conda-forge.",
+        "Aprire spaCR e aggiornare lo stesso ambiente quando serve."
       ],
-      "prerequisite": "Deve essere già installato un gestore compatibile con Conda. La registrazione verifica spaCR 1.5.0.4 da conda-forge su Linux, con Python 3.12.14 e Qt 6.11.2, il 10 settembre 2026. L’installazione pulita usa un nuovo percorso privato, solo conda-forge e la versione del canale fissata; le schede illustrano il procedimento equivalente con un ambiente con nome, senza simulare output d’installazione. La GUI reale conserva Home (63), non la struttura annidata di PyPI/installer 1.5.0.5. spacr-doctor supera la piccola prova di allocazione CUDA, ma segnala un avviso CZI facoltativo; non è un benchmark né una verifica di ogni analisi o formato. La cattura usa un profilo scuro privato con scala caratteri 1.5, il tour già chiuso e il precaricamento predefinito, senza l’opzione --no-setup non supportata. Altre piattaforme non sono state testate. La narrazione nei file di lavoro differisce da quella pubblicata: non si dichiara il riuso di audio identico.",
+      "prerequisite": "Installa Conda o Miniforge, poi apri un terminale in cui sia disponibile il comando conda.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Usa un ambiente Conda dedicato a spaCR e verifica quale versione offre davvero il canale. In questa registrazione conda-forge installa uno punto cinque punto zero punto quattro. PyPI e l’installer desktop offrono già uno punto cinque punto zero punto cinque: queste versioni non sono intercambiabili.",
+          "narration": "Apri un terminale abilitato per Conda. Creerai un ambiente per spaCR, installerai il pacchetto di conda-forge e avvierai l’applicazione da quell’ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Usa un ambiente Conda dedicato a spàker e verifica quale versione offre davvero il canale. In questa registrazione Conda Forge installa uno punto cinque punto zero punto quattro. paip e l’installer desktop offrono già uno punto cinque punto zero punto cinque: queste versioni non sono intercambiabili."
+          "speech_text": "Apri un terminale abilitato per Conda. Creerai un ambiente per spàker, installerai il pacchetto di Conda Forge e avvierai l’applicazione da quell’ambiente."
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Crea un ambiente chiamato spacr-conda con Python tre punto dodici e spaCR da conda-forge, usando il comando mostrato. Scegli un altro nome se lo usi già per un ambiente diverso.",
+          "hold_after": 0.7,
+          "speech_text": "Crea un ambiente chiamato spàker-conda con Python tre punto dodici e spàker da Conda Forge, usando il comando mostrato. Scegli un altro nome se lo usi già per un ambiente diverso."
         },
         {
           "visual": "07_create_conda",
-          "narration": "Apri una shell configurata per Conda e crea un nuovo ambiente con Python tre punto dodici. La scheda usa il nome spacr-conda. Se esiste già, scegli un altro nome inutilizzato e tieni questo ambiente separato dalle analisi in corso.",
+          "narration": "Conda risolve l’ambiente ed elenca il piano dei pacchetti. Controllalo, digita la lettera y per accettare, poi attendi che download e installazione finiscano.",
           "hold_after": 0.7,
-          "speech_text": "Apri una shell configurata per Conda e crea un nuovo ambiente con Python tre punto dodici. La scheda usa il nome spàker-conda. Se esiste già, scegli un altro nome inutilizzato e tieni questo ambiente separato dalle analisi in corso."
+          "speech_text": "Conda risolve l’ambiente ed elenca il piano dei pacchetti. Controllalo, digita la lettera y per accettare, poi attendi che download e installazione finiscano."
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Attiva l’ambiente e stampa sys punto prefix per verificare a quale ambiente appartiene Python. La verifica reale usa un percorso privato più lungo invece del nome breve dell’esempio. Il solo prompt del terminale non prova che stai usando l’interprete desiderato.",
+          "narration": "Attiva spacr-conda. Esegui il comando Python mostrato per vedere il percorso dell’ambiente e verifica che sia l’ambiente appena creato.",
           "hold_after": 0.7,
-          "speech_text": "Attiva l’ambiente e stampa sys punto prefix per verificare a quale ambiente appartiene Python. La verifica reale usa un percorso privato più lungo invece del nome breve dell’esempio. Il solo prompt del terminale non prova che stai usando l’interprete desiderato."
+          "speech_text": "Attiva spàker-conda. Esegui il comando Python mostrato per vedere il percorso dell’ambiente e verifica che sia l’ambiente appena creato."
         },
         {
           "visual": "09_install_conda",
-          "narration": "Installa il pacchetto specificando conda-forge e usa conda list spacr per controllare versione e canale. L’installazione verificata usava solo conda-forge e fissava la versione del canale. Era terminata prima dei fotogrammi di verifica: le schede sono istruzioni, non output di terminale inventato.",
+          "narration": "Esegui conda list spacr per vedere la versione installata e confermare che provenga da conda-forge. Installare Python e spaCR con un solo comando permette a Conda di risolvere tutti i pacchetti insieme, ed è molto più veloce che aggiungere spaCR a un ambiente esistente.",
           "hold_after": 0.7,
-          "speech_text": "Installa il pacchetto specificando Conda Forge e usa conda list spàker per controllare versione e canale. L’installazione verificata usava solo Conda Forge e fissava la versione del canale. Era terminata prima dei fotogrammi di verifica: le schede sono istruzioni, non output di terminale inventato."
+          "speech_text": "Esegui conda list spàker per vedere la versione installata e confermare che provenga da Conda Forge. Installare Python e spàker con un solo comando permette a Conda di risolvere tutti i pacchetti insieme, ed è molto più veloce che aggiungere spàker a un ambiente esistente."
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Controlla le versioni di spaCR e Qt e la posizione del pacchetto nell’ambiente installato. Qui il pacchetto è uno punto cinque punto zero punto quattro e Qt viene importato correttamente. Questo identifica il pacchetto attivo, ma non valida ogni flusso scientifico o formato facoltativo.",
+          "narration": "Controlla la versione installata di spaCR e la posizione del pacchetto. Conserva quella versione con le note di analisi, così potrai tornare più tardi allo stesso ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Controlla le versioni di spàker e cu ti e la posizione del pacchetto nell’ambiente installato. Qui il pacchetto è uno punto cinque punto zero punto quattro e cu ti viene importato correttamente. Questo identifica il pacchetto attivo, ma non valida ogni flusso scientifico o formato facoltativo."
+          "speech_text": "Controlla la versione installata di spàker e la posizione del pacchetto. Conserva quella versione con le note di analisi, così potrai tornare più tardi allo stesso ambiente."
         },
         {
           "visual": "05_doctor",
-          "narration": "Esegui spacr-doctor e leggi anche gli avvisi. Qui la piccola prova di allocazione GPU riesce, mentre al supporto CZI facoltativo manca una dipendenza. I controlli saltati non sono superati. La correzione suggerita riguarda quella funzione; valuta le modifiche all’ambiente prima di applicarla, soprattutto mescolando gestori di pacchetti.",
+          "narration": "Esegui spacr-doctor per controllare l’installazione. Qui segnala che manca vispy, una dipendenza principale, e mostra il comando che la installa. Esegui quel comando, poi esegui di nuovo spacr-doctor. Segui gli altri passaggi suggeriti solo per i formati di file o le funzioni che ti servono.",
           "hold_after": 0.7,
-          "speech_text": "Esegui spàker-doctor e leggi anche gli avvisi. Qui la piccola prova di allocazione GPU riesce, mentre al supporto CZI facoltativo manca una dipendenza. I controlli saltati non sono superati. La correzione suggerita riguarda quella funzione; valuta le modifiche all’ambiente prima di applicarla, soprattutto mescolando gestori di pacchetti."
+          "speech_text": "Esegui spàker-doctor per controllare l’installazione. Qui segnala che manca vispy, una dipendenza principale, e mostra il comando che la installa. Esegui quel comando, poi esegui di nuovo spàker-doctor. Segui gli altri passaggi suggeriti solo per i formati di file o le funzioni che ti servono."
         },
         {
           "visual": "06_installed_home",
-          "narration": "Il pacchetto Conda installato si apre e si chiude normalmente, ma questa è la sua vecchia Home con sessantatré riquadri. Non dispone della nuova struttura di moduli annidati. Un’installazione riuscita non significa che tutte le schermate corrispondano ai tutorial di una versione più recente.",
+          "narration": "Digita spacr per avviare l’applicazione. Completa le scelte del primo avvio, poi continua con il tutorial di Home per trovare i moduli e i relativi dati di esempio.",
           "hold_after": 0.7,
-          "speech_text": "Il pacchetto Conda installato si apre e si chiude normalmente, ma questa è la sua vecchia Home con sessantatré riquadri. Non dispone della nuova struttura di moduli annidati. Un’installazione riuscita non significa che tutte le schermate corrispondano ai tutorial di una versione più recente."
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "Digita spàker per avviare l’applicazione. Completa le scelte del primo avvio, poi continua con il tutorial di Home per trovare i moduli e i relativi dati di esempio."
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "Per la nuova interfaccia annidata mostrata nei tutorial aggiornati, segui la lezione attuale su pip o Platform installers in un ambiente separato. Se ti serve il canale Conda, annota la versione effettiva e ricontrolla gli aggiornamenti. Conserva la versione usata per un’analisi in corso.",
+          "narration": "Per aggiornare in seguito, chiudi spaCR, attiva questo ambiente e aggiorna il pacchetto di conda-forge. Se conda-forge non ha una build più recente, Conda segnala che tutti i pacchetti richiesti sono già installati. Poi controlla la versione installata; le lezioni su pip e sull’installer descrivono gli altri metodi di installazione.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "Per la nuova interfaccia annidata mostrata nei tutorial aggiornati, segui la lezione attuale su pip o Platform installers in un ambiente separato. Se ti serve il canale Conda, annota la versione effettiva e ricontrolla gli aggiornamenti. Conserva la versione usata per un’analisi in corso."
+          "speech_text": "Per aggiornare in seguito, chiudi spàker, attiva questo ambiente e aggiorna il pacchetto di Conda Forge. Se Conda Forge non ha una build più recente, Conda segnala che tutti i pacchetti richiesti sono già installati. Poi controlla la versione installata; le lezioni su pip e sull’installer descrivono gli altri metodi di installazione."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -177,174 +234,276 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Crea un ambiente Python isolato, installa il pacchetto pubblico, verifica le dipendenze e avvia l’applicazione Qt installata.",
+      "description": "Crea un ambiente Python isolato, installa il pacchetto pubblico, verifica le sue dipendenze e avvia l’applicazione Qt installata.",
       "objectives": [
-        "Mantenere le dipendenze di spaCR in un ambiente Python dedicato.",
-        "Verificare il pacchetto installato, Qt e gli avvisi sulle funzioni facoltative.",
-        "Aprire Home e aggiornare consapevolmente l’ambiente corretto."
+        "Creare e attivare un ambiente virtuale Python.",
+        "Installare spaCR e controllarne le dipendenze.",
+        "Avviare l’applicazione e aggiornare l’ambiente previsto."
       ],
-      "prerequisite": "La lezione verifica spaCR 1.5.0.5 da PyPI su Linux con Python 3.12.13, non un’installazione modificabile del repository. Le schede dei comandi sono istruzioni, non output registrato; i comandi Windows e macOS non sono stati eseguiti qui. L’installazione pulita è terminata prima delle verifiche registrate. Le dipendenze di base attuali includono Qt. Doctor segnala un avviso CZI facoltativo; la prova di allocazione GPU è esplicitamente saltata. La cattura usa --no-setup, un profilo scuro privato con scala caratteri 1.5 e un tour già chiuso. Dimostra l’apertura e la chiusura normale di Home, non tutti i moduli, formati facoltativi, calcoli GPU o altre piattaforme.",
+      "prerequisite": "Installa Python 3.12 e apri un terminale. Usa il comando di attivazione per il tuo sistema operativo e la tua shell.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Installa spaCR nel suo ambiente Python. Questa dimostrazione usa Python tre punto dodici su Linux e la versione pubblica di PyPI, non una copia del codice sorgente. Controlla python, due trattini, version prima di scegliere l’interprete per l’ambiente.",
+          "narration": "Apri un terminale e controlla la versione di Python. Questa procedura usa Python tre punto dodici. Tieni spaCR in un ambiente virtuale dedicato, così i suoi pacchetti restano facili da gestire.",
           "hold_after": 0.7,
-          "speech_text": "Installa spàker nel suo ambiente Python. Questa dimostrazione usa Python tre punto dodici su Linux e la versione pubblica di paip, non una copia del codice sorgente. Controlla python, due trattini, version prima di scegliere l’interprete per l’ambiente."
+          "speech_text": "Apri un terminale e controlla la versione di Python. Questa procedura usa Python tre punto dodici. Tieni spàker in un ambiente virtuale dedicato, così i suoi pacchetti restano facili da gestire."
         },
         {
           "visual": "07_create_environment",
-          "narration": "Crea un nuovo ambiente virtuale con il comando per la tua piattaforma. Qui punto venv è una cartella nuova nella directory di lavoro. Python tre punto dodici deve essere già installato: questo comando crea un ambiente, non installa Python.",
+          "narration": "Crea un ambiente virtuale chiamato punto venv con il comando per il tuo sistema operativo. Viene creata una cartella che contiene l’ambiente Python che userai per spaCR.",
           "hold_after": 0.7,
-          "speech_text": "Crea un nuovo ambiente virtuale con il comando per la tua piattaforma. Qui punto venv è una cartella nuova nella directory di lavoro. Python tre punto dodici deve essere già installato: questo comando crea un ambiente, non installa Python."
+          "speech_text": "Crea un ambiente virtuale chiamato punto venv con il comando per il tuo sistema operativo. Viene creata una cartella che contiene l’ambiente Python che userai per spàker."
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Attiva l’ambiente con il comando adatto alla shell. PowerShell, Command Prompt, bash e zsh usano comandi di attivazione diversi. Se PowerShell blocca lo script, usa Command Prompt oppure richiama direttamente Python dall’ambiente; non indebolire la sicurezza dell’intero computer.",
+          "narration": "Attiva punto venv con il comando della tua shell. PowerShell e il Prompt dei comandi di Windows hanno comandi di attivazione diversi; macOS e Linux usano di solito il comando di shell mostrato qui.",
           "hold_after": 0.7,
-          "speech_text": "Attiva l’ambiente con il comando adatto alla shell. PowerShell, Command Prompt, bash e zsh usano comandi di attivazione diversi. Se PowerShell blocca lo script, usa Command Prompt oppure richiama direttamente Python dall’ambiente; non indebolire la sicurezza dell’intero computer."
+          "speech_text": "Attiva punto venv con il comando della tua shell. PowerShell e il Prompt dei comandi di Windows hanno comandi di attivazione diversi; macOS e Linux usano di solito il comando di shell mostrato qui."
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Esegui python, trattino m, pip, due trattini, version. La posizione deve essere all’interno dell’ambiente scelto. Questo terminale reale mostra il percorso privato più lungo usato per la registrazione. Python, trattino m, pip associa l’installazione dei pacchetti a quell’interprete.",
+          "narration": "Esegui python trattino m pip trattino trattino version. Verifica che il percorso mostrato appartenga a punto venv. Usa python trattino m pip per i comandi di installazione, così pip usa questo interprete.",
           "hold_after": 0.7,
-          "speech_text": "Esegui python, trattino m, pip, due trattini, version. La posizione deve essere all’interno dell’ambiente scelto. Questo terminale reale mostra il percorso privato più lungo usato per la registrazione. Python, trattino m, pip associa l’installazione dei pacchetti a quell’interprete."
+          "speech_text": "Esegui python trattino m pip trattino trattino version. Verifica che il percorso mostrato appartenga a punto venv. Usa python trattino m pip per i comandi di installazione, così pip usa questo interprete."
         },
         {
           "visual": "09_install_package",
-          "narration": "Aggiorna pip e installa spacr. Fissare uno punto cinque punto zero punto cinque riproduce la versione della lezione. L’installazione pulita era terminata prima di queste verifiche registrate. Prevedi tempo e spazio per le dipendenze scientifiche; quelle di base attuali includono già i componenti desktop Qt.",
+          "narration": "Aggiorna pip, poi installa spacr. Attendi che i pacchetti scientifici finiscano di scaricarsi e installarsi. Il pacchetto attuale include i componenti desktop necessari per aprire l’applicazione.",
           "hold_after": 0.7,
-          "speech_text": "Aggiorna pip e installa spàker. Fissare uno punto cinque punto zero punto cinque riproduce la versione della lezione. L’installazione pulita era terminata prima di queste verifiche registrate. Prevedi tempo e spazio per le dipendenze scientifiche; quelle di base attuali includono già i componenti desktop cu ti."
+          "speech_text": "Aggiorna pip, poi installa spàker. Attendi che i pacchetti scientifici finiscano di scaricarsi e installarsi. Il pacchetto attuale include i componenti desktop necessari per aprire l’applicazione."
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Controlla la versione installata di spaCR, quella di Qt e il percorso del pacchetto. Qui tutti e tre provengono dal nuovo ambiente. Un’importazione riuscita non dimostra che ogni formato o analisi facoltativa funzioni, né che la finestra si apra.",
+          "narration": "Controlla la versione installata di spaCR e la posizione del pacchetto con il comando mostrato. Salva la versione insieme alle note di analisi.",
           "hold_after": 0.7,
-          "speech_text": "Controlla la versione installata di spàker, quella di cu ti e il percorso del pacchetto. Qui tutti e tre provengono dal nuovo ambiente. Un’importazione riuscita non dimostra che ogni formato o analisi facoltativa funzioni, né che la finestra si apra."
+          "speech_text": "Controlla la versione installata di spàker e la posizione del pacchetto con il comando mostrato. Salva la versione insieme alle note di analisi."
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Esegui python, trattino m, pip check. No broken requirements indica che le dichiarazioni delle dipendenze installate sono coerenti. Se viene segnalato un conflitto, risolvilo prima di proseguire; questo controllo non è una validazione scientifica dell’analisi.",
+          "narration": "Esegui python trattino m pip check. Se segnala requisiti in conflitto, risolvi quei conflitti prima di usare l’ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Esegui python, trattino m, pip check. No broken requirements indica che le dichiarazioni delle dipendenze installate sono coerenti. Se viene segnalato un conflitto, risolvilo prima di proseguire; questo controllo non è una validazione scientifica dell’analisi."
+          "speech_text": "Esegui python trattino m pip check. Se segnala requisiti in conflitto, risolvi quei conflitti prima di usare l’ambiente."
         },
         {
           "visual": "05_doctor",
-          "narration": "Esegui spacr-doctor e leggi gli avvisi oltre ai controlli superati. Questa installazione ha un avviso CZI facoltativo, con il comando di correzione. La registrazione usa no gpu probe, preceduto da due trattini: rileva il dispositivo ma non prova un’allocazione GPU. I controlli saltati non sono controlli superati.",
+          "narration": "Esegui spacr-doctor per esaminare l’installazione e vedere eventuali funzioni opzionali mancanti. Applica la riparazione suggerita solo per i formati o le funzionalità che ti servono.",
           "hold_after": 0.7,
-          "speech_text": "Esegui spàker-doctor e leggi gli avvisi oltre ai controlli superati. Questa installazione ha un avviso CZI facoltativo, con il comando di correzione. La registrazione usa no gpu probe, preceduto da due trattini: rileva il dispositivo ma non prova un’allocazione GPU. I controlli saltati non sono controlli superati."
+          "speech_text": "Esegui spàker-doctor per esaminare l’installazione e vedere eventuali funzioni opzionali mancanti. Applica la riparazione suggerita solo per i formati o le funzionalità che ti servono."
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Avvia spacr dallo stesso ambiente attivato. Il primo avvio normale può porre domande di configurazione. Questa verifica limitata usa esplicitamente no setup, preceduto da due trattini, e un profilo preparato per la registrazione; non mostra le risposte a quelle domande.",
+          "narration": "Avvia spacr dall’ambiente attivato. Al primo avvio, segui le richieste di configurazione e scegli le tue preferenze.",
           "hold_after": 0.7,
-          "speech_text": "Avvia spàker dallo stesso ambiente attivato. Il primo avvio normale può porre domande di configurazione. Questa verifica limitata usa esplicitamente no setup, preceduto da due trattini, e un profilo preparato per la registrazione; non mostra le risposte a quelle domande."
+          "speech_text": "Avvia spàker dall’ambiente attivato. Al primo avvio, segui le richieste di configurazione e scegli le tue preferenze."
         },
         {
           "visual": "06_installed_home",
-          "narration": "Questa è la vera finestra Home del pacchetto wheel installato, con i sei moduli principali e i gruppi Data, Tools e Assays. Si è aperta e chiusa normalmente senza avviare un’analisi. Continua con Home per la navigazione, gli strumenti annidati e i tutorial dei moduli.",
+          "narration": "Home si apre con le categorie Core, Data, Tools e Assays. Continua con il tutorial di Home per trovare un modulo, caricare dati di esempio e aprire la panoramica di una pipeline.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Questa è la vera finestra Home del pacchetto wheel installato, con i sei moduli principali e i gruppi Data, Tools e Assays. Si è aperta e chiusa normalmente senza avviare un’analisi. Continua con Home per la navigazione, gli strumenti annidati e i tutorial dei moduli."
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "Home si apre con le categorie Core, Data, Tools e Assays. Continua con il tutorial di Home per trovare un modulo, caricare dati di esempio e aprire la panoramica di una pipeline."
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Per aggiornare, chiudi spaCR e attiva l’ambiente che vuoi modificare. Aggiorna il pacchetto, ripeti pip check e spacr-doctor e annota la versione risultante insieme all’analisi. Gli aggiornamenti possono cambiare dipendenze e comportamento: non modificare silenziosamente un ambiente usato per un lavoro in corso.",
+          "narration": "Per aggiornare, chiudi spaCR e attiva questo ambiente. Aggiorna il pacchetto, poi controlla di nuovo versione e dipendenze. Conserva l’ambiente precedente se ti serve per un’analisi in corso.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "Per aggiornare, chiudi spàker e attiva l’ambiente che vuoi modificare. Aggiorna il pacchetto, ripeti pip check e spàker-doctor e annota la versione risultante insieme all’analisi. Gli aggiornamenti possono cambiare dipendenze e comportamento: non modificare silenziosamente un ambiente usato per un lavoro in corso."
+          "speech_text": "Per aggiornare, chiudi spàker e attiva questo ambiente. Aggiorna il pacchetto, poi controlla di nuovo versione e dipendenze. Conserva l’ambiente precedente se ti serve per un’analisi in corso."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Programmi di installazione per piattaforma",
+      "title": "Installare spaCR con un installer desktop",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Scegli il programma ufficiale, comprendi la selezione automatica dell’acceleratore e le opzioni di riservatezza, quindi verifica l’ambiente Linux realmente installato.",
+      "description": "Scarica l’installer per il tuo sistema operativo, completa la configurazione e apri spaCR.",
       "objectives": [
-        "Selezionare il programma ufficiale per il sistema operativo.",
-        "Distinguere l’accelerazione automatica dalla scelta esplicita della sola CPU.",
-        "Leggere le opzioni di riservatezza, le versioni installate e gli avvisi diagnostici."
+        "Scaricare ed eseguire l’installer per il tuo sistema operativo.",
+        "Scegliere un’opzione di accelerazione e le preferenze del primo avvio.",
+        "Aprire spaCR e trovare i log di installazione se la configurazione richiede attenzione."
       ],
-      "prerequisite": "Questa registrazione verifica il programma pubblico online per Linux x86-64 di spaCR 1.5.0.5, confrontato con la somma di controllo il 10 settembre 2026, con Python 3.12.13, Qt 6.11.2 e Torch 2.14.0+cu132. L’installazione reale è terminata prima delle immagini di verifica. Ha usato nuove cartelle private per ambiente ed eseguibile di avvio, librerie grafiche di sistema già presenti, --skip-system-deps e --no-launch; nessun ambiente o dipendenza di sistema preesistente è stato modificato. Le quattro schede sono istruzioni, non installazioni Windows/macOS registrate né output di terminale inventato. Le indicazioni Windows/macOS sono state controllate solo nel codice attuale dei programmi di installazione. La cattura usa un profilo scuro privato, scala del carattere 1.5, presentazione già chiusa, precaricamento su richiesta e --no-setup, che non esclude la domanda separata sulla riservatezza. Esc rifiuta quella finestra lasciando disattivate tutte le opzioni; le preferenze private sono state rilette per confermarlo. Doctor usa --no-gpu-probe; non si dichiara la verifica di allocazione, velocità, analisi o altre piattaforme. I tentativi di registrazione falliti sono conservati, non conteggiati come difetti dell’applicazione.",
+      "prerequisite": "Scarica l’installer ufficiale per il tuo sistema operativo e lascia spazio per l’applicazione e le sue dipendenze scientifiche.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Usa la versione ufficiale di spaCR su GitHub e scegli il programma per il tuo sistema operativo. I programmi online scaricano un ambiente Python privato e le dipendenze scientifiche; non serve un ambiente Conda esistente. In questo esempio Linux abbiamo confrontato il file scaricato con la somma di controllo della versione prima di eseguirlo.",
+          "narration": "Apri la release ufficiale di spaCR su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione. Conserva SHA256SUMS punto txt della stessa release se vuoi verificare il download.",
           "hold_after": 0.7,
-          "speech_text": "Usa la versione ufficiale di spàker su GitHub e scegli il programma per il tuo sistema operativo. I programmi online scaricano un ambiente Python privato e le dipendenze scientifiche; non serve un ambiente Conda esistente. In questo esempio Linux abbiamo confrontato il file scaricato con la somma di controllo della versione prima di eseguirlo."
+          "speech_text": "Apri la release ufficiale di spàker su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione. Conserva SHA256SUMS punto txt della stessa release se vuoi verificare il download."
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "Su Windows seleziona l’eseguibile di installazione online. Il codice attuale preseleziona l’accelerazione automatica; puoi deselezionare quel componente opzionale per usare soltanto la CPU. Questa scheda spiega la scelta, ma non è una registrazione dell’installazione Windows né una prova di compatibilità del tuo computer.",
+          "narration": "Su Windows, esegui il programma di installazione e segui le richieste. Lascia selezionata l’accelerazione automatica per usare l’hardware compatibile rilevato sul computer, oppure scegli il funzionamento solo CPU se è ciò che ti serve.",
           "hold_after": 0.7,
-          "speech_text": "Su Windows seleziona l’eseguibile di installazione online. Il codice attuale preseleziona l’accelerazione automatica; puoi deselezionare quel componente opzionale per usare soltanto la CPU. Questa scheda spiega la scelta, ma non è una registrazione dell’installazione Windows né una prova di compatibilità del tuo computer."
+          "speech_text": "Su Windows, esegui il programma di installazione e segui le richieste. Lascia selezionata l’accelerazione automatica per usare l’hardware compatibile rilevato sul computer, oppure scegli il funzionamento solo CPU se è ciò che ti serve."
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "Su macOS scegli il pacchetto universale online per Intel e Apple silicon. Il programma di avvio avvia la configurazione per utente se manca l’ambiente di esecuzione. Verifica la fonte ufficiale prima di approvare gli avvisi di sicurezza e attendi i download. Sono indicazioni controllate nel codice, non un’installazione macOS eseguita.",
+          "narration": "Su macOS, apri il pacchetto universale e segui l’installer. Avvia spaCR dal suo launcher e lascia terminare i download del primo avvio. Leggi ogni avviso di sicurezza e conferma che il pacchetto provenga dalla release ufficiale.",
           "hold_after": 0.7,
-          "speech_text": "Su macOS scegli il pacchetto universale online per Intel e Apple silicon. Il programma di avvio avvia la configurazione per utente se manca l’ambiente di esecuzione. Verifica la fonte ufficiale prima di approvare gli avvisi di sicurezza e attendi i download. Sono indicazioni controllate nel codice, non un’installazione macOS eseguita."
+          "speech_text": "Su macOS, apri il pacchetto universale e segui l’installer. Avvia spàker dal suo launcher e lascia terminare i download del primo avvio. Leggi ogni avviso di sicurezza e conferma che il pacchetto provenga dalla release ufficiale."
         },
         {
           "visual": "11_linux_commands",
-          "narration": "Su Linux rendi eseguibile il file verificato e avvialo dalla sua cartella. La selezione automatica dell’acceleratore è ora predefinita; richiedi esplicitamente la CPU se è ciò che ti serve. La nostra esecuzione isolata riutilizzava librerie di sistema e percorsi privati, quindi non dimostrava l’installazione di dipendenze di sistema.",
+          "narration": "Su Linux, rendi eseguibile l’installer scaricato, poi avvialo da un terminale. L’accelerazione automatica seleziona un backend compatibile. L’aiuto elenca trattino trattino torch-backend cpu per il funzionamento solo CPU, e trattino trattino skip-system-deps per i computer che hanno già le librerie grafiche di Qt.",
           "hold_after": 0.7,
-          "speech_text": "Su Linux rendi eseguibile il file verificato e avvialo dalla sua cartella. La selezione automatica dell’acceleratore è ora predefinita; richiedi esplicitamente la CPU se è ciò che ti serve. La nostra esecuzione isolata riutilizzava librerie di sistema e percorsi privati, quindi non dimostrava l’installazione di dipendenze di sistema."
+          "speech_text": "Su Linux, rendi eseguibile l’installer scaricato, poi avvialo da un terminale. L’accelerazione automatica seleziona un backend compatibile. L’aiuto elenca trattino trattino torch-backend cpu per il funzionamento solo CPU, e trattino trattino skip-system-deps per i computer che hanno già le librerie grafiche di cu ti."
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Leggi il profilo di installazione reale invece di dedurre il motore da un avvio riuscito. Qui la richiesta era auto e il motore selezionato è CUDA su hardware NVIDIA. La build Torch installata usa CUDA tredici punto due. Questo identifica la scelta; non è una misurazione della velocità GPU.",
+          "narration": "Dopo la configurazione, il profilo di installazione registra il backend selezionato. Controllalo quando vuoi confermare se il runtime usa la CPU o un acceleratore compatibile.",
           "hold_after": 0.7,
-          "speech_text": "Leggi il profilo di installazione reale invece di dedurre il motore da un avvio riuscito. Qui la richiesta era auto e il motore selezionato è CUDA su hardware NVIDIA. La build Torch installata usa CUDA tredici punto due. Questo identifica la scelta; non è una misurazione della velocità GPU."
+          "speech_text": "Dopo la configurazione, il profilo di installazione registra il backend selezionato. Controllalo quando vuoi confermare se il runtime usa la CPU o un acceleratore compatibile."
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Controlla la versione installata, l’importazione di Qt e il percorso del pacchetto. Questo ambiente privato contiene spaCR uno punto cinque punto zero punto cinque. I file provengono dall’installazione, non da una copia modificabile del sorgente. Importazioni riuscite non convalidano ogni analisi o formato opzionale.",
+          "narration": "Controlla la versione installata di spaCR. Conservala con le note di analisi, soprattutto quando aggiornerai l’applicazione in seguito.",
           "hold_after": 0.7,
-          "speech_text": "Controlla la versione installata, l’importazione di cu ti e il percorso del pacchetto. Questo ambiente privato contiene spàker uno punto cinque punto zero punto cinque. I file provengono dall’installazione, non da una copia modificabile del sorgente. Importazioni riuscite non convalidano ogni analisi o formato opzionale."
+          "speech_text": "Controlla la versione installata di spàker. Conservala con le note di analisi, soprattutto quando aggiornerai l’applicazione in seguito."
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Il vero primo avvio chiede le scelte facoltative per condivisione diagnostica, segnalazioni pubbliche e configurazione degli account. Le segnalazioni sarebbero pubbliche: leggi la spiegazione. Qui rifiutiamo la finestra con Esc, equivalente a Skip, keep all off. Nessun account viene collegato e le preferenze private confermano che condivisione e azioni di segnalazione restano disattivate.",
+          "narration": "La configurazione chiede della condivisione facoltativa dei dati diagnostici e della configurazione di un account. Rispondi y solo per le opzioni che vuoi; n, il valore predefinito, lascia ciascuna disattivata. L’installer di Windows mostra le stesse scelte come caselle di controllo.",
           "hold_after": 0.7,
-          "speech_text": "Il vero primo avvio chiede le scelte facoltative per condivisione diagnostica, segnalazioni pubbliche e configurazione degli account. Le segnalazioni sarebbero pubbliche: leggi la spiegazione. Qui rifiutiamo la finestra con Esc, equivalente a Skip, keep all off. Nessun account viene collegato e le preferenze private confermano che condivisione e azioni di segnalazione restano disattivate."
+          "speech_text": "La configurazione chiede della condivisione facoltativa dei dati diagnostici e della configurazione di un account. Rispondi y solo per le opzioni che vuoi; n, il valore predefinito, lascia ciascuna disattivata. L’installer di Windows mostra le stesse scelte come caselle di controllo."
         },
         {
           "visual": "06_installed_home",
-          "narration": "Dopo questa scelta, l’applicazione installata apre la Home attuale con ventuno riquadri e sei moduli principali. La finestra si chiude anche normalmente. Prosegui con la lezione Home per i flussi annidati e i loro dati di esempio; aprire Home non è di per sé una prova di analisi.",
+          "narration": "Quando si apre Home, continua con il tutorial di Home. Mostra come aprire un modulo, trovare dati di prova e scegliere una pipeline per il tuo esperimento.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Dopo questa scelta, l’applicazione installata apre la Home attuale con ventuno riquadri e sei moduli principali. La finestra si chiude anche normalmente. Prosegui con la lezione Home per i flussi annidati e i loro dati di esempio; aprire Home non è di per sé una prova di analisi."
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "Quando si apre Home, continua con il tutorial di Home. Mostra come aprire un modulo, trovare dati di prova e scegliere una pipeline per il tuo esperimento."
         },
         {
           "visual": "05_doctor",
-          "narration": "Esegui spacr-doctor dall’ambiente installato e leggi sia gli avvisi sia le verifiche riuscite. Qui conferma il motore dell’installazione, ma avverte di una dipendenza CZI opzionale mancante. Questa esecuzione salta allocazione GPU, database e impostazioni. Una verifica saltata non è superata; valuta la correzione suggerita prima di cambiare l’ambiente.",
+          "narration": "Se l’avvio o un formato di file richiede attenzione, esegui spacr-doctor dal runtime installato. Elenca ogni controllo con una correzione suggerita. In questa installazione solo CPU il controllo della GPU fallisce come previsto, e il controllo del PATH segnala il launcher spacr dell’installer stesso, che avvia questo stesso runtime; quindi qui nessuno dei due richiede modifiche.",
           "hold_after": 0.7,
-          "speech_text": "Esegui spàker-doctor dall’ambiente installato e leggi sia gli avvisi sia le verifiche riuscite. Qui conferma il motore dell’installazione, ma avverte di una dipendenza CZI opzionale mancante. Questa esecuzione salta allocazione GPU, database e impostazioni. Una verifica saltata non è superata; valuta la correzione suggerita prima di cambiare l’ambiente."
+          "speech_text": "Se l’avvio o un formato di file richiede attenzione, esegui spàker-doctor dal runtime installato. Elenca ogni controllo con una correzione suggerita. In questa installazione solo CPU il controllo della GPU fallisce come previsto, e il controllo del PATH segnala il launcher spàker dell’installer stesso, che avvia questo stesso runtime; quindi qui nessuno dei due richiede modifiche."
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Conserva install punto log e install-profile punto json della cartella d’installazione scelta quando diagnostichi un problema. Controlla le informazioni private nei registri prima di condividerli. Annota la versione di ogni analisi e aggiorna consapevolmente. Le lezioni pip e Conda descrivono gli altri percorsi basati su ambienti separati.",
+          "narration": "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spaCR, così il problema è più facile da diagnosticare.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
             "03_pip_install"
           ],
           "hold_after": 0.7,
-          "speech_text": "Conserva install punto log e install-profile punto json della cartella d’installazione scelta quando diagnostichi un problema. Controlla le informazioni private nei registri prima di condividerli. Annota la versione di ogni analisi e aggiorna consapevolmente. Le lezioni pip e Conda descrivono gli altri percorsi basati su ambienti separati."
+          "speech_text": "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spàker, così il problema è più facile da diagnosticare."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
@@ -9460,17 +9619,150 @@
       "id": "71_investigate_hit",
       "number": 71,
       "slug": "investigate_hit",
-      "title": "Analisi del risultato",
+      "title": "Investigate Hit: risalire da un gene di Regression alle cellule misurate",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Risultati e controllo qualità",
-      "description": "Questo tutorial non è ancora disponibile. Nel frattempo, esplora gli altri tutorial.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Prossimamente",
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Invia un gene da Hit List a Investigate Hit, aggiungi il database delle misure, le predizioni per cellula e le frazioni delle guide, poi leggi le evidenze a livello di pozzetto.",
+      "objectives": [
+        "Aprire un’esecuzione di Regression in Hit List, controllare i valori q e inviare un gene a Investigate Hit.",
+        "Scegliere il database delle misure, le predizioni per cellula, le frazioni delle guide e la colonna del punteggio.",
+        "Leggere le schede di evidenze, pozzetti, guide e soglia, e trovare le tabelle salvate."
+      ],
+      "prerequisite": "Estrai Investigate_Hit_real_screen_example.zip. Tutto il contenuto proviene da un unico screening reale: l’esecuzione di Regression sui dati di prova di Regression (le impostazioni del tutorial di Regression), le corrispondenti predizioni CV per cellula e un database di misure con le reali misure di forma, dimensione e intensità delle stesse cellule. Per contenere il download, il database comprende 52 pozzetti: tutti i pozzetti analizzati con una guida per il gene 225160 e, per ciascuno, tre pozzetti senza guida della stessa piastra. Nessun gene di questa esecuzione rapida di Regression soddisfa q ≤ 0,05. Considera l’indagine un esempio pratico, non un hit confermato.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Da Home, apri Regression. Investigate Hit parte da un’esecuzione di Regression completata. Si chiede se le cellule misurate nei pozzetti legati a un gene appaiano diverse da quelle dei pozzetti senza quel gene.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Da Home, apri Regression. Investigate Hit parte da un’esecuzione di Regression completata. Si chiede se le cellule misurate nei pozzetti legati a un gene appaiano diverse da quelle dei pozzetti senza quel gene."
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Scegli Hits per aprire Hit List. Prima estrai l’archivio di esempio. Contiene un’esecuzione di Regression sui dati di prova, le corrispondenti predizioni CV per cellula e un database di misure delle stesse cellule. Tutti e tre provengono da un unico screening reale.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Scegli Hits per aprire Hit List. Prima estrai l’archivio di esempio. Contiene un’esecuzione di Regression sui dati di prova, le corrispondenti predizioni CV per cellula e un database di misure delle stesse cellule. Tutti e tre provengono da un unico screening reale."
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Fai clic su Browse e seleziona la cartella guide_permutation dentro regression_run, results. È l’output dell’esecuzione sui dati di prova del tutorial di Regression.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Browse e seleziona la cartella guide_permutation dentro regression_run, results. È l’output dell’esecuzione sui dati di prova del tutorial di Regression."
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List ordina trecentoventicinque geni. Leggi insieme effetto, valore P e valore q di ogni riga, insieme al numero di guide e a quante di esse concordano.",
+          "hold_after": 0.7,
+          "speech_text": "Hit List ordina trecentoventicinque geni. Leggi insieme effetto, valore P e valore q di ogni riga, insieme al numero di guide e a quante di esse concordano."
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Imposta Max q a zero virgola zero cinque. La tabella si svuota perché in questa esecuzione nessun gene ha un valore q pari o inferiore a zero virgola zero cinque. Con centonovantanove permutazioni, il valore P più piccolo possibile è zero virgola zero zero cinque, e il valore q più basso è circa zero virgola ventisette. Quello che segue esamina quindi un candidato in graduatoria, non un hit confermato.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Imposta Max q a zero virgola zero cinque. La tabella si svuota perché in questa esecuzione nessun gene ha un valore q pari o inferiore a zero virgola zero cinque. Con centonovantanove permutazioni, il valore P più piccolo possibile è zero virgola zero zero cinque, e il valore q più basso è circa zero virgola ventisette. Quello che segue esamina quindi un candidato in graduatoria, non un hit confermato."
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Riporta Max q a uno, cerca due due cinque uno sei zero e seleziona la sua riga. Ha un effetto di zero virgola trentaquattro, un valore q di zero virgola ventisette e tre guide che concordano tutte nella direzione.",
+          "hold_after": 0.7,
+          "speech_text": "Riporta Max q a uno, cerca due due cinque uno sei zero e seleziona la sua riga. Ha un effetto di zero virgola trentaquattro, un valore q di zero virgola ventisette e tre guide che concordano tutte nella direzione."
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Fai clic su Investigate selected. Investigate Hit si apre con la cartella dei risultati, il gene, le sue tre guide e una direzione dell’effetto positiva già compilati da quella riga.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Investigate selected. Investigate Hit si apre con la cartella dei risultati, il gene, le sue tre guide e una direzione dell’effetto positiva già compilati da quella riga."
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Accanto a Measurements database, fai clic su Browse e scegli measurements.db dall’esempio. Contiene forma, dimensione e intensità media per canale di ottomilanovecentoquindici cellule in cinquantadue pozzetti.",
+          "hold_after": 0.7,
+          "speech_text": "Accanto a Measurements database, fai clic su Browse e scegli measurements punto di bi dall’esempio. Contiene forma, dimensione e intensità media per canale di ottomilanovecentoquindici cellule in cinquantadue pozzetti."
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Per Existing CV predictions, scegli cv_predictions.csv. Ogni riga è il punteggio CV salvato di una cellula, collegato allo stesso oggetto misurato. Fai clic sul percorso e premi Invio così vengono lette le colonne dei punteggi, poi mantieni pred come colonna del punteggio del fenotipo.",
+          "hold_after": 0.7,
+          "speech_text": "Per Existing CV predictions, scegli cv_predictions.csv. Ogni riga è il punteggio CV salvato di una cellula, collegato allo stesso oggetto misurato. Fai clic sul percorso e premi Invio così vengono lette le colonne dei punteggi, poi mantieni pred come colonna del punteggio del fenotipo."
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Per Well/guide fractions, scegli regression_data.csv nella stessa cartella dei risultati. Questa tabella l’ha scritta Regression. Riporta la frazione di ciascuna guida in ogni pozzetto analizzato.",
+          "hold_after": 0.7,
+          "speech_text": "Per Well/guide fractions, scegli regression_data.csv nella stessa cartella dei risultati. Questa tabella l’ha scritta Regression. Riporta la frazione di ciascuna guida in ogni pozzetto analizzato."
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Lascia vuoto Independent morphology features. Il modulo usa allora le tredici misure cellulari numeriche del database ed esclude identificatori, frazioni delle guide e punteggio CV, così questo controllo non riutilizza il punteggio. Per il tuo database, indica solo colonne di misure senza valori mancanti.",
+          "hold_after": 0.7,
+          "speech_text": "Lascia vuoto Independent morphology features. Il modulo usa allora le tredici misure cellulari numeriche del database ed esclude identificatori, frazioni delle guide e punteggio CV, così questo controllo non riutilizza il punteggio. Per il tuo database, indica solo colonne di misure senza valori mancanti."
+        },
+        {
+          "visual": "12_running",
+          "narration": "Fai clic su Investigate hit. Il modello viene adattato escludendo una piastra alla volta, quindi nessuna cellula riceve un punteggio da un modello addestrato sulla propria piastra. La frazione di guida di un pozzetto fissa solo l’aspettativa iniziale per le sue cellule. Non indica mai che una cellula porta la guida. Questo esempio richiede alcuni minuti.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Investigate hit. Il modello viene adattato escludendo una piastra alla volta, quindi nessuna cellula riceve un punteggio da un modello addestrato sulla propria piastra. La frazione di guida di un pozzetto fissa solo l’aspettativa iniziale per le sue cellule. Non indica mai che una cellula porta la guida. Questo esempio richiede alcuni minuti."
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Le cellule non sostengono questo candidato.",
+          "hold_after": 0.7,
+          "speech_text": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Le cellule non sostengono questo candidato."
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells riporta per ogni pozzetto la frazione di guida, la probabilità media di tipo hit, la prevalenza e il numero di cellule. Ogni pozzetto conta come un’unità indipendente, quindi il confronto usa tredici pozzetti bersaglio e trentanove pozzetti di controllo, non le singole cellule.",
+          "hold_after": 0.7,
+          "speech_text": "Wells riporta per ogni pozzetto la frazione di guida, la probabilità media di tipo hit, la prevalenza e il numero di cellule. Ogni pozzetto conta come un’unità indipendente, quindi il confronto usa tredici pozzetti bersaglio e trentanove pozzetti di controllo, non le singole cellule."
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides mostra ogni guida bersaglio separatamente. Le loro risposte alla dose vanno in direzioni diverse, un motivo in più per non trattare questo gene come un hit.",
+          "hold_after": 0.7,
+          "speech_text": "Guides mostra ogni guida bersaglio separatamente. Le loro risposte alla dose vanno in direzioni diverse, un motivo in più per non trattare questo gene come un hit."
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity ripete il confronto con soglie di probabilità da zero virgola cinque a zero virgola nove. Con ogni soglia la differenza resta vicina a zero virgola zero uno, quindi la conclusione non dipende dalla soglia.",
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivity ripete il confronto con soglie di probabilità da zero virgola cinque a zero virgola nove. Con ogni soglia la differenza resta vicina a zero virgola zero uno, quindi la conclusione non dipende dalla soglia."
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells ordina le cellule per probabilità di tipo hit, con il punteggio originale e la fold che ha assegnato il punteggio a ogni cellula. Queste probabilità descrivono una morfologia di tipo hit, non quale guida portasse una cellula. Promuovi le classificazioni all’annotazione solo quando le evidenze a livello di pozzetto sono convincenti. Undo annulla una promozione.",
+          "hold_after": 0.7,
+          "speech_text": "Candidate cells ordina le cellule per probabilità di tipo hit, con il punteggio originale e la fold che ha assegnato il punteggio a ogni cellula. Queste probabilità descrivono una morfologia di tipo hit, non quale guida portasse una cellula. Promuovi le classificazioni all’annotazione solo quando le evidenze a livello di pozzetto sono convincenti. Undo annulla una promozione."
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Le tabelle sono salvate nella cartella dei risultati, in hit_investigation e poi in due due cinque uno sei zero. Includono questa rappresentazione e un manifest, e ogni esecuzione viene anche conservata come nuova versione nel database. L’esempio non contiene immagini dei ritagli, quindi la galleria di revisione resta vuota. Come passo successivo, indaga un gene che superi la tua soglia in un’esecuzione di Regression con più permutazioni.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Le tabelle sono salvate nella cartella dei risultati, in hit_investigation e poi in due due cinque uno sei zero. Includono questa rappresentazione e un manifest, e ogni esecuzione viene anche conservata come nuova versione nel database. L’esempio non contiene immagini dei ritagli, quindi la galleria di revisione resta vuota. Come passo successivo, indaga un gene che superi la tua soglia in un’esecuzione di Regression con più permutazioni."
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",
