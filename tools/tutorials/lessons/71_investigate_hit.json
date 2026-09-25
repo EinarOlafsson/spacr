@@ -1,0 +1,126 @@
+{
+  "id": "71_investigate_hit",
+  "number": 71,
+  "slug": "investigate_hit",
+  "title": "Investigate Hit: trace a Regression gene back to measured cells",
+  "series": 5,
+  "app_key": "investigate_hit",
+  "host_app_key": "regression",
+  "section": "Regression",
+  "example_files": [
+    "Investigate_Hit_real_screen_example.zip"
+  ],
+  "description": "Send a Hit List gene to Investigate Hit, add the measurement database, cell predictions and guide fractions, then read the well-level evidence.",
+  "objectives": [
+    "Open a Regression run in Hit List, check q-values and send one gene to Investigate Hit.",
+    "Choose the measurement database, cell predictions, guide fractions and score column.",
+    "Read the evidence, wells, guides and threshold tabs and find the saved tables."
+  ],
+  "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. To keep the download small, the database holds 52 wells: every analysed well with a guide for gene 225160, and three wells without one from the same plate for each. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home, open Regression. Investigate Hit starts from a finished Regression run. It asks whether the measured cells in the wells behind one gene look different from cells in wells without that gene.",
+      "focus_buttons": "FoldButton",
+      "related_lessons": [
+        "13_regression"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_hit_list_open",
+      "narration": "Choose Hits to open Hit List. Extract the example archive first. It contains a Regression run on the test data, the matching per-cell CV predictions, and a measurement database for the same cells. All three come from one real screen.",
+      "related_lessons": [
+        "48_hit_list"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_choose_regression_run",
+      "narration": "Click Browse and select the guide_permutation folder inside regression_run, results. This is the output of the Regression tutorial's test-data run.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_ranked_genes",
+      "narration": "Hit List ranks three hundred twenty-five genes. Read the effect, P value and q-value of each row together, along with the number of guides and how many of them agree.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_no_gene_passes_q",
+      "narration": "Set Max q to zero point zero five. The table empties because no gene passes q at or below zero point zero five in this run. With one hundred ninety-nine permutations, the smallest possible P value is zero point zero zero five, and the lowest q-value is about zero point two seven. So what follows checks a ranked candidate, not a confirmed hit.",
+      "related_lessons": [
+        "75_regression_diagnostics"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_selected_gene",
+      "narration": "Set Max q back to one, search for two two five one six zero, and select its row. It has an effect of zero point three four, a q-value of zero point two seven, and three guides that all agree in direction.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_investigate_prefilled",
+      "narration": "Click Investigate selected. Investigate Hit opens with the results folder, the gene, its three guides and a positive effect direction already filled in from that row.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_choose_database",
+      "narration": "Next to Measurements database, click Browse and choose measurements.db from the example. It holds shape, size and mean channel intensity for eight thousand nine hundred fifteen cells in fifty-two wells.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_choose_predictions",
+      "narration": "For Existing CV predictions, choose cv_predictions.csv. Each row is one cell's saved CV score, keyed to the same measured object. Click the path and press Enter so the score columns are read, then keep pred as the phenotype score column.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_choose_fractions",
+      "narration": "For Well/guide fractions, choose regression_data.csv in the same results folder. Regression wrote this table. It gives each guide's fraction in each analysed well.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_form_ready",
+      "narration": "Leave Independent morphology features empty. The module then uses the database's thirteen numeric cell measurements and leaves out identifiers, guide fractions and the CV score, so this check does not reuse the score. For your own database, list only measurement columns that contain no missing values.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_running",
+      "narration": "Click Investigate hit. The model is fitted with one plate held out at a time, so no cell is scored by a model trained on its own plate. A well's guide fraction only sets the starting expectation for that well's cells. It never marks a cell as carrying the guide. This example takes a few minutes.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_evidence",
+      "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. The cells do not support this candidate.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_wells",
+      "narration": "Wells lists each well's guide fraction, mean hit-like probability, prevalence and cell count. Each well counts as one independent unit, so the comparison uses thirteen target wells and thirty-nine control wells, not individual cells.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_guides",
+      "narration": "Guides shows each target guide separately. Their dose responses point in different directions, which is one more reason not to treat this gene as a hit.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_threshold_sensitivity",
+      "narration": "Threshold sensitivity repeats the comparison at probability cut-offs from zero point five to zero point nine. At every cut-off the difference stays close to zero point zero one, so the conclusion does not depend on the cut-off.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_candidate_cells",
+      "narration": "Candidate cells ranks the cells by hit-like probability, with the original score and the fold that scored each cell. These probabilities describe hit-like morphology, not which guide a cell carried. Promote calls to annotation only when the well-level evidence is convincing. Undo reverses a promotion.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_control_fitted_embedding",
+      "narration": "The tables are saved in the results folder under hit_investigation, then two two five one six zero. They include this embedding and a manifest, and each run is also stored as a new version in the database. The example has no crop images, so the review gallery stays empty. Next, investigate a gene that passes your threshold in a Regression run with more permutations.",
+      "related_lessons": [
+        "13_regression",
+        "48_hit_list"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

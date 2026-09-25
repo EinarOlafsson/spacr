@@ -82,7 +82,11 @@ class Toggle(QCheckBox):
         return self._track_x + self._track_w - self._knob_d - inset
 
     def paintEvent(self, event):
-        """Paint the switch track, knob, and (optional) trailing label."""
+        """Paint the switch track, knob, and (optional) trailing label.
+
+        :param event: the paint event; not read, since the whole switch is
+            redrawn from its state every time.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = active_palette()
@@ -124,7 +128,12 @@ class Toggle(QCheckBox):
                 )
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
-        """Begin a click or drag without delegating a second toggle to Qt."""
+        """Begin a click or drag without delegating a second toggle to Qt.
+
+        :param event: the mouse press; a left-button press on an enabled
+            switch is consumed and its x position recorded, and any other
+            press goes to the base class.
+        """
         if event.button() != Qt.LeftButton or not self.isEnabled():
             super().mousePressEvent(event)
             return
@@ -135,7 +144,11 @@ class Toggle(QCheckBox):
         event.accept()
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        """Move the knob with the pointer while the left button is held."""
+        """Move the knob with the pointer while the left button is held.
+
+        :param event: the mouse move; its x position drags the knob once it
+            is 3 pixels or more from the press.
+        """
         if not self._mouse_pressed or not (event.buttons() & Qt.LeftButton):
             super().mouseMoveEvent(event)
             return
@@ -151,7 +164,12 @@ class Toggle(QCheckBox):
         event.accept()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        """Toggle on a tap, or select the side where a drag was released."""
+        """Toggle on a tap, or select the side where a drag was released.
+
+        :param event: the mouse release; only a left-button release ending a
+            press on this switch is handled, anything else goes to the base
+            class.
+        """
         if event.button() != Qt.LeftButton or not self._mouse_pressed:
             super().mouseReleaseEvent(event)
             return

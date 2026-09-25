@@ -1391,13 +1391,21 @@ class DiameterPanel(_JobMixin, QFrame):
 
 
 def qc_banner(screen) -> Optional[SegQCBanner]:
-    """The banner installed on ``screen``, or None."""
+    """The banner installed on ``screen``, or None.
+
+    :param screen: the screen widget whose ``_seg_qc_banner`` attribute is
+        read.
+    """
     found = getattr(screen, "_seg_qc_banner", None)
     return found if isinstance(found, SegQCBanner) else None
 
 
 def diameter_panel(screen) -> Optional[DiameterPanel]:
-    """The diameter panel installed on ``screen``, or None."""
+    """The diameter panel installed on ``screen``, or None.
+
+    :param screen: the screen widget whose ``_diameter_panel`` attribute is
+        read.
+    """
     found = getattr(screen, "_diameter_panel", None)
     return found if isinstance(found, DiameterPanel) else None
 

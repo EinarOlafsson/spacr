@@ -2108,6 +2108,84 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "33_plate_viewer",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
       "lesson": "34_database",
       "language": "da",
       "status": "english_fallback",

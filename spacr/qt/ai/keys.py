@@ -19,20 +19,38 @@ SERVICE_NAME = "spacr-qt-ai"
 
 
 def get_key(provider: str) -> Optional[str]:
-    """Always None — the CLI-based providers don't take API keys."""
+    """Always None — the CLI-based providers don't take API keys.
+
+    :param provider: AI provider name; accepted for API compatibility and
+        ignored.
+    """
     return None
 
 
 def set_key(provider: str, key: str) -> bool:
-    """No-op — CLI-based providers do not store API keys. Always ``False``."""
+    """No-op — CLI-based providers do not store API keys. Always ``False``.
+
+    :param provider: AI provider name; accepted for API compatibility and
+        ignored.
+    :param key: API key; accepted for API compatibility, ignored and never
+        stored.
+    """
     return False
 
 
 def delete_key(provider: str) -> None:
-    """No-op — CLI-based providers do not store API keys."""
+    """No-op — CLI-based providers do not store API keys.
+
+    :param provider: AI provider name; accepted for API compatibility and
+        ignored.
+    """
     return None
 
 
 def source_of(provider: str) -> str:
-    """Return a compat label indicating the CLI-login model."""
+    """Return a compat label indicating the CLI-login model.
+
+    :param provider: AI provider name; accepted for API compatibility and
+        ignored, since every provider gets the same label.
+    """
     return "n/a (uses vendor CLI login)"

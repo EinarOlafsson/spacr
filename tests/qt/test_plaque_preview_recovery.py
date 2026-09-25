@@ -80,12 +80,15 @@ def test_loading_an_empty_folder_clears_previous_results_and_tables(panel, tmp_p
     source = _image(tmp_path / "a.png")
     assert panel.load_source_async(source)
     assert panel.run_preview(segment=lambda path: np.ones((40, 50), np.int32))
-    assert panel._plaque_result is not None and panel._objects_view.has_image()
+    panel.views().set_view("Masks")
+    assert panel._plaque_result is not None and panel._view.has_image()
+    assert not panel.views().is_showing_message()
     empty = tmp_path / "empty"
     empty.mkdir()
     assert panel.load_source_async(empty)
     assert panel._plaque_result is None
-    assert not panel._objects_view.has_image()
+    assert panel.views().is_showing_message()
+    panel.views().set_view("Overlay")
     assert panel._table.rowCount() == panel._plaque_table.rowCount() == 0
     assert not panel._view.has_image() and panel.current_path() is None
     assert not panel.run_preview()
@@ -102,7 +105,8 @@ def test_worker_failure_returns_to_idle_and_next_preview_can_succeed(panel, tmp_
     assert panel._run_btn.isEnabled() and not panel._cancel_btn.isEnabled()
     assert panel.run_preview(segment=lambda path: np.zeros((40, 50), np.int32))
     assert panel._plaque_result["count"] == 0
-    assert "No plaques" in panel._objects_view.text()
+    panel.views().set_view("Masks")
+    assert "No plaques" in panel.views().message_text()
 
 
 def test_stale_callback_cannot_enable_run_during_a_new_preview(panel):

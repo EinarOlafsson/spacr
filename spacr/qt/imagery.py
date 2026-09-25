@@ -180,13 +180,20 @@ SPACE_PHOTO_VARIANTS = ("deep_field",)
 
 
 def theme_for(key: str) -> Optional[str]:
-    """Which theme's palette ``key`` is judged against, or ``None``."""
+    """Which theme's palette ``key`` is judged against, or ``None``.
+
+    :param key: wallpaper key in :data:`MASTERS`; unknown keys give ``None``.
+    """
     entry = MASTERS.get(key)
     return entry["theme"] if entry else None
 
 
 def title_for(key: str) -> str:
-    """Human-readable name of a wallpaper, for Preferences."""
+    """Human-readable name of a wallpaper, for Preferences.
+
+    :param key: wallpaper key in :data:`MASTERS`; an unknown key is returned
+        as its own title.
+    """
     entry = MASTERS.get(key)
     return entry["title"] if entry else str(key)
 
@@ -233,6 +240,9 @@ def master_path(key: str) -> Optional[Path]:
     ``None`` is a normal outcome, not an error: a source build with the
     assets stripped, or an unknown key. Callers fall back to the
     procedural sky or to the flat gradient.
+
+    :param key: wallpaper key in :data:`MASTERS`; its ``"file"`` is looked
+        for in each of :func:`master_dirs` in turn.
     """
     entry = MASTERS.get(key)
     if entry is None:
@@ -293,18 +303,28 @@ def srgb_encode(linear: float) -> float:
     value. Space's 0.0586 limit is ``#444444``, not a 6 % signal; the two
     readings are a factor of 4.6 apart, which is the difference between
     a dimmed sun and a black rectangle.
+
+    :param linear: linear-light value; clipped to ``[0, 1]`` before encoding.
     """
     return float(_linear_to_srgb(np.asarray(float(linear),
                                             dtype=np.float64)))
 
 
 def linear_rgb(arr: np.ndarray) -> np.ndarray:
-    """Map a uint8 (h, w, 3) image to linear-light floats in [0, 1]."""
+    """Map a uint8 (h, w, 3) image to linear-light floats in [0, 1].
+
+    :param arr: uint8 image array; each value is looked up in a 256-entry
+        table, so the result has the same shape.
+    """
     return _TO_LINEAR[arr]
 
 
 def luminance_map(arr: np.ndarray) -> np.ndarray:
-    """WCAG relative luminance of every pixel of a uint8 RGB array."""
+    """WCAG relative luminance of every pixel of a uint8 RGB array.
+
+    :param arr: uint8 RGB image array of shape ``(h, w, 3)``; the result has
+        shape ``(h, w)``.
+    """
     lin = linear_rgb(arr)
     return (0.2126 * lin[:, :, 0] + 0.7152 * lin[:, :, 1]
             + 0.0722 * lin[:, :, 2])
@@ -329,6 +349,7 @@ def brightest_window(arr: np.ndarray,
                      ) -> Tuple[float, str]:
     """Brightest ``window``-sized region of a uint8 RGB image.
 
+    :param arr: uint8 RGB image array of shape ``(h, w, 3)``.
     :returns: ``(luminance, "#rrggbb")`` — the region's mean relative
         luminance and its mean colour, which is what
         :func:`spacr.qt.theme.image_contrast_report` should be handed as
@@ -356,6 +377,9 @@ def exposure_target(theme: str) -> float:
     """Luminance the brightest text-line-sized region is aimed at.
 
     The palette's hard WCAG limit, backed off by :data:`SAFETY_MARGIN`.
+
+    :param theme: theme name whose palette sets the limit, e.g. ``"cell"``
+        or ``"space"``; see :func:`spacr.qt.theme.max_background_luma`.
     """
     from .theme import max_background_luma
     return max(0.0, max_background_luma(theme)) * SAFETY_MARGIN
@@ -368,6 +392,10 @@ def solve_dim(measured: float, target: float) -> float:
     because scaling linear light scales relative luminance by exactly
     the same factor — there is no tone curve in the way. Never brightens:
     an image already dark enough is left alone.
+
+    :param measured: current linear relative luminance; ``0`` or less gives
+        ``1.0``.
+    :param target: luminance to reach; negative values are treated as ``0``.
     """
     if measured <= 0.0:
         return 1.0
@@ -385,7 +413,13 @@ def _dim_lut(factor: float) -> np.ndarray:
 
 
 def dim(arr: np.ndarray, factor: float) -> np.ndarray:
-    """Return ``arr`` darkened by ``factor`` in linear light."""
+    """Return ``arr`` darkened by ``factor`` in linear light.
+
+    :param arr: uint8 image array; every value is mapped through a 256-entry
+        lookup table, so any shape works.
+    :param factor: multiplier applied to linear-light values; ``1.0`` or more
+        returns ``arr`` unchanged.
+    """
     if factor >= 1.0:
         return arr
     return _dim_lut(factor)[arr]
@@ -394,7 +428,12 @@ def dim(arr: np.ndarray, factor: float) -> np.ndarray:
 
 def rects_overlap(a: Tuple[float, float, float, float],
                   b: Tuple[float, float, float, float]) -> bool:
-    """True when two ``(x0, y0, x1, y1)`` rectangles share any area."""
+    """True when two ``(x0, y0, x1, y1)`` rectangles share any area.
+
+    :param a: first rectangle as ``(x0, y0, x1, y1)``.
+    :param b: second rectangle, same form. Rectangles that only touch along
+        an edge do not overlap.
+    """
     return (a[0] < b[2] and b[0] < a[2]
             and a[1] < b[3] and b[1] < a[3])
 
@@ -421,6 +460,8 @@ def solid_annotation_blocks(arr: np.ndarray) -> int:
     differently — the microtubule frame peaks at 218, not 255, and an
     absolute "≥ 190 is white" test would go blind on it.
 
+    :param arr: uint8 RGB image array of shape ``(h, w, 3)``; an empty array
+        or one smaller than :data:`ANNOTATION_BLOCK` on either side gives 0.
     :returns: number of blocks that look like annotation. Zero for every
         shipped master; the tests also check it is *non*-zero on the same
         masters with a bar drawn on, so a detector that has quietly
@@ -515,6 +556,10 @@ def _probe(image, long_edge: int = 480) -> np.ndarray:
 def render(key: str, width: int, height: int):
     """Render ``key``'s wallpaper at exactly ``width`` x ``height``.
 
+    :param key: wallpaper key in :data:`MASTERS`.
+    :param width: output width in pixels, clamped to
+        :data:`spacr.qt.space.MIN_DIM` and :data:`spacr.qt.space.MAX_DIM`.
+    :param height: output height in pixels, clamped the same way.
     :returns: a PIL image, or ``None`` when the master is missing.
 
     The crop and the resample happen in a single ``Image.resize`` call
@@ -552,7 +597,12 @@ def render(key: str, width: int, height: int):
 
 
 def cache_name(key: str, width: int, height: int) -> str:
-    """Return the versioned cache filename for a photographic background."""
+    """Return the versioned cache filename for a photographic background.
+
+    :param key: wallpaper key, embedded in the name as ``photo-<key>-...``.
+    :param width: image width in pixels.
+    :param height: image height in pixels.
+    """
     return f"photo-{key}-{width}x{height}-v{CACHE_VERSION}.jpg"
 
 
@@ -612,6 +662,9 @@ def background_path(key: str, width: int = 0, height: int = 0,
     master, a read-only home directory, no image encoder. Callers treat
     that as "use the procedural sky" or "use the flat gradient", so a
     failure here costs some prettiness and nothing else.
+
+    :param key: wallpaper key in :data:`MASTERS`, e.g. ``"microtubules"``;
+        also names the cached file.
     """
     try:
         if width <= 0 or height <= 0:
@@ -653,6 +706,8 @@ def master_array(key: str) -> Optional[np.ndarray]:
 
     Decoded at 1/8 scale where the format allows it and box-averaged the
     rest of the way — see :func:`_probe`.
+
+    :param key: wallpaper key in :data:`MASTERS`; see :func:`master_path`.
     """
     path = master_path(key)
     if path is None:
@@ -681,6 +736,9 @@ def legibility_of(arr: np.ndarray, theme: str,
     is this function over a rendered frame. Until it was, the sky was the
     one background in the app that had never been measured, and it was
     8-14x over the limit.
+
+    :param arr: uint8 RGB image array of shape ``(h, w, 3)``.
+    :param theme: theme name whose palette sets ``limit`` and ``failures``.
     """
     from .theme import image_contrast_failures, max_background_luma
     value, color = brightest_window(arr)
@@ -702,6 +760,9 @@ def legibility(key: str) -> Optional[dict]:
 
     See :func:`legibility_of` for the returned dict. ``None`` when the
     master is not installed.
+
+    :param key: wallpaper key in :data:`MASTERS`; the master is judged
+        against that entry's theme.
     """
     arr = master_array(key)
     if arr is None:
@@ -725,6 +786,9 @@ def solve_image_file(path, theme: str, fmt: str = "JPEG") -> bool:
     scrims are solved against the bound, is precisely the failure
     :data:`spacr.qt.theme.EXPOSURE_BOUNDED_THEMES` warns about: panels
     thinned to what a dark sky can carry, with a solar flare behind them.
+
+    :param path: image file to read and, if it needs dimming, overwrite.
+    :param theme: theme name whose palette sets the exposure target.
     """
     try:
         from PIL import Image
@@ -760,6 +824,12 @@ def build_master(key: str, src_dir, dst_dir) -> Optional[Path]:
     the crop rectangles live next to the code that documents why they
     are where they are.
 
+    :param key: wallpaper key in :data:`MASTERS`; an unknown key raises
+        ``KeyError``.
+    :param src_dir: directory holding the original image named by the
+        entry's ``"source"``.
+    :param dst_dir: directory the JPEG master is written into, under the
+        entry's ``"file"`` name; created if missing.
     :returns: the written path, or ``None`` if the original is missing.
     """
     from PIL import Image
@@ -799,6 +869,10 @@ def build_master(key: str, src_dir, dst_dir) -> Optional[Path]:
 
 
 def build_masters(src_dir, dst_dir=None) -> Dict[str, Optional[Path]]:
-    """Build every master in :data:`MASTERS`. See :func:`build_master`."""
+    """Build every master in :data:`MASTERS`. See :func:`build_master`.
+
+    :param src_dir: directory holding the originals, passed to
+        :func:`build_master` for every key.
+    """
     dst_dir = RESOURCE_DIR if dst_dir is None else dst_dir
     return {key: build_master(key, src_dir, dst_dir) for key in MASTERS}

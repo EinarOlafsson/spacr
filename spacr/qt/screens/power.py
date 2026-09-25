@@ -925,6 +925,9 @@ class PowerScreen(QWidget):
         spec round-trips: ``screen.set_spec(s); screen.spec() == s``. Dropping
         them would quietly re-simulate a different screen from the one asked
         for, with no visible difference on the form.
+
+        :param spec: the design to load; its shown fields fill the form and the
+            fields the form does not show are kept for :meth:`spec` to return.
         """
         self._held = {name: getattr(spec, name) for name in _HELD_FIELDS}
         self._genes.setValue(int(spec.n_genes))
@@ -1332,7 +1335,12 @@ class PowerScreen(QWidget):
 
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        """Let every in-flight sweep stop before the widget dies."""
+        """Let every in-flight sweep stop before the widget dies.
+
+        :param event: the close event; it is passed on to the base class after
+            the sweep is cancelled and running threads are waited on for up to
+            10 s each.
+        """
         self.cancel()
         for thread, _worker in list(self._jobs):
             try:

@@ -435,6 +435,10 @@ class Section(QFrame):
         above and below it -- which is the point: a row of buttons floating in
         the middle of the section reads as unrelated to the settings it acts
         on, and one aligned with them reads as part of the same form.
+
+        :param label: the row label: text (shown elided, with the full text as
+            tooltip) or a ready-made widget.
+        :param widget: the widget placed in the field column of the row.
         """
         form_label = QWidget(self._body)
         form_label.setObjectName("SettingLabelWithInfo")
@@ -457,7 +461,11 @@ class Section(QFrame):
             self._form.addRow(form_label, widget)
 
     def add_widget(self, widget: QWidget) -> None:
-        """Add a full-width (label-less) widget to the section's form body."""
+        """Add a full-width (label-less) widget to the section's form body.
+
+        :param widget: the widget added as a full-width row, coloured by the
+            section's maturity.
+        """
         self._form.addRow(widget)
         self._row_widgets.append((None, widget))
         self._apply_maturity(widget, setting=True)
@@ -578,6 +586,10 @@ class Section(QFrame):
 
         ``stable``/``beta``/``alpha`` use the exact hues shown in Home's
         maturity legend. Unknown values deliberately fall back to stable.
+
+        :param stage: maturity stage, ``'stable'``, ``'beta'`` or ``'alpha'``
+            (case-insensitive); empty or unknown values are treated as
+            ``'stable'``.
         """
         stage = str(stage or "stable").lower()
         if stage not in STAGE_LABEL:
@@ -599,7 +611,10 @@ class Section(QFrame):
         return self._maturity
 
     def set_expanded(self, on: bool) -> None:
-        """Expand or collapse the section body programmatically."""
+        """Expand or collapse the section body programmatically.
+
+        :param on: ``True`` to expand the body, ``False`` to collapse it.
+        """
         self._header.setChecked(on)
         self._on_toggle(on)
 
@@ -705,6 +720,9 @@ class Section(QFrame):
         else re-computes it. Only ``StyleChange`` is answered -- setting the
         body's palette posts ``PaletteChange`` back here, and answering that
         one would be a loop.
+
+        :param event: the change event; it is passed to the base class, and a
+            ``QEvent.StyleChange`` also re-seals the body.
         """
         super().changeEvent(event)
         if event.type() == QEvent.StyleChange:

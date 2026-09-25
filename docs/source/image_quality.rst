@@ -1,8 +1,9 @@
 Image quality before segmentation
 =================================
 
-From **Home → Mask**, open **Image Quality** before running segmentation.
-The same settings are available in Timelapse. Screening measures the raw,
+From **Home → Core → Mask**, open the **Image Quality** settings category
+before running segmentation. The same settings apply when Mask's **Timelapse**
+switch is on. Screening measures the raw,
 unnormalized image channels. Start in ``report`` mode to inspect acquisition
 problems before deciding which fields to exclude.
 
@@ -34,7 +35,8 @@ pixel is never substituted for a calibrated saturation level.
 Review and outputs
 ------------------
 
-Open **QC Dashboard → Review image quality** for a local thumbnail gallery.
+Open **Home → Data → QC** and choose **Review image quality** for a local
+thumbnail gallery.
 Flagged fields appear first, with at most 64 previews. Display contrast is
 stretched for inspection; the metrics still use raw intensities. Stack
 thumbnails are maximum projections.

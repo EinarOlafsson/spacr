@@ -240,7 +240,10 @@ def sanitize_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def sanitize_traceback(tb: str) -> str:
-    """Sanitise a full traceback string via :func:`sanitize_path`."""
+    """Sanitise a full traceback string via :func:`sanitize_path`.
+
+    :param tb: the traceback text; ``None`` or an empty string gives ``""``.
+    """
     return sanitize_path(tb or "")
 
 
@@ -652,6 +655,8 @@ def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
 def open_issue_in_browser(url: str) -> bool:
     """Open ``url`` in the user's default browser.
 
+    :param url: the address to open, typically from :func:`issue_url`; it is
+        opened in a new tab where the browser supports one.
     :returns: ``True`` if webbrowser accepted the request, else False.
     """
     import webbrowser
@@ -701,7 +706,17 @@ def _post_report(report: Dict[str, str]) -> Dict[str, str]:
 
 
 def submit_report(report: Dict[str, str]) -> str:
-    """Submit one payload the user has already approved in the preview."""
+    """Submit one payload the user has already approved in the preview.
+
+    :param report: the approved payload with ``title`` and ``body`` keys, plus
+        ``fingerprint`` for the duplicate search when a GitHub sign-in posts
+        it through the API. Without a sign-in, or when posting fails, the
+        title and body are put into a pre-filled issue URL that is opened in
+        the browser.
+    :returns: the filed issue's URL, the pre-filled ``issues/new`` URL, or
+        the transport refusal message when network use is refused (inside a
+        test run).
+    """
     try:
         from . import github_auth
         refusal = github_auth._transport_refusal()
@@ -762,6 +777,10 @@ def file_issue(
     editable preview, then passes the approved mapping to
     :func:`submit_report`. Headless callers invoking this function are the
     report-specific affirmative action themselves.
+
+    :param traceback_text: full traceback text, passed to
+        :func:`build_report`, which sanitises it and derives the issue title
+        and fingerprint from it.
     """
     report = build_report(
         traceback_text,

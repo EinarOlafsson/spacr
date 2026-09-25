@@ -208,6 +208,10 @@ def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
     Legacy folders have no manifest and return ``None``. A present but
     malformed manifest raises: once metadata exists, silently ignoring it
     would recreate the exact wrong-plane failure the manifest prevents.
+
+    :param path: a merged folder, or a ``.npy`` file inside one (its parent
+        folder is used); the ``.spacr_plane_layout.json`` sidecar is read
+        from that folder.
     """
     folder = os.path.dirname(path) if str(path).endswith('.npy') else path
     manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
@@ -269,6 +273,15 @@ def reconcile_merged_mask_dims(
     neither names is left out of the copy rather than set to ``None``.
     The cell, nucleus and pathogen keys are always set, so a plane the
     manifest does not record is switched off.
+
+    :param settings: the run settings; its ``<role>_mask_dim`` keys are read
+        and a copy with those keys reconciled is returned (the mapping itself
+        is not modified).
+    :param merged_folder: the merged folder whose plane-layout manifest is
+        applied.
+    :param explicit_keys: settings keys the caller supplied explicitly; a
+        non-``None`` value under one of these that disagrees with the manifest
+        raises ``PlaneLayoutConflict``.
     """
     out = dict(settings)
     layout = read_merged_plane_layout(merged_folder)

@@ -1081,7 +1081,11 @@ class ModelCompareScreen(QWidget):
 
 
     def closeEvent(self, event):  # noqa: N802
-        """Let every in-flight comparison thread finish before the widget dies."""
+        """Let every in-flight comparison thread finish before the widget dies.
+
+        :param event: the close event; it is passed on to the base class after
+            running threads are asked to quit and waited on for up to 5 s each.
+        """
         for thread, _worker in list(self._jobs):
             try:
                 if thread.isRunning():

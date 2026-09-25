@@ -107,6 +107,9 @@ def fades(widget) -> bool:
       over a row of data, not a form field with space to its right, so a
       transparent trailing half would show the cell it is covering and
       read as a rendering fault rather than as a design.
+
+    :param widget: the widget to test; only the field types in ``FIELD_TYPES``
+        that have not set the opt-out property can qualify.
     """
     if not isinstance(widget, FIELD_TYPES):
         return False
@@ -316,6 +319,9 @@ def field_fade_qss(palette: dict, opacity: Optional[float] = None) -> str:
     from ``opacity``, and its colours come from
     :func:`spacr.qt.theme.field_chrome` at paint time so they survive a
     theme switch without the stylesheet having baked them in.
+
+    :param palette: the theme palette passed by
+        :func:`spacr.qt.theme.register_widget_qss`; unused.
     """
     if not field_fade_enabled():
         return ""

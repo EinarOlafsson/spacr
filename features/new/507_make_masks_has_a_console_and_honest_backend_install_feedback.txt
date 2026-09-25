@@ -1,7 +1,8 @@
 MAKE MASKS: A CONSOLE, AND AN INSTALL BUTTON THAT SAYS WHAT HAPPENED
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned. Related: 503, 473, 423.
+Status: IMPLEMENTED 2026-09-25 on branch worktree-agent-ac2b40989d7ce7223
+        (not pushed); see the trailing note. Filed 2026-09-24.
+Owner: Claude (item-507 agent). Related: 503, 473, 423.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "in make masks if i hit install cellprofiler 3 i get a popup then hit
@@ -37,3 +38,148 @@ DONE WHEN
 The console exists and carries that text; the install button reports state
 honestly; and the item records real measurements of Cellpose 3 segmenting and
 enhancing real images, with the speed either improved or explained.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- BUILT: THE CONSOLE, THE HONEST BUTTON, CELLPOSE 3 MEASURED
+--------------------------------------------------------------------------------
+
+WHAT WAS BUILT (file:line on the branch after merging nightly eefabdf87)
+
+1. THE CONSOLE. spacr/qt/screens/make_masks.py:649 _MasksConsole -- a
+   ConsolePanel without chat and without the app-wide log
+   (spacr/qt/widgets/console_panel.py:973, new follow_log= and chat=
+   keywords), with ONE ProgressLine (item 502's, eliding.py) under the
+   scrollback for the task running now. A progress step rewrites that line;
+   an info/warning/error line goes to the scrollback and ends the progress;
+   an identical repeat is not written twice. Placed by _build_view_pane
+   (make_masks.py:9336): the right-hand "Shortcuts" EDGE pane is now a
+   vertical CollapsibleSplitter (still `_shortcut_panel`, still 230 px) of
+   the shortcut card (`_shortcut_card`) and a FoldSection "Console"
+   (add_section, persist key make_masks/Console), so the console folds to
+   its heading at the bottom of the column and the whole column still folds
+   as before. Routing: the corner label is now _StatusLabel (:592), which
+   shows the first line (<=160 chars, whole text as tooltip) and hands every
+   new text to _report_status (:9391) -- text ending in an ellipsis is
+   progress, anything else a scrollback line. _report (:9381) is the direct
+   route with a kind; the restoration controls' new `said` signal and the
+   install button's reports use it.
+2. "COULD NOT SEGMENT" SAID ONCE. _LiveMagnifier._on_delivered latches the
+   last reason (:5431); it is said and logged again only when it changes,
+   after a region succeeds, or on a new field (forget()).
+3. STACKED PROGRESS BARS. spacr/_segmentation_backends.py:439 _final_lines
+   and :1104 _raw_lines: the worker's stderr is read with newline='' so a
+   tqdm redraw ("\r") replaces the previous line in the tail
+   (_WorkerProcess._said, :1482) instead of adding forty.
+4. THE INSTALL BUTTON. spacr/qt/widgets/model_zoo_picker.py:805
+   _BackendInstallButton: three faces read from _backend_state ON DISK
+   (re-read on every show, polled while another window's install holds the
+   lock): "Install Cellpose 3…" enabled / "Installing Cellpose 3…" greyed /
+   "Cellpose 3 is installed" greyed. BackendInstallDialog gained
+   job_started/job_progressed/job_failed/job_cancelled (:526) and
+   install_backend a watch= keyword (:770); a failure's message goes to the
+   console as an error line. restoration_controls.py:45 _install_with keeps
+   the 2-argument test stand-in working.
+5. SPEED. (a) Restoration is no longer pinned to the CPU:
+   restoration_controls.py:17 _restoration_device -> SPACR_DEVICE, else
+   'auto' when the environment was installed with a CUDA/MPS torch, else
+   'cpu'. (b) A chain with restoration waits 400 ms to settle before
+   sending (make_masks.py:412, :1245), and says when the whole-field run
+   starts and how long it took. (c) Cooperative cancel:
+   _WorkerProcess._abandon (:1521) and a stdin reader thread in _serve
+   (:2761) let a cancelled request finish unheard (queued ones are skipped)
+   instead of killing the worker -- used only where it is cheaper
+   (_keep_restoring, :1772: on a GPU, or a CPU plane <= 1 Mpx); a cancelled
+   whole field on the CPU still stops the worker, because the measurement
+   below says a restart is cheaper there. (d) The measured reason Cellpose 3
+   DETECTION is slow is Diameter 0: _cellpose3_auto_diameter_note (:2982)
+   says so in the console for the magnifier's whole-image run (:4995) and
+   for Object detection when it runs a cellpose3 model (:11298).
+
+MEASUREMENTS (real field: ~/.cache/spacr/example_data/make_masks_toxo_pv/
+plate1_A02_12.tif, 1994 x 1994 uint16, 33 ground-truth vacuoles, median
+equivalent diameter 44 px; spaCR's own host path _WorkerProcess /
+_restoration_plan / _restore_plane / _RemoteBackend; Cellpose 3.1.1.3,
+torch 2.14.0+cu130, 16 threads; env = a copy of the installed one at
+/mnt/wd4tb/spacr_testdata/backends_sandbox/cellpose3; GPU = RTX 3090 through
+tools/gpu_turn.sh; probe /tmp/spacr-507-scratch/probe/host_timing.py)
+
+  step                                             CPU            GPU
+  worker start (python + torch + cellpose, hello)  10.3 s cold,   4.9 s
+                                                   4.8 s warm
+  restoration model load (denoise_cyto3)           0.24 s         0.24 s
+  restore 256 x 256 box (warm)                     0.55 s         0.02 s
+  restore whole field, diameter 30                 18.4 s         0.6 s
+  restore whole field, diameter 44                 11.2 s         0.6 s
+  cancel 1 s into a whole-field restore, until
+    the next result: kill + restart (old)          25.0 s         (finishes
+                     keep worker (abandon)         36.1 s          first: 1.1 s)
+  detect whole field cyto3, Diameter 44            11.9 s         2.7 s
+                                                   24/33 @IoU.5   24/33
+  detect whole field cyto3, Diameter 0 (default)   153.4 s        7.5 s
+                                                   7/33, 86 obj,  6/33, 89 obj
+                                                   est. 16 px
+  detect 256 box, Diameter 44 / Diameter 0         0.08 / 1.8 s   0.02 / 0.08 s
+
+  BEFORE -> AFTER for "Apply" with Cellpose 3 restoration on this machine:
+  18.4 s per whole field on the CPU, plus a worker restart on every chain
+  change -> 0.6 s on the GPU, requests only after 400 ms of stillness.
+
+ENHANCEMENT IS USABLE (same field, normalised to [0,1], Gaussian noise
+sigma 0.35; denoise_cyto3 at diameter 44; CPU and GPU agree):
+  correlation with the clean field: noisy 0.204 -> denoised 0.711.
+  cyto3 at Diameter 44: clean 27/33 matched, noisy 21/33 (27 objects),
+  noisy then denoised 24/33 (35 objects). On the clean field itself
+  denoising does not help (it is not noisy) -- it runs, and that is all.
+
+TESTS (all through tools/run_capped.sh 8G, QT_QPA_PLATFORM=offscreen)
+  tests/qt/test_make_masks_console_and_install_feedback.py: 15 cases, new
+    (console lines + in-place progress line; placement right of the image
+    under the list, fold and unfold; corner shows one line, console all;
+    restoration lines routed; button faces x3 from a faked probe; install
+    installed/failed/cancelled x3; magnifier failure latch; \r collapse x2;
+    restoration device choice; keep-or-kill rule).
+  tests/test_backends_live_in_their_own_environment.py: +2 cases (a kept
+    request leaves its worker running and the same worker answers next; a
+    cancelled queued request is never started); 120 pass.
+  Related selection (every tests/qt file matching make_masks, magnif,
+    model_zoo, console_panel, restoration, backend, zoo, plus four backend
+    files): 1650 passed, 4 skipped before the nightly merge; 1675 passed,
+    4 skipped after merging nightly eefabdf87 (505's new tests included).
+  Guard/i18n files (18 files): the 10 failures are the same 10 that fail
+    on the merge base fd79f5e21 (comm of the two failure lists: empty).
+
+NOT DONE
+  * Cellpose 3 rows in Object detection are item 503's; the Diameter-0 note
+    fires there only if 503's model keys start with "cellpose3".
+  * The tqdm lines themselves are not streamed into the console as live
+    progress; they are only collapsed in the error tail.
+  * Restoration on the GPU was measured through the host path, not through
+    a clicked Apply on screen; the screen path is covered by tests with
+    stand-ins.
+
+NEW tr() STRINGS FOR THE DOCS LANE (reviewed runtime evidence under
+docs/i18n/reviewed/ was left untouched; every previously reviewed source is
+still in the code)
+  make_masks.py: "Console" (fold heading), "Shortcut list" (pane name),
+    "Cellpose 3 restoration is running on the whole field…",
+    "Cellpose 3 restoration finished in {seconds} s.",
+    "Cellpose 3 with Diameter 0 first estimates the object size and rescales
+    the whole field to it. On a 1994 x 1994 Toxoplasma field on the CPU that
+    took 153 s and guessed 16 px for vacuoles of 44 px; with Diameter 44 it
+    took 12 s. Set Diameter to the objects' size in pixels to skip the
+    estimate."
+  restoration_controls.py: "Loading restoration model on the GPU…",
+    "On the CPU a whole field takes tens of seconds and the magnifier box
+    about a second.", "Restoration ready: {model} on {device}; original
+    intensities retained for measurements.", "Load the selected Cellpose 3
+    restoration weights on the GPU. First use may download weights. The
+    captured package version, checkpoint hash and diameter are recorded with
+    applied enhancement.", "Installing Cellpose 3…", "Cellpose 3 is
+    installed".
+  model_zoo_picker.py: "Install {name}…", "Installing {name}…", "{name} is
+    installed", "{name} was not installed.", "step {step} of {steps}".
+  API docstrings changed (catalog rebuild at the end of the batch):
+    ConsolePanel.__init__ (follow_log, chat), BackendInstallDialog (class
+    docstring and four signals), install_backend (watch).
+

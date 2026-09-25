@@ -59,7 +59,11 @@ class ApiHelpLabel(QLabel):
 
 
     def setText(self, text: str) -> None:          # noqa: N802 (Qt casing)
-        """Remember the whole sentence, then paint as much of it as fits."""
+        """Remember the whole sentence, then paint as much of it as fits.
+
+        :param text: the full description; None becomes ``""``. It is kept
+            whole and painted elided to fit.
+        """
         self._full_description = str(text or "")
         QLabel.setText(self, self._full_description)
         self._elide_to_fit()
@@ -119,7 +123,11 @@ class ApiHelpLabel(QLabel):
         return QSize(max(1, min(base.width(), floor)), base.height())
 
     def resizeEvent(self, event):                  # noqa: N802 (Qt naming)
-        """Re-elide for the width just granted."""
+        """Re-elide for the width just granted.
+
+        :param event: the resize event, passed to the base class; the text is
+            then elided to the label's new width.
+        """
         super().resizeEvent(event)
         self._elide_to_fit()
 
@@ -145,7 +153,11 @@ class ApiHelpLabel(QLabel):
 
 
     def set_api_app_key(self, app_key: str) -> None:
-        """Set the module whose API documentation is linked."""
+        """Set the module whose API documentation is linked.
+
+        :param app_key: the module whose API page is linked; None or empty
+            means no link. Any :meth:`set_url` override is dropped.
+        """
         self._app_key = str(app_key or "")
         self._url_override = ""
         self.setProperty("moduleApiAppKey", self._app_key or None)
@@ -158,7 +170,11 @@ class ApiHelpLabel(QLabel):
         return split_api_link(self.help_html())[1]
 
     def set_url(self, url: str) -> None:
-        """Override the documentation URL while preserving the description."""
+        """Override the documentation URL while preserving the description.
+
+        :param url: the documentation URL to link instead of the module's API
+            page; empty removes the override.
+        """
         self._url_override = str(url or "")
         self._refresh_help()
 
@@ -167,7 +183,12 @@ class ApiHelpLabel(QLabel):
         return str(self.property("apiTooltipHtml") or "")
 
     def retranslate_dynamic_content(self, language: object) -> None:
-        """Rebuild translated hover content and its documentation link."""
+        """Rebuild translated hover content and its documentation link.
+
+        :param language: the language to translate the hover help into,
+            converted to a string; a falsy value clears it. Any :meth:`set_url`
+            override is dropped.
+        """
         self._language = str(language) if language else None
         self._url_override = ""
         self._refresh_help()

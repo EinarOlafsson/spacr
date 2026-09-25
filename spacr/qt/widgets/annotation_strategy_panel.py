@@ -417,7 +417,13 @@ class AnnotationStrategyPanel(QWidget):
         return str(self._menu.currentData() or "")
 
     def set_strategy(self, key: str) -> bool:
-        """Select a strategy by key and report whether it was available."""
+        """Select a strategy by key and report whether it was available.
+
+        :param key: key of a strategy in
+            :data:`spacr.regression_annotation.STRATEGIES`, matched as a string
+            against the menu entries. An unknown key leaves the selection
+            unchanged and returns ``False``.
+        """
         index = self._menu.findData(str(key))
         if index < 0:
             return False
@@ -691,6 +697,10 @@ class AnnotationStrategyPanel(QWidget):
                       exc_info=True)
 
     def closeEvent(self, event):             # noqa: N802 - Qt's spelling
-        """Stop active work when the panel closes."""
+        """Stop active work when the panel closes.
+
+        :param event: the close event, passed on to the base class after the
+            strategy worker is shut down.
+        """
         self.shutdown()
         super().closeEvent(event)

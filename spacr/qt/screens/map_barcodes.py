@@ -165,6 +165,9 @@ def fold_description(key: str) -> Tuple[str, str, str]:
     Registry metadata is preferred while the module remains registered.
     :data:`FOLD_FALLBACK` supplies the same presentation metadata after a
     folded module's standalone registry entry is removed.
+
+    :param key: application key of the folded module, looked up in the app
+        registry, then the declared catalogue, then the fold fallback records.
     """
     name = description = stage = ""
     try:
@@ -207,6 +210,10 @@ def restate_fold_button(button, key: str) -> None:
     the module because the strip already uses the same metadata. After the
     registry row is removed, the fallback metadata preserves the module's
     accessible label, tooltip, and maturity-stage styling.
+
+    :param button: the fold-strip button to update (tooltip, accessible name
+        and ``stage``); ``None`` does nothing.
+    :param key: application key of the folded module whose metadata is applied.
     """
     if button is None:
         return
@@ -233,6 +240,9 @@ def folded_module_title(key: str) -> str:
     The application title table is preferred so renamed modules remain
     consistent throughout the interface. Fallback metadata is used after a
     module's standalone registry entry is removed.
+
+    :param key: application key of the folded module; when no title or name is
+        recorded it is title-cased with underscores as spaces.
     """
     try:
         from .app_screen import APP_TITLES
@@ -253,6 +263,11 @@ def connect_host(screen: QWidget, host_window: Optional[QWidget]) -> None:
     Connections are derived from :data:`spacr.qt.chaining.HOST_CONNECTIONS`,
     the same mapping used by ``MainWindow._build_screen``. Folded and
     standalone screens therefore expose the same host-level actions.
+
+    :param screen: the screen whose host signals, named in
+        ``HOST_CONNECTIONS``, are connected.
+    :param host_window: the window providing the matching slots; ``None``
+        connects nothing.
     """
     if host_window is None:
         return
@@ -338,6 +353,12 @@ def show_as_window(screen: QWidget, owner: Optional[QWidget],
     see :func:`show_as_page`. The main window owns the resulting window so
     that Qt retains it for the application's lifetime and closes it with the
     application.
+
+    :param screen: the screen to show; it is reparented as a top-level window,
+        titled, resized and raised.
+    :param owner: a widget whose top-level window becomes the new window's
+        parent; ``None`` leaves it unparented.
+    :param title: the window title.
     """
     parent = owner.window() if owner is not None else None
     screen.setParent(parent, Qt.Window)
@@ -698,6 +719,9 @@ def install_folds_on(screen: QWidget) -> Optional[FoldStrip]:
 
     The owning module is selected through :data:`FOLD_HOST_MODULES`. Screens
     without a fold declaration are left unchanged.
+
+    :param screen: the host screen; its ``app_key`` selects the owning module
+        in :data:`FOLD_HOST_MODULES`.
     """
     key = getattr(screen, "app_key", None)
     module_name = FOLD_HOST_MODULES.get(key) if key else None
@@ -931,7 +955,11 @@ class CategoryFold:
         return self._active
 
     def set_active(self, on: bool) -> None:
-        """Show or hide this module's categories on the host's form."""
+        """Show or hide this module's categories on the host's form.
+
+        :param on: ``True`` to show this fold's category sections, ``False`` to
+            hide them; coerced with ``bool()``.
+        """
         self._active = bool(on)
         for section in self.sections:
             section.setVisible(self._active)
@@ -1020,6 +1048,11 @@ class CategoryFoldSet:
         prerequisite disables active dependents. Available strip buttons are
         updated through their normal signal path to keep display and form
         state synchronized.
+
+        :param key: application key of the folded module; an unknown key is
+            ignored.
+        :param on: ``True`` to enable the fold and its prerequisites, ``False``
+            to disable it and any active fold that depends on it.
         """
         fold = self.folds.get(key)
         if fold is None:
@@ -1035,7 +1068,11 @@ class CategoryFoldSet:
         self.apply_gates()
 
     def is_active(self, key: str) -> bool:
-        """Whether ``key``'s categories are showing and its gate is on."""
+        """Whether ``key``'s categories are showing and its gate is on.
+
+        :param key: application key of the folded module; an unknown key
+            returns ``False``.
+        """
         fold = self.folds.get(key)
         return bool(fold is not None and fold.active)
 

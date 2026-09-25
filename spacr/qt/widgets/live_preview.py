@@ -134,6 +134,9 @@ def organelle_label(number: int) -> str:
     Slot 1 stays plain ``organelle``: one organelle is the ordinary case, and
     numbering it "organelle 1" would relabel every existing screen to say
     something new about a run that has not changed.
+
+    :param number: the organelle slot, counting from 1; converted to
+        ``int``.
     """
     return "organelle" if int(number) <= 1 else f"organelle {int(number)}"
 
@@ -145,6 +148,10 @@ def object_role(label: str) -> str:
     ``organelleb``, which is the prefix its settings keys actually carry. The
     dropdown counts because that is what the main panel counts, and the roles
     use letters because a digit cannot start a Python identifier.
+
+    :param label: an object-dropdown caption such as ``"cell"``,
+        ``"organelle"`` or ``"organelle 2"``; anything not starting with
+        ``organelle`` is returned unchanged.
     """
     if not isinstance(label, str) or not label.startswith("organelle"):
         return label
@@ -242,7 +249,13 @@ COMPARTMENT_FIELDS = (
 OUTLINE_CHOICES = ("auto", "color (random)", "green", "magenta",
                    "yellow", "cyan", "white", "red")
 
-VIEW_MODES = ("Overlay", "Masks", "Flows")
+VIEW_MODES = ("Overlay", "Masks", "Flows", "Cell probability")
+
+SESSION_MASK_LIMIT = 8
+"""How many of this session's masks the comparison panel can lay over one
+another: the last eight, oldest dropped first. Each is a full-size label
+array, and a panel that kept every run of an afternoon would hold them all
+in memory for a popup that lists eight comfortably."""
 
 
 
@@ -251,6 +264,9 @@ def load_preview_image(path: Path) -> np.ndarray:
 
     Tifffile is used for TIFFs to preserve bit-depth; other formats fall
     back to PIL. Raises :class:`FileNotFoundError` if the path is bad.
+
+    :param path: image file path (``str`` or :class:`~pathlib.Path`); a
+        ``.tif``/``.tiff`` suffix, in any case, selects tifffile.
     """
     path = Path(path)
     if not path.is_file():
@@ -609,6 +625,9 @@ def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
     other than three are reconciled here — extra channels are dropped, missing
     ones are filled with black — because a mismatch made ``QImage`` read
     ``h * w * 3`` bytes out of a buffer that only held ``h * w``.
+
+    :param arr: image array of shape (H, W) or (H, W, C); a non-uint8 array
+        is scaled to 8 bits first, by percentile when ``normalise`` is true.
     """
     arr = np.asarray(arr)
     if arr.dtype != np.uint8:
@@ -741,6 +760,9 @@ class PreviewRequest:
 
     Kept as a plain dataclass so tests can construct it directly; the
     panel builds one from its widget state on each Run.
+
+    :param image: the field to segment, an array of shape (H, W) or
+        (H, W, C); each object type's channel index selects its plane.
     """
     image:               np.ndarray
     model:               str = "cpsam"
@@ -754,6 +776,8 @@ class PreviewRequest:
     model_note:          str = ""
     cancel:             Event = field(default_factory=Event, repr=False)
     provenance:         Dict[str, Any] = field(default_factory=dict)
+    cellprob_maps:      Dict[str, np.ndarray] = field(default_factory=dict,
+                                                  repr=False)
 
 
 class _PreviewWorker(QThread):
@@ -761,6 +785,7 @@ class _PreviewWorker(QThread):
 
     finished_masks = Signal(object, str, int)
     flows_ready = Signal(object, int)
+    cellprob_ready = Signal(object, int)
     provenance_ready = Signal(object, int)
 
     def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
@@ -794,7 +819,10 @@ class _PreviewWorker(QThread):
         """
         try:
             res = _segment_multi(self._request)
-            if isinstance(res, tuple):
+            cellprob = self._request.cellprob_maps
+            if isinstance(res, tuple) and len(res) > 2:
+                masks, flows, cellprob = res[:3]
+            elif isinstance(res, tuple):
                 masks, flows = res
             else:
                 masks, flows = res, {}
@@ -806,6 +834,7 @@ class _PreviewWorker(QThread):
                 self.provenance_ready.emit(record, self.token)
             self.finished_masks.emit(masks, "", self.token)
             self.flows_ready.emit(flows or {}, self.token)
+            self.cellprob_ready.emit(dict(cellprob or {}), self.token)
         except Exception as e:
             LOG.info("live-preview segmentation failed: %s", e,
                        exc_info=True)
@@ -958,10 +987,36 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             flows_out[obj] = np.asarray(flow_rgb)
         except Exception:
             pass
+        probability = _cellprob_of(result)
+        if probability is not None:
+            req.cellprob_maps[obj] = probability
 
         out[obj] = mask
     _check_preview_cancel(req)
     return out, flows_out
+
+
+def _cellprob_of(result) -> Optional[np.ndarray]:
+    """Cellpose's cell probability logits from one ``model.eval`` answer.
+
+    The answer is ``(masks, flows, styles)`` and ``flows[2]`` is the
+    probability, ``H x W``. A batched answer nests ``flows`` one level
+    deeper, per image, and is unwrapped the way the flow picture is.
+
+    :returns: the ``H x W`` ``float32`` logits, or ``None`` when the answer
+        carries none (an older Cellpose, a stub, a 3-D run).
+    """
+    try:
+        flows = result[1]
+        if isinstance(flows, (list, tuple)) and flows and \
+                isinstance(flows[0], (list, tuple)):
+            flows = flows[0]
+        if not isinstance(flows, (list, tuple)) or len(flows) < 3:
+            return None
+        logits = np.asarray(flows[2], dtype=np.float32)
+    except Exception:
+        return None
+    return logits if logits.ndim == 2 else None
 
 
 def _select_channel(image: np.ndarray, ch: int) -> np.ndarray:
@@ -1143,6 +1198,38 @@ class _ZoomView(QGraphicsView):
         self._scale = 1.0
         self.resetTransform()
         self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
+        self._message = ""
+
+    def show_message(self, text: str) -> None:
+        """Say ``text`` where a picture would be, and hold no picture.
+
+        For a view that has nothing to draw for a reason worth telling --
+        a classical method makes no cell probability map. A right-click
+        then offers the "nothing here yet" menu rather than saving the
+        previous picture under the new view's name.
+
+        :param text: the sentence, already translated.
+        """
+        from PySide6.QtGui import QColor
+        from PySide6.QtWidgets import QGraphicsTextItem
+
+        self._scene.clear()
+        self._pixmap_item = None
+        self._message = str(text)
+        item = QGraphicsTextItem()
+        item.setDefaultTextColor(QColor(255, 255, 255))
+        item.setTextWidth(max(160, self.viewport().width() - 32))
+        item.setPlainText(self._message)
+        self._scene.addItem(item)
+        self._scene.setSceneRect(item.boundingRect())
+        self.setSceneRect(self._scene.sceneRect())
+        self._user_zoomed = False
+        self._scale = 1.0
+        self.resetTransform()
+
+    def message(self) -> str:
+        """The sentence on show instead of a picture, or ``""``."""
+        return getattr(self, "_message", "")
 
     def set_peer(self, peer: "_ZoomView") -> None:
         """Link this view to another, so the two pan and zoom together.
@@ -1672,6 +1759,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks: Dict[str, np.ndarray] = {}
         self._raw_masks: Dict[str, np.ndarray] = {}
         self._flows: Dict[str, np.ndarray] = {}
+        self._cellprob: Dict[str, np.ndarray] = {}
+        self._session_masks: List[Dict[str, Any]] = []
+        self._session_runs = 0
+        self._session_serial = 0
         self._processing_provenance: Dict[str, Any] = {}
         self._pending_provenance = None
         self._settings: Dict[str, Any] = {}
@@ -1810,7 +1901,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return None
 
     def dragEnterEvent(self, event):    # noqa: N802 (Qt naming)
-        """Accept the drag only if it carries a supported image file."""
+        """Accept the drag only if it carries a supported image file.
+
+        :param event: the drag-enter event; its MIME data is checked for a
+            local file URL with a supported image extension.
+        """
         if self._dropped_image_path(event) is not None:
             event.acceptProposedAction()
         else:
@@ -1827,7 +1922,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             event.ignore()
 
     def dropEvent(self, event):         # noqa: N802
-        """Load the dropped image into the preview."""
+        """Load the dropped image into the preview.
+
+        :param event: the drop event; the first local file URL with a
+            supported image extension is loaded asynchronously, and the drop
+            is ignored when there is none.
+        """
         path = self._dropped_image_path(event)
         if path is None:
             event.ignore()
@@ -2087,7 +2187,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._view_mode = QComboBox(self)
         set_translatable_items(self._view_mode, VIEW_MODES)
         self._view_mode.setToolTip(
-            "Right canvas: outline overlay · label masks · Cellpose flows")
+            tr("Right canvas: outline overlay · label masks · Cellpose "
+               "flows · cell probability"))
         self._view_mode.currentTextChanged.connect(
             lambda *_: self._refresh_canvases())
         self._status = QLabel("", self)
@@ -2102,6 +2203,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         view_row.addWidget(QLabel("View:", view_group))
         view_row.addWidget(self._view_mode)
         act.addWidget(view_group)
+        self._compare_masks_btn = QPushButton(tr("Compare masks…"), self)
+        self._compare_masks_btn.setToolTip(tr(
+            "Lay this session's masks and the field over one another, with "
+            "an opacity and a stacking order for each, in a third panel. "
+            "The last {count} masks are kept.", count=SESSION_MASK_LIMIT))
+        self._compare_masks_btn.clicked.connect(self.open_mask_comparison)
+        self._compare_masks_btn.setVisible(False)
+        act.addWidget(self._compare_masks_btn)
         from .preview_scale import install_preview_scale
         self._scale_control = install_preview_scale(self, "mask", act)
         root.addWidget(act_host)
@@ -2129,6 +2238,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._mask_view.hover_pixel.connect(self._on_hover)
         canvas.addWidget(self._src_view, 1)
         canvas.addWidget(self._mask_view, 1)
+        self._compare_view = _ZoomView(self)
+        self._compare_view.setMinimumHeight(160)
+        self._compare_view.set_picture_name("mask_comparison")
+        self._compare_view.hover_pixel.connect(self._on_hover)
+        self._compare_view.setVisible(False)
+        canvas.addWidget(self._compare_view, 1)
         canvas_host = QWidget(self)
         canvas_host.setLayout(canvas)
         from .collapsible_splitter import CollapsibleSplitter
@@ -2188,6 +2303,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         ``_refresh_source_selectors`` can block the application thread. Three of
         them used to call this instead, which is what the docstring already
         claimed was not happening.
+
+        :param path: the image file to show; with MIP on, its field's stack is
+            max-projected instead. A failure is reported in the status line
+            and gives ``False``.
         """
         try:
             arr = self._load_for_display(Path(path))
@@ -2307,6 +2426,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             from ..bridge import drain_thread
             worker.setParent(None)
             for signal in (worker.finished_masks, worker.flows_ready,
+                           worker.cellprob_ready,
                            worker.provenance_ready, worker.finished):
                 signal.disconnect()
             drain_thread(worker, timeout_ms=0)
@@ -2317,7 +2437,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 runner.shutdown()
 
     def closeEvent(self, event):    # noqa: N802 (Qt naming)
-        """Cancel a load in progress rather than let it outlive the panel."""
+        """Cancel a load in progress rather than let it outlive the panel.
+
+        :param event: the close event; passed to the base class after
+            :meth:`shutdown`.
+        """
         self.shutdown()
         super().closeEvent(event)
 
@@ -2346,6 +2470,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks = {}
         self._raw_masks = {}
         self._flows = {}
+        self._cellprob = {}
+        self._compare_view.setVisible(False)
+        self._update_compare_button()
         self._processing_provenance = {}
         self._pending_provenance = None
         self._model_that_ran = ""
@@ -2387,7 +2514,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             metrics.elidedText(full, _Qt.ElideMiddle, width))
 
     def resizeEvent(self, event):                            # noqa: N802
-        """Re-elide the path when the panel changes width."""
+        """Re-elide the path when the panel changes width.
+
+        :param event: the resize event; passed to the base class, and the new
+            width is read back from the widget itself.
+        """
         super().resizeEvent(event)
         try:
             self._show_elided_path()
@@ -2951,9 +3082,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         applied to the widget tree ensures that regenerated choices use the
         current display language even before the preference is persisted.
 
+        The view dropdown is re-rendered here as well. The generic pass only
+        rewrites a caption whose translation differs from its source or that
+        has a hand-written row, so "Cell probability", translated from the
+        generated catalog, would otherwise stay Swedish after a switch back
+        to English.
+
         :param language: Language code currently applied to the panel.
         """
         self._i18n_language = str(language)
+        combo = getattr(self, "_view_mode", None)
+        if combo is not None:
+            set_translatable_items(combo, VIEW_MODES, language=str(language))
 
     def _background_for_channel(self, channel: Optional[int]) -> Optional[float]:
         """The background threshold that applies to one displayed channel.
@@ -3037,7 +3177,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def set_propagate_callback(self, cb) -> None:
         """Register a callback(dict) used to push tuned live settings back to
-        the main settings panel (wired by the AppScreen)."""
+        the main settings panel (wired by the AppScreen).
+
+        :param cb: callable given a dict of setting key to value when the
+            tuned settings are propagated, or ``None``.
+        """
         self._propagate_cb = cb
 
     #: The three segmentation settings, as ``(panel name, Mask suffix)``.
@@ -3199,6 +3343,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         Every field is copied independently. A single unusable value used to
         abort the whole copy through the shared ``except``, so one junk
         diameter also cost the flow threshold, the channels and the model.
+
+        :param settings: the module's settings dict (``None`` is treated as
+            empty); a copy is kept for the Pre and Post routes.
         """
         settings = dict(settings or {})
         try:
@@ -3430,6 +3577,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         worker.provenance_ready.connect(self._on_processing_provenance)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
+        worker.cellprob_ready.connect(self._on_cellprob_ready)
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
@@ -4402,8 +4550,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._src_view.set_pixmap(src_pix)
 
         mode = self._view_mode_choice()
-        self._mask_view.set_picture_name(str(mode or "overlay").lower())
-        if mode == "Flows" and self._flows:
+        self._mask_view.set_picture_name(
+            str(mode or "overlay").lower().replace(" ", "_"))
+        if mode == "Cell probability" and (self._masks or self._cellprob):
+            self._show_cellprob()
+        elif mode == "Flows" and self._flows:
             self._mask_view.set_pixmap(numpy_to_qpixmap(
                 self._flows_rgb()))
         elif mode == "Masks" and self._masks:
@@ -4431,6 +4582,50 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._flows = flows or {}
         if self._view_mode_choice() == "Flows":
             self._refresh_canvases()
+
+    def _on_cellprob_ready(self, cellprob, token: int = -1) -> None:
+        """Store the per-object cell probability logits from a preview run.
+
+        Emitted after the flows, so a run that made none still replaces the
+        previous run's map: showing the last image's probability beside this
+        image's masks would be a picture of the wrong thing.
+        """
+        if self._stale(token):
+            return
+        self._cellprob = dict(cellprob or {})
+        if self._view_mode_choice() == "Cell probability":
+            self._refresh_canvases()
+
+    def _show_cellprob(self) -> None:
+        """Draw the cell probability, or say why there is none.
+
+        Drawn by :func:`segmentation_views.render_cellprob`, the renderer
+        the plaque preview shares, so both previews put a threshold at the
+        same colour. Objects segmented by a classical method are named: they
+        make masks without a probability, and "no map" alone would read as a
+        failed run.
+        """
+        from .segmentation_views import render_cellprob
+
+        h, w = self._image.shape[:2]
+        maps = {obj: logits for obj, logits in self._cellprob.items()
+                if np.asarray(logits).shape[:2] == (h, w)}
+        picture = render_cellprob(maps) if maps else None
+        if picture is not None:
+            self._mask_view.set_pixmap(numpy_to_qpixmap(picture))
+            return
+        methods = self._processing_provenance.get("methods", {}) or {}
+        classical = sorted(f"{obj} ({method})"
+                           for obj, method in methods.items()
+                           if method != "cellpose")
+        if classical:
+            self._mask_view.show_message(tr(
+                "No cell probability map: {objects} came from a method "
+                "that does not make one. Only Cellpose does.",
+                objects=", ".join(classical)))
+        else:
+            self._mask_view.show_message(
+                tr("This run gave no cell probability map."))
 
     def _label_rgb(self) -> np.ndarray:
         """Render the current label masks as a distinct-colour image (0 = black).
@@ -4689,6 +4884,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         methods = self._processing_provenance.get('methods', {})
         if methods and 'cellpose' not in methods.values():
             snap['model'] = ', '.join(sorted(set(methods.values())))
+        self._record_session_masks(masks, snap['model'])
         self._history.append(snap)
         if len(self._history) > 50:
             self._history = self._history[-50:]
@@ -4699,6 +4895,116 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._compare_slider.setValue(n - 1)
         self._compare_slider.blockSignals(False)
         self._compare_label.setText(f"{n}/{n}")
+
+    def _record_session_masks(self, masks, model: str) -> None:
+        """Keep this run's masks for the comparison panel.
+
+        One entry per object, named by run, model and object, so a cell
+        pass and a nucleus pass of the same run are two masks to compare.
+        At most :data:`SESSION_MASK_LIMIT` are kept, oldest dropped first.
+        """
+        from .segmentation_views import DEFAULT_COLOURS
+
+        self._session_runs += 1
+        field = self._image_path.name if self._image_path else ""
+        for obj, mask in (masks or {}).items():
+            if mask is None or not np.asarray(mask).any():
+                continue
+            colour = DEFAULT_COLOURS[
+                self._session_serial % len(DEFAULT_COLOURS)]
+            self._session_serial += 1
+            self._session_masks.append({
+                "name": " · ".join(part for part in (
+                    tr("Run {n}", n=self._session_runs), str(model or ""),
+                    str(obj), field) if part),
+                "labels": np.asarray(mask),
+                "colour": colour,
+            })
+        del self._session_masks[:-SESSION_MASK_LIMIT]
+        self._update_compare_button()
+
+    def comparable_masks(self) -> List[Dict[str, Any]]:
+        """The session's masks that fit the field on screen, oldest first."""
+        if self._image is None:
+            return []
+        shape = tuple(self._image.shape[:2])
+        return [entry for entry in self._session_masks
+                if tuple(entry["labels"].shape[:2]) == shape]
+
+    def _update_compare_button(self) -> None:
+        """Offer the comparison once two masks fit the field on screen."""
+        button = getattr(self, "_compare_masks_btn", None)
+        if button is not None:
+            button.setVisible(len(self.comparable_masks()) >= 2)
+
+    def comparison_layers(self):
+        """What the comparison popup lists, top of the stack first.
+
+        The masks, newest on top at half opacity, then the field as it is
+        shown at full opacity underneath, then each channel on its own,
+        unticked, for a mask that is better judged against one plane.
+        """
+        from .mask_comparison import IMAGE, MASK, Layer
+
+        layers = [Layer(entry["name"], MASK, entry["labels"],
+                        colour=tuple(entry["colour"]), opacity=0.5)
+                  for entry in reversed(self.comparable_masks())]
+        if self._image is None:
+            return layers
+        norm = self._normalise_check.isChecked()
+        lo, hi = float(self._lo_pct.value()), float(self._hi_pct.value())
+        layers.append(Layer(tr("Field as shown"), IMAGE, _to_uint8(
+            self._display_image(), normalise=norm, lo_pct=lo, hi_pct=hi),
+            opacity=1.0))
+        if self._image.ndim == 3 and self._image.shape[-1] > 1:
+            for channel in range(self._image.shape[-1]):
+                layers.append(Layer(
+                    tr("Channel {n}", n=channel + 1), IMAGE,
+                    _to_uint8(_select_channel(self._image, channel),
+                              normalise=norm, lo_pct=lo, hi_pct=hi),
+                    ticked=False, opacity=1.0))
+        return layers
+
+    def _exec_comparison_dialog(self, dialog) -> bool:
+        """Show the popup modally. Alone in here so a test can answer it."""
+        return dialog.exec() == dialog.Accepted
+
+    def open_mask_comparison(self) -> bool:
+        """Ask what to compare, then draw it in the third panel.
+
+        :returns: whether a comparison was drawn.
+        """
+        from .mask_comparison import MaskComparisonDialog
+
+        layers = self.comparison_layers()
+        if not layers:
+            return False
+        dialog = MaskComparisonDialog(layers, self)
+        try:
+            if not self._exec_comparison_dialog(dialog):
+                return False
+            return self.show_comparison(dialog.chosen())
+        finally:
+            dialog.deleteLater()
+
+    def show_comparison(self, layers) -> bool:
+        """Draw ``layers`` (bottom first) in the third panel.
+
+        Nothing ticked puts the panel away again.
+
+        :returns: whether a picture was drawn.
+        """
+        from .mask_comparison import composite
+
+        shape = tuple(self._image.shape[:2]) if self._image is not None \
+            else None
+        picture = composite(layers, shape)
+        if picture is None:
+            self._compare_view.setVisible(False)
+            return False
+        self._compare_view.setVisible(True)
+        self._compare_view.set_pixmap(numpy_to_qpixmap(picture))
+        return True
 
     def _on_compare_scrub(self, idx: int) -> None:
         """Render the historical run at ``idx`` into the two canvases."""
@@ -4751,7 +5057,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._model_box.insertItem(index, name)
 
     def showEvent(self, event):  # noqa: N802 (Qt naming)
-        """Refresh the model list whenever the panel comes back on screen."""
+        """Refresh the model list whenever the panel comes back on screen.
+
+        :param event: the show event; passed to the base class and otherwise
+            not read.
+        """
         super().showEvent(event)
         self.refresh_model_choices()
 
@@ -5099,6 +5409,9 @@ class LiveSettingsDialog(QDialog):
         They go to `_offscreen_controls` and not to the panel: parented to
         the panel with no layout, each sits at (0, 0) over the loaded-path
         label, held off screen by nothing but the `hide()`.
+
+        :param event: the close event; passed to the base class once every
+            borrowed control has been handed back.
         """
         panel = self._panel
         stow = getattr(panel, "_offscreen_controls", None) or panel
@@ -5124,5 +5437,10 @@ class LiveSettingsDialog(QDialog):
 
 
 def overlay_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
-    """Legacy single-mask overlay retained for older imports."""
+    """Legacy single-mask overlay retained for older imports.
+
+    :param image: source image of shape (H, W) or (H, W, C).
+    :param mask: label image the same height and width as ``image``; its
+        object boundaries are drawn in the cell outline colour.
+    """
     return overlay_masks(image, {"cell": mask})

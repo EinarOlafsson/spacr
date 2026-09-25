@@ -76,6 +76,9 @@ def as_image(picture) -> Optional[QImage]:
 
     A caller may hold a ``QPixmap`` (what a view shows), a ``QImage`` (what
     a renderer produced) or nothing at all yet.
+
+    :param picture: a ``QPixmap``, a ``QImage`` or ``None``; a null image or
+        any other type also gives ``None``.
     """
     if picture is None:
         return None
@@ -163,7 +166,11 @@ def _save_pdf(image: QImage, path: str, dpi: int) -> bool:
 
 
 def suggested_name(stem: str) -> str:
-    """A file name for ``stem``, with the preferred suffix on it."""
+    """A file name for ``stem``, with the preferred suffix on it.
+
+    :param stem: the base name; whitespace runs become underscores, and an
+        empty result (or ``None``) becomes ``picture``.
+    """
     cleaned = "_".join(str(stem or "picture").split()).strip("_")
     return f"{cleaned or 'picture'}{preferred_suffix()}"
 
@@ -174,6 +181,10 @@ def ask_where_to_save(parent, stem: str) -> str:
     THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one
     would otherwise be written as a PNG whatever filter was selected, which
     is how "save as PDF" quietly produces a raster.
+
+    :param parent: the widget the save dialog is parented to.
+    :param stem: the file name offered, without a suffix; cleaned by
+        :func:`suggested_name`.
     """
     from PySide6.QtWidgets import QFileDialog
 
@@ -194,6 +205,7 @@ def build_menu(parent, enabled: bool):
     choice off the action rather than comparing it against two references
     it had to keep.
 
+    :param parent: the widget that owns the menu.
     :param enabled: ``False`` when there is no picture yet. The actions are
         SHOWN AND GREYED rather than left out, and a line underneath says
         why: a menu that is empty on one field and full on the next reads
@@ -221,6 +233,12 @@ def choose_format(view, point, enabled: bool) -> str:
     by a test. ``QMenu.exec`` spins an event loop of its own, and a test
     that reached it would hang rather than fail; substituting this one
     function is how the rest of the gesture is checked at all.
+
+    :param view: the widget the menu belongs to; ``point`` is mapped to
+        global coordinates through it.
+    :param point: where the right-click happened, in ``view`` coordinates.
+    :param enabled: ``False`` greys out the save actions, as in
+        :func:`build_menu`.
     """
     menu = build_menu(view, enabled)
     chosen = menu.exec(view.mapToGlobal(point))
@@ -232,6 +250,9 @@ def choose_format(view, point, enabled: bool) -> str:
 def save_as(view, picture, stem: str, want: str) -> str:
     """Ask for a path and write ``picture`` there. ``""`` if nothing was.
 
+    :param view: the widget the save dialog and any warning are parented to.
+    :param picture: the ``QPixmap`` or ``QImage`` to write.
+    :param stem: the file name offered, without a suffix.
     :param want: the suffix the user picked in the menu. It WINS over what
         the file dialog came back with, so "save as PDF" followed by a name
         ending in ``.png`` still writes a PDF rather than quietly changing

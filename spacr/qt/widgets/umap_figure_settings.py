@@ -58,7 +58,18 @@ APPLY_DEBOUNCE_MS = 250
 
 
 class Field(NamedTuple):
-    """One editable Image UMAP setting."""
+    """One editable Image UMAP setting.
+
+    :param key: the settings key.
+    :param label: the label shown beside the editor.
+    :param kind: the editor type: ``"int"``, ``"float"``, ``"bool"``,
+        ``"text"`` or ``"choice"``.
+    :param low: lower bound for a numeric editor (unused otherwise).
+    :param high: upper bound for a numeric editor (unused otherwise).
+    :param tier: what applying it takes: :data:`TIER_STYLE`,
+        :data:`TIER_REDRAW` or :data:`TIER_RERUN`.
+    :param choices: the options of a ``"choice"`` field.
+    """
 
     key: str
     label: str
@@ -143,7 +154,11 @@ FIELD_TIERS: Dict[str, str] = {f.key: f.tier for f in IMAGE_UMAP_FIELDS}
 
 
 def keys_for_tier(tier: str) -> Tuple[str, ...]:
-    """Every setting key in ``tier``."""
+    """Every setting key in ``tier``.
+
+    :param tier: :data:`TIER_STYLE`, :data:`TIER_REDRAW` or
+        :data:`TIER_RERUN`; any other value gives an empty tuple.
+    """
     return tuple(f.key for f in IMAGE_UMAP_FIELDS if f.tier == tier)
 
 
@@ -173,6 +188,12 @@ def restyle_umap_figure(fig, values: Dict[str, Any]) -> bool:
     colour to ``red`` and back to ``cluster`` would leave every point red:
     the per-cluster colours were overwritten and there is nowhere left to
     read them from short of replotting.
+
+    :param fig: the matplotlib figure; ``None`` returns False.
+    :param values: setting key to value; only ``dot_size``,
+        ``point_alpha``, ``outline_width`` and ``point_color`` are read, and
+        a missing key is left alone.
+    :returns: True when any artist was changed.
     """
     if fig is None:
         return False
@@ -227,6 +248,13 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
     coordinates and its neighbours; only what is drawn on top of them
     changes.
 
+    :param fig: the matplotlib figure; ``None`` returns False.
+    :param payload: dict holding ``embedding`` (array of shape (N, 2)),
+        ``plot_labels`` or ``labels`` (one per point), and optionally
+        ``records`` with ``image`` paths and ``theme_colors``. A missing or
+        mismatched embedding or labels returns False.
+    :param values: setting key to value; an unset key uses the shipped
+        default.
     :returns: True when the figure was replotted.
     """
     import numpy as np
@@ -299,6 +327,13 @@ def apply_to_figure(fig, payload: Dict[str, Any], values: Dict[str, Any],
                     previous: Optional[Dict[str, Any]] = None) -> str:
     """Apply ``values`` to a finished Image UMAP figure.
 
+    :param fig: the matplotlib figure the Image UMAP was drawn into.
+    :param payload: the figure's saved embedding payload, used for a redraw.
+    :param values: setting key to value; keys that differ from ``previous``
+        decide the work: any redraw-tier key replots, otherwise any
+        style-tier key restyles.
+    :param previous: the values last applied; ``None`` treats every key as
+        changed.
     :returns: ``"redraw"``, ``"style"`` or ``""`` -- what it actually had to
         do, so the caller can say whether the graph followed and can skip
         re-rasterising when nothing changed.

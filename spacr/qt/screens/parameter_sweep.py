@@ -241,6 +241,7 @@ def _make_screen(app_key=None, host=None):
             self.status.setWordWrap(True)
             right_layout.addWidget(self.status)
             self.progress = QProgressBar(right)
+            self.progress.setTextVisible(False)
             self.progress.setVisible(False)
             right_layout.addWidget(self.progress)
             output = CollapsibleSplitter(
@@ -747,5 +748,8 @@ def sweepable(app_key: str) -> bool:
 
     Only the regression module for now: the sweep axes, the legality filters
     and the row-to-regression round trip are all specific to it.
+
+    :param app_key: the module's registry key; only ``"regression"`` gives
+        ``True``.
     """
     return app_key == "regression"

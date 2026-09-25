@@ -177,6 +177,10 @@ def fold_label(key: str) -> Tuple[str, str, str]:
     modules while the window is still being built, which is precisely the
     startup cost this strip exists to avoid. Asking for the words instead
     of for the host costs nothing.
+
+    :param key: the folded module's app key. The registry answers first, then
+        the hosts' fold fallbacks, then the declared catalogue; an unknown key
+        gets its title-cased name, no description and stage ``stable``.
     """
     return _describe(key)
 
@@ -407,6 +411,9 @@ def folded_fallback(key: str) -> Tuple[str, str, str]:
     than a tile on Home. Blank when the key is not folded anywhere, so a
     caller can tell "folded, and this is what it said" from "never heard of
     it" -- which the registry cannot, because it answers both the same way.
+
+    :param key: the module's app key, looked up as a string in
+        :func:`folded_modules`.
     """
     entry = folded_modules().get(str(key))
     return (entry[0], entry[1], entry[2]) if entry else ("", "", "")
@@ -730,7 +737,10 @@ class FoldStrip(QWidget):
         return [b.app_key for b in self.buttons]
 
     def button_for(self, key: str) -> Optional[FoldButton]:
-        """The button for ``key``, or None if this strip has no such fold."""
+        """The button for ``key``, or None if this strip has no such fold.
+
+        :param key: the app key of the folded module whose button is wanted.
+        """
         for button in self.buttons:
             if button.app_key == key:
                 return button

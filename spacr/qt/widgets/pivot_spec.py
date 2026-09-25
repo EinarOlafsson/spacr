@@ -151,6 +151,10 @@ def format_value(value: float, *, digits: int = 4) -> str:
     the software, and a cell that reads ``0`` is worse. See the module
     docstring — an sd of a single object is genuinely nothing, and blank is
     what nothing looks like.
+
+    :param value: the cell value; ``None``, NaN and infinities give ``''``, and
+        whole numbers are written without decimals.
+    :param digits: significant digits for a non-integer value.
     """
     if value is None or not np.isfinite(value):
         return ""
@@ -359,6 +363,10 @@ class PivotSpec:
 class PivotResult:
     """A computed table: one 2-D array per ``(value, agg)`` layer, plus n.
 
+    :param row_keys: the columns nesting down the rows, outermost first, as in
+        the spec's ``rows``.
+    :param col_keys: the columns nesting across, outermost first, as in the
+        spec's ``cols``.
     :param row_levels: one tuple of level strings per displayed row, aligned
         with :attr:`row_keys`.
     :param col_levels: likewise across.
@@ -369,8 +377,14 @@ class PivotResult:
         the value count. ``sizes == 0`` and ``present == False`` are the same
         thing here, and both are what makes a cell blank.
     :param present: whether the combination has any rows at all.
+    :param spec: the :class:`PivotSpec` the table was computed from; its
+        ``layers`` name the arrays in ``layers``.
+    :param n_source_rows: rows in the frame the table was computed over.
     :param hidden_rows: source rows whose keys fell outside the displayed
         levels. Non-zero means the table is not the whole frame.
+    :param notice: the computation's notes joined with ``"; "`` -- a grid
+        that was cut down, rows left outside the shown levels, a value column
+        that is not numeric -- or empty when there were none.
     """
 
     row_keys: Tuple[str, ...]
@@ -413,11 +427,23 @@ class PivotResult:
         return self.spec.layers
 
     def is_empty(self, row: int, col: int) -> bool:
-        """No rows of the source frame landed here. Renders blank, not 0."""
+        """No rows of the source frame landed here. Renders blank, not 0.
+
+        :param row: displayed row index, 0-based.
+        :param col: displayed column index, 0-based.
+        """
         return not bool(self.present[row, col])
 
     def value_at(self, value: str, agg: str, row: int, col: int) -> float:
-        """One statistic, or NaN when it is empty or does not exist."""
+        """One statistic, or NaN when it is empty or does not exist.
+
+        :param value: the value column the layer aggregates, or
+            :data:`COUNT_ONLY` (``""``) for a table with no value columns.
+        :param agg: the aggregation, one of :data:`AGGREGATIONS`; a ``(value,
+            agg)`` layer the table does not hold raises :class:`PivotError`.
+        :param row: displayed row index, 0-based.
+        :param col: displayed column index, 0-based.
+        """
         try:
             layer = self.layers[(value, agg)]
         except KeyError:
@@ -433,6 +459,11 @@ class PivotResult:
         ``None`` and ``0`` are different: ``None`` is "nothing was measured
         in this combination", ``0`` is "objects were measured and none of them
         has a value for this feature".
+
+        :param value: the value column the layer aggregates, or
+            :data:`COUNT_ONLY` (``""``) for a table with no value columns.
+        :param row: displayed row index, 0-based.
+        :param col: displayed column index, 0-based.
         """
         if self.is_empty(row, col):
             return None
@@ -558,7 +589,11 @@ class PivotResult:
         return pd.DataFrame(data)
 
     def to_csv(self, path: str) -> str:
-        """Write :meth:`to_frame` to ``path``. Returns the path."""
+        """Write :meth:`to_frame` to ``path``. Returns the path.
+
+        :param path: the CSV file to write, without an index column; an
+            existing file is overwritten.
+        """
         self.to_frame().to_csv(path, index=False)
         return path
 
@@ -633,6 +668,9 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     ``sem`` are ``ddof=1`` and therefore blank at n=1, and the grid is the full
     cartesian product until that stops being readable.
 
+    :param frame: the source table; every value column and row/column key the
+        spec names must be one of its columns.
+    :param spec: what to compute; ``None`` uses a default :class:`PivotSpec`.
     :raises PivotError: for a spec that cannot describe a table over this
         frame, with the reason in the message.
     """

@@ -29,7 +29,11 @@ def answered_version() -> str:
 
 
 def mark_answered(version: str) -> None:
-    """Record that this version's setup has been seen."""
+    """Record that this version's setup has been seen.
+
+    :param version: the spaCR version whose setup was seen, normally
+        :func:`current_version`; stored as ``str``.
+    """
     _settings().setValue(_KEY_ANSWERED_VERSION, str(version))
 
 
@@ -93,6 +97,10 @@ def take_the_setup_flags(argv):
     They are consumed rather than ignored because `launch` reads the first
     argument as the module to open into, and an unconsumed `--no-setup`
     would be looked up as a module name and quietly open nothing.
+
+    :param argv: the command-line words after the program name, or ``None``; a
+        word in :data:`SKIP_FLAGS` (compared stripped and lower-cased) is
+        removed and counts as asking to skip.
     """
     kept, asked = [], False
     for word in list(argv or []):
@@ -188,6 +196,11 @@ def apply(answers: Dict[str, Any]) -> List[str]:
     own, so a value the preference module rejects is reported and the rest
     are still saved -- a setup screen that discards six good answers because
     the seventh was bad has cost the user the whole screen.
+
+    :param answers: ``{question key: value}`` from the setup screen, keyed as
+        in :func:`questions` (e.g. ``"language"``, ``"theme"``); keys that are
+        not questions are ignored, and each value is passed to its question's
+        setter.
     """
     trouble: List[str] = []
     for key, _label, _get, setter, _choices in questions():

@@ -121,6 +121,10 @@ def button_direction(button: QAbstractButton) -> Optional[bool]:
     THE ROLE FIRST. A `QDialogButtonBox` already knows which of its buttons
     accepts and which rejects, and that answer is better than any reading
     of the label -- it survives translation, which the words below do not.
+
+    :param button: the button to classify: by its role in an enclosing
+        ``QDialogButtonBox`` when it has one, otherwise by the words of its
+        text.
     """
     box = button.parentWidget()
     while box is not None and not isinstance(box, QDialogButtonBox):
@@ -153,6 +157,12 @@ def spin_on_every_button(dialog: QDialog, card) -> int:
     Show, and a second connection would send the light round twice on one
     click -- which, since the two laps run down together, reads as a rim
     moving at double speed rather than as a bug.
+
+    :param dialog: the dialog whose descendant buttons are wired; a button
+        already wired, or whose direction :func:`button_direction` cannot tell,
+        is skipped.
+    :param card: the card whose ``circuit(clockwise=...)`` runs on each click,
+        clockwise for a forward button.
     """
     wired = 0
     for button in dialog.findChildren(QAbstractButton):
@@ -179,6 +189,10 @@ def wants_glass(widget: QWidget) -> bool:
 
     Checked by looking rather than by asking, so anything else that builds
     its own card is covered without having to remember to say so.
+
+    :param widget: the widget to test; only a ``QDialog`` without the opt-out
+        or already-glassed property and without its own ``SetupCard``
+        qualifies.
     """
     if not isinstance(widget, QDialog):
         return False
@@ -202,6 +216,9 @@ def clear_the_containers(dialog: QWidget) -> int:
     tab widget is covered as well: "every tab of every popup panel" is a
     page that is itself a plain QWidget, and one of those is enough to bury
     the card under a black rectangle.
+
+    :param dialog: the dialog whose descendant widgets, other than opaque
+        controls and their children, are made transparent.
     """
     try:
         from ..theme import make_transparent
@@ -442,6 +459,9 @@ def let_the_user_resize(window) -> bool:
 
     Idempotent: a window that already carries the filter keeps the one it
     has, so a dialog shown, closed and shown again does not collect two.
+
+    :param window: the top-level widget that gets an edge-drag resize filter;
+        ``None`` or a window that already has one returns ``False``.
     """
     if window is None:
         return False
@@ -560,6 +580,10 @@ def make_frameless(dialog: QDialog) -> bool:
     from the filter below, which fires while a dialog is being shown -- so
     without the restore, opening Preferences hid Preferences, and an
     `exec()` sat on an invisible modal window with no way to dismiss it.
+
+    :param dialog: the dialog made translucent, frameless, draggable by its
+        background and resizable by its edges; it is shown again if changing
+        its flags hid it.
     """
     try:
         was_showing = not dialog.isHidden()
@@ -595,6 +619,9 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
     The mask is rebuilt on every resize -- see :class:`_Backdrop` -- and
     it follows the same radius the card paints, so the cut edge sits
     under the rim rather than beside it.
+
+    :param dialog: the widget whose window mask is cut to a rounded rectangle
+        of its current size; an empty size returns ``False``.
     """
     try:
         from PySide6.QtCore import QRectF
@@ -679,6 +706,9 @@ def glass(dialog: QDialog) -> bool:
 
     Idempotent: a dialog that already carries :data:`GLASSED` is left alone,
     so a dialog shown, closed and shown again does not accumulate cards.
+
+    :param dialog: the dialog to decorate; it is left alone unless
+        :func:`wants_glass` accepts it.
     """
     if not wants_glass(dialog):
         return False

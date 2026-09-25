@@ -847,6 +847,10 @@ def spatial_column_names(radius):
     The radius is baked into ``neighbors_within_<r>`` -- the same precedent as
     ``homogeneity_distance_<d>`` and ``percentile_<p>``. Two plates measured at
     different radii therefore produce different columns and will not concat.
+
+    :param radius: neighbourhood radius; truncated with ``int()`` for the
+        ``neighbors_within_<r>`` name. The other four names do not depend on it.
+    :returns: list of five column names.
     """
     return [
         f'neighbors_within_{int(radius)}',
@@ -3765,6 +3769,11 @@ def process_meassure_crop_results(partial_results, settings):
 
     The misspelled name remains available for existing scripts and will be
     removed in a future major release.
+
+    :param partial_results: Completed Measure job tuples, passed unchanged to
+        :func:`process_measure_crop_results` after a ``DeprecationWarning``.
+    :param settings: Resolved Measure settings, passed unchanged; ``src``
+        identifies the output root.
     """
     import warnings
     warnings.warn(

@@ -442,6 +442,9 @@ def pausable(fn: Callable) -> Callable:
     Setting this on a function that does *not* actually call
     :func:`checkpoint` is how you ship a Pause button that lies, so the
     marker is deliberately explicit rather than inferred.
+
+    :param fn: the entry-point callable to mark; it is returned, and an object
+        that cannot take attributes is returned unmarked.
     """
     try:
         setattr(fn, PAUSABLE_ATTR, True)
@@ -494,6 +497,11 @@ def apply_worker_budget(
     so they resolve to the current remaining budget. Explicit smaller values
     are preserved. The return value is stored on the run handle so the next
     run sees what this one actually reserved.
+
+    :param settings: the run settings dict, modified in place; each
+        ``WORKER_SETTING_KEYS`` entry present is clamped to between 1 and the
+        available workers, with ``None``, ``-1`` and other non-positive values
+        taking all of them and unparseable values left alone.
     """
     available = available_worker_count(total)
     allocations: List[int] = []
@@ -869,6 +877,8 @@ def thread_has_stopped(thread) -> bool:
     case is not exotic — ``make_thread`` wires ``thread.finished ->
     thread.deleteLater``, so any GUI pump that delivers a retirement slot
     has usually flushed the deferred delete on the way.
+
+    :param thread: a QThread, or None.
     """
     if thread is None:
         return True
@@ -1448,6 +1458,10 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     The result is also stamped with the app key (:func:`_tag`) so the
     run registry can say *which module* is running. Note that none of
     these are stamped :func:`pausable` — see :class:`PauseGate`.
+
+    :param app_key: the app key, e.g. ``'mask'`` or ``'measure'``; keys outside
+        the built-in chain fall back to the ``entry=`` an app registered, then
+        to a plugin app of that key.
     """
     from .verbose_logger import log_call
 

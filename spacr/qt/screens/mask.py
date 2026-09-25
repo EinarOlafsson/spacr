@@ -101,8 +101,8 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
 #:
 #: These are the seam. :func:`spacr.core.preprocess_generate_masks` groups
 #: a plate into time stacks when ``timelapse`` is true, and
-#: :mod:`spacr.object` calls :func:`spacr.timelapse.automated_motility_assay`
-#: when ``timelapse and motility_analysis`` are both true -- so switching a
+#: the same function calls :func:`spacr.timelapse.automated_motility_assay`
+#: once per plate, after every mask is merged, when ``timelapse and motility_analysis`` are both true -- so switching a
 #: fold on is exactly setting its gate, and no new pipeline path is
 #: involved.
 #:
@@ -130,7 +130,10 @@ FOLD_CATEGORIES: Dict[str, Tuple[str, ...]] = {
 
 
 def fold_set(screen: QWidget) -> Optional[CategoryFoldSet]:
-    """The set of category folds installed on ``screen``, or None."""
+    """The set of category folds installed on ``screen``, or None.
+
+    :param screen: the module screen to inspect.
+    """
     folds = getattr(screen, "_category_folds", None)
     return folds if isinstance(folds, CategoryFoldSet) else None
 
@@ -169,7 +172,11 @@ class _OfferedPreview(QObject):
 
 
 def fold_previews(screen: QWidget) -> Dict[str, object]:
-    """The folded previews attached to ``screen``, keyed by folded app."""
+    """The folded previews attached to ``screen``, keyed by folded app.
+
+    :param screen: the module screen to inspect; a screen with no folded
+        previews gives an empty dict.
+    """
     return dict(getattr(screen, "_fold_previews", {}) or {})
 
 
@@ -501,7 +508,10 @@ class _OpsPage(QObject):
 
 
 def ops_page(screen: QWidget) -> Optional["_OpsPage"]:
-    """The OPS switch installed on ``screen``, or None."""
+    """The OPS switch installed on ``screen``, or None.
+
+    :param screen: the module screen to inspect.
+    """
     page = getattr(screen, "_ops_page", None)
     return page if isinstance(page, _OpsPage) else None
 

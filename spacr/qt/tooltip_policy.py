@@ -113,6 +113,9 @@ def tooltip_text_for(widget) -> str:
     event would break every one of those -- a card explains itself until
     the pointer lands on the text written on it, and then it stops.
 
+    :param widget: the hovered widget, or ``None``; its ``toolTip()`` is read,
+        then each parent's up to and including its window (at most 64
+        levels).
     :returns: the first non-empty tooltip from the widget outwards, or
         ``""`` if neither it nor any parent up to its window has one.
     """

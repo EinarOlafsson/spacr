@@ -116,7 +116,12 @@ def disclosure_for(app_key: str) -> str:
 
 
 def remember_disclosure(app_key: str, level: str) -> None:
-    """Persist the disclosure level chosen for ``app_key``."""
+    """Persist the disclosure level chosen for ``app_key``.
+
+    :param app_key: application key the level is stored under.
+    :param level: disclosure level; ``'all'`` is stored as is and any other
+        value as ``'essentials'``.
+    """
     _settings().setValue(f"{_KEY_DISCLOSURE}/{app_key}",
                          ALL if level == ALL else ESSENTIALS)
 
@@ -272,7 +277,10 @@ class SettingsSearchBar(QWidget):
         return self._input.text()
 
     def set_query(self, text: str) -> None:
-        """Type ``text`` into the search box, filtering as it goes."""
+        """Type ``text`` into the search box, filtering as it goes.
+
+        :param text: search text for the box; ``None`` or empty clears it.
+        """
         self._input.setText(str(text or ""))
 
     def level(self) -> str:
@@ -280,7 +288,11 @@ class SettingsSearchBar(QWidget):
         return self._level
 
     def set_level(self, level: str) -> None:
-        """Switch disclosure level and remember the choice."""
+        """Switch disclosure level and remember the choice.
+
+        :param level: disclosure level: ``'all'`` shows every setting; any
+            other value selects ``'essentials'``.
+        """
         self._disclosure.setChecked(level == ALL)
 
     def _show_all_without_remembering(self) -> None:
@@ -316,7 +328,11 @@ class SettingsSearchBar(QWidget):
         return self._modified.isChecked()
 
     def set_modified_only(self, on: bool) -> None:
-        """Turn the Modified filter on or off."""
+        """Turn the Modified filter on or off.
+
+        :param on: ``True`` to show only settings changed from their defaults;
+            coerced with ``bool()``.
+        """
         self._modified.setChecked(bool(on))
 
     def visible_keys(self) -> List[str]:
@@ -1015,6 +1031,8 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
     lazily on first navigation, so this cannot be a one-shot sweep; it
     connects to the stack and also installs into anything already built.
 
+    :param window: the main window; nothing is installed unless it has a
+        ``_stack`` screen stack, and a watcher already on it is returned.
     :returns: the watcher, kept alive by the window, or ``None``.
     """
     stack = getattr(window, "_stack", None)

@@ -87,7 +87,12 @@ _INSTALL_WORDS = {
 
 
 def install_word_for(action) -> str:
-    """The link word for an offer's ``action``; ``''`` when there is none."""
+    """The link word for an offer's ``action``; ``''`` when there is none.
+
+    :param action: the offer's action, ``"install"``, ``"elsewhere"``,
+        ``"impossible"`` or ``"ready"`` (which gives ``''``); any other value
+        gives ``"What it needs"``.
+    """
     return _INSTALL_WORDS.get(str(action), "What it needs")
 
 
@@ -221,6 +226,9 @@ class AvailabilityPanel(QFrame):
         eventually run the regression picker's install AND the Image UMAP's;
         a plain ``disconnect()`` warns when nothing is connected yet. Holding
         the current slot and replacing it does neither.
+
+        :param slot: callable taking the current entry's ``offer``, or
+            ``None`` to leave the signal with no receiver.
         """
         previous = self._install_handler
         if previous is not None:
@@ -334,6 +342,12 @@ class AvailabilityPanel(QFrame):
         the panel takes it from there: Tab moves between **API** and
         **Install**, Enter presses one, Up/Down move to the next unavailable
         entry, Escape closes and hands focus back.
+
+        :param anchor: the widget the panel is docked under; see
+            :meth:`show_for`.
+        :param entries: availability mappings (``{title, reason, url,
+            offer}``) as :meth:`show_for` takes them; an empty list shows
+            nothing.
         """
         self._return_focus = QApplication.focusWidget()
         self.show_for(anchor, entries, index, anchor_rect=anchor_rect,
@@ -343,7 +357,11 @@ class AvailabilityPanel(QFrame):
         self._api_link.setFocus(Qt.TabFocusReason)
 
     def show_entry(self, index: int) -> None:
-        """Move to another of the entries without moving the panel."""
+        """Move to another of the entries without moving the panel.
+
+        :param index: entry position; wraps around modulo the number of
+            entries, so ``-1`` is the last one.
+        """
         if not self._entries:
             return
         self._index = int(index) % len(self._entries)
@@ -507,17 +525,30 @@ class AvailabilityPanel(QFrame):
 
 
     def enterEvent(self, event):
-        """The pointer arrived: the panel stays."""
+        """The pointer arrived: the panel stays.
+
+        :param event: the enter event, passed on to the base class after any
+            pending hide is cancelled.
+        """
         self.cancel_hide()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        """The pointer left: start the interruptible hide."""
+        """The pointer left: start the interruptible hide.
+
+        :param event: the leave event, passed on to the base class after a
+            100 ms hide is scheduled.
+        """
         self.start_hide(100)
         super().leaveEvent(event)
 
     def keyPressEvent(self, event):
-        """Escape closes; Up/Down move between the entries."""
+        """Escape closes; Up/Down move between the entries.
+
+        :param event: the key event; Escape, Up/Left and Down/Right are
+            accepted here (the arrows only with more than one entry), and any
+            other key goes to the base class.
+        """
         key = event.key()
         if key == Qt.Key_Escape:
             self.dismiss()
@@ -548,7 +579,14 @@ class AvailabilityPanel(QFrame):
         self._filtering = False
 
     def eventFilter(self, obj, event):
-        """A press anywhere outside the panel dismisses it."""
+        """A press anywhere outside the panel dismisses it.
+
+        :param obj: the watched object; the filter is installed on the
+            application, so this is whatever received the event. Not read.
+        :param event: the event; only a mouse press while the panel is
+            visible is acted on, using its global position. Always returns
+            ``False`` so the press still reaches its target.
+        """
         if event.type() == QEvent.MouseButtonPress and self.isVisible():
             try:
                 inside = self.geometry().contains(event.globalPosition()
@@ -560,7 +598,10 @@ class AvailabilityPanel(QFrame):
         return False
 
     def hideEvent(self, event):
-        """Drop the app filter whenever the panel leaves the screen."""
+        """Drop the app filter whenever the panel leaves the screen.
+
+        :param event: the hide event, passed on to the base class.
+        """
         self._remove_filter()
         super().hideEvent(event)
 

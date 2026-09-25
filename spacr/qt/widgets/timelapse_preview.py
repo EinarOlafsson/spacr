@@ -282,7 +282,12 @@ class FrameSequence:
         return len(self.indices) < self.n_available
 
     def frame(self, i: int) -> np.ndarray:
-        """Return preview-frame ``i`` (0-based over :attr:`indices`)."""
+        """Return preview-frame ``i`` (0-based over :attr:`indices`).
+
+        :param i: preview-frame position; outside ``0`` to
+            ``len(indices) - 1`` raises :class:`IndexError`. Frames read are
+            kept in a small cache.
+        """
         if not (0 <= i < len(self.indices)):
             raise IndexError(i)
         real = self.indices[i]
@@ -390,6 +395,11 @@ def frame_channel(frame: np.ndarray, channel: int) -> np.ndarray:
     TIFF page is often channel-first. Guessing wrong turns a 3-channel image
     into a 3-pixel-tall one, so pick the axis that actually looks like a
     channel axis (small, and not the only small axis).
+
+    :param frame: the frame array; a 2-D frame is returned as is and one
+        with other than three dimensions is squeezed.
+    :param channel: the channel index to take (wrapped modulo the channel
+        count on a channel-first frame).
     """
     arr = np.asarray(frame)
     if arr.ndim == 2:
@@ -412,6 +422,11 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
     this through the module global, which is also what lets a test swap in a
     counting stub to prove that tuning a *tracking* setting never reaches
     segmentation.
+
+    :param image: the frame, 2-D or with a channel axis.
+    :param params: segmentation settings; ``model``, ``channel``,
+        ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``,
+        ``flow_threshold`` and ``cellprob`` are read, each with a default.
     """
     model = preview_cellpose_model(str(params.get("model", "cpsam")))
 
@@ -445,6 +460,10 @@ def segment_sequence(seq: "FrameSequence", params: Dict[str, Any]) -> np.ndarray
     Reads and segments one frame at a time so the whole movie is never
     resident, then stacks only the label images (which are far smaller than
     the raw multi-channel frames).
+
+    :param seq: the frame sequence to segment.
+    :param params: segmentation settings, as :func:`segment_frame` takes
+        them.
     """
     masks = [segment_frame(seq.frame(i), params) for i in range(len(seq))]
     shapes = {m.shape for m in masks}
@@ -463,6 +482,8 @@ def backend_available(mode: str) -> Tuple[bool, str]:
     imported just to answer the question and a missing optional dependency
     never raises.
 
+    :param mode: linking backend name, one of :data:`TRACK_MODES`
+        (case-insensitive); ``iou`` needs no optional package.
     :returns: ``(True, "")`` when usable, else ``(False, message)`` where the
         message names the package and the command that installs it.
     """
@@ -637,6 +658,16 @@ def link_tracks(masks: np.ndarray, mode: str = "iou",
                 trackastra_linking: str = "greedy"):
     """Link a (T, H, W) label stack into tracks with the chosen backend.
 
+    :param masks: label stack with at least two frames; any other shape
+        raises :class:`ValueError`.
+    :param mode: linking backend, one of :data:`TRACK_MODES`.
+    :param displacement: maximum displacement between frames, in pixels,
+        passed to the ``trackpy``, ``btrack`` and ``ultrack`` backends.
+    :param memory: frames an object may vanish for (``trackpy`` only).
+    :param iou_threshold: minimum overlap to link (``iou`` only).
+    :param images: intensity stack for ``trackastra``.
+    :param trackastra_model: ``trackastra`` model name.
+    :param trackastra_linking: ``trackastra`` linking mode.
     :returns: a DataFrame with ``frame``, ``original_label``, ``track_id``,
         ``x`` and ``y`` — the same layout the pipeline's trackers emit.
     :raises TrackerUnavailable: when the backend's package is missing, with
@@ -671,6 +702,10 @@ def relabel_by_track(masks: np.ndarray, tracks) -> np.ndarray:
     This is what makes an identity swap visible: an object that keeps its
     track id keeps its colour across frames, and one that is handed to
     another track changes colour mid-movie.
+
+    :param masks: the (T, H, W) label stack the tracks were built from.
+    :param tracks: the track table from :func:`link_tracks`; ``None`` or an
+        empty table gives an all-zero stack.
     """
     from spacr.timelapse import _relabel_masks_based_on_tracks
     if tracks is None or len(tracks) == 0:
@@ -770,7 +805,11 @@ def track_stats(tracks, n_frames: int, min_length: int = 3,
 
 
 def track_colour(track_id: int) -> Tuple[int, int, int]:
-    """Deterministic colour for a track id, stable across frames and runs."""
+    """Deterministic colour for a track id, stable across frames and runs.
+
+    :param track_id: the track id, converted with ``int``; it indexes
+        :data:`TRACK_COLOURS` cyclically.
+    """
     return TRACK_COLOURS[int(track_id) % len(TRACK_COLOURS)]
 
 
@@ -814,6 +853,20 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
     Outlines are coloured **per track id** so a fragmented track shows up as
     an object that changes colour partway through, and the trailing polyline
     shows where each object came from over the last ``tail`` frames.
+
+    :param image: the frame to draw, 2-D or with a channel axis; the plane is
+        picked with :func:`frame_channel`.
+    :param labels: optional track-relabelled mask for this frame, outlined
+        per track colour.
+    :param tracks: optional track table with ``x``, ``y``, ``frame`` and
+        ``track_id``; trails are drawn up to ``frame``.
+    :param frame: index of this frame in the track table.
+    :param tail: how many earlier frames each trail reaches back.
+    :param normalise: stretch the plane between the two percentiles.
+    :param lo_pct: lower percentile of the stretch.
+    :param hi_pct: upper percentile of the stretch.
+    :param channel: channel of ``image`` to draw.
+    :returns: an RGB ``uint8`` array.
     """
     plane = frame_channel(image, channel)
     base = _to_uint8(plane, normalise=normalise, lo_pct=lo_pct, hi_pct=hi_pct)
@@ -922,7 +975,13 @@ def _read_and_segment_sequence(
 
 
 def run_preview_pass(req: TimelapseRequest) -> Dict[str, Any]:
-    """Do the work of one preview: masks (maybe cached), then linking."""
+    """Do the work of one preview: masks (maybe cached), then linking.
+
+    :param req: the request; its cached masks are used first, then its mask
+        sequence, then its image sequence is segmented with ``req.seg``, and
+        the masks are linked with ``req.track``. With none of these it
+        raises :class:`ValueError`.
+    """
     masks = req.cached_masks
     images = req.cached_images
     segmented = False
@@ -959,6 +1018,16 @@ def build_movie_field(
     checked between frames and before linking; the production callback reads
     the worker QThread's interruption flag, which lets lowering the Fields cap
     stop an expensive sibling before it retains the rest of the sequence.
+
+    :param path: the field to open: a directory of frames, a multi-page TIFF,
+        or an ``.npy`` stack whose first axis is time.
+    :param max_frames: cap on the number of frames read.
+    :param seg: segmentation parameters, as :func:`segment_frame` takes
+        them; its ``channel`` is also returned.
+    :param track: keyword arguments for :func:`link_tracks`.
+    :param cached_masks: an existing (T, H, W) label stack to reuse instead
+        of segmenting; its frame count must match the sequence.
+    :param cancelled: a no-argument callable returning ``True`` to stop.
     """
     source = Path(os.fspath(path))
     sequence = FrameSequence.open(source, max_frames=max_frames)
@@ -1552,6 +1621,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         Every GUI entry point -- the drop handler, the Choose-sequence dialog
         and the FOV dropdown -- comes through here.
 
+        :param path: the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy``
+            stack whose first axis is time. ``None`` or empty
+            submits nothing.
+        :param list_siblings: list the sibling fields next to ``path`` for
+            the field dropdown; ``False`` reuses the cached listing.
         :returns: ``True`` when a job was submitted.
         """
         text = os.fspath(path).strip() if path is not None else ""
@@ -1596,6 +1670,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         For programmatic callers and tests, mirroring
         ``LivePreviewPanel.load_image``. The GUI uses
         :meth:`load_sequence_async`.
+
+        :param path: the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy``
+            stack whose first axis is time.
+        :returns: False, with the reason in the status line, when it cannot
+            be opened.
         """
         self._stop_playback()
         self._load_token += 1
@@ -1788,6 +1867,9 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         The same worker function as the image sequence, so the mask
         sequence's first frame is warmed off the GUI thread too.
 
+        :param path: the label images: a directory of frames, a multi-page TIFF, or an ``.npy``
+            stack whose first axis is time. ``None`` or empty
+            submits nothing.
         :returns: ``True`` when a job was submitted.
         """
         text = os.fspath(path).strip() if path is not None else ""
@@ -1827,6 +1909,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         For programmatic callers and tests. The GUI uses
         :meth:`load_masks_async`, because this one opens the folder on the
         thread that calls it.
+
+        :param path: the label images: a directory of frames, a multi-page TIFF, or an ``.npy``
+            stack whose first axis is time.
+        :returns: False, with the reason in the status line, when it cannot
+            be opened.
         """
         self._stop_playback()
         self._mask_load_token += 1
@@ -1855,7 +1942,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
     def set_propagate_callback(self, cb) -> None:
         """Register a ``callback(dict)`` that writes tuned values into the
-        main settings panel (wired by the AppScreen)."""
+        main settings panel (wired by the AppScreen).
+
+        :param cb: the callable, or ``None`` to remove it.
+        """
         self._propagate_cb = cb
 
     def settings_for_propagation(self) -> dict:
@@ -1885,7 +1975,12 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
                 LOG.debug("propagate_settings failed", exc_info=True)
 
     def apply_settings(self, settings: dict) -> None:
-        """Seed the preview from the main Timelapse settings dict."""
+        """Seed the preview from the main Timelapse settings dict.
+
+        :param settings: the Timelapse settings; a copy is kept, and the
+            linking mode, displacement, memory, object, transient filter and
+            that object's channel, diameter and model are read from it.
+        """
         self._settings = dict(settings or {})
         try:
             mode = settings.get("timelapse_mode")
@@ -2462,6 +2557,9 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         Kept as a seam rather than a constructor argument so the movie is
         optional: the panel is built by two different callers and a screen
         that only wants the stats view should not pay for the frames.
+
+        :param movie: the movie panel; its ``max_fields_changed`` signal is
+            connected and a previously attached panel is disconnected.
         """
         previous = getattr(self, "_movie_panel", None)
         if previous is not None and previous is not movie:
@@ -2575,6 +2673,9 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         A ``QThread`` collected while it is still running aborts the whole
         process, and this panel's worker outlives the emit that produced its
         result by a few instructions.
+
+        :param event: the close event; passed on to the base class after
+            the workers finish (up to 5 s each).
         """
         self._stop_playback()
         self.shutdown()
@@ -2608,7 +2709,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
                 self._model_box.insertItem(index, name)
 
     def showEvent(self, event):  # noqa: N802 (Qt naming)
-        """Refresh the model list whenever the panel comes back on screen."""
+        """Refresh the model list whenever the panel comes back on screen.
+
+        :param event: the show event; passed on to the base class first.
+        """
         super().showEvent(event)
         self.refresh_model_choices()
 

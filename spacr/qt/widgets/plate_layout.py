@@ -182,7 +182,11 @@ class DesignFinding:
 
 
 def plate_shape(plate_format: int) -> Tuple[int, int]:
-    """``(n_rows, n_columns)`` for a well count."""
+    """``(n_rows, n_columns)`` for a well count.
+
+    :param plate_format: number of wells: 6, 12, 24, 48, 96, 384 or 1536; any
+        other value raises :class:`ValueError`.
+    """
     try:
         return PLATE_FORMATS[int(plate_format)]
     except KeyError:
@@ -192,7 +196,13 @@ def plate_shape(plate_format: int) -> Tuple[int, int]:
 
 
 def is_edge(row: int, column: int, n_rows: int, n_columns: int) -> bool:
-    """Whether a 1-based ``(row, column)`` is in the plate's outer ring."""
+    """Whether a 1-based ``(row, column)`` is in the plate's outer ring.
+
+    :param row: 1-based plate row.
+    :param column: 1-based plate column.
+    :param n_rows: number of rows on the plate.
+    :param n_columns: number of columns on the plate.
+    """
     return (row == 1 or row == n_rows
             or column == 1 or column == n_columns)
 
@@ -472,7 +482,12 @@ def to_settings_fragment(design: PlateDesign,
 
 
 def format_findings(findings: Sequence[DesignFinding]) -> str:
-    """Findings as plain text, worst first."""
+    """Findings as plain text, worst first.
+
+    :param findings: layout findings, one output line each in the order given,
+        prefixed ``STOP``, ``!`` or ``-`` by severity; an empty sequence gives
+        the no-problems sentence.
+    """
     if not findings:
         return "No problems found in the layout."
     marks = {"error": "STOP", "warn": "!", "note": "-"}

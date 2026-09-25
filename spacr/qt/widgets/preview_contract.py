@@ -291,6 +291,9 @@ class LivePreviewContract:
         call site, so no panel and no code path can recolour an image
         without saying so. When the preference is off -- which it is for
         almost everybody -- this changes nothing at all.
+
+        :param text: the sentence to show; converted to ``str`` and translated.
+            A panel with no status label ignores it.
         """
         label = getattr(self, "_status", None)
         if label is None:
@@ -306,7 +309,12 @@ class LivePreviewContract:
         return int(getattr(self, "_run_token", 0))
 
     def preview_stale(self, token: Any) -> bool:
-        """True when a result carrying ``token`` has been superseded."""
+        """True when a result carrying ``token`` has been superseded.
+
+        :param token: the preview generation a result was started under, as
+            :meth:`preview_token` returned it; ``None`` or a value that is not
+            an integer is never stale.
+        """
         if token is None:
             return False
         try:
@@ -332,7 +340,11 @@ class LivePreviewContract:
         return bool(running)
 
     def set_preview_busy(self, busy: bool) -> None:
-        """Enable exactly one of run / cancel."""
+        """Enable exactly one of run / cancel.
+
+        :param busy: true while a preview pass runs (cancel enabled, run
+            disabled), false otherwise; a panel without either button skips it.
+        """
         run = getattr(self, "_run_btn", None)
         if run is not None:
             run.setEnabled(not busy)

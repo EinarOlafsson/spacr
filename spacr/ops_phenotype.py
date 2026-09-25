@@ -168,6 +168,10 @@ class Alignment:
         The stored transform, applied -- so a caller never has to
         reconstruct the convention and get it the wrong way round, which is
         what cost 372's PART 11-C a canvas one pitch per column too large.
+
+        :param points: source-frame coordinates, an array of shape (N, 2)
+            (converted to float), in the same axis order the alignment was
+            fitted with.
         """
         source = np.asarray(points, float)
         return self.scale * (self.rotation @ source.T).T + self.translation

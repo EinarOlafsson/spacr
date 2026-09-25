@@ -79,7 +79,10 @@ class PurityScatter(FastPlot):
         return self._status.text()
 
     def clear_plot(self, message: str) -> None:
-        """Take everything off the plot and say why it is empty."""
+        """Take everything off the plot and say why it is empty.
+
+        :param message: why the plot is empty, shown as its status line.
+        """
         self._reset_scene()
         self._frame = None
         self._style_note = ""
@@ -215,7 +218,10 @@ class AnnotationUmapTab(QWidget):
         self.clear_result("Nothing has been embedded yet.")
 
     def say(self, text: str) -> None:
-        """Put ``text`` in the report box, replacing what was there."""
+        """Put ``text`` in the report box, replacing what was there.
+
+        :param text: the message for the report box; converted to a string.
+        """
         self.report.setPlainText(str(text))
 
     def clear_result(self, reason: str) -> None:
@@ -225,13 +231,19 @@ class AnnotationUmapTab(QWidget):
         left the last run's scatter on screen would put a picture under a
         message saying this one means nothing, and the picture is what gets
         screenshotted.
+
+        :param reason: why there is no result, shown as the plot's status line.
         """
         self._embedding = None
         self.plot.clear_plot(reason)
         self.table.set_frame(None)
 
     def refuse(self, reason: str, said: str) -> None:
-        """Show ``said`` and leave nothing drawn behind it."""
+        """Show ``said`` and leave nothing drawn behind it.
+
+        :param reason: short reason shown as the emptied plot's status line.
+        :param said: fuller explanation written into the report box.
+        """
         self.clear_result(reason)
         self.say(said)
 

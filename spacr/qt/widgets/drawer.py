@@ -162,6 +162,9 @@ class EdgeDrawer(QWidget):
         leaves it on screen. This takes the *trigger* away and leaves
         :meth:`open` working, so a caller that means to open it anyway
         still can.
+
+        :param enabled: truthy to arm the reveal, falsy to hide the hot strip
+            and stop the open and close timers.
         """
         self._enabled = bool(enabled)
         self._trigger.setVisible(self._enabled)
@@ -180,6 +183,10 @@ class EdgeDrawer(QWidget):
         switching back to the reveal has to move the *same* object here
         again — building a second Sidebar would leave the tutorial, the
         command palette and every test pointing at the dead one.
+
+        :param panel: the panel widget to re-parent into the drawer; it is
+            moved to the top-left, sized to the drawer's width and height and
+            shown.
         """
         self._panel = panel
         panel.setParent(self)

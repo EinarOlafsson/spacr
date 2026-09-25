@@ -115,7 +115,12 @@ else:
 
 
     def inspector_text(node: Node) -> str:
-        """Format complete, copyable details for the selected node."""
+        """Format complete, copyable details for the selected node.
+
+        :param node: the graph node to describe; its label, identifier, kind,
+            state, timings, progress, parameters, metrics and error are
+            written one field per line, with ``—`` for values not yet known.
+        """
 
         if node.started_at is not None and node.ended_at is not None:
             duration: object = node.ended_at - node.started_at
@@ -188,7 +193,13 @@ else:
             return self._zoom
 
         def zoom_by(self, wheel_delta: int) -> bool:
-            """Apply one wheel zoom step and report whether the view changed."""
+            """Apply one wheel zoom step and report whether the view changed.
+
+            :param wheel_delta: vertical wheel angle delta; only its sign is
+                used (positive zooms in by ``ZOOM_STEP``, negative zooms out,
+                zero does nothing), with the zoom held within ``MIN_ZOOM`` to
+                ``MAX_ZOOM``.
+            """
 
             if wheel_delta == 0:
                 return False
@@ -203,7 +214,12 @@ else:
             return True
 
         def wheelEvent(self, event: QWheelEvent) -> None:  # noqa: N802 - Qt virtual name
-            """Translate vertical wheel movement into bounded zoom."""
+            """Translate vertical wheel movement into bounded zoom.
+
+            :param event: the wheel event; only its vertical ``angleDelta``
+                is read, and it is accepted when the zoom changed and ignored
+                otherwise.
+            """
 
             if self.zoom_by(event.angleDelta().y()):
                 event.accept()
@@ -567,6 +583,10 @@ else:
             Clamped at the floor the graph and inspector need between them,
             so a drag that runs off the top cannot squeeze the panel to
             nothing and leave no edge to drag back.
+
+            :param height: requested panel height in pixels; converted with
+                ``int`` and raised to ``INSPECTOR_MIN_HEIGHT`` plus the grip
+                height when smaller.
             """
             floor = self.INSPECTOR_MIN_HEIGHT + _PanelHeightGrip.HEIGHT
             self._user_height = max(int(height), floor)
@@ -612,7 +632,11 @@ else:
             return exported
 
         def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802 - Qt virtual name
-            """Stop timers and release scene-owned graphics objects."""
+            """Stop timers and release scene-owned graphics objects.
+
+            :param event: the close event; it is passed on unchanged to the
+                base-class handler.
+            """
 
             self.stop()
             self.scene.clear()

@@ -145,7 +145,12 @@ def _import_registered_defaults_module(app_key: str) -> None:
 
 def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     """Return a fresh defaults dict for an app key, mirroring the Tk GUI
-    dispatch in gui_core.setup_settings_panel."""
+    dispatch in gui_core.setup_settings_panel.
+
+    :param app_key: application key; a registered plugin's defaults are used
+        first, then the registered or built-in defaults for that key, and an
+        unknown key gets a minimal ``{'src': ...}`` dict.
+    """
     try:
         from spacr.plugins import get_app, load_object
         plugin_app = get_app(app_key)
@@ -461,7 +466,11 @@ def _is_clearable_plane_setting(key: str) -> bool:
 
 
 def object_switch_keys(role: str) -> Tuple[str, ...]:
-    """The keys that decide whether ``role`` is in the run."""
+    """The keys that decide whether ``role`` is in the run.
+
+    :param role: object name, such as ``'cell'`` or an organelle slot; the keys
+        are ``<role>_channel`` and ``<role>_mask_dim``.
+    """
     return tuple(f"{role}_{suffix}" for suffix in OBJECT_SWITCH_SUFFIXES)
 
 
@@ -479,6 +488,9 @@ def object_of_setting(key: str) -> Optional[str]:
     ``spacr.settings.advanced_object_of`` understands them: spaCR is not
     consistent about which end of a key the object name goes on, and a rule
     that knew only one end would leave half a family on screen.
+
+    :param key: setting key; an organelle-slot prefix, or a
+        ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.
     """
     from ...organelle_types import organelle_role_of
 
@@ -863,6 +875,9 @@ def has_csv_column_picker(app_key: str, key: str) -> bool:
     Read by the screen so it does not ALSO hang the measurements.db "SQL"
     button off the same field: two buttons that disagree about which file the
     column comes from is worse than the one wrong button this replaces.
+
+    :param app_key: application key looked up in ``CSV_COLUMN_SOURCES``.
+    :param key: setting key checked against that module's CSV column sources.
     """
     return str(key or "") in CSV_COLUMN_SOURCES.get(str(app_key or ""), {})
 
@@ -2034,6 +2049,12 @@ def categories_for_app(
     ``n_jobs`` and a ``Model Training`` tab containing only ``test``.  Both
     controls belong to the sequencing run, but changing the global category
     table would also move training controls in unrelated modules.
+
+    :param app_key: application key of the module whose settings are shown; a
+        plugin's own categories replace ``categories`` entirely, and some
+        built-in modules relocate keys.
+    :param categories: category title to ordered setting keys; it is copied,
+        not modified.
     """
     try:
         from spacr.plugins import get_app
@@ -3427,7 +3448,13 @@ def section_tooltip(app_key: str, section, language: Optional[str] = None) -> st
 
 
 def section_tooltip_is_curated(app_key: str, section) -> bool:
-    """True when a tree heading has written help rather than the fallback."""
+    """True when a tree heading has written help rather than the fallback.
+
+    :param app_key: application key of the module whose settings are shown.
+    :param section: tree heading: an object with ``title`` and ``path``
+        attributes, a tuple whose first item is the title, or anything
+        converted to a title with ``str()``.
+    """
     path = tuple(getattr(section, "path", ()) or ())
     title = getattr(section, "title", None)
     if title is None:
@@ -3443,6 +3470,9 @@ def category_tooltip_is_curated(app_key: str, title: str) -> bool:
     Shares :func:`_category_blurb` with :func:`category_tooltip` rather than
     repeating the lookup: the two used to hold separate copies, so a lookup
     rule added to one would silently not apply to the other.
+
+    :param app_key: application key of the module whose settings are shown.
+    :param title: category (section) title looked up for a written blurb.
     """
     return bool(_category_blurb(app_key, title))
 
@@ -3741,6 +3771,9 @@ def api_docs_url(
     back to the generated API index rather than the documentation homepage.
     Shared batch-correction settings always land on their implementation,
     rather than whichever consumer app happens to display them.
+
+    :param app_key: application key; a plugin's own ``docs_url`` wins,
+        otherwise it selects the module page when ``key`` does not.
     """
     try:
         from spacr.plugins import get_app
@@ -4172,7 +4205,13 @@ def format_tooltip(
     key: str = "",
     language: Optional[str] = None,
 ) -> str:
-    """Return localized typed HTML with an unchanged API-document URL."""
+    """Return localized typed HTML with an unchanged API-document URL.
+
+    :param text: description of the setting; an empty value becomes a generic
+        "Controls ..." sentence.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation link.
+    """
     from ..i18n import tr
 
     code = _language_code(language)
@@ -4207,7 +4246,13 @@ def plain_tooltip(
     language: Optional[str] = None,
 ) -> str:
     """Same content as `format_tooltip` but plain text — used by the
-    hover-follows footer at the bottom of each AppScreen."""
+    hover-follows footer at the bottom of each AppScreen.
+
+    :param text: description of the setting; an empty value becomes a generic
+        "Controls ..." sentence.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation link.
+    """
     from ..i18n import tr
 
     code = _language_code(language)
@@ -4742,6 +4787,9 @@ def regression_design_scan(settings) -> dict:
     with it. What it could not work out comes back as ``None`` with a
     ``note`` saying why.
 
+    :param settings: regression settings; the sgRNA count CSVs are taken from
+        the ``count`` entries of ``paired_data``, or from the legacy
+        ``count_data`` when there are none.
     :returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.
     """
     out = {"genes": None, "guides": None, "wells": None, "rows": 0,
@@ -5387,6 +5435,10 @@ def normalise_regression_level(level: Any) -> str:
 
     Missing or unrecognized values can occur in settings saved by older
     versions and are handled without interrupting panel rendering.
+
+    :param level: saved level, compared case-insensitively after stripping;
+        ``'both'``, ``'grna'`` and ``'gene'`` are kept and anything else
+        becomes ``'both'``.
     """
     text = str(level or "").strip().lower()
     return text if text in REGRESSION_LEVELS else "both"
@@ -5711,7 +5763,12 @@ SECTION_EXPLAINERS: Dict[str, Tuple[str, ...]] = {
 
 
 def has_section_explainer(app_key: str, title: str) -> bool:
-    """Return whether a settings section begins with explanatory prose."""
+    """Return whether a settings section begins with explanatory prose.
+
+    :param app_key: application key looked up in ``SECTION_EXPLAINERS``.
+    :param title: settings section title checked against that module's
+        explainer sections.
+    """
     return str(title or "") in SECTION_EXPLAINERS.get(str(app_key or ""), ())
 
 
@@ -5863,7 +5920,14 @@ def attach_api_tooltip(
     description: str = "",
     _descriptions: Optional[Dict[str, str]] = None,
 ) -> str:
-    """Attach typed, linked API help metadata to one setting widget."""
+    """Attach typed, linked API help metadata to one setting widget.
+
+    :param widget: the setting widget that receives the tooltip and its
+        ``settingsAppKey``/``settingKey``/``apiTooltip*`` properties.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation link.
+    :param key: setting key whose description, name and type hint are shown.
+    """
     descriptions = _descriptions if _descriptions is not None else get_tooltips()
     existing_tooltip = "" if widget.property("apiTooltipHtml") else widget.toolTip()
     body = (descriptions.get(key) or description
@@ -5903,6 +5967,10 @@ def refresh_api_tooltips(
     Field widgets marked ``metadata`` stay quiet because their visible label
     owns hover help. API-dot destinations carry the selected documentation
     language while retaining the same module page.
+
+    :param root: widget whose own and descendant setting widgets (those with
+        ``settingsAppKey`` and ``settingKey`` properties) are refreshed;
+        ``None`` does nothing.
     """
     if root is None:
         return
@@ -5976,6 +6044,11 @@ def install_api_tooltips(
     figure dialog. A column of dots reads as texture rather than as one
     affordance per setting, and the API link was never in the dot alone --
     it is in the hover text, which is where it was being read from.
+
+    :param owner: the form widget whose children carrying a ``settingKey``
+        property get tooltips; it also owns the shared tooltip event filter.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation links.
     """
     event_filter = getattr(owner, "_api_tooltip_filter", None)
     if event_filter is None:
@@ -7864,6 +7937,11 @@ def list_shape_for(key: str, default: Any) -> Optional[Tuple[bool, bool, Any, An
       the placeholder *string* ``'list of paths'``;
     * ``sample``, whose declared "type" is the value ``None``.
 
+    :param key: setting key; its declared type in
+        ``spacr.settings.expected_types`` is consulted.
+    :param default: the setting's default value; a list or tuple (or ``None``
+        for a list-only declared type) qualifies, and its elements decide the
+        element type.
     :returns: ``(nested_capable, allow_none, element_type, container)`` when
         the key holds a list, or ``None`` when it should keep its ordinary
         widget.
@@ -8663,11 +8741,19 @@ class SettingsWidgets:
         return wanted
 
     def tooltip_for(self, key: str) -> str:
-        """Return the HTML-formatted tooltip for a given setting key."""
+        """Return the HTML-formatted tooltip for a given setting key.
+
+        :param key: setting key whose description is looked up; an unknown key
+            gets the generic fallback text.
+        """
         return format_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def plain_tooltip_for(self, key: str) -> str:
-        """Return the plain-text hint (description + docs URL) for a setting."""
+        """Return the plain-text hint (description + docs URL) for a setting.
+
+        :param key: setting key whose description is looked up; an unknown key
+            gets the generic fallback text.
+        """
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
 
@@ -9299,6 +9385,12 @@ class SettingsWidgets:
         Used by the Live Preview's "Propagate settings" toggle to push
         interactively-tuned values back into the main settings panel.
         Returns True if the key existed and was set.
+
+        :param key: setting key whose widget is updated; ``False`` is returned
+            when no widget is bound to it.
+        :param value: new value, converted to what the widget takes (``bool``
+            for a check box, ``int`` or ``float`` for a spin box, item data or
+            text for a combo box, text for a line edit).
         """
         w = self._widgets.get(key)
         if w is None:
@@ -9362,6 +9454,12 @@ class SettingsWidgets:
         A slot
         above the current count is accepted only when this app owns the count
         and the key is a declared setting; foreign-app keys remain rejected.
+
+        :param key: setting key; it must already be a run setting, or an
+            organelle-slot key declared in ``expected_types`` when this form
+            owns the organelle count, otherwise ``False`` is returned.
+        :param value: new value, coerced to the setting's expected type before
+            it is stored.
         """
         if key not in self._defaults:
             from ...organelle_types import (NUMBER_OF_ORGANELLES,
@@ -10445,6 +10543,10 @@ class SettingsWidgets:
         A settings file that supplies morphology/method/thresholds owns those
         values. A file that supplies only a type asks the picker to populate
         its missing recommendations just as a direct user choice does.
+
+        :param settings: imported settings mapping; its keys decide which
+            organelle slots are affected, and a slot's recommended values are
+            applied only to keys it does not supply with a non-``None`` value.
         """
         from ...organelle_types import organelle_role_of
 

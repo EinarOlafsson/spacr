@@ -45,7 +45,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QSpinBox,
     QTableWidget,
@@ -279,7 +278,9 @@ class BatchScreen(QWidget):
         run_row.addWidget(self._btn_stop)
         outer.addLayout(run_row)
 
-        self._progress = QProgressBar(self)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress = ProgressLine(self, detail=False)
         self._progress.setRange(0, 1)
         self._progress.setValue(0)
         self._progress.setTextVisible(True)
@@ -405,7 +406,12 @@ class BatchScreen(QWidget):
         return True
 
     def move_selected(self, offset: int) -> bool:
-        """Move the selected job ``offset`` places (negative is earlier)."""
+        """Move the selected job ``offset`` places (negative is earlier).
+
+        :param offset: number of queue places to move the selected job;
+            negative moves it earlier, and the new position is clamped to the
+            queue.
+        """
         job = self.selected_job()
         if job is None:
             self._set_status("Select a job to reorder.", error=True)
@@ -463,7 +469,12 @@ class BatchScreen(QWidget):
 
 
     def save_queue_to(self, path: str) -> bool:
-        """Write the queue to ``path`` atomically. Errors land inline."""
+        """Write the queue to ``path`` atomically. Errors land inline.
+
+        :param path: destination queue JSON file, written by
+            :func:`spacr.batch.save_queue`; on success it also becomes the file
+            the run keeps up to date.
+        """
         try:
             bt.save_queue(self._queue, path)
         except (OSError, bt.QueueError) as exc:
@@ -475,7 +486,11 @@ class BatchScreen(QWidget):
         return True
 
     def load_queue_from(self, path: str) -> bool:
-        """Replace the queue with the one in ``path``. Errors land inline."""
+        """Replace the queue with the one in ``path``. Errors land inline.
+
+        :param path: queue JSON file read with :func:`spacr.batch.load_queue`;
+            on success it also becomes the file the run keeps up to date.
+        """
         try:
             queue = bt.load_queue(path)
         except bt.QueueError as exc:
@@ -497,7 +512,13 @@ class BatchScreen(QWidget):
 
 
     def set_runner(self, runner: Optional[Callable[[Any, str, str], int]]) -> None:
-        """Replace the per-job runner. None restores the subprocess default."""
+        """Replace the per-job runner. None restores the subprocess default.
+
+        :param runner: callable ``runner(job, settings_path, log_path)``
+            returning the job's exit code, passed to
+            :func:`spacr.batch.run_queue` for every job; None lets
+            :func:`~spacr.batch.run_queue` use its subprocess default.
+        """
         self._runner = runner
 
     def is_busy(self) -> bool:
@@ -726,7 +747,11 @@ class BatchScreen(QWidget):
         return -1
 
     def select_job(self, job_id: str) -> bool:
-        """Select the row for ``job_id``."""
+        """Select the row for ``job_id``.
+
+        :param job_id: identifier of the queued job; False is returned when no
+            row shows it.
+        """
         row = self._row_of_job(job_id)
         if row < 0:
             return False
@@ -734,13 +759,21 @@ class BatchScreen(QWidget):
         return True
 
     def row_values(self, row: int) -> List[str]:
-        """Text of every cell in ``row`` (test/introspection helper)."""
+        """Text of every cell in ``row`` (test/introspection helper).
+
+        :param row: zero-based table row; a missing cell reads as an empty
+            string.
+        """
         return [(self._table.item(row, col).text()
                  if self._table.item(row, col) is not None else "")
                 for col in range(len(COLUMNS))]
 
     def row_status(self, row: int) -> str:
-        """Status text shown in ``row`` (test/introspection helper)."""
+        """Status text shown in ``row`` (test/introspection helper).
+
+        :param row: zero-based table row; an empty string is returned when it
+            has no Status cell.
+        """
         item = self._table.item(row, COLUMNS.index("Status"))
         return item.text() if item is not None else ""
 

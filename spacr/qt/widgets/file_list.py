@@ -79,6 +79,9 @@ def is_database_path(path) -> bool:
     column and for the drop handler that catches the same file when it lands
     on the screen around the widget. Two copies would disagree the first time
     somebody's database was called ``plate1.sqlite``.
+
+    :param path: file path as a string or path-like object; its extension is
+        compared, case-insensitively, with ``DATABASE_EXTENSIONS``.
     """
     return os.path.splitext(os.fspath(path))[1].lower() in DATABASE_EXTENSIONS
 
@@ -141,6 +144,11 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     matched against BOTH cells of a row it may join -- a plate is named by its
     score CSV as often as by its count CSV -- and one that matches nothing is
     listed on its own row rather than being dropped or guessed onto row 0.
+
+    :param scores: score CSV paths; each starts a row, in the order given.
+    :param counts: count CSV paths; each is paired with the score whose
+        filename tokens it uniquely matches best, unmatched ones fill score
+        rows still missing a count, and any left over get rows of their own.
     """
     unused = set(range(len(counts)))
     count_tokens = [_pair_tokens(path) for path in counts]
@@ -240,6 +248,9 @@ def side_for_header(path) -> str:
     ``spacr.qt.dnd_handlers.SweepInputsDropHandler``. A second copy of this
     rule would drift, and the direction it would drift in is silent: a count
     table filed as a score is not an error, it is a wrong regression.
+
+    :param path: CSV file whose first row is read as the header; a file that
+        cannot be read counts as a score file.
     """
     import csv as _csv
     try:
@@ -444,6 +455,9 @@ class PairedFileTableWidget(QWidget):
         find, and the widget has no parent chain to walk up either. Once
         installed the layout follows the header on its own, and the call is
         idempotent, so repeated shows cost one dictionary lookup.
+
+        :param event: the show event; it is not inspected, only passed on to
+            the base class first.
         """
         super().showEvent(event)
         try:
@@ -685,6 +699,9 @@ class PairedFileTableWidget(QWidget):
 
         Returns the sentence, so a caller with a console logs the same words
         the user is reading.
+
+        :param path: path to the measurements database, as a string or
+            path-like object; an empty path raises :class:`ValueError`.
         """
         database = os.fspath(path).strip()
         if not database:
@@ -892,6 +909,9 @@ class PairedFileTableWidget(QWidget):
         dropping it on a plate's row attaches it to THAT plate, which is the
         one thing the token pairing cannot know when the file is called
         ``measurements.db`` like everybody else's.
+
+        :param event: the drop event; its local file URLs and drop position
+            are read, and it is ignored when it carries no usable paths.
         """
         paths = self._dropped(event)
         if not paths:
@@ -1214,6 +1234,10 @@ class FilePathListWidget(QWidget):
         That is what loads a settings file written while these keys were
         wrongly rendered as lists: ``['/x/barcodes_row.csv']`` comes back as
         ``/x/barcodes_row.csv`` rather than carrying the wrong shape forward.
+
+        :param value: None, one path as a string or path-like object, or an
+            iterable of paths; surrounding quotes and placeholder values are
+            dropped.
         """
         before = self.paths()
         self._list.clear()
@@ -1275,6 +1299,11 @@ class FilePathListWidget(QWidget):
         When the setting names ONE file this REPLACES what is there. A second
         choice is a correction, and a control that appended left the run
         reading a file the user believed they had swapped out.
+
+        :param paths: paths to add, as strings or path-like objects; a bare
+            string counts as one path, and placeholders and None entries are
+            skipped. Each is made absolute, a folder contributes its matching
+            files one level down, and a single-file widget keeps only the last.
         """
         incoming = self._coerce(paths)
         if self._single:

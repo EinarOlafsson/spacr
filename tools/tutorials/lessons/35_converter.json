@@ -26,7 +26,7 @@
     },
     {
       "visual": "01b_current_converter_fold",
-      "narration": "Use the converter’s Source, Destination, Preview and Convert controls. Preview displays the planned source-to-target mapping so you can inspect the assignments before writing files.",
+      "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
       "hold_after": 0.7,
       "focus": [
         460,

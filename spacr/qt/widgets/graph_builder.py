@@ -381,6 +381,9 @@ class DropZone(QFrame):
         Silent when nothing changes: the panel rebuilds the chart on every
         emission, and a re-drop of the same column would otherwise cost a full
         re-render for no visible difference.
+
+        :param column: column name for this channel, converted with ``str()``;
+            None or an empty string empties the zone.
         """
         column = str(column) if column else None
         if column == self._column:
@@ -705,6 +708,9 @@ class GraphCanvas(LinkedView, QWidget):
         Channels naming a column the new table does not have are emptied
         rather than carried over: a spec that half-resolves would draw a chart
         of fewer variables than the zones claim.
+
+        :param frame: the table to plot, or None for no table; channels naming
+            a column it lacks are emptied.
         """
         self._frame = frame
         self._kinds = self._spec.kinds_for(frame) if frame is not None else {}
@@ -752,7 +758,11 @@ class GraphCanvas(LinkedView, QWidget):
         return dict(self._kinds)
 
     def set_spec(self, spec: GraphSpec, *, immediate: bool = True) -> None:
-        """Replace the spec and redraw."""
+        """Replace the spec and redraw.
+
+        :param spec: the chart specification to draw; column kinds are
+            recomputed from it for the current table.
+        """
         self._spec = spec
         if self._frame is not None:
             self._kinds = spec.kinds_for(self._frame)
@@ -1093,6 +1103,8 @@ class GraphCanvas(LinkedView, QWidget):
 
         Where a subclass puts grid lines and log scales -- after the data, so
         it cannot change what was plotted, only how it is read.
+
+        :param ax: the Matplotlib axes of the panel that was just drawn.
         """
 
     def _draw_points(self, ax, rows, mask, kind, palette) -> Callable:
@@ -1511,11 +1523,20 @@ class GraphCanvas(LinkedView, QWidget):
         return " · ".join(p for p in parts if p)
 
     def on_linked_filter_changed(self, data_filter) -> None:
-        """A filter genuinely narrows the population: redraw and re-scale."""
+        """A filter genuinely narrows the population: redraw and re-scale.
+
+        :param data_filter: the linked filter that changed; it is not read
+            here, only a debounced redraw is started.
+        """
         self._debounce.start()
 
     def on_linked_selection_changed(self, selection: Selection) -> None:
-        """A selection only highlights — never a row fewer on screen."""
+        """A selection only highlights — never a row fewer on screen.
+
+        :param selection: the linked selection that changed; it is not read
+            directly, and the highlight is recomputed from the current linked
+            selection.
+        """
         if self._render_data is None:
             return
         if not self._live_highlight:
@@ -1541,6 +1562,13 @@ class GraphCanvas(LinkedView, QWidget):
         density raster or a sampled scatter still names every row in the
         rectangle rather than only the ones that got drawn.
 
+        :param x0: horizontal start of the rectangle in the panel's data
+            coordinates; on a categorical axis these are tick positions, one
+            per level, and the two ends may come in either order.
+        :param y0: vertical start of the rectangle, in the same coordinates.
+        :param x1: horizontal end of the rectangle.
+        :param y1: vertical end of the rectangle; ignored on a histogram or bar
+            chart, whose vertical axis is a count.
         :returns: the published :class:`~spacr.selection.Selection`, or
             ``None`` when this table carries no object keys to name rows with.
         """
@@ -1793,7 +1821,11 @@ class GraphBuilderPanel(QWidget):
         return self.canvas.spec
 
     def set_spec(self, spec: GraphSpec) -> None:
-        """Push a whole spec in — restoring a saved chart, or a preset."""
+        """Push a whole spec in — restoring a saved chart, or a preset.
+
+        :param spec: the complete chart specification; the canvas redraws and
+            the drop zones are updated to match it.
+        """
         self.canvas.set_spec(spec)
         self._sync_zones()
 

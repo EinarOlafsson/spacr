@@ -101,6 +101,7 @@ def validate(data, root=ROOT, *, live=True):
             if literal not in text:
                 raise ValueError(f"I/O contract moved in {source['path']}: {literal}")
     if not live:
+        _validate_stories(data)
         return
     sys.path.insert(0, str(root))
     import spacr
@@ -145,6 +146,14 @@ def validate(data, root=ROOT, *, live=True):
     for key, route in data["pathways"].items():
         if route["home_app"] not in tiles:
             raise ValueError(f"{key}: first module has no Home tile")
+    _validate_stories(data)
+
+
+def _validate_stories(data):
+    """Check written stories after route drift, which names its own cause."""
+    for key, lesson in data["tutorials"].items():
+        if "scenes" in lesson:
+            _validate_story(data, key)
 
 
 def _heading(text, marker):
@@ -200,66 +209,159 @@ def module_rst(data, key):
     return "".join(parts)
 
 
+DETAILED_LESSON = "79_module_inputs_outputs"
+_SENT_ON = ("{peer} picks up {artifacts} next.",
+            "You can also take {artifacts} on to {peer}.",
+            "{peer} reads {artifacts} as well.")
+_BROUGHT_IN = ("{peer} can supply {artifacts}.",
+               "If you start in {peer}, it provides {artifacts}.",
+               "{artifacts_from} {peer} work here too.")
+_SENT_AGAIN = ("{peer} uses them too.", "They also feed {peer}.",
+               "{peer} is another place they go.")
+_BROUGHT_AGAIN = ("{peer} can supply them as well.", "They can also come from {peer}.")
+
+
+def _scene_edges(data, key, module_key):
+    """Return the handoffs a lesson scene must tell, in map order."""
+    included = set(data["tutorials"][key]["modules"])
+    return [edge for edge in data["connections"]
+            if module_key in (edge["from"], edge["to"])
+            and (key == DETAILED_LESSON or {edge["from"], edge["to"]} <= included
+                 or edge["to"] == "regression")]
+
+
+def _validate_story(data, key):
+    """A written story must still name every route, host and handoff peer."""
+    lesson = data["tutorials"][key]
+    story = lesson["scenes"]
+    if set(story) != set(lesson["modules"]):
+        raise ValueError(f"{key}: story scenes differ from the lesson modules")
+    for module_key, text in story.items():
+        module = data["modules"][module_key]
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError(f"{key}: empty story scene {module_key}")
+        required = [module["name"]]
+        if module.get("api_entry"):
+            required.append(module["api_entry"])
+        if module["parent"]:
+            required.append(data["modules"][module["parent"]]["name"])
+        for edge in _scene_edges(data, key, module_key):
+            peer = edge["to"] if edge["from"] == module_key else edge["from"]
+            required.append(data["modules"][peer]["name"])
+        missing = [name for name in required if name.lower() not in text.lower()]
+        if missing:
+            raise ValueError(f"{key}: story scene {module_key} omits {missing}")
+
+
+def _spoken(title):
+    """Lower a title's first word for mid-sentence speech, keeping acronyms."""
+    first = title.split()[0]
+    if first[:1].isupper() and first[1:] == first[1:].lower():
+        return title[:1].lower() + title[1:]
+    return title
+
+
+def _items(keys, data, tr):
+    names = [tr("the " + _spoken(data["artifacts"][key]["title"])) for key in keys]
+    if len(names) == 1:
+        return names[0]
+    template = ("{items}, and {last}" if any(" and " in data["artifacts"][key]["title"]
+                                            for key in keys) else "{items} and {last}")
+    return tr(template).format(items=", ".join(names[:-1]), last=names[-1])
+
+
+def _opening(data, module, tr):
+    parent = module["parent"]
+    if module.get("api_entry"):
+        return tr(
+            "Use {name} from Python through {api}. "
+            "This API-only workflow has no Home tile or menu entry."
+        ).format(name=module['name'], api=module['api_entry'])
+    if parent:
+        host = data['modules'][parent]
+        template = ("Open {host} from Home, then choose {name}." if host['home']
+                    else "Open {host} through Help search, then choose {name}.")
+        return tr(template).format(host=host['name'], name=module['name'])
+    if module["home"]:
+        return tr("Open {name} from Home.").format(name=module['name'])
+    return tr("Find {name} in the application's Help or tools menus.").format(
+        name=module['name'])
+
+
+def _told_scene(data, key, module_key, tr, introduced):
+    """Tell one module as a step in the data's journey, from the shared map."""
+    module = data["modules"][module_key]
+    detailed = key == DETAILED_LESSON
+    parts = [_opening(data, module, tr), tr(module["guidance"])]
+    for field, template, detail in (
+            ("inputs", "{name} reads {items}.", "Look for {artifact} here:"),
+            ("outputs", "From those, {name} produces {items}.", "You'll find {artifact} here:")):
+        parts.append(tr(template).format(name=module["name"],
+                                         items=_items(module[field], data, tr)))
+        if not detailed:
+            continue
+        for artifact in module[field]:
+            if artifact in introduced:
+                continue
+            introduced.add(artifact)
+            item = data["artifacts"][artifact]
+            parts.append(tr(detail).format(artifact=_items([artifact], data, tr))
+                         + " " + tr(item["location"]))
+            if item["tables"]:
+                parts.append(tr("Depending on the route, the tables that matter are {tables}.").format(
+                    tables=", ".join(item["tables"])))
+            if item["columns"]:
+                parts.append(tr("The columns to keep an eye on are {columns}.").format(
+                    columns=", ".join(item["columns"])))
+    counts = {"sent": 0, "again": 0, "brought": 0, "brought_again": 0}
+    previous = None
+    for edge in _scene_edges(data, key, module_key):
+        artifacts = _items(edge["artifacts"], data, tr)
+        direction = "sent" if edge["from"] == module_key else "brought"
+        peer = data["modules"][edge["to" if direction == "sent" else "from"]]["name"]
+        # "them" may only point back to the handoff spoken just before.
+        if previous == (direction, edge["artifacts"]):
+            kind = "again" if direction == "sent" else "brought_again"
+        else:
+            kind = direction
+        previous = direction, edge["artifacts"]
+        variants = {"sent": _SENT_ON, "again": _SENT_AGAIN, "brought": _BROUGHT_IN,
+                    "brought_again": _BROUGHT_AGAIN}[kind]
+        template = variants[counts[kind] % len(variants)]
+        counts[kind] += 1
+        spoken = tr(template).format(peer=peer, artifacts=artifacts,
+                                     artifacts_from=tr("{artifacts} from").format(
+                                         artifacts=artifacts))
+        parts.append(spoken[:1].upper() + spoken[1:] + " " + tr(edge["handoff"]))
+    return " ".join(parts)
+
+
 def lesson_document(data, key, *, translate=None):
-    """Write narration from the same artifacts and handoffs used by the API."""
+    """Write narration from the same artifacts and handoffs used by the API.
+
+    A lesson may carry a written story for each module scene; validation keeps
+    that story naming the same routes and handoff peers as the map. Otherwise
+    the scene is told from the module's guidance, artifacts and handoffs.
+    """
     tr = translate if translate is not None else lambda text: text
     tutorial = data["tutorials"][key]
     number, slug = key.split("_", 1)
     scenes = [{"visual": "home", "narration": tr(tutorial["introduction"]),
                "hold_after": 0.7, "related_lessons": ["05_home"]}]
-    detailed = key == "79_module_inputs_outputs"
-    included = set(tutorial["modules"])
+    story = tutorial.get("scenes", {})
     introduced_artifacts = set()
     for module_key in tutorial["modules"]:
         module = data["modules"][module_key]
-        parent = module["parent"]
-        if module.get("api_entry"):
-            opening = tr(
-                "Use {name} from Python through {api}. "
-                "This API-only workflow has no Home tile or menu entry."
-            ).format(name=module['name'], api=module['api_entry'])
-        elif parent:
-            host = data['modules'][parent]
-            template = ("Open {host} from Home, then choose {name}." if host['home']
-                        else "Open {host} through Help search, then choose {name}.")
-            opening = tr(template).format(host=host['name'], name=module['name'])
-        elif module["home"]:
-            opening = tr("Open {name} from Home.").format(name=module['name'])
+        if module_key in story:
+            narration = tr(story[module_key])
         else:
-            opening = tr("Find {name} in the application's Help or tools menus.").format(
-                name=module['name'])
-        parts = [opening, tr(module["guidance"])]
-        for field, title in (("inputs", "Input data"), ("outputs", "Output data")):
-            parts.append(tr(title) + ": " + "; ".join(
-                tr(data["artifacts"][artifact]["title"]) for artifact in module[field]) + ".")
-            if detailed:
-                for artifact in module[field]:
-                    if artifact in introduced_artifacts:
-                        continue
-                    introduced_artifacts.add(artifact)
-                    item = data["artifacts"][artifact]
-                    parts.append(tr(item["title"]) + ": " + tr(item["location"]))
-                    if item["tables"]:
-                        parts.append(tr("Relevant tables depend on the selected route: {tables}.").format(
-                            tables=", ".join(item["tables"])))
-                    if item["columns"]:
-                        parts.append(tr("Relevant columns depend on the selected route: {columns}.").format(
-                            columns=", ".join(item["columns"])))
+            narration = _told_scene(data, key, module_key, tr, introduced_artifacts)
         links = {module["lesson"]} if module.get("lesson") else set()
-        for edge in data["connections"]:
-            if module_key not in (edge["from"], edge["to"]):
-                continue
-            if not detailed and not (
-                {edge["from"], edge["to"]} <= included or edge["to"] == "regression"
-            ):
-                continue
-            producer = data["modules"][edge["from"]]
-            consumer = data["modules"][edge["to"]]
-            parts.append(tr("{producer} to {consumer}: {handoff}").format(
-                producer=producer['name'], consumer=consumer['name'], handoff=tr(edge['handoff'])))
-            links.update(row["lesson"] for row in (producer, consumer) if row.get("lesson"))
+        for edge in _scene_edges(data, key, module_key):
+            links.update(data["modules"][end]["lesson"] for end in (edge["from"], edge["to"])
+                         if data["modules"][end].get("lesson"))
         scenes.append({"visual": "module_" + module_key,
-                       "narration": " ".join(parts), "hold_after": 0.7,
+                       "narration": narration, "hold_after": 0.7,
                        "related_lessons": sorted(links)})
     scenes.append({"visual": "home_summary", "narration": tr(tutorial["conclusion"]),
                    "hold_after": 0.7})

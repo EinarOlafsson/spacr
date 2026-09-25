@@ -189,6 +189,8 @@ def _open_at_the_measured_width(window) -> bool:
 def install_the_spaceout_fractal(screen) -> bool:
     """Put the spaceout fractal behind ``screen``, if this is spaceout.
 
+    :param screen: the widget the fractal is parented to and sized to fill; an
+        event filter on it keeps the fractal following it.
     :returns: True when it was installed, so the caller knows to skip the
         ordinary ambient backdrop. False in every normal launch -- which is
         what keeps the mode hidden -- and false rather than raising when the
@@ -650,6 +652,8 @@ def registered_metadata(field: str) -> dict:
 
     ``setdefault``, not assignment: a table's own hand-written entry is
     the more specific one and wins.
+
+    :param field: the ``APP_META`` field to collect, such as ``'title'``.
     """
     return {key: meta[field] for key, meta in APP_META.items()
             if meta.get(field)}
@@ -696,6 +700,9 @@ def registered_entry(key: str):
     Imported here, on demand, rather than at registration: registering an
     app must not drag numpy, torch or pandas into a process that only
     wanted to draw a sidebar.
+
+    :param key: the app key whose ``entry`` metadata (``'module:function'``) is
+        imported.
     """
     target = (APP_META.get(key) or {}).get("entry")
     if not target:
@@ -967,6 +974,8 @@ def unregister_app(key: str) -> bool:
     and for tests that must not leak a registration into the next one —
     a stray row in :data:`APPS` is a stray tile, a stray sidebar entry
     and a stray Ctrl+N binding for every test that follows.
+
+    :param key: the app key to remove, converted to a string.
     """
     key = str(key)
     before = len(APPS)
@@ -1004,6 +1013,8 @@ def registered_factory(key: str):
     afternoon. A stand-in whose module fails to import is left in place and
     ``None`` is returned: the app falls back to the generic settings screen
     rather than taking the window down.
+
+    :param key: the app key looked up in ``APP_FACTORIES``.
     """
     factory = APP_FACTORIES.get(key)
     if isinstance(factory, LazyScreenFactory):
@@ -1211,6 +1222,9 @@ def app_stage(key: str) -> str:
     Unknown keys read as stable rather than raising: a stage is an
     annotation on an app, and an app with no annotation is one nobody
     has flagged.
+
+    :param key: the app key looked up in ``APP_STAGE``; unknown keys give
+        ``STAGE_STABLE``.
     """
     return APP_STAGE.get(key, STAGE_STABLE)
 
@@ -1320,6 +1334,9 @@ def app_is_visible(key: str) -> bool:
     what caught it: filtering :data:`TILELESS_APPS` out here took nine
     modules out of Ctrl+K, so the folds removed a door instead of moving
     one. Two questions, two functions.
+
+    :param key: the app key whose stage is checked against the maturity
+        preference.
     """
     try:
         from .preferences import maturity_is_visible
@@ -1604,6 +1621,9 @@ def section_members(
     An explicit ``apps`` list is filtered too. A caller passing its own
     rows is asking "which of these belong to this section", and a
     tileless one does not belong to any tab whichever list it arrives in.
+
+    :param section: the category name, compared with the fourth element of each
+        ``APPS`` row.
     """
     return [row for row in tiled_apps(apps) if row[3] == section]
 
@@ -2720,6 +2740,9 @@ class MainWindow(QMainWindow):
         never fires -- and the marks are redrawn at their new x over the
         old ones. That is the "sometimes" in the report: it is not
         intermittent, it is every resize that is not a fullscreen toggle.
+
+        :param event: the resize event, passed to the base class; the new
+            geometry is read from the window itself.
         """
         super().resizeEvent(event)
         screen = getattr(self, "_loading_screen", None)
@@ -2933,6 +2956,9 @@ class MainWindow(QMainWindow):
         opened before the layout has caught up is placed against the
         previous action rectangle -- which is how pressing spaCR drops a
         menu under Help.
+
+        :param event: the change event; only a window-state change re-lays the
+            menu bar.
         """
         super().changeEvent(event)
         if event.type() != QEvent.Type.WindowStateChange:
@@ -4106,7 +4132,12 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(self, "Updates", f"{label} failed:\n{last}")
 
     def closeEvent(self, event):
-        """Cooperatively drain analysis and UI workers before destruction."""
+        """Cooperatively drain analysis and UI workers before destruction.
+
+        :param event: the close event; ignored, leaving the window open, when a
+            worker or an application screen does not stop, otherwise passed to
+            the base class, and the application quits if it is accepted.
+        """
         from .bridge import registry
         remaining = registry().cancel_all(
             timeout_ms=5000, reason="application shutdown")
@@ -4565,7 +4596,11 @@ class MainWindow(QMainWindow):
         return True
 
     def keyPressEvent(self, event) -> None:
-        """Up and Down change the spaceout zoom rate; Ctrl+R starts over."""
+        """Up and Down change the spaceout zoom rate; Ctrl+R starts over.
+
+        :param event: the key press; its key and Ctrl modifier are read, and
+            keys the backdrop does not take are passed to the base class.
+        """
         from PySide6.QtCore import Qt
 
         key = event.key()
@@ -4583,7 +4618,11 @@ class MainWindow(QMainWindow):
         super().keyPressEvent(event)
 
     def wheelEvent(self, event) -> None:
-        """The wheel does the same, a notch at a time."""
+        """The wheel does the same, a notch at a time.
+
+        :param event: the wheel event; its vertical angle delta is converted to
+            notches of 120.
+        """
         notches = 0
         try:
             notches = int(event.angleDelta().y() / 120)
@@ -5762,6 +5801,7 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     Installers are idempotent and isolated: a failure in one filter does not
     prevent the remaining filters from being installed.
 
+    :param app: the Qt application each filter installer is called with.
     :returns: Names of the filters installed successfully.
     """
     import importlib

@@ -79,6 +79,8 @@ def is_missing(value) -> bool:
 
     This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and
     ``NaT``. Array-like values are not treated as individual missing cells.
+
+    :param value: a cell value of any type.
     """
     if value is None:
         return True
@@ -100,6 +102,9 @@ def numeric_value(text) -> Optional[float]:
     a space, such as ``"3.2 s"``. Alphanumeric identifiers such as ``"TP53"``
     return ``None``. Use :data:`SORT_KEY_ROLE` to provide an explicit numeric
     key for other display formats.
+
+    :param text: cell text or number; ``None``, booleans, blanks and NaN give
+        ``None``.
     """
     if text is None:
         return None
@@ -145,14 +150,23 @@ _PLACEHOLDERS = frozenset(
 
 
 def sorts_as_missing(value) -> bool:
-    """Return whether ``value`` should sort as missing table data."""
+    """Return whether ``value`` should sort as missing table data.
+
+    :param value: a cell value; missing per :func:`is_missing`, or a
+        placeholder string such as ``"n/a"``, ``"-"`` or ``"?"``
+        (case-insensitive), sorts as missing.
+    """
     if is_missing(value):
         return True
     return isinstance(value, str) and value.strip().casefold() in _PLACEHOLDERS
 
 
 def sort_key_of(value):
-    """Return the ``(is_missing, numeric_value)`` comparison key."""
+    """Return the ``(is_missing, numeric_value)`` comparison key.
+
+    :param value: a cell value; see :func:`sorts_as_missing` and
+        :func:`numeric_value`.
+    """
     if sorts_as_missing(value):
         return True, None
     return False, numeric_value(value)
@@ -254,6 +268,11 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
 
         Non-text roles do not modify the key, and editing does not change the
         item's position in the table's unsorted order.
+
+        :param role: the Qt item data role; only ``DisplayRole`` and
+            ``EditRole`` refresh the sort key, which then comes from
+            :data:`SORT_KEY_ROLE` when set and from the text otherwise.
+        :param value: the data stored for ``role``.
         """
         QTableWidgetItem.setData(self, role, value)
         if role in (Qt.DisplayRole, Qt.EditRole) and hasattr(
@@ -584,6 +603,10 @@ def install_sorting(view):
     ``QTableView`` is wrapped in :class:`SortableProxyModel`; call this
     function immediately after ``setModel`` and obtain the view's selection
     model afterwards.
+
+    :param view: the view to make sortable; a view with no header is
+        returned untouched, and one already installed only has its initial
+        order re-stamped.
     """
     header = _header(view)
     if header is None:

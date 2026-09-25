@@ -84,7 +84,12 @@ DEFAULT_SPEED_PERIOD: Final[float] = 41.0
 
 
 def clamp(value: float, low: float, high: float) -> float:
-    """``value`` held inside ``[low, high]``."""
+    """``value`` held inside ``[low, high]``.
+
+    :param value: the number to clamp.
+    :param low: lower bound, returned when ``value`` is below it.
+    :param high: upper bound, returned when ``value`` is above it.
+    """
     return low if value < low else high if value > high else value
 
 

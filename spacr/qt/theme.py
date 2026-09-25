@@ -275,7 +275,10 @@ STAGE_NOTE = {
 
 
 def stage_hover(stage: str) -> str:
-    """Hover colour for ``stage``; unknown stages read as stable."""
+    """Hover colour for ``stage``; unknown stages read as stable.
+
+    :param stage: the app stage, a key of ``STAGE_HOVER``.
+    """
     return STAGE_HOVER.get(stage, STAGE_HOVER["stable"])
 
 
@@ -368,6 +371,8 @@ def scrim_under(theme: str) -> str:
 
     Anything that is not an image theme gets white; its alphas are 1.0
     and the answer is never used.
+
+    :param theme: the theme name.
     """
     if theme == "glass":
         return GLASS_BACKDROP_UNDER
@@ -426,6 +431,10 @@ def picture_contrast(theme: str, role: str, alpha: float,
     the theme can put behind it and the same panel over black: the
     dynamic range of the picture as seen *through* the panel. 1.0 is an
     opaque panel — no picture at all.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param role: the surface role, a key of the theme's palette.
+    :param alpha: the panel's opacity, 0 to 1.
     """
     base = palette_for(theme)[colour_role or role]
     return contrast_ratio(composite(base, alpha, scrim_under(theme)),
@@ -439,6 +448,9 @@ def present_scrim_ceiling(theme: str, role: str,
     The largest alpha whose :func:`picture_contrast` is still at least
     :data:`MIN_PICTURE_CONTRAST`. Above this number the wallpaper is a
     ghost — which is the bug this whole solver exists to close.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param role: the surface role, a key of the theme's palette.
     """
     for step in range(1000, -1, -1):
         alpha = step / 1000.0
@@ -503,6 +515,8 @@ def scrim_report(theme: str) -> List[dict]:
     "shows_picture"}``. This is the audit trail for
     :data:`SCRIM_ALPHA` — the numbers a reviewer would otherwise have to
     re-derive to check that a solved alpha is the right one.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
     """
     palette = palette_for(theme)
     out: List[dict] = []
@@ -538,6 +552,8 @@ def scrim_failures(theme: str) -> List[str]:
     misses — but it means the wallpaper is a ghost under that role and
     something upstream (the palette, or the exposure the imagery is
     solved to) has to give.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
     """
     return [
         f"{theme}.{row['role']}: alpha {row['alpha']:.3f} shows the picture "
@@ -570,7 +586,12 @@ SCRIM_ALPHA: Dict[str, Dict[str, float]] = {}
 
 
 def scrim_alpha(theme: str, role: str) -> float:
-    """Opacity of surface ``role`` in ``theme``. 1.0 unless translucent."""
+    """Opacity of surface ``role`` in ``theme``. 1.0 unless translucent.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param role: the surface role; roles and themes not in ``SCRIM_ALPHA`` give
+        1.0.
+    """
     return SCRIM_ALPHA.get(theme, {}).get(role, 1.0)
 
 
@@ -592,6 +613,10 @@ def pane_alpha_floor(theme: str) -> float:
     goes to (near) zero: a dark panel fading into a dark window cannot
     make white text harder to read, so those themes let the user take
     the box away entirely.
+
+    :param theme: the theme name, as passed to :func:`palette_for`. Image
+        themes are judged over :func:`scrim_under`, others over their own
+        ``bg`` colour.
     """
     under = (scrim_under(theme) if theme in IMAGE_THEMES
              else palette_for(theme)["bg"])
@@ -603,6 +628,9 @@ def pane_alpha(theme: str, opacity: Optional[float] = None) -> float:
 
     The user's ``opacity`` (0..1), clamped up to :func:`pane_alpha_floor`.
     ``None`` means :data:`DEFAULT_PANE_OPACITY`.
+
+    :param theme: the theme name, as passed to :func:`palette_for`. Glass
+        scales the opacity by its designed surface scrim.
     """
     if opacity is None:
         opacity = DEFAULT_PANE_OPACITY
@@ -711,6 +739,9 @@ def panel_alpha(theme: str, role: str,
 
     Popups stay opaque because they are separate native windows; making those
     translucent reveals the desktop rather than the spaCR backdrop.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param role: the surface role; ``elevated`` is always opaque.
     """
     if role == "elevated":
         return 1.0
@@ -752,6 +783,8 @@ def field_fade_alpha(t: float) -> float:
 
     This is the container and its outline only. The text is drawn *after*
     the ramp, at full alpha, and never passes through this function.
+
+    :param t: fraction of the way across the field, clamped to [0, 1].
     """
     t = max(0.0, min(1.0, float(t)))
     return 1.0 - t ** FIELD_FADE_EXPONENT
@@ -847,6 +880,10 @@ def splash_dim_alpha(ink: str, bg: str, *, target: float = 3.0,
     Unlit phases are meant to look unreached, so this searches UP from
     ``floor`` rather than starting bright: dim enough to read as pending,
     legible enough to read at all.
+
+    :param ink: the text colour, a ``#rgb`` or ``#rrggbb`` colour string.
+    :param bg: the background colour it is composited over, a ``#rgb`` or
+        ``#rrggbb`` colour string.
     """
     for alpha in range(int(floor), 256):
         if _contrast(_composite(ink, bg, alpha), bg) >= target:
@@ -1372,6 +1409,9 @@ def advance_spaceout_drift(dt: float) -> float:
 
     Non-positive intervals and calls made while spaceout is disabled do not
     modify the clock.
+
+    :param dt: seconds to add to the spaceout clock; ignored when not positive
+        or when spaceout is off.
     """
     global _DRIFT_SECONDS
     if _SPACEOUT and dt > 0:
@@ -1380,7 +1420,10 @@ def advance_spaceout_drift(dt: float) -> float:
 
 
 def set_spaceout_drift_seconds(seconds: float) -> None:
-    """Set the spaceout animation clock, clamped to zero or greater."""
+    """Set the spaceout animation clock, clamped to zero or greater.
+
+    :param seconds: the new clock value, in seconds; negative values become 0.
+    """
     global _DRIFT_SECONDS
     _DRIFT_SECONDS = max(0.0, float(seconds))
 
@@ -1909,20 +1952,31 @@ def _linear(value: int) -> float:
 
 
 def relative_luminance(color: str) -> float:
-    """WCAG relative luminance of a ``#rrggbb`` colour, in [0, 1]."""
+    """WCAG relative luminance of a ``#rrggbb`` colour, in [0, 1].
+
+    :param color: a ``#rgb`` or ``#rrggbb`` colour string.
+    """
     r, g, b = _channels(color)
     return 0.2126 * _linear(r) + 0.7152 * _linear(g) + 0.0722 * _linear(b)
 
 
 def contrast_ratio(a: str, b: str) -> float:
-    """WCAG contrast ratio between two colours — 1.0 (same) to 21.0."""
+    """WCAG contrast ratio between two colours — 1.0 (same) to 21.0.
+
+    :param a: one colour, a ``#rgb`` or ``#rrggbb`` colour string.
+    :param b: the other colour; the order of ``a`` and ``b`` does not matter.
+    """
     la, lb = relative_luminance(a), relative_luminance(b)
     hi, lo = max(la, lb), min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
 
 
 def composite(top: str, alpha: float, under: str = WORST_CASE_UNDER) -> str:
-    """Alpha-composite ``top`` at ``alpha`` over ``under``, as hex."""
+    """Alpha-composite ``top`` at ``alpha`` over ``under``, as hex.
+
+    :param top: the upper colour, a ``#rgb`` or ``#rrggbb`` colour string.
+    :param alpha: opacity of ``top``, clamped to [0, 1].
+    """
     alpha = max(0.0, min(1.0, float(alpha)))
     tr, tg, tb = _channels(top)
     ur, ug, ub = _channels(under)
@@ -1966,7 +2020,11 @@ def menu_bar_background(theme: Optional[str] = None) -> str:
 
 
 def css_color(color: str, alpha: float = 1.0) -> str:
-    """Render a colour for QSS — plain hex, or ``rgba()`` when translucent."""
+    """Render a colour for QSS — plain hex, or ``rgba()`` when translucent.
+
+    :param color: the colour, a ``#rgb`` or ``#rrggbb`` colour string. Returned
+        unchanged when ``alpha`` is 1 or more.
+    """
     if alpha >= 1.0:
         return color
     r, g, b = _channels(color)
@@ -1990,6 +2048,11 @@ def glass_material(color: str, alpha: float) -> str:
     layer, translucent neutral body, and slightly denser lower edge provide
     the stable cross-platform cues of glass without pretending opacity alone
     is a material.
+
+    :param color: the body colour of the glass, a ``#rgb`` or ``#rrggbb``
+        colour string.
+    :param alpha: base opacity of the body, clamped to [0, 1]; the highlight
+        and lower edge are drawn slightly denser.
     """
     alpha = max(0.0, min(1.0, float(alpha)))
     highlight = _mix_color(color, "#ffffff", 0.16)
@@ -2014,6 +2077,9 @@ def effective_surface(theme: str, role: str,
     a panel. White for Space, whose sky blows its sun out on purpose;
     the exposure ceiling for Cell, whose every wallpaper is solved down
     to it.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param role: the surface role, a key of the theme's palette.
     """
     palette = palette_for(theme)
     if under is None:
@@ -2061,6 +2127,8 @@ def contrast_report(theme: str) -> List[dict]:
     "required", "passes"}``. Surfaces are resolved through
     :func:`effective_surface`, so Space is judged on the composited
     scrim rather than on a colour the user never actually sees.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
     """
     palette = palette_for(theme)
     out: List[dict] = []
@@ -2078,7 +2146,10 @@ def contrast_report(theme: str) -> List[dict]:
 
 
 def contrast_failures(theme: str) -> List[str]:
-    """Human-readable description of every rule ``theme`` fails."""
+    """Human-readable description of every rule ``theme`` fails.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    """
     return _describe(contrast_report(theme))
 
 
@@ -2131,6 +2202,8 @@ def lightness(color: str) -> float:
     :func:`contrast_ratio` is not: a ratio of 1.09:1 means something very
     different between two near-blacks and between two near-whites, and
     the page/panel question lives at both ends.
+
+    :param color: a ``#rgb`` or ``#rrggbb`` colour string.
     """
     y = relative_luminance(color)
     return 903.3 * y if y <= 0.008856 else 116.0 * (y ** (1.0 / 3.0)) - 16.0
@@ -2147,6 +2220,8 @@ def page_separation_report(theme: str) -> List[dict]:
     The faded rows composite the panel over the *page* rather than over
     anything else, because the page is what is behind it — that is the
     whole subject.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
     """
     page = page_colour(theme)
     palette = palette_for(theme)
@@ -2171,7 +2246,10 @@ def page_separation_report(theme: str) -> List[dict]:
 
 
 def page_separation_failures(theme: str) -> List[str]:
-    """Human-readable description of every separation ``theme`` fails."""
+    """Human-readable description of every separation ``theme`` fails.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    """
     return [
         f"{theme}: page ({r['page']}) vs {r['role']} ({r['panel']}) at "
         f"{r['opacity']:.0%}: {r['ratio']:.3f}:1 / {r['delta_lstar']:.2f} L* "
@@ -2206,6 +2284,8 @@ def max_background_luma(theme: str) -> float:
     ``(Lf + 0.05) / r - 0.05``. The answer is the tightest of those over
     :data:`BARE_IMAGE_RULES`, and it is what
     :func:`spacr.qt.imagery.solve_dim` expects as its target.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
     """
     palette = palette_for(theme)
     return min((relative_luminance(palette[role]) + 0.05) / required - 0.05
@@ -2221,6 +2301,10 @@ def image_contrast_report(theme: str, under: str) -> List[dict]:
     ``bg`` surface are judged against it directly, because in an image
     theme nothing is painted between the photograph and the text.
     Everything else is judged against its scrim composited over it.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param under: the wallpaper colour sampled behind the text, a ``#rgb`` or
+        ``#rrggbb`` colour string.
     """
     palette = palette_for(theme)
     out: List[dict] = []
@@ -2239,7 +2323,12 @@ def image_contrast_report(theme: str, under: str) -> List[dict]:
 
 
 def image_contrast_failures(theme: str, under: str) -> List[str]:
-    """Every rule ``theme`` fails over a wallpaper colour ``under``."""
+    """Every rule ``theme`` fails over a wallpaper colour ``under``.
+
+    :param theme: the theme name, as passed to :func:`palette_for`.
+    :param under: the wallpaper colour sampled behind the text, a ``#rgb`` or
+        ``#rrggbb`` colour string.
+    """
     return _describe(image_contrast_report(theme, under))
 
 
@@ -2602,7 +2691,10 @@ def mark_surface(*widgets) -> None:
 
 
 def is_surface(widget) -> bool:
-    """Whether ``widget`` was declared a page surface by :func:`mark_surface`."""
+    """Whether ``widget`` was declared a page surface by :func:`mark_surface`.
+
+    :param widget: the widget to test; None gives False.
+    """
     if widget is None:
         return False
     return bool(widget.property(SURFACE_PROPERTY))
@@ -3187,7 +3279,11 @@ def register_widget_qss(name: str, fn, *, replace: bool = False):
 
 
 def unregister_widget_qss(name: str) -> bool:
-    """Drop a registered block. ``True`` if there was one."""
+    """Drop a registered block. ``True`` if there was one.
+
+    :param name: the name the block was registered under, converted to a
+        string.
+    """
     return _WIDGET_QSS.pop(str(name), None) is not None
 
 
@@ -3209,7 +3305,15 @@ _WIDGET_QSS_CONTEXT_ATTRIBUTE = "_spacr_widget_qss_context"
 
 def set_widget_qss_context(app, theme: str, font_scale: float,
                            surface_opacity: Optional[float]) -> None:
-    """Record the exact live preference inputs for late screen blocks."""
+    """Record the exact live preference inputs for late screen blocks.
+
+    :param app: the application object the context is stored on; None does
+        nothing.
+    :param theme: the active theme name.
+    :param font_scale: the active font scale, stored as a float.
+    :param surface_opacity: the page-opacity preference, or None for the
+        theme's designed scrim.
+    """
     if app is not None:
         setattr(app, _WIDGET_QSS_CONTEXT_ATTRIBUTE,
                 (str(theme), float(font_scale), surface_opacity))
@@ -3946,6 +4050,10 @@ def preserve_widget_qss_overlay(root, stylesheet: str) -> str:
     widget blocks were installed.  Folding the suffix into that existing
     assignment avoids a second ``setStyleSheet`` call (and its palette-change
     cascade) while keeping the blocks available for the next paint.
+
+    :param root: the widget whose stored late-QSS suffix is appended; a widget
+        without one adds nothing.
+    :param stylesheet: the new base stylesheet, converted to a string.
     """
     return str(stylesheet) + getattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
 
@@ -4127,6 +4235,9 @@ def registered_widget_qss(palette: dict,
     down: an unstyled widget is a cosmetic fault, and an exception here
     would leave the whole application unstyled — black text on a black
     window — because one contributed widget had a typo.
+
+    :param palette: the palette dict passed, with ``opacity``, to every
+        registered block function.
     """
     wanted = None if names is None else {str(name) for name in names}
     parts = []
@@ -5657,7 +5768,10 @@ def close_mark_rules(theme: str = "dark",
 
 
 def repolish(widget) -> None:
-    """Reapply Qt styling after a widget property changes."""
+    """Reapply Qt styling after a widget property changes.
+
+    :param widget: the widget to unpolish, polish and update.
+    """
     style = widget.style()
     if style is not None:
         style.unpolish(widget)
@@ -5721,6 +5835,8 @@ def size_close_mark(button, body_px: Optional[int] = None) -> None:
     glyph is measured in the pixels actually being drawn, so comparing them
     raw made the box 12 px wider than the mark at 50 % and left the chrome
     shifted when the scale came back.
+
+    :param button: the close-mark button to give a fixed size.
     """
     from .gui_scale import scale_int
 
@@ -5776,7 +5892,10 @@ def close_mark_button(parent=None, *, tooltip: Optional[str] = None,
 
 
 def is_close_mark(widget) -> bool:
-    """Return whether a widget uses the shared close-mark styling."""
+    """Return whether a widget uses the shared close-mark styling.
+
+    :param widget: the widget to test; None gives False.
+    """
     return bool(widget is not None and widget.property(CLOSE_MARK_PROPERTY))
 
 
@@ -5843,6 +5962,7 @@ def mark_tab_bar(bar, tooltip: Optional[str] = None) -> int:
     Tabs without a close button remain unchanged, and hidden buttons remain
     hidden.
 
+    :param bar: the :class:`QTabBar` whose close buttons are replaced.
     :returns: Number of close marks installed.
     """
     from PySide6.QtWidgets import QTabBar, QToolButton
@@ -5880,6 +6000,8 @@ def install_close_marks(root, *, tooltip: Optional[str] = None) -> int:
     filters also style close buttons added later. Repeated calls are
     idempotent.
 
+    :param root: a :class:`QTabWidget`, a :class:`QTabBar`, or any widget whose
+        child tab widgets and tab bars are marked.
     :returns: Number of close marks installed during this call.
     """
     from PySide6.QtWidgets import QTabBar, QTabWidget

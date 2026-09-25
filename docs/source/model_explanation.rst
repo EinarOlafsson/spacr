@@ -48,10 +48,10 @@ object IDs are retained in the artifacts.
 Investigate Hit
 ---------------
 
-Open **Hit List**, select the exact gene result, and choose
-**Investigate selected**. The hand-off carries the result folder, gene, effect
-direction, FDR, phenotype, and agreeing guides; it does not search for the
-newest results file. Investigate Hit hashes the selected regression CSV/JSON
+From the **Regression** masthead open **Hit List**, select the exact gene
+result, and choose **Investigate selected…**. The hand-off carries the result
+folder, gene, effect direction, FDR, phenotype, and agreeing guides; it does
+not search for the newest results file. Investigate Hit hashes the selected regression CSV/JSON
 bytes into its provenance.
 
 Supply the measurements database, the original per-object prediction CSV, and

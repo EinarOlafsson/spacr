@@ -52,7 +52,11 @@ def parse(value: Any) -> tuple:
 
 
 def to_text(names: Iterable[str]) -> str:
-    """Serialize channel names as a canonical comma-separated string."""
+    """Serialize channel names as a canonical comma-separated string.
+
+    :param names: channel names, stripped and lower-cased; names outside
+        ``('r', 'g', 'b')`` are dropped.
+    """
     chosen = {str(name).strip().lower() for name in names}
     return ",".join(name for name in CHANNELS if name in chosen)
 
@@ -124,7 +128,12 @@ class ChannelPicker(QWidget):
                        if box.isChecked())
 
     def set_value(self, value: Any) -> None:
-        """Apply a selection and emit one consolidated change signal."""
+        """Apply a selection and emit one consolidated change signal.
+
+        :param value: the channels to check: a comma-separated string, an
+            iterable of names, or an empty value, read by :func:`parse`;
+            unknown names are ignored.
+        """
         chosen = set(parse(value))
         for name, box in self._boxes.items():
             box.blockSignals(True)

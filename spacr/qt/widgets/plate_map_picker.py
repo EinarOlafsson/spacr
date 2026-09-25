@@ -312,6 +312,9 @@ class PlateMapPicker(QDialog):
 
         Wells outside the new layout are dropped and counted in the caption,
         making a layout-induced selection change visible.
+
+        :param layout: number of wells on the plate: 6, 12, 24, 96, 384 or
+            1536; any other value raises ``WellSpecError``.
         """
         rows, columns = shape(layout)
         self._layout_size = int(layout)
@@ -393,6 +396,8 @@ class PlateMapPicker(QDialog):
 
         Global, because the pointer is over a sibling of the widget that is
         receiving the events -- the pressed one keeps the grab.
+
+        :param position: a point in global screen coordinates (a ``QPoint``).
         """
         for cell, well in self._wells.items():
             local = well.mapFromGlobal(position)
@@ -417,6 +422,9 @@ class PlateMapPicker(QDialog):
         and back again ends on the anchor, and treating that as no drag
         would hand the release to the click and toggle off the well the
         rectangle had just chosen.
+
+        :param position: the pointer position in global screen coordinates (a
+            ``QPoint``); nothing happens unless a press has set an anchor well.
         """
         if self._anchor is None:
             return

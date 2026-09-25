@@ -811,7 +811,11 @@ class AIChatPanel(QWidget):
         self._retired.clear()
 
     def closeEvent(self, event) -> None:
-        """Drain the streaming thread before Qt destroys the panel."""
+        """Drain the streaming thread before Qt destroys the panel.
+
+        :param event: the close event; it is not inspected, only passed on to
+            the base class after :meth:`shutdown`.
+        """
         self.shutdown()
         super().closeEvent(event)
 

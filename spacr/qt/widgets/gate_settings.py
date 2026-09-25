@@ -126,7 +126,12 @@ class GateEditorSettings:
     log_y: bool = False
 
     def scale_for(self, axis: str) -> str:
-        """The scale for "x" or "y", honouring the retired log flags."""
+        """The scale for "x" or "y", honouring the retired log flags.
+
+        :param axis: ``"x"`` or ``"y"``; reads ``<axis>_scale``, and when that
+            is ``"linear"`` the retired ``log_<axis>`` flag turns it into
+            ``"log"``.
+        """
         chosen = getattr(self, f"{axis}_scale", "linear")
         if chosen != "linear":
             return chosen
@@ -237,6 +242,9 @@ class GateEditorSettings:
         Only two settings do. Everything else is drawing, and re-reading a
         large table because the user changed a colour map is exactly the kind
         of lag this dialog exists to remove.
+
+        :param other: the settings being moved to; only their
+            ``sample_fraction`` and ``max_points`` are compared with these.
         """
         return (self.sample_fraction != other.sample_fraction
                 or self.max_points != other.max_points)
@@ -863,6 +871,8 @@ class GateSettingsDialog(QDialog):
         The 2D/3D/xD buttons and this dropdown are two views of one setting.
         Echoing the change back would be a loop; showing it is what keeps the
         window honest about the state the editor is actually in.
+
+        :param mode: one of :data:`GATE_MODES`; any other value is ignored.
         """
         if mode not in GATE_MODES:
             return

@@ -718,6 +718,9 @@ def get_language() -> str:
 def set_language(language: str) -> None:
     """Persist one of the bundled UI languages.
 
+    :param language: a UI language code from
+        :data:`spacr.qt.i18n.VALID_LANGUAGE_CODES`; stripped, with ``-`` read
+        as ``_``.
     :raises ValueError: if ``language`` is not a supported language code.
     """
     from .i18n import VALID_LANGUAGE_CODES
@@ -793,6 +796,11 @@ def set_folded_panel(key: str, shut: bool) -> None:
     A PANEL THAT IS OPEN IS REMOVED rather than stored as False. The default
     is open, so storing it would grow the dict by one entry for every panel
     the user has ever touched and never shrink it.
+
+    :param key: the panel key, ``"<module>/<panel>"``; stripped, and an empty
+        key does nothing.
+    :param shut: true to record the panel as folded, false to forget it (open
+        is the default).
     """
     import json
 
@@ -827,7 +835,11 @@ def get_figure_style() -> dict:
 
 
 def set_figure_style(style: dict) -> None:
-    """Store the general figure settings."""
+    """Store the general figure settings.
+
+    :param style: the general figure settings, ``{setting: value}``; stored as
+        JSON, and ``None`` stores an empty dict.
+    """
     import json
 
     _settings().setValue(_KEY_FIG_STYLE, json.dumps(dict(style or {})))
@@ -849,7 +861,11 @@ def get_figure_style_per_graph() -> dict:
 
 
 def set_figure_style_per_graph(overrides: dict) -> None:
-    """Store the per-graph overrides."""
+    """Store the per-graph overrides.
+
+    :param overrides: per-graph overrides, ``{kind: {setting: value}}``;
+        entries whose value is not a non-empty dict are dropped before storing.
+    """
     import json
 
     clean = {k: dict(v) for k, v in (overrides or {}).items()
@@ -957,6 +973,9 @@ def get_figure_style_default(kind: str) -> dict:
     section states at length: a stored resolution is a preference that has
     stopped tracking. A style with no saved default is drawn from the
     dataclass's own defaults, which move when the package does.
+
+    :param kind: the figure kind, e.g. ``"volcano"``, as
+        :func:`spacr.style_base.style_kind` derives it; converted to ``str``.
     """
     return dict(get_figure_style_defaults().get(str(kind), {}))
 
@@ -966,6 +985,11 @@ def set_figure_style_default(kind: str, values) -> None:
 
     The design: "a per-project default so a lab's house style is
     applied to every figure of that type without re-setting it each time".
+
+    :param kind: the figure kind, e.g. ``"volcano"``, as
+        :func:`spacr.style_base.style_kind` derives it; converted to ``str``.
+    :param values: the ``{field: value}`` style to save for that kind,
+        replacing any previous default; ``None`` saves an empty dict.
     """
     import json
 
@@ -981,6 +1005,9 @@ def clear_figure_style_default(kind: str) -> bool:
 
     The way back, and it is not optional: a default that can only be set is
     the same trap as a colour that can only be set.
+
+    :param kind: the figure kind, e.g. ``"volcano"``, as
+        :func:`spacr.style_base.style_kind` derives it; converted to ``str``.
     """
     import json
 
@@ -1025,6 +1052,7 @@ def get_figure_format() -> str:
 def set_figure_format(fmt: str) -> None:
     """Persist a supported figure format.
 
+    :param fmt: the figure file format, one of :data:`VALID_FIG_FORMATS`.
     :raises ValueError: if ``fmt`` is not ``png`` or ``pdf``.
     """
     if fmt not in VALID_FIG_FORMATS:
@@ -1101,6 +1129,8 @@ def get_figure_live_cache() -> int:
 def set_figure_live_cache(count: int) -> None:
     """Persist how many figures keep their live Figure.
 
+    :param count: how many of the most recent figures keep their live Figure;
+        converted to ``int``.
     :raises ValueError: outside ``MIN_FIG_LIVE_CACHE..MAX_FIG_LIVE_CACHE``.
     """
     count = int(count)
@@ -1130,7 +1160,11 @@ def get_figure_dynamic() -> bool:
 
 
 def set_figure_dynamic(enabled: bool) -> None:
-    """Persist whether evicted figures reload from their vector page."""
+    """Persist whether evicted figures reload from their vector page.
+
+    :param enabled: true to reload an evicted figure from its vector page,
+        false to keep showing its raster; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_FIG_DYNAMIC, bool(enabled))
 
 
@@ -1156,6 +1190,8 @@ def get_figure_png_dpi() -> int:
 def set_figure_png_dpi(dpi: int) -> None:
     """Persist one of :data:`VALID_PNG_DPIS`.
 
+    :param dpi: the PNG resolution in dots per inch; converted to ``int`` and
+        checked against :data:`VALID_PNG_DPIS`.
     :raises ValueError: if ``dpi`` is not a supported resolution.
     """
     dpi = int(dpi)
@@ -1198,7 +1234,11 @@ TRANSPARENT_FIGURE_BG = "none"
 
 
 def figure_bg_is_transparent(bg: str) -> bool:
-    """Whether ``bg`` means "let whatever is behind show through"."""
+    """Whether ``bg`` means "let whatever is behind show through".
+
+    :param bg: a background colour token; ``"none"``, ``"transparent"`` and the
+        empty string (after stripping and lower-casing) mean transparent.
+    """
     return str(bg).strip().lower() in {"none", "transparent", ""}
 
 
@@ -1207,6 +1247,9 @@ def figure_color_is_auto(token) -> bool:
 
     Matching is case- and space-insensitive because tokens can come from a
     hand-edited INI file or the dialog.
+
+    :param token: a stored colour token or colour string; converted to ``str``
+        before comparing with :data:`AUTO_FIGURE_COLOR`.
     """
     return str(token).strip().lower() == AUTO_FIGURE_COLOR
 
@@ -1377,7 +1420,11 @@ def get_figure_line_colour() -> str:
 
 def set_figure_line_colour(token: str) -> None:
     """Persist the line colour TOKEN. Pass :data:`AUTO_FIGURE_COLOR` for
-    "follow the text", never what it resolved to."""
+    "follow the text", never what it resolved to.
+
+    :param token: the line colour token, or :data:`AUTO_FIGURE_COLOR` to follow
+        the text colour.
+    """
     settings = _settings()
     settings.setValue(_KEY_FIG_LINE, token)
     settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
@@ -1410,6 +1457,9 @@ def set_figure_colors(bg: str, fg: str) -> None:
     Writing also marks the store as migrated: a value set here is a decision
     taken under the current scheme, so :func:`_migrate_frozen_figure_colors`
     must not second-guess it afterwards.
+
+    :param bg: the background colour token, or :data:`AUTO_FIGURE_COLOR`.
+    :param fg: the text colour token, or :data:`AUTO_FIGURE_COLOR`.
     """
     settings = _settings()
     settings.setValue(_KEY_FIG_BG, bg)
@@ -1439,7 +1489,11 @@ def get_figure_text_size() -> int:
 
 
 def set_figure_text_size(size: int) -> None:
-    """Persist a figure font size; zero delegates sizing to Matplotlib."""
+    """Persist a figure font size; zero delegates sizing to Matplotlib.
+
+    :param size: the figure font size; converted to ``int``, and 0 leaves
+        sizing to Matplotlib.
+    """
     _settings().setValue(_KEY_FIG_TEXT_SIZE, int(size))
 
 
@@ -1525,6 +1579,7 @@ def set_theme(theme: str) -> None:
     Choosing ``"system"`` also records that it was chosen, so
     :func:`get_theme` honours it instead of reading it as the default.
 
+    :param theme: one of :data:`VALID_THEMES`.
     :raises ValueError: if ``theme`` is not in :data:`VALID_THEMES`.
     """
     if theme not in VALID_THEMES:
@@ -1602,6 +1657,10 @@ def set_theme_choice(choice: str) -> None:
     Choosing one of the ten night themes also writes that theme's
     backdrop and its sound set — see :func:`apply_night_theme`, which is
     where the reasoning for doing so lives.
+
+    :param choice: a token from :func:`theme_choices`; a ``"cell:<variant>"``
+        token sets the Cell theme and that variant. Any other value raises
+        :class:`ValueError`.
     """
     valid = {token for _label, token in theme_choices()}
     if choice not in valid:
@@ -1692,7 +1751,11 @@ def get_cell_variant() -> str:
 
 
 def set_cell_variant(variant: str) -> None:
-    """Persist one of the bundled Cell-theme microscopy variants."""
+    """Persist one of the bundled Cell-theme microscopy variants.
+
+    :param variant: one of :data:`spacr.qt.imagery.CELL_VARIANTS`; any other
+        value raises :class:`ValueError`.
+    """
     from .imagery import CELL_VARIANTS
     if variant not in CELL_VARIANTS:
         raise ValueError(f"unknown cell variant {variant!r}. "
@@ -1742,6 +1805,13 @@ def theme_background_path(theme: str, width: int = 0, height: int = 0):
     One place for the "which theme wants which picture" question, so
     :func:`apply_preferences_to_app` and anything else that re-applies
     the stylesheet cannot drift apart.
+
+    :param theme: an application theme name; only ``"cell"`` has a background
+        image.
+    :param width: the wanted image width in pixels; 0 or less means the screen
+        size.
+    :param height: the wanted image height in pixels; 0 or less means the
+        screen size.
     """
     if theme == "cell":
         return cell_background_path(width, height)
@@ -1880,6 +1950,11 @@ def set_ambient_animation(name: str) -> None:
 
     Picking None does **not** disturb the stored theme's palette, so
     switching back later restores exactly the animation that was there.
+
+    :param name: an entry of ``ANIMATION_CHOICES`` from
+        :mod:`spacr.qt.widgets.ambient`; its ``NO_ANIMATION`` entry
+        (``"none"``) switches the backdrop off, and any other value raises
+        :class:`ValueError`.
     """
     choices = _animation_choices()
     if name not in choices:
@@ -1900,6 +1975,8 @@ def set_ambient_enabled(on: bool) -> None:
     Flushed immediately: module screens re-read this key when they are
     built, and a stale read right after the user cleared the checkbox
     would put the animation back on the very next screen they open.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_AMBIENT_ENABLED, bool(on))
@@ -1929,6 +2006,7 @@ def set_ambient_theme(name: str) -> None:
     is kept if the new theme also offers it, and otherwise replaced with
     that theme's default (see :func:`ambient_default_palette`).
 
+    :param name: an ambient theme name from ``AMBIENT_THEMES``.
     :raises ValueError: if ``name`` is not a known ambient theme.
     """
     from .widgets.ambient import AMBIENT_THEMES, palettes_for
@@ -1950,6 +2028,10 @@ def ambient_default_palette(theme: str) -> str:
     offers it (spaCR's own brand colours are the intended default
     everywhere they exist), otherwise the theme's first palette. Never
     raises for an unknown theme — it reports the global default.
+
+    :param theme: an ambient theme name, as offered by
+        :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`; an unknown name gives
+        the global default palette.
     """
     from .widgets.ambient import DEFAULT_PALETTE, palettes_for
     try:
@@ -1980,6 +2062,7 @@ def get_ambient_palette() -> str:
 def set_ambient_palette(name: str) -> None:
     """Persist a palette offered by the *current* ambient theme.
 
+    :param name: a palette name offered by the current ambient theme.
     :raises ValueError: if ``name`` is not one of
         ``palettes_for(get_ambient_theme())``. Set the theme first: a
         palette is only meaningful next to the theme that draws it.
@@ -2124,7 +2207,13 @@ def get_ambient_blur() -> float:
 
 def set_ambient_blur(value: float) -> None:
     """Set the softening. Out-of-range values are clamped, not refused:
-    this is a slider, and there is no user error to report."""
+    this is a slider, and there is no user error to report.
+
+    :param value: the blur, in units of eight screen pixels of area averaging
+        (0.0 is as designed); clamped to ``BLUR_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_BLUR``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_BLUR, 0, value)
 
 
@@ -2142,7 +2231,13 @@ def get_ambient_resolution() -> float:
 
 
 def set_ambient_resolution(value: float) -> None:
-    """Set the detail multiplier. Clamped."""
+    """Set the detail multiplier. Clamped.
+
+    :param value: the multiplier on each animation's own shading buffer (1.0 is
+        as designed); clamped to ``RESOLUTION_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_RESOLUTION``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3, value)
 
 
@@ -2159,7 +2254,13 @@ def get_ambient_density() -> float:
 
 
 def set_ambient_density(value: float) -> None:
-    """Set the element-count multiplier. Clamped."""
+    """Set the element-count multiplier. Clamped.
+
+    :param value: the multiplier on each animation's own element count (1.0 is
+        as designed); clamped to ``DENSITY_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_DENSITY``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_DENSITY, 4, value)
 
 
@@ -2185,6 +2286,9 @@ def get_ambient_drift_direction() -> str:
 def set_ambient_drift_direction(name: str) -> None:
     """Persist one of :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`.
 
+    :param name: the starfield drift direction, one of ``DRIFT_DIRECTIONS``
+        (``"up"``, ``"down"`` or ``"random"`` when the widget module cannot be
+        imported).
     :raises ValueError: if ``name`` is not one of them.
     """
     try:
@@ -2206,7 +2310,13 @@ def get_ambient_speed() -> float:
 
 
 def set_ambient_speed(value: float) -> None:
-    """Set the motion multiplier. Clamped."""
+    """Set the motion multiplier. Clamped.
+
+    :param value: the multiplier on each theme's own motion (1.0 is as
+        designed); clamped to ``SPEED_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_SPEED``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_SPEED, 1, value)
 
 
@@ -2217,7 +2327,13 @@ def get_ambient_size() -> float:
 
 
 def set_ambient_size(value: float) -> None:
-    """Set the element-size multiplier. Clamped."""
+    """Set the element-size multiplier. Clamped.
+
+    :param value: the multiplier on each animation's own element size (1.0 is
+        as designed); clamped to ``SIZE_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_SIZE``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_SIZE, 2, value)
 
 
@@ -2765,6 +2881,8 @@ def get_preload_policy() -> str:
 def set_preload_policy(policy: str) -> None:
     """Persist it. Takes effect at the next launch, and says so.
 
+    :param policy: one of :data:`PRELOAD_POLICIES`, matched after stripping and
+        lower-casing.
     :raises ValueError: on anything but the two policies.
     """
     text = str(policy).strip().lower()
@@ -2798,6 +2916,8 @@ def get_interface_font_weight() -> str:
 def set_interface_font_weight(weight: str) -> None:
     """Persist the weight and apply it to the running application.
 
+    :param weight: one of :data:`INTERFACE_FONT_WEIGHTS`, matched after
+        stripping and lower-casing.
     :raises ValueError: on anything but 'regular' or 'light'.
     """
     text = str(weight).strip().lower()
@@ -2839,6 +2959,9 @@ def get_laptop_mode() -> str:
 def set_laptop_mode(choice: str) -> None:
     """Persist the laptop-mode preference and apply it now.
 
+    :param choice: one of :data:`LAPTOP_MODE_CHOICES`: ``"on"`` selects the
+        Laptop performance level, ``"off"`` moves a Laptop level back to the
+        default level, and ``"automatic"`` changes nothing.
     :raises ValueError: on an unknown choice.
 
     Applied immediately rather than at the next launch, because the two
@@ -2869,6 +2992,10 @@ def laptop_mode_note(choice: str) -> str:
 
     Automatic is the case that needs saying: the label cannot state the
     outcome, because the outcome depends on the machine reading it.
+
+    :param choice: one of :data:`LAPTOP_MODE_CHOICES`: ``"automatic"`` reports
+        what this machine's measurement decides, ``"on"`` lists what is turned
+        down, and anything else is described as off.
     """
     from .laptop_mode import measure, wanted, what_it_turns_down
 
@@ -2902,7 +3029,12 @@ def get_idle_minutes() -> float:
 
 
 def set_idle_minutes(minutes: float) -> None:
-    """Persist the idle timeout."""
+    """Persist the idle timeout.
+
+    :param minutes: how long an unused cache entry may sit before it is
+        dropped, in minutes; 0 drops it as soon as nothing uses it. Stored as a
+        ``float``.
+    """
     settings = _settings()
     settings.setValue(_KEY_IDLE_MINUTES, float(minutes))
     settings.sync()
@@ -2924,7 +3056,11 @@ def get_cache_ceiling_mb() -> int:
 
 
 def set_cache_ceiling_mb(megabytes: int) -> None:
-    """Persist the cache ceiling."""
+    """Persist the cache ceiling.
+
+    :param megabytes: the most cache spaCR may hold at once, in megabytes;
+        stored as an ``int``.
+    """
     settings = _settings()
     settings.setValue(_KEY_CACHE_CEILING, int(megabytes))
     settings.sync()
@@ -2951,7 +3087,11 @@ def get_headroom_mb() -> int:
 
 
 def set_headroom_mb(megabytes: int) -> None:
-    """Persist the headroom floor."""
+    """Persist the headroom floor.
+
+    :param megabytes: the memory that must stay free for everything else on the
+        machine, in megabytes; stored as an ``int``.
+    """
     settings = _settings()
     settings.setValue(_KEY_HEADROOM, int(megabytes))
     settings.sync()
@@ -3245,6 +3385,7 @@ def set_spacr_mode(mode: str) -> None:
     cleanup has already happened or not happened by the time anyone can
     reach this dialog.
 
+    :param mode: one of :data:`SPACR_MODES`.
     :raises ValueError: on an unknown mode.
     """
     if mode not in SPACR_MODES:
@@ -3291,7 +3432,11 @@ def mode_note(mode: str) -> str:
 
 
 def mode_warning(mode: str) -> str:
-    """What choosing ``mode`` will cost, or ``""`` when it costs nothing."""
+    """What choosing ``mode`` will cost, or ``""`` when it costs nothing.
+
+    :param mode: one of :data:`SPACR_MODES`; a mode with no entry in
+        :data:`MODE_WARNINGS` gives ``""``.
+    """
     return MODE_WARNINGS.get(mode, "")
 
 
@@ -3430,7 +3575,13 @@ def get_spinner_delay() -> float:
 
 def set_spinner_delay(seconds: float) -> None:
     """Set the spinner's appearance delay, in seconds. Clamped, not
-    refused."""
+    refused.
+
+    :param seconds: how long background work must run before the spinner shows;
+        clamped between :data:`SPINNER_DELAY_MIN` and
+        :data:`SPINNER_DELAY_MAX`, and an unparseable value or NaN stores
+        :data:`DEFAULT_SPINNER_DELAY`.
+    """
     try:
         value = float(seconds)
     except (TypeError, ValueError):
@@ -3506,7 +3657,10 @@ def get_tooltips_box_enabled() -> bool:
 
 
 def set_tooltips_box_enabled(on: bool) -> None:
-    """Turn the hover tooltip box on or off, effective at the next hover."""
+    """Turn the hover tooltip box on or off, effective at the next hover.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
     _settings().sync()
 
@@ -3528,7 +3682,11 @@ def get_object_grid_enabled() -> bool:
 
 
 def set_object_grid_enabled(on: bool) -> None:
-    """Turn the per-object grid on or off, effective at the next form build."""
+    """Turn the per-object grid on or off, effective at the next form build.
+
+    :param on: true to show the per-object settings as one table, false to list
+        them flat; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_OBJECT_GRID, bool(on))
     _settings().sync()
 
@@ -3548,7 +3706,10 @@ def get_tooltips_bottom_enabled() -> bool:
 
 
 def set_tooltips_bottom_enabled(on: bool) -> None:
-    """Turn the bottom tooltip strip on or off, effective at the next hover."""
+    """Turn the bottom tooltip strip on or off, effective at the next hover.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_TOOLTIPS_BOTTOM, bool(on))
     _settings().sync()
 
@@ -3573,6 +3734,8 @@ def set_tooltips_enabled(on: bool) -> None:
     Drops :mod:`spacr.qt.tooltip_policy`'s cached answer and takes down any
     tooltip already on screen, so clearing the switch is not followed by one
     last popup nobody asked for.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     _settings().setValue(_KEY_TOOLTIPS_ENABLED, bool(on))
     _settings().sync()
@@ -3614,6 +3777,8 @@ def set_setting_animations_enabled(on: bool) -> None:
 
     Flushed immediately so the very next hover honours it — see
     :func:`get_setting_animations_enabled` for why nothing caches it.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_SETTING_ANIMATIONS, bool(on))
@@ -3690,7 +3855,12 @@ def get_font_scale() -> float:
 
 
 def set_font_scale(scale: float) -> None:
-    """Persist a UI font scale after clamping it to supported bounds."""
+    """Persist a UI font scale after clamping it to supported bounds.
+
+    :param scale: the UI font scale, 1.0 for the designed size; converted to
+        ``float`` and clamped between :data:`FONT_SCALE_MIN` and
+        :data:`FONT_SCALE_MAX`.
+    """
     scale = float(scale)
     scale = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, scale))
     _settings().setValue(_KEY_FONT_SCALE, scale)
@@ -3862,6 +4032,8 @@ def scaled_px(base_px: int) -> int:
 
     Rounds to the nearest int; caps to at least 1 px so a very small
     scale doesn't collapse things to zero.
+
+    :param base_px: a size in pixels as designed for a font scale of 1.0.
     """
     return max(1, int(round(base_px * get_font_scale())))
 
@@ -4046,6 +4218,10 @@ def set_dock_mode(mode: str) -> None:
 
     A withdrawn mode is accepted and stored as its replacement, so code that
     still names one is migrated rather than made to raise.
+
+    :param mode: one of :data:`VALID_DOCK_MODES`, or a retired mode from
+        :data:`RETIRED_DOCK_MODES`, which is stored as its replacement;
+        anything else raises :class:`ValueError`.
     """
     mode = RETIRED_DOCK_MODES.get(mode, mode)
     if mode not in VALID_DOCK_MODES:
@@ -4085,7 +4261,11 @@ def get_pane_opacity() -> float:
 
 
 def set_pane_opacity(fraction: float) -> None:
-    """Store the requested opacity. Accepts 0.0-1.0; clamped, then rounded."""
+    """Store the requested opacity. Accepts 0.0-1.0; clamped, then rounded.
+
+    :param fraction: the opacity from 0.0 to 1.0, stored as a whole percentage;
+        an unparseable value stores :data:`DEFAULT_PANE_OPACITY_PCT`.
+    """
     try:
         value = float(fraction)
     except (TypeError, ValueError):
@@ -4129,7 +4309,11 @@ def get_hash_inputs() -> bool:
 
 
 def set_hash_inputs(on: bool) -> None:
-    """Persist the input-hashing choice."""
+    """Persist the input-hashing choice.
+
+    :param on: true to hash a run's inputs and outputs for the manifest, false
+        not to; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_HASH_INPUTS, bool(on))
 
 
@@ -4161,6 +4345,8 @@ def set_field_fade_enabled(on: bool) -> None:
     next repaint honours it. Re-applying the stylesheet
     (:func:`apply_preferences_to_app`) is what makes it land on fields
     that are already on screen.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_FIELD_FADE, bool(on))
@@ -4180,7 +4366,11 @@ def get_color_blind_mode() -> str:
 
 
 def set_color_blind_mode(mode: str) -> None:
-    """Persist a supported colour-vision mode."""
+    """Persist a supported colour-vision mode.
+
+    :param mode: one of :data:`VALID_CB_MODES`; any other value raises
+        :class:`ValueError`.
+    """
     if mode not in VALID_CB_MODES:
         raise ValueError(f"unknown CB mode {mode!r}. "
                           f"Choose from {VALID_CB_MODES}.")
@@ -4325,6 +4515,11 @@ def get_log_console_levels() -> frozenset:
 def set_log_levels(file_levels, console_levels) -> tuple:
     """Persist both switch sets, then apply them to the live handlers.
 
+    :param file_levels: the ``logging`` level numbers the log files record;
+        anything other than DEBUG, INFO, WARNING, ERROR and CRITICAL is
+        discarded.
+    :param console_levels: the ``logging`` level numbers shown on the console;
+        a level the log files do not keep is dropped.
     :returns: ``(file_levels, console_levels)`` as actually stored, which
         is not necessarily what was asked for -- a console level whose file
         level is off is dropped rather than saved and silently ignored.
@@ -4399,7 +4594,10 @@ def get_verbose_logging() -> bool:
 
 
 def set_verbose_logging(on: bool) -> None:
-    """Persist whether package-wide diagnostic tracing is enabled."""
+    """Persist whether package-wide diagnostic tracing is enabled.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
@@ -4454,7 +4652,11 @@ def get_share_diagnostic_logs() -> bool:
 
 
 def set_share_diagnostic_logs(on: bool) -> None:
-    """Persist the revocable diagnostic-log preview opt-in."""
+    """Persist the revocable diagnostic-log preview opt-in.
+
+    :param on: true to let an error report save a redacted copy of the recent
+        log, false not to; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_SHARE_DIAGNOSTICS, bool(on))
 
 
@@ -4480,7 +4682,11 @@ def get_refresh_news() -> bool:
 
 
 def set_refresh_news(on: bool) -> None:
-    """Persist the News panel's release-refresh opt-out."""
+    """Persist the News panel's release-refresh opt-out.
+
+    :param on: true to let the News panel ask GitHub for newer releases, false
+        to opt out; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_REFRESH_NEWS, bool(on))
 
 
@@ -4530,6 +4736,9 @@ def set_db_browser_editable(on: bool) -> None:
     Browser re-reads this key on every UI refresh — a stale read right
     after the user ticked the box would tell them editing is still off.
     One tiny INI write is worth not having to explain that.
+
+    :param on: true to allow edit mode, false to forbid it; stored as a
+        ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_DB_EDIT, bool(on))
@@ -4548,7 +4757,11 @@ def get_show_alpha() -> bool:
 
 
 def set_show_alpha(on: bool) -> None:
-    """Show or hide modules and settings classified as Alpha."""
+    """Show or hide modules and settings classified as Alpha.
+
+    :param on: true to show Alpha modules and settings, false to hide them;
+        stored as a ``bool``.
+    """
     _settings().setValue(_KEY_SHOW_ALPHA, bool(on))
 
 
@@ -4559,7 +4772,11 @@ def get_show_beta() -> bool:
 
 
 def set_show_beta(on: bool) -> None:
-    """Show or hide modules and settings classified as Beta."""
+    """Show or hide modules and settings classified as Beta.
+
+    :param on: true to show Beta modules and settings, false to hide them;
+        stored as a ``bool``.
+    """
     _settings().setValue(_KEY_SHOW_BETA, bool(on))
 
 
@@ -4568,6 +4785,10 @@ def maturity_is_visible(stage: str) -> bool:
 
     Unknown stages are treated as stable. Stable features cannot be hidden;
     the two preferences are deliberately scoped to unfinished features.
+
+    :param stage: the maturity stage, e.g. ``"alpha"`` or ``"beta"``; matched
+        case-insensitively, and an empty value or any other stage counts as
+        stable.
     """
     normalized = str(stage or "stable").strip().lower()
     if normalized == "alpha":
@@ -4735,6 +4956,9 @@ def confirm_resource_action(action: str, parent=None) -> bool:
 
     Cancel is the default, so a stray Return key does nothing.
 
+    :param action: which clean-up to confirm: ``"ram"``, ``"vram"``, ``"cpu"``
+        or ``"disk"``.
+    :param parent: the widget the message box is parented to, or ``None``.
     :returns: ``True`` only if the user explicitly accepted.
     """
     from PySide6.QtWidgets import QMessageBox
@@ -4943,6 +5167,10 @@ def _start_disk_report(parent=None) -> None:
 def run_resource_action(action: str, parent=None):
     """Confirm ``action``, run it, and report the measured result.
 
+    :param action: which clean-up to run: ``"ram"``, ``"vram"``, ``"cpu"`` or
+        ``"disk"``.
+    :param parent: the widget the confirmation and result dialogs are parented
+        to, or ``None``.
     :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` for "ram",
         "vram" and "cpu", or ``None`` when the user declined — in which case
         **nothing ran**. The confirmation is asked before any work is
@@ -5096,6 +5324,10 @@ def explain_every_row(dialog) -> int:
     control to the label beside it. A row explained either way ends up
     explained the same way, and a row added later without a tooltip is
     reported by the test rather than passing unnoticed.
+
+    :param dialog: the finished Preferences dialog; every ``QFormLayout``
+        inside it is walked, and each row whose label is a ``QLabel`` is given
+        a tooltip when one is known.
     """
     from PySide6.QtWidgets import (QFormLayout, QLabel, QPushButton,
                                    QToolButton)
@@ -7172,6 +7404,8 @@ def get_section_layout(panel: str) -> dict:
     Divider sizes and collapsed sections are remembered per category so the
     next session restores the user's working layout.
 
+    :param panel: the stable category or panel key the layout was saved under
+        with :func:`set_section_layout`; converted to ``str``.
     :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, plus
         ``"steps"`` and ``"boxes"`` for a panel whose nested sections fold or
         whose boxes are draggable -- see :func:`set_section_layout`. An empty
@@ -7260,7 +7494,12 @@ def get_figure_grid_size() -> int:
 
 
 def set_figure_grid_size(pixels: int) -> None:
-    """Remember the tile width, clamped to what the grid will accept."""
+    """Remember the tile width, clamped to what the grid will accept.
+
+    :param pixels: the tile width in pixels; converted to ``int`` and clamped
+        between ``MIN_CELL_PX`` and ``MAX_CELL_PX`` of
+        :mod:`spacr.qt.widgets.figure_grid_view`.
+    """
     from .widgets.figure_grid_view import MAX_CELL_PX, MIN_CELL_PX
 
     _settings().setValue(_KEY_FIGURE_GRID_SIZE,
@@ -7289,6 +7528,10 @@ def set_save_workspace(mode) -> str:
 
     Updating both values makes the change available immediately to pipeline
     code that cannot read Qt settings directly.
+
+    :param mode: ``"off"``, ``"reference"`` or ``"copy"``, or anything
+        :func:`spacr.workspace.resolve_mode` accepts (booleans and yes/no
+        aliases); unrecognised values select the default mode.
     """
     from ..workspace import resolve_mode, set_default_mode
 
@@ -7311,7 +7554,12 @@ def get_workspace_copy_limit_mb() -> float:
 
 
 def set_workspace_copy_limit_mb(limit) -> float:
-    """Remember the per-file copy limit, and push it down with the mode."""
+    """Remember the per-file copy limit, and push it down with the mode.
+
+    :param limit: the largest file ``copy`` mode brings in, in megabytes;
+        negative values store 0.0, and an unparseable value stores the
+        workspace default.
+    """
     from ..workspace import DEFAULT_COPY_LIMIT_MB, set_default_mode
 
     try:
@@ -7368,7 +7616,12 @@ def get_montage_columns() -> int:
 
 
 def set_montage_columns(columns) -> int:
-    """Store the cells-per-row count. Returns the value actually stored."""
+    """Store the cells-per-row count. Returns the value actually stored.
+
+    :param columns: cells per row; converted to ``int`` and clamped to
+        :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores
+        :data:`DEFAULT_MONTAGE_COLUMNS`.
+    """
     low, high = MONTAGE_COLUMNS_RANGE
     try:
         value = max(low, min(high, int(columns)))
@@ -7412,7 +7665,12 @@ def get_rim_length() -> int:
 
 
 def set_rim_length(pixels) -> int:
-    """Store the rim length. Returns the value actually stored."""
+    """Store the rim length. Returns the value actually stored.
+
+    :param pixels: how far the lit run reaches along the rim, in pixels;
+        clamped to :data:`RIM_LENGTH_RANGE`, and an unparseable value stores
+        :data:`DEFAULT_RIM_LENGTH`.
+    """
     low, high = RIM_LENGTH_RANGE
     try:
         value = max(low, min(high, int(pixels)))
@@ -7441,7 +7699,12 @@ def get_rim_lag() -> float:
 
 
 def set_rim_lag(fraction) -> float:
-    """Store the chase fraction. Returns the value actually stored."""
+    """Store the chase fraction. Returns the value actually stored.
+
+    :param fraction: how far the accent closes the gap to the pointer each
+        frame; clamped to :data:`RIM_LAG_RANGE`, and an unparseable value
+        stores :data:`DEFAULT_RIM_LAG`.
+    """
     low, high = RIM_LAG_RANGE
     try:
         value = max(low, min(high, float(fraction)))
@@ -7465,7 +7728,11 @@ def get_rim_alignment() -> str:
 
 
 def set_rim_alignment(name: str) -> str:
-    """Store the alignment. An unknown name stores the default instead."""
+    """Store the alignment. An unknown name stores the default instead.
+
+    :param name: one of :data:`RIM_ALIGNMENTS`, matched after stripping and
+        lower-casing.
+    """
     value = str(name or "").strip().lower()
     if value not in RIM_ALIGNMENTS:
         value = DEFAULT_RIM_ALIGNMENT
@@ -7498,7 +7765,11 @@ def get_rim_mode() -> str:
 
 
 def set_rim_mode(name: str) -> str:
-    """Store the rim mode. An unknown name stores the default instead."""
+    """Store the rim mode. An unknown name stores the default instead.
+
+    :param name: one of :data:`RIM_MODES`, matched after stripping and
+        lower-casing.
+    """
     value = str(name or "").strip().lower()
     if value not in RIM_MODES:
         value = DEFAULT_RIM_MODE
@@ -7519,7 +7790,12 @@ def get_rim_period() -> float:
 
 
 def set_rim_period(seconds) -> float:
-    """Store the pulse period. Returns the value actually stored."""
+    """Store the pulse period. Returns the value actually stored.
+
+    :param seconds: seconds for one pulse of ``beat`` or one hue turn of
+        ``rainbow``; clamped to :data:`RIM_PERIOD_RANGE`, and an unparseable
+        value stores :data:`DEFAULT_RIM_PERIOD`.
+    """
     low, high = RIM_PERIOD_RANGE
     try:
         value = max(low, min(high, float(seconds)))
@@ -7562,7 +7838,11 @@ def get_popup_backdrop() -> str:
 
 
 def set_popup_backdrop(name: str) -> str:
-    """Store the popup backdrop. An unknown name stores the default."""
+    """Store the popup backdrop. An unknown name stores the default.
+
+    :param name: one of :data:`POPUP_BACKDROPS`, matched after stripping and
+        lower-casing.
+    """
     value = str(name or "").strip().lower()
     if value not in POPUP_BACKDROPS:
         value = DEFAULT_POPUP_BACKDROP
@@ -7627,7 +7907,11 @@ def set_dashboard_watermark(which: str, when: str = "") -> str:
 
 
 def clear_dashboard_watermark(which: str) -> None:
-    """Forget ``which``'s watermark, so its panel shows everything again."""
+    """Forget ``which``'s watermark, so its panel shows everything again.
+
+    :param which: the Home panel, ``"runs"`` or ``"totals"`` (the keys of
+        :data:`DASHBOARD_WATERMARKS`); any other name does nothing.
+    """
     key = DASHBOARD_WATERMARKS.get(which)
     if key is None:
         return
@@ -7656,7 +7940,11 @@ def get_news_height() -> int:
 
 
 def set_news_height(px: int) -> int:
-    """Remember how tall Home's release-notes list was dragged."""
+    """Remember how tall Home's release-notes list was dragged.
+
+    :param px: the list height in font-scale-independent pixels; negative
+        values store 0, and an unparseable value stores nothing and returns 0.
+    """
     try:
         value = max(0, int(px))
     except (TypeError, ValueError):

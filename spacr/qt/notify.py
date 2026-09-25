@@ -78,6 +78,11 @@ def notify_tray(title: str, body: str = "",
 
     Called by the pipeline runner when :func:`notify` fails. Requires
     a running ``QApplication`` — safe no-op headless.
+
+    :param title: heading of the tray balloon message, shown for six
+        seconds.
+    :returns: ``True`` if the message was handed to the system tray,
+        ``False`` without an application or tray, or on any error.
     """
     try:
         from PySide6.QtGui import QIcon

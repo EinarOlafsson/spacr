@@ -208,6 +208,9 @@ def normalize_pil(
 
     If `normalize_channels` is None or empty, the image is returned unchanged
     (aside from clipping to 8-bit range).
+
+    :param img: grayscale or RGB PIL image; pixel values are clipped to 0-255
+        before any stretch.
     """
     arr = np.array(img)
     arr = np.clip(arr, 0, 255)
@@ -233,7 +236,10 @@ def normalize_pil(
 def filter_channels_pil(
     img: Image.Image, channels: Optional[Iterable[str]] = None
 ) -> Image.Image:
-    """Zero out channels not present in `channels` (e.g. ['r','g'])."""
+    """Zero out channels not present in `channels` (e.g. ['r','g']).
+
+    :param img: RGB PIL image; it must split into exactly three bands.
+    """
     r, g, b = img.split()
     if channels:
         chset = {str(c).strip().lower() for c in channels if c is not None and str(c).strip()}
@@ -503,7 +509,13 @@ def cache_budget_entries():
 
 
 def drop_cache_budget_entry(record_key) -> bool:
-    """Evict one decoded array selected by the global memory policy."""
+    """Evict one decoded array selected by the global memory policy.
+
+    :param record_key: ``(kind, key)`` pair from :func:`cache_budget_entries`;
+        ``kind`` is ``"mask"``, ``"edge"`` or ``"model"`` (which releases the
+        cached Cellpose outline model instead of an array).
+    :returns: whether anything was evicted.
+    """
     kind, key = record_key
     if kind == "model":
         return bool(_release_cached_models())
@@ -530,12 +542,23 @@ FILTER_MEASURES: Tuple[str, ...] = ("area", "intensity")
 
 
 def filter_key(channel: str, measure: str) -> str:
-    """Return the settings key for a channel and measurement pair."""
+    """Return the settings key for a channel and measurement pair.
+
+    :param channel: channel name; stripped and lower-cased to form the
+        prefix of ``"<channel>_<measure>"``.
+    :param measure: measurement name; stripped and lower-cased to form the
+        suffix.
+    """
     return f"{str(channel).strip().lower()}_{str(measure).strip().lower()}"
 
 
 def filter_bound(value) -> Optional[float]:
-    """Parse a filter bound, returning ``None`` for empty or invalid input."""
+    """Parse a filter bound, returning ``None`` for empty or invalid input.
+
+    :param value: user-entered bound, typically a number or numeric string;
+        ``None``, a blank string, anything ``float()`` rejects and NaN all
+        give ``None``.
+    """
     if value is None:
         return None
     if isinstance(value, str) and not value.strip():
@@ -733,6 +756,11 @@ def add_colored_border(img: Image.Image, width: int, color: str) -> Image.Image:
     bordered image out of the pipeline). The Qt grid does NOT use it: its
     tiles paint their borders in ``_Thumbnail.paintEvent`` so recolouring
     one costs a repaint instead of a rebuilt pixmap.
+
+    :param img: image to frame; it is pasted unchanged into an RGB canvas.
+    :param width: border thickness in pixels on each side, so the result is
+        ``2 * width`` larger in both dimensions.
+    :param color: PIL colour for the border, e.g. a name or ``"#rrggbb"``.
     """
     bordered = Image.new("RGB",
                           (img.width + 2 * width, img.height + 2 * width),
@@ -836,7 +864,13 @@ class AnnotateSettings:
 
 def ensure_annotation_column(db_path: str, column: str, *,
                              table: str = DEFAULT_PNG_TABLE) -> None:
-    """Add `column` INTEGER to ``table`` if missing and index png_path."""
+    """Add `column` INTEGER to ``table`` if missing and index png_path.
+
+    :param db_path: path to the SQLite measurement database; nothing happens
+        if the file does not exist.
+    :param column: name of the annotation column to create; an empty name
+        does nothing.
+    """
     if not column or not os.path.isfile(db_path):
         return
     safe = column.replace('"', '""')
@@ -1008,7 +1042,14 @@ def fetch_page(
     page_size: int,
     image_type: Optional[str] = None,
     *, table: str = DEFAULT_PNG_TABLE) -> List[Tuple[str, Optional[int]]]:
-    """Read one page of (png_path, annotation) rows in insertion order."""
+    """Read one page of (png_path, annotation) rows in insertion order.
+
+    :param db_path: path to the SQLite measurement database; a missing file
+        gives an empty list.
+    :param annotation_column: annotation column read beside ``png_path``.
+    :param offset: number of matching rows to skip (SQL ``OFFSET``).
+    :param page_size: maximum number of rows to return (SQL ``LIMIT``).
+    """
     if not os.path.isfile(db_path):
         return []
     col = (annotation_column or "").replace('"', '""')
@@ -1065,6 +1106,19 @@ def fetch_filtered_paths(
     NOT, AND, OR, parentheses and SQLite LIKE semantics apply equally when
     measurement thresholds are enabled. Invalid expressions raise ValueError.
     Callers paginate the returned list themselves.
+
+    :param db_path: path to the SQLite measurement database; a missing file
+        gives an empty list.
+    :param annotation_column: annotation column returned beside each path;
+        filled with ``None`` if the joined tables lack it.
+    :param measurements: measurement column names to threshold; an empty list
+        gives an empty result. Columns the tables lack are skipped.
+    :param thresholds: one cut per measurement, or a single value applied to
+        all of them; an empty list gives an empty result.
+    :param directions: one direction per measurement, or a single string or
+        one-item list applied to all; ``"higher"`` keeps rows above the cut,
+        ``"lower"`` keeps rows below it, and any other value applies no cut.
+        Mismatched lengths raise ``ValueError``.
     """
     if not os.path.isfile(db_path) or not measurements or not thresholds:
         return []
@@ -1279,7 +1333,14 @@ def annotation_batch(paths: Iterable[str],
 
 def class_counts(db_path: str, annotation_column: str, *,
                  table: str = DEFAULT_PNG_TABLE) -> List[Tuple[int, int]]:
-    """Return sorted list of (class_value, count) for annotated rows."""
+    """Return sorted list of (class_value, count) for annotated rows.
+
+    :param db_path: path to the SQLite measurement database; a missing file
+        gives an empty list.
+    :param annotation_column: integer annotation column in ``table``. Values
+        at or above ``spacr.suggest.SUGGESTION_OFFSET`` (model suggestions)
+        and NULLs are not counted.
+    """
     if not os.path.isfile(db_path):
         return []
     col = (annotation_column or "").replace('"', '""')
@@ -1307,11 +1368,19 @@ def clear_column(db_path: str, annotation_column: str, *,
     """
     if not os.path.isfile(db_path):
         return
+    from ..suggest import verdict_column
+
     col = (annotation_column or "").replace('"', '""')
+    verdict = verdict_column(annotation_column or "").replace('"', '""')
     conn = connect_database(db_path, timeout=30)
     try:
+        has_verdict = any(
+            row[1] == verdict_column(annotation_column or "")
+            for row in conn.execute(f'PRAGMA table_info("{table}")'))
         with transaction(conn):
             conn.execute(f'UPDATE "{table}" SET "{col}" = NULL')
+            if has_verdict:
+                conn.execute(f'UPDATE "{table}" SET "{verdict}" = NULL')
     finally:
         conn.close()
 
@@ -1322,7 +1391,15 @@ def find_last_annotated_offset(
     page_size: int,
     image_type: Optional[str] = None,
     *, table: str = DEFAULT_PNG_TABLE) -> Optional[int]:
-    """Return the page-aligned offset of the last annotated row, or None."""
+    """Return the page-aligned offset of the last annotated row, or None.
+
+    :param db_path: path to the SQLite measurement database; a missing file
+        gives ``None``.
+    :param annotation_column: annotation column scanned; any value other than
+        NULL or ``0`` counts as annotated.
+    :param page_size: rows per page; the last annotated row's index is rounded
+        down to a multiple of it.
+    """
     if not os.path.isfile(db_path):
         return None
     col = (annotation_column or "").replace('"', '""')
@@ -1370,6 +1447,7 @@ class SaveWorker:
         self._last_save_ts: Optional[float] = None
         self._last_error: Optional[str] = None
         self._failed_batch: Optional[dict] = None
+        self._failed_extra: Dict[str, dict] = {}
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
 
@@ -1407,19 +1485,39 @@ class SaveWorker:
         """Whether the SQLite writer thread is still running."""
         return bool(self._thread and self._thread.is_alive())
 
-    def submit(self, batch: dict) -> None:
-        """Enqueue a copy of the batch for saving."""
+    def submit(self, batch: dict, column: Optional[str] = None) -> None:
+        """Enqueue a copy of the batch for saving.
+
+        :param batch: ``{png_path: value}``; ``None`` clears.
+        :param column: the column to write; the annotation column when
+            omitted. The Annotate screen's judgements (item 512) go to the
+            ``<column>_verdict`` column through this same writer rather than
+            through a second connection: one writer, one queue, one order.
+            A batch for another column that cannot be written is kept in
+            ``_failed_extra`` under its column, apart from
+            ``_failed_batch``, so the annotation batch keeps the shape
+            every reader of it expects.
+        """
         if not batch:
             return
+        other = None
+        if column is not None and column != self.annotation_column:
+            other = str(column)
         with self._lock:
             if self._last_error is not None:
+                if other is not None:
+                    self._failed_extra.setdefault(other, {}).update(batch)
+                    return
                 if self._failed_batch is None:
                     self._failed_batch = {}
                     self._pending_batches += 1
                 self._failed_batch.update(batch)
                 return
             self._pending_batches += 1
-        self._q.put(dict(batch))
+        if other is not None:
+            self._q.put((other, dict(batch)))
+        else:
+            self._q.put(dict(batch))
 
     @property
     def busy(self) -> bool:
@@ -1442,6 +1540,51 @@ class SaveWorker:
         """Actionable message for the latest writer failure, if any."""
         with self._lock:
             return self._last_error
+
+    @staticmethod
+    def _absorb(item, pending: dict, others: Dict[str, dict]) -> None:
+        """Fold one queued item into the batch being coalesced.
+
+        A plain dict is the annotation column's; a ``(column, dict)`` pair
+        is another column's, kept under its name so one transaction writes
+        every column that was queued.
+
+        :param item: one queued batch, in either shape.
+        :param pending: the annotation column's batch, updated in place.
+        :param others: the other columns' batches by name, updated in place.
+        """
+        if isinstance(item, tuple):
+            name, batch = item
+            others.setdefault(str(name), {}).update(batch)
+        else:
+            pending.update(item)
+
+    def _write_column(self, cur, col: str, pending: dict) -> None:
+        """Write one coalesced ``{png_path: value}`` batch into ``col``.
+
+        :param cur: a cursor inside the caller's transaction.
+        :param col: the column, already quoted-safe (``"`` doubled).
+        :param pending: ``{png_path: value}``; ``None`` clears.
+        """
+        if not pending:
+            return
+        to_null = [p for p, v in pending.items() if v is None]
+        to_set = [
+            (int(v), p) for p, v in pending.items()
+            if v is not None
+        ]
+        if to_null:
+            cur.executemany(
+                f'UPDATE "{self.table}" SET "{col}" = NULL '
+                'WHERE png_path = ?',
+                [(p,) for p in to_null],
+            )
+        if to_set:
+            cur.executemany(
+                f'UPDATE "{self.table}" SET "{col}" = ? '
+                'WHERE png_path = ?',
+                to_set,
+            )
 
     def _run(self) -> None:
         """Drain the annotation queue into the database until told to stop.
@@ -1466,7 +1609,9 @@ class SaveWorker:
                 if item is self._SENTINEL:
                     self._q.task_done()
                     break
-                pending = item
+                pending: dict = {}
+                others: Dict[str, dict] = {}
+                self._absorb(item, pending, others)
                 while True:
                     try:
                         extra = self._q.get_nowait()
@@ -1474,7 +1619,7 @@ class SaveWorker:
                             self._q.task_done()
                             self._q.put(self._SENTINEL)
                             break
-                        pending.update(extra)
+                        self._absorb(extra, pending, others)
                         with self._lock:
                             self._pending_batches -= 1
                         self._q.task_done()
@@ -1482,24 +1627,11 @@ class SaveWorker:
                         break
                 self._busy = True
                 try:
-                    to_null = [p for p, v in pending.items() if v is None]
-                    to_set = [
-                        (int(v), p) for p, v in pending.items()
-                        if v is not None
-                    ]
                     with transaction(conn):
-                        if to_null:
-                            cur.executemany(
-                                f'UPDATE "{self.table}" SET "{col}" = NULL '
-                                'WHERE png_path = ?',
-                                [(p,) for p in to_null],
-                            )
-                        if to_set:
-                            cur.executemany(
-                                f'UPDATE "{self.table}" SET "{col}" = ? '
-                                'WHERE png_path = ?',
-                                to_set,
-                            )
+                        self._write_column(cur, col, pending)
+                        for name, batch in others.items():
+                            self._write_column(
+                                cur, name.replace('"', '""'), batch)
                 except BaseException as exc:
                     with self._lock:
                         self._last_error = (
@@ -1507,6 +1639,9 @@ class SaveWorker:
                             "not saved; resolve the database problem before "
                             "closing this module.")
                         self._failed_batch = pending
+                        for name, batch in others.items():
+                            self._failed_extra.setdefault(
+                                name, {}).update(batch)
                     self._busy = False
                     LOG.exception(
                         "Annotate database save failed for %s; the transaction "

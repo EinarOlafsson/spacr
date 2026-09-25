@@ -381,7 +381,11 @@ class LazyFlowViewSection(CollapsibleSection):
             panel.stop()
 
     def showEvent(self, event) -> None:  # noqa: N802 - Qt virtual name
-        """Resume rendering only for an actually open, visible section."""
+        """Resume rendering only for an actually open, visible section.
+
+        :param event: the show event; it is passed on to the base class
+            unchanged.
+        """
 
         super().showEvent(event)
         if self.is_expanded():
@@ -390,7 +394,11 @@ class LazyFlowViewSection(CollapsibleSection):
                 panel.start()
 
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt virtual name
-        """A cached Classify page must spend no cycles while hidden."""
+        """A cached Classify page must spend no cycles while hidden.
+
+        :param event: the hide event; it is passed on to the base class
+            unchanged.
+        """
 
         panel = self._panel
         if panel is not None:
@@ -413,7 +421,12 @@ class LazyFlowViewSection(CollapsibleSection):
 
 
 def install_flowview(screen: QWidget) -> Optional[LazyFlowViewSection]:
-    """Mount Classify's lazy FlowView box directly below its settings."""
+    """Mount Classify's lazy FlowView box directly below its settings.
+
+    :param screen: the host screen; nothing is mounted unless its ``app_key``
+        is ``'classify_merged'`` and it has a ``_settings_content`` widget with
+        a layout.
+    """
 
     if getattr(screen, "app_key", None) != HOST_KEY:
         return None
@@ -440,7 +453,11 @@ def install_flowview(screen: QWidget) -> Optional[LazyFlowViewSection]:
 
 
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
-    """Put Classify's FlowView footer and fold strip on ``screen``."""
+    """Put Classify's FlowView footer and fold strip on ``screen``.
+
+    :param screen: the Classify screen that receives the FlowView section and
+        the fold strip.
+    """
 
     try:
         install_flowview(screen)

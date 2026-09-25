@@ -335,7 +335,12 @@ class MeasureInputsScreen(QDialog):
                                   parent=parent)
 
     def set_destination(self, path: Optional[str]) -> None:
-        """Where the project is written. ``None`` puts it beside the files."""
+        """Where the project is written. ``None`` puts it beside the files.
+
+        :param path: folder the project is written to, stored as a string; any
+            falsy value (None or an empty string) puts it beside the input
+            files.
+        """
         self._destination = str(path) if path else None
 
     def destination(self) -> Optional[str]:

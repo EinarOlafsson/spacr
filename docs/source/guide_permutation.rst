@@ -1,11 +1,15 @@
 Plate-aware guide permutation analysis
 ======================================
 
-Use ``analysis_mode='guide_permutation'`` when the independent experimental
-unit is a well and a simultaneous guide model is not identifiable because
-there are more guide columns than wells or because guide fractions are highly
-correlated.  The mode uses the same per-cell score CSV and sequencing-count
-CSV inputs as :func:`spacr.ml.perform_regression`.
+Use the guide permutation analysis when the independent experimental unit is
+a well and a simultaneous guide model is not identifiable because there are
+more guide columns than wells or because guide fractions are highly
+correlated.  ``inference='nonparametric'`` (the default) runs it, and
+``inference='auto'`` chooses it whenever the simultaneous fit would be
+unidentifiable; either way the run records
+``analysis_mode='guide_permutation'``.  The mode uses the same paired
+per-cell score and sequencing-count CSV inputs (``paired_data``) as
+:func:`spacr.ml.perform_regression`.
 
 Each guide is tested separately after its well-level fraction and the
 well-level phenotype have both been adjusted for plate (and any optional
@@ -23,16 +27,15 @@ Example
    from spacr.ml import perform_regression
 
    output = perform_regression({
-       "analysis_mode": "guide_permutation",
-       "score_data": ["plate1_scores.csv", "plate2_scores.csv"],
-       "count_data": ["plate1_counts.csv", "plate2_counts.csv"],
-       "plates_score": [1, 2],
-       "plates_count": [1, 2],
+       "inference": "nonparametric",
+       "paired_data": [
+           {"score": "plate1_scores.csv", "count": "plate1_counts.csv"},
+           {"score": "plate2_scores.csv", "count": "plate2_counts.csv"},
+       ],
        "dependent_variable": "prediction_probability_class_1",
-       "score_column": "prediction_probability_class_1",
        "agg_type": "median",
        "transform": "log",
-       "min_cell_count": 100,
+       "min_cells_per_well": 100,
        "fraction_threshold": 0.02,
        "guide_min_wells": [1, 2, 3, 4],
        "guide_primary_min_wells": 1,

@@ -46,6 +46,9 @@ def pack_training_data(folder: str, out_dir: Optional[str] = None) -> str:
     Raises if the result would be larger than the endpoint accepts, BEFORE the
     upload is attempted, so a user does not wait out a transfer that was never
     going to be accepted.
+
+    :param folder: training-data folder to pack; it must exist, and its files
+        must total no more than ``MAX_TRAIN_BYTES``.
     """
     import tarfile
     import tempfile
@@ -100,6 +103,12 @@ def central_upload(path: str, fields: Dict[str, Any]) -> str:
     the model went somewhere nobody was looking for it. A publish path that
     depends on an optional import is a publish path that silently does
     something else.
+
+    :param path: local checkpoint file to upload.
+    :param fields: the share form's values; ``display_name``, ``kind``,
+        ``trained_on`` and ``contact`` are sent as their own arguments, the
+        whole mapping as JSON, and a non-empty ``train_data_dir`` is packed
+        with :func:`pack_training_data` and uploaded too.
     """
     import json
     import os as _os
@@ -171,7 +180,12 @@ def central_upload(path: str, fields: Dict[str, Any]) -> str:
 
 
 def slugify(text: str) -> str:
-    """A repository-safe folder name."""
+    """A repository-safe folder name.
+
+    :param text: display name or file name to convert; it is lower-cased and
+        every run of characters other than ``a-z`` and ``0-9`` becomes one
+        hyphen. An empty result becomes ``"model"``.
+    """
     out = re.sub(r"[^a-z0-9]+", "-", str(text).strip().lower()).strip("-")
     return out or "model"
 
@@ -198,7 +212,19 @@ def _num(value: Any) -> str:
 
 def card(fields: Dict[str, Any], filename: str, sha256: str, repo_id: str,
          folder: str) -> str:
-    """The model card, carrying the same table every spaCR model card uses."""
+    """The model card, carrying the same table every spaCR model card uses.
+
+    :param fields: the share form's values: ``display_name``, ``kind``,
+        ``trained_on``, ``notes`` and the metrics (``f1``, ``aji``, ``dice``,
+        ``train_loss``, ``val_loss`` and the rest); a missing value is shown as
+        unstated.
+    :param filename: file name of the checkpoint; also the heading when no
+        ``display_name`` is given.
+    :param sha256: hex SHA-256 digest of the checkpoint, printed on the card.
+    :param repo_id: Hugging Face repository the model is published to; accepted
+        but not written into the card.
+    :param folder: folder inside the repository that holds the checkpoint.
+    """
     name = fields.get("display_name") or filename
     gap = ""
     try:
@@ -252,6 +278,8 @@ path = model_zoo.install(entry, dest="~/spacr_models")
 def target_repo(token: str) -> Tuple[str, bool]:
     """Where this token may publish: the shared repo, or its own namespace.
 
+    :param token: Hugging Face access token; it decides whether the shared
+        repository is reachable and, if not, whose namespace is used.
     :returns: ``(repo_id, is_shared)``.
     """
     from huggingface_hub import HfApi
@@ -278,7 +306,13 @@ def target_repo(token: str) -> Tuple[str, bool]:
 
 
 def share(path: str, fields: Dict[str, Any], token: str) -> str:
-    """Upload a checkpoint and its card. Returns the model page URL."""
+    """Upload a checkpoint and its card. Returns the model page URL.
+
+    :param path: local checkpoint file to upload.
+    :param fields: the share form's values; ``display_name`` names the staging
+        folder and the whole mapping fills the model card.
+    :param token: Hugging Face access token used for every call.
+    """
     from huggingface_hub import HfApi
 
     from ... import model_zoo

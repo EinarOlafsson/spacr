@@ -235,7 +235,11 @@ class CellposeWorkbenchScreen(QWidget):
         return self._screens[1]
 
     def screen_for(self, app_key: str) -> Optional[AppScreen]:
-        """The tab that runs ``app_key``, or ``None``."""
+        """The tab that runs ``app_key``, or ``None``.
+
+        :param app_key: the app key to find, compared as a string with each
+            tab's ``app_key``.
+        """
         for screen in self._screens:
             if screen.app_key == str(app_key):
                 return screen
@@ -312,7 +316,11 @@ class CellposeWorkbenchScreen(QWidget):
 
     def apply_seed(self, seed: Dict) -> int:
         """Take a seed handed over by another screen. See
-        :meth:`apply_settings_dict`, which decides where it lands."""
+        :meth:`apply_settings_dict`, which decides where it lands.
+
+        :param seed: settings name to value, passed unchanged to
+            :meth:`apply_settings_dict`.
+        """
         return self.apply_settings_dict(seed)
 
 

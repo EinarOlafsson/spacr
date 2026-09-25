@@ -1,7 +1,7 @@
 THE DOWNLOAD PROGRESS LINE IS NEVER CUT OFF
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned.
+Status: DONE 2026-09-25 (filed 2026-09-24).
+Owner: Claude (worktree agent), 2026-09-25.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "usually when downloading the text e.g. step 1 of 3 or 10% is cutt of, fix
@@ -22,3 +22,90 @@ DONE WHEN
 Every progress line shows its step count and percentage in full at the
 smallest window spaCR supports (1366x768 at 100 % GUI scale, and at 50 %),
 checked in a rendered screenshot rather than by reading the code.
+
+
+NOTE 2026-09-25 -- DONE (Claude, branch worktree-agent-abd2c370aae461d2e)
+
+ROOT CAUSE. spacr/qt/theme.py's QProgressBar rule (`height: 8px;
+max-height: 8px`) applies to every bar. A bar with textVisible (Qt's default)
+paints its caption -- "step 2 of 3", "%p%", "312 MB / 690 MB (45%)" -- into
+those 8 px: an 18 px line of text, of which only the top rows reach the
+screen; at 50 % GUI scale the track is 4 px.
+
+THE FIX, the maintainer's "thin bar + label". ProgressLine
+(spacr/qt/widgets/eliding.py:252, next to ElidingLabel, which it uses; a new
+module would have moved the coverage denominator pinned in .github, which this
+lane may not edit): the slim bar paints no text; the count and the percentage
+sit in a label beside it (horizontal policy Minimum, so a layout cannot give
+it less than its text) or, with count_below=True, on their own line under the
+bar at the left; an optional detail line below elides the changing part and
+displayed_text() reports what is painted. It answers the QProgressBar calls
+the sites already make (setRange, setValue, setFormat with %p/%v/%m, format(),
+setTextVisible, isTextVisible ...), so each site changed one line and the
+existing tests that read .format() / .isTextVisible() still hold. A template
+without %p gets " · NN%" appended while the bar has a range. No size is
+computed from font metrics and handed to a size setter, so the GUI-scale layer
+scales each size once.
+
+SITES (line numbers after merging nightly 9525d9a25)
+  ProgressLine:
+    spacr/qt/widgets/model_zoo_picker.py:592  BackendInstallDialog, "step N of M · NN%"
+    spacr/qt/widgets/model_zoo_picker.py:865  ModelZooPicker, "NN%"
+    spacr/qt/screens/model_zoo.py:551          "312.0 MB / 690.0 MB (45%)"
+    spacr/qt/screens/make_masks.py:9266        Cellpose download, count_below;
+        10816-10817 name moved to the detail line; 10828-10832 the count is now
+        "45.0 MB / 100.0 MB (45%)" (it had no number at all before)
+    spacr/qt/screens/make_masks.py:11207       magnifier, count_below,
+        "about N s left · NN%"
+    spacr/qt/starplast.py:94, 150-153          installer, now "step N of M · NN%"
+    spacr/qt/screens/batch.py:283              "5 / 12 jobs · 41%"
+    spacr/qt/screens/convert.py:385            "NN%"
+    spacr/qt/screens/foreign.py:591            "NN%"
+  setTextVisible(False) on busy-only bars:
+    spacr/qt/screens/parameter_sweep.py:244, data_manager.py:512,
+    app_screen.py:6866, image_import.py:603, make_masks.py:6019,
+    spacr/qt/widgets/sra_picker.py:157, spacr/qt/starplast.py:221
+  hf_download.py's _DownloadDialog was already right and is unchanged.
+
+MEASURED (offscreen, 1366x768 window or the dialog at its own size, the
+layout pumped until geometry stops changing, the painted text box checked
+against the scroll viewport, the window and a 1366x768 rect). Count label
+width / text advance / label height / font height / bar height:
+                          100 %                     50 %
+  backend install   99/99 18/18 bar 8        46/46  9/8 bar 4   "step 2 of 3 · 33%"
+  model zoo picker  26/26 18/18 bar 8        12/12  9/8 bar 4   "45%"
+  model zoo screen  162/161 18/18 bar 8      75/74  9/8 bar 4   "312.0 MB / 690.0 MB (45%)"
+  make masks dl     154 text, 18/18 bar 8    71 text, 9/8 bar 4 (count below)
+  magnifier         122 text, 18/18 bar 8    56 text, 9/8 bar 4 (count below)
+  starplast         99/99 18/18 bar 8        46/46  9/8 bar 4   "step 2 of 3 · 33%"
+  batch             99/98 18/18 bar 8        46/45  9/8 bar 4   "5 / 12 jobs · 41%"
+  convert, import   26/26 18/18 bar 8        12/12  9/8 bar 4   "45%"
+PNGs: /tmp/spacr-502-scratch/<site>_<100|50>_{window,line}.png, 36 files;
+backend_install_100/50, model_zoo_screen_100, make_masks_download_100 and
+make_masks_magnifier_50 were read by eye.
+
+TESTS
+  tests/qt/test_the_download_progress_line_is_never_cut_off.py: 7 tests, 24
+  cases (9 sites x 2 scales, 3 ProgressLine unit tests, the 50 % scale test,
+  the source guard -- no QProgressBar in spacr/qt constructed without
+  setTextVisible(False) -- and the guard's own positive control). 24 passed.
+  Related files after the merge, one process: 649 passed (backend install,
+  translations, model zoo picker/screen, hf_download incl. the two download
+  dialog tests, Starplast, Batch, Convert, Import, SRA, GUI scale, clipping
+  sweep, Make Masks, live magnifier, 471c folds, module coverage ratchet,
+  comment rule).
+
+LEFT OPEN / FOR OTHER LANES
+  * DOCS LANE: no new tr() strings ("step {step} of {steps}" and "Downloading
+    {name}…" already existed). ProgressLine adds 19 public API symbols: the
+    API-surface ratchets read 11579 / 9574 with it, 11560 / 9555 without, and
+    both were already red on nightly before this change (reviewed 11528 /
+    9527) -- the catalogs need a regeneration by the docs lane.
+  * Found, not caused here (identical with the old bar, measured): at
+    1366x768 / 100 % the Make Masks side panel's content (min 522 px) is wider
+    than its pane (493 px), so the right end of its rows scrolls away -- why
+    those two lines put the count below the bar. ModelZooScreen's minimum
+    height is about 1030 px, taller than 768.
+  * model_zoo_picker.py still imports QProgressBar, now unused; left to keep
+    the hunk out of the import block 503/507 are editing.
+

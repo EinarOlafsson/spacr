@@ -132,6 +132,9 @@ class QtLogHandler(QObject, logging.Handler):
         module owns the console-target contract; this is the second sink
         that has to honour it. Measured: a 30-file shard still dumped core
         in the same place when only the first sink was guarded.
+
+        :param record: the log record; it is formatted with this handler's
+            formatter and emitted with its ``levelno``.
         """
         try:
             from .verbose_logger import console_write_in_progress

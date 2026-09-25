@@ -400,6 +400,9 @@ class AgreementScreen(QWidget):
         (missing file, not a database, no ``png_list``) is reported in the
         status label and returns ``False`` — this never raises.
 
+        :param path: ``measurements.db`` file, run ``src`` folder or
+            ``measurements`` folder; resolved with
+            :func:`spacr.qt.screens.db_browser.resolve_db_path`.
         :returns: True when a database with at least one annotation
             column was opened.
         """
@@ -470,6 +473,9 @@ class AgreementScreen(QWidget):
     def select_columns(self, names) -> bool:
         """Tick exactly ``names``; report inline for anything unknown.
 
+        :param names: annotation column names to check; every other listed
+            column is unchecked. Names not in the list are reported in the
+            status line.
         :returns: True when every requested column was found.
         """
         wanted = {str(n) for n in names}
@@ -743,6 +749,8 @@ class AgreementScreen(QWidget):
         database was copied without them), not an error worth a dialog —
         the preview says so and the row stays selected.
 
+        :param row: zero-based row of the disagreement table; out of range
+            clears the preview.
         :returns: True when an image was actually rendered.
         """
         self._crop_label.setPixmap(QPixmap())
@@ -943,7 +951,12 @@ class AgreementScreen(QWidget):
 
 
     def closeEvent(self, event):  # noqa: N802
-        """Let every in-flight compute thread finish before the widget dies."""
+        """Let every in-flight compute thread finish before the widget dies.
+
+        :param event: the close event, passed on to the base class once each
+            running job thread has been asked to quit and waited on (up to
+            five seconds each).
+        """
         for thread, _worker in list(self._jobs):
             try:
                 if thread.isRunning():

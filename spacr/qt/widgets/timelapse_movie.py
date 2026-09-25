@@ -123,7 +123,11 @@ class FilmStrip(QScrollArea):
         self._cells: List[QLabel] = []
 
     def set_frames(self, frames: Sequence[QPixmap]) -> None:
-        """Replace the strip. Cheap to call: the pixmaps are already made."""
+        """Replace the strip. Cheap to call: the pixmaps are already made.
+
+        :param frames: thumbnail pixmaps, one per frame in order; clicking one
+            emits ``frame_picked`` with its index.
+        """
         while self._row.count() > 1:
             item = self._row.takeAt(0)
             widget = item.widget()
@@ -143,7 +147,11 @@ class FilmStrip(QScrollArea):
             self._cells.append(cell)
 
     def highlight(self, index: int) -> None:
-        """Ring the frame the movie is on, so the two views agree."""
+        """Ring the frame the movie is on, so the two views agree.
+
+        :param index: zero-based index of the frame to ring; every other cell
+            loses its ring, and an index outside the strip rings none.
+        """
         from ..theme import active_palette
 
         accent = active_palette().get("accent", "#4a9eff")
@@ -241,6 +249,10 @@ class FovMovie(QWidget):
         ``relabel_by_track``). That is what makes a colour mean a track
         rather than a per-frame segmentation index, and it is the caller's
         job because the relabelling is what the tracker produced.
+
+        :param images: the field's frames as an array-like stack, first axis
+            time; each frame may carry channels, of which ``channel`` is shown.
+            None clears the movie.
         """
         self._images = None if images is None else np.asarray(images)
         self._labels = None if labels is None else np.asarray(labels)
@@ -256,7 +268,11 @@ class FovMovie(QWidget):
         self.show_frame(0)
 
     def set_overlays(self, *, objects: bool, tracks: bool) -> None:
-        """Toggle the mask outlines and the track tails independently."""
+        """Toggle the mask outlines and the track tails independently.
+
+        :param objects: whether mask outlines are drawn.
+        :param tracks: whether track tails are drawn.
+        """
         if (objects, tracks) == (self._show_objects, self._show_tracks):
             return
         self._show_objects = bool(objects)
@@ -341,7 +357,10 @@ class FovMovie(QWidget):
         self._strip.highlight(self._frame)
 
     def show_frame(self, index: int) -> None:
-        """Put ``index`` on the canvas and keep every control agreeing."""
+        """Put ``index`` on the canvas and keep every control agreeing.
+
+        :param index: zero-based frame index; clamped to the frames loaded.
+        """
         rgb = self._rendered(index)
         total = self.frame_count()
         self._frame = max(0, min(int(index), max(0, total - 1)))
@@ -548,6 +567,10 @@ class TimelapseMoviePanel(QWidget):
         Applied by dropping the surplus immediately rather than at the next
         preview: a user lowering this has just been told the machine is
         short of memory, and the setting has to give it back now.
+
+        :param count: how many fields may be held at once; clamped to 1 through
+            ``MAX_FIELDS_CEILING`` (8), and fields beyond it are dropped at
+            once.
         """
         previous = self._max_fields
         self._max_fields = max(1, min(int(count), MAX_FIELDS_CEILING))
