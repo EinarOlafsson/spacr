@@ -7109,6 +7109,7 @@ class MakeMasksScreen(QWidget):
         super().__init__(parent)
         self._folder: str = ""
         self._image_files: List[str] = []
+        self._field_folders: Optional[List[str]] = None
         #: The terminal-built session this screen is working through, or
         #: ``None`` when the folder was opened from the file dialog. Set by
         #: :meth:`open_queue`; what makes a save reach
@@ -7725,6 +7726,13 @@ class MakeMasksScreen(QWidget):
         if not self._folder or not self._image_files:
             self._status_label.setText(
                 "Open a folder of images before masking it.")
+            return False
+        if self._field_folders:
+            from ..i18n import tr
+
+            self._status_label.setText(tr(
+                "Mask the whole folder works on one folder, and this queue "
+                "was dropped from several, so it was not started."))
             return False
         if self._masks_dir or any(engine.is_seg_bundle(name)
                                   for name in self._image_files):
@@ -12483,9 +12491,56 @@ class MakeMasksScreen(QWidget):
             return
         self._open_folder(d)
 
+    def open_paths(self, paths) -> bool:
+        """Open dropped image files and folders as one queue, in drop order.
+
+        One folder alone is what it always was, :meth:`_open_folder` on it.
+        Anything else -- one file, several, or files and folders together --
+        becomes a queue of the fields named, a folder standing for its
+        images, each field edited where it lies with its mask in its own
+        ``<folder>/masks``. Nothing is copied.
+
+        :param paths: the dropped files and folders, in the order dropped.
+        :returns: whether a queue was opened.
+        """
+        from ..i18n import tr
+
+        paths = [os.path.abspath(str(p)) for p in paths]
+        if len(paths) == 1 and os.path.isdir(paths[0]):
+            return self._open_folder(paths[0])
+        fields: list = []
+        for path in paths:
+            if os.path.isdir(path):
+                found = [(path, name) for name in engine.list_images(path)]
+            elif (os.path.isfile(path)
+                  and path.lower().endswith(engine.IMAGE_EXTS)):
+                found = [(os.path.dirname(path), os.path.basename(path))]
+            else:
+                found = []
+            for field in found:
+                if field not in fields:
+                    fields.append(field)
+        if not fields:
+            self._warn(tr("No images"),
+                       tr("None of the dropped items is an image Make Masks "
+                          "can open."))
+            return False
+        folders = [folder for folder, _name in fields]
+        spans = list(dict.fromkeys(folders))
+        if not self._open_folder(
+                folders[0], files=[name for _folder, name in fields],
+                field_folders=folders if len(spans) > 1 else None):
+            return False
+        if len(spans) > 1:
+            self._src_label.setText(tr(
+                "{n} images from {k} folders, in the order dropped",
+                n=len(fields), k=len(spans)))
+        return True
+
     def _open_folder(self, folder: str,
                      files: Optional[List[str]] = None,
-                     masks_dir: Optional[str] = None) -> bool:
+                     masks_dir: Optional[str] = None,
+                     field_folders: Optional[List[str]] = None) -> bool:
         """List the folder's images and load the first.
 
         :param folder: the folder to open.
@@ -12498,6 +12553,8 @@ class MakeMasksScreen(QWidget):
         :param masks_dir: the masks folder when it is not ``<folder>/masks``
             -- a sibling session's. Set BEFORE the first field loads, so the
             first draft shown is the set's own.
+        :param field_folders: the folder of each of ``files``, when a drop
+            queued fields from more than one folder; see :meth:`open_paths`.
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
@@ -12510,6 +12567,8 @@ class MakeMasksScreen(QWidget):
         self._masks_dir = masks_dir
         self._folder = folder
         self._image_files = files
+        self._field_folders = (list(field_folders)
+                               if field_folders is not None else None)
         self._current_index = 0
         self._src_label.setText(f"{folder}  —  {len(files)} images")
         self._load_current()
@@ -12522,6 +12581,8 @@ class MakeMasksScreen(QWidget):
         """Show the current field and whatever mask it already has."""
         if not self._image_files:
             return
+        if self._field_folders:
+            self._folder = self._field_folders[self._current_index]
         self._primary_selector.clear_field()
         self._load_token += 1
         token = self._load_token
@@ -12782,6 +12843,10 @@ class MakeMasksScreen(QWidget):
         self._canvas.update()
         self._image_files.insert(
             self._current_index + len(self._recrop_children) + 1, written.name)
+        if self._field_folders:
+            self._field_folders.insert(
+                self._current_index + len(self._recrop_children) + 1,
+                self._folder)
         self._recrop_children.append(written.name)
         area = (box[2] - box[0]) * (box[3] - box[1])
         self._record(engine.RECROP_KIND, written.name, area,
@@ -12826,6 +12891,8 @@ class MakeMasksScreen(QWidget):
             self._warn("Recrop failed", str(exc))
             return False
         self._image_files.pop(self._current_index)
+        if self._field_folders:
+            self._field_folders.pop(self._current_index)
         self._recrop_children = []
         self._canvas.recrop_boxes = []
         if not self._image_files:
