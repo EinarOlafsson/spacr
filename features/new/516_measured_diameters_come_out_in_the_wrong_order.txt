@@ -1,6 +1,7 @@
 MEASURED DIAMETERS COME OUT IN THE WRONG ORDER: CELL 7.2, NUCLEUS 91.3, PATHOGEN 10.9
 
-Status: OPEN, filed 2026-09-25. Not started.
+Status: FIXED 2026-09-25 (worktree agent-ac4cf775a17deb8a7), awaiting merge
+to nightly and the maintainer's check in the GUI.
 Owner: unassigned. Related: 503/507 (Diameter 0 guesses 16 px for 44 px
 cells), the "measure diameter" action in Mask generation.
 
@@ -24,3 +25,46 @@ On the test images the measured diameters come out cell > nucleus >
 pathogen and within 20 % of the diameters measured from ground-truth or
 hand-drawn masks on the same fields (record both), with a test that pins
 the order on the test data.
+
+2026-09-25 -- FIXED (spacr/diameter.py, estimator only)
+Reproduced on the Mask generation test plate (~/.cache/spacr/example_data/
+plate1, which the estimator reads through merged/; channels from its
+gen_mask_settings: nucleus 0, cell 1, pathogen 2), 5 fields:
+    before  cell 8.4   nucleus 91.3   pathogen 10.9   (maintainer: 7.2/91.3/10.9)
+    after   cell 159.5 nucleus 97.3   pathogen 32.3
+    masks   cell 175.1 nucleus 94.6   pathogen 32.0   (median equivalent
+            diameter of the curated label masks, planes 4/5/6 of all 16
+            merged arrays, border objects dropped; 529/699/589 objects)
+After is within 9 %, 3 % and 1 % of the masks, and in biological order.
+
+Ruled out by measurement: the channel mapping is right (merged plane i is the
+i-th sorted chanID, and planes 4/5/6 are the cell/nucleus/pathogen masks of
+those same channels); nothing is downscaled (fields are centre-cropped to
+1500 px, not resized); there is no size model, it is one Otsu/label path for
+every object; and nuclei do not merge (the nucleus was the one right number).
+
+Root cause: the characteristic size was a plain median over every
+thresholded component. The cell stain (mitochondrial) and the parasite
+marker threshold into a few whole objects plus hundreds of 4-10 px specks:
+235 of 321 cell components and 87 of 129 pathogen components, holding 0.8 %
+and 6.7 % of the stained area. The specks outnumber the objects, so the
+median landed on them. The solid nuclear stain has few specks, which is why
+only the nucleus came out right.
+
+Fix: spacr/diameter.py:701 _without_specks, applied at :759 in _aggregate.
+The typical object is found by the area-weighted median (which specks
+cannot move), components narrower than SPECK_FRACTION = 0.25 of it (:158)
+are set aside, and the median is taken over the rest. Small components that
+together hold SPECK_MAX_AREA_SHARE = 0.15 (:163) of the stained area or more
+are a real second population and are kept, so the existing two-population
+warning still fires. The note now says how many specks were set aside.
+On the raw .tif fields of the same plate (no masks for most of them) the
+order is also right: 10 fields cell 145.9, nucleus 91.6, pathogen 27.4
+(before 9.7 / 84.6 / 10.8).
+
+Tests: tests/test_measured_diameters_come_out_in_order.py -- a synthetic
+plate of whole objects plus specks (old code: cell 5.6, pathogen 5.6 against
+150/90/30; new: 150/90/30), the speck rule keeping a genuine two-size
+population, and the real cached test plate against its own masks (order and
+20 %; skipped when the plate is not downloaded). tests/test_diameter_estimator.py
+78/78 before and after; prerun/Qt diameter panel tests pass.
