@@ -2556,7 +2556,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 arr = projected
         self.cancel_preview()
         self._src_view.ruler.clear()
-        self._src_view.ruler.set_spacing()
+        self._src_view.ruler.calibrate_from_file(path, getattr(arr, "shape", None))
         self._image = arr
         self._image_path = Path(path)
         self._masks = {}

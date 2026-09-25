@@ -12920,6 +12920,8 @@ class MakeMasksScreen(QWidget):
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
+        self._canvas.ruler.calibrate_from_file(
+            os.path.join(self._folder or "", filename), image.shape)
         self._recrop_children = []
         self._reset_flow_panes()
         self._history.clear()
