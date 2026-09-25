@@ -1,7 +1,7 @@
 TOOLTIPS WAIT TWO SECONDS, LINGER ONE, AND CAN BE SWITCHED OFF
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned.
+Status: DONE, 2026-09-25. Filed 2026-09-24.
+Owner: Claude.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "the tooltipps pop up to fast have them uniformelly pop up after 2 seconds
@@ -21,3 +21,42 @@ WHAT TO BUILD
 DONE WHEN
 A tooltip anywhere in spaCR appears at 2 s and not before, lingers as
 described, and the preference silences all of them.
+
+DONE, 2026-09-25
+`spacr/qt/tooltip_policy.py` is the one rule, an event filter installed on
+`QApplication` by `apply_preferences_to_app`, so a widget written tomorrow
+obeys it without anyone remembering. A tooltip appears two seconds after the
+pointer rests -- the style's own wake-up delay is SUBTRACTED, so the total is
+two seconds and not 2.7 -- stays while the pointer is on the widget or on the
+tooltip itself, and goes one second after it leaves both.
+
+Two things the filter had to keep working, and does. Qt propagates a tooltip
+event to the parent when the widget under the pointer has none, which is how
+a card explains itself while the pointer is on the label written on it: the
+text is resolved up the parent chain by `tooltip_text_for`. And a table, a
+header or a list answers from `Qt::ToolTipRole` inside its own `event`, which
+no filter can read: when nothing in the chain has a tooltip, the event is
+SENT AGAIN after the wait, so those appear too, on the same rule.
+
+The switch is `Preferences > Appearance > Tooltips`, `TooltipsEnabled`, ON by
+default (`get_tooltips_enabled` / `set_tooltips_enabled`). Cleared, the event
+is swallowed and nothing appears anywhere; setting it takes down whatever is
+on screen at that moment rather than letting one last popup through. The two
+older switches -- the settings tooltip BOX and the bottom STRIP -- are
+untouched and independent: they answer "what is this setting", this one
+answers "do small labels pop up at all".
+
+A widget with a reason can keep Qt's own instant tooltip by setting the
+`spacrNoTooltipPolicy` property; nothing in spaCR does.
+
+Tests: `tests/qt/test_tooltips_wait_two_seconds.py`, 17 cases, including the
+default, both numbers, the parent chain, the replay, the linger, the switch
+and the Preferences row. `tests/qt/test_tooltips.py`,
+`test_category_tooltips.py`, `test_setting_tooltip_footer.py`,
+`test_the_bottom_tooltip_survives_the_pointer_leaving.py`,
+`test_tooltip_no_duplicate.py`, `test_the_tooltip_is_on_the_title_only.py`
+-- 357 cases -- still pass, as do the Preferences dialog's own.
+
+NOT CHECKED IN A SCREENSHOT: the timings are read from the code and the
+filter's decisions, because a two-second wait per case would cost the suite
+a minute to measure a number this file names in one place.

@@ -38,6 +38,7 @@ Public API::
         get_spinner_delay, set_spinner_delay,
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
+        get_tooltips_enabled, set_tooltips_enabled,
         get_font_scale, set_font_scale,
         get_gui_scale, set_gui_scale,
         get_figure_save_mode, set_figure_save_mode,
@@ -207,6 +208,11 @@ _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 _KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
 _KEY_OBJECT_GRID = "prefs/object_settings_grid"
 _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
+#: The master switch over every ordinary Qt tooltip in the application --
+#: buttons, toolbars, table headers, the lot. It is not one of the two
+#: SETTINGS surfaces above: those answer "what is this setting", this one
+#: answers "do small labels pop up at all".
+_KEY_TOOLTIPS_ENABLED = "prefs/tooltips_enabled"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
@@ -3475,6 +3481,11 @@ DEFAULT_SETTING_ANIMATIONS = False
 DEFAULT_TOOLTIPS_BOX = False
 DEFAULT_TOOLTIPS_BOTTOM = True
 
+#: Tooltips are ON by default, at the maintainer's instruction (2026-09-24).
+#: They are how spaCR explains a button without spending a line of the
+#: window on it; the switch exists for the person who already knows.
+DEFAULT_TOOLTIPS_ENABLED = True
+
 #: OFF until someone chooses it. The grid is a different way to read
 #: the most-used screen in the application, so it arrives as an offer
 #: rather than as a change to what everyone already knows.
@@ -3540,6 +3551,36 @@ def set_tooltips_bottom_enabled(on: bool) -> None:
     """Turn the bottom tooltip strip on or off, effective at the next hover."""
     _settings().setValue(_KEY_TOOLTIPS_BOTTOM, bool(on))
     _settings().sync()
+
+
+def get_tooltips_enabled() -> bool:
+    """Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.
+
+    The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event
+    filter on ``QApplication`` that decides when every tooltip appears and
+    goes. Cleared, no tooltip is shown at all; the two settings surfaces --
+    :func:`get_tooltips_box_enabled` and
+    :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.
+    """
+    return _as_bool(_settings().value(_KEY_TOOLTIPS_ENABLED,
+                                      DEFAULT_TOOLTIPS_ENABLED),
+                    DEFAULT_TOOLTIPS_ENABLED)
+
+
+def set_tooltips_enabled(on: bool) -> None:
+    """Turn every tooltip on or off, effective immediately.
+
+    Drops :mod:`spacr.qt.tooltip_policy`'s cached answer and takes down any
+    tooltip already on screen, so clearing the switch is not followed by one
+    last popup nobody asked for.
+    """
+    _settings().setValue(_KEY_TOOLTIPS_ENABLED, bool(on))
+    _settings().sync()
+    try:
+        from .tooltip_policy import invalidate_tooltip_policy
+        invalidate_tooltip_policy()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not refresh the tooltip policy", exc_info=True)
 
 
 
@@ -4595,6 +4636,14 @@ def apply_preferences_to_app(app=None) -> None:
     except Exception:
         LOG.exception("Could not install the field fade")
 
+    try:
+        from .tooltip_policy import (install_tooltip_policy,
+                                     invalidate_tooltip_policy)
+        invalidate_tooltip_policy()
+        install_tooltip_policy(app)
+    except Exception:
+        LOG.exception("Could not install the tooltip policy")
+
     style_signature = (
         str(theme),
         float(scale),
@@ -5484,6 +5533,18 @@ class PreferencesDialog:
         )
         setting_anim_check.setChecked(get_setting_animations_enabled())
         animation.addRow(tr("Setting animations"), setting_anim_check)
+
+        tooltips_all_check = Toggle(tr("Show tooltips"))
+        tooltips_all_check.setObjectName("TooltipsEnabled")
+        tooltips_all_check.setToolTip(
+            "Resting the pointer on a button, a field or a column header "
+            "for two seconds shows a small label saying what it is. The "
+            "label stays while the pointer is on it and leaves a second "
+            "after the pointer goes. Cleared, no tooltip appears anywhere "
+            "in spaCR."
+        )
+        tooltips_all_check.setChecked(get_tooltips_enabled())
+        appearance.addRow(tr("Tooltips"), tooltips_all_check)
 
         tooltips_box_check = Toggle(tr("Tooltips box"))
         tooltips_box_check.setObjectName("TooltipsBox")
@@ -6794,6 +6855,7 @@ class PreferencesDialog:
 
                 setting_anim_check.setChecked(
                     get_setting_animations_enabled())
+                tooltips_all_check.setChecked(get_tooltips_enabled())
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
@@ -6840,6 +6902,7 @@ class PreferencesDialog:
                 set_ambient_drift_direction(direction_choice)
             set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
+            set_tooltips_enabled(tooltips_all_check.isChecked())
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
