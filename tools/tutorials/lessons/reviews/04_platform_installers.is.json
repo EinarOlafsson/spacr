@@ -1,31 +1,33 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
   "review": {
-    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "is",
-  "title": "Uppsetningarforrit fyrir mismunandi stýrikerfi",
-  "description": "Veldu opinbert uppsetningarforrit, skildu sjálfvirkt val á hröðun og valfrjálsar persónuverndarstillingar og athugaðu raunverulega uppsetta Linux-umhverfið.",
+  "title": "Settu upp spaCR með uppsetningarforriti",
+  "description": "Sæktu uppsetningarforritið fyrir stýrikerfið þitt, ljúktu uppsetningunni og opnaðu spaCR.",
   "objectives": [
-    "Velja opinbert uppsetningarforrit fyrir stýrikerfið.",
-    "Greina sjálfvirka hröðun frá skýru vali um að nota eingöngu CPU.",
-    "Lesa persónuverndarvalkosti, uppsettar útgáfur og viðvaranir úr greiningu."
+    "Sækja og keyra uppsetningarforritið fyrir stýrikerfið þitt.",
+    "Velja hröðunarkost og stillingar fyrir fyrstu ræsingu.",
+    "Opna spaCR og finna uppsetningarannála ef uppsetningin þarfnast athygli."
   ],
-  "prerequisite": "Upptakan sannreynir opinbera netuppsetningarforritið fyrir Linux x86-64, spaCR 1.5.0.5, sem var borið saman við gátsummu 10. september 2026, með Python 3.12.13, Qt 6.11.2 og Torch 2.14.0+cu132. Raunverulegri uppsetningu var lokið áður en staðfestingarmyndirnar voru teknar. Hún notaði nýjar einkamöppur fyrir keyrsluumhverfi og ræsiforrit, fyrirliggjandi grafísk kerfissöfn, --skip-system-deps og --no-launch; engum fyrirliggjandi umhverfum eða kerfishugbúnaði var breytt. Fjögur viðmiðunarspjöld eru leiðbeiningar, ekki upptökur af Windows/macOS-uppsetningum eða tilbúið skjáhermisúttak. Windows/macOS-leiðbeiningar voru aðeins yfirfarnar út frá núverandi frumkóða uppsetningarforritanna. Viðmótsupptakan notar einkasnið með dökku þema, leturkvarða 1.5, þegar lokaða kynningu, forhleðslu eftir þörfum og --no-setup, sem sleppir ekki aðskildu persónuverndarspurningunni. Henni er hafnað með raunverulegum Escape-takka og allir valfrjálsir kostir haldast óvirkir; einkastillingarnar voru lesnar aftur til staðfestingar. Doctor notaði --no-gpu-probe; ekki er fullyrt að minnisúthlutun, hraði, greiningar eða önnur stýrikerfi hafi verið sannreynd. Misheppnaðar upptökutilraunir eru varðveittar og ekki taldar hugbúnaðargallar.",
+  "prerequisite": "Sæktu opinbera uppsetningarforritið fyrir stýrikerfið þitt og gerðu ráð fyrir plássi fyrir forritið og vísindapakkana sem það þarfnast.",
   "scenes": [
-    "Notaðu opinbera spaCR-útgáfu á GitHub og veldu uppsetningarforrit fyrir stýrikerfið þitt. Netuppsetningarforritin sækja sérstakt Python-keyrsluumhverfi og hugbúnað sem vísindalegu greiningarnar þurfa; ekki þarf Conda-umhverfi fyrir. Í þessu Linux-dæmi bárum við niðurhalaða skrá saman við gátsummu útgáfunnar áður en hún var keyrð.",
-    "Í Windows velurðu keyrsluskrána fyrir netuppsetningu. Núverandi frumkóði uppsetningarforritsins forvelur sjálfvirka hröðun; hægt er að taka hakið af þeim valfrjálsa hluta fyrir CPU eingöngu. Spjaldið útskýrir valið en er hvorki upptaka af Windows-uppsetningu né samhæfingarpróf á tölvunni þinni.",
-    "Í macOS velurðu almenna netpakkann fyrir Intel og Apple silicon. Ræsiforrit appsins byrjar uppsetningu fyrir hvern notanda ef keyrsluumhverfið vantar. Staðfestu opinberan uppruna áður en öryggisfyrirmæli eru samþykkt og gefðu niðurhali tíma. Þetta eru leiðbeiningar yfirfarnar út frá frumkóða, ekki framkvæmd macOS-uppsetning.",
-    "Í Linux gerirðu staðfesta skrá keyranlega og ræsir hana úr möppunni hennar. Sjálfvirkt val á hröðun er nú sjálfgefið; veldu CPU sérstaklega ef það er það sem þú þarft. Aðskilin keyrsla okkar endurnýtti kerfissöfn og einkaslóðir og sýndi því ekki uppsetningu kerfishugbúnaðar sem forritið þarf.",
-    "Lestu raunverulegt uppsetningarsnið í stað þess að álykta um bakenda út frá vel heppnaðri ræsingu. Hér var óskað eftir auto og CUDA valið á NVIDIA-vélbúnaði. Uppsetta Torch-útgáfan er byggð fyrir CUDA þrettán punktur tveir. Þetta greinir valið en er ekki hraðamæling á GPU.",
-    "Athugaðu útgáfu pakkans, innflutning Qt og pakkaslóð. Þetta sérstaka keyrsluumhverfi inniheldur spaCR einn punktur fimm punktur núll punktur fimm. Skrárnar koma úr uppsetningunni en ekki breytanlegu frumkóðaafriti. Vel heppnaður innflutningur sannreynir ekki allar greiningar eða valkvæð skráarsnið.",
-    "Við raunverulega fyrstu ræsingu er spurt um valfrjálsa deilingu greiningarupplýsinga, opinberar villutilkynningar og uppsetningu reikninga. Tilkynningar yrðu opinberar, svo lestu skýringuna. Í upptökunni er glugganum hafnað með Escape, jafngilt Skip, keep all off. Engir reikningar eru tengdir og einkastillingar staðfesta að deiling og tilkynningaaðgerðir haldast óvirkar.",
-    "Eftir þetta val opnar uppsetta appið núverandi Home með tuttugu og einni flís og sex kjarnaeiningum. Glugginn lokast líka eðlilega. Haltu áfram í Home-kennslustundina til að læra um hreiðruð verkferli og dæmisgögn; það eitt að opna Home er ekki greiningarpróf.",
-    "Keyrðu spacr-doctor úr uppsetta umhverfinu og lestu bæði viðvaranir og niðurstöður prófa sem stóðust. Hér staðfestir það bakenda uppsetningarinnar en varar við því að hugbúnað vanti fyrir valkvæðan CZI-stuðning. GPU-úthlutun, gagnagrunns- og stillingaprófum var sleppt. Próf sem er sleppt er ekki staðist; mettu ráðlagða viðgerð áður en umhverfinu er breytt.",
-    "Geymdu install punktur log og install-profile punktur json úr valinni uppsetningarmöppu við bilanagreiningu. Leitaðu að einkaupplýsingum í annálum áður en þú deilir þeim. Skráðu útgáfu hverrar greiningar og uppfærðu meðvitað. Kennslustundir um pip og Conda lýsa öðrum uppsetningarleiðum með aðskildum umhverfum."
+    "Opnaðu opinberu spaCR-útgáfuna á GitHub og sæktu uppsetningarforritið fyrir stýrikerfið þitt undir Assets. Þessi netuppsetningarforrit sækja Python-keyrsluumhverfið og vísindapakkana meðan á uppsetningu stendur. Geymdu SHA256SUMS.txt úr sömu útgáfu ef þú vilt staðfesta niðurhalið.",
+    "Í Windows keyrirðu uppsetningarforritið og fylgir leiðbeiningunum. Hafðu sjálfvirka hröðun valda til að nota studdan vélbúnað sem finnst í tölvunni, eða veldu aðeins CPU ef það er það sem þú þarft.",
+    "Í macOS opnarðu alhliða pakkann og fylgir uppsetningarforritinu. Ræstu spaCR úr forritaræsinum og leyfðu niðurhali við fyrstu ræsingu að klárast. Lestu allar öryggisfyrirspurnir og staðfestu að pakkinn komi úr opinberu útgáfunni.",
+    "Í Linux gerirðu niðurhalaða uppsetningarforritið keyranlegt og keyrir það svo úr skipanaglugga. Sjálfvirk hröðun velur studdan bakenda. Hjálpin sýnir --torch-backend cpu fyrir keyrslu eingöngu á CPU og --skip-system-deps fyrir tölvur sem þegar hafa grafíksöfn Qt.",
+    "Eftir uppsetningu skráir uppsetningarsniðið valinn bakenda. Skoðaðu það þegar þú vilt staðfesta hvort keyrsluumhverfið notar CPU eða studdan hraðal.",
+    "Athugaðu uppsettu spaCR-útgáfuna. Geymdu hana með greiningarglósunum þínum, sérstaklega þegar þú uppfærir forritið síðar.",
+    "Uppsetningin spyr um valfrjálsa deilingu greiningargagna og uppsetningu aðgangs. Svaraðu y aðeins fyrir þá valkosti sem þú vilt; n, sjálfgefna svarið, heldur hverjum valkosti óvirkum. Uppsetningarforritið fyrir Windows sýnir sömu valkosti sem gátreiti.",
+    "Þegar Home opnast heldurðu áfram með Home-kennsluna. Hún sýnir hvernig á að opna einingu, finna prófunargögn og velja greiningarferli fyrir tilraunina þína.",
+    "Ef ræsing eða skráarsnið þarfnast athygli skaltu keyra spacr-doctor úr uppsetta keyrsluumhverfinu. Það listar hverja athugun ásamt tillögu að lagfæringu. Í þessari uppsetningu, sem notar aðeins CPU, mistekst GPU-athugunin eins og búast mátti við, og PATH-athugunin merkir eigin spacr-ræsi uppsetningarforritsins, sem ræsir þetta sama keyrsluumhverfi, svo hvorugt þarf að breyta hér.",
+    "Ef vandamál koma upp við uppsetningu finnurðu install.log og install-profile.json í uppsetningarmöppunni. Farðu yfir annálana áður en þú deilir þeim í beiðni um aðstoð. Tilgreindu stýrikerfið og spaCR-útgáfuna svo auðveldara sé að greina vandann."
   ]
 }
