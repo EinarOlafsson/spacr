@@ -69,6 +69,9 @@ def questions(keys: Iterable[str]) -> "List[str]":
 
     ONE ENTRY PER SHAPE, however many objects ask it. ``cell_diameter`` and
     ``nucleus_diameter`` are one question, which is the entire saving.
+
+    :param keys: flat settings names such as ``"cell_diameter"``; names that
+        do not start with a known object followed by ``_`` are skipped.
     """
     seen: "OrderedDict[str, None]" = OrderedDict()
     for key in keys:
@@ -79,7 +82,11 @@ def questions(keys: Iterable[str]) -> "List[str]":
 
 
 def families(keys: Iterable[str]) -> "Dict[str, List[str]]":
-    """``{question: [objects that ask it]}``, objects in display order."""
+    """``{question: [objects that ask it]}``, objects in display order.
+
+    :param keys: flat settings names such as ``"cell_min_area"``; names that
+        do not start with a known object followed by ``_`` are skipped.
+    """
     found: "Dict[str, set]" = {}
     for key in keys:
         split = _split(key)
@@ -100,6 +107,10 @@ def column_label(obj: str) -> str:
     underscore-separated object keys and ``organelle2`` is ambiguous with
     label 2 -- an implementation constraint that has no business appearing in
     a column header.
+
+    :param obj: an object name from :data:`OBJECT_ORDER`, e.g. ``"cell"`` or
+        ``"organelleb"``. Organelle slots get their numbered label; any other
+        name has underscores turned into spaces and is capitalised.
     """
     if obj.startswith("organelle"):
         return organelle_label(obj)
@@ -118,6 +129,9 @@ def to_table(settings: Mapping[str, object]) -> "Dict[str, Dict[str, object]]":
     present as ``None``. ``cytoplasm`` has no channel, no diameter and no
     detection method because it is derived rather than found in a channel,
     and a blank cell says that where a ``None`` would read as "not set yet".
+
+    :param settings: a flat settings dict, e.g. Mask's settings; it is only
+        read.
     """
     order = {name: index for index, name in enumerate(OBJECT_ORDER)}
     table: "Dict[str, Dict[str, object]]" = OrderedDict()
