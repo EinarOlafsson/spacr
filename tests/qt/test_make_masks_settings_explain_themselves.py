@@ -202,7 +202,8 @@ def _awaiting_translation(screen) -> set:
     Owed since 2026-09-22 by item 473 (Make Masks offers every detection
     method): the detection button, most organelle-method and propagation
     parameters, and the Image enhancement card; since 2026-09-25 by item
-    508, the card's "Use in Mask generation" button. The Method, Local k,
+    508, the card's "Use in Mask generation" button and its percentile
+    clip, logarithm and square-root rows. The Method, Local k,
     correction, Classes, adaptive Offset and Grow until help have source-bound
     translations in all nine languages and are no longer excluded here.
     The Apply and Compare enhancement help also have source-bound translations.
@@ -217,7 +218,10 @@ def _awaiting_translation(screen) -> set:
                  "_enh_denoise_strength", "_enh_gamma", "_enh_clahe",
                  "_enh_clahe_tile", "_enh_clahe_clip", "_enh_equalize",
                  "_enh_sharpen", "_enh_sharpen_radius", "_enh_sharpen_amount",
-                 "_enh_morphology", "_enh_morphology_radius", "_enh_split"):
+                 "_enh_morphology", "_enh_morphology_radius", "_enh_split",
+                 "_enh_percentile_clip", "_enh_percentile_low",
+                 "_enh_percentile_high", "_enh_log", "_enh_log_gain",
+                 "_enh_sqrt"):
         widget = getattr(screen, name, None)
         if widget is not None:
             widgets.append(widget)

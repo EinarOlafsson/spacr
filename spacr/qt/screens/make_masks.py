@@ -10526,6 +10526,7 @@ class MakeMasksScreen(QWidget):
         self._enh_denoise.addItem("Median", "median")
         self._enh_denoise.addItem("Bilateral", "bilateral")
         self._enh_denoise.addItem("Non-local means", "nlm")
+        self._enh_denoise.addItem(tr("Total variation"), "tv")
         self._enh_denoise.setToolTip(
             "Smooth the noise before the contrast step amplifies it. "
             "Gaussian is a blur and softens edges with the noise; Median "
@@ -10557,6 +10558,50 @@ class MakeMasksScreen(QWidget):
             "ones. 1.00 is off.")
         form.addRow("Gamma", self._enh_gamma)
         card.body_layout.addLayout(form)
+
+        self._enh_percentile_clip = Toggle(tr("Percentile clip"))
+        self._enh_percentile_clip.setToolTip(tr(
+            "Clip the image to two percentiles of its own intensities before "
+            "the contrast curves, so a hot or dead pixel cannot set the range "
+            "they are drawn on. Nothing is stretched; intensities keep their "
+            "units."))
+        card.body_layout.addWidget(self._enh_percentile_clip)
+        curve_form = QFormLayout()
+        self._enh_percentile_low = QDoubleSpinBox()
+        self._enh_percentile_low.setRange(0.0, 99.9)
+        self._enh_percentile_low.setValue(1.0)
+        self._enh_percentile_low.setToolTip(tr(
+            "The lower percentile of the clip, 0 to 100, below the upper."))
+        curve_form.addRow(tr("Clip low percentile"), self._enh_percentile_low)
+        self._enh_percentile_high = QDoubleSpinBox()
+        self._enh_percentile_high.setRange(0.1, 100.0)
+        self._enh_percentile_high.setValue(99.0)
+        self._enh_percentile_high.setToolTip(tr(
+            "The upper percentile of the clip, 0 to 100, above the lower."))
+        curve_form.addRow(tr("Clip high percentile"), self._enh_percentile_high)
+        card.body_layout.addLayout(curve_form)
+
+        self._enh_log = Toggle(tr("Logarithm"))
+        self._enh_log.setToolTip(tr(
+            "A logarithmic curve on 0..1, log(1 + gain x) / log(1 + gain): "
+            "it compresses the bright end and lifts the dim one, more "
+            "strongly near zero than a gamma below 1."))
+        card.body_layout.addWidget(self._enh_log)
+        log_form = QFormLayout()
+        self._enh_log_gain = QDoubleSpinBox()
+        self._enh_log_gain.setRange(0.01, 1000.0)
+        self._enh_log_gain.setValue(10.0)
+        self._enh_log_gain.setToolTip(tr(
+            "What the intensities are multiplied by before the logarithm. "
+            "Larger compresses the bright end harder."))
+        log_form.addRow(tr("Logarithm gain"), self._enh_log_gain)
+        card.body_layout.addLayout(log_form)
+
+        self._enh_sqrt = Toggle(tr("Square root"))
+        self._enh_sqrt.setToolTip(tr(
+            "A square-root curve on 0..1, the curve a gamma of 0.5 draws: "
+            "it lifts the dim end."))
+        card.body_layout.addWidget(self._enh_sqrt)
 
         self._enh_clahe = Toggle("CLAHE (local histogram equalisation)")
         self._enh_clahe.setToolTip(
@@ -10716,10 +10761,14 @@ class MakeMasksScreen(QWidget):
                        self._enh_denoise_strength, self._enh_clahe_tile,
                        self._enh_clahe_clip, self._enh_sharpen_radius,
                        self._enh_sharpen_amount,
-                       self._enh_morphology_radius):
+                       self._enh_morphology_radius,
+                       self._enh_percentile_low, self._enh_percentile_high,
+                       self._enh_log_gain):
             widget.valueChanged.connect(self._on_chain_changed)
         for widget in (self._enh_clahe, self._enh_equalize,
-                       self._enh_sharpen, self._enh_split):
+                       self._enh_sharpen, self._enh_split,
+                       self._enh_percentile_clip, self._enh_log,
+                       self._enh_sqrt):
             widget.toggled.connect(self._on_chain_changed)
         self._psf_controls.changed.connect(self._on_chain_changed)
         self._restoration_controls.changed.connect(self._on_chain_changed)
@@ -10747,6 +10796,12 @@ class MakeMasksScreen(QWidget):
             denoise=str(self._enh_denoise.currentData()),
             denoise_strength=float(self._enh_denoise_strength.value()),
             gamma=float(self._enh_gamma.value()),
+            percentile_clip=bool(self._enh_percentile_clip.isChecked()),
+            percentile_low=float(self._enh_percentile_low.value()),
+            percentile_high=float(self._enh_percentile_high.value()),
+            log=bool(self._enh_log.isChecked()),
+            log_gain=float(self._enh_log_gain.value()),
+            sqrt=bool(self._enh_sqrt.isChecked()),
             clahe=bool(self._enh_clahe.isChecked()),
             clahe_tile=int(self._enh_clahe_tile.value()),
             clahe_clip=float(self._enh_clahe_clip.value()),
