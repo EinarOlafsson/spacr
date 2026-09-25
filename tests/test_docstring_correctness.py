@@ -2122,7 +2122,21 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Toggle wrapping: two methods and one optional constructor keyword.
     # Exact subtraction: 411_wrapping_toggle_inventory_2026-09-24.json.
     # Display-lifetime helper: exact subtraction in 411_screen_lifetime_inventory_2026-09-24.json.
-    assert len(callables) == len(by_symbol) == 9_527
+    # 9,527 -> 9,635 on 2026-09-25, +109 / -1 by set difference against
+    # af6d77376, whose inventory reproduces every pin below, digest included.
+    # All from the implementation session (items 502-513), by module:
+    # 31 qt.widgets.segmentation_views, 19 qt.widgets.eliding (ProgressLine),
+    # 11 qt.widgets.plaque_preview, 10 qt.widgets.picture_export,
+    # 8 qt.widgets.mask_comparison, 6 qt.tooltip_policy, 5 suggest (verdicts),
+    # 4 each qt.preferences, qt.widgets.home (news) and qt.widgets.live_preview,
+    # 3 qt.screens.annotate, 2 qt.screens.measure_inputs, 2 updater.
+    # -1: plaque_preview.render_cellprob, now segmentation_views.render_cellprob.
+    # 9,635 -> 9,645 on the same day after rebasing on nightly b84c3441c,
+    # +10 / -0: psf_pipeline's apply_chain, chain_problems, prepare_chain and
+    # processing_requested; detect_chain's chain_settings and setting_name;
+    # model_install.SpotDetectorCombo with refresh and setCurrentText (475);
+    # MakeMasksScreen.mask_settings.
+    assert len(callables) == len(by_symbol) == 9_645
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2181,18 +2195,21 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # functions. Subtracted, 3,776.
         # 2026-09-20: see the note above this assertion. The seven
         # buckets sum to 9,047, which is the total pinned there.
-        "function": 4_248,
+        # 2026-09-25: +47 function (+48 / -1), +56 method, +4 constructor,
+        # +1 dataclass_constructor (mask_comparison.Layer); see the 2026-09-25 note at the callable total.
+        # Then +6 function, +3 method, +1 constructor with the rebase's ten.
+        "function": 4_301,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_109,
+        "method": 4_168,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 439,
+        "constructor": 444,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
         # RemovalReport. Subtracted, 474.
-        "dataclass_constructor": 505,
+        "dataclass_constructor": 506,
         "namedtuple_constructor": 20,
         "exception_constructor": 148,
         "inherited_or_default_constructor": 58,
@@ -2235,7 +2252,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # that arrived in the five days is rendered by autoapi and by
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
-        "autoapi": 9_522,
+        # 9,522 -> 9,630 -> 9,640 on 2026-09-25, the same moves as the total.
+        "autoapi": 9_640,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2281,7 +2299,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,692 -> 8,705 on 2026-09-15, the same +13: each of 412's and 416's
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
-    assert sum(item.variant_count for item in callables) == 9_534
+    # 9,534 -> 9,642 -> 9,652 on 2026-09-25: +108 net, then +10, one each.
+    assert sum(item.variant_count for item in callables) == 9_652
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2293,7 +2312,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,691 -> 9,040 on 2026-09-20: every callable that arrived in
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
-        1: 9_520,
+        # 9,520 -> 9,628 -> 9,638 on 2026-09-25, as the variant sum above.
+        1: 9_638,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2333,12 +2353,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # (FOVAlignAndCropper, StitchedMultiAligner, spacrStitcher), each with one variant, and no docstring was lost elsewhere.
     # 393 -> 408 on 2026-09-20. The direction check the comment above
     # states still holds: it rose, so no constructor prose was lost.
+    # 439 -> 443 on 2026-09-25: ProgressLine, MaskComparisonDialog,
+    # PictureCanvas and SegmentationViews; 444 with SpotDetectorCombo.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 439
+    ) == 444
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 439
+    ) == 444
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2476,7 +2498,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_948
+    # 18,948 -> 19,080 on 2026-09-25: the 109 new callables' parameters, less
+    # render_cellprob's, plus nine optional keywords on eight existing rows
+    # (named at the digest below). 19,080 -> 19,100 after the rebase: the ten
+    # new callables' parameters plus seven optional ones (Chain's log,
+    # log_gain, percentile_clip/high/low and sqrt; detect_chain.prepare's strict).
+    assert sum(len(item.parameters) for item in callables) == 19_100
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2505,7 +2532,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # make_masks_example_folder have no required parameter. Subtracted, 8,812.
     # 8,830 -> 9,214 on 2026-09-20, moving with the parameter total
     # above.
-    assert sum(len(item.required_parameters) for item in callables) == 9_751
+    # 9,751 -> 9,833 on 2026-09-25, +82, all from the new callables; the
+    # eight changed rows gained optional keywords only. 9,833 -> 9,840 after
+    # the rebase, +7, all from the ten new callables.
+    assert sum(len(item.required_parameters) for item in callables) == 9_840
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2597,7 +2627,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Removing twelve preview/montage arrivals and restoring montage.load's
     # prior row exactly reproduces 99126a21. Complete rows are recorded in
     # features/data/411_host_preview_montage_api_2026-09-23.json.
-) == "641a73d4f3f35d394fa658ab3af9d9ae5751af3ab32993ce7749cdbef0ffc03c"
+    # Moved 2026-09-25 (items 502-513): dropping the 109 new rows, restoring
+    # plaque_preview.render_cellprob and the prior rows of eight callables
+    # that gained optional keywords returns 641a73d4..., the previous pin.
+    # The eight: retrain_round (rejections), SaveWorker.submit (column),
+    # ConsolePanel (chat, follow_log), PreviewRequest (cellprob_maps),
+    # install_backend (watch), OverlayStyle (box_thickness), and
+    # adjust_cell_masks / process_mask_file_adjust_cell (output_folder).
+    # After the rebase on b84c3441c: dropping the ten new rows and restoring
+    # the prior Chain and detect_chain.prepare rows returns 0d958ae7....
+) == "b172b5c6f9e6ca369a5d24ec74a1ca1a34a60c99f29b8609f949ad8b66dbb395"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -2648,9 +2687,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # scope.  These are named assertions so a future refactor cannot preserve
     # only the headline count while losing the defect classes that motivated
     # the boundary.
+    # format_plan was the fieldless example (required `plan`, no :param:).
+    # It was documented on 2026-09-25 with every other omission, so there is
+    # no fieldless example left; the zero-omission ratchet stands for the
+    # class, and this now checks the repaired field is still there.
     assert by_symbol["spacr.align.format_plan"].required_parameters == {"plan"}
-    assert not PARAM_FIELD.findall(
-        by_symbol["spacr.align.format_plan"].docstring)
+    assert "plan" in dict(PARAM_FIELD.findall(
+        by_symbol["spacr.align.format_plan"].docstring))
     # WAS ``LayerStack.add_image``, which has since been documented. The
     # example has to be a callable that is STILL docless, or this assertion
     # stops standing for the class of defect it was written for.
@@ -3080,7 +3123,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +7 Timeflows nested helpers; source-bound catalogs exist in all locales.
     # +9 held-out validation entries with nine source-bound locale catalogs.
     # +12 inference/cursor/help/schema entries; matches the source extractor.
-    assert len(docs) == 11_528
+    # 11,528 -> 11,651 on 2026-09-25, +124 / -1 by set difference against
+    # af6d77376: the 109 callables at the inventory above, 4 new module
+    # docstrings and 11 documented constants/attributes, less
+    # plaque_preview.render_cellprob. The extractor's pins moved with it.
+    # 11,651 -> 11,661 after the rebase: the same ten new callables.
+    assert len(docs) == 11_661
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3218,12 +3266,100 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         'spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy',
     }
     assert current_additions <= rendered_documented_callables.keys()
+    # 2026-09-25: the 109 implementation-session (502-513) callables named at
+    # the callable inventory. plaque_preview.render_cellprob moved to
+    # segmentation_views, so `prior` restores it.
+    session_callables = {
+        *(f'spacr.qt.preferences.{name}'
+          for name in ('get_refresh_news', 'get_tooltips_enabled',
+                       'set_refresh_news', 'set_tooltips_enabled')),
+        *(f'spacr.qt.screens.annotate.{name}'
+          for name in ('badge_colors', 'grid_that_fits', 'verdict_contradicts')),
+        *(f'spacr.qt.screens.measure_inputs.MeasureInputsScreen.{name}'
+          for name in ('done', 'stop_the_runners')),
+        *(f'spacr.qt.tooltip_policy.{name}'
+          for name in ('install_tooltip_policy', 'invalidate_tooltip_policy',
+                       'tooltip_policy', 'tooltip_text_for',
+                       'tooltips_enabled', 'uninstall_tooltip_policy')),
+        'spacr.qt.widgets.eliding.ProgressLine',
+        *(f'spacr.qt.widgets.eliding.ProgressLine.{name}'
+          for name in ('count_text', 'detail_text', 'displayed_text', 'format',
+                       'isTextVisible', 'maximum', 'minimum', 'percent',
+                       'reset', 'setFormat', 'setMaximum', 'setMinimum',
+                       'setRange', 'setTextVisible', 'setValue', 'set_detail',
+                       'text', 'value')),
+        'spacr.qt.widgets.home.HomePage.apply_release_news',
+        *(f'spacr.qt.widgets.home.NewsPanel.{name}'
+          for name in ('apply_releases', 'merge_releases', 'showEvent')),
+        *(f'spacr.qt.widgets.live_preview.LivePreviewPanel.{name}'
+          for name in ('comparable_masks', 'comparison_layers',
+                       'open_mask_comparison', 'show_comparison')),
+        *(f'spacr.qt.widgets.mask_comparison.{name}'
+          for name in ('Layer', 'MaskComparisonDialog', 'composite',
+                       'layer_rgb')),
+        *(f'spacr.qt.widgets.mask_comparison.MaskComparisonDialog.{name}'
+          for name in ('chosen', 'listed', 'move', 'rows')),
+        *(f'spacr.qt.widgets.picture_export.{name}'
+          for name in ('as_image', 'ask_where_to_save', 'build_menu',
+                       'choose_format', 'install_picture_save', 'picture_dpi',
+                       'preferred_suffix', 'save_as', 'save_picture',
+                       'suggested_name')),
+        *(f'spacr.qt.widgets.plaque_preview.OverlayStyle.{name}'
+          for name in ('as_dict', 'from_dict')),
+        *(f'spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.{name}'
+          for name in ('ruler_active', 'ruler_microns_per_pixel',
+                       'save_picture', 'views')),
+        *(f'spacr.qt.widgets.plaque_preview.{name}'
+          for name in ('box_thickness_for', 'boxed_picture',
+                       'load_overlay_style', 'session_style',
+                       'store_overlay_style')),
+        *(f'spacr.qt.widgets.segmentation_views.{name}'
+          for name in ('PictureCanvas', 'SegmentationViews', 'boundary_of',
+                       'cell_probability', 'label_palette', 'per_object',
+                       'picture_name_of', 'render_cellprob', 'render_flows',
+                       'render_labels', 'render_overlay', 'to_qpixmap',
+                       'to_rgb8')),
+        *(f'spacr.qt.widgets.segmentation_views.PictureCanvas.{name}'
+          for name in ('picture', 'picture_name', 'set_picture_name')),
+        *(f'spacr.qt.widgets.segmentation_views.SegmentationViews.{name}'
+          for name in ('arrays', 'is_showing_message', 'make_selector',
+                       'message_text', 'picture', 'picture_name', 'refresh',
+                       'rendered', 'set_arrays', 'set_renderer', 'set_view',
+                       'show_message', 'show_picture', 'view', 'views')),
+        *(f'spacr.suggest.{name}'
+          for name in ('ensure_verdict_column', 'fetch_verdicts',
+                       'judgement_counts', 'rejected_suggestions',
+                       'verdict_column')),
+        *(f'spacr.updater.{name}'
+          for name in ('fetch_release_notes', 'news_cache_path')),
+    }
+    assert len(session_callables) == 109
+    assert session_callables <= rendered_documented_callables.keys()
+    # The ten that arrived with the rebase on b84c3441c (item 475 and the
+    # PSF/detect chain work), named at the callable inventory.
+    rebase_callables = {
+        *(f'spacr.psf_pipeline.{name}'
+          for name in ('apply_chain', 'chain_problems', 'prepare_chain',
+                       'processing_requested')),
+        'spacr.qt.detect_chain.chain_settings',
+        'spacr.qt.detect_chain.setting_name',
+        'spacr.qt.model_install.SpotDetectorCombo',
+        'spacr.qt.model_install.SpotDetectorCombo.refresh',
+        'spacr.qt.model_install.SpotDetectorCombo.setCurrentText',
+        'spacr.qt.screens.make_masks.MakeMasksScreen.mask_settings',
+    }
+    assert rebase_callables <= rendered_documented_callables.keys()
     prior = (rendered_documented_callables.keys() - incoming_callables
              - quality_and_host_callables - classification_callables - example_callables
-             - preview_callables - current_additions) | {"spacr.qt.app.demo_label_for_app"}
+             - preview_callables - current_additions - session_callables
+             - rebase_callables) | {
+                 "spacr.qt.app.demo_label_for_app",
+                 "spacr.qt.widgets.plaque_preview.render_cellprob"}
     assert len(prior - pipeline_callables) == 9_442
     assert len(prior - pipeline_callables - validation_functions) == 9_436
-    assert len(rendered_documented_callables) == 9_522
+    # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
+    # 9,640 with the ten rebase_callables.
+    assert len(rendered_documented_callables) == 9_640
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -3530,21 +3666,12 @@ def test_callable_api_doc_alias_reduction_is_exact():
 
 
 def test_no_new_undocumented_required_public_parameters():
-    """Ratchet the full reverse-direction debt while it is repaired.
+    """Hold the reverse-direction debt at zero.
 
-    The old denominator selected only callables whose prose already contained
-    ``:param:`` and reached a misleading zero when those selected fields were
-    completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 2,570
-    omissions across 1,878 public callables. Count, category counts and digest
-    are all exact so deleting prose, weakening a boundary, or swapping one
-    omission for another cannot turn this test green.
-
-    THE CONSTRUCTOR CATEGORY IS ALL BUT CLOSED: 43 omitted constructors
-    became 2, and 64 omitted constructor parameters became 3. The headline
-    total still rose, from 2,516 to 2,570, because `function` and `method`
-    grew faster than the constructors were documented -- which is what a
-    single total hides and these per-category counts do not.
+    Every required parameter of every public callable (source-derived
+    denominator, exact generated-field rule, validated rendered aliases) is
+    named by a ``:param:`` field. Count, category buckets and digest are all
+    exact, so a single new undocumented required parameter turns this red.
     """
     items = list(_public_callables())
     callable_aliases = _validated_callable_api_doc_aliases(
@@ -3556,127 +3683,16 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    # 2,575 -> 2,572 on 2026-09-04, 2,284 -> 2,283 on 2026-09-05, when the
-    # last constructor but one gained a documented required parameter (the
-    # `constructor` row fell 2 -> 1 with it). Writing a docstring is not the whole
-    # job: a documented callable whose required parameters are unexplained
-    # still counts here, so the drop-handler docstrings carry `:param:` and
-    # `:returns:` fields and the number goes DOWN rather than up.
-    # 2,283 -> 2,281 -> 2,280 on 2026-09-08, -2/+1, and the two directions
-    # are worth reading separately because only one of them is progress:
-    #
-    #   RESOLVED  spacr.qt.path_probe.prime:path and :answer. `prime` grew
-    #             a `want_dir` keyword and was documented properly while it
-    #             was open, which took its other two required parameters
-    #             with it. `function` falls 758 -> 757 and its parameter
-    #             count 1,130 -> 1,128.
-    #
-    #   ADMITTED  spacr.qt.regex_editor.RegexEditorDialog.resizeEvent:event.
-    #             A Qt event override still has a required parameter, and a
-    #             docstring that does not name it is the same omission as
-    #             any other. `method` rises 833 -> 834, 1,009 -> 1,010.
-    #
-    # The total is a NET figure and a net figure hides one of these behind
-    # the other, so the sum stays 1,635 while both halves moved.
-    # 2,280 -> 2,278. Two of the six retired space accessors were
-    # omissions rather than rendered symbols, so this falls by two where
-    # the surface falls by six.
-    # 2,278 -> 2,281 on 2026-09-10, +3 against a surface that grew by
-    # 69. That ratio is the point: the OPS modules document their
-    # parameters, so almost none of them land here.
-    # 2,281 -> 2,280, -1: exactly one of the twelve withdrawn symbols
-    # was an omission rather than a rendered docstring. The ratio is the
-    # same point the note above makes in the other direction -- a surface
-    # that shrinks by twelve moves this by one.
-    # 2,280 -> 2,279 on 2026-09-13, and the arithmetic is worth reading
-    # because the number went the wrong way first. Map Barcodes (c753b7de7)
-    # added `spacr/barcode_search.py`, and this test went red at 2,318:
-    #
-    #   ADMITTED  +39. Five frozen dataclasses -- BarcodeTable,
-    #             OrientationFinding, BarcodeSearchReport, ProposedMapping
-    #             and BarcodeHit -- each carrying a good class docstring and
-    #             no `:param:` for its fields. A dataclass field IS a
-    #             required parameter of the synthesised `__init__`, which is
-    #             why they land here at all.
-    #   RESOLVED  -1. `spacr.qt.screens.map_barcodes.install_folds:screen`,
-    #             documented by the same commit. Both halves are one lane's.
-    #
-    # The 39 are now documented rather than admitted, which is what takes
-    # the total BELOW its old baseline: 2,280 - 1 = 2,279. Documenting them
-    # was the right call and not merely the tidy one -- 434 of the 481
-    # public dataclasses in the tree already document their fields, so
-    # admitting these five would have made the new module the exception to
-    # a convention it had no reason to break.
-    # 2,279 -> 2,294 on 2026-09-20. THIS ONE IS A RATCHET THAT WENT THE
-    # WRONG WAY and is not dressed up as anything else: fifteen more
-    # required public parameters are undocumented than were five days
-    # ago. It is pinned here so it cannot grow further unnoticed, and
-    # the fifteen are a debt rather than a decision. One was found and
-    # fixed while moving this number -- object_classifier's
-    # `artifact_class` -- which turned out not to be counted here at
-    # all, since it has a default and this metric is about REQUIRED
-    # parameters. Documenting it was still right.
-    # 2,294 -> 2,293 on 2026-09-21, DOWN, by set difference against
-    # 6ae5e1b36. Thirteen omissions arrived with later work and were
-    # documented rather than admitted: the fields of plaque_papers' Word,
-    # Region and Annotation dataclasses and Region.contains's `word`,
-    # SignInDialog.done's `result` and AppScreen.point_src_at's `folder`.
-    # One old one left: ShareDialog's `filename`, the last omitted
-    # constructor parameter, so the `constructor` bucket is gone.
-    # 2026-09-23: fill_holes now documents mask; adding its one former
-    # omission back restores 7c5788d0. No new omission is admitted.
-    # Five incoming omissions are documented. inspect_torch is repaired; the
-    # removed Demos helper accounts for the other reduction. Restoring those
-    # two entries reproduces the prior omission digest exactly.
-    assert len(omissions) == 2_290
-    # 1,635 -> 1,633: two of the six retired accessors were omissions.
-    # 1,633 -> 1,636 on 2026-09-10, +2 function and +1 method against a
-    # surface that grew by 69 -- the OPS modules document their
-    # parameters, which is what keeps this from tracking the total.
-    # 1,636 -> 1,635, -1: one of the ten withdrawn callables omitted a
-    # parameter. Nine of the ten documented theirs, which is the same
-    # ratio the OPS note above records in the other direction.
-    # 1,635 -> 1,634 on 2026-09-13, -1. The five Map Barcodes dataclasses
-    # were documented rather than admitted, so they never enter this count,
-    # and what remains is `install_folds` -- documented by the same commit.
-    # A new module that adds 63 callables and moves this by MINUS one is the
-    # ratio the OPS note above describes: documented surface does not land
-    # here however much of it there is.
-    # 1,634 -> 1,644 on 2026-09-20; see the note at the omissions total.
-    assert sum(omitted_callables.values()) == 1_640
-    # `function` 756 -> 755, the -1 above: `install_folds`, documented by
-    # the Map Barcodes commit itself. Every other bucket is unmoved, because
-    # the five new dataclasses were documented rather than admitted.
-    # 2026-09-20, and the bucket that appeared is the part worth reading:
-    # `constructor` was absent and is now 1, so for the first time a public
-    # class's own __init__ has a required parameter nobody documented.
-    # function 755 -> 757 and method 835 -> 842 are the rest of the ten.
-    # They sum to 1,644, the total pinned above, and they are a debt rather
-    # than a decision -- pinned here so the next one cannot arrive unseen.
-    assert omitted_callables == {
-        "function": 754,
-        "method": 842,
-        "dataclass_constructor": 42,
-        "namedtuple_constructor": 2,
-    }
-    # `function` 1,127 -> 1,126, the one parameter of `install_folds`.
-    # 2026-09-20: function 1,126 -> 1,133, method 1,011 -> 1,018, and the
-    # same new `constructor` bucket at 1. Both dataclass buckets unmoved.
-    assert omitted_parameters == {
-        "function": 1_130,
-        "method": 1_018,
-        "dataclass_constructor": 130,
-        "namedtuple_constructor": 12,
-    }
+    # Reached 0 on 2026-09-25, when every remaining undocumented required
+    # public parameter was documented (2,290 on 2026-09-23; 2,570 when this
+    # ratchet started). It is a ratchet at zero now: document the parameter,
+    # never move the pin.
+    assert omissions == [], "\n  ".join(omissions)
+    assert omitted_callables == {}
+    assert omitted_parameters == {}
+    # sha256 of the empty list, kept so the digest check stays in force.
     assert _sha256_lines(omissions) == (
-        # Moved 2026-09-13 and proved by subtraction: the digest recomputed
-        # with `spacr.qt.screens.map_barcodes.install_folds:screen` added
-        # back returns 69a9bd1b..., the previous pin, byte for byte. That
-        # single re-added line is the whole difference -- the 39 Map
-        # Barcodes dataclass fields never entered this set, because they
-        # were documented rather than admitted.
-        # REGENERATED 2026-09-20 with the omission counts above.
-        "ead403e647ce84d156ac790a2747c81da8da8e69f9370a92aee52606058727ee"
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     )
 
 

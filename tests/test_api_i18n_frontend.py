@@ -120,7 +120,10 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # Exact additions/removals and the unchanged rendered boundary are recorded
 # in features/data/411_api_test_surface_2026-09-23.json. Locale debt remains
 # checked separately by the complete-catalog browser test.
-REAL_SYMBOL_COUNT = 11_528
+# 11,528 -> 11,651 on 2026-09-25, +124 / -1 against af6d77376 (items
+# 502-513), then 11,661 with ten more after rebasing on b84c3441c; the set
+# differences are named in test_api_i18n_extractor.
+REAL_SYMBOL_COUNT = 11_661
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

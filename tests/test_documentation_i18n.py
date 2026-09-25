@@ -205,7 +205,11 @@ TOOLS = ROOT / "tools"
 # +10 for the News panel's live release refresh: the panel's merge and
 # apply entries, Home's relay, the release-refresh preference pair and
 # the updater's release-notes reader and its cache path.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_538
+# 11,538 -> 11,651 on 2026-09-25: the remaining +114 / -1 of the
+# implementation session (items 502-513) beyond those ten, named by set
+# difference in test_api_i18n_extractor. 11,661 after rebasing on
+# b84c3441c: ten more callables (item 475, PSF/detect chain), named there.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_661
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
