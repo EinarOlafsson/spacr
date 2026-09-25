@@ -1,7 +1,7 @@
 PLAQUE PREVIEW: OUTLINE AND BOX STYLING, THE FOUR VIEWS, AND A RULER
 
-Status: PART DONE 2026-09-25 (line weights and ruler built; the four views
-stay open pending 505). Filed 2026-09-24.
+Status: DONE 2026-09-25 (line weights, ruler, and the four views through
+505's shared widget). Filed 2026-09-24.
 Owner: unassigned. Related: 505 (the same views in Mask generation's live
 preview), and the plaque preview's existing overlay settings.
 
@@ -78,3 +78,60 @@ FOR THE DOCS LANE (new tr() strings / settings)
     "Saved the picture to {path}.", "The line weight of the well boxes is
     set there too.", and the tooltips OUTLINE_WEIGHT_HELP (:411),
     BOX_WEIGHT_HELP (:415), SAVE_PICTURE_HELP (:421), RULER_HELP (:424).
+
+NOTE 2026-09-25 -- part 3 built: the four views, from 505's widget
+BUILT (spacr/qt/widgets/plaque_preview.py; no new module)
+  * The Overlay/Objects/Cell probability/Flows QTabWidget and its three
+    extra _ImageViews are gone. The image pane is now
+    segmentation_views.SegmentationViews(self, canvas=self._view): the
+    plaque _ImageView is the one canvas, so zoom, pan, clicks and the one
+    ruler work on every view. A view dropdown (make_selector,
+    "PlaqueViewSelector") sits first in the zoom row, as in Mask
+    generation's live preview; figure mode hides it and forces Overlay
+    (it replaces the hidden tab bar).
+  * View names, order and drawing are the shared ones: Overlay, Masks,
+    Flows, Cell probability (IMAGE_TABS is now an alias of
+    segmentation_views.VIEWS; "Objects" became "Masks"). Masks use
+    render_labels' palette, cell probability is render_cellprob on magma,
+    and "This run gave no cell probability map." / "This run gave no
+    flows." come from the widget. plaque_preview.render_cellprob IS
+    segmentation_views' (re-exported, the duplicate deleted);
+    render_objects delegates to render_labels.
+  * Overlay keeps the plaque's own renderer (set_renderer(OVERLAY)):
+    _overlay_source + _show_overlay replace every direct _view.set_image
+    on the main pane, and _render_overlay_view returns
+    boxed_picture(rgb, boxes, selected, box_thickness) -- the box painting
+    moved out of _ImageView.set_image into module function boxed_picture
+    -- so line weights, fill, colours and well boxes are unchanged. A
+    Masks renderer adds "No plaques were found in this image."
+    (NO_PLAQUES) for an empty run.
+  * _ImageView gains set_pixmap/picture/picture_name/set_picture_name
+    (the canvas contract). array() is now the shown picture's pixels (in
+    figure mode that includes the boxes; only tests read it).
+  * Right-click: on Overlay (and the well crop) the menu is unchanged; on
+    Masks/Flows/Cell probability it holds only "Save picture...", which
+    saves the shown view, offered as plaque_<view>.png
+    (e.g. plaque_cell_probability.png). A view showing a sentence has no
+    picture: save says "There is no picture to save yet."
+TESTS
+  * tests/qt/test_513_plaque_preview_shares_the_four_views.py: 7 passed
+    (each view equals the shared renderer's picture of the faked run's
+    array; no-probability and no-plaque sentences; right-click save of the
+    cell probability with its name and pixels; line weight and ruler
+    across views; figure mode keeps Overlay).
+  * Existing plaque tests updated for the dropdown in place of tabs
+    (test_plaque_assay_has_plaque_and_figure_modes.py,
+    test_plaque_preview_recovery.py, the 513 ruler test's shared-line
+    assertion). tests/qt -k "plaque or segmentation_views or 505" after
+    merging nightly: 230 passed, 1 skipped (QtMultimedia lib, unrelated).
+  * Screenshot on a real field (451's bundled plaque set, bigbean Plate001
+    Well1 with its ground-truth mask; flows and probability synthesised
+    from the mask, since the cpsam weights are not cached and this ran on
+    CPU): /tmp/spacr-513c-scratch/four_views.png, panel_cellprob.png.
+FOR THE DOCS LANE
+  * The plaque image pane has a view dropdown instead of tabs; the tab
+    title "Objects" is gone (the view is "Masks"). "No plaques were found
+    in this image." is an existing string, now via NO_PLAQUES.
+    spacr/qt/help_api_index.py was not regenerated: it still lists
+    plaque_preview.render_cellprob/render_objects with the old docstrings
+    and lacks boxed_picture and the _ImageView canvas methods.
