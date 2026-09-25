@@ -1,7 +1,9 @@
 THE CONSOLE AND ACTIONS HEADINGS SIT IN THEIR BOXES, LIKE LIVE PREVIEW AND SYSTEM
 
-Status: OPEN, filed 2026-09-25. Not started.
-Owner: unassigned. Related: 471 (folds), 110 (console heading), 452.
+Status: DONE 2026-09-25 (927 tests in the console/fold/app_screen set pass
+        after merging nightly), awaiting the maintainer's look on his display.
+        Filed 2026-09-25.
+Owner: worktree agent (515). Related: 471 (folds), 110 (console heading), 452.
 
 REQUEST (the maintainer, 2026-09-25, verbatim)
     "the live preview dropdown text button in the opened widget, and the same
@@ -32,3 +34,61 @@ Screenshots of a module screen with the console open and collapsed show the
 Console and Actions headings aligned with Live preview and System, measured
 in pixels (same left text edge and font size), and the black-background
 case is fixed or its cause recorded here.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DONE: MEASURED BEFORE AND AFTER
+--------------------------------------------------------------------------------
+
+WHAT CHANGED
+  * spacr/qt/screens/app_screen.py:6698 -- the console is a Card(title=
+    "Console") inside the transparent pane widget `_console_wrap` (still the
+    splitter pane, still swept transparent), exposed as `_console_card`. Its
+    title is the same CardTitle label System's is, inside the same rim and
+    margins, with the same divider, and the fold hides the card's body the
+    way System's does (the ConsolePanel goes with it).
+  * spacr/qt/widgets/card.py:82 -- Card.follow_fold: while folded, the body
+    gives up its layout stretch. A QBoxLayout counts a hidden item's stretch,
+    so the folded Console card reported itself vertically expanding and
+    split the absorbed room 50/50 with the bottom-lock spacer (measured: a
+    295 px tall folded card in a 591 px pane); now it is its 56 px heading
+    strip, as System is, at the bottom of the pane. Wired for every
+    Card(foldable=True) and for the console (app_screen.py:6713).
+  * spacr/qt/screens/app_screen.py:6893 -- the Actions heading row is inset
+    by SPACING["md"] + 1 (a card's margin plus its 1 px rim), so its text
+    starts where System's does. The Run row below it is unchanged.
+
+MEASURED (Mask, 1600x1000, offscreen, themed; text left edge in screen px,
+QFontInfo pixel size)
+                     before            after
+    System           567 / 15 px       567 / 15 px
+    Console          554 / 15 px       567 / 15 px
+    Actions          554 / 15 px       567 / 15 px
+  The same with all three folded. With the Live preview shown (settings
+  column collapsed, the three below folded by the focus rule): Live preview,
+  Console, System and Actions all at 49 px, 15 px.
+  Screenshots: /tmp/spacr-515-scratch/{before,after}_{open,shut}.png and
+  after_preview.png.
+
+THE BLACK BACKGROUND BEHIND CONSOLE TEXT -- CAUSE FOUND, FIXED
+  Item 408's mechanism, on the console's own widgets. A scroll area's
+  viewport fills itself with QPalette.Base unless a stylesheet turns that
+  off; the output blocks (_StdoutBlock) and the console scroll viewport rely
+  on their own "background: transparent" sheets for it. When a polish nested
+  in another stylesheet style's call lets the unpolish through (408), the
+  sheet is dropped and the viewport's autoFillBackground comes back True
+  with Base = #0d0e10 -- the console text on black, healed only by a fresh
+  polish (leave the module and come back). Staged offscreen on HEAD: healthy
+  block pixel #ff0000 (its host), after unpolish #0d0e10, after re-polish
+  #ff0000. Fix: both viewports have autoFillBackground switched off before
+  any sheet sees them (console_panel.py:538 and :1093), so an unpolish has
+  nothing to restore. Both tests below were red before the fix.
+
+TESTS
+  tests/qt/test_the_console_and_actions_headings_sit_in_their_boxes.py --
+  heading edges and font sizes open, folded and with the preview shown;
+  the console heading inside a Card; Console and System fold and unfold,
+  and a folded Console card is as tall as a folded System card (+-2 px);
+  the two black-background stagings.
+  tests/qt/test_the_bottom_panels_collapse.py -- the console-folds check now
+  asserts the console is not visible (it goes with the card body) instead of
+  its own hidden flag.
