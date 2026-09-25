@@ -919,7 +919,9 @@ class _BackendInstallButton(QPushButton):
         translated, for an owner whose captions have reviewed translations
         of their own; built from the backend's name when None.
     :ivar said: ``(text, kind)`` for the screen's console. ``kind`` is
-        ``progress`` (one line, rewritten while the install runs), ``info``,
+        ``progress`` (one line, rewritten while the install runs),
+        ``stream`` (one line of the install's own output, pip's included,
+        for a console that redraws it in place and throttles it), ``info``,
         ``warning`` or ``error``.
     :ivar installed: the backend became ready through this button.
     """
@@ -1019,9 +1021,10 @@ class _BackendInstallButton(QPushButton):
                            "progress")
 
         def progressed(text):
-            """One line, rewritten, saying which step the install is on."""
+            """One line of the install's output (pip's included), rewritten
+            in place and throttled by whoever shows it."""
             self.said.emit("{}: {}".format(
-                tr("Installing {name}…", name=self._label), text), "progress")
+                tr("Installing {name}…", name=self._label), text), "stream")
 
         def stopped():
             """Cancelled or failed: the button is back to what the disk says."""
@@ -1082,6 +1085,10 @@ class ModelZooPicker(QDialog):
 
     #: Emitted with the local path when the user accepts a model.
     model_chosen = Signal(str)
+
+    #: Emitted from the bioimage.io warm-up thread when its rows changed;
+    #: queued onto the GUI thread, where it redraws the table.
+    _bioimageio_warmed = Signal()
 
     def __init__(self, kinds: Optional[tuple] = None, parent: Optional[QWidget] = None):
         """Build the model zoo dialog.
@@ -1181,6 +1188,8 @@ class ModelZooPicker(QDialog):
 
         self.refresh()
         self._warm_the_community_catalogue()
+        self._bioimageio_warmed.connect(self.refresh)
+        self._warm_bioimageio()
         self._probe_backends()
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
@@ -1236,17 +1245,32 @@ class ModelZooPicker(QDialog):
             lambda: model_zoo.shared_catalogue(block=True),
             lambda _entries: self.refresh())
 
-        def _warm_bioimageio():
-            """Fill the bioimage.io cache on the same background pass, so the
-            listing has its rows without catalogue() ever making a network call.
-            """
+    def _warm_bioimageio(self) -> None:
+        """Refresh bioimage.io's collection off the GUI thread, then redraw.
+
+        :func:`spacr.model_zoo.catalogue` reads bioimage.io's rows from the
+        cache only, so the fetch happens here. It used to run only when the
+        community catalogue was stale, and the table was not redrawn when it
+        landed, so a first opening showed an empty bioimage.io category.
+        """
+        def _warm():
             try:
                 from ... import model_zoo
-                model_zoo.bioimageio_entries(allow_network=True)
-            except Exception:                                # noqa: BLE001
-                pass
 
-        threading.Thread(target=_warm_bioimageio, daemon=True).start()
+                def seen(rows):
+                    return [(e.key, e.uri, e.notes, e.size_bytes) for e in rows]
+
+                before = seen(model_zoo.bioimageio_entries())
+                after = seen(model_zoo.bioimageio_entries(allow_network=True))
+            except Exception:
+                return
+            if after != before:
+                try:
+                    self._bioimageio_warmed.emit()
+                except RuntimeError:
+                    pass
+
+        threading.Thread(target=_warm, daemon=True).start()
 
     def _probe_backends(self) -> None:
         """Check the network for the backends that are not installed, off
@@ -1637,18 +1661,24 @@ class ModelZooPicker(QDialog):
         knowingly.
         """
         entry = self.selected_entry()
-        local = self._local_path(entry) if entry else None
-        installs = entry is not None and _needs_install(entry)
+        refused = _cannot_run(entry) if entry is not None else ""
+        local = self._local_path(entry) if entry and not refused else None
+        installs = entry is not None and not refused and _needs_install(entry)
         backend_row = getattr(entry, "kind", "") == "backend"
-        self.use_button.setEnabled(bool(local) and not backend_row)
+        self.use_button.setEnabled(bool(local) and not backend_row
+                                   and not installs)
         self.download_button.setText("Install" if installs else "Download")
         self.download_button.setEnabled(
-            bool(entry) and not local and not backend_row or installs)
+            bool(entry) and not local and not backend_row and not refused
+            or installs)
         self.uninstall_button.setEnabled(_removable(entry))
         self.use_button.setToolTip(
-            _where_a_backend_is_chosen(entry) if backend_row else "")
+            _where_a_backend_is_chosen(entry) if backend_row
+            else tr(refused) if refused else "")
         self._show_card(entry)
-        if backend_row:
+        if refused:
+            self.status.setText(tr(refused))
+        elif backend_row:
             self.status.setText(_where_a_backend_is_chosen(entry))
         elif installs:
             self.status.setText("")
@@ -1691,8 +1721,16 @@ class ModelZooPicker(QDialog):
 
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
                      "</b></p>")
-        if getattr(entry, "kind", "") == "cellpose3":
+        refused = _cannot_run(entry)
+        if refused:
+            import html as _html
+
+            html += ("<p><b style='color:#b45309'>"
+                     + _html.escape(tr(refused)) + "</b></p>")
+        elif getattr(entry, "kind", "") == "cellpose3":
             html += _cellpose3_card(entry)
+        elif getattr(entry, "kind", "") == "cellpose_dino":
+            html += _cellpose_dino_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
             html += f'<p><a href="{url}">{url}</a></p>'
@@ -1713,7 +1751,7 @@ class ModelZooPicker(QDialog):
         from ... import model_zoo
 
         entry = self.selected_entry()
-        if entry is None:
+        if entry is None or _cannot_run(entry):
             return
         if _needs_install(entry) or getattr(entry, "kind", "") == "backend":
             self._install_backend(entry)
@@ -1843,16 +1881,23 @@ class ModelZooPicker(QDialog):
         to hand back. A Cellpose 3 model or checkpoint is handed back as
         ``cellpose3:<name or path>`` (item 503): that is what sends the object
         to the Cellpose 3 backend, where a bare ``cyto3`` would be read as a
-        retired Cellpose name and run as cpsam.
+        retired Cellpose name and run as cpsam. A Cellpose-DINO checkpoint is
+        handed back as ``cellpose_dino:<path>`` (item 525), which sends the
+        object to the Cellpose-DINO backend.
         """
         entry = self.selected_entry()
-        local = self._local_path(entry) if entry else None
+        local = (self._local_path(entry)
+                 if entry and not _cannot_run(entry) else None)
         if not local:
             return
         if getattr(entry, "kind", "") == "cellpose3":
             from ..._segmentation_backends import _cellpose3_value
 
             local = _cellpose3_value(local)
+        elif getattr(entry, "kind", "") == "cellpose_dino":
+            from ..._segmentation_backends import _cellpose_dino_value
+
+            local = _cellpose_dino_value(local)
         self._chosen_path = local
         self.model_chosen.emit(local)
         self.accept()
@@ -1935,8 +1980,12 @@ def _status_text(entry, local) -> str:
     source = getattr(entry, "source", "")
     if kind == "backend":
         return _BACKEND_STATUS.get(source, source)
+    if _cannot_run(entry):
+        return tr("spaCR cannot run this")
     if kind == "cellpose3" and source == "stock" and not local:
         return "needs the Cellpose 3 backend"
+    if kind == "cellpose_dino" and not _cellpose_dino_ready():
+        return tr("needs the Cellpose-DINO backend")
     return "on this machine" if local else "not downloaded"
 
 
@@ -1962,6 +2011,11 @@ def _where_a_backend_is_chosen(entry) -> str:
     except Exception:                                        # noqa: BLE001
         spec = None
     installed = str(getattr(entry, "source", "")) == "installed"
+    if backend == "cellpose_dino":
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then download a Cellpose-DINO model from the bioimage.io "
+            "heading and press Use this model on it.", name=name)
     if spec is not None and not spec.segments:
         return i18n.tr(
             "{name} is not a segmentation model, so no model field takes it. "
@@ -1978,17 +2032,30 @@ def _where_a_backend_is_chosen(entry) -> str:
         "in Mask generation; this field takes a checkpoint.", name=name)
 
 
+def _cannot_run(entry) -> str:
+    """Why spaCR cannot run this row, or ``''``: a bioimage.io package
+    whose weights no Cellpose of spaCR's loads, said in place of Download
+    and Use rather than offered and then failing."""
+    from ... import model_zoo
+
+    return model_zoo._bioimageio_cannot_run(entry)
+
+
 def _needs_install(entry) -> bool:
     """Whether choosing this row should offer a backend install first.
 
-    True for a backend that is not installed, and for a Cellpose 3 model of
-    the backend's own while the backend is not installed. A bioimage.io
-    Cellpose 3 checkpoint downloads like any other model; the card says what
-    it needs to run.
+    True for a backend that is not installed, for a Cellpose 3 model of
+    the backend's own while the backend is not installed, and for a
+    Cellpose-DINO model while the Cellpose-DINO backend is not (item 525):
+    nothing spaCR has can run one without it. A bioimage.io Cellpose 3
+    checkpoint downloads like any other model; the card says what it needs
+    to run.
     """
     kind = getattr(entry, "kind", "")
     if kind == "backend":
         return getattr(entry, "source", "") not in ("installed", "installing")
+    if kind == "cellpose_dino":
+        return not _cellpose_dino_ready()
     return (kind == "cellpose3" and getattr(entry, "source", "") == "stock"
             and not getattr(entry, "path", ""))
 
@@ -2049,6 +2116,42 @@ def _cellpose3_card(entry) -> str:
     licence = getattr(entry, "licence", "")
     if licence:
         out += f"<p>Licence: {_html.escape(licence)}</p>"
+    return out
+
+
+def _cellpose_dino_ready() -> bool:
+    """Whether the Cellpose-DINO backend can segment now.
+
+    A backend being installed counts as not ready: its row keeps saying what
+    it needs until the install has finished.
+    """
+    state = _disk_state("cellpose_dino")
+    return bool(state is not None and state.ready)
+
+
+def _cellpose_dino_card(entry) -> str:
+    """A Cellpose-DINO model's card: whether its backend is here, and the
+    DINOv3 licence that reaches the weights whatever their page says."""
+    import html as _html
+
+    from ..._segmentation_backends import _CELLPOSE_DINO, _SPECS
+
+    ready = _cellpose_dino_ready()
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the Cellpose-DINO backend, which is installed. "
+           "Download it, then Use this model writes cellpose_dino:<its "
+           "path> into the object's model setting, which runs that object "
+           "through Cellpose-DINO with its usual Mask generation settings.")
+        if ready else
+        tr("Needs the Cellpose-DINO backend, Cellpose 4 with DINOv3 in an "
+           "environment of its own, which is not installed — press Install "
+           "to install it.")) + "</i></p>")
+    licence = getattr(entry, "licence", "")
+    if licence:
+        out += "<p>" + _html.escape(
+            tr("Licence: {licence}", licence=licence)) + "</p>"
+    out += "<p>" + _html.escape(tr(_SPECS[_CELLPOSE_DINO].licence_note)) \
+        + "</p>"
     return out
 
 

@@ -183,3 +183,41 @@ still in the code)
     ConsolePanel.__init__ (follow_log, chat), BackendInstallDialog (class
     docstring and four signals), install_backend (watch).
 
+
+2026-09-25 -- OPEN END CLOSED: worker progress and install output stream live
+  * A backend worker's stderr now reaches Make Masks' console as it is
+    printed. _WorkerProcess._said hands every raw line (its \r kept) to the
+    listeners registered through _segmentation_backends._listen_to_workers
+    (held weakly, dropped when they fail or their widget is destroyed); the
+    worker's reader thread never waits on them. The error tail is
+    unchanged.
+  * _MasksConsole.stream(line, source) is thread-safe and never blocks: a
+    bare-\r redraw (tqdm in Cellpose 3 restoration/segmentation, a
+    torch.hub download) becomes the newest state of the ONE progress line,
+    prefixed with the backend's name; a single-shot 100 ms timer draws the
+    newest state (<= 10 draws/s, states in between dropped). The bar's
+    finished line (the \n after its redraws) goes into the scrollback once
+    and the progress line hides. Plain worker chatter stays in the log.
+  * Install: the Cellpose 3 install button now says its install's own lines
+    (the dialog's job_progressed, pip's Collecting/Downloading/Installing
+    included) as kind "stream"; say(text, "stream") goes through the same
+    throttle, and the corner keeps "Installing Cellpose 3…" instead of
+    flashing pip lines. The ending line ("… is installed", failure, cancel)
+    supersedes any state not yet drawn and lands in the scrollback once.
+    pip's own bar stays off (--progress-bar off in _install_plan); its
+    per-line output is what streams.
+  * Tests (tests/qt/test_make_masks_console_and_install_feedback.py): a
+    real subprocess printing a 200-step tqdm-style bar through _raw_lines
+    and _said updates the progress line in place (monotonic, throttled:
+    gaps >= 80 ms, draws <= 10/s + 3), ends hidden, and the scrollback holds
+    the final 100% line exactly once and no redraw; a fake install emitting
+    151 pip lines through the button does the same with one "Cellpose 3 is
+    installed"; a deleted console stops listening. The existing button test
+    now expects kind "stream" for the dialog's lines.
+  * Results: 507 console + backend + install + restoration + window files:
+    280 passed / 2 skipped / 9 xfailed before; 319 passed / 2 skipped /
+    9 xfailed after merging nightly b9b6c75e7. test_docstring_correctness
+    and test_api_i18n_extractor surface pins (11,710 / 9,692) already fail
+    on pristine nightly c17135a40 (11,721 / 9,696); none of the new names
+    are on that surface (all private), so this change moves neither.
+  * No new tr() strings.

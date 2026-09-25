@@ -99,6 +99,7 @@ __all__ = [
     "measure_figure_folder",
     "fetch_paper_to_folder",
     "figures_in_folder",
+    "figure_folders",
     "read_legends",
     "read_annotation_overrides",
     "write_annotation_overrides",
@@ -2999,6 +3000,51 @@ def figures_in_folder(src: Any, legends: Optional[Mapping[str, str]] = None,
                           sha256=sha256_bytes(path.read_bytes()),
                           words=list(text_layer.get(path.stem, []))))
     return out
+
+
+def _is_paper_folder(path: Path) -> bool:
+    """Whether ``path`` is a folder a paper was read into.
+
+    :param path: a folder.
+    :returns: True when it holds ``paper.json``, ``legends.csv`` or
+        ``text_layer.json``.
+    """
+    return any((path / marker).is_file()
+               for marker in (PAPER_FILE, LEGENDS_FILE, TEXT_LAYER_FILE))
+
+
+def figure_folders(src: Any) -> List[Path]:
+    """The folders Figure mode reads for ``src``, in reading order.
+
+    A paper folder, or a folder of figure images, is read as it is. A folder
+    that holds paper folders -- several PDFs read at once, each into a
+    folder of its own (item 526) -- is read paper by paper: its own figure
+    images first when it has any, then each paper folder by name.
+
+    :param src: the folder Figure mode was given.
+    :returns: the folders; ``[src]`` when it holds no paper folders.
+    """
+    path = Path(str(src or "")).expanduser()
+    if not path.is_dir() or _is_paper_folder(path):
+        return [path]
+    try:
+        children = sorted(path.iterdir())
+    except OSError:
+        return [path]
+    papers = []
+    own = False
+    for child in children:
+        try:
+            if child.is_dir():
+                if _is_paper_folder(child):
+                    papers.append(child)
+            elif child.suffix.lower() in IMAGE_SUFFIXES:
+                own = True
+        except OSError:
+            continue
+    if not papers:
+        return [path]
+    return ([path] if own else []) + papers
 
 
 def _folder_paper(src: Any) -> Paper:

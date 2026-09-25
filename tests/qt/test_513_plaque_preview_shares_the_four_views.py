@@ -170,10 +170,11 @@ def test_line_weight_and_ruler_keep_working_across_the_views(ran):
             "the same line on every view")
 
 
-def test_figure_mode_keeps_to_the_overlay(panel):
+def test_figure_mode_keeps_the_four_views(panel):
+    """Item 524 lifted Figure mode's Overlay-only rule."""
     panel.views().set_view(sv.FLOWS)
     panel.set_mode("figure")
-    assert panel.views().view() == sv.OVERLAY
-    assert not panel._view_selector.isVisibleTo(panel)
+    assert panel.views().view() == sv.FLOWS
+    assert panel._view_selector.isVisibleTo(panel)
     panel.set_mode("plaque")
-    assert panel._view_selector.isVisibleTo(panel) or not panel.isVisible()
+    assert panel._view_selector.isVisibleTo(panel)

@@ -1,7 +1,7 @@
 THE BIOIMAGE.IO CATEGORY CARRIES REAL MODELS, AND THEY RUN
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned. Related: 503 (the Cellpose 3 route it reuses), 423.
+Status: DONE 2026-09-25, not pushed (see the note below). Filed 2026-09-24.
+Owner: Claude session (worktree agent-aa57f62da94d0c63b). Related: 503 (the Cellpose 3 route it reuses), 423.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "also while i have a bioimage.io category there are no models there. i
@@ -25,3 +25,157 @@ DONE WHEN
 The category lists the models, one can be downloaded and used to segment real
 images from Mask generation and Make Masks, and a Cellpose 3 model from
 bioimage.io behaves exactly like a stock Cellpose 3 model.
+
+
+NOTE 2026-09-25 -- DONE (branch worktree-agent-aa57f62da94d0c63b, not pushed)
+
+WHAT BIOIMAGE.IO PUBLISHES. Its collection (hypha children endpoint, 277
+items, read 2026-09-25) holds nine Cellpose models and two Cellpose
+notebooks (ZeroCostDL4Mic applications, not models, not listed):
+
+  kind          alias                name                               licence       runs?
+  Cellpose 3    famous-fish          CellPose(cyto3)                    BSD-3-Clause  yes
+  Cellpose 3    thoughtful-chipmunk  OC1 Project 6 (skeletal muscle)    BSD-3-Clause  yes
+  Cellpose 3    merry-gorilla        OC1 Project 66 (kif nuclei)        BSD-3-Clause  yes
+  Cellpose 3    philosophical-panda  Cellpose Plant Nuclei ResNet       MIT           yes
+  Cellpose 3    happy-elephant       OC1 Project 11 (epithelial)        CC-BY-NC-4.0  NO: its
+                published weights are a 1596-byte stand-in (an nn.Linear(1,1));
+                its model.py downloads the real checkpoint from GitHub at run time
+  Cellpose-SAM  idealistic-eagle     Cellpose-SAM                       BSD-3-Clause  yes
+  Cellpose-SAM  sneaky-panda         CarltonLab C elegans Gonad Nuclei 3D BSD-3-Clause yes
+  Cellpose-DINO famous-sheep         CellposeDINO ViT-L                 BSD-3-Clause  NO here:
+  Cellpose-DINO passionate-bug       CellposeDINO ViT-B                 BSD-3-Clause  needs dinov3
+
+All four runnable Cellpose 3 weights files were downloaded and opened: each is
+a 313-key Cellpose CPnet state dict with diam_mean (30, or 17 for the two
+nucleus models). famous-fish's cyto3.pth (sha256 2dc3087a...) is byte-for-byte
+the Cellpose 3 backend's own ~/.spacr/backends/cellpose3/models/cyto3, and
+idealistic-eagle's cpsam (0f1cc3f7...) is byte-for-byte ~/.cellpose/models/
+cpsam_v2. The Cellpose 4 spaCR installs (4.2.1.1) builds a DINO backbone only
+when `dinov3` imports; it does not here, so the two DINO rows say so, and
+become ordinary Cellpose 4 rows on a machine where it does.
+
+WHAT CHANGED.
+  * spacr/model_zoo.py. bioimageio_entries() builds a row per Cellpose model
+    in bioimage.io's collection: Cellpose 3 packages (CellPoseWrapper /
+    CPnetBioImageIO) as `cellpose3` rows, Cellpose-SAM and Cellpose-DINO as
+    `cellpose` rows. EVERY runnable row now downloads the weights file itself
+    (the SAM rows used to point at the bioimage.io web page, so Download
+    fetched HTML), checked against the manifest's SHA-256, named after the
+    model (cellpose_cyto3.pth, cellpose_sam, ...), with its licence, its
+    authors, and what it was trained on (the manifest's training_data, as a
+    DOI link when it is one, then its description). The package's own run
+    settings (flow_threshold=0.7 for OC1 Project 6, ...) are reported in a
+    note and not used: spaCR runs it with the object's Mask generation
+    settings, as it runs cyto3.
+  * Rows spaCR cannot run carry a first note starting "spaCR cannot run this
+    model: " and no download URI: a Cellpose-DINO model without dinov3, a
+    weights file under 1 MB (the stand-in above), and any other model tagged
+    Cellpose whose network is neither Cellpose 3's nor Cellpose-SAM's.
+    _bioimageio_cannot_run(entry) returns that sentence.
+  * The cache. A collection over 24 h old used to mean NO rows offline,
+    which is one reason the category was empty; it is now listed as it is
+    and refreshed in the background. The refresh also measures each weights
+    file with a one-byte ranged GET (hypha answers HEAD with 405) and keeps
+    the sizes in ~/.spacr/bioimageio_weight_sizes.json, which is how the
+    stand-in is refused before anyone downloads it. fetch() refuses a
+    bioimage.io Cellpose download under 1 MB as well.
+  * The Use text 503 left: `_CELLPOSE3_USE` no longer says to set
+    segmentation_backend; it says the model runs through the Cellpose 3
+    backend exactly as a stock Cellpose 3 model does, and that Use this model
+    writes cellpose3:<its path>. SAM rows say Use writes their path.
+  * Downloads resume. hypha dropped two of three 1.2 GB Cellpose-SAM
+    downloads part-way ("Response ended prematurely", chunked, no
+    Content-Length). open_uri now resumes with Range from the last byte
+    received when the server answers 206 at that offset, up to five times;
+    the SHA-256 check covers the joined file. The next 1.22 GB download
+    (sneaky-panda) completed and verified.
+  * spacr/qt/widgets/model_zoo_picker.py. A cannot-run row's Status cell reads
+    "spaCR cannot run this", its card and the status line give the reason,
+    and Download and Use stay grey. The bioimage.io warm-up used to run only
+    when the community catalogue was stale and never redrew the table; it now
+    runs on every opening and redraws when bioimage.io's rows change.
+  * spacr/qt/screens/make_masks.py. The Model zoo… button asks for Cellpose
+    3 rows too, and a `cellpose3:<name or path>` it returns is listed as
+    "Cellpose 3 · <file>"; load_cellpose_model() hands such a value to
+    _backend_model(), the Mode box's Cellpose 3 loader, instead of Cellpose
+    4 (which would load the checkpoint and segment nonsense).
+
+REAL RUN, CPU (SPACR_DEVICE=cpu, CUDA hidden). plate1_A02_12 of
+make_masks_toxo_pv, the whole Mask pipeline (preprocess_generate_masks, v1),
+cell object on the PV channel, diameter 44, cellpose3_add_nucleus_channel
+False, every other setting default. Each bioimage.io model was downloaded by
+model_zoo.fetch() from its row (checksum verified) and its model setting is
+what Use this model writes. F1 at IoU 0.5 against ground_truth_masks (33
+vacuoles). Wall = the whole Mask run incl. preprocessing, worker start, load.
+
+  model                                     route        objects matched F1     wall    download
+  stock cellpose3:cyto3                     Cellpose 3     41      26    0.703   20.6 s  -
+  bioimage.io CellPose(cyto3), famous-fish  Cellpose 3     41      26    0.703   24.6 s  20.0 s / 26.6 MB
+  bioimage.io OC1 Project 66 (kif nuclei)   Cellpose 3     49      24    0.585   17.5 s  13.5 s
+  bioimage.io OC1 Project 6 (muscle, BF)    Cellpose 3     31       3    0.094   25.5 s  13.4 s
+  stock cpsam_v2                            Cellpose 4     49      26    0.634  198.6 s  -
+  bioimage.io Cellpose-SAM, idealistic-eagle Cellpose 4    49      26    0.634  131.6 s  336.7 s / 1.23 GB
+  bioimage.io C elegans gonad nuclei 3D     Cellpose 4     47      18    0.450  148.7 s  524.2 s / 1.22 GB
+
+(The two cpsam wall times differ by machine load, not model: the masks are
+identical.) The muscle and kif-nucleus models were trained on other things
+and score accordingly; they run, which is what was asked.
+
+MAKE MASKS, same field, load_cellpose_model() + cellpose_detect (diameter 44,
+normalize on, thresholds 0.4 / 0):
+  cellpose3:cyto3 (stock)          42 objects, 24 matched, F1 0.640, 15.8 s
+  cellpose3:<famous-fish cyto3>    42 objects, 24 matched, F1 0.640,  7.3 s, same labels
+  cellpose3:<OC1 Project 66>        9 objects,  3 matched, F1 0.143,  3.5 s
+  <Cellpose-SAM path>              44 objects, 27 matched, F1 0.701, 113.1 s
+
+A BIOIMAGE.IO CELLPOSE 3 MODEL BEHAVES EXACTLY LIKE A STOCK ONE. Measured on
+the run above with _load_backend and the backend's eval wrapped: stock
+cellpose3:cyto3 and bioimage.io cellpose3:<cellpose_cyto3.pth> went through
+the same backend, were handed the same image (sha256 prefix eaa575e48abaf055)
+and the same keywords (batch_size 8, channel_axis -1, min_size 0, diameter
+44.0, flow_threshold 0.4, cellprob_threshold 0, resample True, augment False,
+normalize {normalize: True, percentile: [1, 99]}), and wrote the same mask
+(sha256 54a8645ced23f294...). The one difference is inside the worker: a
+Cellpose 3 NAME is built as models.Cellpose(model_type=...), which carries
+Cellpose's size model, and a checkpoint as models.CellposeModel
+(pretrained_model=...), which has none -- as in Cellpose 3 itself. It shows
+only with cellpose3_size_model on (diameter 0): the stock model estimates a
+diameter and a checkpoint runs at the diameter it was trained at. Off, the
+default, the two are the same computation, as the identical masks show.
+Likewise bioimage.io Cellpose-SAM and stock cpsam_v2: CellposeModel built
+with pretrained_model=<path> vs 'cpsam_v2', same eval keywords, same mask
+(sha256 2fc2cb3073be11af...).
+
+TESTS. tests/test_bioimageio_models_are_listed_and_usable.py (new, 24) and
+tests/qt/test_bioimageio_rows_in_the_picker.py (new, 7): listing from a
+fixture collection (kinds, licence and trained-on on every row, DINO /
+stand-in / foreign-network rows refused, run-settings note), stale and
+refreshed cache with measured sizes, fetch and the stand-in refusal, resumed
+and unresumable drops, download -> model setting, the Cellpose 3 route
+identical to cyto3's, the SAM path built by Cellpose 4, picker Status / card
+/ buttons / Use value / warm-up redraw, Make Masks' zoo button and loader.
+tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py: the Use text
+assertion now pins the corrected sentence, and the SAM row's key is
+bioimageio_cellpose_sam like every other bioimage.io row.
+Run with the zoo, picker, Cellpose 3, Make Masks detection, magnifier and
+docstring suites (38 files) after merging nightly 34211ab9e: 854 passed, 6 failed, 2
+skipped, 1 xfailed. The 6 fail on a clean nightly copy too and cite none of
+these files: test_i18n_caption_ratchet x2 (sv catalog rows), test_user_
+facing_docstrings x2 (tooltip_policy, eliding, picture_export), test_
+docstring_correctness x2 (public-callable inventory counts). Before any
+edit the zoo selection was 504 passed / 2 failed (the same i18n pair).
+
+NOT DONE.
+  * i18n catalog rows for the new tr() strings ("spaCR cannot run this",
+    "Cellpose 3 · {model}") and the refusal sentences shown through tr() --
+    the docs lane's catalog rebuild.
+  * Cellpose-DINO needs `dinov3` (pip install
+    git+https://github.com/facebookresearch/dinov3), which spaCR does not
+    install; not added to setup.py (not this item's file to touch).
+  * happy-elephant stays refused: running it would mean fetching an
+    unchecksummed zip from GitHub that bioimage.io does not publish.
+  * Make Masks' Mode box still lists only the four stock Cellpose 3 names; a
+    bioimage.io Cellpose 3 checkpoint reaches Make Masks through its Model
+    list (Model zoo… button), not through the Mode box.
+  * No GPU run: CPU only, as asked.

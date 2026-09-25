@@ -1949,212 +1949,157 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "时间序列追踪",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
-      "section": "核心模块",
+      "section": "Core",
       "host_app_key": "mask",
-      "description": "从 Mask 内嵌流程运行八帧合成示例，并在 Track preview 中比较实际掩膜的连接。",
+      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
       "objectives": [
-        "在 Mask 中找到 Timelapse，保留时间轴和原始图像。",
-        "在相同掩膜上比较初始、碎片化和恢复后的轨迹。",
-        "区分追踪指标、播放速度、模型推理与实测生物运动。"
+        "Load the example images and masks in Track preview.",
+        "Adjust overlap and inspect object identities across frames.",
+        "Configure a time-series Mask run and find its tracked outputs."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "在新文件夹中使用 Help > Demos > Timelapse demo：八个合成时间点，每帧256×256像素，细胞核通道0、细胞通道1。打开 Plot 和 Keep original images，保留全部16个TIFF。ZIP只含这次运行的实际细胞图像与标签平面，不是采集数据或真实标注。分别选择 image_sequences/field_A01 和 label_sequences/field_A01，预览通道0、八帧、一个视野。阈值0.1得到16条完整轨迹，1.0得到128条单帧轨迹。恢复0.1后等待空闲，明确点击 Re-link；输入中间值可能触发计算。不要点击 Propagate settings，它不传递IoU阈值。保留并说明流阈值、关系表和设置状态警告。不声称生物学准确性或物理速度已验证。API：spacr.core.preprocess_generate_masks 和 spacr.timelapse。AI保持关闭。",
+      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "打开 Mask，启用 Time 开关。Timelapse 现在嵌套在 Mask 中，不再是 Home 上的独立模块卡片。它为分割流程添加时间轴和追踪设置。运动性测量属于 Measure，是后续步骤。",
+          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
             "18_motility"
-          ],
-          "speech_text": "打开 Mask，启用 Time 开关。Timelapse 现在嵌套在 Mask 中，不再是 主页 上的独立模块卡片。它为分割流程添加时间轴和追踪设置。运动性测量属于 Measure，是后续步骤。"
-        },
-        {
-          "visual": "03_actual_demo_menu",
-          "narration": "依次选择 Help、Demos 和 Timelapse demo，再选一个新文件夹。程序生成八帧含移动物体的合成图像，并加载相应设置。这些是教学图像，不是生物实验，也不是分割准确性的证据。",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ],
-          "speech_text": "依次选择 Help、Demos 和 Timelapse demo，再选一个新文件夹。程序生成八帧含移动物体的合成图像，并加载相应设置。这些是教学图像，不是生物实验，也不是分割准确性的证据。"
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "检查自动填入的数据源和通道。这个示例的细胞核强度位于通道零，细胞强度位于通道一，没有病原体通道。文件名将时间与视野、通道分别编码。不要用普通静态测试板代替时间序列。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ],
-          "speech_text": "检查自动填入的数据源和通道。这个示例的细胞核强度位于通道零，细胞强度位于通道一，没有病原体通道。文件名将时间与视野、通道分别编码。不要用普通静态测试板代替时间序列。"
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits 使用从零开始的切片边界：零到八包含全部八帧，但不包含终点。将同一视野的所有时间点保留在一起。播放帧率无法补上缺失的采集间隔，本示例也没有建立物理单位的速度。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ],
-          "speech_text": "Frame limits 使用从零开始的切片边界：零到八包含全部八帧，但不包含终点。将同一视野的所有时间点保留在一起。播放帧率无法补上缺失的采集间隔，本示例也没有建立物理单位的速度。"
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "使用名为 iou 的重叠模式追踪细胞。它根据相邻帧掩膜的交集与并集之比建立连接。其他后端有不同假设和可选依赖。位移设置不是重叠阈值；请使用所选后端实际读取的控制项。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ],
-          "speech_text": "使用名为 iou 的重叠模式追踪细胞。它根据相邻帧掩膜的交集与并集之比建立连接。其他后端有不同假设和可选依赖。位移设置不是重叠阈值；请使用所选后端实际读取的控制项。"
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "点击 Run 前打开 Keep original images。否则清理过程可能删除中间图像和原始图像文件夹。本次录制完整保留十六个新生成的 TIFF，也不修改旧教程数据。实际采集的实验始终应另有独立备份。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ],
-          "speech_text": "点击 Run 前打开 Keep original images。否则清理过程可能删除中间图像和原始图像文件夹。本次录制完整保留十六个新生成的 TIFF，也不修改旧教程数据。实际采集的实验始终应另有独立备份。"
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "打开 Plot，运行这个小示例。即使请求更小的批量，当前流程也会一起处理完整的八帧序列。观察控制台和资源监视器；更多帧、更大图像和更多物体可能需要高得多的内存。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ],
-          "speech_text": "打开 Plot，运行这个小示例。即使请求更小的批量，当前流程也会一起处理完整的八帧序列。观察控制台和资源监视器；更多帧、更大图像和更多物体可能需要高得多的内存。"
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "运行生成五幅图和八个合并数组。在这个归一化显示中，前两个平面是强度，后两个是细胞和细胞核标签，并非额外采集通道。保存的细胞表包含十六条轨迹，每条覆盖八帧。",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ],
-          "speech_text": "运行生成五幅图和八个合并数组。在这个归一化显示中，前两个平面是强度，后两个是细胞和细胞核标签，并非额外采集通道。保存的细胞表包含十六条轨迹，每条覆盖八帧。"
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "除了 Finished，也要阅读警告。此版本会提示继承的流阈值、不可用的关系表以及设置状态问题。我们单独验证了保存的掩膜和轨迹；这不代表版本测试完全无异常，也不能代替运行 Measure。",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ],
-          "speech_text": "除了 Finished，也要阅读警告。此版本会提示继承的流阈值、不可用的关系表以及设置状态问题。我们单独验证了保存的掩膜和轨迹；这不代表版本测试完全无异常，也不能代替运行 Measure。"
+          ]
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "打开 Track preview。为复现连接练习，请下载并解压下方链接的合成预览压缩包。它含有这次录制批次的精确细胞图像与掩膜平面。加载已有掩膜可以测试连接，而不再运行分割模型。",
+          "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
-          ],
-          "speech_text": "打开 Track preview。为复现连接练习，请下载并解压下方链接的合成预览压缩包。它含有这次录制批次的精确细胞图像与掩膜平面。加载已有掩膜可以测试连接，而不再运行分割模型。"
+            360,
+            230,
+            3460,
+            1760
+          ]
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "选择视野 A 零一的图像序列文件夹。导出的图像仅含原始细胞强度平面，因此这里选择通道零。将图像序列与标签序列放在不同父文件夹中，并把 Frames previewed 设为八，Fields 设为一。",
-          "hold_after": 0.7,
-          "speech_text": "选择视野 A 零一的图像序列文件夹。导出的图像仅含原始细胞强度平面，因此这里选择通道零。将图像序列与标签序列放在不同父文件夹中，并把 Frames previewed 设为八，Fields 设为一。"
+          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "通过 Masks 选择对应的标签序列文件夹。这些是计算得到的掩膜，不是真实标注。保持 Keep only full-length tracks 关闭，不要点击 Propagate settings。读取已有掩膜序列时，模型控制项不会创建新掩膜。",
-          "hold_after": 0.7,
-          "speech_text": "通过 Masks 选择对应的标签序列文件夹。这些是计算得到的掩膜，不是真实标注。保持 Keep only full-length tracks 关闭，不要点击 Propagate settings。读取已有掩膜序列时，模型控制项不会创建新掩膜。"
+          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "将重叠阈值设为零点一并运行预览。示例显示十六条八帧轨迹，没有短轨迹。碎片化和跳跃数是在没有真实标注的情况下计算的指标；数值小本身并不能证明生物学身份正确。",
+          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ],
-          "speech_text": "将重叠阈值设为零点一并运行预览。示例显示十六条八帧轨迹，没有短轨迹。碎片化和跳跃数是在没有真实标注的情况下计算的指标；数值小本身并不能证明生物学身份正确。"
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "把重叠阈值提高到一。要求完全重叠，会将这个移动示例拆成一百二十八条单帧轨迹。图像和掩膜都没有改变，只有连接发生变化。这个刻意过高的值用于演示碎片化，不是推荐的分析设置。",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ],
-          "speech_text": "把重叠阈值提高到一。要求完全重叠，会将这个移动示例拆成一百二十八条单帧轨迹。图像和掩膜都没有改变，只有连接发生变化。这个刻意过高的值用于演示碎片化，不是推荐的分析设置。"
+            379,
+            307,
+            3432,
+            958
+          ]
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "恢复零点一，等待当前预览完成，然后点击 Re-link。输入过程可能先用中间值启动计算，因此要明确确认最终计算。十六条完整轨迹会恢复。不要点击 Propagate settings，因为重叠阈值不会传到批处理表单。",
+          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
-          ],
-          "speech_text": "恢复零点一，等待当前预览完成，然后点击 Re-link。输入过程可能先用中间值启动计算，因此要明确确认最终计算。十六条完整轨迹会恢复。不要点击 Propagate settings，因为重叠阈值不会传到批处理表单。"
+            379,
+            307,
+            3432,
+            958
+          ]
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "把滑块移到第八帧，检查已连接物体。播放速度只改变观看速度，不改变采集时间。随后在 Measure 和 Motility 中使用经过验证的间隔与尺度进行测量。API 和 spaCR AI 可以解释设置，但不能代替检查图像、轨迹和警告。",
+          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
-          ],
-          "speech_text": "把滑块移到第八帧，检查已连接物体。播放速度只改变观看速度，不改变采集时间。随后在 Measure 和 Motility 中使用经过验证的间隔与尺度进行测量。API 和 斯佩克尔 AI 可以解释设置，但不能代替检查图像、轨迹和警告。"
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ]
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ]
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ]
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -10079,126 +10024,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS：当前界面与四幅图像的配准",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "分割模型",
-      "description": "在Mask中找到OPS，随后查看基于四幅真实图像验证的配准与合成示例。这不是完成整板处理、细胞分割或条形码解码的工作流。",
+      "section": "Segmentation models",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "找到OPS嵌套界面并理解示例的范围。",
-        "保留原始采集坐标，对四幅相邻图像进行配准。",
-        "检查重叠区域、覆盖图及保存的来源记录。"
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "录像使用spaCR 1.5.0.7 nightly中的ops_layout、ops_stitch和ops_compose API，在CPU上运行。GUI的Run调用另一套旧引擎，本例不运行它。私有NAS来源：screenA/20200202_6W-LaC024A，sequencing/images/input/c1，站点0、1、10、11。需要合法授权访问；这不是公开测试下载，也不授予数据再分发权限。每个uint16 TIFF包含5个1480×1480像素的平面，DAPI位于第0平面。保留原始333站点布局。不要未经测量就把相同布局、重叠或阈值用于其他采集。请在原始数据目录之外选择新的输出目录。整孔处理、分割、跨周期配准、解码与生物学分析均不在本例验证范围内。",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "光学混池筛选从相邻视野和重复成像周期中采集的图像开始。在spaCR中打开Mask，即可找到嵌套的OPS界面。本课展示它的位置，以及一个经过验证的小型图像配准示例。",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "光学混池筛选从相邻视野和重复成像周期中采集的图像开始。在斯佩克尔中打开Mask，即可找到嵌套的OPS界面。本课展示它的位置，以及一个经过验证的小型图像配准示例。"
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+          "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "使用Mask操作栏中的OPS开关。它会在主模块内部打开一个独立页面。OPS不是Home上的另一个入口卡片，也不同于处理测序读段文件的Map Barcodes工作流。",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
           "hold_after": 0.7,
-          "speech_text": "使用Mask操作栏中的OPS开关。它会在主模块内部打开一个独立页面。OPS不是主页上的另一个入口卡片，也不同于处理测序读段文件的Map Barcodes工作流。"
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "当前OPS页面提供输入、拼接、镶嵌图、配准和质量控制设置。Run按钮使用另一套旧引擎。这里不启动它，也不声称已经验证了完整筛选流程。接下来的步骤直接使用几何处理API。",
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7,
-          "speech_text": "当前OPS页面提供输入、拼接、镶嵌图、配准和质量控制设置。Run按钮使用另一套旧引擎。这里不启动它，也不声称已经验证了完整筛选流程。接下来的步骤直接使用几何处理API。"
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "这个CPU示例对现有采集中的四幅真实图像进行配准和合成。它不分割细胞、不解码条形码，也不处理整块板。原始采集不是随附的测试下载；精确复现需要获得这些文件的授权访问权限。",
-          "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
           "hold_after": 0.7,
-          "speech_text": "这个CPU示例对现有采集中的四幅真实图像进行配准和合成。它不分割细胞、不解码条形码，也不处理整块板。原始采集不是随附的测试下载；精确复现需要获得这些文件的授权访问权限。"
+          "focus": [
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "从第一个成像周期选择站点零、一、十和十一。每个原始文件有五个平面；第零平面是细胞核染色。保留原始三百三十三站点布局和站点编号。选出四幅图像，并不意味着创建了一个新的四视野孔布局。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
           "hold_after": 0.7,
-          "speech_text": "从第一个成像周期选择站点零、一、十和十一。每个原始文件有五个平面；第零平面是细胞核染色。保留原始三百三十三站点布局和站点编号。选出四幅图像，并不意味着创建了一个新的四视野孔布局。"
+          "focus": [
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "辅助脚本调用stitch_well，检查四个相邻重叠区域，然后调用compose_window。四幅图像均已放置，合成区域每边为两千七百五十六像素。本次采集的几何闭环误差不超过四分之一像素，但这不是对所有数据的精度保证。",
-          "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
           "hold_after": 0.7,
-          "speech_text": "辅助脚本调用stitch_well，检查四个相邻重叠区域，然后调用compose_window。四幅图像均已放置，合成区域每边为两千七百五十六像素。本次采集的几何闭环误差不超过四分之一像素，但这不是对所有数据的精度保证。"
+          "focus": [
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "不要只相信放置结果。应独立于配准分数，比较真实重叠像素。这里正确配准后的相关性，明显高于把任一轴故意移动十七像素后的相关性。这些错误偏移对照有助于发现看似合理但实际上错误的放置。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
           "hold_after": 0.7,
-          "speech_text": "不要只相信放置结果。应独立于配准分数，比较真实重叠像素。这里正确配准后的相关性，明显高于把任一轴故意移动十七像素后的相关性。这些错误偏移对照有助于发现看似合理但实际上错误的放置。"
+          "focus": [
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "检查实际保存的图像和覆盖图。左侧显示合成的细胞核图像，右侧统计贡献图块的数量。零覆盖表示没有采集像素，而不是生物学背景。这里合并的是同一平面内的空间邻居，绝不混合不同测序周期。",
-          "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
           "hold_after": 0.7,
-          "speech_text": "检查实际保存的图像和覆盖图。左侧显示合成的细胞核图像，右侧统计贡献图块的数量。零覆盖表示没有采集像素，而不是生物学背景。这里合并的是同一平面内的空间邻居，绝不混合不同测序周期。"
+          "focus": [
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "把数组、覆盖图、放置坐标、源文件校验和及运行报告一起保存。脚本重新读取输出，并确认四个原始文件都未改变。请把它视为可复现的几何处理检查点。完整的光学筛选教程仍需要分别验证后续阶段。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
           "hold_after": 0.7,
-          "speech_text": "把数组、覆盖图、放置坐标、源文件校验和及运行报告一起保存。脚本重新读取输出，并确认四个原始文件都未改变。请把它视为可复现的几何处理检查点。完整的光学筛选教程仍需要分别验证后续阶段。"
+          "focus": [
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",

@@ -1,6 +1,6 @@
 OPS SAYS "src is missing" ON A RUN THAT SUCCEEDS, AND MASK'S TRACK PREVIEW SWITCH HIDES
 
-Status: OPEN, filed 2026-09-25. Not started.
+Status: FIXED 2026-09-25, both parts, with tests; awaiting merge to nightly.
 Owner: unassigned. Found by the docs session while recording the OPS and
 Timelapse tutorials.
 
@@ -23,3 +23,65 @@ DONE WHEN
 An OPS run with valid inputs logs no src error (and one with no input still
 does), and an offscreen test shows the Track preview switch visible and
 clickable after figures appear in Mask.
+
+2026-09-25 -- FIXED (both parts)
+
+  1. THE FALSE "src is missing". The GUI bridge wraps every pipeline entry
+     so it prints spacr.validate.validate_settings() problems before the run
+     (spacr/qt/bridge.py:1438). validate._check_src() asks for the app's
+     source key, which is "src" unless ALT_SRC_KEYS names another one, so
+     for OPS it reported "src is missing from the settings."
+     (spacr/validate.py:664). run_ops never reads src: its input is
+     genotype_source (spacr/ops_engine.py, run_ops docstring and first
+     lines), and the OPS settings have no src key at all. So the error
+     fired on every OPS run, including every one that succeeded.
+     Fix: ALT_SRC_KEYS maps "ops" to "genotype_source"
+     (spacr/validate.py:163), with its own fix text (spacr/validate.py:654).
+     The generic source checks now apply to the folder OPS really reads: an
+     unset, left-out, nonexistent or file-not-folder genotype_source is
+     still an ERROR; a real folder is silent. chaining.source_key("ops")
+     now answers genotype_source too; ports has no OPS spec, so nothing
+     changes there.
+
+  2. THE TRACK PREVIEW SWITCH. The Timelapse fold attaches its preview with
+     preview_registry.attach_folded(), whose toggle went into the settings
+     search strip or, when there was none, into the Actions BODY
+     (_insert_above_actions). Plot figures is a focus pane: when its card
+     shows, the runtime splitter collapses the console, System, the Actions
+     body and the settings column (AppScreen.adopt_runtime_pane). Both
+     homes of the toggle fold away, so the switch vanished (measured
+     offscreen: Actions pane 816x253 -> 1228x26, _actions_body hidden,
+     toggle.isVisible() False). The Actions HEADING row survives the
+     collapse and already holds Mask's own Live switch.
+     Fix: _attach() takes in_heading, and attach_folded() passes True, so a
+     folded preview's toggle goes into _actions_heading_row
+     (spacr/qt/preview_registry.py:385, :395, :456). Registry previews of a
+     screen's own key keep their old placement.
+
+  TESTS
+    tests/test_ops_settings_check_reads_genotype_source.py (6): a valid
+      genotype_source gives no src/genotype_source error; None, the key
+      left out, and a nonexistent path are ERRORs on genotype_source; the
+      bridge wrapper prints no "[settings] ERROR" for a valid run and prints
+      "[settings] ERROR [genotype_source]" (never [src]) with no input.
+      All 6 fail without the fix.
+    tests/qt/test_the_track_preview_switch_survives_the_figures.py (4):
+      offscreen Mask with the Timelapse fold on, with and without the
+      settings search strip, at 1280x800 and 1024x700; after three figures
+      the toggle is visible, non-zero, at least its minimum size hint,
+      inside the window, not clipped by an ancestor, in the Actions heading
+      row, and a click checks it and shows the Track preview card.
+      All 4 fail without the fix.
+    Existing tests, before and after (after = merged with nightly a46910910):
+      validate/OPS/bridge set (test_validate, test_cov_r4_validate,
+      test_cov_w2_3_validate, test_every_ops_setting_is_declared,
+      test_app_registry_parity, test_the_ops_engine_says_why_a_well_cannot_run,
+      test_ops_plate_resume, qt/test_bridge_uncovered_paths,
+      test_settings_types_are_restored_at_the_boundary): 490 passed before.
+      After, those plus the four chaining test files and the new file:
+      579 passed, 0 failed.
+      Mask folds / preview registry qt set (12 files: mask folds, cov_r4
+      mask, fold cannot be hung, hidden panel, live preview refresh,
+      preview_registry, cov_w2_2 preview_registry, host_pathogen preview,
+      3d and time, 471c previews/figures folds, fold buttons not crowded):
+      191 passed before, 191 passed after, plus the 4 new.

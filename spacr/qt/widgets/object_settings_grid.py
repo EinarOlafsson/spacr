@@ -853,7 +853,9 @@ class ObjectSettingsGrid(QWidget):
     #: it the four stock Cellpose 3 models were listed nowhere a button opens
     #: and had to be typed by hand. The Cellpose 4 preview boxes keep
     #: ``("cellpose",)``: they load the checkpoint in spaCR's own process.
-    MODEL_KINDS = ("cellpose", "cellpose3")
+    #: A Cellpose-DINO checkpoint runs in its own backend (item 525), which
+    #: Mask generation reaches, so ``cellpose_dino`` belongs here too.
+    MODEL_KINDS = ("cellpose", "cellpose3", "cellpose_dino")
 
     def choose_model_for(self, obj: str) -> bool:
         """Open the model zoo for one object and store what it returns.

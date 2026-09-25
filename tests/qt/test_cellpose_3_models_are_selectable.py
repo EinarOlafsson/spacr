@@ -124,3 +124,114 @@ def test_the_mask_panel_shows_them_when_the_zoo_writes_a_cellpose3_model(
     field.setText("cpsam")
     qtbot.waitUntil(
         lambda: set(LEGACY) <= model._hidden_by_the_run, timeout=3000)
+
+
+# ---------------------------------------------------------------------------
+# The Live preview segments a cellpose3: model where the run does (503)
+# ---------------------------------------------------------------------------
+
+def _preview_backend(monkeypatch):
+    """A stand-in for ``_RemoteBackend`` answering as Cellpose 3 does:
+    per-image masks and ``[RGB flow, dP, cell probability, None]``."""
+    import types
+
+    import numpy as np
+
+    from spacr.qt.widgets import live_preview as LP
+
+    loads, calls = [], []
+
+    def _eval(x, **kwargs):
+        calls.append(dict(kwargs, shapes=[np.shape(i) for i in x]))
+        masks, flows = [], []
+        for image in x:
+            shape = np.shape(image)[:2]
+            mask = np.zeros(shape, np.uint16)
+            mask[2:8, 2:8] = 1
+            mask[10:14, 3:9] = 2
+            masks.append(mask)
+            flows.append([np.full(shape + (3,), 9, np.uint8),
+                          np.zeros((2,) + shape, np.float32),
+                          np.full(shape, 1.5, np.float32), None])
+        return masks, flows, None
+
+    def _load(name, **kwargs):
+        loads.append(dict(kwargs, name=name))
+        return types.SimpleNamespace(eval=_eval)
+
+    def _no_cellpose_sam(*args, **kwargs):
+        raise AssertionError("the preview built Cellpose-SAM for cellpose3:")
+
+    monkeypatch.setattr(SB, "_load_backend", _load)
+    monkeypatch.setattr(LP, "preview_cellpose_model", _no_cellpose_sam)
+    return LP, loads, calls
+
+
+def test_a_preview_of_a_cellpose3_model_runs_in_its_backend(monkeypatch):
+    import numpy as np
+
+    LP, loads, calls = _preview_backend(monkeypatch)
+    image = np.random.default_rng(1).random((16, 16, 2)).astype(np.float32)
+    request = LP.PreviewRequest(
+        image=image, model="cellpose3:cyto3", diameter=25.0,
+        flow_threshold=0.6, cellprob=-0.5,
+        channels={"cell": 0, "nucleus": 1}, object_types=("cell",))
+    masks, flows = LP._segment_multi(request)
+
+    assert [load["name"] for load in loads] == ["cellpose3"]
+    assert loads[0]["model_name"] == "cellpose3:cyto3"
+    [call] = calls
+    assert call["shapes"] == [(16, 16, 2)]
+    assert call["diameter"] == 25.0
+    assert call["flow_threshold"] == 0.6
+    assert call["cellprob_threshold"] == -0.5
+    assert call["normalize"] == {"normalize": True, "percentile": [1.0, 99.0]}
+    assert set(np.unique(masks["cell"])) == {0, 1, 2}
+    assert masks["cell"].dtype == np.int32
+    assert flows["cell"].shape == (16, 16, 3)
+    assert np.all(flows["cell"] == 9)
+    np.testing.assert_array_equal(request.cellprob_maps["cell"],
+                                  np.full((16, 16), 1.5, np.float32))
+
+
+def test_a_nucleus_preview_of_a_cellpose3_model_is_one_plane(monkeypatch):
+    import numpy as np
+
+    LP, loads, calls = _preview_backend(monkeypatch)
+    request = LP.PreviewRequest(
+        image=np.ones((16, 16, 2), np.float32), model="cellpose3:nuclei",
+        channels={"cell": 0, "nucleus": 1}, object_types=("nucleus",))
+    LP._segment_multi(request)
+    assert loads[0]["object_type"] == "nucleus"
+    assert calls[0]["shapes"] == [(16, 16)]
+
+
+def test_the_preview_model_box_takes_a_cellpose3_value(tmp_path):
+    from spacr.qt.widgets import live_preview as LP
+
+    weights = tmp_path / "cp3_weights"
+    weights.write_bytes(b"")
+    assert LP._is_a_real_model_name("cellpose3:cyto3")
+    assert LP._is_a_real_model_name(f"cellpose3:{weights}")
+    assert not LP._is_a_real_model_name("cellpose3:cyto9")
+    assert not LP._checkpoint_is_missing("cellpose3:cyto3")
+    assert not LP._checkpoint_is_missing(f"cellpose3:{weights}")
+    assert LP._checkpoint_is_missing(f"cellpose3:{tmp_path}/gone.pth")
+
+
+def test_the_timelapse_preview_segments_a_cellpose3_frame_in_its_backend(
+        monkeypatch):
+    """It shares the model box rules above, so it has to follow them."""
+    import numpy as np
+
+    from spacr.qt.widgets import timelapse_preview as TP
+
+    _LP, loads, calls = _preview_backend(monkeypatch)
+    monkeypatch.setattr(TP, "preview_cellpose_model",
+                        _LP.preview_cellpose_model)
+    mask = TP.segment_frame(
+        np.random.default_rng(2).random((16, 16)).astype(np.float32),
+        {"model": "cellpose3:cyto2", "diameter": 18.0})
+    assert loads[0]["model_name"] == "cellpose3:cyto2"
+    assert calls[0]["diameter"] == 18.0
+    assert mask.dtype == np.int32 and set(np.unique(mask)) == {0, 1, 2}

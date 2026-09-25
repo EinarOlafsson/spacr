@@ -994,7 +994,7 @@ def test_figure_mode_draws_wells_in_the_chosen_style(panel, tmp_path,
     from dataclasses import replace
 
     _figure_panel(panel, tmp_path)
-    assert not panel._view_selector.isVisibleTo(panel)
+    assert panel._view_selector.isVisibleTo(panel), "item 524"
     assert panel.views().view() == "Overlay"
     panel.select_well(0)
     assert panel.preview_selected_well(segment=_segment_crop)

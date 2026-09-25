@@ -662,13 +662,27 @@ class _MasksConsole(QWidget):
     A line identical to the one before it is not written again, so a
     message repeated on every mouse move reads once.
 
+    STREAMED OUTPUT. A backend worker's progress bars (tqdm redrawing itself
+    with ``\r`` during Cellpose 3 restoration, segmentation or a model
+    download) and an install's pip lines arrive faster than anyone reads, on
+    threads that must not wait. :meth:`stream` keeps only the newest state
+    and draws it on the progress line at most every :attr:`STREAM_MS`
+    milliseconds; a bar's finished state goes into the scrollback once. The
+    console listens to every worker from the moment it is built
+    (:func:`spacr._segmentation_backends._listen_to_workers`).
+
     :ivar console: the scrollback.
     :ivar progress: the in-place progress line; hidden while nothing runs.
+    :ivar stream_updates: how many times streamed output redrew the
+        progress line.
     """
 
     _relay = Signal(str, str)
+    _stream_kick = Signal()
 
     PERCENT = re.compile(r"(\d{1,3}(?:\.\d+)?)\s?%")
+
+    STREAM_MS = 100
 
     def __init__(self, parent=None):
         """Build the scrollback and the hidden progress line."""
@@ -687,15 +701,35 @@ class _MasksConsole(QWidget):
         layout.addWidget(self.progress)
         self._last = None
         self._relay.connect(self.say)
+        self.stream_updates = 0
+        self._stream_lock = threading.Lock()
+        self._stream_pending = None
+        self._stream_finals = []
+        self._stream_bars = {}
+        self._stream_armed = False
+        self._stream_timer = QTimer(self)
+        self._stream_timer.setSingleShot(True)
+        self._stream_timer.setInterval(self.STREAM_MS)
+        self._stream_timer.timeout.connect(self._flush_stream)
+        self._stream_kick.connect(self._arm_stream)
+        from ... import _segmentation_backends as backends
+
+        stop = backends._listen_to_workers(self._worker_said)
+        self.destroyed.connect(lambda *_args: stop())
 
     def say(self, text: str, kind: str = "info") -> None:
         """Write one line.
 
         :param text: what to say; blank is ignored.
-        :param kind: ``progress`` rewrites the progress line; ``info``,
+        :param kind: ``progress`` rewrites the progress line; ``stream`` is
+            one line of a command's running output and rewrites it at most
+            every :attr:`STREAM_MS` ms (see :meth:`stream`); ``info``,
             ``warning`` and ``error`` go into the scrollback, in the
             console's colours for each, and end any progress shown.
         """
+        if kind == "stream":
+            self.stream(str(text or ""))
+            return
         if QThread.currentThread() is not self.thread():
             self._relay.emit(str(text or ""), str(kind or "info"))
             return
@@ -705,6 +739,11 @@ class _MasksConsole(QWidget):
         if kind == "progress":
             self.show_progress(text)
             return
+        self._settle_stream()
+        self._write(text, kind)
+
+    def _write(self, text: str, kind: str) -> None:
+        """Put one line into the scrollback and hide the progress line."""
         self.progress.setVisible(False)
         if (text, kind) == self._last:
             return
@@ -715,6 +754,83 @@ class _MasksConsole(QWidget):
             self.console.append_warning(text)
         else:
             self.console.append_stdout(text + "\n")
+
+    def stream(self, line: str, source: str = "") -> None:
+        """Take one line of running output; safe from any thread, never waits.
+
+        A line ending in a bare ``\\r`` is a progress bar's redraw, and a line
+        with no ending (an install's output, already split) is one state of
+        the task: either becomes the newest state of the progress line,
+        replacing any not yet drawn. A line ending in a newline right after a
+        redraw is the bar's finished state and goes into the scrollback
+        once. Any other ended line is the worker's own chatter, kept in the
+        log and not shown.
+
+        :param line: the raw line, with its ending if it had one.
+        :param source: whose output it is, e.g. ``Cellpose 3``; it prefixes
+            the line, and each source's bar is followed on its own.
+        """
+        line = str(line or "")
+        ended = line.endswith("\n")
+        redraw = line.endswith("\r") and not ended
+        parts = [part for part in line.rstrip("\r\n").split("\r")
+                 if part.strip()]
+        text = parts[-1].strip() if parts else ""
+        shown = "{}: {}".format(source, text) if source and text else text
+        with self._stream_lock:
+            in_bar = self._stream_bars.get(source, False)
+            if redraw or not ended:
+                if shown:
+                    self._stream_pending = shown
+                self._stream_bars[source] = redraw or in_bar
+            else:
+                self._stream_bars[source] = False
+                if not (in_bar or len(parts) > 1) or not shown:
+                    return
+                self._stream_pending = None
+                self._stream_finals.append(shown)
+            kick = not self._stream_armed
+            self._stream_armed = True
+        if kick:
+            try:
+                self._stream_kick.emit()
+            except RuntimeError:
+                pass
+
+    def _worker_said(self, label: str, line: str) -> None:
+        """A backend worker printed ``line``; stream it under its name."""
+        self.stream(line, source=label)
+
+    def _arm_stream(self) -> None:
+        """Draw the streamed output once the throttle interval is up."""
+        if not self._stream_timer.isActive():
+            self._stream_timer.start()
+
+    def _take_stream(self):
+        """The newest undrawn state and the finished lines, emptied."""
+        with self._stream_lock:
+            pending, finals = self._stream_pending, self._stream_finals
+            self._stream_pending, self._stream_finals = None, []
+            self._stream_armed = False
+        return pending, finals
+
+    def _flush_stream(self) -> None:
+        """Draw what streamed since the last draw: finished lines into the
+        scrollback, then the newest state on the progress line."""
+        pending, finals = self._take_stream()
+        for text in finals:
+            self._write(text, "info")
+        if pending:
+            self.show_progress(pending)
+            self.stream_updates += 1
+
+    def _settle_stream(self) -> None:
+        """A line for the scrollback is coming: write the finished bars
+        before it and drop the state not yet drawn, which it supersedes."""
+        self._stream_timer.stop()
+        _pending, finals = self._take_stream()
+        for text in finals:
+            self._write(text, "info")
 
     def show_progress(self, text: str) -> None:
         """Rewrite the one progress line with ``text``.
@@ -2595,11 +2711,27 @@ def load_cellpose_model(model_name: str):
     nothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides
     there, as it does for the pipeline.
 
-    :param model_name: a Cellpose model name or the path of a fine-tuned
+    A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a
+    bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:
+    Cellpose 4 would load such a checkpoint and segment nonsense with it. It
+    is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
+    environment, as Mask generation loads it. A ``cellpose_dino:<path>``
+    model, a Cellpose-DINO checkpoint, is loaded the same way in the
+    Cellpose-DINO backend (item 525).
+
+    :param model_name: a Cellpose model name, the path of a fine-tuned
         checkpoint, resolved by
-        :func:`spacr.utils._resolve_cellpose_pretrained`.
+        :func:`spacr.utils._resolve_cellpose_pretrained`, or
+        ``cellpose3:<name or path>``.
     """
     import inspect
+
+    from ..._segmentation_backends import (_cellpose3_choice,
+                                           _cellpose_dino_choice)
+
+    if (_cellpose3_choice(model_name) is not None
+            or _cellpose_dino_choice(model_name) is not None):
+        return _backend_model(str(model_name).strip())
 
     import torch
     from cellpose import models as cp_models
@@ -9675,11 +9807,14 @@ class MakeMasksScreen(QWidget):
         """Say ``text`` in the console and show it in the corner.
 
         :param text: the line.
-        :param kind: ``progress``, ``info``, ``warning`` or ``error``; see
-            :meth:`_MasksConsole.say`.
+        :param kind: ``progress``, ``stream``, ``info``, ``warning`` or
+            ``error``; see :meth:`_MasksConsole.say`. A ``stream`` line (an
+            install's own output) goes to the console only, which throttles
+            it; the corner keeps the task's own words.
         """
         self._masks_console.say(text, kind)
-        self._status_label.set_quietly(text)
+        if kind != "stream":
+            self._status_label.set_quietly(text)
 
     def _report_status(self, text: str) -> None:
         """Copy a new corner text into the console.
@@ -11584,23 +11719,40 @@ class MakeMasksScreen(QWidget):
     def _choose_cellpose_model_from_zoo(self) -> Optional[str]:
         """Open the model zoo on its Cellpose models and select what is picked.
 
-        The same picker, and the same ``kinds=("cellpose",)`` rule, as the live
-        preview's Model zoo… button: the zoo also holds a YOLO well detector,
-        which Cellpose cannot load. A picked path the list does not hold is
-        added to it, under its file name.
+        Cellpose-SAM and Cellpose 3 models, not the zoo's YOLO well detector,
+        which no Cellpose can load. A Cellpose 3 model comes back as
+        ``cellpose3:<name or path>`` -- a bioimage.io Cellpose 3 checkpoint
+        among them -- and :func:`load_cellpose_model` runs it through the
+        Cellpose 3 backend, as Mask generation does. A picked model the list
+        does not hold is added to it, under its file name.
 
-        :returns: the path chosen, or None when the picker was cancelled.
+        :returns: the model setting chosen, or None when the picker was
+            cancelled.
         """
+        from ..i18n import tr
         from ..widgets import model_zoo_picker
+        from ..._segmentation_backends import (_cellpose3_choice,
+                                               _cellpose_dino_choice)
 
-        path = model_zoo_picker.choose_model(self, kinds=("cellpose",))
+        path = model_zoo_picker.choose_model(
+            self, kinds=("cellpose", "cellpose3", "cellpose_dino"))
         if not path:
             return None
         path = str(path)
         self._fill_zoo_models()
         index = self._cp_model.findData(path)
         if index < 0:
-            self._cp_model.addItem(os.path.basename(path) or path, path)
+            chosen = _cellpose3_choice(path)
+            dino = _cellpose_dino_choice(path)
+            if chosen is not None:
+                label = tr("Cellpose 3 · {model}",
+                           model=os.path.basename(chosen) or chosen)
+            elif dino is not None:
+                label = tr("Cellpose-DINO · {model}",
+                           model=os.path.basename(dino) or dino)
+            else:
+                label = os.path.basename(path) or path
+            self._cp_model.addItem(label, path)
             self._cp_model.setItemData(self._cp_model.count() - 1, path,
                                        Qt.ToolTipRole)
             index = self._cp_model.count() - 1

@@ -309,21 +309,26 @@ def parse_sizes(value: Any) -> Tuple[int, ...]:
     return tuple(out) or DEFAULT_SIZES
 
 
-def images_in(src: Any) -> List[Path]:
+def images_in(src: Any, papers: bool = False) -> List[Path]:
     """The images directly inside ``src``, as the run lists them.
 
     :param src: a folder, or one image file.
-    :returns: image paths sorted by name; empty when there are none.
+    :param papers: list a folder of paper folders paper by paper, as Figure
+        mode's run reads it (:func:`spacr.plaque_papers.figure_folders`).
+    :returns: image paths sorted by name, folder by folder; empty when there
+        are none.
     """
-    from ...plaque_papers import IMAGE_SUFFIXES
+    from ...plaque_papers import IMAGE_SUFFIXES, figure_folders
 
     path = Path(str(src or "")).expanduser()
     if path.is_file():
         return [path] if path.suffix.lower() in IMAGE_SUFFIXES else []
     if not path.is_dir():
         return []
-    return sorted(p for p in path.iterdir()
-                  if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES)
+    folders = figure_folders(path) if papers else [path]
+    return [image for folder in folders for image in sorted(
+        p for p in folder.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES)]
 
 
 def _to_uint8(array: np.ndarray) -> np.ndarray:
@@ -1303,9 +1308,12 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
     :param image: the figure, ``H x W x 3``.
     :param region: the well's box.
     :param settings: the module's settings.
-    :param segment: ``fn(crop) -> labels``; the plaque model when None.
-    :returns: ``{'labels', 'rows', 'count', 'mean_area', 'note'}``, or
-        ``{'error', 'entry'}``.
+    :param segment: ``fn(crop) -> labels`` or ``fn(crop) -> (labels,
+        flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs`
+        gives it; the plaque model, with its flows, when None.
+    :returns: ``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count',
+        'mean_area', 'note'}``, or ``{'error', 'entry'}``. ``flow_rgb`` and
+        ``cellprob`` are None when the segmenter gave no flows.
     """
     crop = np.ascontiguousarray(image[region.y0:region.y1,
                                       region.x0:region.x1])
@@ -1319,14 +1327,21 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
         except Exception as exc:
             return {"error": _explain_model_failure(model_path, exc)}
 
-        def segment(c: np.ndarray) -> np.ndarray:
-            """The plaque label mask of one well crop."""
-            return segment_plaque_image(model, c, settings)
+        def segment(c: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
+            """The plaque label mask of one well crop, with its flows."""
+            return segment_plaque_image(model, c, settings, return_flows=True)
 
-    labels = _match_shape(segment(crop), crop.shape[:2])
+    segmented = segment(crop)
+    flows: Dict[str, Any] = {}
+    if isinstance(segmented, tuple):
+        segmented, flows = segmented[0], dict(segmented[1] or {})
+    labels = _match_shape(segmented, crop.shape[:2])
     rows = plaque_rows(labels)
     areas = [row["area_px"] for row in rows]
-    return {"labels": labels, "rows": rows, "count": len(rows),
+    return {"labels": labels,
+            "flow_rgb": _match_image(flows.get("flow_rgb"), crop.shape[:2]),
+            "cellprob": _match_image(flows.get("cellprob"), crop.shape[:2]),
+            "rows": rows, "count": len(rows),
             "mean_area": float(np.mean(areas)) if areas else 0.0,
             "note": note}
 
@@ -3674,9 +3689,6 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if dialog is not None:
             dialog.show_mode(mode)
         self._tabs.setVisible(figure)
-        self._view_selector.setVisible(not figure)
-        if figure:
-            self._views.set_view(OVERLAY)
         self._plaque_result = None
         self._well_side.setVisible(figure)
         self._well_btn.setVisible(figure)
@@ -3759,7 +3771,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._load_token += 1
         token = self._load_token
         self.set_preview_status(tr("Loading preview from {path}…", path=text))
-        self._load_jobs.submit(lambda: images_in(text),
+        papers = self.mode() == FIGURE_MODE
+        self._load_jobs.submit(lambda: images_in(text, papers),
                                lambda paths, t=token: self._on_listing(t, paths))
         return True
 
@@ -3775,8 +3788,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paths = paths
         self._picker.blockSignals(True)
         self._picker.clear()
+        several = len({path.parent for path in self._paths}) > 1
         for path in self._paths:
-            self._picker.addItem(path.name, str(path))
+            self._picker.addItem(f"{path.parent.name}/{path.name}" if several
+                                 else path.name, str(path))
         self._picker.blockSignals(False)
         if not self._paths:
             self._clear_figure()
@@ -4537,6 +4552,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if "overlay" not in result:
             result["overlay"] = np.array(result["image"], copy=True)
         self._figure = result
+        self._show_figure_views()
         self._caption = result["review_caption"]
         self._annotations = result["annotations"]
         self._automatic_scales = result["automatic_scales"]
@@ -5062,6 +5078,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._model_note.setText(result["note"])
         self._wells[index] = result
         self._repaint_overlay()
+        self._show_figure_views()
         self._fill_table()
         self._fill_plaque_table()
         if self._selected is None or self._selected == index:
@@ -5070,6 +5087,40 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._redraw_boxes()
         self.preview_ready.emit({"well": index, **result})
         self._next_well(token)
+
+    def _show_figure_views(self) -> None:
+        """Hand the segmented wells to the masks, flows and cell probability
+        views, each well at its place on the figure.
+
+        A well not segmented yet stays black on masks and flows and at the
+        bottom of the probability scale. Before any well is segmented, and
+        for a view the segmenter gave nothing for, the views say so.
+        """
+        result = self._figure
+        if result is None or not self._wells:
+            self._views.set_arrays(
+                image=None if result is None else result["image"])
+            return
+        shape = result["image"].shape[:2]
+        labels = np.zeros(shape, dtype=np.int32)
+        flows: Optional[np.ndarray] = None
+        cellprob: Optional[np.ndarray] = None
+        for index, well in sorted(self._wells.items()):
+            region = result["regions"][index]
+            window = (slice(region.y0, region.y1), slice(region.x0, region.x1))
+            mask = np.asarray(well["labels"])
+            found = mask > 0
+            labels[window][found] = mask[found] + labels.max()
+            if well.get("flow_rgb") is not None:
+                if flows is None:
+                    flows = np.zeros(shape + (3,), dtype=np.uint8)
+                flows[window] = well["flow_rgb"]
+            if well.get("cellprob") is not None:
+                if cellprob is None:
+                    cellprob = np.full(shape, -30.0, dtype=np.float32)
+                cellprob[window] = well["cellprob"]
+        self._views.set_arrays(image=result["image"], labels=labels,
+                               flows=flows, cellprob=cellprob)
 
     def _repaint_overlay(self) -> None:
         """The figure with the outlines of every segmented well."""
@@ -5373,6 +5424,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _on_paper_failed(self, message: str) -> None:
         """Say why a fetch failed."""
+        batch = getattr(self, "_paper_batch", None)
+        if batch is not None:
+            self._on_batch_paper(batch.get("current", ""), {"error": message})
+            return
         self._paper_idle()
         self.set_preview_status(tr("Could not fetch the paper: {why}",
                                    why=message))
@@ -5398,6 +5453,126 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             m=result.get("with_legend", 0), licence=licence, path=folder))
         self._paper_note.show()
         if not folder:
+            return
+        if self._propagate_cb is not None:
+            try:
+                self._propagate_cb({"src": folder})
+            except Exception:
+                LOG.debug("could not write src", exc_info=True)
+        self.load_source_async(folder)
+
+    def fetch_papers(self, pdfs: Sequence[Any], parent: Any = None, *,
+                     fetch: Optional[Callable] = None,
+                     offer_install: bool = True) -> bool:
+        """Read several PDFs, one after another, off the GUI thread (item 526).
+
+        Each paper's figures go into a folder of its own, ``parent/<paper>``,
+        and when the last is read ``src`` is pointed at ``parent``, which
+        Figure mode's preview and run read paper by paper. The status line
+        says which paper of how many is being read; a PDF that cannot be
+        read is reported by name and the others are read all the same.
+
+        :param pdfs: the PDF paths, in reading order.
+        :param parent: the folder the papers' folders are made in; the first
+            PDF's folder when None.
+        :param fetch: replaces ``fetch_paper_to_folder`` (tests).
+        :param offer_install: offer the figure reader's install first when
+            it is needed.
+        :returns: True when the reading was started, or answered with the
+            reader's install offer.
+        """
+        pdfs = [Path(str(pdf)).expanduser() for pdf in pdfs
+                if str(pdf or "").strip()]
+        if not pdfs:
+            return False
+        if len(pdfs) == 1:
+            return self.fetch_paper(str(pdfs[0]), str(parent or pdfs[0].parent),
+                                    fetch=fetch, offer_install=offer_install)
+        if self._paper_jobs.is_busy() or getattr(self, "_paper_batch", None):
+            self.set_preview_status(tr("A paper is already being fetched."))
+            return False
+        if offer_install and fetch is None:
+            from ...plaque_papers import reader_problem
+
+            kind, why = reader_problem(pdf=True)
+            if kind and not self._offer_install(reinstall=kind == "reinstall",
+                                                why=why):
+                return True
+        folder = Path(str(parent)).expanduser() if parent else pdfs[0].parent
+        taken: set = set()
+        todo = []
+        for index, pdf in enumerate(pdfs):
+            name = paper_folder_name(pdf)
+            for label in (name, f"{paper_folder_name(pdf.parent.name)}_{name}",
+                          f"{index + 1:03d}_{name}"):
+                if label.lower() not in taken:
+                    break
+            taken.add(label.lower())
+            todo.append((pdf, folder / label))
+        self._paper_batch = {"todo": todo, "n": len(todo), "read": [],
+                             "failed": [], "folder": folder, "fetch": fetch,
+                             "current": ""}
+        self._paper_btn.setEnabled(False)
+        self._paper_btn.setText(tr("Fetching…"))
+        self._next_paper()
+        return True
+
+    def _next_paper(self) -> None:
+        """Start reading the next PDF of the batch, or finish it."""
+        batch = self._paper_batch
+        if not batch["todo"]:
+            self._papers_read()
+            return
+        pdf, dest = batch["todo"].pop(0)
+        batch["current"] = pdf.name
+        self.set_preview_status(tr(
+            "Reading paper {k} of {n}: {name}…",
+            k=batch["n"] - len(batch["todo"]), n=batch["n"], name=pdf.name))
+        fetch = batch["fetch"]
+        if fetch is None:
+            from ...plaque_papers import fetch_paper_to_folder as fetch
+
+        def job() -> Dict[str, Any]:
+            """Read one PDF, turning its failure into an answer."""
+            try:
+                return {"result": fetch(str(pdf), dest)}
+            except Exception as exc:
+                return {"error": str(exc) or type(exc).__name__}
+
+        self._paper_jobs.submit(
+            job, lambda answer, name=pdf.name: self._on_batch_paper(name, answer))
+
+    def _on_batch_paper(self, name: str, answer: Dict[str, Any]) -> None:
+        """Note how one PDF of the batch went, then read the next."""
+        batch = getattr(self, "_paper_batch", None)
+        if batch is None:
+            return
+        if answer.get("error") or not isinstance(answer.get("result"), dict):
+            batch["failed"].append((name, str(answer.get("error") or "")))
+        else:
+            batch["read"].append(answer["result"])
+        self._next_paper()
+
+    def _papers_read(self) -> None:
+        """Report the batch, naming each PDF that could not be read, and show
+        the papers that were."""
+        batch, self._paper_batch = self._paper_batch, None
+        self._paper_idle()
+        read, failed = batch["read"], batch["failed"]
+        folder = str(batch["folder"])
+        lines = [tr("Read {k} of {n} papers into {path}: {figures} figures, "
+                    "{m} with legends.", k=len(read), n=batch["n"], path=folder,
+                    figures=sum(int(r.get("figures") or 0) for r in read),
+                    m=sum(int(r.get("with_legend") or 0) for r in read))]
+        lines += [tr("Could not read {name}: {why}", name=name, why=why)
+                  for name, why in failed]
+        self._paper_note.setText("\n".join(lines))
+        self._paper_note.show()
+        self.set_preview_status(tr(
+            "Could not read {n} of the papers: {names}.", n=len(failed),
+            names=", ".join(name for name, _why in failed))
+            if failed else lines[0])
+        if not read:
             return
         if self._propagate_cb is not None:
             try:
@@ -5725,8 +5900,8 @@ def check_the_src(screen: Any, source: str) -> Optional[str]:
 
     Asked once per source and mode, and only while the screen is on
     screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode
-    -- already, or after the answer switched to it -- has its first PDF
-    read the way a dropped one is, so the preview and the run get the
+    -- already, or after the answer switched to it -- has every PDF read
+    the way dropped ones are (item 526), so the preview and the run get the
     paper's figure folder rather than a PDF they cannot open.
 
     :param screen: the Plaque Assay screen.
