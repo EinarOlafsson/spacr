@@ -662,6 +662,9 @@ def key_token(key, text: str = "") -> Optional[str]:
 
     Returns ``None`` for anything the annotate screen does not bind, so
     callers can fall through to the default Qt handling.
+
+    :param key: Qt key code (an int or int-like value), a key name such as
+        ``"Left"``, or a literal character such as ``"1"``.
     """
     if isinstance(key, str):
         token = _token_from_text(key)
@@ -3980,7 +3983,11 @@ class AnnotateScreen(QWidget):
         self._refresh_focus_marks()
 
     def resizeEvent(self, event):
-        """Re-fit the thumbnail grid after resize activity settles."""
+        """Re-fit the thumbnail grid after resize activity settles.
+
+        :param event: the resize event, passed to the base class; the grid is
+            re-measured from the widget's new size.
+        """
         super().resizeEvent(event)
         self._refit_grid()
 
@@ -5936,6 +5943,9 @@ class AnnotateScreen(QWidget):
         unbound keys return False and are left for Qt's default handling.
         This is the single entry point for the whole keyboard feature so it
         can be driven directly, without synthesising key events.
+
+        :param key: Qt key code, Qt key name or literal character, normalised
+            with :func:`key_token`.
         """
         token = key_token(key, text)
         if token is None:
@@ -6081,7 +6091,11 @@ class AnnotateScreen(QWidget):
         return True
 
     def keyPressEvent(self, event):
-        """Route keystrokes through :meth:`handle_key` before Qt's default."""
+        """Route keystrokes through :meth:`handle_key` before Qt's default.
+
+        :param event: the key event; its key code and text are read, and it is
+            accepted when the key is bound.
+        """
         if self.handle_key(event.key(), event.text()):
             event.accept()
             return
@@ -6094,6 +6108,13 @@ class AnnotateScreen(QWidget):
         Leave normally clears the hover, but the cursor can quit the grid
         without one (window hidden, cursor warped), and a hover nobody is
         pointing at any more must not survive.
+
+        :param obj: the watched object: the grid scroll area, its viewport or
+            the grid holder. Resizes count only on the viewport, and mouse
+            presses, moves and releases drive the selection band only on the
+            grid holder.
+        :param event: the event; key presses go to :meth:`handle_key`, and
+            ``Leave`` clears the hover.
         """
         if getattr(self, "_closing", False):
             return False
@@ -6274,7 +6295,11 @@ class AnnotateScreen(QWidget):
             " · ".join(parts) if parts else tr("Ready."))
 
     def closeEvent(self, event):
-        """Drain every native/Python worker before Qt destroys this screen."""
+        """Drain every native/Python worker before Qt destroys this screen.
+
+        :param event: the close event, passed on to the base class after
+            every worker has been stopped or drained.
+        """
         self._closing = True
         self._detach_event_filters()
         for report in list(getattr(self, "_reports", {}).values()):

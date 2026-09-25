@@ -87,7 +87,10 @@ class Screensaver(QWidget):
             return None
 
     def paintEvent(self, _event) -> None:
-        """Black behind the backdrop, so nothing shows through."""
+        """Black behind the backdrop, so nothing shows through.
+
+        :param _event: the paint event; not read, the whole window is filled.
+        """
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor(0, 0, 0))
         painter.end()
@@ -115,6 +118,9 @@ class Screensaver(QWidget):
         A canvas whose widget is destroyed while its timer is still running
         is the crash this module must not cause: `pause` is the documented
         way to make one give its threads back.
+
+        :param event: the close event, passed on to the base class after the
+            backdrop is paused.
         """
         backdrop = getattr(self, "_backdrop", None)
         pause = getattr(backdrop, "pause", None)

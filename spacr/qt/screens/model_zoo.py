@@ -656,6 +656,9 @@ class ModelZooScreen(QWidget):
         One row per model family. The version column is a combo box, so a
         model with several versions is one row the user opens rather than
         several rows they have to tell apart by suffix.
+
+        :param entries: iterable of :class:`spacr.model_zoo.ModelEntry`;
+            grouped into families by key, newest version first.
         """
         self._entries = list(entries)
         self._groups = group_entries(self._entries)
@@ -777,7 +780,11 @@ class ModelZooScreen(QWidget):
         self._update_controls()
 
     def chosen_entry(self, row: int):
-        """The entry a row currently stands for, honouring its version pick."""
+        """The entry a row currently stands for, honouring its version pick.
+
+        :param row: index into the grouped listing, i.e. the model family in
+            the order :meth:`set_entries` laid the rows out.
+        """
         stem, pairs = self._groups[row]
         return pairs[self._chosen[stem]][1]
 
@@ -966,6 +973,8 @@ class ModelZooScreen(QWidget):
         ``fn(uri) -> chunks`` or ``fn(uri) -> (chunks, total)``; None restores
         :func:`spacr.model_zoo.open_uri`. This is the seam the tests use, and
         it is why no test in this suite touches the network.
+
+        :param opener: callable of that form, or ``None``.
         """
         self._opener = opener
 
@@ -1091,6 +1100,8 @@ class ModelZooScreen(QWidget):
         ``fn(images, config) -> masks``; None restores
         :func:`spacr.model_compare.segment_with_cellpose`. Every test injects
         one, which is why nothing here loads Cellpose.
+
+        :param fn: callable of that form, or ``None``.
         """
         self._segment_fn = fn
 
@@ -1530,6 +1541,9 @@ class ModelZooScreen(QWidget):
 
         A QThread collected while still running aborts the process, so the
         widget waits rather than dropping its references and hoping.
+
+        :param event: the close event, passed on to the base class after
+            running jobs are cancelled and waited on (up to five seconds each).
         """
         self._cancel["stop"] = True
         for thread, _worker in list(self._jobs):
