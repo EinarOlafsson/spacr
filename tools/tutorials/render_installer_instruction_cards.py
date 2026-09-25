@@ -108,7 +108,7 @@ def main():
             'packaging/online/build_macos_online.sh',
             'packaging/online/install_spacr_unix.sh']]
     write(capture / 'provenance.json', provenance)
-    print('Four reference cards and one reused genuine release-page screenshot; native frames unchanged.')
+    print(f'{len(cards)} reference cards and one reused genuine release-page screenshot; native frames unchanged.')
 
 
 if __name__ == '__main__':
