@@ -161,7 +161,8 @@ def test_a_bioimageio_cellpose3_row_downloads_its_checkpoint_with_its_hash():
     assert (row.name, row.kind, row.source) == (
         "cellpose_cyto3.pth", "cellpose3", "bioimage.io")
     assert row.sha256 == "2dc3087a" and row.licence == "BSD-3-Clause"
-    assert "segmentation_backend to cellpose3" in row.notes[0]
+    assert "segmentation_backend" not in row.notes[0]
+    assert "cellpose3:<its path> in the object's model setting" in row.notes[0]
     bare = zoo._cellpose3_download_entry(
         "a", "slug", "t", {}, "", "https://x/cellpose_model", "")
     assert (bare.uri, bare.name, bare.licence) == (
@@ -181,11 +182,11 @@ def test_the_bioimageio_listing_offers_both_kinds_from_one_cache(tmp_path):
     rows = {e.key: e for e in zoo.bioimageio_entries()}
     assert set(rows) == {"bioimageio_cellpose_cyto3",
                          "bioimageio_cellpose_plant_nuclei_resnet",
-                         "cellpose_sam"}
+                         "bioimageio_cellpose_sam"}
     assert rows["bioimageio_cellpose_cyto3"].trained_by == "Ada, Grace"
     assert rows["bioimageio_cellpose_plant_nuclei_resnet"].uri == (
         "https://mirror/cp_state_dict")
-    assert rows["cellpose_sam"].kind == "cellpose", (
+    assert rows["bioimageio_cellpose_sam"].kind == "cellpose", (
         "a Cellpose-SAM model is spaCR's own Cellpose's, not Cellpose 3's")
 
 

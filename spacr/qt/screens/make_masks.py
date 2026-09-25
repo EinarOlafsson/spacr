@@ -2595,11 +2595,23 @@ def load_cellpose_model(model_name: str):
     nothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides
     there, as it does for the pipeline.
 
-    :param model_name: a Cellpose model name or the path of a fine-tuned
+    A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a
+    bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:
+    Cellpose 4 would load such a checkpoint and segment nonsense with it. It
+    is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
+    environment, as Mask generation loads it.
+
+    :param model_name: a Cellpose model name, the path of a fine-tuned
         checkpoint, resolved by
-        :func:`spacr.utils._resolve_cellpose_pretrained`.
+        :func:`spacr.utils._resolve_cellpose_pretrained`, or
+        ``cellpose3:<name or path>``.
     """
     import inspect
+
+    from ..._segmentation_backends import _cellpose3_choice
+
+    if _cellpose3_choice(model_name) is not None:
+        return _backend_model(str(model_name).strip())
 
     import torch
     from cellpose import models as cp_models
@@ -11584,23 +11596,33 @@ class MakeMasksScreen(QWidget):
     def _choose_cellpose_model_from_zoo(self) -> Optional[str]:
         """Open the model zoo on its Cellpose models and select what is picked.
 
-        The same picker, and the same ``kinds=("cellpose",)`` rule, as the live
-        preview's Model zoo… button: the zoo also holds a YOLO well detector,
-        which Cellpose cannot load. A picked path the list does not hold is
-        added to it, under its file name.
+        Cellpose-SAM and Cellpose 3 models, not the zoo's YOLO well detector,
+        which no Cellpose can load. A Cellpose 3 model comes back as
+        ``cellpose3:<name or path>`` -- a bioimage.io Cellpose 3 checkpoint
+        among them -- and :func:`load_cellpose_model` runs it through the
+        Cellpose 3 backend, as Mask generation does. A picked model the list
+        does not hold is added to it, under its file name.
 
-        :returns: the path chosen, or None when the picker was cancelled.
+        :returns: the model setting chosen, or None when the picker was
+            cancelled.
         """
+        from ..i18n import tr
         from ..widgets import model_zoo_picker
+        from ..._segmentation_backends import _cellpose3_choice
 
-        path = model_zoo_picker.choose_model(self, kinds=("cellpose",))
+        path = model_zoo_picker.choose_model(self, kinds=("cellpose",
+                                                          "cellpose3"))
         if not path:
             return None
         path = str(path)
         self._fill_zoo_models()
         index = self._cp_model.findData(path)
         if index < 0:
-            self._cp_model.addItem(os.path.basename(path) or path, path)
+            chosen = _cellpose3_choice(path)
+            label = (os.path.basename(path) or path) if chosen is None else tr(
+                "Cellpose 3 · {model}",
+                model=os.path.basename(chosen) or chosen)
+            self._cp_model.addItem(label, path)
             self._cp_model.setItemData(self._cp_model.count() - 1, path,
                                        Qt.ToolTipRole)
             index = self._cp_model.count() - 1
