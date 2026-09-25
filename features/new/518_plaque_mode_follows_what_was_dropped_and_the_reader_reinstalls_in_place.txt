@@ -1,0 +1,35 @@
+PLAQUE ASSAY: THE FIGURE READER REINSTALLS IN PLACE, AND THE MODE FOLLOWS WHAT WAS DROPPED
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 468 (plaque and figure modes), 469 (the figure
+reader in its own environment), 517 (dropping files and PDFs), 507 (an
+install button that says what happened).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "for the figure, now its telling me to reinstall the plaque figure reader
+    from the model zoo. this should trigger a pupup to reinstall it and if a
+    pdf or a folder with pgfs is dropped in or detected from the sourse then
+    the user should be prompted to switch, and sam for if both images and
+    figures are detected, then prompt the user and say pdfs are read in
+    figure mode and images in plawue mode and have them choose."
+
+WHAT TO BUILD
+  1. WHY IT ASKS: find out why Figure mode now says the plaque figure reader
+     must be reinstalled from the Model Zoo on this machine (the environment
+     from item 469 exists or not; a readiness check that changed; 475's
+     backend-environment changes). Fix a false alarm if it is one.
+  2. REINSTALL IN PLACE: when the reader genuinely needs (re)installing,
+     Plaque Assay offers a popup that installs it right there, with honest
+     progress and result (507's pattern), instead of sending the user to the
+     Model Zoo.
+  3. THE MODE FOLLOWS THE INPUT: when a PDF, or a folder containing PDFs, is
+     dropped or found in src while in Plaque mode, prompt to switch to
+     Figure mode. When both images and PDFs/figures are found, prompt with
+     "PDFs are read in Figure mode, images in Plaque mode" and let the user
+     choose which to run. The reverse (images while in Figure mode) prompts
+     too.
+
+DONE WHEN
+Figure mode on this machine either works or offers a working in-place
+reinstall; offscreen tests cover the three prompts (PDF in Plaque mode,
+images in Figure mode, mixed) for both drops and src detection.
