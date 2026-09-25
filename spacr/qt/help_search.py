@@ -867,6 +867,9 @@ class HelpSearchField(QLineEdit):
         Safe to do unconditionally now that the list takes ``NoFocus``:
         clicking a row cannot move focus, so a focus-out means the user went
         somewhere else and the list is in the way of whatever that was.
+
+        :param event: the focus-out event; it is not inspected, only passed on
+            to the base class after the list is hidden.
         """
         self.hide_popup()
         super().focusOutEvent(event)

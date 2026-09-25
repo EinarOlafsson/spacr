@@ -246,6 +246,10 @@ def read_pack(app_key: str, pack_dir: str) -> Tuple[Dict[str, Any], int]:
 
     Missing file is not an error: a pack legitimately carries settings for
     some apps and not others, and the caller gets an empty dict. Use
+    :param app_key: app key whose pack file is looked for, first as
+        ``<app_key>_settings.csv`` and then under the published names in
+        ``PACK_FILES``.
+    :param pack_dir: folder holding the unpacked settings pack.
     :func:`_pack_path` to tell that case apart from a file that was read.
     """
     values: Dict[str, Any] = {}

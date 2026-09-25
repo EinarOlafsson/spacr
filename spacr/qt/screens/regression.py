@@ -251,6 +251,11 @@ def install_publication_figure(panel, opener: Callable[[], object]) -> bool:
     user changed anything.
 
     Idempotent. Returns False when there is no volcano to offer it on.
+
+    :param panel: regression results panel; its ``volcano`` plot, if any, gets
+        the menu entry, and None is accepted.
+    :param opener: zero-argument callable run when the menu entry is chosen;
+        its return value is ignored.
     """
     plot = getattr(panel, "volcano", None) if panel is not None else None
     if plot is None or getattr(plot, "_publication_figure", False):
@@ -347,7 +352,11 @@ def _follow_the_run(panel) -> None:
 
 
 def raise_hits_tab(panel) -> bool:
-    """Bring the Hits tab to the front. False when there is none."""
+    """Bring the Hits tab to the front. False when there is none.
+
+    :param panel: regression results panel carrying ``hits`` and ``tabs``
+        attributes; None, or a panel missing either, returns False.
+    """
     hits = getattr(panel, "hits", None) if panel is not None else None
     tabs = getattr(panel, "tabs", None) if panel is not None else None
     if hits is None or tabs is None:
@@ -412,7 +421,11 @@ def build_methods_export(host_window: Optional[QWidget] = None,
 
 
 def results_panel(screen):
-    """``screen``'s results panel, or None on a screen that has none."""
+    """``screen``'s results panel, or None on a screen that has none.
+
+    :param screen: app screen whose ``_results_panel`` attribute is returned;
+        None is accepted.
+    """
     return getattr(screen, "_results_panel", None) if screen is not None \
         else None
 
@@ -656,6 +669,8 @@ def install_extras(screen: QWidget) -> bool:
     the open, so the widget block it registers joins every sheet from then
     on exactly as it did.
 
+    :param screen: app screen to prepare; anything whose ``app_key`` is not
+        ``"regression"`` is left alone and False is returned.
     :returns: True when a panel was found and prepared.
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
@@ -697,6 +712,8 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Regression's fold strip on ``screen``'s masthead.
 
     Built here rather than through
+    :param screen: app screen whose masthead receives the strip; it must have
+        ``app_key`` ``"regression"`` and a ``_header`` with ``add_trailing``.
     :func:`spacr.qt.screens.map_barcodes.install_fold_strip` because one of
     the three buttons does not open a window: the Hits button raises a tab
     on the screen the user is already looking at.

@@ -185,7 +185,11 @@ class PCAScreen(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Decompose ``frame``. The one call a host needs."""
+        """Decompose ``frame``. The one call a host needs.
+
+        :param frame: measurement table, one row per object; it is passed
+            through the screen's filters before the decomposition.
+        """
         self._frame = frame
         self.filters.set_frame(frame)
         self.pca.set_frame(self._filtered())
@@ -227,6 +231,8 @@ class PCAScreen(QWidget):
         table to read.
 
         Returns as soon as the read is dispatched;
+        :param path: CSV, TSV or TXT file, or a SQLite measurement database
+            whose table names fill the table picker.
         :meth:`_on_frame_loaded` finishes on the GUI thread.
         """
         self._path = path

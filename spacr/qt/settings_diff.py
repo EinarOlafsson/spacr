@@ -55,7 +55,14 @@ _CATEGORY_ORDER: Tuple[str, ...] = ()
 
 @dataclass(frozen=True)
 class DiffRow:
-    """One diff entry."""
+    """One diff entry.
+
+    :param key: the settings key.
+    :param a_val: its value in run A, or None when the key is absent there.
+    :param b_val: its value in run B, or None when the key is absent there.
+    :param kind: ``"added"``, ``"removed"``, ``"changed"`` or ``"same"``, as
+        defined in the module description.
+    """
     key:   str
     a_val: Any
     b_val: Any
@@ -149,7 +156,11 @@ class SettingsDiff:
         return not any(c.rows for c in self.categories)
 
     def category(self, name: str) -> Optional[CategoryDiff]:
-        """Return one category's block, or ``None`` if it has nothing."""
+        """Return one category's block, or ``None`` if it has nothing.
+
+        :param name: category heading to look up, compared exactly with
+            :attr:`CategoryDiff.category`.
+        """
         for candidate in self.categories:
             if candidate.category == name:
                 return candidate

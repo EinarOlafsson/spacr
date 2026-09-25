@@ -175,7 +175,11 @@ def register_preview(app_key: str, spec: PreviewSpec,
 
 
 def unregister_preview(app_key: str) -> bool:
-    """Drop a declaration. ``True`` if there was one."""
+    """Drop a declaration. ``True`` if there was one.
+
+    :param app_key: app key whose preview declaration is removed; converted
+        with ``str()`` first.
+    """
     return PREVIEWS.pop(str(app_key), None) is not None
 
 
@@ -332,6 +336,10 @@ def install(screen: QWidget) -> Optional[_PreviewHost]:
     ``AppScreen`` already built one for it, when the screen has no runtime
     panel to insert into, or when one is already installed. Never raises: a
     missing preview must not cost anyone a module.
+
+    :param screen: app screen widget; its ``app_key`` attribute selects the
+        declared preview, and the installed host is remembered on it so a
+        second call returns the same one.
     """
     if getattr(screen, "_registry_preview", None) is not None:
         return screen._registry_preview
@@ -569,6 +577,10 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
 
     Called once from :func:`spacr.qt.shortcuts.install`, after the settings
     strip's own hook so the toggle has somewhere to go.
+
+    :param window: main window whose ``_stack`` screen stack is followed;
+        without one nothing is installed, and a watcher already stored on it is
+        returned instead of a new one.
     """
     stack = getattr(window, "_stack", None)
     if stack is None:
