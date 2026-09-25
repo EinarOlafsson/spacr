@@ -1,20 +1,34 @@
 {
-  "lesson": "05_home", "language": "ja",
-  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
-  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Retain English UI names instead of translating Home as family or host as parents.", "Correct image crops, screening, assay and machine-learning terminology.", "Remove the machine draft's unrelated Hindi fragment and restore every source instruction."]},
+  "lesson": "05_home",
+  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
   "title": "Home画面とナビゲーション",
-  "description": "Coreの6つの工程とHomeの現在のカテゴリを確認し、関連ツールを親モジュールの中から見つけます。",
-  "objectives": ["画像から回帰分析の結果まで、Coreの分析の流れを理解する。", "Data、Tools、Assaysを見つけ、モジュール内に統合された機能を、なくなったモジュールと混同しない。", "ダウンロードする実データと生成されたデモを区別し、対応する専門チュートリアルを見つける。"],
-  "prerequisite": "spaCRをインストールし、デスクトップアプリを開いてください。録画ではダークテーマと拡大したインターフェース文字を使用しています。",
+  "description": "Homeからモジュールを開き、関連ツールと例データを見つけて、たどるパイプラインを選びます。",
+  "objectives": [
+    "画像、測定値、シーケンシングリードに合った最初のモジュールを選ぶ。",
+    "関連ツールと生物種ごとのアッセイを見つける。",
+    "例を読み込み、ヘルプを探し、パイプラインの概要を開く。"
+  ],
+  "prerequisite": "spaCRをインストールし、デスクトップアプリケーションを開いてください。",
   "scenes": [
-    "Homeでは、spaCRがCore、Data、Tools、Assaysに分かれています。これらは作業の流れに応じたカテゴリです。関連ツールが親モジュールの中にある場合もあるため、Homeのボタンがすべての機能を表しているわけではありません。",
-    "Coreはスクリーニングの分析工程に沿って、Mask、Measure、Annotate、Classify、Map Barcodes、Regressionと並んでいます。手元の入力データに合った工程から始めてください。対応する測定データや切り出し画像がすでにある場合、セグメンテーションをやり直す必要はありません。",
-    "DataにはImport、Run Compare、Experiment Design、Power and Design、Dose Response、品質管理がまとまっています。Importは、Import Images、Format Converter、External Masksへの入り口でもあります。これらの機能を使うときは、まず親モジュールを開いてください。",
-    "ToolsにはMake Masks、Align and Stitch、Image UMAP、Gate Editor、Graph Builderがあります。それぞれに関連する操作がまとまっています。例えば、Make Masksにはモデルの学習と比較があり、Graph BuilderにはPlate ViewerとSmall Multiplesがあります。",
-    "AssaysにはPlaque Assay、Recruitment、Invasion Assay、Replication Assayがあります。実験内容と必要な入力データに合ったワークフローを選んでください。モジュールの成熟度を示す色はカテゴリとは別です。実験的な機能を利用する前に、ツールチップを確認してください。",
-    "Classifyは1つのモジュールです。Classifier familyという設定で、画像を使うコンピュータビジョンか、測定した特徴量を使う機械学習かを選びます。従来のコンピュータビジョンと機械学習のチュートリアルは、この2つの方法を詳しく説明するものです。Homeに別々のボタンがあるという意味ではありません。",
-    "Classifyの上部のアイコンから、Classifier Evaluation、Explain CV Model、Activation、Training Runs、Feature Explorerを開けます。アイコンにポインタを合わせると、名前と説明が表示されます。学習済みモデルやその結果を確認するときは、リンク先の専門チュートリアルを参照してください。",
-    "Coreのチュートリアルでは、Load test dataから入手できる実データを使います。ダウンロードすると、必要な入力と対応する設定が読み込まれます。Helpで生成するデモは、それとは別の選択肢です。MaskのTimeと3Dスイッチは時系列と立体データのワークフローを表示し、Liveはプレビューを開きます。",
-    "操作ガイドやチュートリアルに戻るにはHelpを使います。使用中のモジュールのチュートリアルをアプリと並べて開き、データ、設定、出力結果の確認に従ってください。次のレッスンでは、同じワークフローをPython APIやコマンドラインから利用する方法を紹介します。"
+    "Homeが出発点です。タイルをクリックしてモジュールを開くか、左側のサイドバーを使います。ここに戻るには、サイドバーのHomeをクリックします。Core、Data、Tools、Assaysのタブを使うと、行いたい作業が見つけやすくなります。",
+    "顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。",
+    "Dataは、ファイルを取り込み、結果を確認する場所です。画像、マスク、測定テーブルがすでにある場合は、Importでほかのモジュールが読める形でプロジェクトに取り込みます。実験の前にはExperiment Designでプレートを設計し、実験の後にはQCで記録された品質チェックを確認し、Run Compareで二つの実行を並べて比べます。",
+    "Toolsには、実際に手を動かすエディターやエクスプローラーがまとめられています。Make Masksではマスクを修正でき、そこからCellpose Workbenchも開けます。Align and Stitchは、重なり合う画像タイルをつなぎ合わせて一枚の画像にします。測定値がそろったら、Image UMAP、Gate Editor、Graph Builderで探索やプロットができます。各モジュールのツールバーから、関連するツールを開けます。",
+    "Assaysを開き、生物種としてToxoplasma、Plasmodium、Candidaのいずれかを選びます。次に、その生物種のメニューからアッセイを選びます。たとえば、プラーク解析や宿主と病原体の測定にはToxoplasmaを開きます。選んだアッセイのチュートリアルに従って、画像、マスク、測定の入力を準備してください。",
+    "Classifyを開き、Classifier familyで入力を選びます。物体の画像にはComputer Visionを、測定した特徴量の列にはTabular Machine Learningを選びます。リンク先のチュートリアルでは、それぞれの手法の学習、評価、スコア付けを説明しています。",
+    "モデルを学習したら、Classifyのツールバーでその中身を検証できます。Classifier Evaluationは取り分けておいたデータでの成績を示し、Explain CV ModelとActivationは判定の決め手を示します。Training Runsは学習の履歴を比べ、Feature Explorerはグループを分ける特徴量を順位付けします。アイコンにポインターを合わせると名前が表示されます。",
+    "モジュールを試すには、Load test dataがあればクリックします。ダウンロードが終わるのを待ってから、入力された項目と設定を確認します。Maskでは、Runを押す前にLiveをクリックしてフィールドを確認します。時系列にはTimeを、立体画像には3Dをオンにします。",
+    "Helpの横にある検索欄に、モジュール、設定、関数の名前を入力します。ここではPerformanceを検索すると、対応するPreferencesのページが見つかります。結果をクリックすると、その場所が開きます。APIの結果をクリックすると、選んだ関数のドキュメントが開きます。",
+    "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
+    "Homeに戻り、Pipeline overviewsをクリックしてワークフローを選びます。プール型の画像スクリーンならspaCR screensから始め、データに応じて画像解析またはシーケンシングの経路を選びます。次のチュートリアルでこれらのモジュールのつながりを示し、各モジュールのレッスンでそれぞれの作業を順に説明します。"
   ]
 }
