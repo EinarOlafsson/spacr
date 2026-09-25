@@ -18,7 +18,6 @@ from build_appended_candidate import (copy_preserved_web, ensure_web_root, hoste
                                       mark_hosted_web, migrate_web_copy)
 from publish_release_candidate import drop_superseded_web_copies
 from validate_candidate import require_consistent_web_hosting
-from verify_release_candidate import published_tree
 
 PLAYER = Path(__file__).resolve().parents[1] / 'authoring/web/app_v2.js'
 ROOT = 'https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/' + 'a' * 40
@@ -153,6 +152,8 @@ def published_index(tmp_path, web_root):
 
 
 def test_published_tree_requires_the_web_root_on_the_same_pinned_revision(tmp_path):
+    pytest.importorskip('playwright')  # the browser verifier imports it at module level
+    from verify_release_candidate import published_tree
     root, pages = published_index(tmp_path, ROOT)
     assert published_tree(root, pages) == ROOT
     other = tmp_path / 'other'

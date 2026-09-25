@@ -1899,31 +1899,31 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "Rakning í tímaröð",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Keyrðu átta tilbúnar myndir í innbyggðu verkferli Mask og berðu saman raunverulegar grímutengingar í Track preview.",
+      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
       "objectives": [
-        "Finna Timelapse inni í Mask og varðveita tímaás og upprunalegar myndir.",
-        "Bera saman upphaflega, sundraða og endurheimta ferla á sömu grímum.",
-        "Greina á milli rakningarvísa, spilunar, ályktunar líkans og mældrar líffræðilegrar hreyfingar."
+        "Load the example images and masks in Track preview.",
+        "Adjust overlap and inspect object identities across frames.",
+        "Configure a time-series Mask run and find its tracked outputs."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Notaðu Help > Demos > Timelapse demo í nýrri möppu: átta tilbúna tímapunkta, 256 × 256 mynddíla, kjarni á rás 0 og fruma á rás 1. Kveiktu á Plot og Keep original images; allar sextán TIFF-skrár varðveitast. ZIP-skráin inniheldur raunverulegu frumu- og grímuplönin úr þessari keyrslu, ekki mæligögn eða sannreyndar viðmiðunargrímur. Veldu image_sequences/field_A01 og label_sequences/field_A01 sitt í hvoru lagi: forskoðunarrás 0, átta myndir, einn myndreitur. Þröskuldur 0.1 gefur sextán heila ferla; 1.0 gefur 128 ferla með einni mynd. Endurstilltu í 0.1, bíddu og smelltu sérstaklega á Re-link; innsláttur getur ræst keyrslu með milligildi. Ekki smella á Propagate settings, sem flytur ekki IoU-þröskuldinn. Viðvaranir um flæðisþröskuld, tengslatöflu og stöðu stillinga eru tilgreindar. Engin líffræðileg sannprófun eða mæling á hraða í eðlisfræðilegum einingum. API: spacr.core.preprocess_generate_masks og spacr.timelapse. Slökkt er á AI.",
+      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Opnaðu Mask og kveiktu á Time. Timelapse er nú inni í Mask, ekki sérstakur reitur á Home. Það bætir stillingum tímaáss og rakningar við myndskiptingarferlið. Hreyfanleikamælingar tilheyra Measure og koma síðar.",
+          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
@@ -1931,164 +1931,125 @@
           ]
         },
         {
-          "visual": "03_actual_demo_menu",
-          "narration": "Veldu Help, Demos og síðan Timelapse demo og veldu nýja möppu. Þetta býr til átta tilbúnar myndir með hlutum á hreyfingu og hleður inn stillingunum. Þetta eru kennslumyndir, ekki líffræðileg tilraun eða sönnun fyrir nákvæmni myndskiptingar.",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ]
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "Athugaðu innfyllta upprunaslóð og rásir. Í dæminu er kjarnastyrkur á rás núll og frumustyrkur á rás eitt, án sýkilsrásar. Skráarnöfn skrá tíma aðskilinn frá myndreit og rás. Ekki nota venjulega kyrrstæða prófunarplötu í stað tímaraðar.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ]
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits notar sneiðmörk með númerun frá núlli: núll til átta nær yfir allar átta myndirnar en sleppir endamarkinu. Haltu tímapunktum hvers myndreits saman. Spilunarhraði gefur ekki vantað bil milli myndataka; þetta dæmi ákvarðar ekki hraða í eðlisfræðilegum einingum.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ]
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "Rektu frumur með skörunaraðferðinni iou. Hún tengir grímur með hlutfalli sniðmengis og sammengis á samliggjandi myndum. Aðrir bakendar hafa aðrar forsendur og valkvæðar hugbúnaðarkröfur. Færsla er ekki skörunarþröskuldur; notaðu stillingar sem valinn bakendi les í raun.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ]
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "Kveiktu á Keep original images áður en þú velur Run. Annars getur tiltekt eytt möppum með milliniðurstöðum og upprunalegum myndum. Þessi upptaka varðveitir allar sextán nýju TIFF-skrárnar óbreyttar og snertir aldrei eldri kennslugögn. Geymdu alltaf sérstakt öryggisafrit af myndaðri tilraun.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ]
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "Kveiktu á Plot og keyrðu litla dæmið. Núverandi vinnslukeðja vinnur allar átta myndirnar saman, jafnvel þótt óskað lotustærð sé minni. Fylgstu með stjórnborði og auðlindamæli: Fleiri myndir, stærri myndir og fleiri hlutir geta þurft miklu meira vinnsluminni.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ]
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "Keyrslan skilar fimm myndritum og átta sameinuðum fylkjum. Í þessari stöðluðu birtingu eru fyrstu tvö plönin styrkir; síðustu tvö eru frumu- og kjarnamerkingar, ekki auka myndatökurásir. Vistaða frumutaflan hefur sextán ferla, hvern yfir átta myndir.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ]
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "Lestu viðvaranirnar líka, ekki aðeins Finished. Þessi útgáfa varar við erfðum flæðisþröskuldum, óaðgengilegri tengslatöflu og stöðu stillinga. Vistaðar grímur og ferlar voru sannreynd sérstaklega; þetta er ekki gallalaust útgáfupróf eða staðgengill fyrir Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ]
-        },
-        {
           "visual": "09_actual_track_preview",
-          "narration": "Opnaðu Track preview. Til að endurtaka tengiæfinguna skaltu sækja og afþjappa tilbúna forskoðunarsafninu sem er tengt hér fyrir neðan. Það inniheldur nákvæmlega frumu- og grímuplönin úr upptökunni. Þessar grímur prófa tengingar án þess að keyra annað myndskiptingarlíkan.",
+          "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            360,
+            230,
+            3460,
+            1760
           ]
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Veldu myndaraðarmöppuna fyrir myndreit A núll eitt. Útfluttu myndirnar innihalda aðeins upprunalega frumustyrksplanið, svo veldu rás núll hér. Hafðu mynda- og merkingaraðir undir aðskildum yfirmöppum; stilltu Frames previewed á átta og Fields á einn.",
+          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Veldu samsvarandi merkingaraðarmöppu með Masks. Þetta eru reiknaðar grímur, ekki þekktur sannleikur. Hafðu Keep only full-length tracks óvirkt og smelltu ekki á Propagate settings. Líkansstillingarnar búa ekki til nýjar grímur þegar fyrirliggjandi grímuröð er lesin.",
+          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Keyrðu forskoðun með skörunarþröskuldinn núll komma einn. Hún sýnir sextán ferla yfir átta myndir og enga stutta ferla í þessu dæmi. Sundrun og stökk eru vísar reiknaðir án sannreynds viðmiðs; lág gildi sanna ekki ein og sér líffræðilega rétta auðkenningu.",
+          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ]
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "Hækkaðu skörunarþröskuldinn í einn. Krafa um nákvæma skörun sundrar hreyfidæminu í hundrað tuttugu og átta ferla með einni mynd. Myndir og grímur eru óbreyttar; aðeins tengingarnar breytast. Viljandi of hátt gildi sýnir sundrun en er ekki ráðlögð greiningarstilling.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
+            379,
+            307,
+            3432,
+            958
           ]
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Settu aftur núll komma einn, bíddu þar til forskoðuninni lýkur og smelltu á Re-link. Innsláttur getur ræst keyrslu með milligildi; staðfestu því lokakeyrsluna sérstaklega. Sextán heilu ferlarnir koma aftur. Ekki smella á Propagate settings: Skörunarþröskuldurinn flyst ekki í lotueyðublaðið.",
+          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            379,
+            307,
+            3432,
+            958
           ]
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Færðu sleðann að áttundu mynd til að skoða tengda hluti. Spilunarhraði breytir aðeins áhorfinu, ekki myndatökutíma. Haltu áfram í Measure og Motility með staðfest tímabil og kvarða. API og spaCR AI geta útskýrt stillingar en koma ekki í stað yfirferðar á myndum, ferlum og viðvörunum.",
+          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
           ]
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ]
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ]
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ]
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -10001,117 +9962,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS: núverandi viðmót og samstilling fjögurra myndflísa",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "description": "Finndu OPS undir Mask og skoðaðu sannreynt dæmi um samstillingu og samsetningu fjögurra raunverulegra myndflísa. Þetta er ekki full vinnsla á plötu, frumuskipting eða afkóðun.",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "Finna innfelldu OPS-síðuna og skilja takmarkanir dæmisins.",
-        "Samstilla fjórar samliggjandi myndflísar án þess að breyta upprunalegum hnitum.",
-        "Skoða skörun, þekju og vistaðar upplýsingar um uppruna."
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "Upptakan notar Python-skilin ops_layout, ops_stitch og ops_compose úr spaCR 1.5.0.7 nightly á örgjörva. Run í viðmótinu notar aðra eldri vinnsluvél sem er ekki keyrð hér. Einkagögn á NAS: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, staðir 0, 1, 10 og 11. Heimilaðan aðgang þarf; þetta er ekki opinbert prófunarniðurhal og veitir ekki endurdreifingarleyfi. Hver uint16-TIFF skrá hefur fimm plön með 1480 × 1480 mynddílum; DAPI er á plani núll. Upprunalegu skipulagi 333 staða er haldið. Ekki yfirfæra skipulag, skörun eða viðmið á aðra myndatöku án mælinga. Veldu nýja úttaksmöppu utan frumgagnanna. Heill brunnur, frumuskipting, samstilling milli lota, afkóðun og líffræðileg greining eru ekki sýnd.",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Ljósmyndamiðuð hópskimun byrjar á myndum af aðliggjandi sjónsviðum úr endurteknum myndatökulotum. Opnaðu Mask í spaCR til að finna innfelldu OPS-síðuna. Þessi kennslustund sýnir staðsetningu hennar og lítið, sannreynt dæmi um samstillingu mynda.",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "Notaðu OPS-rofann í aðgerðalínu Mask. Hann opnar sérstaka síðu innan aðaleiningarinnar. OPS er ekki annar hnappur á Home og ekki Map Barcodes-vinnuferlið fyrir skrár með raðgreiningarlestrum.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "Núverandi OPS-síða hefur stillingar fyrir inntak, samsetningu mynda, myndmósaík, samstillingu og gæðaeftirlit. Run-hnappurinn notar aðra eldri vinnsluvél. Við ræsum hana ekki og fullyrðum ekki að allt skimunarferlið hafi verið sannreynt. Næstu skref nota rúmfræðiskilin beint.",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
+          "hold_after": 0.7,
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "Þetta örgjörvadæmi samstillir og sameinar fjórar raunverulegar myndflísar úr fyrirliggjandi myndatöku. Það afmarkar ekki frumur, afkóðar ekki strikamerki og vinnur ekki heila plötu. Frumgögnin fylgja ekki sem prófunarniðurhal; nákvæm endurtekning krefst heimilaðs aðgangs að skránum.",
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "Veldu staði núll, einn, tíu og ellefu úr fyrstu myndatökulotunni. Hver frumskrá hefur fimm plön; plan núll inniheldur kjarnalitun. Haltu upprunalegu skipulagi þrjú hundruð þrjátíu og þriggja staða og númerum þeirra. Fjórar valdar flísar skilgreina ekki nýjan brunn með aðeins fjórum flísum.",
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "Hjálparforritið kallar á stitch_well, athugar allar fjórar skaranir milli nágranna og kallar síðan á compose_window. Allar fjórar flísarnar eru staðsettar. Samsetti hlutinn er tvö þúsund sjö hundruð fimmtíu og sex mynddílar á kant. Í þessari myndatöku lokast rúmfræðilykkjan með skekkju innan fjórðungs mynddíls; það er ekki almenn nákvæmnisábyrgð.",
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
-          "hold_after": 0.7
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "Ekki treysta aðeins á staðsetningu. Berðu saman raunverulega skarandi mynddíla óháð samstillingareinkunninni. Hér er fylgnin eftir samstillingu mun sterkari en þegar öðrum hvorum ásnum er vísvitandi hliðrað um sautján mynddíla. Slík röng hliðrun sem viðmið hjálpar að finna trúverðuga en ranga staðsetningu.",
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "Skoðaðu myndina og þekjukortið sem voru raunverulega vistuð. Vinstri ramminn sýnir samsettu kjarnamyndina; sá hægri telur flísarnar sem leggja til gögn. Núll þekja merkir að mynddíla vantar úr upptökunni, ekki líffræðilegan bakgrunn. Hér eru sameinaðir rúmfræðilegir nágrannar á einu plani, aldrei ólíkar raðgreiningarlotur.",
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
+          "hold_after": 0.7,
           "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
-          "hold_after": 0.7
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "Geymdu fylkið, þekjuna, staðsetningar, gátsummur frumskráa og keyrsluskýrsluna saman. Forritið opnar niðurstöður aftur og staðfestir að allar fjórar frumskrárnar séu óbreyttar. Þetta er endurtakanlegt rúmfræðilegt athugunarskref. Full kennsla í ljósmyndamiðaðri skimun krefst enn sérstakrar sannprófunar á síðari stigum.",
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "hold_after": 0.7
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",
