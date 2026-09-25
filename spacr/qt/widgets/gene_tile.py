@@ -116,7 +116,12 @@ class GeneTilePanel(QWidget):
 
     def set_frame_provider(self, provider: Optional[Callable[[], object]]
                            ) -> None:
-        """Point the panel at where the current results frame lives."""
+        """Point the panel at where the current results frame lives.
+
+        :param provider: zero-argument callable returning the current
+            regression results frame, called each time a feature is shown;
+            ``None`` builds tiles without a results frame.
+        """
         self._frame_provider = provider
 
 
@@ -130,6 +135,10 @@ class GeneTilePanel(QWidget):
         A failure here must not take the plot down with it: a tile is an
         explanation, and an explanation that raises leaves the user with a
         traceback instead of the point they clicked.
+
+        :param key: the clicked feature, a regression model term such as
+            ``fraction:grna[239740_3]``, passed to
+            :func:`spacr.gene_tile.gene_tile`.
         """
         frame = None
         if self._frame_provider is not None:
