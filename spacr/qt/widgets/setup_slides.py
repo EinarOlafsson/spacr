@@ -292,7 +292,11 @@ GREETING_FADE_MS = 420
 
 
 def greeting_for(code: str) -> str:
-    """"Hello" in ``code``, falling back to English."""
+    """"Hello" in ``code``, falling back to English.
+
+    :param code: language code, a key of :data:`GREETINGS` such as ``"sv"``
+        or ``"zh_CN"``; unknown or empty codes give ``"Hello"``.
+    """
     return GREETINGS.get(str(code or ""), GREETINGS["en"])
 
 
@@ -1415,6 +1419,12 @@ class SetupSlides(QDialog):
         "the CLI is there and signed out", so a mark could not say which,
         and both were drawn as a ghost -- "GPT brings no text and no color
         just a rim".
+
+        :param code: provider code as in :data:`PROVIDERS`, e.g. ``"claude"``
+            or ``"gpt"``; looked up in the AI provider registry.
+        :param command: the provider's CLI name, e.g. ``"codex"``; tried in
+            the registry after ``code``, and checked on ``PATH`` when neither
+            resolves.
         """
         from .provider_marks import ProviderMark
 
@@ -2195,6 +2205,8 @@ class SetupSlides(QDialog):
         Whether the end of the terms document is visible depends on its
         rendered viewport. The zero-delay callback runs on the next event-loop
         turn, after Qt has completed layout for the show event.
+
+        :param event: the show event, passed to the base class first.
         """
         super().showEvent(event)
         try:
@@ -2323,7 +2335,12 @@ class SetupSlides(QDialog):
         return self._index
 
     def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
-        """Aim the rim at the pointer. Ignored while a circuit runs."""
+        """Aim the rim at the pointer. Ignored while a circuit runs.
+
+        :param event: the mouse move event; its position, mapped into the
+            card, is what the rim flows towards. It is then passed on to the
+            base class.
+        """
         try:
             self.card.flow_towards(
                 self.card.mapFrom(self, event.position().toPoint()))

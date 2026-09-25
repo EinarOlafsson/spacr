@@ -264,6 +264,15 @@ def annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
     ``params`` is a snapshot of the widget values taken on the GUI thread --
     see :meth:`MeasurePreviewPanel._category_params`. Passing a snapshot rather
     than reading the widgets is what makes this safe to call from a worker.
+
+    :param crops: crop dicts from :func:`spacr.measure.crop_objects_from_array`,
+        each with a ``label``; updated in place with ``category``,
+        ``included`` and, for cells, ``phenotype``.
+    :param data: the merged ``(H, W, C)`` array the crops came from, or
+        ``None``, in which case every crop is simply included.
+    :param params: widget snapshot with ``object``, ``cell_dim``, ``dims``,
+        ``minima`` and ``uninfected``; only ``object == "cell"`` is
+        categorised by phenotype.
     """
     object_name = params.get("object", "cell")
     if data is None or object_name != "cell":
@@ -310,6 +319,11 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
     ``QPixmap`` is a GUI object and building one off the GUI thread is
     undefined behaviour, so the pixmaps stay in :meth:`_render_grid`.
 
+    :param data: merged ``(H, W, C)`` array of image channels then mask slices.
+    :param crop_kwargs: keyword arguments for
+        :func:`spacr.measure.crop_objects_from_array`, e.g. ``mask_dim``; a
+        crop failure is returned as ``error`` rather than raised.
+    :param category_params: widget snapshot passed to :func:`annotate_crops`.
     :returns: ``{crops, error}``.
     """
     from spacr.measure import crop_objects_from_array
@@ -965,6 +979,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         2,117 controls hidden behind a gate. The count is now what brings a
         slot's controls into existence, which is why raising it is the only
         route that has to work.
+
+        :param count: number of organelle slots, clamped to
+            0-``MAX_ORGANELLES``; a value ``int()`` rejects is ignored.
         """
         try:
             wanted = max(0, min(int(count), MAX_ORGANELLES))
@@ -1168,6 +1185,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         the FOV dropdown -- comes through here. A 17 MB merged array is not a
         cheap read, and the crop pass that follows it is far worse.
 
+        :param path: merged ``.npy`` file, run folder or ``merged/`` folder, as
+            :func:`load_merged_array` accepts; an empty value submits nothing.
         :returns: ``True`` when a job was submitted.
         """
         text = str(path).strip() if path else ""
@@ -1202,6 +1221,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         The sibling of ``LivePreviewPanel.load_image``: for programmatic
         callers and tests. The GUI uses :meth:`load_array_async`.
+
+        :param path: merged ``.npy`` file, run folder or ``merged/`` folder, as
+            :func:`load_merged_array` accepts; a read error is shown in the
+            status line and returns ``False``.
         """
         payload = load_merged_array(path)
         if payload["error"]:
@@ -1371,6 +1394,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         Every field is copied independently: a settings file carrying one
         unusable value must not cost the panel every field after it.
+
+        :param settings: the Measure settings dict, or ``None``; keys that are
+            absent or ``None`` leave their controls unchanged, and a value that
+            cannot be applied is skipped.
         """
         settings = dict(settings or {})
 

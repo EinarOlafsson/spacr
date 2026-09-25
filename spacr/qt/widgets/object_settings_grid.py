@@ -177,7 +177,12 @@ class ObjectSettingsModel(QAbstractTableModel):
 
     def set_table(self, table: Mapping[str, Mapping[str, Any]]) -> None:
         """Show ``table``, as :func:`spacr.object_settings_table.to_table`
-        returns it."""
+        returns it.
+
+        :param table: ``{question: {object: value}}`` mapping, or ``None`` for
+            an empty table. Rows keep its order; columns follow the canonical
+            object order.
+        """
         self.beginResetModel()
         self._table = {q: dict(row) for q, row in (table or {}).items()}
         self._questions = tuple(self._table)
@@ -196,11 +201,19 @@ class ObjectSettingsModel(QAbstractTableModel):
         return self._objects
 
     def question_at(self, row: int) -> str:
-        """The settings question one row asks, or ``''``."""
+        """The settings question one row asks, or ``''``.
+
+        :param row: zero-based table row; out of range gives ``''``.
+        """
         return self._questions[row] if 0 <= row < len(self._questions) else ""
 
     def value_at(self, question: str, obj: str) -> Any:
-        """One cell's stored value. ``KeyError``-free: absent is ``None``."""
+        """One cell's stored value. ``KeyError``-free: absent is ``None``.
+
+        :param question: settings question, i.e. the key suffix shared by every
+            object (``"min_area"`` for ``cell_min_area``).
+        :param obj: object name, the key prefix (``"cell"``, ``"nucleus"``, ...).
+        """
         return self._table.get(question, {}).get(obj)
 
     def asks(self, question: str, obj: str) -> bool:
@@ -208,6 +221,10 @@ class ObjectSettingsModel(QAbstractTableModel):
 
         Absence is a fact about the object, not a value it has yet to be
         given: cytoplasm is derived and has no channel to be found in.
+
+        :param question: settings question, i.e. the key suffix shared by every
+            object (``"min_area"`` for ``cell_min_area``).
+        :param obj: object name, the key prefix (``"cell"``, ``"nucleus"``, ...).
         """
         return obj in self._table.get(question, {})
 
@@ -621,7 +638,11 @@ class ObjectSettingsGrid(QWidget):
         self._help_band.setFixedHeight(max(lines, self.HELP_ANIMATION_PX))
 
     def set_app_key(self, app_key: str) -> None:
-        """Say which module's API documentation the tooltips should link to."""
+        """Say which module's API documentation the tooltips should link to.
+
+        :param app_key: registry key of the module, e.g. ``"mask"``; ``None``
+            or empty clears it.
+        """
         self._app_key = str(app_key or "")
 
     def _key_under(self, pos) -> str:
@@ -652,6 +673,12 @@ class ObjectSettingsGrid(QWidget):
         The native tooltip is swallowed for the same reason the form
         swallows it -- it disappears the moment the pointer moves toward the
         API link, and that link is the point.
+
+        :param watched: the object the filter is installed on: this widget
+            (font changes), the help band (enter and leave) or the table's
+            viewport (tooltip, mouse move and leave).
+        :param event: the event; a tooltip event on the viewport is swallowed
+            and every other event is passed on to the base class.
         """
         try:
             kind = event.type()
@@ -831,6 +858,8 @@ class ObjectSettingsGrid(QWidget):
     def choose_model_for(self, obj: str) -> bool:
         """Open the model zoo for one object and store what it returns.
 
+        :param obj: object name whose ``model_name`` cell receives the chosen
+            path, e.g. ``"cell"``.
         :returns: True when a model was chosen. Cancelling leaves the cell
             alone rather than clearing it -- a cancelled dialog is not an
             instruction to forget the model already set.
@@ -859,7 +888,10 @@ class ObjectSettingsGrid(QWidget):
         return header + rows + 2 * self._table.frameWidth()
 
     def set_user_height(self, height: int) -> None:
-        """Fix the table at ``height`` px, clamped to at least MIN_TABLE_H."""
+        """Fix the table at ``height`` px, clamped to at least MIN_TABLE_H.
+
+        :param height: wanted table height in pixels.
+        """
         self._user_height = max(self.MIN_TABLE_H, int(height))
         self._apply_height()
 
@@ -890,6 +922,9 @@ class ObjectSettingsGrid(QWidget):
         The rest is KEPT, not dropped: :meth:`settings` returns it unchanged
         beside the table's own keys, so this widget can edit a corner of a
         settings file without holding the whole of it hostage.
+
+        :param settings: flat settings dict, or ``None``; its
+            ``<object>_<question>`` keys become the table.
         """
         self._base = dict(settings or {})
         self._model.set_table(self._visible_table())
@@ -1058,6 +1093,14 @@ class ObjectSettingsGrid(QWidget):
 
         The screen's own edit path, exposed so a test drives the same code an
         item delegate does rather than reaching into the model.
+
+        :param question: settings question, i.e. the key suffix shared by every
+            object (``"min_area"`` for ``cell_min_area``).
+        :param obj: object name, the key prefix (``"cell"``, ``"nucleus"``, ...).
+        :param text: what the user would type; converted to the type of the
+            cell's current value (or a sibling's). Returns ``False`` for an
+            unknown row or column, a cell the object does not ask, or no
+            change.
         """
         objects = self.objects()
         rows = self.questions()

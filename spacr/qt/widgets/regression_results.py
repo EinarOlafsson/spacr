@@ -329,6 +329,8 @@ def find_results_table(path) -> Optional[str]:
     look at a regression again, so all three are accepted. Where a parent
     holds several, the most recently modified wins -- see
     :func:`find_results_tables`.
+
+    :param path: results CSV, run folder or a folder above one.
     """
     tables = find_results_tables(path)
     return tables[0] if tables else None
@@ -586,6 +588,10 @@ def backend_of(path) -> Optional[str]:
     ``perform_regression`` writes to ``results/<kind>[_n]/``. The folder name
     is therefore the only evidence available when a table does not record its
     backend directly.
+
+    :param path: results file or folder path, or ``None``. A path component
+        that, lower-cased and without a trailing ``_<n>``, names one of
+        ``spacr.hits.NO_P_VALUE_TYPES`` is returned; otherwise ``None``.
     """
     if not path:
         return None
@@ -943,6 +949,9 @@ class RegressionResultsPanel(QWidget):
         settings are better than anything read back off disk: the saved copy
         under ``settings/`` is overwritten by every later run of the same
         screen, so on a second run it describes the wrong one.
+
+        :param settings: the run's settings mapping, copied; ``None`` or empty
+            forgets them.
         """
         self._run_settings = dict(settings) if settings else None
         self._from_live_run = True
@@ -1151,6 +1160,9 @@ class RegressionResultsPanel(QWidget):
     def set_summary(self, model, regression_type=None) -> bool:
         """Fill the Summary tab from the fitted model.
 
+        :param model: fitted model whose ``summary()`` is shown, or ``None``
+            to use the panel's own model, falling back to a summary saved
+            beside the loaded results.
         :returns: True when a summary was rendered.
 
         Rendered from `model.summary()` verbatim rather than rebuilt: the
@@ -1732,6 +1744,9 @@ class RegressionResultsPanel(QWidget):
         EVERY WAY THIS FAILS SAYS SO. It used to return False five different
         ways and leave the user looking at a table with columns and no rows,
         which is indistinguishable from a run that produced nothing.
+
+        :param path: results CSV, run folder or a folder above one (searched
+            up to :data:`MAX_SEARCH_DEPTH` deep); ``~`` is expanded.
         """
         import pandas as pd
 
@@ -1856,7 +1871,11 @@ class RegressionResultsPanel(QWidget):
         return frame
 
     def set_frame(self, frame, source: str = "") -> bool:
-        """Show an already-loaded coefficient table."""
+        """Show an already-loaded coefficient table.
+
+        :param frame: the coefficient DataFrame; ``None`` or an empty frame is
+            reported in the status line and returns ``False``.
+        """
         import pandas as pd
 
         if frame is None or not len(frame):
@@ -2010,6 +2029,10 @@ class RegressionResultsPanel(QWidget):
         so restoring nine of them through nine setters would draw the panel
         nine times on every run switch -- and the intermediate frames are of
         combinations the user never chose.
+
+        :param state: dict as :meth:`plot_state` returns it; keys it lacks
+            keep their current value. Nothing applies when it is not a dict or
+            no table is loaded.
         """
         if not isinstance(state, dict) or self._frame is None:
             return False
@@ -2082,6 +2105,10 @@ class RegressionResultsPanel(QWidget):
         open must not silently drop the views the user built since. A run in
         both is taken from the document, which is what the user asked to
         restore.
+
+        :param state: dict as :meth:`workspace_state` returns it; its
+            ``"runs"`` plot states are merged in and its ``"path"`` is loaded
+            again when it still exists. A non-dict applies nothing.
         """
         if not isinstance(state, dict):
             return False
@@ -2742,6 +2769,9 @@ class RegressionResultsPanel(QWidget):
         filter that reaches four of six tabs is worse than one that reaches
         none: the two then disagree on screen at the same time and nothing
         says which is which.
+
+        :param level: ``"gene"`` for genes only, ``"grna"`` for guides only,
+            or ``None`` for both.
         """
         self._level = level
         self._offer_levels()
@@ -2873,7 +2903,10 @@ class RegressionResultsPanel(QWidget):
         ])
 
     def set_p_value_kind(self, kind) -> None:
-        """Draw the volcano against the raw or the adjusted p-value."""
+        """Draw the volcano against the raw or the adjusted p-value.
+
+        :param kind: ``"raw"`` or ``"adjusted"``.
+        """
         self._p_value_kind = kind
         self._offer_p_values()
         self._redraw_volcano()
@@ -2892,14 +2925,21 @@ class RegressionResultsPanel(QWidget):
             on_multiplier=self.set_threshold_multiplier)
 
     def set_threshold_method(self, method) -> None:
-        """Measure the effect-size cut a different way, and redraw."""
+        """Measure the effect-size cut a different way, and redraw.
+
+        :param method: a key of :data:`spacr.thresholds.METHODS`, e.g.
+            ``"none"`` or ``"std"``.
+        """
         self._threshold_method = method
         self._offer_thresholds()
         self._redraw_volcano()
         self.say(self._threshold_sentence())
 
     def set_threshold_multiplier(self, multiplier) -> None:
-        """How many spreads wide the cut is."""
+        """How many spreads wide the cut is.
+
+        :param multiplier: number of spreads, converted to ``float``.
+        """
         self._threshold_multiplier = float(multiplier)
         self._offer_thresholds()
         self._redraw_volcano()
@@ -2988,6 +3028,10 @@ class RegressionResultsPanel(QWidget):
         ONE. "Everything is grey except what the sentence is about" -- and a
         27-colour volcano is both what that rule forbids and, measured, the
         version whose legend cost 40 ms of a 49 ms redraw.
+
+        :param name: TAGM/LOPIT compartment name to pick out,
+            :data:`spacr.localisation.ALL` to colour every annotated
+            coefficient by its compartment, or ``None``/empty for none.
         """
         self._compartment = name
         self._offer_compartments()
@@ -3027,6 +3071,10 @@ class RegressionResultsPanel(QWidget):
         The interactive volcano only. The saved figures take their own
         baseline argument, so a user who moved it here and then exported gets
         a picture and a caption that agree.
+
+        :param kind: baseline kind from :mod:`spacr.baseline`: ``"zero"``,
+            ``"controls"``, ``"named"`` or ``"value"``; ``None`` or empty means
+            zero.
         """
         self._baseline = (kind, name)
         self._offer_baselines()
