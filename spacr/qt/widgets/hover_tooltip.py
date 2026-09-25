@@ -165,6 +165,9 @@ def split_api_link(html: str) -> Tuple[str, str]:
     Only a link that really is the last thing in the body is taken; a link
     inside a sentence stays where the author put it.
 
+    :param html: the tooltip body as rich text; the last ``<a href>`` anchor
+        is removed only when nothing but whitespace follows it, along with
+        the line breaks before it.
     :returns: ``(body_without_the_link, url)``; ``url`` is ``""`` when there
         was no trailing link.
     """
@@ -880,18 +883,29 @@ class HoverTooltip(QFrame):
         The popup is a singleton, so without this its timer would keep
         swapping pixmaps into an invisible label for the rest of the session
         after the last hover.
+
+        :param event: the hide event; passed to the base class after the
+            animation stops.
         """
         self._animation_view.stop()
         super().hideEvent(event)
 
     def showEvent(self, event):
-        """Resume the loaded animation when the popup comes back."""
+        """Resume the loaded animation when the popup comes back.
+
+        :param event: the show event; passed to the base class and otherwise
+            not read.
+        """
         super().showEvent(event)
         if self._animation is not None:
             self._animation_view.play()
 
     def enterEvent(self, event):
-        """Cancel the hide timer when the cursor enters the popup."""
+        """Cancel the hide timer when the cursor enters the popup.
+
+        :param event: the enter event; passed to the base class and otherwise
+            not read.
+        """
         self.cancel_hide()
         super().enterEvent(event)
 
@@ -901,6 +915,9 @@ class HoverTooltip(QFrame):
         Shorter than the anchor's grace period on purpose: leaving the popup
         is a deliberate act, where leaving the label may just be the journey
         towards it.
+
+        :param event: the leave event; passed to the base class and otherwise
+            not read.
         """
         self.start_hide(delay_ms=250)
         super().leaveEvent(event)

@@ -134,6 +134,9 @@ def organelle_label(number: int) -> str:
     Slot 1 stays plain ``organelle``: one organelle is the ordinary case, and
     numbering it "organelle 1" would relabel every existing screen to say
     something new about a run that has not changed.
+
+    :param number: the organelle slot, counting from 1; converted to
+        ``int``.
     """
     return "organelle" if int(number) <= 1 else f"organelle {int(number)}"
 
@@ -145,6 +148,10 @@ def object_role(label: str) -> str:
     ``organelleb``, which is the prefix its settings keys actually carry. The
     dropdown counts because that is what the main panel counts, and the roles
     use letters because a digit cannot start a Python identifier.
+
+    :param label: an object-dropdown caption such as ``"cell"``,
+        ``"organelle"`` or ``"organelle 2"``; anything not starting with
+        ``organelle`` is returned unchanged.
     """
     if not isinstance(label, str) or not label.startswith("organelle"):
         return label
@@ -251,6 +258,9 @@ def load_preview_image(path: Path) -> np.ndarray:
 
     Tifffile is used for TIFFs to preserve bit-depth; other formats fall
     back to PIL. Raises :class:`FileNotFoundError` if the path is bad.
+
+    :param path: image file path (``str`` or :class:`~pathlib.Path`); a
+        ``.tif``/``.tiff`` suffix, in any case, selects tifffile.
     """
     path = Path(path)
     if not path.is_file():
@@ -609,6 +619,9 @@ def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
     other than three are reconciled here — extra channels are dropped, missing
     ones are filled with black — because a mismatch made ``QImage`` read
     ``h * w * 3`` bytes out of a buffer that only held ``h * w``.
+
+    :param arr: image array of shape (H, W) or (H, W, C); a non-uint8 array
+        is scaled to 8 bits first, by percentile when ``normalise`` is true.
     """
     arr = np.asarray(arr)
     if arr.dtype != np.uint8:
@@ -741,6 +754,9 @@ class PreviewRequest:
 
     Kept as a plain dataclass so tests can construct it directly; the
     panel builds one from its widget state on each Run.
+
+    :param image: the field to segment, an array of shape (H, W) or
+        (H, W, C); each object type's channel index selects its plane.
     """
     image:               np.ndarray
     model:               str = "cpsam"
@@ -1796,7 +1812,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return None
 
     def dragEnterEvent(self, event):    # noqa: N802 (Qt naming)
-        """Accept the drag only if it carries a supported image file."""
+        """Accept the drag only if it carries a supported image file.
+
+        :param event: the drag-enter event; its MIME data is checked for a
+            local file URL with a supported image extension.
+        """
         if self._dropped_image_path(event) is not None:
             event.acceptProposedAction()
         else:
@@ -1813,7 +1833,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             event.ignore()
 
     def dropEvent(self, event):         # noqa: N802
-        """Load the dropped image into the preview."""
+        """Load the dropped image into the preview.
+
+        :param event: the drop event; the first local file URL with a
+            supported image extension is loaded asynchronously, and the drop
+            is ignored when there is none.
+        """
         path = self._dropped_image_path(event)
         if path is None:
             event.ignore()
@@ -2174,6 +2199,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         ``_refresh_source_selectors`` can block the application thread. Three of
         them used to call this instead, which is what the docstring already
         claimed was not happening.
+
+        :param path: the image file to show; with MIP on, its field's stack is
+            max-projected instead. A failure is reported in the status line
+            and gives ``False``.
         """
         try:
             arr = self._load_for_display(Path(path))
@@ -2303,7 +2332,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 runner.shutdown()
 
     def closeEvent(self, event):    # noqa: N802 (Qt naming)
-        """Cancel a load in progress rather than let it outlive the panel."""
+        """Cancel a load in progress rather than let it outlive the panel.
+
+        :param event: the close event; passed to the base class after
+            :meth:`shutdown`.
+        """
         self.shutdown()
         super().closeEvent(event)
 
@@ -2373,7 +2406,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             metrics.elidedText(full, _Qt.ElideMiddle, width))
 
     def resizeEvent(self, event):                            # noqa: N802
-        """Re-elide the path when the panel changes width."""
+        """Re-elide the path when the panel changes width.
+
+        :param event: the resize event; passed to the base class, and the new
+            width is read back from the widget itself.
+        """
         super().resizeEvent(event)
         try:
             self._show_elided_path()
@@ -3023,7 +3060,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def set_propagate_callback(self, cb) -> None:
         """Register a callback(dict) used to push tuned live settings back to
-        the main settings panel (wired by the AppScreen)."""
+        the main settings panel (wired by the AppScreen).
+
+        :param cb: callable given a dict of setting key to value when the
+            tuned settings are propagated, or ``None``.
+        """
         self._propagate_cb = cb
 
     #: The three segmentation settings, as ``(panel name, Mask suffix)``.
@@ -3185,6 +3226,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         Every field is copied independently. A single unusable value used to
         abort the whole copy through the shared ``except``, so one junk
         diameter also cost the flow threshold, the channels and the model.
+
+        :param settings: the module's settings dict (``None`` is treated as
+            empty); a copy is kept for the Pre and Post routes.
         """
         settings = dict(settings or {})
         try:
@@ -4731,7 +4775,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._model_box.insertItem(index, name)
 
     def showEvent(self, event):  # noqa: N802 (Qt naming)
-        """Refresh the model list whenever the panel comes back on screen."""
+        """Refresh the model list whenever the panel comes back on screen.
+
+        :param event: the show event; passed to the base class and otherwise
+            not read.
+        """
         super().showEvent(event)
         self.refresh_model_choices()
 
@@ -5079,6 +5127,9 @@ class LiveSettingsDialog(QDialog):
         They go to `_offscreen_controls` and not to the panel: parented to
         the panel with no layout, each sits at (0, 0) over the loaded-path
         label, held off screen by nothing but the `hide()`.
+
+        :param event: the close event; passed to the base class once every
+            borrowed control has been handed back.
         """
         panel = self._panel
         stow = getattr(panel, "_offscreen_controls", None) or panel
@@ -5104,5 +5155,10 @@ class LiveSettingsDialog(QDialog):
 
 
 def overlay_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
-    """Legacy single-mask overlay retained for older imports."""
+    """Legacy single-mask overlay retained for older imports.
+
+    :param image: source image of shape (H, W) or (H, W, C).
+    :param mask: label image the same height and width as ``image``; its
+        object boundaries are drawn in the cell outline colour.
+    """
     return overlay_masks(image, {"cell": mask})

@@ -234,7 +234,13 @@ class MeasureInputTable(QWidget):
         return self._regex.text()
 
     def set_regex(self, pattern: str) -> None:
-        """Put ``pattern`` in the regex box and sort the known files again."""
+        """Put ``pattern`` in the regex box and sort the known files again.
+
+        :param pattern: regular expression matched against each file's
+            basename; its named groups (such as ``field``, ``channel`` and
+            ``mask``) decide the cell a file lands in. The cells are emptied
+            and every known file re-sorted.
+        """
         self._regex.setText(str(pattern))
         self.reapply_regex()
 
@@ -244,6 +250,10 @@ class MeasureInputTable(QWidget):
         Headless Qt refuses a static modal -- it runs its event loop in C++
         and hangs the run -- so a test drives the browse path through this
         rather than through :class:`QFileDialog`.
+
+        :param picker: callable given the dialog caption and returning the
+            chosen path, or an empty value for no choice; ``None`` restores
+            the file dialog.
         """
         self._picker = picker
 
