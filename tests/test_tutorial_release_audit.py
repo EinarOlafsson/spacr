@@ -57,8 +57,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
     assert len(catalog["lessons"]) == 85
-    # The native Embeddings walkthrough replaces eleven historical scenes with nine.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1078
+    # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1080
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

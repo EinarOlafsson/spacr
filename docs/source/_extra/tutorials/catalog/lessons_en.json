@@ -4161,76 +4161,106 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer",
+      "title": "Plate Viewer: inspect wells and export a heatmap table",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Explore measurements as plate heatmaps and detect spatial artifacts or edge effects.",
+      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
       "objectives": [
-        "Build an appropriate plate heatmap.",
-        "Recognize spatial and low-count artifacts.",
-        "Inspect and export traceable well summaries."
+        "Open Plate Viewer from Graph Builder and load example measurements.",
+        "Choose a feature, aggregation and minimum object count.",
+        "Inspect well details and export the current well grid."
       ],
-      "prerequisite": "Measure a plate with stable plate and well identifiers.",
+      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
       "scenes": [
         {
-          "narration": "Plate Viewer turns object measurements into well-level heatmaps with spatial quality checks beside them.",
-          "visual": "01_overview",
+          "visual": "01_graph_builder_host",
+          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Plate Viewer turns object measurements into well-level heat maps with spatial quality checks beside them."
+          "related_lessons": [
+            "58_graph_builder"
+          ]
         },
         {
-          "narration": "Open a measurements database or run folder. The source is queried read-only.",
-          "visual": "02_database",
+          "visual": "03_example_mean",
+          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "Open a measurements database or run folder. The source is queryd read-only."
+          "related_lessons": [
+            "08_measure",
+            "09_annotate"
+          ],
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Choose the object table, numeric feature, and plate to display.",
-          "visual": "03_measurement",
+          "visual": "03_example_mean",
+          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
           "hold_after": 0.7,
-          "focus_key": "selection",
-          "speech_text": "Choose the object table, numeric feature, and plate to display."
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Select aggregation, color scaling, and the minimum evidence required for a well. Count is useful for spotting segmentation or seeding differences.",
-          "visual": "04_options",
+          "visual": "04_colour_scale",
+          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
           "hold_after": 0.7,
-          "focus_key": "options",
-          "speech_text": "Select aggregation, color scaling, and the minimum evidence required for a well. Count is useful for spotting segmentation or seeding differences."
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Render the view, then compare the heatmap with row, column, ring, and edge diagnostics.",
-          "visual": "05_render",
-          "hold_after": 0.7,
-          "focus_key": "render",
-          "speech_text": "Render the view, then compare the heat map with row, column, ring, and edge diagnostics."
+          "visual": "03_example_mean",
+          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "hold_after": 0.7
         },
         {
-          "narration": "Select a well to inspect its identifier, object count, displayed value, and position.",
-          "visual": "07_well_detail",
-          "hold_after": 0.7,
-          "focus_key": "well_detail",
-          "speech_text": "Select a well to inspect its identifier, object count, displayed value, and position."
+          "visual": "05_well_detail",
+          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "hold_after": 0.7
         },
         {
-          "narration": "Wells below the evidence threshold become explicit blanks rather than misleading zeros.",
-          "visual": "11_filtered_result",
+          "visual": "06_count",
+          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
           "hold_after": 0.7,
-          "focus_key": "result",
-          "speech_text": "Wells below the evidence threshold become explicit blanks rather than misleading zeros."
+          "focus": [
+            340,
+            300,
+            1800,
+            1300
+          ]
         },
         {
-          "narration": "Export the current tidy well grid with counts and spatial annotations for audit or replotting.",
-          "visual": "13_export",
-          "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "Export the current tidy well grid with counts and spatial annotations for audit or replotting."
+          "visual": "07_filtered",
+          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_save_csv",
+          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_exported",
+          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "hold_after": 0.7
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "34_database",
