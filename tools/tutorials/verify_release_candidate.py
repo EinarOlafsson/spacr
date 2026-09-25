@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
+from append_staged_lessons import parse_javascript
 from check_completed_matrix import digest
 from coming_soon import COPY, first_placeholder
 from stage_lesson import read, write
@@ -60,7 +61,7 @@ def check_sentence_cues(page):
 def published_tree(root, pages):
     """Return the pinned media root after proving the tree is the candidate's web bytes."""
     index = (pages / 'index.html').read_text(encoding='utf-8')
-    roots = set(re.findall(r'data-(?:audio|video4k)-root="([^"]+)"', index))
+    roots = set(re.findall(r'data-(?:audio|video4k|web)-root="([^"]+)"', index))
     if len(roots) != 1 or not re.fullmatch(PINNED_ROOT, next(iter(roots))):
         raise ValueError(f'The published index must pin one immutable media root, found {roots}')
     for record in read(root / 'release-manifest.json')['files']:
@@ -74,6 +75,8 @@ def verify(root, *, placeholders_only=False, published=None):
     root = Path(root).resolve()
     validate(root, include_hosted_media=published is None)
     records = {r['path']: r for r in read(root / 'release-manifest.json')['files']}
+    hosted_web = {lesson['id']: lesson['web'] for lesson in parse_javascript(
+        (root / 'web/lesson_catalog.js').read_text())['lessons'] if 'web' in lesson}
     if published is None:
         served, entry, media_root = root, '/web/', None
     else:
@@ -230,6 +233,11 @@ def verify(root, *, placeholders_only=False, published=None):
                     assert requested - .25 <= clocks['audio'] < requested + clocks['seek_elapsed_seconds'] + .5, (identity, clocks)
                     assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
                     assert (clocks['width'], clocks['height']) == web_dimensions(identity), (identity, clocks)
+                    if identity in hosted_web:
+                        source = page.evaluate('elements.video.currentSrc')
+                        host = media_root if media_root else origin + '/media_host'
+                        assert source == f'{host}/{hosted_web[identity]}', (identity, source)
+                        clocks['hosted_web_copy'] = source
                     for _ in range(2):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')

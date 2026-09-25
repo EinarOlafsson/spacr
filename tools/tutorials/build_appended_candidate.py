@@ -22,7 +22,7 @@ from build_navigation import build as navigation
 from build_release_candidate import copy_checked, require_web_receipt
 from check_completed_matrix import digest
 from stage_lesson import REPO, read, write
-from validate_candidate import validate
+from validate_candidate import hosted_web_path, require_consistent_web_hosting, validate
 
 
 def append_catalogs(published, lessons, voices, reviews, *, replace=False, current_hosts=None):
@@ -197,8 +197,17 @@ def require_no_new_route_gaps(before, after):
         raise ValueError('Appending lessons introduced missing module routes')
 
 
-def copy_preserved_web(published, baseline, root, manifest, *, replacements=()):
-    """Retain verified media; ignore leftover production files in the Pages tree."""
+def local_web_path(identity):
+    """A web copy's path in the Pages tree."""
+    return f'production/{identity}/video/{identity}_silent.mp4'
+
+
+def copy_preserved_web(published, baseline, root, manifest, *, replacements=(), hosted=()):
+    """Retain verified media; ignore leftover production files in the Pages tree.
+
+    ``hosted`` lessons keep their posters here; their web copy moves to the
+    media host (see :func:`migrate_web_copy`).
+    """
     records = []
     baseline_web = {record['path'][len('web/'):]: record for record in manifest['files']
                     if record['path'].startswith('web/')}
@@ -210,11 +219,43 @@ def copy_preserved_web(published, baseline, root, manifest, *, replacements=()):
             copy_checked(path, root / 'web' / relative, records, root)
     for name, record in sorted(baseline_web.items()):
         relative = Path(name)
-        if relative.parts[0] != 'production' or relative.parts[1] in replacements:
+        if (relative.parts[0] != 'production' or relative.parts[1] in replacements
+                or (relative.parts[1] in hosted and name == local_web_path(relative.parts[1]))):
             continue
         copy_checked(baseline / 'web' / relative, root / 'web' / relative,
                      records, root, record['sha256'])
     return records
+
+
+def migrate_web_copy(baseline, root, manifest, identity, records):
+    """Move a preserved lesson's verified web copy onto the media host, byte for byte."""
+    record = next((row for row in manifest['files']
+                   if row['path'] == 'web/' + local_web_path(identity)), None)
+    if record is None:
+        raise ValueError(f'No verified local web copy to host: {identity}')
+    copy_checked(baseline / 'web' / local_web_path(identity),
+                 root / 'media_host' / hosted_web_path(identity), records, root, record['sha256'])
+
+
+def mark_hosted_web(js_catalog, identities):
+    """Name the hosted web copy in each selected lesson_catalog.js object."""
+    result = deepcopy(js_catalog)
+    known = {lesson['id']: lesson for lesson in result['lessons']}
+    if set(identities) - set(known):
+        raise ValueError(f'Cannot host web copies of unknown lessons: {sorted(set(identities) - set(known))}')
+    for identity in identities:
+        known[identity]['web'] = hosted_web_path(identity)
+    return result
+
+
+def ensure_web_root(index):
+    """Give the player one data-web-root on the same revision as the 4K masters."""
+    if 'data-web-root=' in index:
+        return index
+    match = re.search(r'data-video4k-root="([^"]+)"', index)
+    if not match:
+        raise ValueError('Expected a 4K media root to place the web root beside')
+    return index[:match.end()] + f'\n      data-web-root="{match.group(1)}"' + index[match.end():]
 
 
 def synchronize_links(catalogs, lessons):
@@ -247,8 +288,13 @@ def synchronize_links(catalogs, lessons):
     return result
 
 
-def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=()):
-    """Create a new private candidate; never upload or modify the published tree."""
+def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
+          host_web=False, migrate_web=()):
+    """Create a new private candidate; never upload or modify the published tree.
+
+    ``host_web`` puts the selected lessons' web copies on the media host;
+    ``migrate_web`` moves preserved lessons' verified web copies there too.
+    """
     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
     if replace and refresh_ids:
         raise ValueError('Use either replace-existing or a refresh subset')
@@ -301,9 +347,14 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     compatibility = complete_translation_compatibility(
         catalogs, compatibility,
         read(baseline / 'web/translation-compatibility.json').get('entries', []))
+    migrate_web = list(migrate_web)
+    if len(migrate_web) != len(set(migrate_web)) or set(migrate_web) & set(identities):
+        raise ValueError('Migrate only unique, otherwise preserved lessons')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
     records = copy_preserved_web(published, baseline, root, previous,
-                                 replacements=refresh_ids)
+                                 replacements=refresh_ids, hosted=migrate_web)
+    for identity in migrate_web:
+        migrate_web_copy(baseline, root, previous, identity, records)
     web_checks = []
     for record in previous['files']:
         if record['path'].startswith('media_host/'):
@@ -320,8 +371,9 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
         require_web_receipt(identity, proof, read(browser_path), digest(video))
         copy_checked(source / 'video' / video.name, root / 'media_host' / identity / 'video' / video.name,
                      records, root, proof['master_sha256'])
-        copy_checked(video, root / 'web/production' / identity / 'video' / video.name,
-                     records, root, proof['rendition_sha256'])
+        web_target = (root / 'media_host' / hosted_web_path(identity) if host_web
+                      else root / 'web/production' / identity / 'video' / video.name)
+        copy_checked(video, web_target, records, root, proof['rendition_sha256'])
         copy_checked(source / 'poster.jpg', root / 'web/production' / identity / 'poster.jpg', records, root)
         for track in checks[identity]:
             for suffix, field in (('.m4a', 'audio_sha256'), ('.json', 'timing_sha256')):
@@ -341,6 +393,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                                                len(refresh_ids), replacements=refresh_ids)
     if link_lessons:
         js_catalog = synchronize_links({'lessons_en.json': js_catalog}, link_lessons)['lessons_en.json']
+    js_catalog = mark_hosted_web(js_catalog, [*(identities if host_web else ()), *migrate_web])
     nav = navigation(catalogs['lessons_en.json'])
     for lesson in lessons:
         host = lesson.get('host_app_key')
@@ -352,7 +405,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
         (root / 'web' / name).write_text('"use strict";\nwindow.' + variable + ' = Object.freeze('
                                        + json.dumps(data, ensure_ascii=False) + ');\n')
     (root / 'web/app_v2.js').write_bytes((REPO / 'tools/tutorials/authoring/web/app_v2.js').read_bytes())
-    for attribute in ('audio', 'video4k'):
+    index = ensure_web_root(index)
+    for attribute in ('audio', 'video4k', 'web'):
         index, count = re.subn(rf'data-{attribute}-root="[^"]+"', f'data-{attribute}-root="../media_host"', index)
         if count != 1:
             raise ValueError('Expected one media root per type')
@@ -361,6 +415,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     records = [record for record in records if record['path'].startswith('media_host/')]
     records.extend(dict(path=path.relative_to(root).as_posix(), sha256=digest(path), bytes=path.stat().st_size)
                    for path in sorted((root / 'web').rglob('*')) if path.is_file())
+    hosted_web = require_consistent_web_hosting(records, js_catalog['lessons'])
     web_bytes = sum(record['bytes'] for record in records if record['path'].startswith('web/'))
     if web_bytes > previous['ceiling_bytes']:
         raise ValueError('Candidate exceeds the existing web media budget')
@@ -378,6 +433,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                   appended_lessons=appended,
                   refreshed_lessons=refresh_ids,
                   link_only_updates=list(link_ids),
+                  hosted_web_lessons=hosted_web,
                   outstanding_module_tutorials=nav['missing_tutorials'],
                   new_lesson_tracks=checks, translation_incompatibilities=compatibility,
                   all_workflows_demonstrated=False, native_speaker_signoff=False,
@@ -397,8 +453,13 @@ if __name__ == '__main__':
                         help='Refresh only the selected existing lessons; keep all other lesson media and prose')
     parser.add_argument('--refresh-lesson', action='append', default=[],
                         help='Refresh an existing lesson alongside the new lessons being appended')
+    parser.add_argument('--host-web', action='store_true',
+                        help='Put the selected lessons\' web copies on the media host, not in the Pages tree')
+    parser.add_argument('--migrate-web', action='append', default=[],
+                        help='Move a preserved lesson\'s verified web copy onto the media host')
     parser.add_argument('--refresh-links', action='append', default=[],
                         help='Update only chapter destinations; require unchanged prose and preserve media')
     args = parser.parse_args()
     build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
-          refresh_ids=args.refresh_lesson, link_ids=args.refresh_links)
+          refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
+          host_web=args.host_web, migrate_web=args.migrate_web)

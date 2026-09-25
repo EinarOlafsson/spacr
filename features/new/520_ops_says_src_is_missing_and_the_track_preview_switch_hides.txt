@@ -1,0 +1,25 @@
+OPS SAYS "src is missing" ON A RUN THAT SUCCEEDS, AND MASK'S TRACK PREVIEW SWITCH HIDES
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Found by the docs session while recording the OPS and
+Timelapse tutorials.
+
+WHAT IS WRONG
+  1. An OPS run prints "[settings] ERROR [src]: src is missing" to the
+     console even when the run succeeds. A false error in front of the user
+     (and in a tutorial recording).
+  2. In Mask, once Plot figures appear, the Track preview switch collapses
+     out of view.
+
+WHAT TO BUILD
+  1. Find which settings check reports src missing for OPS (OPS may take its
+     inputs from other keys, or src is filled after the check runs) and make
+     the check match what OPS actually reads; no error on a successful run,
+     a real error when the input is genuinely missing.
+  2. Keep the Track preview switch visible when the figures panel opens
+     (layout minimums, or the switch belongs in a row that does not fold).
+
+DONE WHEN
+An OPS run with valid inputs logs no src error (and one with no input still
+does), and an offscreen test shows the Track preview switch visible and
+clickable after figures appear in Mask.

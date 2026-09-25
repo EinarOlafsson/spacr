@@ -19,8 +19,11 @@ What is dropped, and what is not
 
 Dropped: every narration ``.m4a`` and voice timing ``.json`` under a lesson.
 
-Kept, in full: every lesson, every silent ``.mp4``, every poster, every caption
-catalog, and the player itself. Narration and timing sidecars come from the
+Kept, in full: every lesson, every silent ``.mp4`` still in the Pages tree,
+every poster, every caption catalog, and the player itself. A lesson whose
+``lesson_catalog.js`` entry names a ``web`` copy has that copy on the same
+immutable media revision as its 4K master instead; the publisher removes its
+Pages copy, so it never reaches this staging. Narration and timing sidecars come from the
 configured Hugging Face dataset. Caption-only languages never had audio.
 
 With :data:`NARRATION_HOST` configured, ``voice_catalog.js`` remains complete

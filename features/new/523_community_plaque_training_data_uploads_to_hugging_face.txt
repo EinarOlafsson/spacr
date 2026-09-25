@@ -1,0 +1,58 @@
+COMMUNITY PLAQUE TRAINING DATA: ANNOTATE WELLS AND PLAQUES, THEN UPLOAD TO HUGGING FACE
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 513 (the plaque Ruler, already on nightly: the
+Ruler button in the plaque live preview's zoom row), the Model Zoo's "share a
+model" upload (spacr/qt/widgets/model_share.py, einarolafsson/user-models),
+469/424 (the figure reader and its YOLO well detector,
+einarolafsson/toxoplasma-plaque-well-detector-yolo26).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "there needs to be a ruler in the plaque assay, and there should be a
+    button to upload the image or pdf to the spacr (my) huggingface (jsut
+    like there is for models). to new folders (please make them) called
+    community_toxoplasma_plaque_figures, and
+    community_toxoplasma_plaques. when this buttons are pressed the user
+    should be prompted to draw boxes where the wells are ( iw ill use these
+    for training the yolo model) and draw plaques as masks (i will use these
+    to train the next plaque model). this way i can save, community training
+    data, and make the models better. it should not be possible to uploade
+    images without masks, and the user should be warned if the masks are
+    not carefully drawn the next model will not be released as fast and
+    might be worse thatn it could be. basically have a little textbox that
+    guilttripps the user into making good masks"
+
+WHAT TO BUILD
+  1. RULER: already built by 513 (Ruler button in the plaque preview's zoom
+     row, px and µm). Check it is visible and obvious in both Plaque and
+     Figure mode; make it more discoverable if it is not.
+  2. TWO COMMUNITY FOLDERS on the maintainer's Hugging Face, created now:
+     community_toxoplasma_plaque_figures (figures/PDF pages with well boxes)
+     and community_toxoplasma_plaques (plaque images with plaque masks),
+     each with a README stating the licence contributors agree to, the file
+     layout, and that the data trains spaCR's YOLO well detector and next
+     plaque model.
+  3. "CONTRIBUTE TRAINING DATA" BUTTON in Plaque Assay, beside the model
+     sharing pattern: pressing it opens an annotation step.
+       * Figure mode: draw a box around every well (YOLO training labels).
+       * Plaque mode: draw every plaque as a mask.
+     Seed the drawing from spaCR's own detection so the user corrects rather
+     than starts from nothing, and record which objects were edited.
+  4. NO UPLOAD WITHOUT ANNOTATIONS: the upload button stays disabled until
+     every image has boxes (figures) or masks (plaques); an image with none
+     cannot be sent.
+  5. THE CONSCIENCE BOX: a short, friendly-but-firm text beside the button
+     that makes the user want to draw carefully, e.g. "Every mask you upload
+     teaches the next plaque model. Sloppy outlines teach it sloppiness, and
+     the next release waits until someone cleans them up. Take the extra
+     minute." Shown every time, not dismissible forever.
+  6. CONSENT: the user confirms they have the right to share the images and
+     agree to the licence before the first upload; paper figures record the
+     paper's DOI/citation.
+
+DONE WHEN
+Both folders exist on Hugging Face with READMEs; an offscreen test drives
+the annotate-then-upload flow for both modes with the upload faked, refuses
+an image without annotations, and shows the conscience text; one real upload
+of a test contribution is checked and then removed if the maintainer wants
+the folders empty.

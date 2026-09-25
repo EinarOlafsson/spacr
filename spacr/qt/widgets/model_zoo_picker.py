@@ -553,15 +553,16 @@ class BackendInstallDialog(QDialog):
     command's own output, verbatim.
 
     :param name: the backend, e.g. ``'cellpose3'``.
-    :param parent: the widget that opened it.
+    :param parent: the widget that opened it; the dialog's parent is its
+        window.
     :param uninstall: remove the backend's environment instead.
     :param job: ``job(progress=..., cancel=...)``; the real install or
         uninstall when None. Tests pass their own.
     :param reinstall: build an installed backend's environment again
         (item 518), for a backend installed before a package it now needs
         was pinned; the dialog says so and its button says Reinstall.
-    :param why: a sentence saying why the install is offered, shown above
-        the progress.
+    :param why: a sentence saying why the install is offered, shown first
+        in the description.
     :ivar error: the last failure's message, verbatim; empty until one.
 
     THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,
@@ -569,6 +570,18 @@ class BackendInstallDialog(QDialog):
     tell the widget that opened the dialog what the install is doing, so a
     button can say "installing" while it runs and a console can say why it
     failed after the dialog has gone.
+
+    IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog
+    inherits the style sheet of every widget above it, and Plaque Assay asks
+    from its preview, whose own scale slider re-states the application sheet
+    at that preview's scale: at 150 % Install and Cancel were 59 px tall,
+    not the 40 px of every other button. Parented to ``parent.window()`` it
+    is themed like every other dialog and still centred on, and modal to,
+    the window that opened it.
+
+    THE BAR SITS ON THE BUTTONS. The progress line is the last thing above
+    the buttons and the status keeps four lines' room while a job runs, so
+    the bar does not move as the status line grows and shrinks.
     """
 
     #: The job started on its worker thread.
@@ -584,7 +597,7 @@ class BackendInstallDialog(QDialog):
                  uninstall: bool = False, job=None, reinstall: bool = False,
                  why: str = ""):
         """Describe the backend and wait for the button."""
-        super().__init__(parent)
+        super().__init__(parent.window() if parent is not None else None)
         from ... import _segmentation_backends as backends
         from ..preferences import scaled_px
 
@@ -668,12 +681,6 @@ class BackendInstallDialog(QDialog):
         self.reason.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self.reason)
 
-        from .eliding import ProgressLine
-
-        self.progress = ProgressLine(self, detail=False)
-        self.progress.setVisible(False)
-        layout.addWidget(self.progress)
-
         self.status = QLabel("", self)
         self.status.setWordWrap(True)
         self.status.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -686,6 +693,12 @@ class BackendInstallDialog(QDialog):
         self.details.setVisible(False)
         self.details.setMinimumHeight(scaled_px(160))
         layout.addWidget(self.details, 1)
+
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
+        self.progress.setVisible(False)
+        layout.addWidget(self.progress)
 
         buttons = QDialogButtonBox(self)
         self.start_button = buttons.addButton(verb, QDialogButtonBox.AcceptRole)
@@ -720,6 +733,7 @@ class BackendInstallDialog(QDialog):
         self.details.setVisible(False)
         self.details.setPlainText("")
         self.reason.setText("")
+        self.status.setMinimumHeight(self.status.fontMetrics().lineSpacing() * 4)
         self.progress.setVisible(True)
         self.progress.setRange(0, 0)
         self.start_button.setEnabled(False)
