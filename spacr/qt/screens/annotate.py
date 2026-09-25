@@ -32,6 +32,14 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
+A PAGE IS WHAT FITS (item 512). The grid holds exactly the crops that fit
+the room the crop pane gives it, at the crop size the settings ask for, and
+it never scrolls: opening the console, folding a pane, changing the GUI
+scale or resizing the window recomputes the page and pushes the rest to
+the next one, the page counter follows, and the first crop on screen stays
+where it was. See :func:`grid_that_fits` and
+:meth:`AnnotateScreen._refit_grid`.
+
 Shift + left click blows one crop up to fill the grid's container, drawn in
 front of the tiles rather than reflowing them (:class:`_ZoomOverlay`); a
 click beside it, or ``Escape``, folds it back. It is an EXTRA gesture --
@@ -501,6 +509,29 @@ def current_ring_color() -> str:
     return tile_palette()["fg"]
 
 
+def grid_that_fits(width: int, height: int, tile_w: int, tile_h: int, *,
+                   gap: int = 0, margin: int = 0) -> Tuple[int, int]:
+    """``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.
+
+    Pure arithmetic, so a page size can be asserted without a window.
+    ``margin`` comes off every edge of the ``width`` x ``height`` room,
+    ``gap`` sits between tiles and not after the last one, and there is
+    always at least one row and one column: a room smaller than a tile
+    shows one crop rather than none.
+
+    :param width: the room's width, in the same pixels as the tiles.
+    :param height: the room's height.
+    :param tile_w: one tile's width, rings included.
+    :param tile_h: one tile's height, rings included.
+    :param gap: the layout's spacing between tiles.
+    :param margin: the layout's margin on each edge.
+    :returns: ``(rows, cols)``.
+    """
+    cols = ((int(width) - 2 * int(margin) + int(gap))
+            // max(1, int(tile_w) + int(gap)))
+    rows = ((int(height) - 2 * int(margin) + int(gap))
+            // max(1, int(tile_h) + int(gap)))
+    return max(1, int(rows)), max(1, int(cols))
 
 
 _TEXT_TOKENS = {
@@ -2623,6 +2654,9 @@ class AnnotateScreen(QWidget):
         self._resize_timer.setSingleShot(True)
         self._resize_timer.setInterval(150)
         self._resize_timer.timeout.connect(self._reload_after_resize)
+        #: The rows and columns the grid on screen was last built with, so
+        #: a refit that lands on the same shape does not reload the page.
+        self._built_dims: Tuple[int, int] = (0, 0)
         self._suggested_source = prefs.get_last_source("annotate")
 
         self._focus_slot = 0
@@ -2638,6 +2672,12 @@ class AnnotateScreen(QWidget):
         self._build_ui()
         self._install_shortcuts()
         self.setFocusPolicy(Qt.StrongFocus)
+        try:
+            from ..gui_scale import add_listener
+            add_listener(self._on_gui_scale_changed)
+        except Exception:
+            LOG.debug("The GUI scale listener could not be installed",
+                      exc_info=True)
 
         try:
             from ..dnd import install_dropzone
@@ -3014,6 +3054,8 @@ class AnnotateScreen(QWidget):
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
         self._grid_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._grid_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._grid_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._grid_scroll.viewport().setAutoFillBackground(False)
         self._grid_scroll.viewport().setObjectName(GRID_VIEWPORT_NAME)
         self._grid_holder = QWidget()
@@ -3595,21 +3637,55 @@ class AnnotateScreen(QWidget):
         QShortcut(QKeySequence("Alt+Left"), self, self._on_prev)
         QShortcut(QKeySequence("Alt+Right"), self, self._on_next)
 
+    def _grid_area(self) -> Optional[QSize]:
+        """The room the crops have, in device pixels, or None before layout.
+
+        Measured on the crop pane (the content stack) rather than on the
+        scroll viewport. They are the same rectangle -- the scroll area has
+        no frame and, since item 512, no scrollbars -- but the stack has
+        its size while the grid is still behind the empty state, which is
+        when the first fit after opening a source is computed, and a
+        viewport that has never been shown still reports its pre-layout
+        default.
+        """
+        scroll = getattr(self, "_grid_scroll", None)
+        stack = getattr(self, "_content_stack", None)
+        if scroll is None or stack is None:
+            return None
+        try:
+            if not stack.isVisible():
+                return None
+            rect = stack.contentsRect()
+        except RuntimeError:
+            return None
+        if rect.width() <= 0 or rect.height() <= 0:
+            return None
+        return QSize(rect.width(), rect.height())
+
     def _compute_grid_dims(self):
-        """Fit as many `image_size`-thumbnails as possible into the
-        scroll viewport, then update settings.grid_rows/grid_cols."""
+        """Fit as many ``image_size`` crops as the crop pane holds, no more.
+
+        THE PAGE IS WHAT FITS (item 512). Rows and columns come from the
+        room the pane gives and the size a tile is drawn at -- the crop
+        size plus its rings, the layout's gap and margins, all at the GUI
+        scale in force -- so the grid is never taller or wider than its
+        viewport and there is nothing left to scroll to; what does not fit
+        is the next page. Before the pane has been laid out (nothing shown
+        yet, or a test that pins the shape) the previous shape is kept,
+        because sizing from a 100x30 default would give one enormous cell.
+        """
         w, h = self._settings.image_size
-        gap = SPACING["xs"]
-        pad = TILE_INSET * 2
-        cell_w = w + pad + gap
-        cell_h = h + pad + gap
-        vp = self._grid_scroll.viewport() if self._grid_scroll else None
-        if vp is not None and vp.width() > cell_w and vp.height() > cell_h:
-            cols = max(1, vp.width() // cell_w)
-            rows = max(1, vp.height() // cell_h)
-        else:
+        area = self._grid_area()
+        if area is None:
             cols = max(1, self._settings.grid_cols or 5)
             rows = max(1, self._settings.grid_rows or 5)
+        else:
+            from ..gui_scale import scale_int
+            pad = TILE_INSET * 2
+            rows, cols = grid_that_fits(
+                area.width(), area.height(),
+                scale_int(w + pad), scale_int(h + pad),
+                gap=scale_int(SPACING["sm"]), margin=scale_int(SPACING["sm"]))
         self._settings.grid_cols = cols
         self._settings.grid_rows = rows
 
@@ -3641,6 +3717,7 @@ class AnnotateScreen(QWidget):
             thumb.hover_changed.connect(self._on_thumb_hover)
             self._grid_layout.addWidget(thumb, i // cols, i % cols)
             self._thumbs.append(thumb)
+        self._built_dims = (rows, cols)
 
         self._focus_slot = max(0, min(self._focus_slot, len(self._thumbs) - 1))
         self._refresh_focus_marks()
@@ -3648,18 +3725,44 @@ class AnnotateScreen(QWidget):
     def resizeEvent(self, event):
         """Re-fit the thumbnail grid after resize activity settles."""
         super().resizeEvent(event)
+        self._refit_grid()
+
+    def _refit_grid(self) -> None:
+        """Recompute the page from the room the crops have; reload if it moved.
+
+        Called from every route by which that room changes: the window
+        resizing, the console opening or a pane folding (the crop pane's
+        own Resize, caught in :meth:`eventFilter`) and the GUI scale
+        changing. The reload waits for the burst to settle and is skipped
+        when the grid on screen already has the new shape, so a refit that
+        finds nothing to change costs no page load. The first crop on
+        screen stays: ``_offset`` is not touched, so the page that comes
+        back starts where this one did and only its length changes.
+        """
         if not getattr(self, "_grid_scroll", None):
             return
         prev = (self._settings.grid_rows, self._settings.grid_cols)
         self._compute_grid_dims()
         new = (self._settings.grid_rows, self._settings.grid_cols)
-        if new != prev and self._worker is not None:
+        moved = new != prev or new != self._built_dims
+        if moved and self._worker is not None:
             self._resize_timer.start()
+
+    def _on_gui_scale_changed(self, _scale: float) -> None:
+        """The tiles just changed size in the same room: fit them again."""
+        if getattr(self, "_closing", False):
+            return
+        self._refit_grid()
 
     @Slot()
     def _reload_after_resize(self):
         """Apply the final geometry after a burst of resize events."""
         if self._closing or self._worker is None:
+            return
+        self._compute_grid_dims()
+        wanted = (self._settings.grid_rows, self._settings.grid_cols)
+        built = len(self._thumbs) == wanted[0] * wanted[1]
+        if wanted == self._built_dims and built:
             return
         self._flush_pending()
         self._rebuild_grid()
@@ -4877,9 +4980,25 @@ class AnnotateScreen(QWidget):
                 break
             self._set_slot_image(i, img)
             self._repaint_slot(i)
-        self._set_page_label(
-            f"Page rows {self._offset}–{min(self._offset + page, self._total)} / {self._total}"
-        )
+        self._set_page_label(self._page_counter_text())
+
+    def _page_counter_text(self) -> str:
+        """``Page N of M`` for the page on screen, and which crops it holds.
+
+        The page size is whatever fits (item 512), so M moves when the
+        console opens or the window shrinks; N is the page the first crop
+        on screen falls on at that size. The crop range is one-based, for
+        people rather than for the query.
+        """
+        page = max(1, int(self._settings.page_size))
+        total = max(0, int(self._total))
+        first = max(0, int(self._offset))
+        last = min(first + page, total)
+        number = first // page + 1
+        pages = max(number, -(-total // page)) if total else 1
+        return tr("Page {page} of {pages} · crops {first}–{last} of {total}",
+                  page=number, pages=pages,
+                  first=(first + 1) if total else 0, last=last, total=total)
 
     def _set_page_label(self, text: str) -> None:
         """Write the line above the grid, keeping any routed request's reason.
@@ -5344,9 +5463,12 @@ class AnnotateScreen(QWidget):
             return True
         if etype == QEvent.Leave:
             self._set_hover_slot(None)
-        if etype == QEvent.Resize and self._zoom_is_open():
+        if etype == QEvent.Resize:
             scroll = getattr(self, "_grid_scroll", None)
-            if scroll is not None and obj is scroll.viewport():
+            if scroll is not None and obj is scroll:
+                self._refit_grid()
+            zooming = self._zoom_is_open() and scroll is not None
+            if zooming and obj is scroll.viewport():
                 self._fit_zoom_overlay()
         grid_holder = getattr(self, "_grid_holder", None)
         if obj is grid_holder and grid_holder is not None and self._band_event(
