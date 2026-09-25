@@ -1,7 +1,7 @@
 CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
 
-Status: OPEN, filed 2026-09-25. Not started.
-Owner: unassigned. Related: 504 (bioimage.io lists Cellpose-DINO ViT-L and
+Status: BUILT 2026-09-25. Backend installed for real, ViT-B real CPU run done (see the trailing note).
+Owner: Claude (525 worktree). Related: 504 (bioimage.io lists Cellpose-DINO ViT-L and
 ViT-B but refuses them: Cellpose 4 needs the `dinov3` package, not installed),
 503/446 (Cellpose 3 in its own environment), 475 (SpotNet), 469 (figure
 reader).
@@ -25,3 +25,166 @@ The backend installs for real on this machine; one Cellpose-DINO model from
 bioimage.io segments a real Toxo PV field through Mask generation, with
 objects, F1 against the ground truth at IoU 0.5 and the wall time recorded
 here; the rows refuse with an install offer when the backend is missing.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- BUILT: WHAT CHANGED, THE INSTALL, THE REAL RUN
+--------------------------------------------------------------------------------
+
+WHERE DINOv3 COMES FROM. Cellpose 4.2.1.1 (PyPI's latest, and the one spaCR
+already installs) is the release with Cellpose-DINO: cellpose/vit.py builds
+CPDINO from `dinov3.hub.backbones` (dinov3_vitl16 / dinov3_vitb16, built with
+pretrained=False; the whole network comes from the checkpoint) and prints
+"run `pip install git+https://github.com/facebookresearch/dinov3`" when it
+cannot. dinov3 is NOT on PyPI (pypi.org/pypi/dinov3/json: 404, 2026-09-25).
+The backend installs the GitHub archive of one pinned commit, so no git is
+needed and every install builds the same package:
+  dinov3 @ https://github.com/facebookresearch/dinov3/archive/
+           6876159a11b4df116f30f667f8c9888617df0751.zip   (main, 2026-09-25)
+dinov3's setup.py says python_requires>=3.11, so the spec's range is 3.11-3.14.
+
+LICENCE. DINOv3's code AND weights are Meta's "DINO Materials" under the DINOv3
+License (LICENSE.md, 19 Aug 2025) -- not open source. It needs no click-through
+here ("by using or distributing ... you agree"), allows use, copying,
+modification and redistribution with the licence attached, requires that a
+publication using the results acknowledge DINOv3, and forbids military/
+weapons/nuclear/espionage uses and sanctioned parties. The Cellpose-DINO
+checkpoints are DINOv3 fine-tuned by the Cellpose authors (HF mouseland/
+cellpose-sam, not gated, card says bsd-3-clause; bioimage.io says BSD-3-Clause),
+so the DINOv3 terms reach them too. Respected as follows: spaCR redistributes
+nothing -- dinov3 comes from Meta's GitHub, each checkpoint from the URL its
+bioimage.io row names -- and the licence is said BEFORE installing: the
+backend's licence_note (Model Zoo backend card, install dialog) and every
+Cellpose-DINO row's card carry it. Nothing forbids the install or the use.
+
+WHAT CHANGED (file:line after merging nightly e49d86073)
+  spacr/_segmentation_backends.py:140   _CELLPOSE_DINO, :144 _CELLPOSE_DINO_PREFIX
+                                        ("cellpose_dino:"), :152 _DINOV3_COMMIT
+  spacr/_segmentation_backends.py:341   the spec: cellpose==4.2.1.1 + the dinov3
+                                        pin, torch + torchvision from the
+                                        installer's CPU/CUDA index, probe
+                                        cellpose.models / cellpose.vit /
+                                        dinov3.hub.backbones, licence note
+  :694 _cellpose_dino_choice / :708 _cellpose_dino_value / :720
+  _cellpose_dino_model (a missing checkpoint is refused: Cellpose 4 would
+  quietly run cpsam_v2) / :742 _cellpose_dino_is_chosen
+  _spec() now finds any _SPECS name first; cellpose_dino is NOT a
+  segmentation_backend value (not in _BACKEND_NAMES, not in
+  model_zoo.INSTALLABLE_BACKENDS, so the backend box does not offer it):
+  an object's model setting chooses it, like cellpose3:.
+  _worker_env: CELLPOSE_LOCAL_MODELS_PATH inside its env, as Cellpose 3.
+  :2844 _CellposeDinoAdapter -- the worker. CellposeModel(pretrained_model=
+  <path>, device, use_bfloat16 only on CUDA); refuses a non-DINO checkpoint
+  (backbone read from the weights); eval gets the Cellpose-SAM path's own
+  keywords, those CellposeModel.eval lacks are named ("cannot honour");
+  returns (masks, [[RGB flow, dP, cellprob, None]...], None) -- the shapes
+  parse_cellpose4_output already reads. :2976 _worker_adapter.
+  :3410 _load_backend routes cellpose_dino / cellpose_dino:<path> to :3439
+  _load_cellpose_dino (a _RemoteBackend; z/t stacks refused).
+  spacr/object.py:935  generate_cellpose_masks_sam: a cellpose_dino: model
+                       loads through _load_backend and then takes the
+                       UNCHANGED Cellpose-SAM eval call and output handling.
+  spacr/_mask_workers.py:40  parallel preparation refuses it (signs Cellpose
+                       4 weights only), as for Cellpose 3.
+  spacr/model_zoo.py  KINDS gains "cellpose_dino"; bioimage.io DINO rows are
+                       kind cellpose_dino, downloadable (504's dinov3
+                       refusal and _dinov3_available removed), note
+                       _CELLPOSE_DINO_USE; _backend_for -> cellpose_dino;
+                       fetch's <1 MB guard covers the kind; :2558
+                       INSTALLABLE_BACKENDS = segmentation_backend values only.
+  spacr/qt/widgets/model_zoo_picker.py  :1987 Status "needs the Cellpose-DINO
+                       backend" while missing; _needs_install True -> Download
+                       reads Install and opens 507's install dialog, Use stays
+                       grey; :2132 card (installed / not installed, licence,
+                       DINOv3 terms); :1900 Use writes cellpose_dino:<path>;
+                       :2014 the backend row says where it is chosen.
+  spacr/qt/screens/model_zoo.py:157  the Zoo screen's status says the same.
+  spacr/qt/screens/make_masks.py  load_cellpose_model sends cellpose_dino:
+                       to _backend_model (the worker); Model zoo... asks for
+                       cellpose_dino rows and lists "Cellpose-DINO · <file>"
+                       (:11751).
+  app_screen._model_kinds_for and ObjectSettingsGrid.MODEL_KINDS: Mask
+                       generation's *_model_name fields offer the DINO rows.
+
+INSTALL, FOR REAL (this machine, _install_backend('cellpose_dino'), the
+installer's own path): installed 2026-09-25 16:07:30 in 163.1 s, 5 steps,
+self-test ok. ~/.spacr/backends/cellpose_dino, 5.9 GB. Python 3.12.4 (spaCR's
+own interpreter, -m venv), cellpose 4.2.1.1, dinov3 0.0.1 (the pinned
+commit), torch 2.14.0, torchvision 0.29.0, numpy 2.5.3; worker device cuda.
+torch_index "" = PyPI: spaCR's torch reports plain "2.6.0" in its metadata,
+so _torch_index_url picks PyPI's (CUDA) build -- the installer's rule, not
+changed here. A VS Code restart cut the session after the install had
+finished; the marker was written and the env imports dinov3.hub.backbones
+and cellpose.vit, so nothing had to be removed.
+
+REAL RUN, CPU (SPACR_DEVICE=cpu, CUDA hidden). bioimage.io CellposeDINO ViT-B
+(passionate-bug): downloaded by model_zoo.fetch() from its row, 343,599,997
+bytes in 50.8 s, sha256 3ed4c06a... verified. Model setting = what Use this
+model writes: cellpose_dino:<path>. The whole Mask pipeline
+(preprocess_generate_masks, v1) on make_masks_toxo_pv plate1_A02_12, cell
+object on the PV channel, diameter 44, every other setting default (504's
+script and settings). F1 at IoU 0.5 against ground_truth_masks (33 PVs):
+
+  model                        route          objects matched  F1     wall
+  bioimage.io CellposeDINO ViT-B cellpose_dino   44      29    0.753  34.0 s
+  (504, same field) cpsam_v2   Cellpose 4       49      26    0.634  198.6 s
+  (504, same field) cellpose3:cyto3 Cellpose 3  41      26    0.703   20.6 s
+
+Wall = the whole Mask run incl. preprocessing, worker start and model load.
+The worker got one (1994, 1994, 1) image with batch_size 1, normalize False,
+channel_axis -1, diameter 44.0, flow 0.4, cellprob 0, resample True -- the
+Cellpose-SAM call -- and wrote a (1994, 1994) uint16 mask (sha256
+53ad6892...) to cell_mask_stack like any other. ViT-L (famous-sheep) was not
+run. No GPU run (CPU only, as asked).
+
+TESTS
+  tests/test_cellpose_dino_runs_in_its_own_environment.py (new, 26): spec and
+  pins, licence note, not a segmentation_backend, zoo backend row, faked
+  install (venv, torch index, both pins, self-test, record, model cache
+  path), prefix parsing / value / missing checkpoint, _load_backend routing
+  and refusals, parallel-preparation refusal, Mask generation through the
+  SAM call with masks saved, the adapter with a faked CellposeModel (float32
+  on CPU, refuses SAM checkpoints and missing files, output shapes, dropped
+  keywords named), masks/flows/cellprob across the real .npy worker hand-off
+  equal to a Cellpose-SAM model's parse_cellpose4_output, the real
+  CellposeModel signature, the bioimage.io DINO row.
+  tests/qt/test_cellpose_dino_rows_offer_their_backend.py (new, 9): missing
+  backend -> Status, card with licence, Install offered and reaching
+  install_backend('cellpose_dino'), Use grey even when downloaded; installed
+  -> Download and Use writes cellpose_dino:<path>; backend row text; Make
+  Masks zoo button kinds and label; Make Masks loader; Mask generation kinds.
+  Changed: test_bioimageio_models_are_listed_and_usable (DINO rows now
+  runnable and measured; kinds set), test_the_zoo_lists_every_backend_... (6
+  backend rows), test_backends_live_in_their_own_environment (adapter import
+  ratchet lists _CellposeDinoAdapter), qt/test_bioimageio_rows_in_the_picker
+  (Make Masks asks for cellpose_dino too).
+  Backend / zoo / bioimage / install selection (27 files): before, on nightly
+  e6aad0738 (24 files): 728 passed, 2 skipped, 9 xfailed. After merging
+  nightly e49d86073: 780 passed, 2 skipped, 9 xfailed, 0 failed.
+  Guards: test_i18n_caption_ratchet x2, test_docstring_correctness x2,
+  test_user_facing_docstrings x2 fail identically on a clean nightly copy
+  (same messages); test_cellpose_api_contract, test_a_comment_leaves_...,
+  test_dead_settings, test_declared_dependencies_match_imports,
+  test_module_coverage_ratchet, test_mask_worker_processes pass.
+
+NEW tr() STRINGS (catalog rows are the docs lane's):
+  "needs the Cellpose-DINO backend"
+  "Runs through the Cellpose-DINO backend, which is installed. Download it,
+   then Use this model writes cellpose_dino:<its path> into the object's
+   model setting, which runs that object through Cellpose-DINO with its
+   usual Mask generation settings."
+  "Needs the Cellpose-DINO backend, Cellpose 4 with DINOv3 in an environment
+   of its own, which is not installed — press Install to install it."
+  "{name} is a backend, not a checkpoint file. Install it here, then
+   download a Cellpose-DINO model from the bioimage.io heading and press Use
+   this model on it."
+  "Cellpose-DINO · {model}"
+  plus the spec's licence_note / blurb / published texts, shown via tr().
+
+NOT DONE
+  * ViT-L not run; no GPU run.
+  * pipeline_style 'v2', the Cellpose 4 preview boxes and the live
+    magnifier do not understand cellpose_dino: (same gap as cellpose3:).
+  * Make Masks' Mode box has no Cellpose-DINO entry; a DINO model reaches
+    Make Masks through its Model list (Model zoo... button).
+  * i18n catalog rows for the strings above.

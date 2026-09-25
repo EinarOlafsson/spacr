@@ -92,7 +92,8 @@ def test_kinds_name_the_cellpose3_kind():
 
 def test_every_backend_is_listed_with_its_state_reason_and_licence(tmp_path):
     rows = {e.key: e for e in zoo.installable_backend_entries()}
-    assert set(rows) == {"cellpose3_v1", "dinocell_v1", "papers_v1", "samcell_v1", "spotnet_v1"}
+    assert set(rows) == {"cellpose3_v1", "cellpose_dino_v1", "dinocell_v1",
+                         "papers_v1", "samcell_v1", "spotnet_v1"}
     cellpose3 = rows["cellpose3_v1"]
     assert (cellpose3.kind, cellpose3.source) == ("backend", "installable")
     assert cellpose3.uri == "backend:cellpose3" and cellpose3.path == ""
@@ -194,7 +195,7 @@ def test_the_catalogue_lists_them_without_the_network(tmp_path):
     kinds = [e.kind for e in zoo.catalogue(remote=False,
                                            include_plugins=False)]
     assert kinds.count("cellpose3") == 4
-    assert kinds.count("backend") == 5
+    assert kinds.count("backend") == 6
 
 
 def test_a_row_names_the_backend_it_needs():

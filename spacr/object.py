@@ -836,6 +836,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own
     environment; what it returns enters the same lines as a Cellpose-SAM
     result, so the saved masks and the database rows are written the same.
+    One whose model setting reads ``cellpose_dino:<checkpoint path>`` is
+    segmented by the Cellpose-DINO backend's worker, which takes the very
+    ``eval`` call a Cellpose-SAM model takes and returns its shapes (item
+    525).
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -955,11 +959,14 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     # Items 404/405: DINOCell and SAMCell answer the same model.eval call and
     # return Cellpose's (masks, flows, styles), so this is the only dispatch.
     from ._segmentation_backends import (_backend_name, _load_backend,
-                                         _cellpose3_choice, _CELLPOSE3)
+                                         _cellpose3_choice, _CELLPOSE3,
+                                         _cellpose_dino_choice, _CELLPOSE_DINO)
     segmentation_backend = _backend_name(
         settings.get('segmentation_backend', 'cellpose'))
     if _cellpose3_choice(model_name) is not None:
         segmentation_backend = _CELLPOSE3
+    elif _cellpose_dino_choice(model_name) is not None:
+        segmentation_backend = _CELLPOSE_DINO
     if segmentation_backend == 'cellpose':
         pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
         model = cp_models.CellposeModel(

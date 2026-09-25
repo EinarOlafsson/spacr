@@ -2715,7 +2715,9 @@ def load_cellpose_model(model_name: str):
     bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:
     Cellpose 4 would load such a checkpoint and segment nonsense with it. It
     is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
-    environment, as Mask generation loads it.
+    environment, as Mask generation loads it. A ``cellpose_dino:<path>``
+    model, a Cellpose-DINO checkpoint, is loaded the same way in the
+    Cellpose-DINO backend (item 525).
 
     :param model_name: a Cellpose model name, the path of a fine-tuned
         checkpoint, resolved by
@@ -2724,9 +2726,11 @@ def load_cellpose_model(model_name: str):
     """
     import inspect
 
-    from ..._segmentation_backends import _cellpose3_choice
+    from ..._segmentation_backends import (_cellpose3_choice,
+                                           _cellpose_dino_choice)
 
-    if _cellpose3_choice(model_name) is not None:
+    if (_cellpose3_choice(model_name) is not None
+            or _cellpose_dino_choice(model_name) is not None):
         return _backend_model(str(model_name).strip())
 
     import torch
@@ -11727,10 +11731,11 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
         from ..widgets import model_zoo_picker
-        from ..._segmentation_backends import _cellpose3_choice
+        from ..._segmentation_backends import (_cellpose3_choice,
+                                               _cellpose_dino_choice)
 
-        path = model_zoo_picker.choose_model(self, kinds=("cellpose",
-                                                          "cellpose3"))
+        path = model_zoo_picker.choose_model(
+            self, kinds=("cellpose", "cellpose3", "cellpose_dino"))
         if not path:
             return None
         path = str(path)
@@ -11738,9 +11743,15 @@ class MakeMasksScreen(QWidget):
         index = self._cp_model.findData(path)
         if index < 0:
             chosen = _cellpose3_choice(path)
-            label = (os.path.basename(path) or path) if chosen is None else tr(
-                "Cellpose 3 · {model}",
-                model=os.path.basename(chosen) or chosen)
+            dino = _cellpose_dino_choice(path)
+            if chosen is not None:
+                label = tr("Cellpose 3 · {model}",
+                           model=os.path.basename(chosen) or chosen)
+            elif dino is not None:
+                label = tr("Cellpose-DINO · {model}",
+                           model=os.path.basename(dino) or dino)
+            else:
+                label = os.path.basename(path) or path
             self._cp_model.addItem(label, path)
             self._cp_model.setItemData(self._cp_model.count() - 1, path,
                                        Qt.ToolTipRole)
