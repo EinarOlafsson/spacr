@@ -422,6 +422,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "phenotype_source", "ops_library", "ops_base_channels",
     "ops_read_threshold", "ops_raster_overlap", "ops_window_overlap",
     "ops_footprint", "ops_store_reads",
+    # `ops_spot_detector`, native or the opt-in SpotNet (475, 2026-09-25).
+    "ops_spot_detector",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
