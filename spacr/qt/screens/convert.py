@@ -69,7 +69,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -376,7 +375,9 @@ class ConvertScreen(QWidget):
         outer.addWidget(split, 1)
         self._body_splitter = split
 
-        self._progress_bar = QProgressBar(self)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress_bar = ProgressLine(self, detail=False)
         self._progress_bar.setRange(0, 100)
         self._progress_bar.setValue(0)
         self._progress_bar.setVisible(False)

@@ -241,6 +241,7 @@ def _make_screen(app_key=None, host=None):
             self.status.setWordWrap(True)
             right_layout.addWidget(self.status)
             self.progress = QProgressBar(right)
+            self.progress.setTextVisible(False)
             self.progress.setVisible(False)
             right_layout.addWidget(self.progress)
             output = CollapsibleSplitter(

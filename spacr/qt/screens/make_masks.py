@@ -6000,6 +6000,7 @@ class _OtsuHistogramDialog(QDialog):
         layout.addWidget(self.caption)
         self.progress = QProgressBar()
         self.progress.setRange(0, 0)
+        self.progress.setTextVisible(False)
         self.progress.setVisible(pending)
         layout.addWidget(self.progress)
         self.plot = _OtsuHistogramPlot(counts, edges, levels, self)
@@ -9236,8 +9237,9 @@ class MakeMasksScreen(QWidget):
             lambda _checked=False: self._choose_cellpose_model_from_zoo())
         model_row_layout.addWidget(self._cp_model_zoo_btn)
         form.addRow("Model", model_row)
-        self._cp_download_bar = QProgressBar()
-        self._cp_download_bar.setTextVisible(True)
+        from ..widgets.eliding import ProgressLine
+
+        self._cp_download_bar = ProgressLine(count_below=True)
         self._cp_download_bar.hide()
         form.addRow(self._cp_download_bar)
 
@@ -10787,7 +10789,8 @@ class MakeMasksScreen(QWidget):
         job.progressed.connect(self._on_model_download_progress)
         job.finished.connect(self._on_model_downloaded)
         self._cp_download_bar.setRange(0, 0)
-        self._cp_download_bar.setFormat(tr("Downloading {name}…", name=name))
+        self._cp_download_bar.setFormat("")
+        self._cp_download_bar.set_detail(tr("Downloading {name}…", name=name))
         self._cp_download_bar.show()
         self._status_label.setText(tr(
             "Downloading {name} in the background.", name=name))
@@ -10797,8 +10800,12 @@ class MakeMasksScreen(QWidget):
         """Move the download bar; a server that sent no size keeps it busy."""
         bar = self._cp_download_bar
         if total > 0:
+            from ... import model_zoo as zoo
+
             bar.setRange(0, 1000)
             bar.setValue(int(1000 * min(done, total) / total))
+            bar.setFormat(f"{zoo._human_bytes(min(done, total))} / "
+                          f"{zoo._human_bytes(total)} (%p%)")
 
     def _on_model_downloaded(self, worked: bool, message: str) -> None:
         """Select the model just downloaded, or say why it did not arrive."""
@@ -11171,7 +11178,9 @@ class MakeMasksScreen(QWidget):
         card.body_layout.addLayout(form)
 
         progress = QHBoxLayout()
-        self._mag_progress = QProgressBar()
+        from ..widgets.eliding import ProgressLine
+
+        self._mag_progress = ProgressLine(detail=False, count_below=True)
         self._mag_progress.setRange(0, 0)
         self._mag_progress.setTextVisible(False)
         self._mag_progress.hide()

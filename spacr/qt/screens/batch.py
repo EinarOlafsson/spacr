@@ -45,7 +45,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QSpinBox,
     QTableWidget,
@@ -279,7 +278,9 @@ class BatchScreen(QWidget):
         run_row.addWidget(self._btn_stop)
         outer.addLayout(run_row)
 
-        self._progress = QProgressBar(self)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress = ProgressLine(self, detail=False)
         self._progress.setRange(0, 1)
         self._progress.setValue(0)
         self._progress.setTextVisible(True)

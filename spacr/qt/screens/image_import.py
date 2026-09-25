@@ -600,6 +600,7 @@ class ImageImportScreen(QWidget):
 
         self._progress_bar = QProgressBar(self)
         self._progress_bar.setRange(0, 0)
+        self._progress_bar.setTextVisible(False)
         self._progress_bar.setVisible(False)
         outer.addWidget(self._progress_bar)
 
