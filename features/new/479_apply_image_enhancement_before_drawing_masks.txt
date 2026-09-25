@@ -1,6 +1,6 @@
 APPLY IMAGE ENHANCEMENT BEFORE DRAWING MASKS
 
-Status: IMPLEMENTED — validated 2026-09-22; see verification notes below.
+Status: DONE 2026-09-25. Validated 2026-09-22 and 2026-09-23; re-checked 2026-09-25.
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 
 REQUEST
@@ -49,3 +49,14 @@ This is readiness work for489/490, not their implementation.
 SEE ALSO (filed 2026-09-24): item 508 (the same chain and deconvolution in
 Mask generation, plus log and Gaussian transforms) and item 509 (inferring the
 optics, and collapsing the advanced settings).
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_make_masks_apply_
+and_adaptive.py and test_enhancement_comparison_responsiveness.py, 18
+passed. Every ACCEPTANCE line has a test: settings stay editable and
+comparable while Apply is off, Apply feeds display, detection and Wand, off
+restores unenhanced input without deleting settings or masks, and obsolete
+worker results are dropped. The Apply and Compare help have source-bound
+rows in all nine catalogs (see _awaiting_translation's docstring in
+tests/qt/test_make_masks_settings_explain_themselves.py). The Mask
+generation side is 508's and is on nightly. Nothing remains here.
