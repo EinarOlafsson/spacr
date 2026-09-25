@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "candidate-plate-20260925-12208ne8",
+  "branch": "candidate-narrative-20260925-vfhvip5x",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "2a2933b1333166d6ba1947fac6be3a5c345482a8",
-  "tag": "tutorials-plate-20260925-12208ne8",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/2a2933b1333166d6ba1947fac6be3a5c345482a8",
-  "manifest_sha256": "bdfcc8332c1903b5d487997a4a4d10a00ea82b0440387996a33df1b3bf2cb32a",
+  "commit": "675c17b4654edc77b988ac0a047e81b71954e512",
+  "tag": "tutorials-narrative-20260925-vfhvip5x",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512",
+  "manifest_sha256": "8609635fd7471d162d4d39da15bcd10f4616c5a9ce96cb0e37124c4954bdb209",
   "media_files": 1036,
-  "media_bytes": 1703179308,
+  "media_bytes": 1703314292,
   "readback": {
-    "commit": "2a2933b1333166d6ba1947fac6be3a5c345482a8",
+    "commit": "675c17b4654edc77b988ac0a047e81b71954e512",
     "files_expected": 1036,
     "metadata_matched": 1036,
     "metadata_failures": [],
-    "bytes_read_back": 1703179308,
+    "bytes_read_back": 1703314292,
     "downloaded_sha256_matched": 1036,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -6687,16 +6687,16 @@
       "73_parameter_sweep/audio/zh-CN/zm_yunyang.m4a",
       "README.md"
     ],
-    "seconds": 289.0,
+    "seconds": 229.0,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 225,
     "bundled_tutorial_index_sha256": "0cd02fbd556251ae968ed415a6a55795a88b4a9f69eed77e30df50606f44d584",
-    "index_sha256": "3d7eaeec20e8e534a7a260d8b2fe4d3303c678317ca27346d50b5cca9644dc79",
-    "candidate_index_sha256": "2cb3fd46e49756ef6d8b124524cb33054c123e714ee17db389e3d74eb7db6760",
-    "cache_key": "plate-20260925-12208ne8",
+    "index_sha256": "766285c6490e01f251525b149c34d6c72dbe748989f70447703918c555fad25c",
+    "candidate_index_sha256": "0c8274b5866055f3a04a001aa1cda306d012268a5af7815e7b8c261a7e1a8cb4",
+    "cache_key": "narrative-20260925-vfhvip5x",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
