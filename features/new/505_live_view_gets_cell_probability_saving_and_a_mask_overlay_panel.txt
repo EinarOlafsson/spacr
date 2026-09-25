@@ -1,6 +1,10 @@
 LIVE VIEW: CELL PROBABILITY, SAVING A PANEL, AND COMPARING MASKS
 
-Status: OPEN, filed 2026-09-24. Not started.
+Status: PART DONE, 2026-09-25. Filed 2026-09-24.
+  Part 2 (right-click save as PNG or PDF) is done, 95344ebee:
+  spacr/qt/widgets/picture_export.py, on both live preview views.
+  Part 1 (the cell probability view) and part 3 (the comparison panel)
+  are still open.
 Owner: unassigned. Related: the plaque preview's Overlay/Objects/Cell
 probability/Flows tabs, which are the nearest existing pattern.
 
