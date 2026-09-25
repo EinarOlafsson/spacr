@@ -301,8 +301,9 @@ def _worker_figures(directory, messages, device):
 
     def show(*args, **kwargs):
         """Publish each shown figure once and release child pyplot ownership."""
-        for number in plt.get_fignums():
-            fig = plt.figure(number)
+        from matplotlib._pylab_helpers import Gcf
+        for manager in list(Gcf.get_all_fig_managers()):
+            fig = manager.canvas.figure
             publish(fig)
             if not getattr(fig, '_spacr_live_update', False):
                 plt.close(fig)
@@ -472,10 +473,11 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                 if sink() is not None:
                     publish_figure(figure)
                 else:
+                    from .plot import save_figure
                     destination = Path(src).parent / 'mask_worker_plots'
-                    destination.mkdir(exist_ok=True)
-                    target = destination / f'{object_type}_{Path(value).stem}.png'
-                    figure.savefig(target)
+                    target = save_figure(
+                        figure, destination / f'{object_type}_{Path(value).stem}.png',
+                        fmt='png', dpi=figure.dpi)
                     print(f'[GPU {device}] Saved figure: {target}')
             return
         if kind == 'started':
