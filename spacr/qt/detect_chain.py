@@ -24,11 +24,27 @@ enabled steps that warrant a progress warning; non-local means can take
 minutes on a 2,000 px field. Whole-image runs retain progress and Cancel
 controls. Selecting a background method does not enable denoising.
 
-The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch`
-applies rolling ball then CLAHE to organelle batches using
-``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings
-``remove_background``, ``background`` and ``signal_to_noise`` instead apply
-per-channel intensity floors. This Make Masks chain configures neither route.
+The contrast stage is itself a fixed sequence of curves through one trip to
+the unit interval, :data:`CONTRAST_ORDER`::
+
+    percentile clip -> gamma -> log -> sqrt -> CLAHE -> histogram equalisation
+
+The clip runs first so that a hot pixel cannot define the interval the
+curves are drawn on; the curves are monotone, so their order only changes
+the shape of the composite curve and never which pixel is brighter.
+
+THE SAME CHAIN REACHES MASK GENERATION. The image steps -- everything before
+``detect`` -- are written as Mask settings by :func:`chain_settings`, one
+``enhance_<field>`` key per :data:`SETTINGS_FIELDS` entry, and read back by
+:func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask pipelines
+and the Mask Live preview apply to every selected segmentation channel after
+illumination correction and before normalization, at the stage the PSF
+already ran. Morphology and split act on a detector's labels and are Make
+Masks' own; a plate run's Cellpose labels are not reshaped by them. The Mask
+settings ``remove_background``, ``background`` and ``signal_to_noise`` are
+per-channel intensity floors applied by normalization afterwards, and
+:func:`spacr.object._preprocess_batch` is the organelle batches' own
+rolling ball and CLAHE; neither is configured here.
 
 Enhancement changes the objects proposed for curation. Models trained on
 enhanced images require matching preprocessing at inference; this module does
@@ -57,9 +73,18 @@ CHAIN_ORDER: Tuple[str, ...] = (
 #: ``background`` values: what is subtracted, and nothing when ``none``.
 BACKGROUND_METHODS: Tuple[str, ...] = ("none", "rolling_ball", "tophat")
 
-#: ``denoise`` values.
+#: ``denoise`` values. ``tv`` is total-variation denoising (Chambolle), the
+#: edge-preserving smoother scikit-image provides; it stands in for
+#: anisotropic diffusion, which scikit-image does not implement.
 DENOISE_METHODS: Tuple[str, ...] = (
-    "none", "gaussian", "median", "bilateral", "nlm")
+    "none", "gaussian", "median", "bilateral", "nlm", "tv")
+
+#: The curves of the ``contrast`` stage, in the order :func:`_contrast`
+#: draws them. The clip is first so the unit interval the curves run on is
+#: the clipped one; see the module docstring.
+CONTRAST_ORDER: Tuple[str, ...] = (
+    "percentile clip", "gamma", "log", "sqrt", "CLAHE",
+    "histogram equalisation")
 
 #: ``morphology`` values, applied to what the detector labelled.
 MORPHOLOGY_OPS: Tuple[str, ...] = ("none", "open", "close", "open_close")
@@ -158,6 +183,20 @@ class Chain(NamedTuple):
         pixels. Model output uses normalized units, not calibrated fluorescence.
     :param restoration_error: loading error shown instead of silently using
         unprocessed data when restoration was explicitly requested.
+    :param percentile_clip: clip each plane to two percentiles of its own
+        intensities before the contrast curves, so a hot pixel or a dead one
+        cannot define the interval the curves are drawn on. The intensities
+        keep their units; nothing is stretched.
+    :param percentile_low: the lower percentile, 0..100.
+    :param percentile_high: the upper percentile, 0..100, above the lower.
+    :param log: a logarithmic transform on 0..1, ``log(1 + gain·x) /
+        log(1 + gain)``: it compresses the bright end and lifts the dim one,
+        more strongly than a gamma below 1 does near zero.
+    :param log_gain: the factor the unit-interval intensities are scaled by
+        before the logarithm. Larger compresses harder; as it goes to zero
+        the curve goes to the identity.
+    :param sqrt: a square root on 0..1, the curve gamma 0.5 draws, offered
+        by name.
     """
 
     background: str = "none"
@@ -184,6 +223,12 @@ class Chain(NamedTuple):
     restoration: bool = False
     restoration_plan: Optional[_RestorationPlan] = None
     restoration_error: str = ""
+    percentile_clip: bool = False
+    percentile_low: float = 1.0
+    percentile_high: float = 99.0
+    log: bool = False
+    log_gain: float = 10.0
+    sqrt: bool = False
 
 
 #: The chain that does nothing: what Make Masks detected with before this
@@ -204,8 +249,7 @@ def pre_active(chain: Chain) -> bool:
         or chain.psf_operation != "none"
         or chain.restoration
         or chain.denoise != "none"
-        or abs(float(chain.gamma) - 1.0) > 1e-9
-        or chain.clahe or chain.equalize or chain.sharpen)
+        or _contrast_active(chain) or chain.sharpen)
 
 
 def post_active(chain: Chain) -> bool:
@@ -396,6 +440,10 @@ def _denoise(image: np.ndarray, chain: Chain) -> np.ndarray:
 
         out = denoise_bilateral(unit, sigma_color=max(strength * 0.05, 1e-3),
                                 sigma_spatial=max(strength, 1e-3))
+    elif chain.denoise == "tv":
+        from skimage.restoration import denoise_tv_chambolle
+
+        out = denoise_tv_chambolle(unit, weight=max(strength, 1e-3) / 10.0)
     else:
         from skimage.restoration import denoise_nl_means
 
@@ -406,29 +454,59 @@ def _denoise(image: np.ndarray, chain: Chain) -> np.ndarray:
     return (np.asarray(out, dtype=np.float32) * span + low).astype(np.float32)
 
 
-def _contrast(image: np.ndarray, chain: Chain) -> np.ndarray:
-    """Gamma, then CLAHE, then histogram equalisation, on 0..1 and back.
+def _contrast_active(chain: Chain) -> bool:
+    """Whether any curve of the contrast stage is switched on."""
+    return bool(chain.percentile_clip
+                or abs(float(chain.gamma) - 1.0) > 1e-9
+                or chain.log or chain.sqrt or chain.clahe or chain.equalize)
 
-    All three are curves through the same histogram, so they run in one
+
+def _percentile_clip(image: np.ndarray, chain: Chain) -> np.ndarray:
+    """``image`` clipped to its own two percentiles, in its own units.
+
+    Nothing is stretched: a threshold given in intensity units still means
+    what it meant. The percentiles are of THIS plane, so on a plate run a
+    channel is clipped against its own histogram field by field.
+    """
+    low = min(max(float(chain.percentile_low), 0.0), 100.0)
+    high = min(max(float(chain.percentile_high), 0.0), 100.0)
+    floor, ceiling = np.percentile(image, (min(low, high), max(low, high)))
+    return np.clip(image, floor, ceiling).astype(np.float32)
+
+
+def _contrast(image: np.ndarray, chain: Chain) -> np.ndarray:
+    """The curves of :data:`CONTRAST_ORDER`, on 0..1 and back.
+
+    Percentile clip, gamma, log, square root, CLAHE and histogram
+    equalisation are curves through the same histogram, so they run in one
     trip to the unit interval: converting back between them would only
     re-measure a span that a monotone curve cannot have changed the ends
-    of.
+    of. The clip runs before the trip, so the interval is the clipped one.
 
     NOTHING SWITCHED ON IS A NO-OP AND RETURNS THE VERY ARRAY. The trip to
     the unit interval and back is a divide and a multiply in float32, so
     an "off" contrast stage that made the round trip anyway moved the
     bottom bits of every pixel -- which is why a chain of nothing but a
     background subtraction did not agree with scikit-image's own answer to
-    the last decimal.
+    the last decimal. A clip with no curve after it returns the clipped
+    array without the round trip, for the same reason.
     """
-    if (abs(float(chain.gamma) - 1.0) <= 1e-9 and not chain.clahe
-            and not chain.equalize):
+    if not _contrast_active(chain):
         return image
+    if chain.percentile_clip:
+        image = _percentile_clip(image, chain)
+        if not _contrast_active(chain._replace(percentile_clip=False)):
+            return image
     unit, low, span = _unit(image)
     if abs(float(chain.gamma) - 1.0) > 1e-9:
         from skimage.exposure import adjust_gamma
 
         unit = adjust_gamma(unit, gamma=max(float(chain.gamma), 1e-3))
+    if chain.log:
+        gain = max(float(chain.log_gain), 1e-3)
+        unit = np.log1p(unit * gain) / np.log1p(gain)
+    if chain.sqrt:
+        unit = np.sqrt(np.clip(unit, 0.0, None))
     if chain.clahe:
         from skimage.exposure import equalize_adapthist
 
@@ -454,7 +532,8 @@ def _sharpen(image: np.ndarray, chain: Chain) -> np.ndarray:
     return (np.asarray(out, dtype=np.float32) * span + low).astype(np.float32)
 
 
-def prepare(image: np.ndarray, chain: Chain, *, cancel=None) -> np.ndarray:
+def prepare(image: np.ndarray, chain: Chain, *, cancel=None,
+            strict: bool = False) -> np.ndarray:
     """The image a detector is to read, with optional cooperative cancellation.
 
     Background, PSF, deep restoration, denoise, contrast, then sharpen --
@@ -462,14 +541,17 @@ def prepare(image: np.ndarray, chain: Chain, *, cancel=None) -> np.ndarray:
     another. The percentile stretch is the screen's, applied to the whole
     field before ``image`` was cut from it.
 
-    Legacy filter failures are logged and skipped. PSF/restoration failures and cancellation
+    Legacy filter failures are logged and skipped unless ``strict`` is set.
+    PSF/restoration failures and cancellation
     propagate so detection cannot silently use an unprocessed image when an
     explicitly calibrated operation was requested. This is reached from a
     mouse-move (the readout under the cursor) and from the magnifier, so
     an exception here is one per mouse event: a missing optional package
     filled the console with tracebacks once (PyWavelets, 2026-09-22) and
     made the screen unusable. The detector then reads the image as far as
-    the chain got, and the log says which step was dropped.
+    the chain got, and the log says which step was dropped. A plate run
+    passes ``strict=True``: a mask made from an image a step was silently
+    dropped from would be presented as the mask the settings asked for.
 
     :param image: the field, or the magnifier's box region cut from it.
         Never modified.
@@ -477,6 +559,8 @@ def prepare(image: np.ndarray, chain: Chain, *, cancel=None) -> np.ndarray:
     :param cancel: callable or Event; checked between stages, inside PSF
         iterations and while awaiting restoration. Cancellation raises
         :class:`spacr.point_spread.ProcessingCancelled`.
+    :param strict: raise a failing step's error instead of logging it and
+        handing on the image as far as the chain got.
     :returns: ``image`` itself when nothing is switched on -- so a detector
         reading an untouched field reads the very array and not a float
         copy -- and otherwise a new float32 array of the same shape.
@@ -518,6 +602,9 @@ def prepare(image: np.ndarray, chain: Chain, *, cancel=None) -> np.ndarray:
                     raise ProcessingCancelled('Image enhancement cancelled') from exc
             continue
         if step is None:
+            continue
+        if strict:
+            out = step(out, chain)
             continue
         try:
             out = step(out, chain)
@@ -616,8 +703,16 @@ def provenance(chain: Chain, *, percentile_stretch: bool = False) -> Dict:
     if chain.denoise != "none":
         steps["denoise"] = str(chain.denoise)
         steps["denoise_strength"] = float(chain.denoise_strength)
+    if chain.percentile_clip:
+        steps["percentile_clip"] = [float(chain.percentile_low),
+                                    float(chain.percentile_high)]
     if abs(float(chain.gamma) - 1.0) > 1e-9:
         steps["gamma"] = float(chain.gamma)
+    if chain.log:
+        steps["log"] = True
+        steps["log_gain"] = float(chain.log_gain)
+    if chain.sqrt:
+        steps["sqrt"] = True
     if chain.clahe:
         steps["clahe"] = True
         steps["clahe_tile"] = int(chain.clahe_tile)
@@ -647,7 +742,8 @@ _STEP_WORDS: Dict[str, Dict[str, str]] = {
                    "tophat": "top-hat background"},
     "denoise": {"gaussian": "Gaussian denoise", "median": "median denoise",
                 "bilateral": "bilateral denoise",
-                "nlm": "non-local means denoise"},
+                "nlm": "non-local means denoise",
+                "tv": "total-variation denoise"},
     "morphology": {"open": "morphological opening",
                    "close": "morphological closing",
                    "open_close": "morphological opening then closing"},
@@ -676,8 +772,15 @@ def step_names(chain: Chain, *,
         if value != "none":
             names.append(("PSF convolution" if value == "convolve" else "PSF deconvolution")
                          if field == "psf_operation" else _STEP_WORDS[field].get(value, value))
+    if chain.percentile_clip:
+        names.append(f"percentile clip {float(chain.percentile_low):g}"
+                     f"-{float(chain.percentile_high):g}")
     if abs(float(chain.gamma) - 1.0) > 1e-9:
         names.append(f"gamma {float(chain.gamma):.2f}")
+    if chain.log:
+        names.append(f"logarithm gain {float(chain.log_gain):g}")
+    if chain.sqrt:
+        names.append("square root")
     if chain.clahe:
         names.append("CLAHE")
     if chain.equalize:
@@ -690,6 +793,54 @@ def step_names(chain: Chain, *,
     if chain.split:
         names.append("split touching objects")
     return tuple(names)
+
+
+#: The prefix of the Mask settings that carry the chain: ``enhance_`` plus
+#: the :class:`Chain` field's name, so the setting and the field are one
+#: name apart and nothing maps between them.
+SETTINGS_PREFIX = "enhance_"
+
+#: The :class:`Chain` fields a plate run reads from its settings, in the
+#: order the stages run. Everything before ``detect`` in
+#: :data:`CHAIN_ORDER` that a settings file can hold: the PSF is carried by
+#: the ``psf_*`` settings of :mod:`spacr.psf_pipeline` and folded in by
+#: :func:`spacr.psf_pipeline.prepare_chain`; deep restoration needs a
+#: loaded model in an isolated backend and stays Make Masks' own;
+#: morphology and split reshape a detector's labels and are not applied to
+#: a plate run's Cellpose masks.
+SETTINGS_FIELDS: Tuple[str, ...] = (
+    "background", "background_radius", "background_scale",
+    "denoise", "denoise_strength",
+    "percentile_clip", "percentile_low", "percentile_high",
+    "gamma", "log", "log_gain", "sqrt",
+    "clahe", "clahe_tile", "clahe_clip", "equalize",
+    "sharpen", "sharpen_radius", "sharpen_amount")
+
+
+def setting_name(field: str) -> str:
+    """The Mask setting that carries a chain field.
+
+    :param field: a :class:`Chain` field name from :data:`SETTINGS_FIELDS`.
+    :returns: ``enhance_<field>``.
+    """
+    return SETTINGS_PREFIX + field
+
+
+def chain_settings(chain: Chain = NO_CHAIN) -> Dict[str, object]:
+    """The chain's image steps as the Mask settings that apply them.
+
+    One ``enhance_<field>`` per :data:`SETTINGS_FIELDS` entry, each cast to
+    the plain type its default has, so the mapping is what a settings file
+    holds and what :func:`spacr.psf_pipeline.prepare_chain` reads back into
+    an equal chain. :data:`NO_CHAIN` gives the defaults, which is what a
+    settings file that knows nothing about the chain means.
+
+    :param chain: the chain to write out.
+    :returns: setting name to plain value, in :data:`SETTINGS_FIELDS` order.
+    """
+    return {setting_name(field): type(getattr(NO_CHAIN, field))(
+                getattr(chain, field))
+            for field in SETTINGS_FIELDS}
 
 
 def describe(chain: Chain, *, percentile_stretch: bool = False) -> str:

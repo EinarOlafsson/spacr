@@ -304,6 +304,12 @@ _IDENTITY_TEXT = {
     # The relationship name is already translated before formatting; the
     # remaining fields are a count and object IDs, with no English prose.
     "{name}: {count} ({ids})",
+    # Instruction 316, 2026-09-25. A method and a parameter name shown as
+    # standalone captions: the Isomap embedding in the dimensionality-
+    # reduction choices, the U-Net organelle-detection mode, and the DBSCAN
+    # ``eps`` form label in the gate settings. Each is the literal name the
+    # user will find in the literature and the API; none is English prose.
+    "Isomap", "U-Net", "eps",
 }
 
 _KNOWN_CONTAMINATION_MARKERS = (

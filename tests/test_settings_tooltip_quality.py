@@ -590,8 +590,13 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
                                     # does say pixels, so only the census
                                     # moved.
     per_organelle_unit_settings = 4
+    # +2 on 2026-09-25 (item 508): enhance_background_radius and
+    # enhance_sharpen_radius, the Make Masks chain's two radii as Mask
+    # settings. Both tooltips say pixels.
+    enhancement_unit_settings = 2
     assert len(diameter_or_radius) == (
-        base_unit_settings + per_organelle_unit_settings * MAX_ORGANELLES
+        base_unit_settings + enhancement_unit_settings
+        + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
 
@@ -742,19 +747,28 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Compared with the actual 0a4f5aa75 package: +43 pairs, none removed.
     # Plaque calibration +4, TTA +6, PSF +15, Host–Pathogen +4,
     # Mask image QC/metadata +6 and restored Replication settings +8.
-    # 716 -> 722 on 2026-09-25, +6/-0: item 503's six legacy Cellpose 3
+    # 716 -> 735 on 2026-09-25, +19/-0 (item 508): the nineteen enhance_*
+    # settings, resolved by Mask only, each ending in a parseable
+    # "Default X.". Pinned by name in the 508 census file below.
+    # 735 -> 741 on 2026-09-25, +6/-0 (item 503): the six legacy Cellpose 3
     # settings, each ending in a parseable "Default X.", declared where
-    # only `mask` resolves them. The 491 census below is the record of 716
-    # and stays as it was; the six arriving pairs are pinned by name.
+    # only `mask` resolves them; pinned by name here.
     item_503 = {("mask", key) for key in (
         "cellpose3_add_nucleus_channel", "cellpose3_size_model",
         "cellpose3_resample", "cellpose3_augment",
         "cellpose3_percentile_low", "cellpose3_percentile_high")}
     assert item_503 <= compared_pairs
-    assert comparisons == 722
+    assert comparisons == 741
+    census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
+                             '508_default_claim_census_2026-09-25.json').read_text())
+    assert census_508['comparisons_before'] == 716
+    assert census_508['comparisons_after'] + len(item_503) == comparisons
+    assert census_508['removed_pairs'] == []
+    assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
+    assert len(census_508['added_pairs']) == 19
     census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                          '491_default_claim_census_2026-09-23.json').read_text())
-    assert census['comparisons_after'] + len(item_503) == comparisons
+    assert census['comparisons_after'] == census_508['comparisons_before']
     assert census['removed_pairs'] == []
     assert len(census['added_pairs']) == 43
     assert {tuple(pair) for pair in census['added_pairs']} <= compared_pairs

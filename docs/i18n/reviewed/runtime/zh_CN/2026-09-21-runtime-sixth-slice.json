@@ -102,13 +102,6 @@
     },
     {
       "table": "ui",
-      "key": "Stop it and close",
-      "source": "Stop it and close",
-      "translation": "停止并关闭",
-      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b"
-    },
-    {
-      "table": "ui",
       "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
       "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
       "translation": "已停止等待登录。按“登录”可重新开始；如果已登录，请按“完成”。",
@@ -144,13 +137,6 @@
     },
     {
       "table": "ui",
-      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
-      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
-      "translation": "尚未安装 GitHub CLI。\n\n安装后，spaCR 可使用您的 GitHub 帐户提交报告，无需打开浏览器。未安装时，报告仍会在浏览器中打开。",
-      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
-    },
-    {
-      "table": "ui",
       "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "translation": "spaCR 执行的命令。也可复制该命令，自行在终端中运行。",
@@ -176,13 +162,6 @@
       "source": "The installer could not be run: {error}",
       "translation": "无法运行安装程序：{error}",
       "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
-    },
-    {
-      "table": "ui",
-      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "translation": "{tools} 的安装程序仍在运行。现在关闭此窗口会停止安装。",
-      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
     },
     {
       "table": "ui",
@@ -280,6 +259,38 @@
         "translation": "实时放大镜也使用这些设置：Cellpose 模式使用模型、两个阈值、直径及归一化设置，DINOCell 使用细胞概率设置。Otsu 模式则读取 Otsu 类别中的设置。",
         "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Stop it and close",
+        "source": "Stop it and close",
+        "translation": "停止并关闭",
+        "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+        "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+        "translation": "尚未安装 GitHub CLI。\n\n安装后，spaCR 可使用您的 GitHub 帐户提交报告，无需打开浏览器。未安装时，报告仍会在浏览器中打开。",
+        "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "translation": "{tools} 的安装程序仍在运行。现在关闭此窗口会停止安装。",
+        "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

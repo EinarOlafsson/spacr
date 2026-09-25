@@ -278,6 +278,8 @@ def convert_settings_dict_for_gui(settings):
         'psf_kernel_sampling_um': ('entry', None, None),
         'psf_fwhm_um': ('entry', None, None),
         'psf_iterations': ('entry', None, 20),
+        'enhance_background': ('combo', ['none', 'rolling_ball', 'tophat'], 'none'),
+        'enhance_denoise': ('combo', ['none', 'gaussian', 'median', 'bilateral', 'nlm', 'tv'], 'none'),
         'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),
         'replication_method': ('combo', [

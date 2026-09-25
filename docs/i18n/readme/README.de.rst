@@ -141,16 +141,16 @@ Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
 
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
-   :alt: Windows 10/11: spaCR 1.5.0.9 herunterladen
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Windows-Online-Setup.exe
+   :alt: Windows 10/11: spaCR 1.5.1.0 herunterladen
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.0/spaCR-1.5.1.0-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
-   :alt: macOS 11+ (Intel und Apple Silicon): spaCR 1.5.0.9 herunterladen
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-macOS-Universal-Online.pkg
+   :alt: macOS 11+ (Intel und Apple Silicon): spaCR 1.5.1.0 herunterladen
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.0/spaCR-1.5.1.0-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
-   :alt: 64-Bit-Linux: spaCR 1.5.0.9 herunterladen
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
+   :alt: 64-Bit-Linux: spaCR 1.5.1.0 herunterladen
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.0/spaCR-1.5.1.0-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Ältere spaCR-Installationsprogramme

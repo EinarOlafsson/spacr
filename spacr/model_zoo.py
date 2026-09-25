@@ -2291,7 +2291,7 @@ def installable_backend_entries() -> List["ModelEntry"]:
     builds it an environment of its own under ``~/.spacr/backends`` and
     leaves spaCR's own environment alone.
     """
-    from ._segmentation_backends import _backend_state
+    from ._segmentation_backends import _backend_state, _credential_note
 
     out = []
     for name, spec in _BACKEND_SPECS.items():
@@ -2303,7 +2303,8 @@ def installable_backend_entries() -> List["ModelEntry"]:
             sha256="", size_bytes=0, trained_on=spec.blurb,
             trained_by=spec.label, licence=spec.licence,
             notes=tuple(note for note in (f"{state.state}: {state.reason}",
-                                          spec.licence_note, spec.published)
+                                          spec.licence_note, spec.published,
+                                          _credential_note(name))
                         if note)))
     return out
 
