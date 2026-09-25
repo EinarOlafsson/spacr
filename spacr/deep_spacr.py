@@ -185,6 +185,11 @@ def autocasting(on, device):
 
     A context manager either way, so the training loop has ONE shape
     rather than a branch around every forward pass.
+
+    :param on: whether to autocast; falsy makes the block run unchanged.
+    :param device: the :class:`torch.device` the block runs on; its ``type`` is
+        the autocast device type, and CPU uses bfloat16 where other devices use
+        float16.
     """
     if not on:
         yield
@@ -1032,6 +1037,10 @@ def cv_metric_keys(metrics) -> list:
     what they always got; three or more get their per-class accuracies as
     well, which is the only part of the summary that says anything about
     the classes.
+
+    :param metrics: a collection of metric names (a per-epoch metrics dict or a
+        fold DataFrame's columns), tested with ``in`` and iterated for
+        per-class accuracy keys.
     """
     present = [key for key in CV_METRIC_KEYS if key in metrics]
     per_class = sorted(key for key in metrics
@@ -2259,7 +2268,11 @@ def build_model_card(model_path, *, settings=None, classes=None,
 
 
 def format_model_card(card):
-    """Render a card as Markdown — the version a human reads first."""
+    """Render a card as Markdown — the version a human reads first.
+
+    :param card: the model card dict, as built by :func:`build_model_card`;
+        missing keys render as ``?`` or "not recorded".
+    """
     lines = [f"# Model card — {card.get('model_file', '?')}", '']
     lines.append(f"* **spaCR version**: {card.get('spacr_version', '?')}")
     lines.append(f"* **Created (UTC)**: {card.get('created_utc', '?')}")
@@ -2363,7 +2376,11 @@ def write_model_card(model_path, card, *, markdown=True):
 
 
 def read_model_card(model_path):
-    """The card beside ``model_path``, or ``None`` when there is not one."""
+    """The card beside ``model_path``, or ``None`` when there is not one.
+
+    :param model_path: path to the model weights; the card is the JSON file
+        with the same stem and the ``.card.json`` suffix.
+    """
     import json as _json
     stem = os.path.splitext(os.path.abspath(str(model_path)))[0]
     json_path = stem + MODEL_CARD_SUFFIX

@@ -295,6 +295,10 @@ class ComparisonGrid(LinkedView, QWidget):
         A panel added to a grid the user has already zoomed into starts where
         the others are, not fitted to its own extent — otherwise adding a
         fifth channel throws away the view.
+
+        :param key: the panel's name in this grid, converted to a string; a key
+            already in the grid raises :class:`LayerError`.
+        :param stack: the layer stack the new panel displays.
         """
         key = str(key)
         if key in self._panels:
@@ -315,7 +319,11 @@ class ComparisonGrid(LinkedView, QWidget):
         return panel
 
     def remove_panel(self, key: str) -> ComparisonPanel:
-        """Take a panel out of the grid and return it."""
+        """Take a panel out of the grid and return it.
+
+        :param key: the panel's key; a key not in the grid raises
+            :class:`LayerError`.
+        """
         key = str(key)
         if key not in self._panels:
             raise LayerError(
@@ -378,7 +386,11 @@ class ComparisonGrid(LinkedView, QWidget):
             widget.update()
 
     def resizeEvent(self, event) -> None:
-        """A layout change resizes the cells; re-share the window afterwards."""
+        """A layout change resizes the cells; re-share the window afterwards.
+
+        :param event: the resize event, passed on to the base class before the
+            view is re-shared.
+        """
         super().resizeEvent(event)
         self._push_to_panels()
 
@@ -445,6 +457,9 @@ class ComparisonGrid(LinkedView, QWidget):
         The other half of the comparison: a cell picked in the DAPI panel is
         the same cell in the phalloidin panel, and saying so is what makes the
         four pictures one observation rather than four.
+
+        :param object_key: the object key to find, compared with each labels
+            layer's field object keys.
         """
         found: List[str] = []
         for key, panel in self._panels.items():
@@ -465,7 +480,11 @@ class ComparisonGrid(LinkedView, QWidget):
         return found
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Another view selected something: show it in every panel."""
+        """Another view selected something: show it in every panel.
+
+        :param selection: the shared selection; only one with exactly one key
+            is shown.
+        """
         if selection.keys is None or len(selection.keys) != 1:
             return
         self.highlight(str(selection.keys[0]))
@@ -496,7 +515,11 @@ class ComparisonGrid(LinkedView, QWidget):
             + (" · ".join(notes) if notes else "all linked"))
 
     def closeEvent(self, event) -> None:
-        """Leave the shared selection and let go of every panel's model."""
+        """Leave the shared selection and let go of every panel's model.
+
+        :param event: the close event, passed on to the base class after the
+            grid unlinks and detaches its panels.
+        """
         self.unlink_selection()
         for panel in self._panels.values():
             panel.detach()
