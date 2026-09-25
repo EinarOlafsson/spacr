@@ -49,7 +49,13 @@ _CAPTION_MARGIN = 96
 
 @dataclass
 class DownloadResult:
-    """Outcome of one :func:`download_toxo_mito_demo` call."""
+    """Outcome of one :func:`download_toxo_mito_demo` call.
+
+    :param dataset_path: local folder holding the downloaded data, as the
+        worker reported it on success.
+    :param settings_path: local folder holding the settings files that came
+        with the download.
+    """
     dataset_path:  Path
     settings_path: Path
 
@@ -696,7 +702,21 @@ class _ChosenArchivesWorker(_TarExampleWorker):
 
 def download_chosen_screen_data(parent, dest: Path, archives, repo: str,
                                 on_done) -> None:
-    """Fetch the chosen pieces of the published screen."""
+    """Fetch the chosen pieces of the published screen.
+
+    :param parent: QWidget that parents the progress dialog and the worker
+        thread.
+    :param dest: local directory every archive is unpacked into; created if
+        missing.
+    :param archives: archive file names to fetch from ``repo``, in order. An
+        empty selection ends the run with "Nothing was selected." instead of
+        fetching everything.
+    :param repo: Hugging Face dataset repo id the archives are read from; an
+        empty string keeps the worker's default.
+    :param on_done: called with ``(result, error_message)`` when the download
+        ends; ``result`` is a :class:`DownloadResult` on success and ``None``
+        on failure or cancellation.
+    """
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
@@ -765,7 +785,16 @@ def download_annotate_example(parent, dest: Path,
                               on_done: Callable[
                                   [Optional[DownloadResult], str],
                                   None]) -> None:
-    """Fetch the Annotate/Classify example set, with the shared dialog."""
+    """Fetch the Annotate/Classify example set, with the shared dialog.
+
+    :param parent: QWidget that parents the progress dialog and the worker
+        thread.
+    :param dest: local directory the example archive is unpacked into;
+        created if missing.
+    :param on_done: called with ``(result, error_message)`` when the download
+        ends; ``result`` is a :class:`DownloadResult` on success and ``None``
+        on failure or cancellation.
+    """
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
     download_toxo_mito_demo(

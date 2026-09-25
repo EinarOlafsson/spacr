@@ -220,12 +220,26 @@ class CanvasTool:
 
     def press(self, view: "LayerCanvas", world: Dict[str, float],
               event: Any) -> bool:
-        """A mouse button went down at ``world``. Return True to consume it."""
+        """A mouse button went down at ``world``. Return True to consume it.
+
+        :param view: the :class:`LayerCanvas` the tool is attached to.
+        :param world: world position already resolved from the cursor, as an
+            axis-name to coordinate dict that includes the pinned depth axes.
+        :param event: the Qt mouse event, passed through unchanged; a tool
+            can read its button and modifiers.
+        """
         return False
 
     def move(self, view: "LayerCanvas", world: Dict[str, float],
              event: Any) -> bool:
-        """The cursor moved to ``world`` with no drag in progress."""
+        """The cursor moved to ``world`` with no drag in progress.
+
+        :param view: the :class:`LayerCanvas` the tool is attached to.
+        :param world: world position already resolved from the cursor, as an
+            axis-name to coordinate dict that includes the pinned depth axes.
+        :param event: the Qt mouse event, passed through unchanged.
+        :returns: ``True`` to consume the move; the base returns ``False``.
+        """
         return False
 
     def release(self, view: "LayerCanvas", world: Dict[str, float],
@@ -238,16 +252,35 @@ class CanvasTool:
         release the tool cannot tell where one stroke ends and the next
         begins. Inert by default, like the rest of this class, so a tool that
         only wants clicks is unaffected.
+
+        :param view: the :class:`LayerCanvas` the tool is attached to.
+        :param world: world position already resolved from the cursor, as an
+            axis-name to coordinate dict that includes the pinned depth axes.
+        :param event: the Qt mouse event, passed through unchanged.
         """
         return False
 
     def double_click(self, view: "LayerCanvas", world: Dict[str, float],
                      event: Any) -> bool:
-        """A double click at ``world`` — how a polygon is closed."""
+        """A double click at ``world`` — how a polygon is closed.
+
+        :param view: the :class:`LayerCanvas` the tool is attached to.
+        :param world: world position already resolved from the cursor, as an
+            axis-name to coordinate dict that includes the pinned depth axes.
+        :param event: the Qt mouse event, passed through unchanged.
+        :returns: ``True`` to consume the double click; the base returns
+            ``False``.
+        """
         return False
 
     def key(self, view: "LayerCanvas", event: Any) -> bool:
-        """A key was pressed while the canvas had focus."""
+        """A key was pressed while the canvas had focus.
+
+        :param view: the :class:`LayerCanvas` the tool is attached to.
+        :param event: the Qt key event, passed through unchanged.
+        :returns: ``True`` to consume the key; the base returns ``False`` so
+            the canvas's default handling runs.
+        """
         return False
 
     def detach(self) -> None:
@@ -309,6 +342,9 @@ class LayerCanvas(QFrame):
         The unsubscribe matters: the model holds listeners by strong
         reference, so a canvas that swapped stacks without letting go would
         keep repainting for a stack nobody is looking at.
+
+        :param stack: the :class:`~spacr.layers.LayerStack` to display; the
+            canvas subscribes to its layer changes.
         """
         self._stack.unsubscribe(self._on_layers_changed)
         self._stack = stack
@@ -337,6 +373,10 @@ class LayerCanvas(QFrame):
         typically wants Escape and Backspace, and a canvas that grabbed focus
         the rest of the time would swallow the arrow keys the surrounding
         screen uses.
+
+        :param tool: the :class:`CanvasTool` to receive mouse and key events,
+            or ``None``. A different tool already attached is detached
+            first.
         """
         previous = self._tool
         if previous is tool:
@@ -368,7 +408,11 @@ class LayerCanvas(QFrame):
 
     def set_plane(self, axes: Sequence[str],
                   depth: Optional[Dict[str, float]] = None) -> None:
-        """Look at a different plane — the seam the orthogonal-view item uses."""
+        """Look at a different plane — the seam the orthogonal-view item uses.
+
+        :param axes: world-axis names for the canvas rows and columns, in that
+            order; only the first two items are used.
+        """
         self._axes = (str(axes[0]), str(axes[1]))
         self._depth = dict(depth or {})
         self._canvas = None
@@ -926,7 +970,11 @@ class LayerViewer(LinkedView, QWidget):
             self.add_labels_file(path)
 
     def add_image_file(self, path) -> Optional[ImageLayer]:
-        """Load ``path`` as an image layer. Returns it, or ``None`` on failure."""
+        """Load ``path`` as an image layer. Returns it, or ``None`` on failure.
+
+        :param path: image file read through :func:`stack_from_paths`; a load
+            error is logged and shown in the status line.
+        """
         try:
             loaded = stack_from_paths(image_path=path,
                                       spacing=self._default_spacing())
@@ -941,7 +989,11 @@ class LayerViewer(LinkedView, QWidget):
     def add_labels_file(self, path,
                         field: Optional[FieldKey] = None
                         ) -> Optional[LabelsLayer]:
-        """Load ``path`` as a labels layer."""
+        """Load ``path`` as a labels layer.
+
+        :param path: label-mask file read through :func:`stack_from_paths`;
+            returns ``None`` after logging and showing a load error.
+        """
         try:
             loaded = stack_from_paths(labels_path=path, field=field,
                                       spacing=self._default_spacing())
@@ -1053,7 +1105,12 @@ class LayerViewer(LinkedView, QWidget):
                 for axis, coordinate in world.items()))
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Highlight the object another view selected, when we hold it."""
+        """Highlight the object another view selected, when we hold it.
+
+        :param selection: the published :class:`~spacr.selection.Selection`;
+            only a selection of exactly one key is acted on, and that key is
+            matched against each labels layer's object keys.
+        """
         if selection.keys is None or len(selection.keys) != 1:
             return
         wanted = str(selection.keys[0])
