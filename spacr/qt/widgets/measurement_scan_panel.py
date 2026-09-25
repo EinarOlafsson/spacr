@@ -71,7 +71,12 @@ VERDICT_NEITHER = "no effect"
 
 
 def verdict_for(row) -> str:
-    """One phrase per measurement, from BOTH corrections."""
+    """One phrase per measurement, from BOTH corrections.
+
+    :param row: one scan row; its ``survives_across_scan`` and
+        ``survives_within_run`` attributes are read, and missing ones count as
+        false.
+    """
     if getattr(row, "survives_across_scan", False):
         return VERDICT_SURVIVES
     if getattr(row, "survives_within_run", False):
@@ -84,6 +89,9 @@ def ordered_columns(frame) -> list:
 
     Ordering, not filtering -- the columns nobody thought to list are still
     the user's own numbers.
+
+    :param frame: the frame whose columns are ordered; ``None`` returns an
+        empty list.
     """
     if frame is None:
         return []
@@ -323,6 +331,9 @@ def anchor_tables(tables: Sequence[str]) -> Tuple[str, ...]:
     mean one nucleus or one pathogen, with the cell's own measurements
     repeated across its children -- which is the fan-out the roll-up exists to
     prevent, arrived at from the other side.
+
+    :param tables: measurement table names; those holding one row per cell are
+        kept, in their given order.
     """
     return tuple(name for name in tables if is_one_row_per_cell(name))
 
@@ -608,7 +619,10 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
 
 
 def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
-    """Plate ids as the plates are CALLED, in their given order."""
+    """Plate ids as the plates are CALLED, in their given order.
+
+    :param plates: plate ids, each passed through ``canonical_plate_id``.
+    """
     return tuple(canonical_plate_id(plate) for plate in plates)
 
 
@@ -733,6 +747,10 @@ def merge_evidence(frame) -> str:
 
     Every name the summary counted, so that a user who wants to check the
     claim can, and one who does not is not made to read it.
+
+    :param frame: the merged frame; the ``default_aggregation``,
+        ``identifier_columns`` and ``dropped_columns`` entries of its ``attrs``
+        are listed.
     """
     attrs = getattr(frame, "attrs", {}) or {}
     lines: List[str] = []
@@ -760,6 +778,9 @@ def merge_report(frame) -> str:
     Kept as one string for a caller that wants everything -- a log line, a
     test, a headless script. The PANEL shows the two halves in two places,
     which is the whole of the design.
+
+    :param frame: the merged frame, passed to :func:`merge_summary` and
+        :func:`merge_evidence`.
     """
     evidence = merge_evidence(frame)
     return merge_summary(frame) + (("\n" + evidence) if evidence else "")
@@ -1277,6 +1298,10 @@ class WorkflowSteps:
         A number this panel does not have is IGNORED rather than an error: a
         layout stored by a version with five steps must not stop this one
         from starting.
+
+        :param folds: mapping of step number to ``True`` (open) or ``False``
+            (folded), as :meth:`step_folds` returns; unknown numbers are
+            ignored and ``None`` changes nothing.
         """
         for number, expanded in dict(folds or {}).items():
             step = self.steps.get(int(number))
@@ -1316,6 +1341,10 @@ class WorkflowSteps:
 
         A key this panel does not have is ignored, for the reason
         :meth:`set_step_folds` gives.
+
+        :param heights: mapping of box key to height in pixels at 100 % font
+            scale, as :meth:`box_heights` returns; unknown keys are ignored
+            and ``None`` changes nothing.
         """
         from ..preferences import scaled_px
 
@@ -1898,7 +1927,12 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
 
     def set_database_provider(self, provider) -> None:
-        """Take a new source of input-table rows and re-read it."""
+        """Take a new source of input-table rows and re-read it.
+
+        :param provider: zero-argument callable returning the input table's
+            rows (see :func:`attached_databases` for the accepted shapes); it
+            is called on every refresh, starting immediately.
+        """
         self._provider = provider
         self.refresh()
 
@@ -2127,7 +2161,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return tuple(out)
 
     def set_selected_tables(self, names: Sequence[str]) -> None:
-        """Tick exactly ``names``."""
+        """Tick exactly ``names``.
+
+        :param names: table names to tick, compared as strings; every other
+            listed table is unticked.
+        """
         wanted = {str(name) for name in names}
         self._filling = True
         try:
@@ -2144,7 +2182,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return self.anchor_box.currentText() or DEFAULT_ANCHOR
 
     def set_anchor(self, name: str) -> None:
-        """Choose the anchor, if it is on offer."""
+        """Choose the anchor, if it is on offer.
+
+        :param name: name of the table to anchor on, set as the anchor box's
+            current text; a name not offered there leaves the choice unchanged.
+        """
         self.anchor_box.setCurrentText(str(name))
 
     def policy(self) -> MergePolicy:
@@ -2672,7 +2714,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             self._plan_shown + f"\n\nThe merge did not finish: {message}")
 
     def closeEvent(self, event):                 # noqa: N802 - Qt name
-        """Do not let a worker outlive the widget it reports to."""
+        """Do not let a worker outlive the widget it reports to.
+
+        :param event: the close event; it is passed on to the base class after
+            the workers and path probes are stopped.
+        """
         try:
             self._stop.set()
             self._jobs.shutdown()
@@ -2806,6 +2852,9 @@ def well_keys(frame) -> Tuple[str, Tuple[str, ...]]:
     reason a measurements table with no ``prc`` column is still comparable to
     a regression frame that has one.
 
+    :param frame: the frame to read; its ``prc`` column is used when present,
+        else ``plateID``, ``rowID`` and ``columnID`` joined with underscores.
+        ``None`` or a frame without columns gives ``("", ())``.
     :returns: ``("", ())`` for a frame carrying no well identity at all,
         which is itself the answer to "why did nothing join".
     """
@@ -2831,6 +2880,12 @@ def describe_key_overlap(left_name: str, left, right_name: str,
     The sentence the design asks for, and it is computed rather than
     asserted. ``""`` when the two do overlap, because then the join is not the
     problem and saying anything about it would send the user the wrong way.
+
+    :param left_name: how the first frame is named in the sentence, such as
+        ``'merged measurements'``.
+    :param left: the first frame; its well keys come from :func:`well_keys`.
+    :param right_name: how the second frame is named in the sentence.
+    :param right: the second frame; its well keys come from :func:`well_keys`.
     """
     left_key, left_wells = well_keys(left)
     right_key, right_wells = well_keys(right)
@@ -3086,7 +3141,11 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
                      if self.columns_list.item(index).isSelected())
 
     def set_selected_columns(self, names: Sequence[str]) -> int:
-        """Select exactly ``names``. Returns how many were found."""
+        """Select exactly ``names``. Returns how many were found.
+
+        :param names: column names to select, compared as strings; every other
+            listed column is deselected, and ``None`` selects none.
+        """
         wanted = {str(name) for name in (names or ())}
         found = 0
         for index in range(self.columns_list.count()):
@@ -3325,7 +3384,11 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         self.progress.setVisible(True)
 
     def closeEvent(self, event):                 # noqa: N802 - Qt name
-        """Do not let a queue outlive the widget it reports to."""
+        """Do not let a queue outlive the widget it reports to.
+
+        :param event: the close event; it is passed on to the base class after
+            the worker queue is stopped.
+        """
         try:
             self._stop.set()
             self._jobs.shutdown()
@@ -3660,6 +3723,8 @@ class MeasurementScanPanel(QWidget):
         tests about "the databases appear without a scan" began failing --
         the databases were there, the section was shown, and its content was
         simply folded away, which is what folded means.
+
+        :param title: the section's title; an unknown title returns ``False``.
         """
         section = self._folders.get(str(title))
         return bool(section is not None and section.isVisibleTo(self))
@@ -3692,7 +3757,12 @@ class MeasurementScanPanel(QWidget):
         return bool(section is not None and section.is_expanded())
 
     def set_section_expanded(self, title: str, expanded: bool) -> None:
-        """Fold or open one section by name. The hook a preference needs."""
+        """Fold or open one section by name. The hook a preference needs.
+
+        :param title: the section's title; an unknown title is ignored.
+        :param expanded: ``True`` to open the section, ``False`` to fold it;
+            coerced with ``bool()``.
+        """
         section = self._folders.get(str(title))
         if section is not None:
             section.set_expanded(bool(expanded))
@@ -3703,6 +3773,9 @@ class MeasurementScanPanel(QWidget):
         Anything added to this tab goes HERE and not into the layout: a widget
         appended to the layout takes its height out of the others, which is
         how the sections came to overlap.
+
+        :param widget: the widget to add as a foldable section; ``None`` does
+            nothing.
         """
         if widget is None:
             return
@@ -3715,7 +3788,11 @@ class MeasurementScanPanel(QWidget):
 
 
     def set_frame_provider(self, provider) -> None:
-        """Take a new source for the frame the scan runs on."""
+        """Take a new source for the frame the scan runs on.
+
+        :param provider: zero-argument callable returning the frame the scan
+            runs on, called each time the frame is needed.
+        """
         self._frame_provider = provider
 
     def set_database_provider(self, provider) -> None:
@@ -3723,6 +3800,10 @@ class MeasurementScanPanel(QWidget):
 
         The same shape as :meth:`set_frame_provider`, and for the same reason:
         the tab re-reads the rows rather than holding a copy of them.
+
+        :param provider: zero-argument callable returning the input table's
+            rows (see :func:`attached_databases` for the accepted shapes); it
+            is called on every refresh by the databases section.
         """
         self.databases.set_database_provider(provider)
 
@@ -3830,7 +3911,12 @@ class MeasurementScanPanel(QWidget):
                                     "loaded run", frame)
 
     def scan(self, frame, **kwargs) -> bool:
-        """Scan ``frame`` and show the result."""
+        """Scan ``frame`` and show the result.
+
+        :param frame: the measurement frame passed to
+            :func:`spacr.measurement_scan.scan_measurements` together with
+            ``kwargs``.
+        """
         from ...measurement_scan import ScanRefused, scan_measurements
 
         try:
@@ -3849,7 +3935,12 @@ class MeasurementScanPanel(QWidget):
         return self.set_result(result)
 
     def set_result(self, result) -> bool:
-        """Show an already-computed :class:`ScanResult`."""
+        """Show an already-computed :class:`ScanResult`.
+
+        :param result: the :class:`~spacr.measurement_scan.ScanResult` to show;
+            its ``frame()`` and ``rows`` fill the table, with a verdict per
+            row.
+        """
         self._result = result
         table = result.frame()
         if not len(table):

@@ -297,7 +297,11 @@ class AppTile(QPushButton):
         return self._name_lbl.is_elided()
 
     def heightForWidth(self, width: int) -> int:   # noqa: N802
-        """At least the tile height, more if a child somehow needs it."""
+        """At least the tile height, more if a child somehow needs it.
+
+        :param width: proposed tile width in pixels, passed to the base
+            implementation.
+        """
         natural = super().heightForWidth(width)
         return max(self._size.height(), natural)
 
@@ -459,7 +463,10 @@ class Panel(QWidget):
         return word
 
     def action(self, text: str) -> Optional[QPushButton]:
-        """The action word named ``text``, or ``None``. For tests."""
+        """The action word named ``text``, or ``None``. For tests.
+
+        :param text: the action's label, matched case-insensitively.
+        """
         return self._actions.get(text.lower())
 
     def _clear_body(self) -> None:
@@ -671,7 +678,11 @@ class RunningBanner(QFrame):
             pass
 
     def bind(self, handle) -> None:
-        """Show ``handle``'s job, or hide the banner when it is ``None``."""
+        """Show ``handle``'s job, or hide the banner when it is ``None``.
+
+        :param handle: the running job's handle, whose ``app_key`` sets the
+            icon and title; ``None`` hides the banner.
+        """
         self._handle = handle
         if handle is None:
             self.hide()
@@ -922,6 +933,9 @@ class RecentRunsPanel(Panel):
         ``_job`` and ``mask`` on the dashboard in the same typeface as each
         other. The names are already in Home; the panel just had no way to
         ask for them.
+
+        :param key: application key to name; returned unchanged when the name
+            registry does not know it.
         """
         value = self._registry()
         if isinstance(value, dict):
@@ -1331,6 +1345,9 @@ class StageLegend(Panel):
 
         The same function the stylesheet builds the hover rules from, so
         the swatch and the tile it explains cannot come apart.
+
+        :param stage: maturity stage name; an unknown stage gets the
+            ``'stable'`` colour.
         """
         from ..theme import stage_hover
         return stage_hover(stage)
@@ -1650,6 +1667,11 @@ class NewsPanel(Panel):
         escaping after would escape the anchors too and show the reader
         their own tags; escaping after building the HTML is the mistake that
         turns a release note into an injection.
+
+        :param body: release-note text in GitHub-flavoured markdown; it is
+            HTML-escaped before bare URLs, ``**bold**``, ``##`` headings and
+            bullet lines are turned into tags.
+        :param link_colour: CSS colour for the generated links.
         """
         text = escape(body or "").strip()
         if not text:
@@ -1708,6 +1730,10 @@ class NewsPanel(Panel):
         The escape hatch :meth:`HomePage.set_reserved_content` exposes. It
         hides the bundled notes rather than deleting them, so a caller that
         drops content in has not thrown the feed away.
+
+        :param widget: the widget to insert at the top of the panel body; any
+            previous content widget is deleted and the bundled notes are
+            hidden.
         """
         self._placeholder.hide()
         self._notes.hide()
@@ -1915,6 +1941,9 @@ class HomePage(QWidget):
         Does not chain to ``super()`` when it fills: the base
         implementation is what draws the stylesheet background, and that
         background is the slab being replaced.
+
+        :param event: the paint event; passed to the base class only when no
+            page fill colour is set.
         """
         colour = self.page_fill()
         if colour is None:
@@ -2563,7 +2592,11 @@ class HomePage(QWidget):
         return self._journal_jobs.active_jobs()
 
     def set_reserved_content(self, widget: QWidget) -> None:
-        """Fill the featured/news surface with real content."""
+        """Fill the featured/news surface with real content.
+
+        :param widget: the widget to show in the featured/news panel in place
+            of the release notes.
+        """
         self._news.set_content(widget)
 
     def apply_release_news(self, releases) -> None:
@@ -2657,6 +2690,9 @@ class HomePage(QWidget):
         and stop the refresh ticker before delegating to the base close
         handler. This prevents pending work from invoking a page that Qt is
         destroying.
+
+        :param event: the close event; it is passed on to the base class after
+            background activity stops.
         """
         self._journal_jobs.shutdown()
         try:
