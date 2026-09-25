@@ -472,10 +472,11 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                 if sink() is not None:
                     publish_figure(figure)
                 else:
+                    from .plot import save_figure
                     destination = Path(src).parent / 'mask_worker_plots'
-                    destination.mkdir(exist_ok=True)
-                    target = destination / f'{object_type}_{Path(value).stem}.png'
-                    figure.savefig(target)
+                    target = save_figure(
+                        figure, destination / f'{object_type}_{Path(value).stem}.png',
+                        fmt='png', dpi=figure.dpi)
                     print(f'[GPU {device}] Saved figure: {target}')
             return
         if kind == 'started':
