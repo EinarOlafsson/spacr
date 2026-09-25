@@ -40,6 +40,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_window_overlap": 96,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
+    "ops_spot_detector": "native",
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -62,6 +63,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_window_overlap": int,
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
+    "ops_spot_detector": str,
 }
 
 #: Which panel section each setting appears under.
@@ -82,7 +84,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
-        "ops_store_reads",
+        "ops_store_reads", "ops_spot_detector",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -166,6 +168,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "because it is large -- a full well of the reference plate is about "
         "thirty million rows -- so turn it on for a well or two rather than "
         "for a plate. Default False.",
+    "ops_spot_detector":
+        "(str) - Which detector finds the sequencing spots each field's "
+        "reads are called at. 'native' is spaCR's own spot score and the "
+        "only one this plate was validated with. 'spotnet' is DeepCell's "
+        "SpotNet, a trained spot detector run in an environment of its own; "
+        "its positions go through the same bases, calls and assignment to "
+        "nuclei, and ops_read_threshold no longer applies. SpotNet's models "
+        "are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be "
+        "installed from the Model Zoo, and its weights need a free DeepCell "
+        "access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. "
+        "It decodes one field at a time. Default 'native'.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

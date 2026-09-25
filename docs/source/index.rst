@@ -119,7 +119,7 @@ follow the module walkthrough for your task in the
 `interactive tutorial library <tutorials/>`_. Each lesson lists its available
 narration voices and captions. New English lessons can appear while their
 translations are being prepared. Open the library from the GUI through
-**Help → Tutorial (web)**.
+**Help → Tutorial**.
 
 
 Contents

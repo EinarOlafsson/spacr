@@ -256,13 +256,6 @@
     },
     {
       "table": "ui",
-      "key": "Resonance",
-      "source": "Resonance",
-      "translation": "共振",
-      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073"
-    },
-    {
-      "table": "ui",
       "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
       "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
       "translation": "每一行代表一个视野，每一列代表一个通道或掩膜类型。可将文件拖放到表格任意位置，也可双击单元格，浏览并选择该单元格所需的文件。",
@@ -326,13 +319,6 @@
     },
     {
       "table": "ui",
-      "key": "Set up the GitHub CLI",
-      "source": "Set up the GitHub CLI",
-      "translation": "设置 GitHub CLI",
-      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029"
-    },
-    {
-      "table": "ui",
       "key": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
       "source": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
       "translation": "分享此模型，让其他 spaCR 用户可以下载吗？\n\n系统会要求您填写模型评分卡中的数值。模型将上传到共享 spaCR 集合，经过审核后才会显示在模型库中。您无需 Hugging Face 帐户。",
@@ -357,6 +343,28 @@
         "translation": "使用模型分割当前打开的视野。两个阈值的初始值均采用 Cellpose 自身的默认值。",
         "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Resonance",
+        "source": "Resonance",
+        "translation": "共振",
+        "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Set up the GitHub CLI",
+        "source": "Set up the GitHub CLI",
+        "translation": "设置 GitHub CLI",
+        "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

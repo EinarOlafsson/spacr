@@ -76,9 +76,22 @@ ROOT = Path(__file__).resolve().parents[2]
 # "spaCR mode" gives e0b2c63f3e43a544..., the previous pin byte for byte.
 # Its `_ROWS` row stays; this test only requires a row per caption, not the
 # converse.
-COMPACT_CAPTION_COUNT = 208
+# 208 -> 243 on 2026-09-25, +39/-4, instruction 316. MEASURED BY SET
+# DIFFERENCE against this pin's own commit (89094e3c4), whose tree reproduces
+# 4663f4f0... byte for byte. Arrived with rows written here, AI technical
+# review (Claude Opus 5.5), no native-speaker signoff: 34 captions -- the
+# setup installer and GitHub CLI prompts (13), the ten night-theme names and
+# the Resonance backdrop (11), "Test data and walkthroughs" and its body on
+# the first-run tour (2), two Help shortcuts, Annotate's "Confirm/Reject the
+# suggested label" (item 512), "Install", "Keep installing", "Stop it and
+# close" and "Signing in to {label}…". Arrived with their nine rows already
+# written by the items that added them (5): "Candida spp.", "Plasmodium
+# spp.", "Toxoplasma", "Host–Pathogen Analysis" and the rewritten issue-filing
+# privacy note. Retired (4): "Demos menu", its one-click demo blurb,
+# "Settings recipes" and the old privacy note. Their `_ROWS` rows stay.
+COMPACT_CAPTION_COUNT = 243
 COMPACT_CAPTION_SHA256 = (
-    "4663f4f0872bf921d343da2b9909a56e6b8697ccb832936b011b144566b64eb2"
+    "6ad2ef9e9b4495a569d1011d594d21fa93f12c8ff161b4a0776369819db42618"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -1110,6 +1123,79 @@ def test_spanish_compact_rows_use_consistent_formal_register():
     assert not offenders, f"informal Spanish compact captions: {offenders}"
 
 
+#: Captions written by a feature branch that the catalog lane has not built
+#: rows for yet; spacr/qt/i18n_catalogs is regenerated only by that lane.
+#: Owed since 2026-09-25 by item 508 (the enhancement chain reaches Mask
+#: generation) and item 509 (PSF optics infer themselves). Self-emptying: a caption already in en.UI_SOURCES fails
+#: below and must leave this set.
+_AWAITING_CATALOG_REBUILD = frozenset({
+    'A logarithmic curve on 0..1, log(1 + gain x) / log(1 + gain): it compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1.',
+    'A square-root curve on 0..1, the curve a gamma of 0.5 draws: it lifts the dim end.',
+    'Clip high percentile',
+    'Clip low percentile',
+    'Clip the image to two percentiles of its own intensities before the contrast curves, so a hot or dead pixel cannot set the range they are drawn on. Nothing is stretched; intensities keep their units.',
+    'Enhancement chain written to the Mask settings: {steps}.',
+    'Enhancement: {steps} (preview field).',
+    'Logarithm',
+    'Logarithm gain',
+    "Open spaCR's Mask module to receive the enhancement chain.",
+    'Percentile clip',
+    'Square root',
+    'The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.',
+    'The lower percentile of the clip, 0 to 100, below the upper.',
+    'The upper percentile of the clip, 0 to 100, above the lower.',
+    'Total variation',
+    'Use in Mask generation',
+    'What the intensities are multiplied by before the logarithm. Larger compresses the bright end harder.',
+    "Write the configured chain and PSF into the Mask module's Image Enhancement and Point Spread Function settings, so a plate run applies these steps to every selected channel after illumination correction and before normalization. Morphology and split reshape a detector's labels and stay here.",
+    'every step off',
+    # 509, 2026-09-25: the PSF optics chooser, Infer from images and value sources.
+    '0.51 × emission / NA',
+    'Camera',
+    'Camera pixel',
+    'Choose an image to infer optics from',
+    'Choose the camera, to fill its physical pixel pitch. Common sCMOS cameras have 6.5 µm pixels; the image pixel size is this pitch divided by the magnification. Default 6.5 µm.',
+    'Choose the fluorophore, to fill a typical emission wavelength: DAPI 461 nm, GFP 520 nm, Cy3 600 nm, Cy5 670 nm. A longer wavelength gives a wider PSF. Default GFP, 520 nm.',
+    'Choose the microscope objective the images were taken with. Its magnification, numerical aperture and immersion fill the optics below, which then give the image pixel size (camera pixel divided by magnification) and the Gaussian width (0.51 × emission wavelength / NA). Default 20× / NA 0.75 air.',
+    'Could not read the image: {error}',
+    'Emission wavelength',
+    'Emission wavelength in nanometers. Changing it recalculates the Gaussian FWHM as 0.51 × wavelength / NA.',
+    'Fluorophore',
+    'Image dimensions',
+    "Image pixel spacing in micrometers. Filled from the file's calibration when it has one, otherwise camera pixel / magnification; edit it to override.",
+    'Immersion refractive index',
+    'Infer from images…',
+    'Magnification',
+    'Not read yet; use Infer from images…',
+    'Not stated by the file',
+    'Numerical aperture',
+    'Objective',
+    'Physical camera pixel pitch in micrometers. Divided by the magnification it gives the image pixel size.',
+    'Pixel {pixel} µm ({pixel_source}); FWHM {fwhm} µm ({fwhm_source}); objective {objective}.',
+    'Read the current image file for OME or ImageJ calibration: pixel size, objective magnification, numerical aperture, immersion and emission wavelength. Whatever the file does not state comes from the objective chosen here and common defaults. Every value stays editable and says where it came from.',
+    'Reading image metadata…',
+    'Refractive index of the immersion medium: air 1.0, water 1.33, oil 1.515. The NA cannot exceed it.',
+    'TIFF images (*.tif *.tiff)',
+    'The objective NA, engraved on its barrel. Changing it recalculates the Gaussian FWHM as 0.51 × emission wavelength / NA.',
+    'Total magnification between specimen and camera, including any camera adapter. Changing it recalculates the image pixel size unless the pixel size was read from the file or entered.',
+    'calculated: {detail}',
+    'camera pixel / magnification',
+    'chosen',
+    'default',
+    'default ({detail})',
+    'entered by you',
+    'from ImageJ calibration ({detail})',
+    'from OME metadata ({detail})',
+    'from TIFF resolution tags ({detail})',
+    'from objective {detail}',
+    'from the file name ({detail})',
+    'from the image ({detail})',
+    'from {detail}',
+    '{height} × {width} pixels ({source})',
+    '{magnification}× / NA {aperture} {immersion}',
+})
+
+
 def test_every_generated_catalog_candidate_has_a_source_hash():
     """The non-compact UI surface is complete in the external registry."""
     tools_dir = str(ROOT / "tools")
@@ -1122,6 +1208,8 @@ def test_every_generated_catalog_candidate_has_a_source_hash():
     from spacr.qt.i18n_catalogs import en
 
     candidates = set(builder.extract_static_ui_sources())
+    assert not _AWAITING_CATALOG_REBUILD & set(en.UI_SOURCES)
+    candidates -= _AWAITING_CATALOG_REBUILD
     missing_sources = sorted(candidates - set(en.UI_SOURCES))
     assert not missing_sources, (
         "generated UI candidates missing from en.UI_SOURCES:\n  "
@@ -1218,7 +1306,7 @@ def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():
     discovered = set(builder.extract_static_ui_sources())
     independently_expected = (
         _custom_widget_literal_captions() | _indirect_registry_captions()
-    )
+    ) - _AWAITING_CATALOG_REBUILD
     compact = set(_ROWS) | set(_TERM_ROWS)
     missing_ownership = sorted(
         independently_expected

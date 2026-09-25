@@ -2,8 +2,10 @@
 SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT
 ================================================================================
 
-Status:    FILED 2026-09-22. The zoo row and the backend are BUILT (nightly);
-           using SpotNet inside a module is not.
+Status:    FILED 2026-09-22. The zoo row, the backend, a real CPU install and
+           an opt-in OPS setting (ops_spot_detector) are BUILT; the token
+           is read from a file. WAITING ON A DEEPCELL TOKEN for the first
+           real SpotNet detection and the comparison with native.
 Requested: 2026-09-22, by the maintainer: "as an additional model in the model
            zoo please add spotnet
            https://deepcell.readthedocs.io/en/master/data-gallery/spotnet.html"
@@ -99,3 +101,50 @@ the empty result. Receipt:475_installed_postprocessor_2026-09-23.json.
 This closes the interpreter/install/import and postprocessing-adapter gaps.
 It does not close pretrained inference, labelled real-field comparison,
 OPS/FISH module integration or the conditional recommendation requirement.
+
+2026-09-25 -- TOKEN FILE, REAL INSTALL IN ~/.spacr, OPS SETTING, NATIVE BASELINE
+TOKEN. spaCR reads DEEPCELL_ACCESS_TOKEN, else ~/.spacr/deepcell_token
+(first content, stripped; a warning names the file and `chmod 600` when
+group/world can read it; the token is never logged). It is stripped from
+every backend command and handed back only to SpotNet's running worker, not
+to pip, the self-test or other backends. That worker's HOME is
+~/.spacr/backends/spotnet/home, because deepcell caches weights under
+Path.home()/.deepcell with no variable to move it; uninstall removes them.
+The Model Zoo row gains a note saying where the token goes and whether one
+was found. Tests use fake tokens in scratch homes.
+
+INSTALL. Through spaCR's own installer with the hugmunn Python 3.10.20 on
+PATH (nothing installed into hugmunn or spaCR), CPU Torch index: finished
+first try in 170.6 s into ~/.spacr/backends/spotnet, 3,165,129,138 bytes.
+deepcell-spots 0.4.2, deepcell 0.12.10, TensorFlow 2.8.4, Keras 2.8.0,
+Torch 2.14.0+cpu, torchvision 0.29.0+cpu, NumPy 1.26.4, trackpy 0.6.1,
+pip 26.2.1; pip check clean; self-test device cpu. A real worker then
+started (hello 7.6 s) and a real detect_spots on a 1480 x 1480 SBS tile
+reached deepcell's weight fetch and stopped there on "DEEPCELL_ACCESS_TOKEN
+not found"; the caches landed in the environment's home, not ~/.deepcell.
+
+OPS SETTING. ops_spot_detector, "OPS decoding": 'native' (default) or
+'spotnet'. SpotNet sees one image per field (each cycle's brightest base
+channel, scaled by its 99.9th percentile, averaged over cycles), threshold
+0.95; its positions are rounded, deduplicated and go through the same
+margin, bases, calls and assignment to nuclei (ops_read_threshold does not
+apply). It decodes fields one at a time (one SpotNet worker). A run asking
+for SpotNet when the environment or token is missing is refused before
+anything is written, with the reason; never silently swapped. In the GUI
+the SpotNet row is disabled with that reason, and the tooltip states the
+NON-COMMERCIAL ACADEMIC USE ONLY licence where it is chosen.
+
+COMPARISON. tools/compare_spotnet_ops.py decodes named fields with both
+detectors against a plate run's stored objects and placements. Native half,
+real, plate 20200202_6W-LaC024A well A1 sites 331+332 (the two local
+fields): 22,733 spots, 17,668 owned reads, 3,476 objects assigned, 95.3 %
+of those exact library barcodes, 27 s on CPU. Receipt:
+features/data/475_real_install_and_native_baseline_2026-09-25.json.
+
+WHAT REMAINS. No ~/.spacr/deepcell_token exists here. With one in place
+(or DEEPCELL_ACCESS_TOKEN set), run tools/compare_spotnet_ops.py with the
+arguments in its docstring: it fetches SpotNet's weights into the
+environment and adds SpotNet's spots, owned reads, assignment rate,
+seconds, and the 2 px match fractions both ways. Only then can SpotNet be
+recommended, or not; native stays the default until it is. The three new
+GUI captions await catalog entries from the translation lane.

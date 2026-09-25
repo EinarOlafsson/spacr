@@ -196,6 +196,14 @@ _ANCHOR_SEARCH_PX = 800
 #: target, so an unbounded window would make the cost quadratic in the pad.
 _ANCHOR_TARGET_POINTS = 3000
 
+#: The detectors ``ops_spot_detector`` may name. ``native`` is spaCR's own
+#: Laplacian-of-Gaussian score; ``spotnet`` is DeepCell's SpotNet, run in its
+#: own environment, NON-COMMERCIAL ACADEMIC USE ONLY, and opt-in.
+_SPOT_DETECTORS = ("native", "spotnet")
+
+#: SpotNet's detection probability. deepcell-spots' own default.
+_SPOTNET_THRESHOLD = 0.95
+
 #: How many fields decode at once, whatever ``n_workers`` asks for. One field
 #: holds eleven cycles of four 1,480 px channels twice over (the aligned
 #: stack and its filtered copy), about 1.5 GB at its peak.
@@ -1247,6 +1255,58 @@ def _explain_refusals(refused: Sequence[Mapping[str, Any]], frame,
     }
 
 
+def _spot_detector(settings: Mapping[str, Any]) -> str:
+    """The sequencing-spot detector ``settings`` choose, checked it can run.
+
+    :param settings: read for ``ops_spot_detector``; empty means native.
+    :returns: ``native`` or ``spotnet``.
+    :raises ValueError: for an unknown name, or SpotNet when it cannot run
+        here, with the reason -- never a silent fall back to native, which
+        would give a run that asked for one detector the other's reads.
+    """
+    name = str(settings.get("ops_spot_detector") or "native").strip().lower()
+    if name not in _SPOT_DETECTORS:
+        raise ValueError(f"ops_spot_detector must be one of "
+                         f"{list(_SPOT_DETECTORS)}; got {name!r}")
+    if name == "spotnet":
+        from ._segmentation_backends import _spotnet_readiness
+
+        ready, reason = _spotnet_readiness()
+        if not ready:
+            raise ValueError(f"ops_spot_detector='spotnet' cannot run: {reason}")
+    return name
+
+
+def _spotnet_peaks(stack: np.ndarray, detect=None) -> np.ndarray:
+    """SpotNet's read positions for one aligned field, as whole pixels.
+
+    SpotNet sees one image: each cycle's brightest base channel, scaled by
+    its own 99.9th percentile so no cycle outweighs the rest, averaged over
+    the cycles. A read is bright in some channel in every cycle, so it is
+    bright in that image, which is the same thing the native score looks
+    for across the stack.
+
+    :param stack: ``cycles x channels x H x W``, aligned.
+    :param detect: :func:`spacr._segmentation_backends._detect_spots`, or a
+        stand-in for tests.
+    :returns: ``N x 2`` integer ``(y, x)``, unique and inside the field.
+    """
+    if detect is None:
+        from ._segmentation_backends import _detect_spots as detect
+    brightest = stack.max(axis=1).astype(np.float32)
+    scale = np.percentile(brightest.reshape(len(brightest), -1), 99.9, axis=1)
+    scale[~(scale > 0)] = 1.0
+    image = (brightest / scale[:, None, None]).mean(axis=0)
+    spots = np.asarray(detect(image, threshold=_SPOTNET_THRESHOLD), float)
+    spots = spots.reshape(-1, 2)
+    if not len(spots):
+        return np.zeros((0, 2), dtype=np.int64)
+    peaks = np.rint(spots).astype(np.int64)
+    peaks[:, 0] = np.clip(peaks[:, 0], 0, image.shape[0] - 1)
+    peaks[:, 1] = np.clip(peaks[:, 1], 0, image.shape[1] - 1)
+    return np.unique(peaks, axis=0)
+
+
 def _init_decode_worker(library: frozenset) -> None:
     """Hand a decode worker process the guide library once.
 
@@ -1263,7 +1323,11 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         channel]``), ``cycles``, ``reference``, and the nearby objects in
         this tile's frame -- ``centroids``, ``areas``, ``ids`` and ``owned``,
         whether each object's nearest tile is this one -- plus ``gpu``,
-        ``threshold``, ``footprint`` and ``store_reads``.
+        ``threshold``, ``footprint``, ``store_reads`` and
+        ``spot_detector`` (``native`` or ``spotnet``; SpotNet's positions
+        replace the native score's peaks and its threshold, and everything
+        after them -- the margin, the bases, the calls and the attribution
+        -- is the same code either way).
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -1315,23 +1379,29 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
 
     tick = time.perf_counter()
     stack = field.stack
+    detector = str(task.get("spot_detector") or "native")
+    spotnet = _spotnet_peaks(stack) if detector == "spotnet" else None
     filtered = np.empty_like(stack)
     for c in range(stack.shape[0]):
         for k in range(stack.shape[1]):
             filtered[c, k] = np.clip(
                 -ndimage.gaussian_laplace(stack[c, k], 1.0), 0, None)
     del stack
-    score = estimate_read_locations(filtered)
-    peaks = find_peaks(score, min_distance=2, gpu=gpu)
-    strength = score - ndimage.minimum_filter(score, size=5)
     shifts = [abs(v) for pair in field.cycle_shifts.values() for v in pair]
     shifts += [abs(v) for per in field.channel_shifts.values()
                for pair in per for v in pair]
     margin = 5 + max(shifts + [0])
-    height, width = score.shape
+    height, width = filtered.shape[-2:]
+    if spotnet is not None:
+        peaks = spotnet
+        keep = np.ones(len(peaks), dtype=bool)
+    else:
+        score = estimate_read_locations(filtered)
+        peaks = find_peaks(score, min_distance=2, gpu=gpu)
+        strength = score - ndimage.minimum_filter(score, size=5)
+        keep = (strength[peaks[:, 0], peaks[:, 1]] > float(
+            task.get("threshold", _THRESHOLD_READS))) if peaks.size else None
     if peaks.size:
-        keep = strength[peaks[:, 0], peaks[:, 1]] > float(
-            task.get("threshold", _THRESHOLD_READS))
         keep &= (peaks[:, 0] >= margin) & (peaks[:, 0] < height - margin)
         keep &= (peaks[:, 1] >= margin) & (peaks[:, 1] < width - margin)
         peaks = peaks[keep]
@@ -1498,7 +1568,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle the objects' frame was stitched on.
     :param settings: read for ``n_workers``, ``ops_base_channels``,
-        ``ops_read_threshold``, ``ops_footprint`` and ``ops_store_reads``.
+        ``ops_read_threshold``, ``ops_footprint``, ``ops_store_reads`` and
+        ``ops_spot_detector``.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
     :returns: the decode report.
@@ -1540,6 +1611,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     footprint = float(_setting_number(settings.get("ops_footprint"),
                                       "ops_footprint", _FOOTPRINT))
     store_reads = bool(settings.get("ops_store_reads", False))
+    detector = _spot_detector(settings)
     tasks = []
     for site in order:
         top, left = placements[site]
@@ -1556,12 +1628,16 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "areas": areas[near], "ids": ids[near],
             "owned": owner_site[near] == site,
             "threshold": threshold, "footprint": footprint,
-            "store_reads": store_reads,
+            "store_reads": store_reads, "spot_detector": detector,
         })
 
     library_set = frozenset(library)
     workers = max(1, min(int(settings.get("n_workers") or 1),
                          _DECODE_WORKERS_CAP, len(tasks)))
+    if detector == "spotnet" and workers > 1:
+        _say(f"{well} decode: SpotNet runs in one worker of its own, so the "
+             f"fields decode one at a time rather than {workers} at once")
+        workers = 1
     results = []
     if workers == 1:
         _init_decode_worker(library_set)
@@ -1639,6 +1715,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "objects_mapped": int((frame["mapped_guide"] != "").sum()) if library else None,
         "ops_barcodes_rows": stored, "ops_reads_rows": reads_rows,
         "read_threshold": threshold, "footprint": footprint,
+        "spot_detector": detector,
         "base_channels": list(channels), "workers": workers,
         "field_seconds": dict(sum((Counter(r["seconds"]) for r in results
                                    if "seconds" in r), Counter())),
@@ -1708,6 +1785,8 @@ def run_ops(settings: Mapping[str, Any], *,
     db = os.path.join(destination, "measurements.db")
     plate = str(settings.get("plate") or os.path.basename(os.path.normpath(root)))
     gpu = bool(settings.get("ops_gpu", True))
+    if "decode" in phases:
+        _spot_detector(settings)
     barcodes = _load_library(library if library is not None
                              else settings.get("ops_library") or None)
 

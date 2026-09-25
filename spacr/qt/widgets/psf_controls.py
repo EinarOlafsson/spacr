@@ -563,6 +563,32 @@ class _PSFControls(QWidget):
                     psf_sampling_um=(self.image_y.value(), self.image_x.value()),
                     psf_iterations=self.iterations.value(), psf_error=self._error)
 
+    def mask_settings(self):
+        """These controls as the Mask module's ``psf_*`` settings.
+
+        What :func:`spacr.psf_pipeline.prepare_psf` reads, so the kernel a
+        curator tuned here is the kernel a plate run captures. A length left
+        at its "Set calibration" zero is None, which the Mask run fills from
+        the image metadata and ``psf_objective``
+        (:func:`spacr.point_spread.fill_psf_settings`).
+        """
+        def pair(y, x):
+            """A [Y, X] length pair, or None while either side is unset."""
+            if y.value() > 0 and x.value() > 0:
+                return [float(y.value()), float(x.value())]
+            return None
+
+        return {
+            'psf_operation': str(self.operation.currentData()),
+            'psf_source': str(self.source.currentData()),
+            'psf_path': self.path.text().strip() or None,
+            'psf_image_sampling_um': pair(self.image_y, self.image_x),
+            'psf_kernel_sampling_um': pair(self.kernel_y, self.kernel_x),
+            'psf_fwhm_um': pair(self.fwhm_y, self.fwhm_x),
+            'psf_iterations': int(self.iterations.value()),
+            'psf_objective': str(self.objective.currentData()),
+        }
+
     def _shutdown(self):
         """Stop pending debounce and kernel work without blocking the GUI on worker completion."""
         self._closed = True

@@ -48,6 +48,11 @@ def test_each_group_shows_only_its_essential_rows_until_opened(screen, qtbot):
          (restoration.structure, restoration.diameter, restoration.reload)),
         (screen._enh_clahe_details, (screen._enh_clahe,),
          (screen._enh_clahe_tile, screen._enh_clahe_clip)),
+        (screen._enh_percentile_details, (screen._enh_percentile_clip,),
+         (screen._enh_percentile_low, screen._enh_percentile_high)),
+        (screen._enh_log_details, (screen._enh_log,), (screen._enh_log_gain,)),
+        (screen._enh_sharpen_details, (screen._enh_sharpen,),
+         (screen._enh_sharpen_radius, screen._enh_sharpen_amount)),
     )
     for fold, essential, advanced in groups:
         assert fold.shut

@@ -409,8 +409,10 @@ def preprocess_generate_masks(settings):
 
                         if not settings['preprocess']:
                             _check_archives_without_preprocessing(src)
-                            from .psf_pipeline import validate_psf_resume, _record_path
-                            if (settings.get('psf_operation', 'none') != 'none' or
+                            from .psf_pipeline import (
+                                validate_psf_resume, _record_path,
+                                processing_requested)
+                            if (processing_requested(settings) or
                                     _record_path(src).exists()):
                                 psf_channels = list(dict.fromkeys(
                                     int(settings[f'{role}_channel'])

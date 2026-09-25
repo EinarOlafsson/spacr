@@ -1112,6 +1112,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_on_missing",
         )),
         ("Point Spread Function", ("@Point Spread Function",)),
+        ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -1222,6 +1223,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_on_missing",
         )),
         ("Point Spread Function", ("@Point Spread Function",)),
+        ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -2977,6 +2979,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Richardson–Lucy attempts deconvolution and can amplify noise. Raw "
         "images and measurement intensities remain unchanged. Leave this off "
         "unless the same kernel and pixel calibration fit every selected channel.",
+    "IMAGE ENHANCEMENT":
+        "The image enhancement chain Make Masks tunes, applied unchanged to "
+        "every selected segmentation channel after illumination correction "
+        "and before normalization: background subtraction, the PSF, denoising, "
+        "the contrast curves and sharpening, in that fixed order. Every step "
+        "is off by default. Raw images and measurement intensities remain "
+        "unchanged; the mask provenance records which steps ran, and a "
+        "resumed run refuses inputs made with a different chain.",
     "ILLUMINATION CORRECTION":
         "Whether the microscope's uneven lighting is estimated from these "
         "fields and divided out before any intensity is measured, and how "
@@ -3782,6 +3792,8 @@ def api_docs_url(
         module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_psf"
     elif app_key == "make_masks" and key.startswith("make_masks_psf_optics_"):
         module, anchor = "point_spread", "spacr.point_spread.infer_optics"
+    elif key.startswith("enhance_"):
+        module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_chain"
     elif app_key == "make_masks" and key.startswith("make_masks_psf_"):
         module, anchor = "point_spread", "spacr.point_spread.apply_psf"
     elif app_key == "make_masks" and key.startswith("make_masks_"):
@@ -9093,6 +9105,10 @@ class SettingsWidgets:
         if key == "segmentation_backend":
             from ..model_install import SegmentationBackendCombo
             return "special", lambda: SegmentationBackendCombo(
+                default=self._defaults.get(key, default), parent=parent)
+        if key == "ops_spot_detector":
+            from ..model_install import SpotDetectorCombo
+            return "special", lambda: SpotDetectorCombo(
                 default=self._defaults.get(key, default), parent=parent)
         if key == "metadata_type":
             return "special", lambda: _MetadataTypeField(
