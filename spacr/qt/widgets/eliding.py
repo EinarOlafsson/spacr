@@ -38,7 +38,11 @@ class ElidingLabel(QLabel):
         self.setText(text)
 
     def setText(self, text: str) -> None:      # noqa: N802 (Qt casing)
-        """Set the full text, then render as much of it as fits."""
+        """Set the full text, then render as much of it as fits.
+
+        :param text: the full label text; ``None`` is treated as ``""``. When
+            it has to be elided, the full text becomes the tooltip.
+        """
         self._full_text = text or ""
         self._refresh()
 
@@ -76,7 +80,11 @@ class ElidingLabel(QLabel):
                      base.height())
 
     def resizeEvent(self, event) -> None:      # noqa: N802
-        """Re-elide whenever the layout hands us a different width."""
+        """Re-elide whenever the layout hands us a different width.
+
+        :param event: the resize event, passed to the base class; the text is
+            then re-fitted to the label's new width.
+        """
         super().resizeEvent(event)
         self._refresh()
 
@@ -142,7 +150,10 @@ class ElidingPushButton(QPushButton):
         self.setText(text)
 
     def setText(self, text: str) -> None:      # noqa: N802
-        """Set the full text, then render as much of it as fits."""
+        """Set the full text, then render as much of it as fits.
+
+        :param text: the full button label; ``None`` is treated as ``""``.
+        """
         self._full_text = text or ""
         self._refresh()
 
@@ -176,7 +187,11 @@ class ElidingPushButton(QPushButton):
         return QSize(min(base.width(), chrome + floor), base.height())
 
     def resizeEvent(self, event) -> None:      # noqa: N802
-        """Re-elide whenever the layout hands us a different width."""
+        """Re-elide whenever the layout hands us a different width.
+
+        :param event: the resize event, passed to the base class; the label is
+            then re-fitted to the button's new width.
+        """
         super().resizeEvent(event)
         self._refresh()
 
