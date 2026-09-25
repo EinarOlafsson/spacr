@@ -556,7 +556,9 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
       * the object's channel (or its mask plane) names no plane, so the run
         does not have that object at all;
       * the slot's type puts it in one morphology and the setting belongs to
-        a different one -- a punctate organelle has no ridge filter.
+        a different one -- a punctate organelle has no ridge filter;
+      * it is a legacy Cellpose 3 setting and no object is segmented by a
+        Cellpose 3 model (:func:`_cellpose3_rows_to_hide`).
 
     :param keys: every setting this panel has a control for. WHAT THE PANEL
         HOLDS IS WHAT DECIDES WHAT MAY BE HIDDEN: a role is gated only when
@@ -600,7 +602,46 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
         if (suffix in _MORPHOLOGY_OWNED
                 and suffix not in _MORPHOLOGY_SETTINGS[morphology]):
             hidden.add(key)
+    hidden.update(_cellpose3_rows_to_hide(on_panel, settings))
     return hidden
+
+
+def _cellpose3_choosers(keys) -> set:
+    """The settings on a panel that can send an object to Cellpose 3.
+
+    :param keys: the settings the panel holds.
+    :returns: ``segmentation_backend``, ``pathogen_model`` and every
+        ``*_model_name`` among them.
+    """
+    return {str(key) for key in keys
+            if str(key) in ("segmentation_backend", "pathogen_model")
+            or str(key).endswith("_model_name")}
+
+
+def _cellpose3_rows_to_hide(on_panel, settings) -> set:
+    """The legacy Cellpose 3 rows, while nothing on the panel chooses one.
+
+    Item 503. Those settings are read only for an object segmented by a
+    Cellpose 3 model, so they are shown only once a model setting reads
+    ``cellpose3:<model>`` or ``segmentation_backend`` is ``cellpose3``. A
+    panel that holds none of the settings that choose a model hides nothing,
+    for the reason :func:`keys_hidden_by_their_object` gives: a row whose
+    switch lives on another screen could never be brought back.
+
+    :param on_panel: the settings the panel holds.
+    :param settings: the panel's current values.
+    :returns: the Cellpose 3 keys to hide.
+    """
+    from ...settings import categories
+    from ..._segmentation_backends import _cellpose3_is_chosen
+
+    rows = {key for key in categories.get("Cellpose 3", ()) if key in on_panel}
+    choosers = _cellpose3_choosers(on_panel)
+    if not rows or not choosers:
+        return set()
+    if _cellpose3_is_chosen({key: settings.get(key) for key in choosers}):
+        return set()
+    return rows
 
 
 
@@ -1118,6 +1159,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        ("Cellpose 3", ("@Cellpose 3",)),
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
@@ -1229,6 +1271,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        ("Cellpose 3", ("@Cellpose 3",)),
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
@@ -2434,6 +2477,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "prediction, and flag disagreement for review. All augmentation "
         "switches are off by default; agreement measures orientation "
         "stability, not calibrated confidence or biological accuracy.",
+    "CELLPOSE 3":
+        "Settings read only when an object is segmented by a legacy "
+        "Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 "
+        "weights file -- chosen from the model zoo's cellpose3 heading, which "
+        "writes cellpose3:<model> into the object's model setting. They "
+        "stay hidden until one is chosen. The object's diameter, flow and "
+        "cell probability thresholds still apply.",
     "IMAGE QUALITY":
         "Screen raw fields before segmentation using channel-specific focus, "
         "saturation and nonfinite-pixel criteria. Choose report-only review "
@@ -10012,6 +10062,7 @@ class SettingsWidgets:
             wanted.update(object_switch_keys(role))
             wanted.update(f"{role}_{name}"
                           for name in ("type", "diameter", "morphology"))
+        wanted.update(_cellpose3_choosers(self._widgets))
         return wanted
 
     def _object_visibility_settings(self) -> Dict[str, Any]:

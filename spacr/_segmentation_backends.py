@@ -124,6 +124,13 @@ _BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
 #: The models the Cellpose 3 backend names, as Cellpose 3 names them.
 _CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
 
+#: What an object's model setting starts with when it names a Cellpose 3
+#: model: ``cellpose3:cyto3``, or ``cellpose3:/path/to/weights`` for any
+#: Cellpose 3 checkpoint. The same spelling as Make Masks' Mode box keys.
+#: It lets one object run Cellpose 3 while the others stay on Cellpose-SAM,
+#: and it is what the model zoo writes when a Cellpose 3 row is chosen.
+_CELLPOSE3_PREFIX = "cellpose3:"
+
 _RESTORATION_MODELS = tuple(
     f"{operation}_{structure}"
     for operation in ("denoise", "deblur", "oneclick")
@@ -558,7 +565,8 @@ def _cellpose3_model(model_name=None, object_type=None):
     :returns: a model name or an absolute path.
     :raises FileNotFoundError: for a path that names no file.
     """
-    name = str(model_name or "").strip()
+    chosen = _cellpose3_choice(model_name)
+    name = chosen if chosen is not None else str(model_name or "").strip()
     if name in _CELLPOSE3_MODELS:
         return name
     path = os.path.expanduser(name)
@@ -570,6 +578,53 @@ def _cellpose3_model(model_name=None, object_type=None):
             f"one of {', '.join(_CELLPOSE3_MODELS)}, or the path of a "
             f"Cellpose 3 checkpoint.")
     return "nuclei" if object_type == "nucleus" else "cyto3"
+
+
+def _cellpose3_choice(model_name):
+    """The Cellpose 3 model a model setting names with ``cellpose3:``.
+
+    :param model_name: an object's model setting, e.g. ``'cellpose3:cyto2'``
+        or ``'cellpose3:/models/cp3_weights.pth'``.
+    :returns: what follows the prefix -- a Cellpose 3 name or a checkpoint
+        path, ``''`` when nothing does -- or None for a setting that does not
+        name a Cellpose 3 model, which is every Cellpose-SAM setting.
+    """
+    text = str(model_name or "").strip()
+    if text[:len(_CELLPOSE3_PREFIX)].lower() != _CELLPOSE3_PREFIX:
+        return None
+    return text[len(_CELLPOSE3_PREFIX):].strip()
+
+
+def _cellpose3_value(model):
+    """The model setting that chooses a Cellpose 3 model or checkpoint.
+
+    :param model: a Cellpose 3 name, a checkpoint path, or a value that
+        already carries the prefix.
+    :returns: ``'cellpose3:<model>'``.
+    """
+    chosen = _cellpose3_choice(model)
+    return _CELLPOSE3_PREFIX + (chosen if chosen is not None
+                                else str(model or "").strip())
+
+
+def _cellpose3_is_chosen(settings):
+    """Whether a run's settings send any object to Cellpose 3.
+
+    True when ``segmentation_backend`` is ``'cellpose3'`` or when an
+    object's model setting names a Cellpose 3 model. The legacy Cellpose 3
+    settings apply exactly then, and are shown exactly then.
+
+    :param settings: a settings mapping; absent keys count as not chosen.
+    :returns: a bool.
+    """
+    settings = settings or {}
+    backend = str(settings.get("segmentation_backend") or "").strip().lower()
+    if backend == _CELLPOSE3:
+        return True
+    return any(_cellpose3_choice(value) is not None
+               for key, value in settings.items()
+               if str(key).endswith("_model_name")
+               or key == "pathogen_model")
 
 
 def _backends_root(root=None):
@@ -1573,6 +1628,10 @@ def _plain(value):
         return value.item()
     if isinstance(value, (int, float)):
         return value
+    if isinstance(value, dict):
+        return {str(k): _plain(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plain(v) for v in value]
     return float(value)
 
 
@@ -2003,11 +2062,15 @@ class _RemoteBackend:
     def eval(self, x, batch_size=None, channel_axis=-1, normalize=True,
              diameter=None, flow_threshold=None, cellprob_threshold=0.0,
              min_size=None, resample=None, progress=None, should_cancel=None,
-             **cellpose_only):
+             augment=None, **cellpose_only):
         """Segment each image of a batch in the backend's worker.
 
         :param x: a 2-D image, or a list of ``(H, W)`` / ``(H, W, C)``
             images.
+        :param normalize: a bool, or Cellpose 3's normalization dict such
+            as ``{"normalize": True, "percentile": [1, 99]}``.
+        :param augment: Cellpose 3's test-time augmentation; sent only when
+            given, so a backend that has none is not asked for it.
         :param should_cancel: polled while the worker runs; True stops it.
         :param cellpose_only: other Cellpose arguments, accepted so the call
             site is the same as Cellpose's.
@@ -2020,7 +2083,7 @@ class _RemoteBackend:
                   "diameter": diameter, "flow_threshold": flow_threshold,
                   "cellprob_threshold": cellprob_threshold,
                   "min_size": min_size, "resample": resample,
-                  "batch_size": batch_size}
+                  "batch_size": batch_size, "augment": augment}
         params = {k: _plain(v) for k, v in params.items() if v is not None}
         worker = self._worker_for(self.name, self.env)
         scratch = tempfile.mkdtemp(prefix="spacr-backend-")
@@ -2534,9 +2597,16 @@ class _Cellpose3Adapter:
         differs between ``Cellpose`` and ``CellposeModel`` and between
         Cellpose 3 releases, and a list written here would go stale
         silently -- which is the failure this method exists to stop.
+
+        A NAMED model is a ``Cellpose``, whose ``eval`` ends in ``**kwargs``
+        and hands them to the ``CellposeModel`` it holds as ``.cp``. Reading
+        the wrapper would accept everything, and a keyword the inner model
+        lacks would then fail inside Cellpose rather than be named here, so
+        the inner signature is the one read (cellpose 3.1.1.3, 2026-09-25).
         """
+        target = getattr(self._model, "cp", None) or self._model
         try:
-            signature = inspect.signature(self._model.eval)
+            signature = inspect.signature(target.eval)
         except (TypeError, ValueError):
             return dict(extra)
         parameters = signature.parameters

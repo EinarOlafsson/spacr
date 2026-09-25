@@ -119,9 +119,53 @@ def remembered_sources() -> tuple:
     except Exception:                                       # noqa: BLE001
         stored = None
     if stored is None:
-        return tuple(model_zoo.DEFAULT_ZOO_SOURCES)
-    chosen = {name.strip() for name in stored.split(",") if name.strip()}
+        chosen = set(model_zoo.DEFAULT_ZOO_SOURCES)
+    else:
+        chosen = {name.strip() for name in stored.split(",") if name.strip()}
+    if _cellpose3_heading_turns_on(chosen):
+        chosen.add("cellpose3")
     return tuple(name for name in model_zoo.ZOO_SOURCES if name in chosen)
+
+
+#: QSettings key recording that the cellpose3 heading was turned on for an
+#: installed Cellpose 3 backend, so it is turned on once and not again.
+_CELLPOSE3_SHOWN_SETTING = "model_zoo/cellpose3_shown_after_install"
+
+
+def _cellpose3_heading_turns_on(chosen) -> bool:
+    """Whether the cellpose3 heading comes on now, the backend being here.
+
+    Item 503. The heading is off by default, so a user who installed the
+    Cellpose 3 backend found cyto, cyto2, cyto3 and nuclei nowhere -- they
+    were in the catalogue, under a heading folded away. The first time the
+    headings are read with the backend installed, cellpose3 is turned on and
+    that is remembered; a user who turns it off afterwards has said so, and
+    it stays off.
+
+    :param chosen: the headings that are on; not changed here.
+    :returns: True when cellpose3 should be added to them.
+    """
+    if "cellpose3" in chosen:
+        return False
+    try:
+        from PySide6.QtCore import QSettings
+
+        from ... import _segmentation_backends as backends
+
+        settings = QSettings()
+        if str(settings.value(_CELLPOSE3_SHOWN_SETTING, "") or "") == "1":
+            return False
+        if not backends._backend_state(backends._CELLPOSE3).ready:
+            return False
+        from ... import model_zoo
+
+        settings.setValue(_CELLPOSE3_SHOWN_SETTING, "1")
+        settings.setValue(_SOURCES_SETTING, ",".join(
+            name for name in model_zoo.ZOO_SOURCES
+            if name in chosen or name == "cellpose3"))
+    except Exception:                                       # noqa: BLE001
+        return False
+    return True
 
 
 def _remember_sources(names) -> None:
@@ -1759,12 +1803,19 @@ class ModelZooPicker(QDialog):
         """Announce the selected model's local path and close.
 
         A model that is not on this machine yet does nothing: there is no path
-        to hand back.
+        to hand back. A Cellpose 3 model or checkpoint is handed back as
+        ``cellpose3:<name or path>`` (item 503): that is what sends the object
+        to the Cellpose 3 backend, where a bare ``cyto3`` would be read as a
+        retired Cellpose name and run as cpsam.
         """
         entry = self.selected_entry()
         local = self._local_path(entry) if entry else None
         if not local:
             return
+        if getattr(entry, "kind", "") == "cellpose3":
+            from ..._segmentation_backends import _cellpose3_value
+
+            local = _cellpose3_value(local)
         self._chosen_path = local
         self.model_chosen.emit(local)
         self.accept()
@@ -1949,11 +2000,15 @@ def _cellpose3_card(entry) -> str:
     from ... import _segmentation_backends as backends
 
     ready = backends._backend_state("cellpose3").ready
-    out = ("<p><i>Runs through the Cellpose 3 backend, which is "
-           + ("installed" if ready else
-              "not installed — press Install to install it")
-           + ". Set segmentation_backend to cellpose3 to segment with it."
-           "</i></p>")
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the Cellpose 3 backend, which is installed. "
+           "Choosing it writes cellpose3:{name} into the object's model "
+           "setting, which runs that object through Cellpose 3 and shows "
+           "the Cellpose 3 settings in Mask generation.",
+           name=getattr(entry, "name", "") or "")
+        if ready else
+        tr("Runs through the Cellpose 3 backend, which is not installed "
+           "— press Install to install it.")) + "</i></p>")
     licence = getattr(entry, "licence", "")
     if licence:
         out += f"<p>Licence: {_html.escape(licence)}</p>"

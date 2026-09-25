@@ -25,7 +25,7 @@ def _prepare_mask_model(settings, object_type):
     allocation occurs, and the caller's settings remain unchanged. Other
     backends require their own resolved-artifact contract before dispatch.
     """
-    from ._segmentation_backends import _backend_name
+    from ._segmentation_backends import _backend_name, _cellpose3_is_chosen
     from .artifacts import material_settings
     from .checkpoint import fingerprint
     from .model_zoo import sha256_file
@@ -34,7 +34,8 @@ def _prepare_mask_model(settings, object_type):
 
     if object_type not in ('cell', 'nucleus', 'pathogen'):
         raise ValueError('Unsupported parallel mask object type')
-    if _backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose':
+    if (_backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose'
+            or _cellpose3_is_chosen(settings)):
         raise ValueError('Parallel model preparation currently requires the Cellpose backend')
     prepared = set_default_settings_preprocess_generate_masks(copy.deepcopy(settings))
     model = _get_object_settings(object_type, prepared)['model_name']
@@ -301,8 +302,9 @@ def _worker_figures(directory, messages, device):
 
     def show(*args, **kwargs):
         """Publish each shown figure once and release child pyplot ownership."""
-        for number in plt.get_fignums():
-            fig = plt.figure(number)
+        from matplotlib._pylab_helpers import Gcf
+        for manager in list(Gcf.get_all_fig_managers()):
+            fig = manager.canvas.figure
             publish(fig)
             if not getattr(fig, '_spacr_live_update', False):
                 plt.close(fig)
@@ -472,10 +474,11 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                 if sink() is not None:
                     publish_figure(figure)
                 else:
+                    from .plot import save_figure
                     destination = Path(src).parent / 'mask_worker_plots'
-                    destination.mkdir(exist_ok=True)
-                    target = destination / f'{object_type}_{Path(value).stem}.png'
-                    figure.savefig(target)
+                    target = save_figure(
+                        figure, destination / f'{object_type}_{Path(value).stem}.png',
+                        fmt='png', dpi=figure.dpi)
                     print(f'[GPU {device}] Saved figure: {target}')
             return
         if kind == 'started':

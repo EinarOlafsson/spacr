@@ -750,11 +750,19 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # 716 -> 735 on 2026-09-25, +19/-0 (item 508): the nineteen enhance_*
     # settings, resolved by Mask only, each ending in a parseable
     # "Default X.". Pinned by name in the 508 census file below.
-    assert comparisons == 735
+    # 735 -> 741 on 2026-09-25, +6/-0 (item 503): the six legacy Cellpose 3
+    # settings, each ending in a parseable "Default X.", declared where
+    # only `mask` resolves them; pinned by name here.
+    item_503 = {("mask", key) for key in (
+        "cellpose3_add_nucleus_channel", "cellpose3_size_model",
+        "cellpose3_resample", "cellpose3_augment",
+        "cellpose3_percentile_low", "cellpose3_percentile_high")}
+    assert item_503 <= compared_pairs
+    assert comparisons == 741
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
-    assert census_508['comparisons_after'] == comparisons
+    assert census_508['comparisons_after'] + len(item_503) == comparisons
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
