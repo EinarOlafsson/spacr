@@ -32,7 +32,13 @@ def _normalise(text: str) -> str:
 
 
 def action_role(text: str) -> Optional[str]:
-    """Classify a visible label as ``positive``, ``negative``, or neutral."""
+    """Classify a visible label as ``positive``, ``negative``, or neutral.
+
+    :param text: the button's visible label. Mnemonic ``&`` and ellipses are
+        stripped and case is folded; the label is ``positive`` or
+        ``negative`` when it is, or starts with, a word in
+        ``POSITIVE_PREFIXES`` or ``NEGATIVE_PREFIXES``, otherwise ``None``.
+    """
     normalised = _normalise(text)
     if any(normalised == word or normalised.startswith(f"{word} ")
            for word in POSITIVE_PREFIXES):
@@ -57,6 +63,8 @@ def alive(button) -> bool:
     which is what spaCR printed on every launch, once per wired button, for a
     button the user never pressed. shiboken answers the question directly;
     the exception is the fallback for a build where it cannot be imported.
+
+    :param button: the Qt widget wrapper to check, or ``None`` (not alive).
     """
     if button is None:
         return False
@@ -92,6 +100,10 @@ def set_button_busy(button: QPushButton, busy: bool) -> None:
     A no-op for a button whose C++ side has been deleted -- see :func:`alive`.
     Returning quietly is right here: the state being set is a VISUAL one on a
     widget that is gone, so there is nothing to show and nothing was lost.
+
+    :param button: the button whose ``buttonActionBusy`` property is set.
+    :param busy: truthy to show the busy state, falsy to clear it; the
+        button is repolished only when the value changes.
     """
     if not alive(button):
         return
