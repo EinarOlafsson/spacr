@@ -9090,6 +9090,10 @@ class SettingsWidgets:
             from ..model_install import SegmentationBackendCombo
             return "special", lambda: SegmentationBackendCombo(
                 default=self._defaults.get(key, default), parent=parent)
+        if key == "ops_spot_detector":
+            from ..model_install import SpotDetectorCombo
+            return "special", lambda: SpotDetectorCombo(
+                default=self._defaults.get(key, default), parent=parent)
         if key == "metadata_type":
             return "special", lambda: _MetadataTypeField(
                 default=self._defaults.get(key, default),

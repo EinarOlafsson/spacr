@@ -553,3 +553,76 @@ class SegmentationBackendCombo(QComboBox):
             self.setCurrentIndex(index)
         self.install_finished.emit(worked, "")
         return worked
+
+
+class SpotDetectorCombo(QComboBox):
+    """The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.
+
+    spaCR's own detector is first, the default and always usable. SpotNet
+    is listed whether or not it can run; when its environment or its
+    DeepCell token is missing its row is disabled and its tooltip says
+    which, and either way the tooltip states its non-commercial licence,
+    because this box is where a person chooses it.
+
+    :param default: the value to start on, ``'native'`` or ``'spotnet'``.
+    :param parent: parent widget.
+    :param readiness: ``() -> (ready, reason)``; SpotNet's own check when
+        None, a stand-in in tests.
+    """
+
+    def __init__(self, default: Any = "native",
+                 parent: Optional[QWidget] = None,
+                 readiness: Optional[Callable[[], Tuple[bool, str]]] = None):
+        """List the detectors, disable SpotNet if it cannot run, select."""
+        from .i18n import tr
+
+        super().__init__(parent)
+        self._readiness = readiness
+        self.addItem(tr("spaCR (native)"), "native")
+        self.addItem(tr("SpotNet (DeepCell)"), "spotnet")
+        self.setItemData(0, tr(
+            "spaCR's own spot score, the detector this plate was validated "
+            "with."), Qt.ToolTipRole)
+        self.refresh()
+        self.setCurrentText(default)
+
+    def refresh(self) -> Tuple[bool, str]:
+        """Enable SpotNet's row only when it can run, and say why not.
+
+        :returns: SpotNet's ``(ready, reason)``.
+        """
+        from .i18n import tr
+
+        try:
+            if self._readiness is not None:
+                ready, reason = self._readiness()
+            else:
+                from .._segmentation_backends import _spotnet_readiness
+                ready, reason = _spotnet_readiness()
+        except (KeyError, OSError, ValueError) as exc:
+            ready, reason = False, str(exc)
+        licence = tr(
+            "SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE "
+            "ONLY, which is not spaCR's licence.")
+        item = self.model().item(1)
+        if item is not None:
+            item.setEnabled(bool(ready))
+        self.setItemData(1, licence if ready else f"{reason}\n\n{licence}",
+                         Qt.ToolTipRole)
+        if not ready:
+            self.setItemData(1, QBrush(UNINSTALLED_GREY), Qt.ForegroundRole)
+            if self.currentIndex() == 1:
+                self.setCurrentIndex(0)
+        else:
+            self.setItemData(1, None, Qt.ForegroundRole)
+        return bool(ready), reason
+
+    def setCurrentText(self, text: Any) -> None:                # noqa: N802
+        """Select the row whose caption or value is ``text``, if usable."""
+        wanted = "" if text is None else str(text).strip()
+        index = self.findText(wanted)
+        if index < 0:
+            index = self.findData(wanted.lower())
+        item = self.model().item(index) if index >= 0 else None
+        if item is not None and item.isEnabled():
+            self.setCurrentIndex(index)

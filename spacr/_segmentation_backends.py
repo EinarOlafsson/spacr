@@ -171,7 +171,16 @@ _STRIPPED_VARIABLES = (
     "PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE",
     "PIP_USER", "PIP_TARGET", "PIP_PREFIX", "PIP_ROOT",
     "PIP_REQUIRE_VIRTUALENV", "__PYVENV_LAUNCHER__",
+    "DEEPCELL_ACCESS_TOKEN",
 )
+
+#: The variable DeepCell reads its access token from. It is stripped from
+#: every backend command above and handed back only to SpotNet's worker, so
+#: pip, the self-test and the other backends never see it.
+_DEEPCELL_TOKEN_ENV = "DEEPCELL_ACCESS_TOKEN"
+
+#: The archive deepcell-spots 0.4.2 fetches its SpotNet weights as.
+_SPOTNET_ARCHIVE = "SpotDetection-8.tar.gz"
 
 #: Variables that win over ``HF_HOME``, so pointing ``HF_HOME`` inside a
 #: backend's environment is not enough on its own. ``huggingface_hub``
@@ -1053,6 +1062,140 @@ def _worker_env(name, env):
     return environ
 
 
+def _deepcell_token_path():
+    """Where spaCR looks for a DeepCell access token on disk.
+
+    :returns: ``~/.spacr/deepcell_token``.
+    """
+    return os.path.join(os.path.expanduser("~"), ".spacr", "deepcell_token")
+
+
+def _deepcell_token(environ=None, path=None):
+    """The DeepCell access token SpotNet's weights are fetched with.
+
+    ``DEEPCELL_ACCESS_TOKEN`` wins when it is set; otherwise the first line
+    of ``~/.spacr/deepcell_token``, stripped. A token file other users can
+    read is still used, with a warning naming the file and the fix; the
+    token itself is never logged, printed or returned anywhere but here.
+
+    :param environ: the variables to read, :data:`os.environ` when None.
+    :param path: the token file, :func:`_deepcell_token_path` when None.
+    :returns: ``(token, source)``; ``(None, None)`` when there is none.
+    """
+    environ = os.environ if environ is None else environ
+    value = str(environ.get(_DEEPCELL_TOKEN_ENV, "") or "").strip()
+    if value:
+        return value, _DEEPCELL_TOKEN_ENV
+    path = path or _deepcell_token_path()
+    try:
+        with open(path, encoding="utf-8") as handle:
+            value = handle.read().strip()
+        mode = os.stat(path).st_mode
+    except (OSError, UnicodeDecodeError):
+        return None, None
+    if not value:
+        return None, None
+    if os.name != "nt" and mode & 0o077:
+        LOG.warning("%s can be read by other users; `chmod 600 %s` keeps "
+                    "the DeepCell token yours.", path, path)
+    return value, path
+
+
+def _serve_env(name, env):
+    """:func:`_worker_env` for a running worker: SpotNet's also gets the
+    DeepCell token, and no other process spaCR starts does, and a home
+    inside its environment (:func:`_spotnet_home`) so the weights it fetches
+    are removed with it. Installs keep the real home and its pip cache.
+    """
+    environ = _worker_env(name, env)
+    if name == _SPOTNET:
+        environ["HOME"] = environ["USERPROFILE"] = _spotnet_home(env)
+        token, _source = _deepcell_token()
+        if token:
+            environ[_DEEPCELL_TOKEN_ENV] = token
+    return environ
+
+
+def _spotnet_home(env):
+    """The home folder SpotNet's worker is given, inside its environment.
+
+    DeepCell caches its weights under ``Path.home() / ".deepcell"`` and
+    reads no variable that would move them, so the worker's home is this
+    folder: the weights then live and die with the environment.
+    """
+    return os.path.join(env, "home")
+
+
+def _spotnet_weights_cached(env):
+    """Whether SpotNet's weights are already inside its environment."""
+    return os.path.isfile(os.path.join(
+        _spotnet_home(env), ".deepcell", "models", _SPOTNET_ARCHIVE))
+
+
+def _credential_note(name, environ=None, token_path=None):
+    """What a backend's Model Zoo row says about its credentials, or ''.
+
+    Only SpotNet has any: where its DeepCell token goes, and whether spaCR
+    found one. The token itself is never part of the note.
+    """
+    if name != _SPOTNET:
+        return ""
+    _token, source = _deepcell_token(environ, token_path)
+    found = (f"A token was found in {source}." if source else
+             "No token was found.")
+    return (f"DeepCell access token: get a free one at users.deepcell.org, "
+            f"then set {_DEEPCELL_TOKEN_ENV} or put it alone in "
+            f"{token_path or _deepcell_token_path()} (chmod 600). Only "
+            f"SpotNet's own worker is given it. {found}")
+
+
+def _spotnet_readiness(root=None, environ=None, token_path=None):
+    """Whether SpotNet can detect spots now, and why not when it cannot.
+
+    It needs its environment installed and either its weights already
+    fetched into that environment or a DeepCell token to fetch them with.
+
+    :returns: ``(ready, reason)``; the reason says what to do.
+    """
+    state = _backend_state(_SPOTNET, root)
+    if not state.ready or state.in_process:
+        return False, (
+            f"SpotNet is not installed ({state.state}: {state.reason}) "
+            f"Install it from the Model Zoo.")
+    token, _source = _deepcell_token(environ, token_path)
+    if token or _spotnet_weights_cached(state.env):
+        return True, f"SpotNet is installed in {state.env}."
+    return False, (
+        f"SpotNet is installed but has no DeepCell access token to fetch "
+        f"its weights with. Get a free token at users.deepcell.org, then "
+        f"set {_DEEPCELL_TOKEN_ENV} or put it alone in "
+        f"{_deepcell_token_path()} (chmod 600).")
+
+
+def _detect_spots(image, threshold=0.95, root=None, worker_for=None):
+    """SpotNet's spots in one 2-D image, from its own environment.
+
+    :param image: an ``H x W`` array.
+    :param threshold: SpotNet's detection probability, 0 to 1.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :returns: an ``N x 2`` float array of ``(y, x)`` pixel coordinates.
+    :raises ImportError: when SpotNet cannot run here, with the reason.
+    """
+    ready, reason = _spotnet_readiness(root)
+    if not ready:
+        raise ImportError(reason)
+    env = _backend_state(_SPOTNET, root).env
+    with tempfile.TemporaryDirectory(prefix="spacr_spotnet_") as folder:
+        path = os.path.join(folder, "image.npy")
+        np.save(path, np.ascontiguousarray(image, dtype=np.float32),
+                allow_pickle=False)
+        reply = (worker_for or _worker_for)(_SPOTNET, env).request(
+            "detect_spots", image=path, threshold=float(threshold))
+    spots = np.asarray(reply.get("spots") or [], dtype=float)
+    return spots.reshape(-1, 2)
+
+
 def _detached(windows=None):
     """Popen arguments that give a child its own process group, so Cancel
     can stop it and everything it started.
@@ -1463,7 +1606,7 @@ class _WorkerProcess:
             [_env_python(env), "-I", worker or _worker_path(), "--serve",
              spec.name],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, cwd=env, env=_worker_env(spec.name, env),
+            stderr=subprocess.PIPE, cwd=env, env=_serve_env(spec.name, env),
             text=True, encoding="utf-8", errors="replace", bufsize=1,
             **_detached())
         threading.Thread(
