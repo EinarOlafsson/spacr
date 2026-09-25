@@ -197,3 +197,25 @@ def test_the_first_crop_stays_when_the_page_resizes(screen, qtbot):
     _set_console(screen, qtbot, True)
     assert screen._offset == offset
     assert screen._page_paths[0][0] == first
+
+
+def test_the_console_opens_inside_a_768_pixel_window(screen, qtbot):
+    """The window does not grow when the console opens at 1366 x 768.
+
+    The crop pane used to inherit the empty state's 321 px minimum, and the
+    console's own minimum on top of it made the screen taller than a 768 px
+    display: the bottom of the window went off the screen instead of the
+    crops going to the next page. With the judgement bar showing too, the
+    screen must still open its console inside the window it has.
+    """
+    screen._judge_bar.show()
+    screen.resize(1366, 768)
+    _settle(screen, qtbot)
+    _set_console(screen, qtbot, True)
+    screen.resize(1366, 768)
+    _settle(screen, qtbot)
+    assert screen.height() == 768, (
+        f"opening the console grew the window to {screen.height()} px; "
+        f"its minimum is {screen.minimumSizeHint().height()} px")
+    _assert_nothing_scrolls(screen)
+    assert len(screen._page_paths) == screen._settings.page_size >= 1
