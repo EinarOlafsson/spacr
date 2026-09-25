@@ -1,0 +1,26 @@
+MEASURED DIAMETERS COME OUT IN THE WRONG ORDER: CELL 7.2, NUCLEUS 91.3, PATHOGEN 10.9
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 503/507 (Diameter 0 guesses 16 px for 44 px
+cells), the "measure diameter" action in Mask generation.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "i tried measure diameter from the test images in mask generation and got
+    cell 7.2, nucleus 91.3 and pathogen 10.9. thi smakes no sense, cell
+    should be the biggest then nucleus then pathogen. look into this and try
+    to fix it."
+
+WHAT IS WRONG
+Measuring diameters from Mask generation's test images gives cell 7.2,
+nucleus 91.3, pathogen 10.9 (pixels). Biology says cell > nucleus >
+pathogen. Candidates to check, by measurement not by reading: the channels
+are mapped to the wrong object (cell measured on the pathogen channel and so
+on), the estimate runs on a downscaled image and is not scaled back, the
+size model is the wrong one for the object, or the nucleus estimate merges
+touching nuclei into one object.
+
+DONE WHEN
+On the test images the measured diameters come out cell > nucleus >
+pathogen and within 20 % of the diameters measured from ground-truth or
+hand-drawn masks on the same fields (record both), with a test that pins
+the order on the test data.
