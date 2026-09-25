@@ -159,7 +159,7 @@ tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py: the Use text
 assertion now pins the corrected sentence, and the SAM row's key is
 bioimageio_cellpose_sam like every other bioimage.io row.
 Run with the zoo, picker, Cellpose 3, Make Masks detection, magnifier and
-docstring suites (38 files) after merging nightly: 854 passed, 6 failed, 2
+docstring suites (38 files) after merging nightly 34211ab9e: 854 passed, 6 failed, 2
 skipped, 1 xfailed. The 6 fail on a clean nightly copy too and cite none of
 these files: test_i18n_caption_ratchet x2 (sv catalog rows), test_user_
 facing_docstrings x2 (tooltip_policy, eliding, picture_export), test_
