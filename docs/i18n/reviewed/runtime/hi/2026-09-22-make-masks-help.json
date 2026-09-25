@@ -39,20 +39,6 @@
     },
     {
       "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "चालू सीमाओं को स्क्रीन पर दिख रहे मास्क पर लागू करें। हटाया गया प्रत्येक ऑब्जेक्ट नीचे सूचीबद्ध होता है, साथ में वह क्षेत्रफल और औसत तीव्रता भी होती है जिनके आधार पर उसे हटाया गया। पूरी क्रिया एक चरण में पूर्ववत की जा सकती है।"
-    },
-    {
-      "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "पिछले फ़िल्टर ने जो हटाया उसकी सूची, प्रत्येक ऑब्जेक्ट के लिए एक पंक्ति: उसका पहचानकर्ता, जाँचा गया क्षेत्रफल और औसत तीव्रता, तथा वह सीमा जिसके कारण वह हटा। पहचानकर्ता वही हैं जो पॉइंटर के नीचे की रीडिंग में दिखते हैं।"
-    },
-    {
-      "table": "ui",
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",

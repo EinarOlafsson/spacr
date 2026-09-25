@@ -172,13 +172,6 @@
     },
     {
       "table": "ui",
-      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "translation": "每个上下限设为 0 时均表示关闭。Filter 会应用已启用的限制，打开视野时也会应用；每个被移除的对象都会列在下方。",
-      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc"
-    },
-    {
-      "table": "ui",
       "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
       "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
       "translation": "在您启用声音之前，此处所有音效均关闭。声音由 spaCR 在本机生成，不录音，也不下载，并在独立线程中播放，因此音频设备缺失或忙碌时只会没有声音。",

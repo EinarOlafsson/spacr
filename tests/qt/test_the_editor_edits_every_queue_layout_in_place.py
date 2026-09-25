@@ -406,7 +406,7 @@ def test_the_notices_outlast_a_first_field_that_loads_in_the_background(
                         cache_counts=False)
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
-    screen._filter_min_area.setValue(10)
+    screen._filter_list.set_filter("area", 10)
 
     assert screen.open_queue(queue)
 

@@ -221,13 +221,6 @@
     },
     {
       "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "translation": "O que o último filtro removeu, uma linha por objeto: seu identificador, a área e a intensidade média usadas na avaliação, e o limite que causou a remoção. Os identificadores são os mesmos mostrados ao passar o cursor.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2"
-    },
-    {
-      "table": "ui",
       "key": "What the run writes appears here.",
       "source": "What the run writes appears here.",
       "translation": "A saída da execução aparece aqui.",

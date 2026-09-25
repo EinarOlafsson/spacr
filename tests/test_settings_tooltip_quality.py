@@ -758,11 +758,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
         "cellpose3_resample", "cellpose3_augment",
         "cellpose3_percentile_low", "cellpose3_percentile_high")}
     assert item_503 <= compared_pairs
-    assert comparisons == 741
+    # 741 -> 742 on 2026-09-25, item 511: object_filters states "Default {}."
+    assert any(key == "object_filters" for _app, key in compared_pairs)
+    assert comparisons == 742
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
-    assert census_508['comparisons_after'] + len(item_503) == comparisons
+    assert census_508['comparisons_after'] + len(item_503) + 1 == comparisons
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

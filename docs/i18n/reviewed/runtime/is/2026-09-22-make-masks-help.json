@@ -39,20 +39,6 @@
     },
     {
       "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "Beittu virkum mörkum á maskann á skjánum. Hver hlutur sem er fjarlægður birtist í listanum fyrir neðan, ásamt flatarmálinu og meðalstyrknum sem voru notuð við matið. Hægt er að afturkalla aðgerðina í einu skrefi."
-    },
-    {
-      "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "Það sem síðasta síun fjarlægði, ein röð fyrir hvern hlut: auðkenni hans, flatarmálið og meðalstyrkurinn sem voru metin, og mörkin sem leiddu til útilokunar hans. Auðkennin eru þau sömu og birtast við aflestur undir bendli."
-    },
-    {
-      "table": "ui",
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
