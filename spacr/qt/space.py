@@ -286,7 +286,11 @@ _CLASS_TRANGE = np.array([
 
 
 def star_colors(temps: np.ndarray) -> np.ndarray:
-    """Map blackbody temperatures (K) to sRGB floats in [0, 1]."""
+    """Map blackbody temperatures (K) to sRGB floats in [0, 1].
+
+    :param temps: 1-D array of temperatures in kelvin; values outside
+        2000-40000 K are clipped to that range.
+    """
     logt = np.log(np.clip(temps, _BB_T[0], _BB_T[-1]))
     ref = np.log(_BB_T)
     out = np.empty((temps.shape[0], 3), dtype=np.float32)
@@ -296,7 +300,13 @@ def star_colors(temps: np.ndarray) -> np.ndarray:
 
 
 def sample_star_temperatures(rng, n: int) -> np.ndarray:
-    """Draw ``n`` stellar temperatures from the naked-eye class mix."""
+    """Draw ``n`` stellar temperatures from the naked-eye class mix.
+
+    :param rng: NumPy random generator; its ``choice`` and ``random`` methods
+        supply the draws.
+    :param n: number of temperatures to draw; zero or fewer returns an empty
+        array.
+    """
     if n <= 0:
         return np.zeros(0, dtype=np.float64)
     cls = rng.choice(len(_CLASS_WEIGHTS), size=n,
@@ -326,6 +336,10 @@ def sample_star_fluxes(rng, n: int) -> np.ndarray:
     construction the fraction brighter than ``k·F_min`` is ``k^-1.5``,
     i.e. ~65 % of stars sit in the faintest factor-of-two bin while
     only ~4 % are 8x brighter than the limit.
+
+    :param rng: NumPy random generator; its ``random`` method supplies the
+        draws.
+    :param n: number of fluxes to draw; zero or fewer returns an empty array.
     """
     if n <= 0:
         return np.zeros(0, dtype=np.float64)
@@ -431,7 +445,11 @@ def _diffraction_spikes(width: int, height: int, xs, ys, fluxes,
 def starfield(width: int, height: int, seed: int = DEFAULT_SEED,
               density: float = STAR_DENSITY,
               spike_count: int = SPIKE_COUNT) -> np.ndarray:
-    """Render a starfield as an (height, width, 3) float32 HDR buffer."""
+    """Render a starfield as an (height, width, 3) float32 HDR buffer.
+
+    :param width: output width in pixels.
+    :param height: output height in pixels.
+    """
     rng = np.random.default_rng(seed)
     megapixels = (width * height) / 1.0e6
     n = int(max(24, round(density * megapixels)))
@@ -547,7 +565,13 @@ def sun(width: int, height: int, seed: int = DEFAULT_SEED,
         radius_frac: float = 0.085,
         temperature: float = 5800.0,
         corona_scale: float = 1.9) -> np.ndarray:
-    """Render a star with limb darkening, granulation and a corona."""
+    """Render a star with limb darkening, granulation and a corona.
+
+    :param width: output width in pixels; the star is rendered at a third of
+        this and upsampled.
+    :param height: output height in pixels; the star is rendered at a third of
+        this and upsampled.
+    """
     rng = np.random.default_rng(seed ^ 0x85EBCA6B)
     sw = max(8, width // SMOOTH_SCALE)
     sh = max(8, height // SMOOTH_SCALE)
@@ -709,6 +733,8 @@ def tone_exposure(luma: np.ndarray) -> float:
     and converting the palette's limit — which is a luminance in the
     finished, tone-mapped image — back into HDR units is exactly
     inverting this curve at this exposure.
+
+    :param luma: 2-D array of HDR luminance for the frame.
     """
     exposure = _solve_exposure(luma, TARGET_SKY_LUMA, TARGET_SKY_PERCENTILE)
     sample = luma[::4, ::4]
@@ -767,6 +793,8 @@ def highlight_ceiling(exposure: float, target: Optional[float] = None
     grey around ``#444444``, not a 6 % signal. Encode first, then invert
     ``1 - exp(-x·E)``.
 
+    :param exposure: tone-mapping exposure, as returned by
+        :func:`tone_exposure`; zero or a negative value returns ``inf``.
     :returns: ``inf`` when there is nothing to solve for — a palette
         that admits no wallpaper at all (:func:`spacr.qt.theme.max_background_luma`
         is *negative* for the light theme) or a zero exposure. Callers
@@ -974,7 +1002,11 @@ def render(width: int, height: int, variant: str = DEFAULT_VARIANT,
 
 
 def to_qimage(arr: np.ndarray):
-    """Convert an (h, w, 3) uint8 array to a detached ``QImage``."""
+    """Convert an (h, w, 3) uint8 array to a detached ``QImage``.
+
+    :param arr: RGB image, an array of shape (h, w, 3); it is converted to
+        contiguous ``uint8``.
+    """
     from PySide6.QtGui import QImage
     arr = np.ascontiguousarray(arr, dtype=np.uint8)
     h, w = arr.shape[:2]
@@ -996,7 +1028,14 @@ def cache_dir() -> Path:
 
 
 def cache_name(width: int, height: int, variant: str, seed: int) -> str:
-    """Return the versioned cache filename for a procedural background."""
+    """Return the versioned cache filename for a procedural background.
+
+    :param width: background width in pixels.
+    :param height: background height in pixels.
+    :param variant: background variant name, such as ``'galaxy'``, ``'sun'`` or
+        ``'stars'``.
+    :param seed: random seed the background was rendered with.
+    """
     return f"space-{variant}-{width}x{height}-s{seed}-v{CACHE_VERSION}.png"
 
 
@@ -1028,6 +1067,9 @@ def background_path(width: int, height: int,
     produced — a read-only home directory, no PNG writer, anything. The
     Space theme falls back to a flat gradient in that case, so a failure
     here costs some prettiness and nothing else.
+
+    :param width: output width in pixels; clamped to 16-3840.
+    :param height: output height in pixels; clamped to 16-2400.
     """
     width = _clampi(width, MIN_DIM[0], MAX_DIM[0])
     height = _clampi(height, MIN_DIM[1], MAX_DIM[1])
