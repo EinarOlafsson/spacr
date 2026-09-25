@@ -210,7 +210,7 @@ TOOLS = ROOT / "tools"
 # difference in test_api_i18n_extractor. 11,661 after rebasing on
 # b84c3441c: ten more callables (item 475, PSF/detect chain), named there.
 # 11,710 on nightly 03a02c3b8: +49 / -0, named in test_api_i18n_extractor.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_710
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_735
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

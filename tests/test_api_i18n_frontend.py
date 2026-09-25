@@ -124,7 +124,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 502-513), then 11,661 with ten more after rebasing on b84c3441c; the set
 # differences are named in test_api_i18n_extractor.
 # 11,710 on nightly 03a02c3b8: +47 callables and two mask_engine constants.
-REAL_SYMBOL_COUNT = 11_710
+REAL_SYMBOL_COUNT = 11_735
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

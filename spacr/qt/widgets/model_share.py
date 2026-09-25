@@ -333,3 +333,218 @@ def share(path: str, fields: Dict[str, Any], token: str) -> str:
         path_or_fileobj=card(fields, filename, digest, repo_id, folder).encode(),
         path_in_repo=f"{folder}/README.md", repo_id=repo_id, repo_type="model")
     return f"https://huggingface.co/{repo_id}/tree/main/{folder}"
+
+
+COMMUNITY_FIGURES_REPO = "einarolafsson/community_toxoplasma_plaque_figures"
+COMMUNITY_PLAQUES_REPO = "einarolafsson/community_toxoplasma_plaques"
+COMMUNITY_LICENCE = "CC BY 4.0"
+FIGURES_KIND = "figures"
+PLAQUES_KIND = "plaques"
+
+
+def community_repo(kind: str) -> str:
+    """The dataset repository community training data of ``kind`` goes to.
+
+    Two repositories, not two folders of one: every spaCR training set on
+    Hugging Face is its own dataset repository beside the model it trains,
+    and a contributor's upload arrives as a pull request on it.
+
+    :param kind: ``"figures"`` (figure pages with well boxes, for the YOLO
+        well detector) or ``"plaques"`` (plaque images with plaque masks, for
+        the next plaque model).
+    """
+    if kind == FIGURES_KIND:
+        return COMMUNITY_FIGURES_REPO
+    if kind == PLAQUES_KIND:
+        return COMMUNITY_PLAQUES_REPO
+    raise ValueError(f"no community repository for {kind!r}")
+
+
+def yolo_lines(boxes: Any, width: int, height: int) -> list:
+    """Well boxes as YOLO label lines, ``0 cx cy w h`` normalised to 0-1.
+
+    :param boxes: ``(x0, y0, x1, y1)`` pixel boxes; corners in either order,
+        clipped to the image.
+    :param width: image width in pixels.
+    :param height: image height in pixels.
+    :returns: one line per box with a positive area, class 0 ("plaque well").
+    """
+    out = []
+    for box in boxes:
+        x0, y0, x1, y1 = (float(v) for v in box)
+        x0, x1 = sorted((min(max(x0, 0.0), width), min(max(x1, 0.0), width)))
+        y0, y1 = sorted((min(max(y0, 0.0), height), min(max(y1, 0.0), height)))
+        if x1 - x0 < 1 or y1 - y0 < 1:
+            continue
+        out.append(f"0 {(x0 + x1) / 2 / width:.6f} {(y0 + y1) / 2 / height:.6f} "
+                   f"{(x1 - x0) / width:.6f} {(y1 - y0) / height:.6f}")
+    return out
+
+
+def seed_changes(seed: Any, final: Any) -> Dict[str, Any]:
+    """Which of spaCR's proposed plaques the contributor kept, edited or removed.
+
+    :param seed: the label mask spaCR proposed, or None when it proposed
+        nothing.
+    :param final: the label mask being contributed, same shape.
+    :returns: ``{"kept", "edited", "removed"}`` as lists of seed label ids,
+        and ``"added"``: how many final labels overlap no seeded plaque.
+    """
+    import numpy as np
+
+    final = np.asarray(final)
+    if seed is None:
+        ids = [int(v) for v in np.unique(final) if v]
+        return {"kept": [], "edited": [], "removed": [], "added": len(ids)}
+    seed = np.asarray(seed)
+    kept, edited, removed = [], [], []
+    for label in (int(v) for v in np.unique(seed) if v):
+        where = seed == label
+        now = final == label
+        if not now.any():
+            removed.append(label)
+        elif np.array_equal(where, now):
+            kept.append(label)
+        else:
+            edited.append(label)
+    added = sum(1 for v in np.unique(final)
+                if v and not (seed[final == v] > 0).any())
+    return {"kept": kept, "edited": edited, "removed": removed,
+            "added": int(added)}
+
+
+def _has_annotation(kind: str, item: Dict[str, Any]) -> bool:
+    """Whether one image carries at least one box or one plaque."""
+    import numpy as np
+
+    if kind == FIGURES_KIND:
+        image = np.asarray(item["image"])
+        return bool(yolo_lines(item.get("boxes") or (), image.shape[1],
+                               image.shape[0]))
+    labels = item.get("labels")
+    return labels is not None and bool(np.asarray(labels).any())
+
+
+def write_contribution(kind: str, items: Any, dest: Any, *,
+                       consent: Dict[str, Any],
+                       contribution_id: str = "") -> Path:
+    """Lay a contribution out on disk exactly as the dataset README describes.
+
+    Refuses the whole contribution when any image has no annotation: an
+    image without boxes or masks teaches a detector that it holds nothing,
+    which is almost never true of an image somebody chose to send.
+
+    :param kind: ``"figures"`` or ``"plaques"``.
+    :param items: one mapping per image. Figures: ``name``, ``image`` (the
+        ``H x W x 3`` page the boxes were drawn on), ``boxes`` (pixel
+        ``(x0, y0, x1, y1)``), and optionally ``source``, ``paper`` (DOI,
+        citation, PMCID) and ``provenance`` (which proposed boxes were kept,
+        moved or deleted). Plaques: ``name``, ``source`` (the original file,
+        copied unchanged), ``labels`` (the label mask) and optionally
+        ``seed`` (spaCR's proposed mask).
+    :param dest: the folder the contribution folder is made in.
+    :param consent: what the contributor agreed to; recorded verbatim in
+        ``contribution.json``.
+    :param contribution_id: the folder name; a date and a random suffix when
+        empty.
+    :returns: the contribution folder.
+    """
+    import datetime
+    import json
+    import shutil
+    import uuid
+
+    import numpy as np
+
+    items = list(items)
+    if not items:
+        raise ValueError("there is nothing to contribute")
+    bare = [str(item.get("name") or "?") for item in items
+            if not _has_annotation(kind, item)]
+    if bare:
+        raise ValueError("these images have no annotations and cannot be "
+                         "sent: " + ", ".join(bare))
+    repo_id = community_repo(kind)
+    stamp = datetime.datetime.now(datetime.timezone.utc)
+    ident = contribution_id or (stamp.strftime("%Y%m%d-%H%M%S-")
+                                + uuid.uuid4().hex[:8])
+    root = Path(dest) / ident
+    marks = "labels" if kind == FIGURES_KIND else "masks"
+    for sub in ("images", marks, "meta"):
+        (root / sub).mkdir(parents=True, exist_ok=True)
+    import spacr
+
+    version = str(getattr(spacr, "__version__", ""))
+    seen: Dict[str, int] = {}
+    count = 0
+    for item in items:
+        stem = slugify(Path(str(item.get("name") or "image")).stem)
+        seen[stem] = seen.get(stem, 0) + 1
+        if seen[stem] > 1:
+            stem = f"{stem}-{seen[stem]}"
+        meta: Dict[str, Any] = {"original_name": str(item.get("name") or ""),
+                                "source": str(item.get("source") or "")}
+        if kind == FIGURES_KIND:
+            from PIL import Image
+
+            image = np.asarray(item["image"])
+            height, width = image.shape[:2]
+            Image.fromarray(image.astype(np.uint8)).save(
+                root / "images" / f"{stem}.png")
+            lines = yolo_lines(item["boxes"], width, height)
+            (root / marks / f"{stem}.txt").write_text(
+                "\n".join(lines) + "\n", encoding="utf-8")
+            meta.update(width=int(width), height=int(height),
+                        boxes_px=[[int(round(float(v))) for v in box]
+                                  for box in item["boxes"]],
+                        paper=dict(item.get("paper") or {}),
+                        provenance=dict(item.get("provenance") or {}))
+            count += len(lines)
+        else:
+            import tifffile
+
+            source = Path(str(item["source"]))
+            suffix = source.suffix.lower() or ".tif"
+            shutil.copyfile(source, root / "images" / f"{stem}{suffix}")
+            labels = np.asarray(item["labels"])
+            tifffile.imwrite(str(root / marks / f"{stem}.tif"),
+                             labels.astype(np.uint16))
+            plaques = int(len([v for v in np.unique(labels) if v]))
+            meta.update(height=int(labels.shape[0]), width=int(labels.shape[1]),
+                        plaques=plaques,
+                        provenance=seed_changes(item.get("seed"), labels))
+            count += plaques
+        (root / "meta" / f"{stem}.json").write_text(
+            json.dumps(meta, indent=2), encoding="utf-8")
+    (root / "contribution.json").write_text(json.dumps({
+        "id": ident, "kind": kind, "repo": repo_id,
+        "licence": COMMUNITY_LICENCE, "consent": dict(consent),
+        "created": stamp.isoformat(), "spacr_version": version,
+        "images": len(items),
+        ("boxes" if kind == FIGURES_KIND else "plaques"): count,
+    }, indent=2), encoding="utf-8")
+    return root
+
+
+def contribute(folder: Any, kind: str, token: str) -> str:
+    """Send a contribution folder as a pull request. Returns its URL.
+
+    A pull request rather than a commit, whoever sends it: every
+    contribution is reviewed before it becomes training data, and any
+    logged-in Hugging Face user may open one on a public dataset, so the
+    uploader's own token is enough and no write token ships with spaCR.
+
+    :param folder: a folder :func:`write_contribution` made.
+    :param kind: ``"figures"`` or ``"plaques"``; picks the repository.
+    :param token: the uploader's Hugging Face token (:func:`find_token`).
+    """
+    from huggingface_hub import HfApi
+
+    folder = Path(folder)
+    repo_id = community_repo(kind)
+    info = HfApi(token=token).upload_folder(
+        folder_path=str(folder), path_in_repo=f"contributions/{folder.name}",
+        repo_id=repo_id, repo_type="dataset", create_pr=True,
+        commit_message=f"Community contribution {folder.name}")
+    return str(getattr(info, "pr_url", "") or
+               f"https://huggingface.co/datasets/{repo_id}/discussions")

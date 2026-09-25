@@ -1,7 +1,8 @@
 COMMUNITY PLAQUE TRAINING DATA: ANNOTATE WELLS AND PLAQUES, THEN UPLOAD TO HUGGING FACE
 
-Status: OPEN, filed 2026-09-25. Not started.
-Owner: unassigned. Related: 513 (the plaque Ruler, already on nightly: the
+Status: IMPLEMENTED 2026-09-25 (awaiting the maintainer's check and the
+one real test upload; see the note at the end). Filed 2026-09-25.
+Owner: 523 agent. Related: 513 (the plaque Ruler, already on nightly: the
 Ruler button in the plaque live preview's zoom row), the Model Zoo's "share a
 model" upload (spacr/qt/widgets/model_share.py, einarolafsson/user-models),
 469/424 (the figure reader and its YOLO well detector,
@@ -56,3 +57,102 @@ the annotate-then-upload flow for both modes with the upload faked, refuses
 an image without annotations, and shows the conscience text; one real upload
 of a test contribution is checked and then removed if the maintainer wants
 the folders empty.
+
+IMPLEMENTATION NOTE (2026-09-25)
+
+Hugging Face (created 2026-09-25, public, README only, nothing else uploaded):
+  https://huggingface.co/datasets/einarolafsson/community_toxoplasma_plaque_figures
+  https://huggingface.co/datasets/einarolafsson/community_toxoplasma_plaques
+  Two DATASET repositories, not two folders of one repo. Evidence: every
+  spaCR training set on the account is its own dataset repo beside the model
+  it trains (toxoplasma-plaque-well-detector-dataset, toxoplasma-plaque-
+  dataset); user-models is a MODEL repo, and images with labels belong in a
+  dataset repo. Each README states licence (CC BY 4.0, the licence of both
+  existing plaque datasets; model_share carries none of its own), purpose
+  (YOLO well detector / next plaque model), layout, and that contributions
+  are reviewed.
+  Layout, one folder per upload, contributions/<yyyymmdd-hhmmss-rand>/:
+    contribution.json (licence, consent, spaCR version, counts)
+    figures: images/<page>.png, labels/<page>.txt (YOLO "0 cx cy w h"),
+             meta/<page>.json (DOI/citation/PMCID, boxes in px, provenance)
+    plaques: images/<stem>.<ext> (original file, unchanged),
+             masks/<stem>.tif (uint16 labels), meta/<stem>.json (provenance)
+
+Design choices
+  * Upload = a pull request on the dataset (upload_folder(create_pr=True)),
+    with the contributor's own HF login (model_share.find_token, the same
+    auth as model sharing). Any logged-in user may open a PR on a public
+    repo, so no write token ships with spaCR, and every contribution is
+    reviewed before it is merged. Without a login the dialog says how to
+    log in and keeps the annotations.
+  * Figure mode: a small box editor (_BoxEditor) seeded from spaCR's YOLO
+    detection (the preview's boxes when already shown, else
+    seed_well_boxes). Drag to add, drag box/corner to move/resize,
+    right-click or Delete to remove. Untouched proposals are orange, touched
+    or new ones green. Provenance per page: proposed/kept/moved/deleted/added.
+  * Plaque mode: Make Masks' own brush (curation_tool.BrushPanel on a
+    LayerCanvas; paint, right-drag erase, New label, [ ] size, undo),
+    seeded from the plaque model (the preview's mask when shown, else
+    plaque_pass). Provenance per image from seed vs final mask:
+    kept/edited/removed seed ids plus added count (model_share.seed_changes).
+  * Upload is disabled until every listed image has >= 1 box/plaque; an image
+    can be left out of the list instead. write_contribution also refuses any
+    bare image, so the rule does not depend on the button.
+  * Consent (right to share + CC BY 4.0) is asked before the first upload and
+    remembered in preferences (plaque_preview/community_consent). Figure
+    uploads carry the paper's DOI/citation from paper.json, editable in the
+    dialog.
+  * Ruler: skipped on the coordinator's instruction (the maintainer confirmed
+    it is visible).
+
+Code
+  spacr/qt/widgets/model_share.py:345 community_repo, :363 yolo_lines,
+    :384 seed_changes, :428 write_contribution, :529 contribute
+  spacr/qt/widgets/plaque_preview.py:2238/2245 the conscience texts,
+    :2254 _BoxEditor, :2482 _MaskPage, :2540 _ConsentDialog,
+    :2590 contribution_consented, :2624 ContributeDialog (:2959 upload),
+    :3011 seed_well_boxes, :3253 the "Contribute training data…" button
+    (both modes), :4705 PlaquePreviewPanel.contribute_training_data
+  tests/qt/test_523_community_training_data_is_annotated_then_uploaded.py
+  API pins moved (+18 callables, 11,710 -> 11,735 docs):
+    tests/test_docstring_correctness.py, tests/test_api_i18n_extractor.py,
+    tests/test_api_i18n_frontend.py, tests/test_documentation_i18n.py
+
+Tests (offscreen, upload faked)
+  test_523: 8 passed (button in both modes; figure annotate->upload writes
+  images/labels/meta + YOLO lines + DOI + provenance; plaque paint->upload
+  writes original image + uint16 mask + provenance; unannotated image
+  refused by button, upload() and write_contribution; conscience visible
+  beside Upload in both modes; consent asked once, refusal sends nothing;
+  real upload path opens a PR on the right dataset; mouse drawing).
+  Plaque/model_share/curation Qt tests: 247 passed before, 255 after (+8 new).
+  Guards: docstring/api-i18n pins pass after moving.
+  Pre-existing failures, not from 523 (same on nightly):
+  test_documentation_i18n ...inventory_and_hashes_are_current[en] (catalog
+  already missing reader_problem, ReaderNeedsInstall, plaque_inputs,
+  Card.follow_fold; now also the 523 symbols -> the docs lane's
+  tools/build_documentation_i18n.py run), and
+  test_runtime_i18n_syntax swedish/french reviewed-record counts.
+
+New tr() strings (en only; catalogs untouched)
+  "Contribute training data…", its tooltip, "Contribute training data",
+  the two intro texts, FIGURE_CONSCIENCE, PLAQUE_CONSCIENCE, "Add images…",
+  "Leave this image out", "Add an image to annotate.", the source-paper
+  placeholder and "Source paper", "Upload" and its tooltip, "Before your
+  first contribution", the consent note and its two checkboxes, the
+  log-in message, "{name}: finding a first guess…", "{name}: not annotated
+  yet", "{name}: {count} boxes", "{name}: {count} plaques", the refusal /
+  licence-refused / "Not sent: {why}" / "Uploading…" / "Upload failed:
+  {why}" / thank-you-with-link statuses, "spaCR could not make a first
+  guess for {name} ({why}); annotate it from scratch.", "Images to
+  annotate", "Images ({patterns})".
+
+For the maintainer to decide
+  * The central upload Space (einarolafsson-spacr-model-upload) only takes
+    models, so a contributor needs a free HF login to open the PR. Extending
+    the Space to accept a contribution folder would remove that step.
+  * The "one real upload, then removed" check in DONE WHEN is not done:
+    nothing but the READMEs was uploaded, as instructed.
+  * Whole-plaque delete is by erasing with the brush; a click-to-delete tool
+    could come later.
+
