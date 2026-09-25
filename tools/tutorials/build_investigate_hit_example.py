@@ -167,14 +167,13 @@ def build(args) -> dict:
     wells = pd.concat([targets, controls], ignore_index=True)
     cells = read_measurements(Path(args.measurements), wells)
 
+    selected = set(map(tuple, wells[WELL].to_numpy()))
+    scores = scores.loc[[tuple(k) in selected for k in scores[WELL].to_numpy()]]
     joined = cells.merge(scores, on=IDENTITY, how='outer', indicator=True,
                          validate='one_to_one')
-    unmatched = joined['_merge'].value_counts().to_dict()
-    selected = set(map(tuple, wells[WELL].to_numpy()))
-    in_wells = [tuple(k) in selected for k in joined[WELL].to_numpy()]
-    joined = joined.loc[in_wells]
+    matched = joined['_merge'].value_counts().to_dict()
     if (joined['_merge'] != 'both').any():
-        raise ValueError(f'scored and measured cells differ: {unmatched}')
+        raise ValueError(f'scored and measured cells differ: {matched}')
 
     # Regression aggregated these very predictions: check each kept well's
     # mean score and cell count against regression_data.csv.
@@ -227,9 +226,10 @@ def build(args) -> dict:
             name: sha(run / name) for name in RUN_TABLES},
         measurement_source=dict(
             description='merged per-cell measurements of the same four '
-                        'plate databases', rows_matched=int(unmatched.get('both', 0)),
-            only_scored=int(unmatched.get('right_only', 0)),
-            only_measured=int(unmatched.get('left_only', 0))),
+                        'plate databases',
+            kept_wells_measured_cells=int(len(cells)),
+            kept_wells_scored_cells=int(len(scores)),
+            matched_one_to_one=int(matched.get('both', 0))),
         outputs={str(p.relative_to(output)): sha(p) for p in (
             database, output / 'cv_predictions.csv')})
     (output / 'example_manifest.json').write_text(
