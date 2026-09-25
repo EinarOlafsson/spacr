@@ -6940,7 +6940,10 @@ class ObjectFilterList(QWidget):
         self._offer()
 
     def set_intensity_available(self, available: bool) -> None:
-        """Offer the intensity properties only when an image is open."""
+        """Offer the intensity properties only when an image is open.
+
+        :param available: whether an intensity image is open.
+        """
         self._intensity = bool(available)
         self._offer()
 
@@ -6986,6 +6989,10 @@ class ObjectFilterList(QWidget):
                    notify: bool = True) -> dict:
         """Add one row; return it as ``{widget, property, min, max, remove}``.
 
+        :param name: the regionprop the row filters on.
+        :param minimum: the lower bound, or ``None`` for none.
+        :param maximum: the upper bound, or ``None`` for none.
+        :param notify: emit ``changed`` once the row is added.
         :raises ValueError: when ``name`` is not a scalar regionprop, or is an
             intensity property while no intensity image is open.
         """
@@ -7031,14 +7038,24 @@ class ObjectFilterList(QWidget):
         return row
 
     def set_bounds(self, index: int, minimum=None, maximum=None) -> None:
-        """Set row ``index``'s bounds as if typed, and apply them."""
+        """Set row ``index``'s bounds as if typed, and apply them.
+
+        :param index: the row, in the order rows were added.
+        :param minimum: the lower bound, or ``None`` to clear it.
+        :param maximum: the upper bound, or ``None`` to clear it.
+        """
         row = self._rows[index]
         row["min"].setText("" if minimum is None else format(float(minimum), ".12g"))
         row["max"].setText("" if maximum is None else format(float(maximum), ".12g"))
         self.changed.emit()
 
     def set_filter(self, name, minimum=None, maximum=None) -> None:
-        """Set the bounds of the first row for ``name``, adding it if absent."""
+        """Set the bounds of the first row for ``name``, adding it if absent.
+
+        :param name: the regionprop, current or legacy spelling.
+        :param minimum: the lower bound, or ``None`` to clear it.
+        :param maximum: the upper bound, or ``None`` to clear it.
+        """
         name = engine.canonical_property(name)
         index = next((i for i, row in enumerate(self._rows)
                       if row["property"] == name), None)
@@ -7048,7 +7065,10 @@ class ObjectFilterList(QWidget):
         self.set_bounds(index, minimum, maximum)
 
     def remove_filter(self, index: int) -> None:
-        """Remove row ``index``; the objects only it hid come back."""
+        """Remove row ``index``; the objects only it hid come back.
+
+        :param index: the row, in the order rows were added.
+        """
         row = self._rows.pop(index)
         row["widget"].hide()
         row["widget"].setParent(None)
@@ -7074,6 +7094,9 @@ class ObjectFilterList(QWidget):
         A dict of the old four bounds (``min_area`` and the rest) is migrated
         by :func:`mask_engine.legacy_filters`, so a saved state from before
         item 511 opens as the rows it meant.
+
+        :param filters: a filter list in any form
+            :func:`mask_engine.normalise_filters` accepts, or the legacy dict.
         """
         if isinstance(filters, dict) and set(filters) <= set(engine.FILTER_BOUNDS):
             filters = engine.legacy_filters(**filters)

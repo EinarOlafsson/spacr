@@ -2774,6 +2774,17 @@
       "source_sha256": "33af732c00ab3cf250faa74902399b35e96f5281d72814d74b02e24914642507",
       "text": "Map a uint8 (h, w, 3) image to linear-light floats in [0, 1]."
     },
+    "33c4215a1ed47108ac949fb65a8af255c395eb3efb20f9be4c4c2e8e02093bea": {
+      "source_blocks_sha256": [
+        "91da73ea43f01e8c10398a25e9c1c3f35f793d5ca80e72f10bb1de5307e254d0",
+        "4a98cfebea3642597fce12fed815a88011902a91d70067b66314a63a78678418",
+        "bd59533ddf4ac893d0cb44b65bf99ae024a57f1366d208de498540545e94cf66",
+        "224c0faadeb1a3ebfa8ea95ae2bd65e6feabbee36cb57ddf3a92e1919889a956",
+        "3ea271cc274078787174803952df3854350f50972149da4bad221772946b2391"
+      ],
+      "source_sha256": "33c4215a1ed47108ac949fb65a8af255c395eb3efb20f9be4c4c2e8e02093bea",
+      "text": "Make clicking ``heading`` fold ``body`` away. Returns the Folder.\n\nThe Folder is returned so the caller can hold it: it owns the event\nfilter, and a Folder nobody keeps stops working silently.\n\n:param heading: label that receives the click event filter and displays\n    the open or shut marker.\n:param body: panel whose visibility the heading toggles.\n:param persist_key: ``\"<module>/<panel>\"``. Given, the fold survives a\n    restart. Empty means it does not, which is what a bare panel in a\n    test wants -- a test that wrote to the real preferences would fold a\n    panel on the user's next launch."
+    },
     "33d6f4eb38810d2dc9b27c5e68eb93b6f7cf73ba2836384eea6d668490c49bc6": {
       "source_blocks_sha256": [
         "33d6f4eb38810d2dc9b27c5e68eb93b6f7cf73ba2836384eea6d668490c49bc6"
@@ -5593,6 +5604,13 @@
       "source_sha256": "5fc94d672713ba716635e31d0746a8e3f046f1c6d830f07f8f0d7fa9bdf921c8",
       "text": "Return the bundled PNG at ``path``, re-inked for ``theme``.\n\n``None`` when the file can't be read. Returns a ``QImage``, which\n(unlike ``QPixmap``) needs no running QGuiApplication, so this is\nsafe to call from a headless test."
     },
+    "5fea4be888821884a25c39b25aea01a68840e61b04a84344a94117b1005db75a": {
+      "source_blocks_sha256": [
+        "5fea4be888821884a25c39b25aea01a68840e61b04a84344a94117b1005db75a"
+      ],
+      "source_sha256": "5fea4be888821884a25c39b25aea01a68840e61b04a84344a94117b1005db75a",
+      "text": "Accept a folder with images (or image+mask pairs)."
+    },
     "601c48b78b8ab8894584c4d15f498f103a5d4587c7f8682ac21160003dd50fee": {
       "source_blocks_sha256": [
         "567dd798b9815d8f437a1ad8e6a3f85f62ba470646be90a68f400e0d31157518",
@@ -7489,6 +7507,14 @@
       ],
       "source_sha256": "7e7e7f1308ed250a4ac6cfa1e176c2894349455e695e3e55e9dde0235181b7e5",
       "text": "``ready`` / ``signed out`` / ``not installed`` for one provider.\n\nTHREE STATES, because they need three different things from the\nuser. `available` was one boolean covering \"the CLI is missing\" and\n\"the CLI is there and signed out\", so a mark could not say which,\nand both were drawn as a ghost -- \"GPT brings no text and no color\njust a rim\"."
+    },
+    "7e994b7c29dc94dda0870042d4b8a17bb830c56292f48df96bf402d04ff7033b": {
+      "source_blocks_sha256": [
+        "af35ec0a3a1a266292a5c0696c953b5d1a44a08616c35969ea4338bfa2a85317",
+        "cf2050187787dd8d9509c566ded6957ad8ed1c429bfa1eb7973db265c00ddd93"
+      ],
+      "source_sha256": "7e994b7c29dc94dda0870042d4b8a17bb830c56292f48df96bf402d04ff7033b",
+      "text": "Which bottom panels the user left folded, ``{key: True}``.\n\nKeyed by ``\"<module>/<panel>\"`` so folding the console on Mask does not\nfold it on Sequencing -- the same rule the console/chat splitter already\nfollows, and for the same reason: the modules are used for different\nwork and want different amounts of room."
     },
     "7ed3faebc81ebde53a6fab5b0d800cf8b925cd2ee09b47dad43f51106ba9ed0e": {
       "source_blocks_sha256": [
@@ -10768,6 +10794,15 @@
       "source_sha256": "b6263238248e8877f172b5015a249cf815af5365421ee1e042444dc8899b8cb1",
       "text": "The live Figure for ``idx``, restoring it from spill if needed.\n\nThis is what a restyling menu asks for. A figure inside the live\nwindow is returned directly; one past it is unpickled, put back into\nthe live set (so repeated edits do not re-read the disk) and the cap\nre-applied. Returns ``None`` only when the figure was never spillable."
     },
+    "b634d1f4633cf76b65ebd4121f142c5761ef57ffa3f980a4b2d91780e51b7923": {
+      "source_blocks_sha256": [
+        "581f5054eff7ae405ce2be3ffe6c17b627fd906df7851dcdc0b1236c27974944",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
+      ],
+      "source_sha256": "b634d1f4633cf76b65ebd4121f142c5761ef57ffa3f980a4b2d91780e51b7923",
+      "text": "A folder with images in it. Pairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+    },
     "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6": {
       "source_blocks_sha256": [
         "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6"
@@ -11221,6 +11256,15 @@
       ],
       "source_sha256": "bd24633a0b4c1841e154769d29d7db34c0ee5740efceb43add183d03b1900a40",
       "text": "Every segmentation metric the published table reports, on one field.\n\n:param threshold: the IoU at which precision, recall, F1, Dice and the\n    area error are matched. Reported in the result as ``match_iou`` so a\n    published number can never be read without it.\n\nEVERY NUMBER CARRIES ITS N. `n_truth` and `n_pred` are in the result and\nare not optional: a Dice of 0.91 on eleven objects is not a result, and a\ntable that omits the count invites exactly that reading."
+    },
+    "bd543fb2d753de235092174224791ad905e074f3bf48f80de9a6fc19d901db97": {
+      "source_blocks_sha256": [
+        "89197a3ba2bf5566c70a5b388adafd1d5b2bd5ffa0a0ba1aa0f4401a393b1f2e",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
+      ],
+      "source_sha256": "bd543fb2d753de235092174224791ad905e074f3bf48f80de9a6fc19d901db97",
+      "text": "Set `src` to the folder as dropped; no drilling in, no normalising.\n\n:param path: the dropped file or folder.\n:param screen: the screen to wire the drop into."
     },
     "bd6c1df4862bd2393c3e7092e5daf2b0d6af0a768d86b822666dfd343c6f403c": {
       "source_blocks_sha256": [
@@ -13113,6 +13157,24 @@
       "source_sha256": "da92db581959da0e08bcbea32f0f6a403667b94ad3dbf1d7c5fd0c4abe846e06",
       "text": "Return ``mask`` as uint16 labels, keeping every id it already had.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one."
     },
+    "da93bf87be8c730e6bcea2e5224aaf1a2a3e672712fbbe7871f5124905687aca": {
+      "source_blocks_sha256": [
+        "a57091df2067410fe6158f2b7c0c8acc67cf8c3f175ed443a3bf9efeab6f61b8",
+        "54e879ed145cf24c46dbbbf872468596ed095a82b4d505a81b2b47a8ae80ba9d",
+        "13b55aab18e206cbfbb9d7df98fff39fa2ec615d0b821f79d272b3d09bfe071e",
+        "6e3a3d32380c55cce82d71837ca2a4274a6b814cc355008d0d9e17cda8f38406",
+        "52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce",
+        "d736d502f96344b6fe4c152d1d541c383c375ace0e14d451795bb7251f2fd4e2",
+        "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+        "14e9adf6c92fa26dbc8bce9283e1e7c091da1abca87e666a2077ce07a8ffb4a9",
+        "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+        "ef60951da0616b0712a7459c3838e2d868dee3fef5024fa013ea0f2b6a54b2c8",
+        "d1544d937a20f62060725327c8b8d21c6918bb9a3b97b60633735e34db15a727",
+        "b910ec8dbc1fa04e962eebdc0e81c5b72d6b469274344103ddeb9887dac5530c"
+      ],
+      "source_sha256": "da93bf87be8c730e6bcea2e5224aaf1a2a3e672712fbbe7871f5124905687aca",
+      "text": "Propose Cellpose ``diameter`` values from blob statistics, without Cellpose.\n\nWhy this exists\n---------------\n``diameter`` is the most consequential Cellpose knob spaCR exposes and it is\nthe one users guess at. Under Cellpose 4 (``cpsam``) the constructor argument\n``diam_mean=`` is ignored, but ``CellposeModel.eval(diameter=...)`` is very\nmuch alive: it rescales the input by ``30.0 / diameter`` so objects land near\nthe network's ~30 px working size. Feed it a value two-fold off and every\ndownstream mask, count and measurement inherits the error. So a defensible\nstarting number is worth a few seconds of arithmetic.\n\nDesign constraint: this module must be usable *before* committing to a\nsegmentation run, which means it may not cost what a segmentation run costs.\nIt therefore imports **no torch and no cellpose** — that is a tested property,\nnot an aspiration (see ``tests/test_diameter_estimator.py``). It reuses\n:mod:`spacr.validate` for filename-metadata parsing, which is the other\ndeliberately dependency-light module in the package (``spacr.utils``, where\n``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and\ncellpose at module scope and so cannot be touched from here). The regexes in\n``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the\nchannel ordering used below mirrors\n``spacr.io._rename_and_organize_image_files``, which concatenates one plane per\ndistinct ``chanID`` in sorted order — so channel index *i* is the *i*-th\nsorted ``chanID``, exactly as ``cell_channel`` and friends mean it.\n\nMethod\n------\nFor each requested object channel, on each sampled field:\n\n1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily\n   smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination\n   gradients. The sigma is deliberately far larger than any plausible object\n   so that flattening removes vignetting without eating the objects — the\n   opposite trade-off (a tight rolling ball) shrinks what it is trying to\n   measure.\n2. **Reject noise.** Compare the structural amplitude of the flattened plane\n   (p99 - p30) against the *pixel-level* noise scale, measured as\n   ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise\n   plane scores below 1; a plane with real objects scores in the tens. Below\n   ``min_snr`` the field is discarded rather than thresholded, because Otsu\n   will happily bisect pure noise and hand back a confident-looking number.\n3. **Threshold and label.** Otsu, fill holes, label, drop components that\n   touch the image border (truncated, so their size is a lie) and components\n   that are absurd (equivalent diameter below ``min_object_diameter``, or area\n   above ``max_object_fraction`` of the field). Characteristic size is the\n   median equivalent diameter, ``2 * sqrt(area / pi)``.\n4. **Cross-check by distance transform.** Step 3 has one dominant failure\n   mode: a confluent monolayer fuses into a single component, that component\n   touches the border and is dropped, and the estimate is then computed from\n   whatever debris survived — biased **low**, and silently. So the Euclidean\n   distance transform of the (unfilled) foreground is computed as well, its\n   local maxima are taken as one seed per object (two passes: a coarse pass\n   sets the suppression radius for the refined pass), and a watershed on\n   ``-EDT`` splits the fused foreground back into objects whose equivalent\n   diameters are measured the same way.\n\nBoth estimates are always computed, and choosing between them is where the\ncare goes. The watershed estimate is taken when the transform resolved\nsomething *and* either the threshold path kept nothing at all, or the field is\ndense enough for fusion to be the explanation (foreground at or above\n``fused_fraction``) *and* the transform resolves at least five times as many\nobjects. A count disagreement alone is therefore never fusion — a hollow,\nmembrane-only object is one correct component by area but shatters into dozens\nof arcs under the distance transform, so a bare ratio test would discard the\nright answer in favour of the wall thickness, which is the same silent\ncollapse entered from the other side. A high foreground fraction alone is not\nfusion either — a dense but well-separated field can reach 30% foreground and\nstill be measured correctly by thresholding — so on its own it only brings the\nconfidence down while the threshold estimate stands. An empty threshold result\n*is* taken as fusion on its own, with no density check, because no threshold\nestimate is left to stand; if the transform resolved nothing either, no\nestimate is returned for that channel. When fusion is not declared and the two\nestimates disagree by more than 1.5-fold, the confidence is downgraded and the\nnote says so, because that disagreement is the honest signal that neither\nnumber should be trusted blind.\n\nPublic API\n----------\n``DiameterEstimate``\n    One proposal, with its plausible range, provenance and confidence.\n``estimate_diameters(src, channels, n_fields=5, ...)``\n    ``{object_type: DiameterEstimate}``.\n``format_estimates(estimates)``\n    Human-readable block, ready to print.\n``channels_from_settings(settings)``\n    Pull ``cell_channel`` / ``nucleus_channel`` / ... out of a settings dict.\n\nWhere a user meets this\n-----------------------\n:class:`spacr.qt.prerun.DiameterPanel` sits above the Run row on the Mask\nscreen: it reads the channels off the settings form with\n:func:`channels_from_settings`, calls :func:`estimate_diameters` on a worker\nthread, and shows one row per object type carrying the proposal *and its\nevidence* — the 10th-90th percentile range, how many objects it was pooled\nfrom, how many fields contributed, the method and the confidence. A proposal\nwithout those is just a different guess. Nothing is written into\n``<object>_diameter`` until the user presses **Use**, and\n:attr:`DiameterEstimate.usable` is checked first, so the NaN an unmeasurable\nchannel returns cannot reach a settings field."
+    },
     "dabb3851692fa2ec4e7c2c0ed90ec02afd87b83517a1b5be472d8a87b32514ad": {
       "source_blocks_sha256": [
         "eacf1f74f9accb6d6f9a3e1f4228d05c6c151f595b7853984d0703351fc9f587",
@@ -14026,6 +14088,27 @@
       "source_sha256": "e89e9d7ce8392b04ed5fca6b7cfe0d33a699032065ecb93a0ed14711ab36a4b6",
       "text": "Return ``mask`` without lit pixels that have too few lit neighbours.\n\nSee :data:`MIN_NEIGHBOURS` for why an isolated pixel has to go. Done with\nshifted slices rather than a convolution so the module keeps its only\nnumeric dependency."
     },
+    "e8cb8238b315ca9e76aa30bb8714aadda0d2df8a837ca635f89fe8f96a568317": {
+      "source_blocks_sha256": [
+        "83cce54b84d3ab47e0e3091242bee45421968bea9dcd866e27995786ccaa6df9",
+        "1dc3f219ed30bb2fe07d4cf60e1cb904f6d95370a67362e3ba9ee37976bf2916",
+        "bc631c878ea49c8469aa5257226c97478423cee4e6fa059ea8b29f601c3aff3d",
+        "591513859760a1e8543c1e33de075aa6532f5a4143acc6030751c4e03789e0b7",
+        "249975716e0e6d1c322a122228e086f73a7671b61cb67b3d9378d392c04cdaf7",
+        "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
+        "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
+        "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
+        "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
+        "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
+        "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
+        "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
+        "b9b6fdca4d40fe363dcc9a01d788f4c79401bb7fd9b90dad869c785daa120fb3",
+        "9dc0c77c2cceb13a6e386cc617681eda36856541121f4c95f856e4f4ed56bb09",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e8cb8238b315ca9e76aa30bb8714aadda0d2df8a837ca635f89fe8f96a568317",
+      "text": "Merge by perimeter and filter labeled objects across a directory of masks.\n\nRuns the shared in-memory merge/filter pipeline on each mask file in\n``mask_src`` in parallel, overwriting each mask in place.\n\n:param mask_src: directory containing mask .tif/.tiff/.npy files.\n:param intensity_img_src: directory of matched original intensity images,\n    required when either intensity bound is enabled.\n:param intensity_channel: explicit channel-last index for multi-channel\n    intensity images; unnecessary for single-channel planes.\n:param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.\n:param min_area: remove objects smaller than this (px); 0 disables.\n:param max_area: remove objects larger than this (px); 0 disables.\n:param remove_border_objects: drop objects touching the image border.\n:param n_jobs: parallel worker count.\n:param progress_callback: optional callback(fov_index, total, duration, op_name).\n:param op_name: label passed to the progress callback.\n:param min_intensity: remove objects whose own-channel mean is below this\n    raw-image value; equality is kept and 0 disables the lower bound.\n:param max_intensity: remove objects whose own-channel mean is above this\n    raw-image value; equality is kept and 0 disables the upper bound.\n:returns: None."
+    },
     "e8dfb61882e4088595123ab29f11d58c34a54aaeaf20eca8869fee5614fa845a": {
       "source_blocks_sha256": [
         "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
@@ -14324,6 +14407,39 @@
       ],
       "source_sha256": "ee3f04155a77fde48f5843759ffbe63f3c84c748fd319e3be0ef6ad7949a24e1",
       "text": "One object type's persisted verdict for the field on screen."
+    },
+    "ee4d1de6cdf6e1520c3b01f6f812a3db4f8127338be9fa09d34733dc13cc038d": {
+      "source_blocks_sha256": [
+        "238df427ccdae90ee7090b58746653ca4449a2a6309d2a345875f2ae438e75f8",
+        "f8abc131613b8a56f672e9f07ddd54d6812090fdab367a08baefc89611a84510",
+        "3f4a24fa7b7e4fc32090b80f05de6ace0f154634ce26ddb4244169f951a37332",
+        "0d04bfeb7d64b71c74fc925cca93d683154e8cc7e6e5838faced498e34c9984d",
+        "9047680c149ce64b8a2b50517da984247bdd02a07a4f3419eaf4d9167a3b702e",
+        "08532943fc99744ac4a2a025bf9b8efa6e0c4f2444a82c90675396fb4ab74b8a",
+        "52274b477eb8d6518df4ae7f86450ebc918d64e51768814cac08d526a37c1445",
+        "8f039dc53f3657c413d32fd6dbe3be94e6ad808e0fcab8a70bcb07f9287a2f8e",
+        "4e80c0a149c2e78b09fa0720fb03e5bb61a75fb3faade0eb87ff1a7a37c6f5b1",
+        "e1296c4bae2dd24b43d1bfda1cc8235b083bf8a68d08f8eaf58ca11db10da3ff",
+        "bd91e9bb481fc2ada7929b009a4c85128e1be419e273fb1fed19588ba41302e6",
+        "5cd649901849be7ac42280e4bc1a077ca924f814dcbf78b79ca22ede52d3c12d",
+        "4e80c0a149c2e78b09fa0720fb03e5bb61a75fb3faade0eb87ff1a7a37c6f5b1",
+        "426bd089d92ad0b1a7f80e0a36ab5c4e66ccb74fa7690292797dadd0509c1f88",
+        "a4d3fed6a44a3190b0039ed6fcfcab1aa77f08b424149f4e85fb07ce47c6c54d",
+        "ebf69027cda5b8006ad3dd04eb21f411a0402f2f2b50fdeb027c15a5db82df64",
+        "7a646390938859d097e86def66c2cec09a7167396d04cd6cdec73f3c1eacf665",
+        "a4752176eff3ebb9b21f6f1ac2e7e7e327b34e1295e62ee41f58d7962a91f96e",
+        "54c27a2a2c7de6eec70b9d5e3602fe37f6a9218992119b4105ac5b5dc06b5831",
+        "3f0b8c9bfcc10c13aedb96e81be1342c65f281a068ec42f631768fe5b68f0ba0",
+        "b952b8397b20fae078b61503e1f95bacbbebd4e852abf2b06fd803894b771d9f",
+        "95afa0acdb6f4cb3cc4a2a100b64cf3f9381db9c7bf6923476ea9c366158fbfa",
+        "f11efbd3607c327545299e7c152a878e967e523beefe309f1257ee09ee95abb4",
+        "66c87e62dfe8f7e85884b794c32258d9dfcc4c2b5b3861badf11d83898c91d69",
+        "bb8a586024af4236dd9134ad15f08f52426ea29e1c768cd9b7ac582fbe71bc5a",
+        "3ad784597af48b0007a719c6a61de7b28df54bff93f6899947b23ffe193b1551",
+        "7e9daa0d6c3620add3dbcf74ee362238b1fbdcb43e6a7fc68892c6c287c21124"
+      ],
+      "source_sha256": "ee4d1de6cdf6e1520c3b01f6f812a3db4f8127338be9fa09d34733dc13cc038d",
+      "text": "Per-module drop handlers.\n\nEach pipeline app has different expectations for what a \"source\"\nmeans. This module encodes those policies as :class:`DropHandler`\nsubclasses that the AppScreen wires up at construction time.\n\nHandler map (also read by ``get_handler``):\n\n+-----------------+-------------------------------------------------------+\n| App             | Accepts                                               |\n+=================+=======================================================+\n| mask            | folder w/ images (auto-parses regex + preview)        |\n| measure         | folder named ``merged`` OR one containing merged/     |\n| external_masks  | mixed image/label files or folders; assignment table  |\n| annotate        | folder with ``measurements/measurements.db``          |\n| classify        | folder with ``data/`` or ``measurements/``            |\n| make_masks      | folder with images + optional masks/                  |\n| map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |\n| umap            | folder with ``measurements/measurements.db``          |\n| ml_analyze      | ditto                                                 |\n| regression      | ditto — the database attaches to a PLATE ROW; the     |\n|                 | sweep card also takes score / gRNA count CSVs         |\n| recruitment     | folder with per-well recruitment CSVs                 |\n| activation      | folder with saved activation maps or the CV model dir |\n| analyze_plaques | folder with plaque images                             |\n| train_cellpose  | folder with image+mask pairs                          |\n| cellpose_masks  | folder with images                                    |\n| cellpose_all    | ditto — the \"Mask the whole folder\" key, kept so a    |\n|                 | folder dropped under it reads as images and not as a  |\n|                 | bare source path                                      |\n| other modules   | an existing source folder or supported data file      |\n+-----------------+-------------------------------------------------------+\n\nEvery handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`\nso users can also drop a settings CSV on any screen to load it."
     },
     "eeb614189ebac13ce80b4cc4da90c126d2649409fb68e3d5ac40cbec3bdfdf63": {
       "source_blocks_sha256": [

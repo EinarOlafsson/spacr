@@ -12277,15 +12277,15 @@
         "6e3a3d32380c55cce82d71837ca2a4274a6b814cc355008d0d9e17cda8f38406",
         "52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce",
         "d736d502f96344b6fe4c152d1d541c383c375ace0e14d451795bb7251f2fd4e2",
-        "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+        "3922ffced95795af2b296a59e836e087a33d7ff4e979aa40492f8c3acd907025",
         "14e9adf6c92fa26dbc8bce9283e1e7c091da1abca87e666a2077ce07a8ffb4a9",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "ef60951da0616b0712a7459c3838e2d868dee3fef5024fa013ea0f2b6a54b2c8",
         "d1544d937a20f62060725327c8b8d21c6918bb9a3b97b60633735e34db15a727",
         "b910ec8dbc1fa04e962eebdc0e81c5b72d6b469274344103ddeb9887dac5530c"
       ],
-      "source_sha256": "da93bf87be8c730e6bcea2e5224aaf1a2a3e672712fbbe7871f5124905687aca",
-      "text": "Propose Cellpose ``diameter`` values from blob statistics, without Cellpose.\n\nWhy this exists\n---------------\n``diameter`` is the most consequential Cellpose knob spaCR exposes and it is\nthe one users guess at. Under Cellpose 4 (``cpsam``) the constructor argument\n``diam_mean=`` is ignored, but ``CellposeModel.eval(diameter=...)`` is very\nmuch alive: it rescales the input by ``30.0 / diameter`` so objects land near\nthe network's ~30 px working size. Feed it a value two-fold off and every\ndownstream mask, count and measurement inherits the error. So a defensible\nstarting number is worth a few seconds of arithmetic.\n\nDesign constraint: this module must be usable *before* committing to a\nsegmentation run, which means it may not cost what a segmentation run costs.\nIt therefore imports **no torch and no cellpose** — that is a tested property,\nnot an aspiration (see ``tests/test_diameter_estimator.py``). It reuses\n:mod:`spacr.validate` for filename-metadata parsing, which is the other\ndeliberately dependency-light module in the package (``spacr.utils``, where\n``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and\ncellpose at module scope and so cannot be touched from here). The regexes in\n``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the\nchannel ordering used below mirrors\n``spacr.io._rename_and_organize_image_files``, which concatenates one plane per\ndistinct ``chanID`` in sorted order — so channel index *i* is the *i*-th\nsorted ``chanID``, exactly as ``cell_channel`` and friends mean it.\n\nMethod\n------\nFor each requested object channel, on each sampled field:\n\n1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily\n   smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination\n   gradients. The sigma is deliberately far larger than any plausible object\n   so that flattening removes vignetting without eating the objects — the\n   opposite trade-off (a tight rolling ball) shrinks what it is trying to\n   measure.\n2. **Reject noise.** Compare the structural amplitude of the flattened plane\n   (p99 - p30) against the *pixel-level* noise scale, measured as\n   ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise\n   plane scores below 1; a plane with real objects scores in the tens. Below\n   ``min_snr`` the field is discarded rather than thresholded, because Otsu\n   will happily bisect pure noise and hand back a confident-looking number.\n3. **Threshold and label.** Otsu, fill holes, label, drop components that\n   touch the image border (truncated, so their size is a lie) and components\n   that are absurd (equivalent diameter below ``min_object_diameter``, or area\n   above ``max_object_fraction`` of the field). Characteristic size is the\n   median equivalent diameter, ``2 * sqrt(area / pi)``.\n4. **Cross-check by distance transform.** Step 3 has one dominant failure\n   mode: a confluent monolayer fuses into a single component, that component\n   touches the border and is dropped, and the estimate is then computed from\n   whatever debris survived — biased **low**, and silently. So the Euclidean\n   distance transform of the (unfilled) foreground is computed as well, its\n   local maxima are taken as one seed per object (two passes: a coarse pass\n   sets the suppression radius for the refined pass), and a watershed on\n   ``-EDT`` splits the fused foreground back into objects whose equivalent\n   diameters are measured the same way.\n\nBoth estimates are always computed, and choosing between them is where the\ncare goes. The watershed estimate is taken when the transform resolved\nsomething *and* either the threshold path kept nothing at all, or the field is\ndense enough for fusion to be the explanation (foreground at or above\n``fused_fraction``) *and* the transform resolves at least five times as many\nobjects. A count disagreement alone is therefore never fusion — a hollow,\nmembrane-only object is one correct component by area but shatters into dozens\nof arcs under the distance transform, so a bare ratio test would discard the\nright answer in favour of the wall thickness, which is the same silent\ncollapse entered from the other side. A high foreground fraction alone is not\nfusion either — a dense but well-separated field can reach 30% foreground and\nstill be measured correctly by thresholding — so on its own it only brings the\nconfidence down while the threshold estimate stands. An empty threshold result\n*is* taken as fusion on its own, with no density check, because no threshold\nestimate is left to stand; if the transform resolved nothing either, no\nestimate is returned for that channel. When fusion is not declared and the two\nestimates disagree by more than 1.5-fold, the confidence is downgraded and the\nnote says so, because that disagreement is the honest signal that neither\nnumber should be trusted blind.\n\nPublic API\n----------\n``DiameterEstimate``\n    One proposal, with its plausible range, provenance and confidence.\n``estimate_diameters(src, channels, n_fields=5, ...)``\n    ``{object_type: DiameterEstimate}``.\n``format_estimates(estimates)``\n    Human-readable block, ready to print.\n``channels_from_settings(settings)``\n    Pull ``cell_channel`` / ``nucleus_channel`` / ... out of a settings dict.\n\nWhere a user meets this\n-----------------------\n:class:`spacr.qt.prerun.DiameterPanel` sits above the Run row on the Mask\nscreen: it reads the channels off the settings form with\n:func:`channels_from_settings`, calls :func:`estimate_diameters` on a worker\nthread, and shows one row per object type carrying the proposal *and its\nevidence* — the 10th-90th percentile range, how many objects it was pooled\nfrom, how many fields contributed, the method and the confidence. A proposal\nwithout those is just a different guess. Nothing is written into\n``<object>_diameter`` until the user presses **Use**, and\n:attr:`DiameterEstimate.usable` is checked first, so the NaN an unmeasurable\nchannel returns cannot reach a settings field."
+      "source_sha256": "88e6e3deb6a6fc7cc6d04121a2dfd0e8f3fd9195da7166138d04e99c9fb1ee80",
+      "text": "Propose Cellpose ``diameter`` values from blob statistics, without Cellpose.\n\nWhy this exists\n---------------\n``diameter`` is the most consequential Cellpose knob spaCR exposes and it is\nthe one users guess at. Under Cellpose 4 (``cpsam``) the constructor argument\n``diam_mean=`` is ignored, but ``CellposeModel.eval(diameter=...)`` is very\nmuch alive: it rescales the input by ``30.0 / diameter`` so objects land near\nthe network's ~30 px working size. Feed it a value two-fold off and every\ndownstream mask, count and measurement inherits the error. So a defensible\nstarting number is worth a few seconds of arithmetic.\n\nDesign constraint: this module must be usable *before* committing to a\nsegmentation run, which means it may not cost what a segmentation run costs.\nIt therefore imports **no torch and no cellpose** — that is a tested property,\nnot an aspiration (see ``tests/test_diameter_estimator.py``). It reuses\n:mod:`spacr.validate` for filename-metadata parsing, which is the other\ndeliberately dependency-light module in the package (``spacr.utils``, where\n``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and\ncellpose at module scope and so cannot be touched from here). The regexes in\n``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the\nchannel ordering used below mirrors\n``spacr.io._rename_and_organize_image_files``, which concatenates one plane per\ndistinct ``chanID`` in sorted order — so channel index *i* is the *i*-th\nsorted ``chanID``, exactly as ``cell_channel`` and friends mean it.\n\nMethod\n------\nFor each requested object channel, on each sampled field:\n\n1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily\n   smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination\n   gradients. The sigma is deliberately far larger than any plausible object\n   so that flattening removes vignetting without eating the objects — the\n   opposite trade-off (a tight rolling ball) shrinks what it is trying to\n   measure.\n2. **Reject noise.** Compare the structural amplitude of the flattened plane\n   (p99 - p30) against the *pixel-level* noise scale, measured as\n   ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise\n   plane scores below 1; a plane with real objects scores in the tens. Below\n   ``min_snr`` the field is discarded rather than thresholded, because Otsu\n   will happily bisect pure noise and hand back a confident-looking number.\n3. **Threshold and label.** Otsu, fill holes, label, drop components that\n   touch the image border (truncated, so their size is a lie) and components\n   that are absurd (equivalent diameter below ``min_object_diameter``, or area\n   above ``max_object_fraction`` of the field). Sizes are equivalent\n   diameters, ``2 * sqrt(area / pi)``.\n4. **Drop specks, then take the median.** A textured or punctate stain\n   (a mitochondrial cell stain, a parasite marker) thresholds into a few\n   whole objects plus hundreds of 4-10 px specks, and a plain median counts\n   every speck as an object: on spaCR's own test plate that put the cell at\n   8 px and the pathogen at 11 px against 175 px and 32 px in the curated\n   masks, while the nucleus, whose stain is solid, came out right at 91 px.\n   So the typical object is first located by the stained area it carries\n   (the area-weighted median, which specks cannot move because they hold\n   almost no area), everything narrower than :data:`SPECK_FRACTION` of it\n   is dropped, and the characteristic size is the median of what remains.\n   Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the\n   stained area or more are a second population, not specks, and stay.\n5. **Cross-check by distance transform.** Step 3 has one dominant failure\n   mode: a confluent monolayer fuses into a single component, that component\n   touches the border and is dropped, and the estimate is then computed from\n   whatever debris survived — biased **low**, and silently. So the Euclidean\n   distance transform of the (unfilled) foreground is computed as well, its\n   local maxima are taken as one seed per object (two passes: a coarse pass\n   sets the suppression radius for the refined pass), and a watershed on\n   ``-EDT`` splits the fused foreground back into objects whose equivalent\n   diameters are measured the same way.\n\nBoth estimates are always computed, and choosing between them is where the\ncare goes. The watershed estimate is taken when the transform resolved\nsomething *and* either the threshold path kept nothing at all, or the field is\ndense enough for fusion to be the explanation (foreground at or above\n``fused_fraction``) *and* the transform resolves at least five times as many\nobjects. A count disagreement alone is therefore never fusion — a hollow,\nmembrane-only object is one correct component by area but shatters into dozens\nof arcs under the distance transform, so a bare ratio test would discard the\nright answer in favour of the wall thickness, which is the same silent\ncollapse entered from the other side. A high foreground fraction alone is not\nfusion either — a dense but well-separated field can reach 30% foreground and\nstill be measured correctly by thresholding — so on its own it only brings the\nconfidence down while the threshold estimate stands. An empty threshold result\n*is* taken as fusion on its own, with no density check, because no threshold\nestimate is left to stand; if the transform resolved nothing either, no\nestimate is returned for that channel. When fusion is not declared and the two\nestimates disagree by more than 1.5-fold, the confidence is downgraded and the\nnote says so, because that disagreement is the honest signal that neither\nnumber should be trusted blind.\n\nPublic API\n----------\n``DiameterEstimate``\n    One proposal, with its plausible range, provenance and confidence.\n``estimate_diameters(src, channels, n_fields=5, ...)``\n    ``{object_type: DiameterEstimate}``.\n``format_estimates(estimates)``\n    Human-readable block, ready to print.\n``channels_from_settings(settings)``\n    Pull ``cell_channel`` / ``nucleus_channel`` / ... out of a settings dict.\n\nWhere a user meets this\n-----------------------\n:class:`spacr.qt.prerun.DiameterPanel` sits above the Run row on the Mask\nscreen: it reads the channels off the settings form with\n:func:`channels_from_settings`, calls :func:`estimate_diameters` on a worker\nthread, and shows one row per object type carrying the proposal *and its\nevidence* — the 10th-90th percentile range, how many objects it was pooled\nfrom, how many fields contributed, the method and the confidence. A proposal\nwithout those is just a different guess. Nothing is written into\n``<object>_diameter`` until the user presses **Use**, and\n:attr:`DiameterEstimate.usable` is checked first, so the NaN an unmeasurable\nchannel returns cannot reach a settings field."
     },
     "spacr.diameter.DiameterEstimate": {
       "source_blocks_sha256": [
@@ -35941,10 +35941,33 @@
         "75fd5047ba07cd6fa46e5d78367d51cd968ced8228021ae5c7948293b185c9d7",
         "99895911d6370d9239b9a5f6836ccb7af2bc198cd355d1866eb0c909a7f0c2e1",
         "3ce87579c13f561edb29080f5c82de5745c081fb4292cb486a0e32cf90983c6a",
+        "5322e3b1d262ada09991a67482b3c31338eb02d32c9e931966f6e7e02c99e061",
         "80fa3ceaa2d10a19bfbebda326c0fd945cdd74a15e293d5ad9e1e5c29e74d1ad"
       ],
-      "source_sha256": "bc6bb15a70e08336245b7e990eb9471776e06bbd9988f257f68617e0fc57568c",
-      "text": "Calibrated point-spread kernels and reproducible CPU image processing.\n\nCalculated kernels are sampled Gaussian approximations with explicitly supplied\nFWHM and pixel/voxel spacing, not estimates of a microscope's optical PSF.\nMeasured kernels retain their supplied centre pixel as the optical origin.\nProcessing uses half-sample symmetric boundaries, independently per channel.\nRichardson–Lucy uses the transpose of that same boundary operator, including\nits sensitivity normalization for asymmetric kernels. More iterations may\namplify noise; this is not a claim of recovered biological structure.\n\nThe original image is never modified. Results are float32 in the input's\nintensity units, with no percentile stretch, integer rounding or clipping to\n0..1. Kernels, sampling and settings are included in a JSON-safe receipt.\n\nReferences: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html\nand https://scikit-image.org/docs/stable/api/skimage.restoration.html#skimage.restoration.richardson_lucy"
+      "source_sha256": "9ee609205c3de6877842c5883c5a1ae3446f9cb8f06903fa723c94e92398b7da",
+      "text": "Calibrated point-spread kernels and reproducible CPU image processing.\n\nCalculated kernels are sampled Gaussian approximations with explicitly supplied\nFWHM and pixel/voxel spacing, not estimates of a microscope's optical PSF.\nMeasured kernels retain their supplied centre pixel as the optical origin.\nProcessing uses half-sample symmetric boundaries, independently per channel.\nRichardson–Lucy uses the transpose of that same boundary operator, including\nits sensitivity normalization for asymmetric kernels. More iterations may\namplify noise; this is not a claim of recovered biological structure.\n\nThe original image is never modified. Results are float32 in the input's\nintensity units, with no percentile stretch, integer rounding or clipping to\n0..1. Kernels, sampling and settings are included in a JSON-safe receipt.\n\nWhen the calibration is not known, :func:`infer_optics` supplies it from the\nimage's own metadata, a chosen objective from :data:`OBJECTIVES` or common\ndefaults, recording where each value came from: pixel size is the camera\npixel divided by the magnification and the lateral FWHM is 0.51 λ/NA.\n\nReferences: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html\nand https://scikit-image.org/docs/stable/api/skimage.restoration.html#skimage.restoration.richardson_lucy"
+    },
+    "spacr.point_spread.Objective": {
+      "source_blocks_sha256": [
+        "af600b6cfc25b552a14703657b3135e7a087c397cc21e948d8c8a7bdc0d9489a",
+        "0d99a9c935b132e098b512a9e518ad59bdcb5d8ca41e42da99e77d12c2118540",
+        "05144b4b5a03b8024670549222f903973e7fa5fcab8c4a010fb9bcc5802f5953",
+        "f1659603abeb59fb0a5bbe168b13d9e73bd1589e49729d50d7547a064da94971",
+        "b6fd86280b21e588d00c2aafd03847e84b36cf413a650dc2fcef49f3f6d74629"
+      ],
+      "source_sha256": "e2517afec4459f371a5b8cf52ce0e8a8f0a4dbad27391cafcb314efcb7be3206",
+      "text": "One microscope objective: nominal magnification, numerical aperture and immersion.\n\n:param name: the row's label, e.g. ``'40x/1.30 oil'``.\n:param magnification: nominal magnification.\n:param numerical_aperture: the objective's NA.\n:param immersion: ``air``, ``water`` or ``oil`` (a key of\n    :data:`IMMERSION_INDEX`)."
+    },
+    "spacr.point_spread.OpticalValue": {
+      "source_blocks_sha256": [
+        "38eee7f455218b3ff8eace06c7951d36d0d9f4782e858af1c05dbd24638b4ef5",
+        "f05d85569bd20bea8fb0f3c563dfead2fda5229c49d0135ae9faab9eada3659e",
+        "cd5cd6b8fc2bddd0e15579bd041d8db7a6382ad2d730a3852040717cd2e7d30a",
+        "d1e170fa880f8aff72a75fd54dc7274e621f09f3defd2a630191e3cabbe2e4c3",
+        "7d3993d30b2a1fb57d348c50918eb363d67be0f24ef02ee4879764c0525d775e"
+      ],
+      "source_sha256": "58eaf2f4626c6a69e3c8383ef9d4b952dec94fb9ddded45a66bad87b5ff5576c",
+      "text": "An inferred optical quantity and where it came from.\n\n``source`` is one of ``metadata`` (OME-XML), ``imagej`` (ImageJ TIFF\ncalibration), ``tiff_resolution`` (TIFF resolution tags in centimetres),\n``file_name``, ``image`` (the file's own dimensions), ``chosen`` (supplied\nby the caller), ``objective`` (the objective table), ``default`` or\n``calculated``. ``detail`` names the file, table row or formula.\n\n:param value: the quantity itself.\n:param source: where it came from, one of the words above.\n:param detail: the file, table row or formula; empty when there is none."
     },
     "spacr.point_spread.PSF": {
       "source_blocks_sha256": [
@@ -36011,6 +36034,26 @@
       "source_sha256": "642c3d1ce996cead198c731db7fc3dbb57278ffa38a50ee4455a7cd9067589eb",
       "text": "Convolve or Richardson–Lucy deconvolve each channel with a known PSF.\n\n:param image: finite nonnegative real YX/ZYX data, optionally with one\n    explicitly identified channel axis. Input pixels are never changed.\n:param kernel: calibrated immutable :class:`PSF`.\n:param operation: ``convolve`` (blur) or ``deconvolve`` (Richardson–Lucy).\n:param image_sampling_um: image spacing matching kernel spacing in spatial\n    axis order. Mismatches raise; no implicit kernel resampling is done.\n:param iterations: deconvolution iterations, integer 1..200, default20.\n:param channel_axis: None for a spatial image, otherwise the channel axis;\n    channels are processed independently and returned in their original order.\n:param cancel: callable or Event; checked between channels, convolutions\n    and iterations. Cancellation raises :class:`ProcessingCancelled`.\n:param progress: optional worker-thread callback(channel, completed, total),\n    with zero-based channel and one-based completed iteration.\n:returns: :class:`PSFResult`, float32 image in original intensity units and\n    provenance. Half-sample symmetric boundaries do not wrap opposite edges.\n    Richardson–Lucy assumes nonnegative Poisson-like intensities; it is\n    unregularized and can amplify noise. Output is not clipped to the input\n    range. Dimensionality/channel identity are preserved."
     },
+    "spacr.point_spread.describe_optics": {
+      "source_blocks_sha256": [
+        "59fcccfa43216fceb4536e3179b3b114665662142817bfa25624d1cfd1c3766c",
+        "dc4d2907eab437592d5eb93a8cc75a59f69755bcd6756fc342a643ee681999a3",
+        "a677babe59bcd752e1407c91abb758fad376d04fbae077d1270244b0edad87b8"
+      ],
+      "source_sha256": "4120d8d985d811f8bdfb6a76f0600ca4d7a1db95e7cae4ed79613451f74c3ce9",
+      "text": "One English line per inferred value: ``name = value (source: detail)``.\n\n:param values: the mapping :func:`infer_optics` returns.\n:returns: list of strings, in the mapping's order."
+    },
+    "spacr.point_spread.fill_psf_settings": {
+      "source_blocks_sha256": [
+        "ac0670908d4e690aba6df5f3177fe76df98c1d4d03035d8cd9985e61e3dcac77",
+        "c0b4f5a225f1b6a7b8ec1c5ac37b85c0f42fccfcd71b7f082e90226c9d5f3b8d",
+        "906449fe5a58bae68c7d80a00e8e273f8caf3bad0bc75a5d904b661929bb9313",
+        "5b2b4d21c9191788545cc967c46b07029a634ad0215fa7ccb0f2d8e1787b7fdc",
+        "44e3b331c2a70861af97200dd5f26bdfacf98fe08cf9a5bbaca9c2ddcfc1c8f1"
+      ],
+      "source_sha256": "19021a85615354db0f11370fc6818b587d79a16670748ffebc25685f692be2fc",
+      "text": "Fill unset Gaussian PSF calibration in Mask settings, in place.\n\nActs only when ``psf_operation`` is convolve or deconvolve, ``psf_source``\nis gaussian and ``psf_image_sampling_um`` or ``psf_fwhm_um`` is None;\nvalues already set are never replaced. ``psf_objective`` (``'auto'`` or\nan :data:`OBJECTIVES` row name) picks the objective and :func:`infer_optics`\nsupplies the rest.\n\n:param settings: Mask or timelapse settings dict.\n:param source: images to read metadata from; defaults to ``settings['src']``.\n:returns: the :func:`infer_optics` values used, or None when nothing was filled."
+    },
     "spacr.point_spread.gaussian_psf": {
       "source_blocks_sha256": [
         "ca6e1fc0c371c2f3e410587ea927f0edb2553f5774a613e8ffcf1783c7b2ead1",
@@ -36022,6 +36065,48 @@
       ],
       "source_sha256": "4acf0b4bed13fb9090e473f14b28771d70c8e97ac3b560eb84944fb472e0d4d0",
       "text": "Calculate a sampled Gaussian approximation from declared physical widths.\n\n:param fwhm_um: full width at half maximum per spatial axis, or one value.\n:param sampling_um: pixel/voxel spacing per axis in µm, or one value.\n:param ndim: two (YX) or three (ZYX) spatial dimensions.\n:param truncate: radius in standard deviations, between two and eight.\n:returns: normalized :class:`PSF`. Sigma is FWHM/sqrt(8*ln(2)); radius is\n    ceil(truncate*sigma/sampling). No optical parameters are inferred."
+    },
+    "spacr.point_spread.image_optics_metadata": {
+      "source_blocks_sha256": [
+        "5aa8b9059d007dd0fc1ffa8628a08d7d0fe759fcc85ea1acb13b70c9e7af120e",
+        "40fadc23bc54f3687a980f805be3015a05380551243e7daf6cbacf0db349bab5",
+        "5554165119a911aa257640ba2212944e6b9459cb3fdb15ed9bb1125a41114a3f",
+        "8d4d12fd98a6dd29546961937b27c462bc774a897b5800985e57d5951421a135"
+      ],
+      "source_sha256": "2be6e2de556b1c843bde01f54a2790a1cce5c3d9ad13e42f65faa00b73d02936",
+      "text": "Calibration an image file states about itself, each value with its source.\n\nReads only the TIFF header: OME-XML ``PhysicalSizeX/Y``, ``Objective``\n``LensNA``/``NominalMagnification``/``Immersion``, ``ObjectiveSettings``\n``RefractiveIndex`` and ``Channel`` ``EmissionWavelength``; an ImageJ\ncalibration in microns; or TIFF resolution tags in centimetres. A bare\ndots-per-inch tag says nothing about the specimen and is ignored. A\nmagnification token such as ``_40x_`` in the file name is used when no\nheader states one.\n\n:param path: an image file; formats other than TIFF contribute only the\n    file-name token.\n:returns: mapping of field name to :class:`OpticalValue`; empty when the\n    file states nothing or cannot be read."
+    },
+    "spacr.point_spread.infer_optics": {
+      "source_blocks_sha256": [
+        "a86481cd0dda646466d684a9058d0e3c7a4b6274193489479aec4afa7899d9e7",
+        "289097d18417f0a436978b5e9cd590b9b5aa29f93c27993986fa8ca4bcde37a6",
+        "2a723f0c4bf1485a7fd62210c9c5be3d06a7807274c3b0c90a76ebcc6cba9b69",
+        "e666b073c13495cc92935bcc1e623a35d20bbec0d719074d1a5c7a205da97d2b",
+        "44432a7fcebafa99b9a7c6d0c28cbd748a67a86b293db662fa100a1a5f1835b3",
+        "156b5c79b35b7fb590e8f92e0b155731ea6775c7e66695d08c5a8c596981a151",
+        "8fc8b653e036aa604010bf35b4ece7239b32f2d10df83c72eebc1390b3ceccae",
+        "6bbdc47a196a30f704498795f878beddbdf4d79765139bcf321bb6619d62d666",
+        "8648e4ab45ed8190f5fc29b5d3c1da718d1ca5b95b15cafb3ed4990842fb66d0",
+        "1332ee51d13cb52ef4571efd4aa17e15060cf74466f0f436a69f29d9f0b34874",
+        "811f4ffbeba1625486c189d06ef38fd032b6e4858c6c76b078dfd886babc1678",
+        "086122b77eb317b3b4eb4c6ed41268842087bb2c3501b2e5fe0cb6bc31266263",
+        "52de28c82f077d776bf79ab24086c9f7a7092a55faa9b17cce3030c36c872da6"
+      ],
+      "source_sha256": "dcbaf4b08847559719165d7ee3c264c2d1e8484728ccd67a7b0b57803198ea04",
+      "text": "Infer PSF calibration from image metadata, a chosen objective and defaults.\n\nEvery returned value carries its source. Precedence, highest first: a\nvalue passed here (``chosen``), the image's own metadata (ignored for the\nobjective's own magnification, NA and immersion once an objective is\nchosen), the objective table (the chosen row, else the row nearest a\nstated magnification), then the defaults: a 20x/0.75 air objective, a\n6.5 µm sCMOS pixel and 520 nm (GFP) emission. Immersion refractive\nindices are air 1.0, water 1.33 and oil 1.515.\n\nFormulae: pixel size = camera pixel / magnification (:func:`pixel_size_um`);\nlateral Gaussian FWHM = 0.51 λ / NA (:func:`lateral_fwhm_um`; Born and\nWolf §8.5.2; Zhang, Zerubia and Olivo-Marin 2007). A pixel size stated\nin metadata wins over the calculated one because it already includes\nbinning and adapters.\n\n:param source: an image file, a folder (its first TIFF, or ``orig/``'s)\n    or an iterable of paths; None uses the table and defaults only.\n:param objective_name: an :data:`OBJECTIVES` row name, or None/``'auto'``.\n:param camera_pixel_um: camera pixel pitch in micrometers.\n:param emission_nm: emission wavelength in nanometers.\n:param magnification: total magnification.\n:param numerical_aperture: objective NA.\n:param refractive_index: immersion refractive index.\n:param image_pixel_um: image pixel size in micrometers, one value or (Y, X).\n:returns: dict of :class:`OpticalValue` for ``objective``, ``magnification``,\n    ``numerical_aperture``, ``refractive_index``, ``emission_nm``,\n    ``camera_pixel_um``, ``pixel_size_um`` (Y, X), ``fwhm_um`` (Y, X) and,\n    when an image was read, ``image`` and ``image_shape`` (Y, X).\n:raises ValueError: for an unknown objective or implausible optics."
+    },
+    "spacr.point_spread.lateral_fwhm_um": {
+      "source_blocks_sha256": [
+        "47eae275461b1980de8fe758712d2ac856b2cf2901eac845d5a86bbfd7969cbc",
+        "fc23e95f478c29049bcaf45e6f0cb25962fdae871975613ed3d74faa8f4ca6cf",
+        "8fc8b653e036aa604010bf35b4ece7239b32f2d10df83c72eebc1390b3ceccae",
+        "8648e4ab45ed8190f5fc29b5d3c1da718d1ca5b95b15cafb3ed4990842fb66d0",
+        "cb62ac42f9ec75e89078409134990b23360bee29b646462b3b5206e9510a1331",
+        "873b57a63513378437ba7acc1c9f1df820850d3ed7004fca731ad81c3c27cf0b",
+        "f34c3bb19e744265e18a085e7146ab4b8a8f37bc3ba3a5e68266ed8c5b5d15dc"
+      ],
+      "source_sha256": "605400322e8060290ca04dbe338b33f5d41b2e54d12897b3baa9974fc25d390e",
+      "text": "Lateral FWHM of a diffraction-limited widefield PSF, 0.51 λ/NA.\n\nThe intensity full width at half maximum of the Airy pattern is\n``0.514 λ / NA`` (Born and Wolf, *Principles of Optics*, 7th ed., §8.5.2,\nwhose Rayleigh radius is ``0.61 λ / NA``). A Gaussian fitted to the\nwidefield PSF has ``σ ≈ 0.21 λ / NA``, a FWHM of ``≈ 0.49 λ / NA`` (Zhang,\nZerubia and Olivo-Marin 2007, Appl. Opt. 46:1819–1829), so a Gaussian of\nthis width approximates the ideal emission PSF. Aberrations, confocal\npinholes, thick specimens and camera binning are not modelled.\n\n:param emission_nm: emission wavelength in nanometers.\n:param numerical_aperture: objective NA.\n:param refractive_index: immersion index; when given, NA must not exceed it.\n:returns: FWHM in micrometers.\n:raises ValueError: for an implausible wavelength or aperture."
     },
     "spacr.point_spread.load_psf": {
       "source_blocks_sha256": [
@@ -36044,6 +36129,27 @@
       ],
       "source_sha256": "b0a83ec9ba534a0a55b9565124065a8a52da14f8a9bc63836818c9a0fb2f088d",
       "text": "Normalize a measured 2-D/3-D kernel, preserving its centre as origin.\n\n:param data: real nonnegative kernel with positive signal and odd axes.\n    Background must already be removed; negative values are rejected.\n:param sampling_um: calibrated YX or ZYX spacing in µm, or one isotropic\n    spacing. Sampling must match the image when processing it.\n:param source_name: acquisition identifier retained in provenance.\n:returns: immutable normalized :class:`PSF`; input data stay unchanged."
+    },
+    "spacr.point_spread.objective": {
+      "source_blocks_sha256": [
+        "d316a16347fe66c5aafb69e1b2273673bb50a2fc981d355579848110f73e1aaa",
+        "982f4b2f95008c1b445e3e438f46c5e9a0d7eed969cc76bc659a2885a4441b13",
+        "0fc5911fc431a993f11840f6d134eda114a4bdc63676f98b520a515b9c95ceb5",
+        "ded88abaa5891451bf8f7fcf6aaa2e82f023653c9c1912a127bb881808566d76"
+      ],
+      "source_sha256": "733868036c44f1c9ccb447447eef6e92ef257c105d0c51dab910ab2fc87fd5a9",
+      "text": "Return the :class:`Objective` table row called ``name``.\n\n:param name: a row name such as ``'60x/1.40 oil'``; case and surrounding\n    spaces are ignored.\n:returns: the matching :class:`Objective`.\n:raises ValueError: when the table has no such objective."
+    },
+    "spacr.point_spread.pixel_size_um": {
+      "source_blocks_sha256": [
+        "b6aebd917f2074640de6d3a0a45f1adaa830fc24560d64e8fc00144b0f464a26",
+        "c2662a0054c43761fef6ebce257401f8943869e46d97e0bebb689270eb3bf079",
+        "f483f5dd73ab2bee0b0b91591585ccd59d13aa28fdfc05270332632e862d8a95",
+        "992125fba18fe9b924fea7d800088999a08125b8176dff395425d0c9f5e64c33",
+        "c7dfd3f6c39a60e043602f32b96be0100c3ddee330dab9f4b21fa1cfb0dcea97"
+      ],
+      "source_sha256": "78b32fe38723486a8aeccb9e8a0aa7bd29e3fd42c6c0dfb23503ed9e5db87232",
+      "text": "Sample spacing at the specimen: camera pixel pitch divided by total magnification.\n\n:param camera_pixel_um: physical camera pixel pitch in micrometers.\n:param magnification: total magnification between specimen and camera,\n    including any tube-lens or camera-adapter factor (binning multiplies\n    the camera pixel instead).\n:returns: pixel size in micrometers.\n:raises ValueError: for a nonpositive or nonfinite input."
     },
     "spacr.portable_paths": {
       "source_blocks_sha256": [
@@ -42078,6 +42184,17 @@
       "source_sha256": "92cc8c44e2eefdb2d63a70e206ede86c4a5b03eeee85711d36a1ac2f69a8a74a",
       "text": "Wire ``path`` into ``screen`` (set src, populate settings, etc.).\n\n:param path: the dropped folder or file, already accepted by\n    :meth:`can_accept` (or picked from its alternatives).\n:param screen: the app screen that received the drop; the handler\n    writes the path into its settings form."
     },
+    "spacr.qt.dnd.DropHandler.apply_all": {
+      "source_blocks_sha256": [
+        "99cd49d27fa1fbdd7d0187b0385887631997419c99342877454e97754a0ca754",
+        "c24f4528e74b435d620adc0cdc4438624a948539b4935db82d14fbc45c81f03a",
+        "4950b98f588ffa669911f3c96990152106e69fd3c16a9c07b04661530c2e50ed",
+        "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36",
+        "776a71742bc3e44ef5fc05b261089769ac253193808ae25656d98362af2d02fe"
+      ],
+      "source_sha256": "a64dd58b79eb4d99f0d3e59887fa1f0a84300c82a570efab81d5f7f623225126",
+      "text": "Wire every accepted path of ONE drop in at once, in drop order.\n\nA handler whose screen builds one list out of a drop -- Make Masks'\nqueue, Plaque Assay's selection -- overrides this, because\n:meth:`apply` called once per path cannot tell the second file of a\ndrop from the first file of the next one. The default declines, and\neach path goes through :meth:`apply` as before.\n\n:param paths: the paths :meth:`can_accept` accepted, in drop order.\n:param screen: the screen to wire the drop into.\n:returns: True when the drop was handled here; False sends every\n    path through :meth:`apply` instead."
+    },
     "spacr.qt.dnd.DropHandler.can_accept": {
       "source_blocks_sha256": [
         "0034136e6873af6818773fbf2697a1ee88a255bc2b4fd61c81a2df5627b69441",
@@ -42188,7 +42305,7 @@
         "8f039dc53f3657c413d32fd6dbe3be94e6ad808e0fcab8a70bcb07f9287a2f8e",
         "4e80c0a149c2e78b09fa0720fb03e5bb61a75fb3faade0eb87ff1a7a37c6f5b1",
         "e1296c4bae2dd24b43d1bfda1cc8235b083bf8a68d08f8eaf58ca11db10da3ff",
-        "bd91e9bb481fc2ada7929b009a4c85128e1be419e273fb1fed19588ba41302e6",
+        "a1a6f6dfe062dc835876e6f6446e8fc0004b43fbc9f76f3407d11c785045765b",
         "5cd649901849be7ac42280e4bc1a077ca924f814dcbf78b79ca22ede52d3c12d",
         "4e80c0a149c2e78b09fa0720fb03e5bb61a75fb3faade0eb87ff1a7a37c6f5b1",
         "426bd089d92ad0b1a7f80e0a36ab5c4e66ccb74fa7690292797dadd0509c1f88",
@@ -42196,7 +42313,7 @@
         "ebf69027cda5b8006ad3dd04eb21f411a0402f2f2b50fdeb027c15a5db82df64",
         "7a646390938859d097e86def66c2cec09a7167396d04cd6cdec73f3c1eacf665",
         "a4752176eff3ebb9b21f6f1ac2e7e7e327b34e1295e62ee41f58d7962a91f96e",
-        "54c27a2a2c7de6eec70b9d5e3602fe37f6a9218992119b4105ac5b5dc06b5831",
+        "545971cd50969490c2e68920950a2a6a1a4f44fdb6c6e29c6f2408fdfaca9890",
         "3f0b8c9bfcc10c13aedb96e81be1342c65f281a068ec42f631768fe5b68f0ba0",
         "b952b8397b20fae078b61503e1f95bacbbebd4e852abf2b06fd803894b771d9f",
         "95afa0acdb6f4cb3cc4a2a100b64cf3f9381db9c7bf6923476ea9c366158fbfa",
@@ -42206,8 +42323,8 @@
         "3ad784597af48b0007a719c6a61de7b28df54bff93f6899947b23ffe193b1551",
         "7e9daa0d6c3620add3dbcf74ee362238b1fbdcb43e6a7fc68892c6c287c21124"
       ],
-      "source_sha256": "ee4d1de6cdf6e1520c3b01f6f812a3db4f8127338be9fa09d34733dc13cc038d",
-      "text": "Per-module drop handlers.\n\nEach pipeline app has different expectations for what a \"source\"\nmeans. This module encodes those policies as :class:`DropHandler`\nsubclasses that the AppScreen wires up at construction time.\n\nHandler map (also read by ``get_handler``):\n\n+-----------------+-------------------------------------------------------+\n| App             | Accepts                                               |\n+=================+=======================================================+\n| mask            | folder w/ images (auto-parses regex + preview)        |\n| measure         | folder named ``merged`` OR one containing merged/     |\n| external_masks  | mixed image/label files or folders; assignment table  |\n| annotate        | folder with ``measurements/measurements.db``          |\n| classify        | folder with ``data/`` or ``measurements/``            |\n| make_masks      | folder with images + optional masks/                  |\n| map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |\n| umap            | folder with ``measurements/measurements.db``          |\n| ml_analyze      | ditto                                                 |\n| regression      | ditto — the database attaches to a PLATE ROW; the     |\n|                 | sweep card also takes score / gRNA count CSVs         |\n| recruitment     | folder with per-well recruitment CSVs                 |\n| activation      | folder with saved activation maps or the CV model dir |\n| analyze_plaques | folder with plaque images                             |\n| train_cellpose  | folder with image+mask pairs                          |\n| cellpose_masks  | folder with images                                    |\n| cellpose_all    | ditto — the \"Mask the whole folder\" key, kept so a    |\n|                 | folder dropped under it reads as images and not as a  |\n|                 | bare source path                                      |\n| other modules   | an existing source folder or supported data file      |\n+-----------------+-------------------------------------------------------+\n\nEvery handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`\nso users can also drop a settings CSV on any screen to load it."
+      "source_sha256": "fca9af9871e33f30c84939229e24278e0a599b88555fb6ee2e94c5b09412aed7",
+      "text": "Per-module drop handlers.\n\nEach pipeline app has different expectations for what a \"source\"\nmeans. This module encodes those policies as :class:`DropHandler`\nsubclasses that the AppScreen wires up at construction time.\n\nHandler map (also read by ``get_handler``):\n\n+-----------------+-------------------------------------------------------+\n| App             | Accepts                                               |\n+=================+=======================================================+\n| mask            | folder w/ images (auto-parses regex + preview)        |\n| measure         | folder named ``merged`` OR one containing merged/     |\n| external_masks  | mixed image/label files or folders; assignment table  |\n| annotate        | folder with ``measurements/measurements.db``          |\n| classify        | folder with ``data/`` or ``measurements/``            |\n| make_masks      | image files and/or folders with images; one queue     |\n| map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |\n| umap            | folder with ``measurements/measurements.db``          |\n| ml_analyze      | ditto                                                 |\n| regression      | ditto — the database attaches to a PLATE ROW; the     |\n|                 | sweep card also takes score / gRNA count CSVs         |\n| recruitment     | folder with per-well recruitment CSVs                 |\n| activation      | folder with saved activation maps or the CV model dir |\n| analyze_plaques | plaque images and/or folders of them; a PDF (Figure)  |\n| train_cellpose  | folder with image+mask pairs                          |\n| cellpose_masks  | folder with images                                    |\n| cellpose_all    | ditto — the \"Mask the whole folder\" key, kept so a    |\n|                 | folder dropped under it reads as images and not as a  |\n|                 | bare source path                                      |\n| other modules   | an existing source folder or supported data file      |\n+-----------------+-------------------------------------------------------+\n\nEvery handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`\nso users can also drop a settings CSV on any screen to load it."
     },
     "spacr.qt.dnd_handlers.AlignDropHandler": {
       "source_blocks_sha256": [
@@ -42320,6 +42437,50 @@
       ],
       "source_sha256": "c0a5f8e2b4c22948f03642265b0ad8c6753908bdfe78ca5af4b33078ddff943f",
       "text": "Name all three shapes; only the first is guessable from the name.\n\n:param path: the dropped file or folder.\n:returns: the sentence shown when the drop is refused."
+    },
+    "spacr.qt.dnd_handlers.CellposeFolderDropHandler": {
+      "source_blocks_sha256": [
+        "846e330e4b958ec81b9cb96129ab33cf6ad7e3440cd5de4954229c831884eb54",
+        "837c12b60afaf0d8e9573676f1098f5893ed1f22e68ea22c86db3952ca44f176"
+      ],
+      "source_sha256": "e82c125584fe585f190fe3ca8e0c3800dd004ddcf611c886e5939bfc28a7af1c",
+      "text": "Accept one folder with images, for the Cellpose training screens.\n\nTheir ``src`` is a folder the run lists, so a file is refused here even\nthough Make Masks itself takes one."
+    },
+    "spacr.qt.dnd_handlers.CellposeFolderDropHandler.accepts_multiple": {
+      "source_blocks_sha256": [
+        "051c9934e85c015862b1a9228781897d1993984113f068deee526624c6765ac3",
+        "b9508a69ba9d456e27b405e3c10069d42c57f6173e0735809584797f5796ba2b"
+      ],
+      "source_sha256": "071d7ff31da8ac57ea8bac33447eb65336e4ee089ad07b86f1761a2b4c0df6c0",
+      "text": "One folder is one source.\n\n:returns: False."
+    },
+    "spacr.qt.dnd_handlers.CellposeFolderDropHandler.apply_all": {
+      "source_blocks_sha256": [
+        "2791438140efbee32cccf23afcc799cc93ba3e270481d1a73d8f23f3a69ae828",
+        "18db1aa1b129787b4245f4049f0a01c86480434a651596a537b3296ef885ca1b",
+        "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36",
+        "b9508a69ba9d456e27b405e3c10069d42c57f6173e0735809584797f5796ba2b"
+      ],
+      "source_sha256": "a179bc81a5a87f379396db552923b4f645e4781f8475908ffae287b5f27e6a11",
+      "text": "Decline: each folder is set as ``src`` by :meth:`apply`.\n\n:param paths: the accepted folders.\n:param screen: the screen to wire the drop into.\n:returns: False."
+    },
+    "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "4bf58f2d7852f8b256f2a4f959e3c7476c5c0d4374cd4e611d04ec8fa916fd5b",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
+      ],
+      "source_sha256": "010b0a6349dc03e663b2610e21241ba0f702e6db6bb03a6d7bd276b14eb22bf1",
+      "text": "A folder with images in it.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+    },
+    "spacr.qt.dnd_handlers.CellposeFolderDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "4a9abae213dbada7c88df390f695eba7fd6f434686d1549c56d882537621b19d",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "346aa9851cfe20db209e3c6d9c1e62852e9deb9c87ff151738ac3e571695c95c"
+      ],
+      "source_sha256": "4a539dea77d619b7b022f1461eea47e9ad34a9a851d10f8a597f0df72251976f",
+      "text": "The sentence the Cellpose screens have always shown.\n\n:param path: the dropped file or folder.\n:returns: the sentence shown when the drop is refused."
     },
     "spacr.qt.dnd_handlers.ClassifyDropHandler": {
       "source_blocks_sha256": [
@@ -42871,28 +43032,47 @@
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler": {
       "source_blocks_sha256": [
-        "5fea4be888821884a25c39b25aea01a68840e61b04a84344a94117b1005db75a"
+        "d05d65ffbcc475eace3bd37c78ba96163f3986991dcfb226570684de8b3dfe2f"
       ],
-      "source_sha256": "5fea4be888821884a25c39b25aea01a68840e61b04a84344a94117b1005db75a",
-      "text": "Accept a folder with images (or image+mask pairs)."
+      "source_sha256": "d05d65ffbcc475eace3bd37c78ba96163f3986991dcfb226570684de8b3dfe2f",
+      "text": "Accept image files, folders of images, or both; one drop, one queue."
+    },
+    "spacr.qt.dnd_handlers.MakeMasksDropHandler.accepts_multiple": {
+      "source_blocks_sha256": [
+        "69445c82f924de701cf21fe601f138d5b4298b78438a998852491010ff7db938",
+        "ca3dd92f2c462da9aab26d1bca54a7de0e6048f16c3da6e12d523d73ef0fe94f"
+      ],
+      "source_sha256": "09ebeb7cd657e7fbc1351fb3300e80bceaf6a411bafc084c27278e97fa983f89",
+      "text": "Several files and folders in one drop make one queue.\n\n:returns: True."
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply": {
       "source_blocks_sha256": [
-        "89197a3ba2bf5566c70a5b388adafd1d5b2bd5ffa0a0ba1aa0f4401a393b1f2e",
+        "67212a11e5a081c5864c4e7234fa22849aa1cc3e6fd1c44c6eb3c87410c56d61",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
       ],
-      "source_sha256": "bd543fb2d753de235092174224791ad905e074f3bf48f80de9a6fc19d901db97",
-      "text": "Set `src` to the folder as dropped; no drilling in, no normalising.\n\n:param path: the dropped file or folder.\n:param screen: the screen to wire the drop into."
+      "source_sha256": "068087690ed058493d33d086572fb257d66fc75ba45cfc28994c9ed39cfb7916",
+      "text": "Open the one path; a screen without a queue gets it as ``src``.\n\n:param path: the dropped file or folder.\n:param screen: the screen to wire the drop into."
+    },
+    "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all": {
+      "source_blocks_sha256": [
+        "89986ae955148df80e0949b5c37753fe9c5da5a93c3865de0b99fb976fc9e030",
+        "127631d3956bd5d2935839adea8572d1c5d757586f4dca9d47246b5c77fd8308",
+        "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36",
+        "b7dc1a28c484e8629f299a5f14f09e5087388305552d67652797a67469426b51"
+      ],
+      "source_sha256": "3d703a18592f200a5cf5dab4869d99f0ada944bb7f29e865a42b5046af39bdf2",
+      "text": "Hand the whole drop to Make Masks, which queues it in drop order.\n\n:param paths: the accepted files and folders, in drop order.\n:param screen: the screen to wire the drop into.\n:returns: False for a screen that is not Make Masks, so each path\n    goes through :meth:`apply` as a source folder instead."
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "581f5054eff7ae405ce2be3ffe6c17b627fd906df7851dcdc0b1236c27974944",
+        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
+        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "b634d1f4633cf76b65ebd4121f142c5761ef57ffa3f980a4b2d91780e51b7923",
-      "text": "A folder with images in it. Pairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
+      "text": "An image file Make Masks opens, or a folder with images in it.\n\nPairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.error_message": {
       "source_blocks_sha256": [
@@ -43167,6 +43347,68 @@
       ],
       "source_sha256": "2418f77264eec185d1b1a8065036104c2bd06d290d24d22a4c06f6d323aa611c",
       "text": "Name both kinds of folder this module takes.\n\n:param path: the dropped file or folder.\n:returns: the sentence shown when the drop is refused."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler": {
+      "source_blocks_sha256": [
+        "8419216522aa6de4de4d7de737f42afea88d6cee1aad26925d83d52568dca4c3",
+        "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2"
+      ],
+      "source_sha256": "99f0838b12b35654a02bac22319bc8cc948dcb0b1fc88e0946162c930ef2cefa",
+      "text": "Plaque Assay's own drop policy and its own words.\n\nIt takes plaque images, folders of them, both mixed, and in Figure mode\na paper's PDF. Before this handler Plaque Assay was given Make Masks'\npolicy, which refused a folder it could not use with Make Masks'\nsentence."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple": {
+      "source_blocks_sha256": [
+        "064e46d4917fefc212157ff0285fdec17c5be5dafd19a97c830713b54183c193",
+        "ca3dd92f2c462da9aab26d1bca54a7de0e6048f16c3da6e12d523d73ef0fe94f"
+      ],
+      "source_sha256": "e28ccd75df50fef2e1830564071b9cd73d8fdb4e0e3319e7403ff002d81f0058",
+      "text": "Several images and folders in one drop make one selection.\n\n:returns: True."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler.apply": {
+      "source_blocks_sha256": [
+        "b2fec9f8cda9085d03f5fef7833aaad523032d01b23302b569ccf94c44385f08",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468"
+      ],
+      "source_sha256": "74de8b34c7fdaaeab8631971fb19cc60276f14cacc6f1071b558897c82ea8d25",
+      "text": "Take one dropped path.\n\n:param path: the dropped file or folder.\n:param screen: the Plaque Assay screen."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all": {
+      "source_blocks_sha256": [
+        "ccb674b3f5313eef10af1ee2a51d6bb9916de3f70d0f9931edd1da8398f670d5",
+        "127631d3956bd5d2935839adea8572d1c5d757586f4dca9d47246b5c77fd8308",
+        "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
+        "1abb833f90714922fa3968fe30f8623d1fd099f4aa1cb52376626db7075255a4"
+      ],
+      "source_sha256": "1c4bd9eeb5843854dd1d0b861ca0515f5c772333464511785294581625c17255",
+      "text": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.\n\n:param paths: the accepted files and folders, in drop order.\n:param screen: the Plaque Assay screen.\n:returns: True; the drop is always handled here."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "1755e470c709d498930ef7ca0595faae4e69212742724930ca6fe079d1159db3",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
+      ],
+      "source_sha256": "9daaac73000713b6d8f2d8293750a7eb0a9a2fbab2442b9414980c8e81897f68",
+      "text": "A plaque image, a PDF, or a folder with plaque images in it.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "89245df910bf3f693bd6479f55320650c80333389ffa59daf51133bfca6ae91c",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "346aa9851cfe20db209e3c6d9c1e62852e9deb9c87ff151738ac3e571695c95c"
+      ],
+      "source_sha256": "b15df870349e7fab492fd57b4696ea85d58d50c84259dc216561573074df200c",
+      "text": "Say what Plaque Assay reads, in its own terms.\n\n:param path: the dropped file or folder.\n:returns: the sentence shown when the drop is refused."
+    },
+    "spacr.qt.dnd_handlers.PlaqueDropHandler.suggest_alternatives": {
+      "source_blocks_sha256": [
+        "da80bad70c83a8071e53ba0bf6562cc09b1b9b4e4991e6cd3bff04e6fdb92df8",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "0b72dcf348de0bca178c6172ac1b168a61a05324a5ba90136d5e86d21b7ce058"
+      ],
+      "source_sha256": "1ec30dbee4bdeb42acc270a104ac83e425a4c381a7d932ac8997701158054a32",
+      "text": "Nearby folders that hold plaque images.\n\n:param path: the dropped file or folder.\n:returns: sibling and child folders with plaque images in them."
     },
     "spacr.qt.dnd_handlers.PlateQueueDropHandler": {
       "source_blocks_sha256": [
@@ -43612,6 +43854,18 @@
       ],
       "source_sha256": "15c6f8d736e81c6e93cece19043d5eae23b563d12e1116f4c3001736c10994a6",
       "text": "Return a fresh DropHandler for ``app_key``.\n\nFalls back to :class:`SourceDropHandler` so every conventional AppScreen\ncan at least receive its source folder.\n\n:param app_key: registered built-in or plugin application key whose drop\n    policy is requested."
+    },
+    "spacr.qt.dnd_handlers.plaque_selection_folder": {
+      "source_blocks_sha256": [
+        "c789351d4dce23bd4b6aad8ff448daf23f0c259cc8a93d89ec9cc4de112cf441",
+        "a5ed53b772792408f3987f6a52d1d03eaa9e80844d5ea8b96318f2b7418abdcf",
+        "06013bcac825c0df33102136c48948078e502ef092e5334d729c88fa99c29eb3",
+        "384d011cb323d41394420e67759bd4c8cc9f6558af51ac36a862c92f6f5505f4",
+        "5e22414e4a4036e539cc040ecaee95575d10695d62f9582657f869c5ce488d50",
+        "ff0a7d21b9d4b35f5a174182b2d520ec85084a6717fd7f8c9b7fc0158c28b386"
+      ],
+      "source_sha256": "d19ed9121d24d792fcb97aa4efe2be01ddcd9f3e053b635f06b37f3813b92f36",
+      "text": "A folder that lists the dropped plaque images, without copying them.\n\nA plaque run reads one folder and writes its masks beneath it, so a\ndrop of loose files becomes a folder of links to them -- symbolic,\nelse hard -- named ``plaque_selection_<time>`` beside the first image,\nor in the temporary folder when that one cannot be written. Two images\nwith the same name from different folders keep both, the second under\nits folder's name.\n\n:param images: the images, in drop order.\n:param stamp: the time part of the name; now when omitted.\n:returns: the folder.\n:raises OSError: when an image can be neither linked nor listed."
     },
     "spacr.qt.dnd_handlers.scan_folder_structure": {
       "source_blocks_sha256": [
@@ -46664,6 +46918,34 @@
       "source_sha256": "ecc2083fa5f1d74e171ebd277b6babf275e45c39907944742810a10d4da8c650",
       "text": "Pure-Python mask editing and persistence for the Qt Make Masks screen.\n\nThis module provides image and mask I/O plus non-brush label operations,\nincluding fill, relabel, size and intensity filtering, Otsu detection, and\nmagic-wand selection. It has no Qt dependency, so the editing operations can\nbe tested without a display.\n\nTHREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS (items 435 and 419\npoint 9). :func:`invert_intensity` is the photographic complement of an\nIMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly\nreversible on every integer dtype -- and it is what the Make Masks screen's\n\"Invert image\" draws with. :func:`invert_for_detection` reflects an image\nabout its OWN range instead, and is what the screen's \"Invert for detection\"\nhands the detectors; its docstring has the measurement that says why a\ndetector cannot use the complement, and it is NOT a duplicate to be merged\naway. :func:`invert_mask` flips a LABEL image's foreground and background;\non an ordinary field that gives one object covering the frame, which is why\nit was reported as doing nothing.\n\n:func:`save_mask` passes labels through :func:`canonical_labels`, which\npreserves existing nonzero object identifiers rather than renumbering\nconnected components. This maintains correspondence with measurements,\ntracks, and crops keyed by those identifiers.\n\nSaving also writes the artifact's :class:`spacr.curation.CurationLog`\nsidecar, consistent with :mod:`spacr.napari_bridge` and\n:mod:`spacr.qt.curation_tool`. The sidecar allows\n:func:`spacr.curation.is_curated` to distinguish manually edited masks from\npipeline-generated masks.\n\nWhere a field's mask lives\n--------------------------\n\nThe editor opens all three layouts :mod:`spacr.curation_queue` reads, and\nedits each one in place rather than converting it:\n\n``nested``\n    ``<folder>/<image>`` with the mask at ``<folder>/masks/<stem>.tif``. The\n    default, and what every function below does when told nothing else.\n``sibling``\n    ``<root>/images/<image>`` with the mask at ``<root>/masks/<stem>.tif``.\n    The editor opens ``<root>/images`` and passes ``masks_dir=<root>/masks``;\n    without it the mask would be read from and written to\n    ``<root>/images/masks``, a folder the set does not have.\n``seg``\n    ``<folder>/<stem>_seg.npy``, a Cellpose bundle holding the image and the\n    labels in one pickled dict. The editor's file list names the bundles\n    themselves, and a name ending in :data:`SEG_SUFFIX` is read and written\n    as a bundle by :func:`load_image_and_mask`, :func:`save_mask`,\n    :func:`write_recrop` and :func:`retire_recropped_original`.\n\nIn place is sound for both, which is why there is no convert step. A sibling\nset differs from a nested one only in where its masks folder is, so passing\nthat folder is the whole change. A bundle is rewritten with every key it\nalready had kept, ``masks`` replaced, and the two keys derived from the\nmasks -- ``outlines`` and ``ismanual`` -- brought up to date with it (see\n:func:`save_seg_bundle`); that is what the external curation tool did to the\nsame files, less its stale outlines. A convert step would have been a second\ncopy of every field, and the curator would have had to remember which copy\nwas the truth."
     },
+    "spacr.qt.mask_engine.FILTER_BOUNDS": {
+      "source_blocks_sha256": [
+        "6ca46fa236f46b3273c7718263c23b7c2a9138fbe6a0cf4c85a9ec82cbc301d7",
+        "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936"
+      ],
+      "source_sha256": "7a0bf93eac46084b62f6f4ad4301c79510372f6d21c905c541c9d18629a66957",
+      "text": "The four legacy bounds, named as :func:`filter_report`'s keywords are.\n\nThey are no longer a second filter. :func:`legacy_filters` turns them into\nentries of the one filter list (item 511), so a caller that still passes\n``min_area=20`` is judged by the same regionprops pass as a user who added\nan ``area`` row, and a :class:`FilterRemoval` still names the legacy bound\nan object failed so the older ledgers read the same."
+    },
+    "spacr.qt.mask_engine.FILTER_KEYS": {
+      "source_blocks_sha256": [
+        "e356bfb248a8ed1318b18764e330e2f421801a65845d2a89a8af666984ee274a",
+        "d1e84a6f629c488b98bb541b209a8c2dda098bdd416004c0172fb57688b5def0"
+      ],
+      "source_sha256": "aa3401c46b90c0f79eea67254b59292e4422c8ee68827fe5217f320e75b74dae",
+      "text": "The keys of one filter entry, the whole of its serialised form.\n\nA filter list is a plain list of ``{\"property\": name, \"min\": number or\nNone, \"max\": number or None}`` dicts. It goes into the curation ledger, into\na settings file and through JSON unchanged, which is what lets Make Masks and\nMask generation be handed the same list and give the same answer."
+    },
+    "spacr.qt.mask_engine.FailedBound": {
+      "source_blocks_sha256": [
+        "020de290009f4a1f8b8564d47b9364dc46b8602ffba4c7af0782b55298c298d0",
+        "5130c97c61099dbd153b7c51c27683681b5c078d9c1aac7de032f717ad49f9cb",
+        "18a7d2e94853c562bf06ef06c85d828055ff454be241470fd1a79333092f0670",
+        "1e7bc86be223242ec25f82100d94b62a682b457f6084f64e18275682e06e4321",
+        "7b53e7114cf115c26d833b9bcb4c93cc5f6a93a4a72d9111ccd3bdb8573c5db2",
+        "8e409cd1b2400eda1a79741dd6d04279a7d0d91c08ac513844b6effd909fb2e7"
+      ],
+      "source_sha256": "5e12c19bb31c762168f4ac10bb8df836e69e111e692d36d6baf7da5d65e0f236",
+      "text": "One side of one filter entry that an object fell outside.\n\n:ivar index: the entry's position in the filter list.\n:ivar property: the regionprop it judged.\n:ivar side: ``\"min\"`` or ``\"max\"``.\n:ivar bound: the number the user set.\n:ivar value: the object's measured value."
+    },
     "spacr.qt.mask_engine.FilterRemoval": {
       "source_blocks_sha256": [
         "ba991bfb505e1e33e584eee4726ca1816b5bc1386f8b6190d4e2949fe953a664",
@@ -46671,10 +46953,11 @@
         "6800bd81dd11a1d92ece2b21a4b720b6ea93cb5fe48b82cefc4857f7a6f9a866",
         "81a0b639c764855782746fff98ad963b7dc214e75edd9c3981395879117d71c3",
         "863e67db54fe8aec465264925ee619abb0f4baee32b3f68633718fe97ba3d481",
-        "bb544d9f0219bed5aa2d167abe15d0837b7f0bf11a47eda2f0d45903be65cff5"
+        "ddb331c3bd6b825b1d7b067bd3eb14344ba4b75a23f90646e96a5a862c4fbcbc",
+        "a99fb86173185a78f2cdccbf2b60cc6c23c78c8426d182a9d9db2b74b706eca2"
       ],
-      "source_sha256": "ca51e0855f39aedb8570c6d3251aed826aa38f91530c8a272b2a8c0ee310e9a4",
-      "text": "One object the filter dropped, and which bound dropped it.\n\nThe screen reports \"object 22 with area x and intensity y was removed\nby minimum intensity\", one row per object, so the filter has to say\nmore than which ids went.\n\n:ivar label: the id :func:`canonical_labels` gave the object -- the same\n    id the hover readout showed for it.\n:ivar area: its pixel count.\n:ivar mean_intensity: its mean value on the raw image.\n:ivar bounds: the names of every bound it failed, a subset of\n    :data:`FILTER_BOUNDS` in that order. USUALLY ONE, and more when an\n    object misses on two sides at once -- which is worth saying, because\n    an object outside two bounds does not come back by moving one."
+      "source_sha256": "9dbd225dfab5405229b64164bec1c3d0c5777585c5493fe44b13b53d54771895",
+      "text": "One object the filter dropped, and which bound dropped it.\n\nThe screen reports \"object 22 with area x and intensity y was removed\nby minimum intensity\", one row per object, so the filter has to say\nmore than which ids went.\n\n:ivar label: the id :func:`canonical_labels` gave the object -- the same\n    id the hover readout showed for it.\n:ivar area: its pixel count.\n:ivar mean_intensity: its mean value on the raw image.\n:ivar bounds: the names of every LEGACY bound it failed, a subset of\n    :data:`FILTER_BOUNDS` in that order.\n:ivar failed: every bound it failed, legacy or listed, as\n    :class:`FailedBound` entries."
     },
     "spacr.qt.mask_engine.MaskHistory": {
       "source_blocks_sha256": [
@@ -46768,6 +47051,16 @@
       "source_sha256": "371cde370360984827e5ddb289dc5e0440984661b43f89728378b4a01a519da1",
       "text": "The area and mean intensity of object ``label``.\n\n:param label: an id in :attr:`labels`.\n:returns: ``(area, mean)``, or ``None`` when no object has that id."
     },
+    "spacr.qt.mask_engine.ObjectRemoval": {
+      "source_blocks_sha256": [
+        "562bdac754de0f6c5db7b9bd67ca7a78303ea7973b9b254d452c70859b5473af",
+        "b39f1068d4c6345d088bb45ec15ec40c2956dd15ca228c8ee08f85be0c451d4d",
+        "9e970892a15bb85b0e2def5d20b0d8584fda511270b4029e856e34ba9806ae56",
+        "eccdf965fb73b593ff0024a712916363a702c2045ff2ff69919af5c292e8ca29"
+      ],
+      "source_sha256": "7e11670f585d1bf9ea479c0816a14a466c5d9fa5763c8b98e40030cd95cd649c",
+      "text": "One object a filter list removed, with what it was measured as.\n\n:ivar label: the object's id in the label image that was judged.\n:ivar values: every property the pass measured for it, by name.\n:ivar failed: each bound it fell outside, in list order."
+    },
     "spacr.qt.mask_engine.PixelReadout": {
       "source_blocks_sha256": [
         "5faac9060b0ed8b25d8a3406f5ff6eaae61a56a7d505c412eacc991b29771859",
@@ -46842,6 +47135,20 @@
       "source_sha256": "76a5053e00d085b300f61bbb6e1af92ffecec4136246e266592a6aad1259f13c",
       "text": "Secondary labels, their primary relationships and the common stop level.\n\n``labels`` has the primary mask's dtype, shape and retained object IDs.\n``relationships`` includes primaries removed by minimum-area filtering.\n``level`` is None for the per-primary peak-ratio rule or an empty primary\nmask; otherwise it is the common threshold in processed intensity units.\n\n:ivar labels: secondary label array retaining primary IDs and dtype.\n:ivar relationships: primary/secondary identity report after filtering.\n:ivar level: shared stop threshold, or None when no common threshold applies."
     },
+    "spacr.qt.mask_engine.apply_filters": {
+      "source_blocks_sha256": [
+        "7a3348b0b992abcb835a65d8c72036ff228e56de89aed7f0611c1c03ec72881b",
+        "f8285b5f659276879f354dc0bbdc1e87ef02687727a981c9061b9512602348c6",
+        "520b7364e23b0308da48ce69a44a626ac7aeae1dda8e70d88e121ac24073b61f",
+        "35da1cc5f50dfe6a3b9dfba768592bc28705439b9eaaa4cb80813fc2f9141d01",
+        "5a11a66bcf7b7524d2a2e4a1b54b0a5007a21419f9c0246cb5656cf73dba20d0",
+        "2001fa1e2afab017a6848894f150a698e0ba604d058300e22e4ba4a83a84af21",
+        "e140f3a85eeec8176dfe707235b75a610209ce06e0d9b94332d4876631f09cc6",
+        "964264dc28cadac1a4873ff4bce03c4829baaeb03eb7d09e6cbc9005297d15eb"
+      ],
+      "source_sha256": "975d63fd0ada01129d148c01afef5eec448e005788d88733145e2ac1fcc9dff7",
+      "text": "Make Masks' filter list applied to one mask; ``(mask, removals)``.\n\nObjects are judged under :func:`canonical_labels` ids, the ids the hover\nreadout shows, and the failing ones are zeroed in a copy; the other ids\nare left as they were. An intensity property reads ``image``, the raw\nloaded pixels (a 3-D image is averaged over its last axis first), never\nthe contrast-stretched display.\n\n:param mask: the label mask to filter.\n:param image: the raw intensity image, or ``None`` when none is open;\n    required by any intensity property in ``filters``.\n:param filters: the filter list, in any form :func:`normalise_filters`\n    accepts.\n:param preserve_ids: judge objects by their supplied ids, as\n    :func:`canonical_labels` does with it; disconnected pieces sharing an\n    id count together.\n:param report: properties measured for the ledger in the same pass;\n    ``intensity_mean`` is added whenever an image is given.\n:returns: the original array untouched and an empty list when nothing\n    fails."
+    },
     "spacr.qt.mask_engine.box_overlap": {
       "source_blocks_sha256": [
         "0d066f8f5059c0b571eb042163ff0afe36687cfa8bf050149c7bcbd6356e72bc",
@@ -46867,6 +47174,15 @@
       ],
       "source_sha256": "5ae92e2d86b18c397565231cbc7a313495958796baba3b9547a081fa9542fa60",
       "text": "Return ``mask`` as uint16 labels, keeping every id it already had.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one.\n\nEach id is examined inside its own bounding box\n(:func:`scipy.ndimage.find_objects`) rather than across the whole field,\nwhich gives the same pieces in the same order and makes the call cheap\nenough to run while the mouse moves: on a 2048 x 2048 field of 400\nobjects it went from about 3.5 s to tens of milliseconds.\n\n:param mask: a label image; any integer or boolean dtype in default mode.\n:param preserve_ids: disable binary interpretation and component splitting.\n    Use for primary/secondary relationships: a lone cell 900 remains 900,\n    and separated pieces with the same primary ID remain one label.\n    Requires a nonempty 2-D nonnegative integer array, not a boolean mask.\n:returns: the labels as ``uint16``.\n:raises ValueError: when an id does not fit in ``uint16``, or exact-ID\n    mode receives invalid labels. Oversized IDs are never truncated."
+    },
+    "spacr.qt.mask_engine.canonical_property": {
+      "source_blocks_sha256": [
+        "dfc8eb6e101443aa3c6e2d68b9dae140272e119264ee85dbfaac3339d5a91e71",
+        "ed26f4a0900c5bbf01eca063fb298302c7f1a7952fea529b50843806e28c5de8",
+        "5797e1a52cb3ae23d2cfb7dc794c6016b2f51db2f787a6d749d05489e06de8dd"
+      ],
+      "source_sha256": "d26cf2cca2653eb479161bb6b8e807d425a580ac75a4f081a853ee83983bb3e8",
+      "text": "``name`` as the regionprop it means, or a ValueError naming the choices.\n\nOld skimage spellings (``mean_intensity``, ``MajorAxisLength``,\n``convex_area``) are accepted and mapped to the current name through\nskimage's own alias table, so a filter written against an older release\nstill names the same measurement.\n\n:param name: a regionprop name, current or legacy spelling."
     },
     "spacr.qt.mask_engine.clear_mask": {
       "source_blocks_sha256": [
@@ -47018,29 +47334,61 @@
     },
     "spacr.qt.mask_engine.filter_objects": {
       "source_blocks_sha256": [
-        "8a1a31ba3cb71103ff0b4b5275e0650db20e9b929c86b8a1ef99e7c70351db31",
-        "e781fdf2ca8b6c3fe565e83efde9c3bfe88a4357103d2e085e952bf4b7e04eb7",
-        "eb731a89a247661b8e72705e9e3e2fcd92180cf4bc1b9007c3ab071fba787601",
-        "b16abc5253fc51c61a52d174ad2acd7499bcc41368edae4648017ab1b9ba3f16",
-        "d3516dde1beebbf4a460f6f26f8a0b9978f8823429a3a39e1c43961999d62979",
+        "4b4b2b03868aed62c2be18f6cebae49829944cdf2c6a8a9f469a132f3e6d6e0b",
+        "db4af42a59864de23388dc3ca417d86b9a8797fa02929ca7110c6c3c5e7cb971",
         "d3c3d8862dc9d90b3e4c79f24c9a177f08929a020f8ba108c0dd07131e1f5d82",
-        "617c291f90d560bd8aba35b9609ad5da233deba5f5b1cfff5c45bb09a16d3511",
+        "65ce25808a7411238c8bc8971492ab50ef73c81387ca767d2177354de745c776",
+        "70b5e3d1b29957702ec73c3b92e8009d262c97f5845e9092dc3305b098dd7e86",
         "eab577b260db095a8ff31b38e3506c6de379b4f0e3a24cf8bb18c778e503738c"
       ],
-      "source_sha256": "8a2309cd064467d12c5673a9babf482678af61e7c18283e430018971789f6bf0",
-      "text": "Drop objects outside the size/intensity bounds. Each bound is off at 0.\n\nArea is the object's pixel count; intensity is its MEAN value on the\n*raw* image, not on the contrast-stretched display -- the display\npercentiles are a viewing choice and a filter that moved when you\nchanged them would not be reproducible.\n\nZero means \"no bound on this side\" rather than \"reject everything\",\nwhich is what makes all four bounds independently optional: a minimum\narea of 0 would exclude nothing anyway, so the value is free to carry\nthe off switch.\n\n:returns: ``(mask, dropped)`` -- a new mask with the failing objects\n    zeroed and the sorted ids that were dropped. The ids are what the\n    curation ledger records, so an automatic filter is as traceable as a\n    click. Nothing to do returns the original array untouched and an\n    empty list.\n\n:func:`filter_report` is this function keeping what it measured; a\ncaller that has to tell the user WHY an object went wants that one.\n\n:param mask: 2-D label mask; it is not modified.\n:param image: raw intensity image the same height and width as ``mask``;\n    a 3-D image is averaged over its last axis first.\n:param preserve_ids: retain primary/secondary identities when measuring\n    and removing labels; disconnected pieces sharing an ID count together."
+      "source_sha256": "397f7af8887c83fcabd1fe5728945775819c1e208b9c4688434cf0a28a833a5f",
+      "text": "Drop objects outside the bounds; ``(mask, dropped ids)``.\n\n:func:`filter_report` without the measurements: the same engine, the\nsame list, only the ids kept. Area is the pixel count; intensity is the\nmean on the *raw* image. Each legacy bound is off at 0.\n\n:param mask: 2-D label mask; it is not modified.\n:param image: raw intensity image the same height and width as ``mask``.\n:param filters: further filter entries (see :func:`normalise_filters`).\n:param preserve_ids: retain primary/secondary identities when measuring\n    and removing labels; disconnected pieces sharing an ID count together."
+    },
+    "spacr.qt.mask_engine.filter_properties": {
+      "source_blocks_sha256": [
+        "851dd06adfccc7bca4f0f283d1ca60b43b84b76d64048be9501c8515ef62d0a1",
+        "a94b06f52f55c253f5c149405a6f8a7fe9bbe32ff0a4c2768353acb5de784c14",
+        "8b9d60b732b3a8ed063b7d40f207499269766eec709b6583129b260a7aaa2a70"
+      ],
+      "source_sha256": "5b62a4e1b0bb861e0b359b204c024bf7a44deef95b04ccc06949e05c3d34e90e",
+      "text": "The regionprops a filter row may name, for an image at hand.\n\n:param intensity: True when an intensity image exists for the mask, so\n    the intensity statistics are real for it. Without one they are not\n    offered at all, rather than offered and refused later.\n:returns: property names, shape properties first, each group sorted."
+    },
+    "spacr.qt.mask_engine.filter_removals": {
+      "source_blocks_sha256": [
+        "4acbf4f655e4efe1f77ce350920b688e69a087ea830905a890d6fc3923def327",
+        "af6d4e0796f6b7224e59e45d63bf4763051de3d56267083fe2416376b3bc3579",
+        "b78036b50e6d85e9701e95c26d27b891ca6f65c664411a12ccd8b55e01aea6c0",
+        "69058d0e186acc584a2f205d476c22c02deda91b805a5cb14519921c764f3b1f",
+        "5a11a66bcf7b7524d2a2e4a1b54b0a5007a21419f9c0246cb5656cf73dba20d0",
+        "1c8c5b7f0a5936a5f6a8e5e6f5efe12d3cbf6ba16531ea4f0a36846e518ebdf1",
+        "2afb13b4302e73eb7c80d4254a5983aaf5c0502e3d792d69ed9d5041af2084e3",
+        "bb1a7d6d49eda3513dca65afeab4b0cad4de0bdb4418aeb48388263ccd4327e6",
+        "c05c878a4a19e19e43ce3e3b60ddf1b5cef4ccc27a213b92b9295428e6a398a7",
+        "64352534df43eeff3512194508b1a87b8cf7e39232c975727d34ef63b759d677"
+      ],
+      "source_sha256": "b1039cd19472e4bbdedbb38a4c4757b508fcfcdceda3fd1e7e648b0c29217483",
+      "text": "Judge every object of ``labels`` against ``filters``; return the failures.\n\nTHE ONE FILTER ENGINE. Make Masks' Filter list, :func:`filter_report`,\nand Mask generation's :func:`spacr.utils._filter_objects` all run this,\nso one list gives one answer wherever it is applied. It calls\n:func:`skimage.measure.regionprops_table` ONCE per mask with every\nproperty the list names plus ``report``, never once per filter.\n\nAn object is kept when ``min <= value <= max`` for every entry; a side\nthat is None is off. A NaN measurement fails no bound, since there is\nnothing to compare.\n\n:param labels: integer label image, 2-D or 3-D.\n:param filters: the filter list, in any form :func:`normalise_filters`\n    accepts.\n:param intensity: pixel values the same shape as ``labels``; required\n    exactly when an entry names an intensity property.\n:param report: extra properties to measure in the same pass so a caller\n    can print them; they judge nothing.\n:param require_finite_intensity: raise when an intensity property is\n    not finite for some object, as Mask generation always has.\n:returns: the removals sorted by label; empty when nothing fails.\n:raises ValueError: an intensity property without an intensity image,\n    or a property scikit-image cannot compute for this dimensionality."
     },
     "spacr.qt.mask_engine.filter_report": {
       "source_blocks_sha256": [
-        "aec40b3c276363e13cb1a05c26aacfedbc98a02f0dec7cd9a02395f6a86e1932",
-        "2898268718b43523303ee90d84222862957649635b6c249f0cfef979208c7310",
+        "9dc621adb34edc225cac72d68888c4d1b1d299776dde39ca1b04277c418770b5",
+        "190daa82746023624ee031cf5e9ae343cc7cd4950c672e1445f4731771d159c5",
         "d3c3d8862dc9d90b3e4c79f24c9a177f08929a020f8ba108c0dd07131e1f5d82",
         "617c291f90d560bd8aba35b9609ad5da233deba5f5b1cfff5c45bb09a16d3511",
-        "615635ec8895b75af3f659fdd9bb23fcaf5ceccdc5730fd6774010ba2247f335",
-        "9f2dbe9cd509ab62b1e874f75099da7dc3b99cc77cac0b919576dca78328ba73"
+        "70b5e3d1b29957702ec73c3b92e8009d262c97f5845e9092dc3305b098dd7e86",
+        "9f2dbe9cd509ab62b1e874f75099da7dc3b99cc77cac0b919576dca78328ba73",
+        "615635ec8895b75af3f659fdd9bb23fcaf5ceccdc5730fd6774010ba2247f335"
       ],
-      "source_sha256": "7049317d92baaa2f7e86bfe1bd72a406254a3d113c6efcd483dad30a1f2c73fc",
-      "text": "Filter as :func:`filter_objects` does, measuring what it removed.\n\nThe same pass and the same arithmetic -- this is what\n:func:`filter_objects` now runs -- with each dropped object's area, mean\nand failed bounds kept instead of thrown away. Nothing else measures\nthem a second time, so the ledger the screen prints cannot disagree with\nthe mask it printed it about.\n\n:param mask: 2-D label mask; it is not modified.\n:param image: raw intensity image the same height and width as ``mask``;\n    a 3-D image is averaged over its last axis first.\n:returns: ``(mask, removals)``, the removals sorted by id. Nothing to do\n    returns the original array untouched and an empty list.\n:param preserve_ids: measure all pixels bearing an ID as one object,\n    including lone or disconnected primary/secondary labels."
+      "source_sha256": "8e4703d472d1e4197a1aa3588a4616ef39e7e7aed3066181dbaeb8c1d2211fdf",
+      "text": "Filter ``mask`` by the legacy bounds and ``filters``, measuring what went.\n\nThe four keyword bounds are migrated into the filter list by\n:func:`legacy_filters` and judged together with ``filters`` by\n:func:`apply_filters` -- one engine, one regionprops pass.\n\n:param mask: 2-D label mask; it is not modified.\n:param image: raw intensity image the same height and width as ``mask``;\n    a 3-D image is averaged over its last axis first.\n:param filters: further filter entries (see :func:`normalise_filters`).\n:param preserve_ids: measure all pixels bearing an ID as one object,\n    including lone or disconnected primary/secondary labels.\n:returns: ``(mask, removals)``, the removals sorted by id. Nothing to do\n    returns the original array untouched and an empty list."
+    },
+    "spacr.qt.mask_engine.filters_need_intensity": {
+      "source_blocks_sha256": [
+        "2bc23ff9fa06cec8ac55ba300875c2c90ba992b57e6e933da027f2b03d792ef5",
+        "d39c17b981cde26c3e39fcefebc333f89bd7de2a95ac697d2b1f8b529a21f5ea"
+      ],
+      "source_sha256": "82a7d7b75f65ad5cdb4e7dd5a9ff51efa394028cef6e10f6f348afc8cbb992a5",
+      "text": "Whether any entry of ``filters`` needs an intensity image.\n\n:param filters: a canonical filter list, as :func:`normalise_filters`\n    returns."
     },
     "spacr.qt.mask_engine.invert_for_detection": {
       "source_blocks_sha256": [
@@ -47121,6 +47469,14 @@
       ],
       "source_sha256": "36320ef094d66bad72afa57e161a3fcee6b36ebde751a1158346c0e740c82499",
       "text": "Whether ``filename`` names a Cellpose ``_seg.npy`` bundle.\n\n:param filename: a file name or path.\n:returns: ``True`` when it ends in :data:`SEG_SUFFIX`, which is how a\n    ``seg`` queue's fields are named in the editor's file list."
+    },
+    "spacr.qt.mask_engine.legacy_filters": {
+      "source_blocks_sha256": [
+        "078b2a80dad7dfd82418d413c312833a9e10e89d36e312d5b0dd50de951f3351",
+        "a26f2e2da7118a505fcb39c6da32dde9bfe8f135c9a5a3ec24151e1d2095a36d"
+      ],
+      "source_sha256": "ec4c29841d9745d300bd50a8d75c63a99114a9dc07798d76d504e725d5d1833f",
+      "text": "The four old hard-coded bounds as entries of the filter list.\n\nThis is the migration: 0 meant off for each old bound, and it becomes a\nmissing side here, so an old settings file or call is judged by the one\nfilter engine with the answer it always had. Area becomes ``area`` and\nmean intensity becomes ``intensity_mean``; equality was kept before and\nis kept now."
     },
     "spacr.qt.mask_engine.list_images": {
       "source_blocks_sha256": [
@@ -47229,6 +47585,17 @@
       "source_sha256": "d0ddafa982d06c8602d1cad124accb3626102c4500f2ae7a48f840cf74c555f3",
       "text": "The id to give the next object drawn on ``mask``: one past its top.\n\nAbove the maximum rather than the lowest free id, because ids are what\nthe ledger, the measurements and the crops name objects by. Handing a\nnew object the id of one that was deleted makes two different cells\nshare a name across a session, and nothing downstream can tell them\napart afterwards.\n\n:param mask: label mask; an empty array gives 1."
     },
+    "spacr.qt.mask_engine.normalise_filters": {
+      "source_blocks_sha256": [
+        "f9583dd3e3aaf71a6b035a91079c3d131fe0de7502c215990a323d5fa619dace",
+        "819254ed9b89b10d6a15c236512178da4ecc61ca3f7bfcdb8ce56c2efd75469c",
+        "e469e207df81724a927c84ce26ca83456e5c0ad53783ca7944fd24c046b1637f",
+        "e1c7baee8f09b90490b90cb86a25e8e485f0294431c4d96cdb0b9845826bfac7",
+        "d846d75152311fb3c032e7c9488ffe100eb64574bdc29fc392429d637cedbddc"
+      ],
+      "source_sha256": "d76622a6d907cdedf9f2d080c51329fe6a3d2902e0365661fce520429be1a376",
+      "text": "``filters`` as the canonical list of ``{property, min, max}`` dicts.\n\nAccepts the list itself, one dict, ``(property, min, max)`` tuples, or\nthe list written as JSON or as a Python literal (a settings file stores\nit as text). Every entry is checked here, once, so a typo in a property\nname fails when the list is read rather than on the hundredth field.\n\n:param filters: the list, one dict, tuples, or their JSON/literal text;\n    ``None`` is no filters.\n:param strict: also refuse a minimum above its maximum. The engine\n    itself reads lists with ``strict=False``, because a migrated legacy\n    pair such as ``min_area=10, max_area=5`` always meant \"remove every\n    object\" and must go on meaning it.\n:raises ValueError: for an unknown property, an unknown key, a bound\n    that is not a finite number, or (strict) a minimum above its maximum."
+    },
     "spacr.qt.mask_engine.normalize_for_detection": {
       "source_blocks_sha256": [
         "583d95509702cf4a278fb6baf0e8a97b67d8fe7ef2bc4ecc9bb54dd1eb87cc43",
@@ -47303,6 +47670,14 @@
       ],
       "source_sha256": "b1dfefb155822123984b3e54d8cb0bb0aaf0c1ea747b23384e964d153d9e2319",
       "text": "Report shared, missing, orphaned and incompletely enclosed object IDs.\n\n:param primary: nonempty 2-D nonnegative integer primary labels.\n:param secondary: secondary labels of the same shape. Sparse and uint64\n    IDs are compared exactly, including values above signed int64.\n:returns: :class:`PrimarySecondaryReport`; no array is modified. An ID\n    match means the IDs agree, not that spatial overlap was used to\n    infer or repair a parent assignment.\n:raises ValueError: mismatched shapes or invalid label arrays."
+    },
+    "spacr.qt.mask_engine.property_needs_intensity": {
+      "source_blocks_sha256": [
+        "39e31cec8869769c2bc3a2e53de0637b216367f6a8e81f5de2273b9467591a59",
+        "5797e1a52cb3ae23d2cfb7dc794c6016b2f51db2f787a6d749d05489e06de8dd"
+      ],
+      "source_sha256": "704bdfedcb42c4873499b6114dfebbee037ee85210665350b35d1e838b280eb0",
+      "text": "Whether the regionprop ``name`` measures pixel values.\n\n:param name: a regionprop name, current or legacy spelling."
     },
     "spacr.qt.mask_engine.read_curation": {
       "source_blocks_sha256": [
@@ -47496,6 +47871,17 @@
       ],
       "source_sha256": "ef9899b6fdb490d2e67d5397c05ab5a2cacba8205d80b25115864b573d65b52e",
       "text": "The ``outlines`` entry of a bundle, redrawn for ``labels``.\n\nA pixel is on an outline when it belongs to an object and one of its four\nneighbours does not belong to the same one. ``like`` is the entry the\nbundle had: an entry holding only 0 and 1 gets a 0/1 outline back, and\none holding ids gets each outline pixel's id, which is what Cellpose's\nown ``masks_flows_to_seg`` writes. An entry of all zeros says nothing\nabout its form and gets ids, Cellpose's default.\n\n:param labels: the labels being saved.\n:param like: the bundle's previous ``outlines``, for its form and type.\n:returns: the new outlines, the shape of ``labels``."
+    },
+    "spacr.qt.mask_engine.settings_filters": {
+      "source_blocks_sha256": [
+        "28d6ba989a7d6f6b6d030526be145b9dbc4fe032c2ce4eb160c30baae1cfc41c",
+        "eddb96607ced804c33e56264d5e402ecae5303f79079c518665f05ef9f72b39a",
+        "3cb684a8cc652063ffc227b0cbe1ff6c4870befe1d45825466b1586f90663552",
+        "8802ff9f040fd83ecb22bdffe0e5eb1dd521fcba625b9aa8dee3eca489ee10e4",
+        "49b85cc1942416327c4a3fa1ecbc06f5bd4ba1a82a367da587ba3ff64e3af3b5"
+      ],
+      "source_sha256": "48a029bf595f8ad36faab80e7173f5ddb89419f4e652eec7cabd26219004accc",
+      "text": "The ``object_filters`` list a Mask run applies to ``object_type``.\n\n``object_filters`` maps an object type (``cell``, ``nucleus``,\n``pathogen``, ``organelle`` or an organelle slot) to its filter list, so\neach object type is filtered on its own properties. A missing or empty\nsetting is no filters. The legacy ``{object}_min_area`` family is\nmigrated by :func:`legacy_filters` where it is read, not here.\n\n:param settings: the Mask run's settings; ``None`` is no filters.\n:param object_type: the object type whose list is wanted.\n:raises ValueError: when the setting is not a mapping, names an object\n    type spaCR does not segment, or holds an invalid filter."
     },
     "spacr.qt.mask_engine.shrink_objects": {
       "source_blocks_sha256": [
@@ -49328,11 +49714,12 @@
     },
     "spacr.qt.preferences.get_folded_panels": {
       "source_blocks_sha256": [
-        "af35ec0a3a1a266292a5c0696c953b5d1a44a08616c35969ea4338bfa2a85317",
+        "863a4cbde5cbd49e32971ff91250d1f57dc62919ece182f0e9938823c3a7cc65",
+        "5f68c31fd76976107184a41483e4c57cd1109c4cedd317f301dba9f9f1378a20",
         "cf2050187787dd8d9509c566ded6957ad8ed1c429bfa1eb7973db265c00ddd93"
       ],
-      "source_sha256": "7e994b7c29dc94dda0870042d4b8a17bb830c56292f48df96bf402d04ff7033b",
-      "text": "Which bottom panels the user left folded, ``{key: True}``.\n\nKeyed by ``\"<module>/<panel>\"`` so folding the console on Mask does not\nfold it on Sequencing -- the same rule the console/chat splitter already\nfollows, and for the same reason: the modules are used for different\nwork and want different amounts of room."
+      "source_sha256": "c8ccb7fa9eb6d9d86b4ac84dd9e6fd545601b33da9d020b46110a8a28ec4070a",
+      "text": "Which panels the user left folded, ``{key: True}``, or opened, ``{key: False}``.\n\nFalse is stored only for a panel that starts folded; see\n:func:`set_folded_panel`.\n\nKeyed by ``\"<module>/<panel>\"`` so folding the console on Mask does not\nfold it on Sequencing -- the same rule the console/chat splitter already\nfollows, and for the same reason: the modules are used for different\nwork and want different amounts of room."
     },
     "spacr.qt.preferences.get_font_scale": {
       "source_blocks_sha256": [
@@ -50128,12 +50515,13 @@
     "spacr.qt.preferences.set_folded_panel": {
       "source_blocks_sha256": [
         "b48516ff6634b0632447dda0030c108f3aeebea3cb4fe1bcd94bc37d189b5835",
-        "b99cc785a3ac76774348a32a1f92bbe17d6eb25a2fc0732460c9356ae07b2023",
+        "798d232e63aa0da820756129186df9d3bbf8aceded8617bd3fe318500fec424c",
         "3f01e4ea3126f852f1f5a1de61712793af4da4c8f655e44d344b72133c3bb6e6",
-        "66d88805a9019bba00d67cacf36608bb78a2cd49815246a1537925c81d21d619"
+        "00277203b6819eb7d5d871cbe536bd1bc7d61f38f716d72ae61c19a363f9fa11",
+        "af3747098f1b1b80a00ef3ae61af98aeb8cb57c89674ac70ddfe6658a630e4b2"
       ],
-      "source_sha256": "b3006ed626c0e6410356bba8cda166a5dc4d0fb8a2b90da242fa70380f3402d1",
-      "text": "Remember that ``key`` is folded, or is not.\n\nA PANEL THAT IS OPEN IS REMOVED rather than stored as False. The default\nis open, so storing it would grow the dict by one entry for every panel\nthe user has ever touched and never shrink it.\n\n:param key: the panel key, ``\"<module>/<panel>\"``; stripped, and an empty\n    key does nothing.\n:param shut: true to record the panel as folded, false to forget it (open\n    is the default)."
+      "source_sha256": "6ca81e07ab04c6832e2198dca296badcf13c76c55785243628bacbdc99271e5f",
+      "text": "Remember that ``key`` is folded, or is not.\n\nA PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels\ndefault to open, so storing that would grow the dict by one entry for\nevery panel the user has ever touched and never shrink it. A panel that\nstarts folded (item 509: the advanced PSF, restoration and CLAHE rows)\npasses ``default_shut=True``, so opening it is what gets stored, as\nFalse, and folding it again forgets it.\n\n:param key: the panel key, ``\"<module>/<panel>\"``; stripped, and an empty\n    key does nothing.\n:param shut: true to record the panel as folded, false as open.\n:param default_shut: the panel's state when nothing is stored."
     },
     "spacr.qt.preferences.set_font_scale": {
       "source_blocks_sha256": [
@@ -58406,14 +58794,14 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter": {
       "source_blocks_sha256": [
-        "940355d304ec877edbe6c05c20676424944f66b1910da53833889850d2b2fbd6",
-        "e18eb1ac9abea58bc3c976ab083baa74a5b5b138ab35ec27b053048a86546012",
-        "fe42af57159d950b302d5d60a8701c3a31939a33dad6e819f6efa9598afd9fb0",
-        "f827ecf9bfaae55093ed1076c4ed8b78dc8ca2826c39d1ffe3fe7e90a9181982",
-        "2e8ea09924ace0abecd07cef9e7e096e75a01864c03f25f8fa00374b2305acef"
+        "33b74c776cd827623f4f6ae576dcad2b05df3d24060b43f5408ed3caf6f772e0",
+        "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
+        "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
+        "8959b9b018d7ffd429e1104c996a4329808323ce84c4d54786f48c2d685ac012",
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
       ],
-      "source_sha256": "bd40cfb29556013ce1e065b59e0deef0118e228a02174fde29ef24eff6a4348b",
-      "text": "Drop objects outside the size/intensity bounds; return how many.\n\nRuns itself when a field loads — a draft segmentation usually\narrives with the same class of junk in every field, and clearing it\nby hand once per field is the work this exists to remove — and again\nwhenever the user asks, since the bounds are tuned by looking at\nwhat the last run left behind.\n\nThe result is one undo step and one ledger entry naming every object\nit removed, so an automatic edit is as traceable and as reversible\nas a click.\n\nEvery removal is also written into the Filter category's ledger, one\nred row each. The rows are cleared at the START of\nevery run, including the run that found nothing and the one that had\nno field: they describe the mask on screen, and a row left over from\nthe last field names an object that is not there.\n\n:param on_load: True when this is the automatic run. It only changes\n    what the status line says and what the ledger entry records; a\n    filter that removed nothing stays quiet on load rather than\n    reporting a non-event over the name of the field just opened."
+      "source_sha256": "c29b70472c13cd0af4334d0b3187e96d7e40e4eb627bfdb0f0c09908577c04ac",
+      "text": "Apply the filter list to the field on screen; return how many it hides.\n\nRuns itself when a field loads -- a draft segmentation usually\narrives with the same class of junk in every field -- whenever the\nlist is edited, and when the user presses Filter.\n\nOne engine: :func:`mask_engine.apply_filters`, the same one Mask\ngeneration's ``object_filters`` setting runs, with one\n``regionprops_table`` pass for every property the list names. The\nresult is one undo step and one ledger entry that records the whole\nlist, so the mask's provenance says which filters shaped it.\n\nEvery hidden object is written into the Filter category's ledger,\none red row each, cleared at the start of every run.\n\n:param on_load: True when this is the automatic run on opening a\n    field. It starts a fresh baseline and keeps a run that hid\n    nothing quiet."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.clear_mask": {
       "source_blocks_sha256": [
@@ -58497,6 +58885,16 @@
       ],
       "source_sha256": "5835a4b1d108a8e183c6ccb2db0efcf880de038e85f4c4f87aa242bd7a3a4866",
       "text": "Open a folded module on this screen, pointed at the open field.\n\nThe module arrives as a PAGE beside the editor, which is where a\nfold belongs; it becomes a window only if this screen has no body\nto make pages out of.\n\n:param key: one of :data:`FOLD_ORDER`.\n:returns: the module's panel, or ``None`` for a key this screen does\n    not fold. Pressing the same button again raises the page that is\n    already there rather than building a second one."
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths": {
+      "source_blocks_sha256": [
+        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
+        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
+        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+      ],
+      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
+      "text": "Open dropped image files and folders as one queue, in drop order.\n\nOne folder alone is what it always was, :meth:`_open_folder` on it.\nAnything else -- one file, several, or files and folders together --\nbecomes a queue of the fields named, a folder standing for its\nimages, each field edited where it lies with its mask in its own\n``<folder>/masks``. Nothing is copied.\n\n:param paths: the dropped files and folders, in the order dropped.\n:returns: whether a queue was opened."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
       "source_blocks_sha256": [
@@ -58646,6 +59044,95 @@
       ],
       "source_sha256": "d8783ae20e3a9369e8a949da189fcd6e5cb5e2f3748e0b094b82fcad0b437a8b",
       "text": "Return the active napari viewer, or ``None``."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList": {
+      "source_blocks_sha256": [
+        "6c631e38bad3c3544ac2bd91d531dd02cc64809f26396dfa8d6cdcbaa5660f79",
+        "514d99889366f19ab73e99610c4fb2bf4c88e0493e039613dd453d7b299a0cb1",
+        "197d15a91741d08bf508690ebefa6fb81259ba5735849822893cf6dbf6f3f4fd",
+        "c02a15d1a19c1a7f1fbd0318d87d85dc019295536baced8ead458849f3afcb98"
+      ],
+      "source_sha256": "a5b302338729b5ee4f72e5e507acf7b208264666164e9768b3aa5769bff2482b",
+      "text": "Make Masks' object filters: one row per regionprop the user added.\n\nItem 511. The Filter category used to hold four fixed boxes -- minimum\nand maximum area, minimum and maximum mean intensity. It now starts\nEMPTY, and \"Add a filter\" offers every scalar property\n:func:`skimage.measure.regionprops` computes (see\n:func:`mask_engine.filter_properties`); each added row carries the\nproperty, a minimum, a maximum and a Remove button. A blank bound is\noff. The old four are two of the rows a user can add: ``area`` and\n``intensity_mean``.\n\nThe intensity statistics are offered only while an intensity image is\nopen (:meth:`set_intensity_available`), so a property that cannot be\nmeasured is never offered, rather than offered and refused later.\n\n:meth:`filters` is the serialised list -- the same one Mask generation\nreads from ``object_filters`` -- and :attr:`changed` fires whenever it\nmay have changed, which is what applies the list live.\nBuild the Add control and the empty row list."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.add_filter": {
+      "source_blocks_sha256": [
+        "4ddb81a68d4cd572751cf23316f3b72eff20ea1512d04dbaf4baf26281534cbc",
+        "6d84a983edd65ba0926a838394c8db42eb864966d31a0e0a2635e5c984580eac",
+        "bf384e24e2dcf2e8efdc2f5bba885bfddb0f309e14ce7b9c9f3deb48f0a288b9",
+        "192cd5579aa980e74650d3a1eebd9be395c1686cd553e0cec27807a367aed72d",
+        "8d68f11bf34d405f1cd28a9863636a0d887409bb04a820c7d4dc1d066e7cabec",
+        "d460658d97eb764d3a28a2f5f5e7c95801c35bcdcea042b6ff764fbc3a36b0ac"
+      ],
+      "source_sha256": "415de7588c5ebf2302e19778d52c40f5c38c3f0e5766e09399f6ec95ff058f31",
+      "text": "Add one row; return it as ``{widget, property, min, max, remove}``.\n\n:param name: the regionprop the row filters on.\n:param minimum: the lower bound, or ``None`` for none.\n:param maximum: the upper bound, or ``None`` for none.\n:param notify: emit ``changed`` once the row is added.\n:raises ValueError: when ``name`` is not a scalar regionprop, or is an\n    intensity property while no intensity image is open."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.filters": {
+      "source_blocks_sha256": [
+        "06abba93147908e9e1e8448bd6b9447cf5cd4f9a0eb65bb8e1f2aa349fff8c3d",
+        "42a3fd36a7da7ad6966a67970e4a4b596279ea1a24bc12b79b44161c3e036664"
+      ],
+      "source_sha256": "334460ae293cc8d5ca8d64f99fc44c10dbd15ddb9206f65168e058481d8b8ec8",
+      "text": "The rows as the serialised filter list the engine and a run read.\n\n:raises ValueError: when a row's minimum is above its maximum."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.offered": {
+      "source_blocks_sha256": [
+        "8ca2b00c470246e8c5255409c90f067e341a6681ca48d6c7c5a282a37764c7eb"
+      ],
+      "source_sha256": "8ca2b00c470246e8c5255409c90f067e341a6681ca48d6c7c5a282a37764c7eb",
+      "text": "The properties the Add control offers now."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.remove_filter": {
+      "source_blocks_sha256": [
+        "de5316ca838d8516b7ec3a1e137ec98be1f69ad0bae9f561521a13d5abab4f82",
+        "e35bd428519fcdbe53b2d992ce42ad22de47bf309eefaefc46a08ab02f246822"
+      ],
+      "source_sha256": "986327215633026d2efd60dc4342a4638e9aa4c43807b48b030c21b20ea14d3b",
+      "text": "Remove row ``index``; the objects only it hid come back.\n\n:param index: the row, in the order rows were added."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.rows": {
+      "source_blocks_sha256": [
+        "98b12365b07e0f739face3df35ae0267355651c471bd65b277e7f80acfe23b95"
+      ],
+      "source_sha256": "98b12365b07e0f739face3df35ae0267355651c471bd65b277e7f80acfe23b95",
+      "text": "The rows, in the order they were added."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.set_bounds": {
+      "source_blocks_sha256": [
+        "de3ae98bf9efb6c2f52c66e955050225ff06b09d1ce117d04815609db3f8c865",
+        "e35bd428519fcdbe53b2d992ce42ad22de47bf309eefaefc46a08ab02f246822",
+        "674f334f784187c5428562b36dedcccce018f12705eba652e73da3b1d12090be",
+        "9e3ceeb7d062cbcdc3696abeb123afd03e0d71d73a700c8614bf86f017914961"
+      ],
+      "source_sha256": "bfedefe865e9ae84522fdc2cb1facc93d9128b4b38b0675029aa25f649e2327d",
+      "text": "Set row ``index``'s bounds as if typed, and apply them.\n\n:param index: the row, in the order rows were added.\n:param minimum: the lower bound, or ``None`` to clear it.\n:param maximum: the upper bound, or ``None`` to clear it."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.set_filter": {
+      "source_blocks_sha256": [
+        "40e97b0594dc8ca6c8c999be5450a86923ba05804592b6e4c27e74f36c186444",
+        "b7e0fe4547317b5144198a5a2e98d5a20b3f9d9e8cb14a90b4cc821c7e65e5a6",
+        "674f334f784187c5428562b36dedcccce018f12705eba652e73da3b1d12090be",
+        "9e3ceeb7d062cbcdc3696abeb123afd03e0d71d73a700c8614bf86f017914961"
+      ],
+      "source_sha256": "13850e6d70fa949b396762da47d0238da5bad1d0afa33648bcb9f2a9aa518ef1",
+      "text": "Set the bounds of the first row for ``name``, adding it if absent.\n\n:param name: the regionprop, current or legacy spelling.\n:param minimum: the lower bound, or ``None`` to clear it.\n:param maximum: the upper bound, or ``None`` to clear it."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.set_filters": {
+      "source_blocks_sha256": [
+        "f76448b22d18e814606f2f148cce23bebb2b4fa77cde00f83e258fab020b2f65",
+        "a86a8067fdb3fa397a29ac228e7abc5b050582c25af080b5ad44e88c530a8404",
+        "296d323885fdf191ade49464346626544d0a2f19c57e47e1e2856e883b63081f"
+      ],
+      "source_sha256": "74d436e92fc63c43d91f1f3a21c5d41ab72f4510eeca76193a39bdbaad21e84d",
+      "text": "Replace every row with ``filters``, a list or a legacy bounds dict.\n\nA dict of the old four bounds (``min_area`` and the rest) is migrated\nby :func:`mask_engine.legacy_filters`, so a saved state from before\nitem 511 opens as the rows it meant.\n\n:param filters: a filter list in any form\n    :func:`mask_engine.normalise_filters` accepts, or the legacy dict."
+    },
+    "spacr.qt.screens.make_masks.ObjectFilterList.set_intensity_available": {
+      "source_blocks_sha256": [
+        "eaf497cdadc74a6e4db0552e66bb404694cbf31e962b222b7e16b08c59b83d04",
+        "952c97354608a76ae94e3047dae3291daa844a193f18da69211fd23592d1b750"
+      ],
+      "source_sha256": "f676439cd2acf4737fd847a308c5f24d0758cb3b9aeb04254b8ae107bfedda2e",
+      "text": "Offer the intensity properties only when an image is open.\n\n:param available: whether an intensity image is open."
     },
     "spacr.qt.screens.make_masks.canonical_magnifier_mode": {
       "source_blocks_sha256": [
@@ -71113,13 +71600,14 @@
         "4adc6c8d84a4d3976b5a750acf19b66294e9649466a08fc957b2d098158eaa31",
         "a934f5deafd8c64bcddbae6c3864d8bbd1a1bcb6dd26eecf77b8cb9536750f38",
         "4c6dd13b8e9062d6c41520de2074a02f06d1a079132befb4c1cbc69f576faccd",
+        "ce367506a0c939b24168994d61d1ae6fc841dd1eab3f27b9bc55ec3a5b0293e9",
         "eb38260072611def4fff026c93c34b268282f6202bbdc4828d7d0b199077c571",
         "4296ea57ac0cf30ca2c87bf2262e212b50be063fc58ab577473ea5f59ed76908",
         "06a293bddf96f151f446aa8626d937bc12c817d5d73f66d0ca35acb697a3d65c",
         "04c0ca21e6bf86e589b431419aafd44f8f0c11f057a8b2d7403326e5626d0e93"
       ],
-      "source_sha256": "66608ef4f5012d729f8df1597c16524c67f4b11dea5a7a03710c9e7182203e6a",
-      "text": "A body under a clickable heading; folded, the heading sits at the bottom.\n\nItem 471, slice C: \"any sections inside the figures or live preview\ncontainers should also be colapseable ... evey GUI element be it a figure\nor a table\". This is the one way a section inside a screen gets a fold\ncontrol, so every one of them looks and behaves alike: an arrow and a\nname above the body (the same :class:`~spacr.qt.widgets.foldable.Folder`\nthe console and System use), a click folds it, and a folded section is\nits heading locked to the BOTTOM of whatever room it is given\n(:func:`lock_folded_to_bottom`).\n\nTHE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner\nholder, never the body, so unfolding cannot show a panel its owner hid\nor build a panel that is built on first show (items 284/380). The other\nway round, the section follows its body: while the owner keeps the body\nhidden the whole section -- heading included -- is hidden too, and it\ncomes back when the owner shows the body. Only the body's hidden flag is\nread for that, so nothing is shown, measured or built to find out.\n\n:param body: the section's content. Re-parented into the section.\n:param name: stable English name; the heading shows it translated.\n:param parent: parent widget.\n:param persist_key: ``\"<module>/<section>\"``; given, a fold the USER\n    makes survives a restart (a fold made on their behalf never does).\n:param stretch: the body's stretch inside the section.\n:param actions: widgets put at the right-hand end of the heading row\n    (a Refresh button, a count); they stay visible while folded.\n:param follow_body: False keeps the section shown whatever the body's\n    own flag says.\n:ivar heading: the heading label (object name ``FoldHeading``).\n:ivar folder: the section's Folder; HELD, it owns the click filter.\n:ivar body: the content widget.\nWrap ``body`` under a heading called ``name``."
+      "source_sha256": "2606f3c436d0bbc0e0db7fb98f79ce82122014192023bb4e82cfed3b85caddb6",
+      "text": "A body under a clickable heading; folded, the heading sits at the bottom.\n\nItem 471, slice C: \"any sections inside the figures or live preview\ncontainers should also be colapseable ... evey GUI element be it a figure\nor a table\". This is the one way a section inside a screen gets a fold\ncontrol, so every one of them looks and behaves alike: an arrow and a\nname above the body (the same :class:`~spacr.qt.widgets.foldable.Folder`\nthe console and System use), a click folds it, and a folded section is\nits heading locked to the BOTTOM of whatever room it is given\n(:func:`lock_folded_to_bottom`).\n\nTHE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner\nholder, never the body, so unfolding cannot show a panel its owner hid\nor build a panel that is built on first show (items 284/380). The other\nway round, the section follows its body: while the owner keeps the body\nhidden the whole section -- heading included -- is hidden too, and it\ncomes back when the owner shows the body. Only the body's hidden flag is\nread for that, so nothing is shown, measured or built to find out.\n\n:param body: the section's content. Re-parented into the section.\n:param name: stable English name; the heading shows it translated.\n:param parent: parent widget.\n:param persist_key: ``\"<module>/<section>\"``; given, a fold the USER\n    makes survives a restart (a fold made on their behalf never does).\n:param stretch: the body's stretch inside the section.\n:param actions: widgets put at the right-hand end of the heading row\n    (a Refresh button, a count); they stay visible while folded.\n:param follow_body: False keeps the section shown whatever the body's\n    own flag says.\n:param folded: start folded until the user opens it; with a\n    ``persist_key`` the opening is remembered.\n:ivar heading: the heading label (object name ``FoldHeading``).\n:ivar folder: the section's Folder; HELD, it owns the click filter.\n:ivar body: the content widget.\nWrap ``body`` under a heading called ``name``."
     },
     "spacr.qt.widgets.collapsible_splitter.FoldSection.eventFilter": {
       "source_blocks_sha256": [
@@ -79498,10 +79986,11 @@
         "4a98cfebea3642597fce12fed815a88011902a91d70067b66314a63a78678418",
         "bd59533ddf4ac893d0cb44b65bf99ae024a57f1366d208de498540545e94cf66",
         "224c0faadeb1a3ebfa8ea95ae2bd65e6feabbee36cb57ddf3a92e1919889a956",
-        "3ea271cc274078787174803952df3854350f50972149da4bad221772946b2391"
+        "3ea271cc274078787174803952df3854350f50972149da4bad221772946b2391",
+        "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018"
       ],
-      "source_sha256": "33c4215a1ed47108ac949fb65a8af255c395eb3efb20f9be4c4c2e8e02093bea",
-      "text": "Make clicking ``heading`` fold ``body`` away. Returns the Folder.\n\nThe Folder is returned so the caller can hold it: it owns the event\nfilter, and a Folder nobody keeps stops working silently.\n\n:param heading: label that receives the click event filter and displays\n    the open or shut marker.\n:param body: panel whose visibility the heading toggles.\n:param persist_key: ``\"<module>/<panel>\"``. Given, the fold survives a\n    restart. Empty means it does not, which is what a bare panel in a\n    test wants -- a test that wrote to the real preferences would fold a\n    panel on the user's next launch."
+      "source_sha256": "54c6c6c5940c2d57eb20bfb9aaec2039a944ed4a958be578227e19d3d29f2560",
+      "text": "Make clicking ``heading`` fold ``body`` away. Returns the Folder.\n\nThe Folder is returned so the caller can hold it: it owns the event\nfilter, and a Folder nobody keeps stops working silently.\n\n:param heading: label that receives the click event filter and displays\n    the open or shut marker.\n:param body: panel whose visibility the heading toggles.\n:param persist_key: ``\"<module>/<panel>\"``. Given, the fold survives a\n    restart. Empty means it does not, which is what a bare panel in a\n    test wants -- a test that wrote to the real preferences would fold a\n    panel on the user's next launch.\n:param shut_by_default: start folded unless the user opened this panel\n    before (item 509: advanced rows that most people never change)."
     },
     "spacr.qt.widgets.folding_summary": {
       "source_blocks_sha256": [
@@ -94079,10 +94568,11 @@
     },
     "spacr.qt.widgets.psf_controls": {
       "source_blocks_sha256": [
-        "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343"
+        "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343",
+        "b5d33d503c17395b6bb6224dc4cb5658d264808b5776fb30c00ed549fe49d21d"
       ],
-      "source_sha256": "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343",
-      "text": "Calibrated, asynchronous PSF configuration for Make Masks enhancement."
+      "source_sha256": "76c3aac6419b4d55118b92c104295b5bc2ad43ebd5c3138ea6a22feb5fbcf07c",
+      "text": "Calibrated, asynchronous PSF configuration for Make Masks enhancement.\n\nItem 509: the calibration fills itself. A microscope objective, camera and\nfluorophore chooser, or \"Infer from images…\", fills magnification, numerical\naperture, refractive index, emission wavelength, camera pixel, image pixel\nsize and Gaussian FWHM, each field saying where its value came from. Only the\noperation and the objective row are shown; the rest sits in a fold that starts\ncollapsed and remembers being opened."
     },
     "spacr.qt.widgets.qc_field_browser": {
       "source_blocks_sha256": [
@@ -114176,10 +114666,11 @@
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
         "b9b6fdca4d40fe363dcc9a01d788f4c79401bb7fd9b90dad869c785daa120fb3",
         "9dc0c77c2cceb13a6e386cc617681eda36856541121f4c95f856e4f4ed56bb09",
+        "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "e8cb8238b315ca9e76aa30bb8714aadda0d2df8a837ca635f89fe8f96a568317",
-      "text": "Merge by perimeter and filter labeled objects across a directory of masks.\n\nRuns the shared in-memory merge/filter pipeline on each mask file in\n``mask_src`` in parallel, overwriting each mask in place.\n\n:param mask_src: directory containing mask .tif/.tiff/.npy files.\n:param intensity_img_src: directory of matched original intensity images,\n    required when either intensity bound is enabled.\n:param intensity_channel: explicit channel-last index for multi-channel\n    intensity images; unnecessary for single-channel planes.\n:param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.\n:param min_area: remove objects smaller than this (px); 0 disables.\n:param max_area: remove objects larger than this (px); 0 disables.\n:param remove_border_objects: drop objects touching the image border.\n:param n_jobs: parallel worker count.\n:param progress_callback: optional callback(fov_index, total, duration, op_name).\n:param op_name: label passed to the progress callback.\n:param min_intensity: remove objects whose own-channel mean is below this\n    raw-image value; equality is kept and 0 disables the lower bound.\n:param max_intensity: remove objects whose own-channel mean is above this\n    raw-image value; equality is kept and 0 disables the upper bound.\n:returns: None."
+      "source_sha256": "f5b418891b9f9419229d06f6436a74b736e3a386ce8b2edbf19951a792fc43e8",
+      "text": "Merge by perimeter and filter labeled objects across a directory of masks.\n\nRuns the shared in-memory merge/filter pipeline on each mask file in\n``mask_src`` in parallel, overwriting each mask in place.\n\n:param mask_src: directory containing mask .tif/.tiff/.npy files.\n:param intensity_img_src: directory of matched original intensity images,\n    required when either intensity bound is enabled.\n:param intensity_channel: explicit channel-last index for multi-channel\n    intensity images; unnecessary for single-channel planes.\n:param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.\n:param min_area: remove objects smaller than this (px); 0 disables.\n:param max_area: remove objects larger than this (px); 0 disables.\n:param remove_border_objects: drop objects touching the image border.\n:param n_jobs: parallel worker count.\n:param progress_callback: optional callback(fov_index, total, duration, op_name).\n:param op_name: label passed to the progress callback.\n:param min_intensity: remove objects whose own-channel mean is below this\n    raw-image value; equality is kept and 0 disables the lower bound.\n:param max_intensity: remove objects whose own-channel mean is above this\n    raw-image value; equality is kept and 0 disables the upper bound.\n:param filters: object filter entries (any scalar regionprop with a\n    minimum and a maximum), judged with the bounds above in one pass.\n:returns: None."
     },
     "spacr.utils.merge_touching_objects": {
       "source_blocks_sha256": [
