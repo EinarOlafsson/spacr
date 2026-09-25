@@ -99,44 +99,80 @@ Design choices
     can be left out of the list instead. write_contribution also refuses any
     bare image, so the rule does not depend on the button.
   * Consent (right to share + CC BY 4.0) is asked before the first upload and
-    remembered in preferences (plaque_preview/community_consent). Figure
+    remembered in preferences (community_training_data/consent). Figure
     uploads carry the paper's DOI/citation from paper.json, editable in the
     dialog.
   * Ruler: skipped on the coordinator's instruction (the maintainer confirmed
     it is visible).
 
+Reusable for item 528 (coordinator's request, same day): the upload
+plumbing takes a target name, not a mode.
+  model_share (no Qt):
+    community_repo(target) -> "owner/repo": "figures"/"plaques" keep the two
+      repos above; any other name -> einarolafsson/community_<name>
+      (community_name slugs it; a full "owner/repo" is used as given).
+    community_layout(target) -> "boxes" (figures) or "masks" (everything
+      else); conscience_for(target) -> FIGURE_/PLAQUE_/MASK_CONSCIENCE (tr()
+      at the call site); community_readme(target, *, purpose="").
+    ensure_community_repo(target, token, *, purpose="") -> dataset URL;
+      creates the public dataset + README when missing (owner token only;
+      anyone else gets "ask the maintainer").
+    write_contribution(target, items, dest, *, consent, contribution_id="")
+      -> folder; masks items: {name, source, labels, seed?, extra?}; boxes
+      items: {name, image, boxes, paper?, provenance?}; refuses bare images.
+    contribute(folder, target, token) -> PR URL (ensure_community_repo, then
+      upload_folder(create_pr=True)).
+  model_share_dialog (Qt): ConsentDialog, community_consented(),
+    ask_community_consent(parent=None, *, ask=None) -> bool (asked once,
+    remembered under community_training_data/consent),
+    upload_with_own_login(folder, target) -> PR URL (tr()'d log-in message).
+  plaque_preview.ContributeDialog(mode, paths, *, seeder, known, paper,
+    upload, threaded, parent, target=None): Plaque mode with target="<name>"
+    already annotates masks for any collection.
+
 Code
-  spacr/qt/widgets/model_share.py:345 community_repo, :363 yolo_lines,
-    :384 seed_changes, :428 write_contribution, :529 contribute
-  spacr/qt/widgets/plaque_preview.py:2238/2245 the conscience texts,
-    :2254 _BoxEditor, :2482 _MaskPage, :2540 _ConsentDialog,
-    :2590 contribution_consented, :2624 ContributeDialog (:2959 upload),
-    :3011 seed_well_boxes, :3253 the "Contribute training data…" button
-    (both modes), :4705 PlaquePreviewPanel.contribute_training_data
+  spacr/qt/widgets/model_share.py:348-363 conscience texts, :372
+    community_name, :385 community_repo, :409 community_layout, :417
+    conscience_for, :431 community_readme, :483 ensure_community_repo, :515
+    yolo_lines, :536 seed_changes, :580 write_contribution, :685 contribute
+  spacr/qt/widgets/model_share_dialog.py:97 ConsentDialog, :147
+    community_consented, :156 ask_community_consent, :176
+    upload_with_own_login
+  spacr/qt/widgets/plaque_preview.py:2250 _BoxEditor, :2478 _MaskPage,
+    :2536 ContributeDialog (:2881 upload), :2932 seed_well_boxes, :3174 the
+    "Contribute training data…" button (both modes), :4627
+    PlaquePreviewPanel.contribute_training_data
   tests/qt/test_523_community_training_data_is_annotated_then_uploaded.py
-  API pins moved (+18 callables, 11,710 -> 11,735 docs):
-    tests/test_docstring_correctness.py, tests/test_api_i18n_extractor.py,
-    tests/test_api_i18n_frontend.py, tests/test_documentation_i18n.py
+  API pins moved, measured after merging nightly b315c0342 (whose own
+  503/507/525/526 rows were unpinned there): callables 9,692 -> 9,721, docs
+  11,710 -> 11,746, in tests/test_docstring_correctness.py,
+  tests/test_api_i18n_extractor.py, tests/test_api_i18n_frontend.py,
+  tests/test_documentation_i18n.py.
 
 Tests (offscreen, upload faked)
-  test_523: 8 passed (button in both modes; figure annotate->upload writes
+  test_523: 10 passed (button in both modes; figure annotate->upload writes
   images/labels/meta + YOLO lines + DOI + provenance; plaque paint->upload
   writes original image + uint16 mask + provenance; unannotated image
   refused by button, upload() and write_contribution; conscience visible
   beside Upload in both modes; consent asked once, refusal sends nothing;
-  real upload path opens a PR on the right dataset; mouse drawing).
-  Plaque/model_share/curation Qt tests: 247 passed before, 255 after (+8 new).
-  Guards: docstring/api-i18n pins pass after moving.
+  real upload path opens a PR on the right dataset; mouse drawing; a
+  user-named collection maps to community_<name>, writes image+mask pairs
+  and gets created with a README; consent helper asks once).
+  Plaque/model_share/curation Qt tests: 247 passed before; after merging
+  nightly, that set plus test_523 and the API/help/i18n-boundary guards:
+  478 passed, 1 xfailed.
   Pre-existing failures, not from 523 (same on nightly):
   test_documentation_i18n ...inventory_and_hashes_are_current[en] (catalog
   already missing reader_problem, ReaderNeedsInstall, plaque_inputs,
   Card.follow_fold; now also the 523 symbols -> the docs lane's
   tools/build_documentation_i18n.py run), and
-  test_runtime_i18n_syntax swedish/french reviewed-record counts.
+  test_runtime_i18n_syntax swedish/french reviewed-record counts, and
+  test_documented_assignment_prose (model_zoo.py:2072 "measured 2026-09-25",
+  from nightly).
 
 New tr() strings (en only; catalogs untouched)
   "Contribute training data…", its tooltip, "Contribute training data",
-  the two intro texts, FIGURE_CONSCIENCE, PLAQUE_CONSCIENCE, "Add images…",
+  the two intro texts, FIGURE_/PLAQUE_/MASK_CONSCIENCE (via conscience_for), "Add images…",
   "Leave this image out", "Add an image to annotate.", the source-paper
   placeholder and "Source paper", "Upload" and its tooltip, "Before your
   first contribution", the consent note and its two checkboxes, the

@@ -99,7 +99,6 @@ __all__ = [
     "store_overlay_style",
     "session_style",
     "ContributeDialog",
-    "contribution_consented",
     "seed_well_boxes",
     "OVERLAY_OUTLINES",
     "OVERLAY_FILL",
@@ -2248,24 +2247,6 @@ class _ImageView(QLabel):
         self.update()
 
 
-CONTRIBUTE_CONSENT_KEY = "plaque_preview/community_consent"
-
-FIGURE_CONSCIENCE = (
-    "Every box you send becomes a lesson for the next well detector. A well "
-    "you skip teaches it that wells can be ignored; a box that cuts a well "
-    "in half teaches it that wells are halves. Someone has to find and fix "
-    "each one before the next model can ship, so the next release waits. "
-    "Take the extra minute: every well, edge to edge.")
-
-PLAQUE_CONSCIENCE = (
-    "Every mask you send becomes a lesson for the next plaque model. A loose "
-    "outline teaches it to be loose, a missed plaque teaches it to miss "
-    "plaques, and two plaques painted as one teach it that they are one. "
-    "Someone has to fix each of those before the next model can ship, so "
-    "the next release waits and may come out worse than it could have. Take "
-    "the extra minute: every plaque, hugging its edge.")
-
-
 class _BoxEditor(QWidget):
     """A figure page with its well boxes, to correct by hand.
 
@@ -2552,90 +2533,6 @@ class _MaskPage(QWidget):
         return np.asarray(self.layer.data).copy()
 
 
-class _ConsentDialog(QDialog):
-    """Asked once, before the first contribution leaves the machine.
-
-    :param parent: the owning widget.
-    """
-
-    def __init__(self, parent: Optional[QWidget] = None):
-        """Build the two statements and the buttons.
-
-        :param parent: the owning widget.
-        """
-        from .model_share import COMMUNITY_LICENCE
-
-        super().__init__(parent)
-        self.setWindowTitle(tr("Before your first contribution"))
-        layout = QVBoxLayout(self)
-        note = QLabel(tr(
-            "What you contribute is published openly on Hugging Face, so "
-            "that anyone can train and check a model on it. It is reviewed "
-            "before it is used."))
-        note.setWordWrap(True)
-        layout.addWidget(note)
-        self.rights = QCheckBox(tr(
-            "I have the right to share these images: I made them, or their "
-            "source (for a paper figure, the paper's licence) allows it."))
-        self.licence = QCheckBox(tr(
-            "I agree that they and my annotations are shared under {licence}.",
-            licence=COMMUNITY_LICENCE))
-        for box in (self.rights, self.licence):
-            layout.addWidget(box)
-        self._buttons = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        self._buttons.accepted.connect(self.accept)
-        self._buttons.rejected.connect(self.reject)
-        layout.addWidget(self._buttons)
-        for box in (self.rights, self.licence):
-            box.toggled.connect(self._sync)
-        self._sync()
-
-    def _sync(self, *_args: Any) -> None:
-        """OK only when both are ticked."""
-        self._buttons.button(QDialogButtonBox.Ok).setEnabled(
-            self.rights.isChecked() and self.licence.isChecked())
-
-
-def _ask_consent(parent: Optional[QWidget]) -> bool:
-    """Show :class:`_ConsentDialog`; True when both statements were agreed."""
-    return _ConsentDialog(parent).exec() == QDialog.Accepted
-
-
-def contribution_consented() -> bool:
-    """Whether the contributor already agreed to the community licence."""
-    from .model_share import COMMUNITY_LICENCE
-
-    try:
-        return str(_preferences().value(CONTRIBUTE_CONSENT_KEY, "")) \
-            == COMMUNITY_LICENCE
-    except Exception:
-        return False
-
-
-def _remember_consent() -> None:
-    """Store the agreement so it is asked for once."""
-    from .model_share import COMMUNITY_LICENCE
-
-    try:
-        _preferences().setValue(CONTRIBUTE_CONSENT_KEY, COMMUNITY_LICENCE)
-    except Exception:
-        LOG.debug("could not store the contribution consent", exc_info=True)
-
-
-def _upload_with_own_token(folder: Path, kind: str) -> str:
-    """Send ``folder`` with the contributor's own Hugging Face login."""
-    from . import model_share
-
-    token = model_share.find_token()
-    if not token:
-        raise RuntimeError(tr(
-            "Log in to Hugging Face first (a free account: run "
-            "'huggingface-cli login', or set HF_TOKEN), then press Upload "
-            "again. Your annotations are kept while this window is open."))
-    return model_share.contribute(folder, kind, token)
-
-
 class ContributeDialog(QDialog):
     """Annotate images for spaCR's community training data, then send them.
 
@@ -2653,10 +2550,16 @@ class ContributeDialog(QDialog):
         computed twice.
     :param paper: the source paper's ``doi``, ``title``, ``pmcid``, when the
         folder records one.
-    :param upload: ``fn(folder, kind) -> url``; the contributor's own
-        Hugging Face login when None.
+    :param upload: ``fn(folder, target) -> url``; the contributor's own
+        Hugging Face login
+        (:func:`~spacr.qt.widgets.model_share_dialog.upload_with_own_login`)
+        when None.
     :param threaded: run the proposal and the upload off the GUI thread.
     :param parent: the owning widget.
+    :param target: the community collection
+        (:func:`~spacr.qt.widgets.model_share.community_repo`): ``"figures"``
+        in Figure mode, ``"plaques"`` in Plaque mode when None. Any other
+        name sends the masks to ``einarolafsson/community_<name>``.
     """
 
     uploaded = Signal(str)
@@ -2666,7 +2569,8 @@ class ContributeDialog(QDialog):
                  known: Optional[Dict[str, Any]] = None,
                  paper: Optional[Dict[str, Any]] = None,
                  upload: Optional[Callable[[Path, str], str]] = None,
-                 threaded: bool = True, parent: Optional[QWidget] = None):
+                 threaded: bool = True, parent: Optional[QWidget] = None,
+                 target: Optional[str] = None):
         """Build the list, the editor area, the conscience and Upload.
 
         :param mode: see the class docstring.
@@ -2677,20 +2581,24 @@ class ContributeDialog(QDialog):
         :param upload: see the class docstring.
         :param threaded: see the class docstring.
         :param parent: see the class docstring.
+        :param target: see the class docstring.
         """
         from PySide6.QtWidgets import QListWidget, QStackedWidget
 
-        from .model_share import FIGURES_KIND, PLAQUES_KIND, community_repo
+        from .model_share import (FIGURES_KIND, PLAQUES_KIND, community_repo,
+                                  conscience_for)
+        from .model_share_dialog import upload_with_own_login
 
         super().__init__(parent)
         self.setObjectName("ContributeDialog")
         self.mode = normalise_mode(mode)
-        self.kind = FIGURES_KIND if self.mode == FIGURE_MODE else PLAQUES_KIND
+        self.target = target or (FIGURES_KIND if self.mode == FIGURE_MODE
+                                 else PLAQUES_KIND)
         self.setWindowTitle(tr("Contribute training data"))
         self._seeder = seeder
         self._known = {str(k): v for k, v in (known or {}).items()}
-        self._upload = upload or _upload_with_own_token
-        self.ask_consent: Callable[[], bool] = lambda: _ask_consent(self)
+        self._upload = upload or upload_with_own_login
+        self.ask_consent: Optional[Callable[[], bool]] = None
         self._paths: List[Path] = []
         self._pages: Dict[str, QWidget] = {}
         self._images: Dict[str, np.ndarray] = {}
@@ -2751,8 +2659,7 @@ class ContributeDialog(QDialog):
             widget.setVisible(figure)
 
         bottom = QHBoxLayout()
-        self.conscience = QLabel(tr(FIGURE_CONSCIENCE if figure
-                                    else PLAQUE_CONSCIENCE))
+        self.conscience = QLabel(tr(conscience_for(self.target)))
         self.conscience.setObjectName("ContributeConscience")
         self.conscience.setWordWrap(True)
         self.conscience.setFrameShape(QFrame.StyledPanel)
@@ -2765,7 +2672,7 @@ class ContributeDialog(QDialog):
         self.upload_button.setToolTip(tr(
             "Send the images and your annotations to {repo} on Hugging Face, "
             "as a contribution the maintainer reviews.",
-            repo=community_repo(self.kind)))
+            repo=community_repo(self.target)))
         self.upload_button.clicked.connect(self.upload)
         bottom.addWidget(self.upload_button, 0, Qt.AlignBottom)
         outer.addLayout(bottom)
@@ -2979,6 +2886,7 @@ class ContributeDialog(QDialog):
         import tempfile
 
         from .model_share import COMMUNITY_LICENCE, write_contribution
+        from .model_share_dialog import ask_community_consent
 
         missing = self._missing()
         if not self._paths or missing:
@@ -2989,16 +2897,13 @@ class ContributeDialog(QDialog):
                 names=names))
             self._refresh()
             return False
-        if not contribution_consented():
-            if not self.ask_consent():
-                self.status.setText(tr(
-                    "Not sent: the licence was not agreed to."))
-                return False
-            _remember_consent()
+        if not ask_community_consent(self, ask=self.ask_consent):
+            self.status.setText(tr("Not sent: the licence was not agreed to."))
+            return False
         consent = {"rights_to_share": True, "licence": COMMUNITY_LICENCE}
         try:
             folder = write_contribution(
-                self.kind, self._items(),
+                self.target, self._items(),
                 tempfile.mkdtemp(prefix="spacr-contribution-"),
                 consent=consent)
         except ValueError as exc:
@@ -3009,7 +2914,8 @@ class ContributeDialog(QDialog):
         self._refresh()
         self.status.setText(tr("Uploading…"))
         upload = self._upload
-        self._jobs.submit(lambda: upload(folder, self.kind), self._on_uploaded)
+        target = self.target
+        self._jobs.submit(lambda: upload(folder, target), self._on_uploaded)
         return True
 
     def _on_uploaded(self, url: Any) -> None:

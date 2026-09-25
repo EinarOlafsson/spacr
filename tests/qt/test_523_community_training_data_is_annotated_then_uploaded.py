@@ -21,6 +21,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr.qt.widgets import model_share  # noqa: E402
+from spacr.qt.widgets import model_share_dialog as msd  # noqa: E402
 from spacr.qt.widgets import plaque_preview as ppv  # noqa: E402
 
 
@@ -71,7 +72,7 @@ class _Upload:
 @pytest.fixture
 def prefs(monkeypatch):
     store = _Prefs()
-    monkeypatch.setattr(ppv, "_preferences", lambda: store)
+    monkeypatch.setattr(msd, "_preferences", lambda: store)
     return store
 
 
@@ -163,7 +164,7 @@ def test_plaque_mode_paints_every_plaque_and_writes_a_label_mask(panel, qtbot, t
     meta = json.loads((folder / "meta" / "well.json").read_text())
     assert meta["provenance"] == {"kept": [], "edited": [1], "removed": [2],
                                   "added": 1}
-    assert meta["plaques"] == 2
+    assert meta["objects"] == 2
 
 
 def test_an_image_without_annotations_is_refused(panel, qtbot, tmp_path):
@@ -215,12 +216,12 @@ def test_consent_is_asked_once_and_a_refusal_sends_nothing(panel, qtbot, tmp_pat
     refused = _consent(dialog, answer=False)
     assert not dialog.upload()
     assert refused == [1] and upload.calls == []
-    assert not ppv.contribution_consented()
+    assert not msd.community_consented()
     asked = _consent(dialog, answer=True)
     assert dialog.upload()
     assert dialog.upload()
     assert asked == [1] and len(upload.calls) == 2
-    assert ppv.contribution_consented()
+    assert msd.community_consented()
 
 
 def test_the_real_upload_opens_a_pull_request_on_the_dataset(monkeypatch, tmp_path):
@@ -229,6 +230,10 @@ def test_the_real_upload_opens_a_pull_request_on_the_dataset(monkeypatch, tmp_pa
     class _Api:
         def __init__(self, token=None):
             sent["token"] = token
+
+        def repo_exists(self, repo_id, repo_type=None):
+            sent["exists_checked"] = (repo_id, repo_type)
+            return True
 
         def upload_folder(self, **kwargs):
             sent.update(kwargs)
@@ -271,3 +276,59 @@ def test_boxes_are_drawn_moved_and_deleted_with_the_mouse(qtbot):
     QTest.mouseClick(editor, Qt.RightButton, Qt.NoModifier, QPoint(240, 120))
     assert editor.boxes() == [(20, 10, 30, 20)]
     assert editor.provenance()["moved"] == [0]
+
+
+def test_any_named_collection_gets_its_own_community_dataset(monkeypatch, tmp_path):
+    """Item 528's route: a user-named collection, image + mask pairs."""
+    assert model_share.community_repo("Toxoplasma PV!") == \
+        "einarolafsson/community_toxoplasma_pv"
+    assert model_share.community_repo("community_nuclei") == \
+        "einarolafsson/community_nuclei"
+    assert model_share.community_layout("toxoplasma pv") == "masks"
+    assert model_share.conscience_for("toxoplasma pv") == model_share.MASK_CONSCIENCE
+    image = _png(tmp_path / "cell.png")
+    labels = np.zeros((60, 60), np.int32)
+    labels[5:15, 5:15] = 4
+    folder = model_share.write_contribution(
+        "toxoplasma pv", [{"name": "cell.png", "source": str(image),
+                           "labels": labels, "extra": {"channel": "GFP"}}],
+        tmp_path / "out", consent={"licence": "CC BY 4.0"}, contribution_id="c1")
+    record = json.loads((folder / "contribution.json").read_text())
+    assert record["repo"] == "einarolafsson/community_toxoplasma_pv"
+    assert record["objects"] == 1 and record["layout"] == "masks"
+    meta = json.loads((folder / "meta" / "cell.json").read_text())
+    assert meta["channel"] == "GFP" and meta["provenance"]["added"] == 1
+
+    made = {}
+
+    class _Api:
+        def __init__(self, token=None):
+            pass
+
+        def repo_exists(self, repo_id, repo_type=None):
+            return False
+
+        def create_repo(self, repo_id, **kwargs):
+            made["repo"] = (repo_id, kwargs)
+
+        def upload_file(self, **kwargs):
+            made["readme"] = kwargs
+
+    import huggingface_hub
+
+    monkeypatch.setattr(huggingface_hub, "HfApi", _Api)
+    url = model_share.ensure_community_repo("toxoplasma pv", "tok",
+                                            purpose="Trains the PV model.")
+    assert url.endswith("/datasets/einarolafsson/community_toxoplasma_pv")
+    assert made["repo"][1]["repo_type"] == "dataset"
+    assert made["repo"][1]["private"] is False
+    readme = made["readme"]["path_or_fileobj"].decode()
+    assert "CC BY 4.0" in readme and "Trains the PV model." in readme
+    assert "reviewed" in readme
+
+
+def test_the_consent_helper_asks_once_for_every_screen(prefs):
+    asked = []
+    assert msd.ask_community_consent(ask=lambda: asked.append(1) or True)
+    assert msd.ask_community_consent(ask=lambda: asked.append(2) or True)
+    assert asked == [1]
