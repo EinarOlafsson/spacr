@@ -1038,8 +1038,9 @@ def _apply_size_filter(mask: np.ndarray,
     :func:`spacr.utils._filter_objects`, after the pipeline's perimeter merge
     when enabled. The intensity plane contains the
     original values in the object's own channel. Legacy
-    ``{obj}_min_size``/``{obj}_max_size`` are honoured as a fallback. No-ops
-    when nothing is set."""
+    ``{obj}_min_size``/``{obj}_max_size`` are honoured as a fallback. The
+    ``object_filters`` entries for ``obj`` (any scalar regionprop) are judged
+    in the same pass, as a Mask run judges them. No-ops when nothing is set."""
     if not settings or mask is None:
         return mask
 
@@ -1058,13 +1059,15 @@ def _apply_size_filter(mask: np.ndarray,
     min_intensity, max_intensity = _validated_intensity_bounds(
         settings.get(f"{obj}_min_intensity"),
         settings.get(f"{obj}_max_intensity"))
+    from spacr.qt.mask_engine import settings_filters
+    object_filters = settings_filters(settings, obj)
     remove_border = bool(settings.get(f"{obj}_remove_border_objects", False))
     if obj.startswith("organelle"):
         remove_border = remove_border or bool(
             settings.get(f"{obj}_remove_border", False))
 
     if not (min_area > 0 or max_area > 0 or remove_border or perimeter_fraction > 0
-            or min_intensity != 0 or max_intensity != 0):
+            or min_intensity != 0 or max_intensity != 0 or object_filters):
         return mask
 
     if perimeter_fraction > 0:
@@ -1075,6 +1078,7 @@ def _apply_size_filter(mask: np.ndarray,
             min_area=int(min_area), max_area=int(max_area),
             remove_border_objects=remove_border,
             min_intensity=min_intensity, max_intensity=max_intensity,
+            filters=object_filters,
         ).astype(mask.dtype)
 
     from spacr.utils import _filter_objects
@@ -1084,6 +1088,7 @@ def _apply_size_filter(mask: np.ndarray,
         min_area=int(min_area), max_area=int(max_area),
         remove_border=remove_border,
         min_intensity=min_intensity, max_intensity=max_intensity,
+        filters=object_filters,
     ).astype(mask.dtype)
 
 

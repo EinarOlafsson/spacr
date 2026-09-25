@@ -162,13 +162,14 @@ def test_the_readout_predicts_what_the_filter_removes(screen):
     hover(screen, 8, 8)
     readout = screen._canvas.readout
     assert readout.label == 3
-    screen._filter_min_int.setValue(readout.mean_intensity)
-    assert screen._filter_min_int.value() == readout.mean_intensity, (
+    screen._filter_list.set_filter("intensity_mean", readout.mean_intensity)
+    assert screen._filter_list.filters()[0]["min"] == pytest.approx(
+        readout.mean_intensity, rel=1e-9), (
         "the test's mean needs no rounding to fit the box")
     screen._btn_filter.click()
     assert (screen._canvas.mask == 3).any(), "a bound AT the mean removed it"
 
-    screen._filter_min_int.setValue(readout.mean_intensity + 0.01)
+    screen._filter_list.set_filter("intensity_mean", readout.mean_intensity + 0.01)
     screen._btn_filter.click()
     assert not (screen._canvas.mask == 3).any()
     removed = screen._log.edits[-1]

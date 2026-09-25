@@ -604,14 +604,36 @@ def _validated_intensity_bounds(minimum, maximum):
     return bounds
 
 
-def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
-                    remove_border=False, *, min_intensity=0, max_intensity=0):
-    """Remove objects by area, absolute mean intensity and border contact.
+def _describe_object_filters(filters):
+    """The filter list as one line of text, for the run log."""
+    parts = []
+    for entry in filters:
+        low, high = entry["min"], entry["max"]
+        if low is not None and high is not None:
+            parts.append(f"{low:g} <= {entry['property']} <= {high:g}")
+        elif low is not None:
+            parts.append(f"{entry['property']} >= {low:g}")
+        elif high is not None:
+            parts.append(f"{entry['property']} <= {high:g}")
+    return ", ".join(parts)
 
-    Intensity bounds use the object's own-channel plane, in the units of
+
+def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
+                    remove_border=False, *, min_intensity=0, max_intensity=0,
+                    filters=None):
+    """Remove objects by the object filter list and border contact.
+
+    ONE FILTER SYSTEM (item 511). The legacy area and absolute mean
+    intensity bounds are migrated into filter-list entries by
+    :func:`spacr.qt.mask_engine.legacy_filters` and judged together with
+    ``filters`` -- any scalar scikit-image regionprop the user added -- by
+    :func:`spacr.qt.mask_engine.filter_removals`, the engine Make Masks
+    runs, in one ``regionprops_table`` pass per mask.
+
+    Intensity properties use the object's own-channel plane, in the units of
     that plane. The caller must supply the original pixel values, not a
-    display-normalized image. Unlike the percentile quota removed in 391,
-    these bounds can retain every object or remove every object in a field.
+    display-normalized image. These bounds can retain every object or remove
+    every object in a field.
 
     Parameters
     ----------
@@ -619,7 +641,8 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         Label image.
     intensity_img : ndarray or None
         Own-channel intensity plane, with exactly the label image's shape.
-        Required only when an intensity bound is enabled and objects exist.
+        Required only when an intensity bound or intensity filter is set and
+        objects exist.
     min_area : int
         Remove objects with area < min_area. 0 = disabled.
     max_area : int
@@ -630,14 +653,24 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         Remove objects whose mean is below/above the respective bound.
         Equality is retained; 0 disables that side. Object means must be
         finite; nonfinite background pixels do not contribute to a mean.
+    filters : list of dict or None
+        Filter entries ``{"property", "min", "max"}``; an object is kept
+        when ``min <= value <= max`` for each, and a None side is off.
 
     Returns
     -------
     ndarray (uint16)
         Filtered and relabelled image.
     """
+    from .qt.mask_engine import filter_removals, legacy_filters, normalise_filters
+
     min_intensity, max_intensity = _validated_intensity_bounds(
         min_intensity, max_intensity)
+    by_area_rules = legacy_filters(min_area=min_area, max_area=max_area)
+    by_intensity_rules = legacy_filters(min_intensity=min_intensity,
+                                        max_intensity=max_intensity)
+    listed = normalise_filters(filters)
+    rules = by_area_rules + by_intensity_rules + listed
     labels_present = np.unique(label_img)
     labels_present = labels_present[labels_present > 0]
 
@@ -645,44 +678,34 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         return label_img
 
     remove = set()
-    
-    areas = {}
-    for lbl in labels_present:
-        areas[int(lbl)] = int(np.sum(label_img == lbl))
+    if rules:
+        removals = filter_removals(label_img, rules, intensity_img,
+                                   require_finite_intensity=True)
+        first_intensity = len(by_area_rules)
+        first_listed = first_intensity + len(by_intensity_rules)
 
-    removed_by_area = 0
-    if min_area > 0:
-        for lbl, area in areas.items():
-            if area < min_area:
-                remove.add(lbl)
-                removed_by_area += 1
-    if max_area > 0:
-        for lbl, area in areas.items():
-            if area > max_area:
-                remove.add(lbl)
-                removed_by_area += 1
-    if removed_by_area > 0:
-        print(f"  Area filter: removed {removed_by_area}/{len(labels_present)} objects "
-              f"(min_area={min_area}, max_area={max_area})")
+        def _failed_in(low, high):
+            """Labels failing an entry whose index is in ``[low, high)``."""
+            return {removal.label for removal in removals
+                    if any(low <= failed.index < high for failed in removal.failed)}
 
-    if min_intensity > 0 or max_intensity > 0:
-        if intensity_img is None or np.shape(intensity_img) != label_img.shape:
-            raise ValueError("An intensity plane with the same shape as the mask is required")
-        means = ndi.mean(np.asarray(intensity_img, dtype=np.float64),
-                         labels=label_img, index=labels_present)
-        if not np.all(np.isfinite(means)):
-            raise ValueError("Intensity filtering requires finite object mean intensities")
-        rejected = np.zeros(len(labels_present), dtype=bool)
-        if min_intensity > 0:
-            rejected |= means < min_intensity
-        if max_intensity > 0:
-            rejected |= means > max_intensity
-        intensity_labels = set(labels_present[rejected].tolist())
-        additional = len(intensity_labels - remove)
-        remove.update(intensity_labels)
+        by_area = _failed_in(0, first_intensity)
+        if by_area:
+            print(f"  Area filter: removed {len(by_area)}/{len(labels_present)} objects "
+                  f"(min_area={min_area}, max_area={max_area})")
+        remove.update(by_area)
+        by_intensity = _failed_in(first_intensity, first_listed)
+        additional = len(by_intensity - remove)
+        remove.update(by_intensity)
         if additional:
             print(f"  Intensity filter: removed {additional} additional objects "
                   f"(min_intensity={min_intensity}, max_intensity={max_intensity})")
+        by_list = _failed_in(first_listed, len(rules))
+        additional = len(by_list - remove)
+        remove.update(by_list)
+        if additional:
+            print(f"  Object filters: removed {additional} additional objects "
+                  f"({_describe_object_filters(listed)})")
 
     if remove_border:
         border_labels = set()
@@ -712,7 +735,8 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
                                   do_perimeter_merge=False, perimeter_fraction=0.5,
                                   min_area=0, max_area=0, remove_border_objects=False,
                                   progress_callback=None, fov_index=0, total_fovs=0,
-                                  op_name='', *, min_intensity=0, max_intensity=0):
+                                  op_name='', *, min_intensity=0, max_intensity=0,
+                                  filters=None):
     """Copy one label field, merge by perimeter, then apply shared object filters.
 
     Intensity input is an original own-channel plane or an explicitly
@@ -734,8 +758,11 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
         print(f"  FOV {fov_index}: empty mask, skipping")
         return label_img
 
+    from .qt.mask_engine import filters_need_intensity
+
     intensity_img_use = None
-    if (min_intensity > 0 or max_intensity > 0) and intensity_img is not None:
+    if ((min_intensity > 0 or max_intensity > 0 or filters_need_intensity(filters))
+            and intensity_img is not None):
         intensity_img_use = np.asarray(intensity_img)
         if intensity_img_use.ndim == label_img.ndim + 1:
             if intensity_channel is None:
@@ -765,6 +792,7 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
         remove_border=remove_border_objects,
         min_intensity=min_intensity,
         max_intensity=max_intensity,
+        filters=filters,
     )
 
     duration = time.time() - start
@@ -777,7 +805,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
                         perimeter_fraction=0.5,
                         min_area=0, max_area=0, remove_border_objects=False,
                         n_jobs=1, progress_callback=None, op_name='', *,
-                        min_intensity=0, max_intensity=0):
+                        min_intensity=0, max_intensity=0, filters=None):
     """Merge by perimeter and filter labeled objects across a directory of masks.
 
     Runs the shared in-memory merge/filter pipeline on each mask file in
@@ -799,6 +827,8 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         raw-image value; equality is kept and 0 disables the lower bound.
     :param max_intensity: remove objects whose own-channel mean is above this
         raw-image value; equality is kept and 0 disables the upper bound.
+    :param filters: object filter entries (any scalar regionprop with a
+        minimum and a maximum), judged with the bounds above in one pass.
     :returns: None.
     """
     valid_ext = ('.tif', '.tiff', '.npy')
@@ -826,6 +856,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
             min_area, max_area, remove_border_objects,
             progress_callback, idx, total, op_name,
             min_intensity=min_intensity, max_intensity=max_intensity,
+            filters=filters,
         )
         for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
     )
@@ -834,8 +865,10 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
                         do_perimeter_merge, perimeter_fraction,
                         min_area, max_area, remove_border_objects,
                         progress_callback=None, fov_index=0, total_fovs=0, op_name='', *,
-                        min_intensity=0, max_intensity=0):
+                        min_intensity=0, max_intensity=0, filters=None):
     """Load one field and save the result of the same filter used in memory."""
+    from .qt.mask_engine import filters_need_intensity
+
     start = time.time()
     label_img = _load_image(mask_path)
     if label_img is None:
@@ -843,13 +876,15 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
     intensity_img = None
     min_intensity, max_intensity = _validated_intensity_bounds(
         min_intensity, max_intensity)
-    if (min_intensity > 0 or max_intensity > 0) and intensity_path is not None:
+    if ((min_intensity > 0 or max_intensity > 0 or filters_need_intensity(filters))
+            and intensity_path is not None):
         intensity_img = _load_image(intensity_path)
     filtered = _process_single_fov_in_memory(
         label_img, intensity_img, intensity_channel,
         do_perimeter_merge, perimeter_fraction, min_area, max_area,
         remove_border_objects, None, fov_index, total_fovs, op_name,
         min_intensity=min_intensity, max_intensity=max_intensity,
+        filters=filters,
     )
     _save_image(mask_path, filtered)
     if progress_callback:

@@ -537,13 +537,6 @@
     },
     {
       "table": "ui",
-      "key": "Max area (px)",
-      "source": "Max area (px)",
-      "source_sha256": "0a9de30cab1594bca5504fc4efca84b33b2a238a0048288543ddbf6fb47c9af9",
-      "translation": "Maximale Fläche (px)"
-    },
-    {
-      "table": "ui",
       "key": "Max displacement",
       "source": "Max displacement",
       "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df",

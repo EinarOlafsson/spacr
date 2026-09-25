@@ -151,13 +151,6 @@
     },
     {
       "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "Aplicar los límites activados a la máscara que se muestra. Cada objeto eliminado aparece en una lista debajo, junto con el área y la intensidad media utilizadas para evaluarlo. Se puede revertir con un solo paso de deshacer."
-    },
-    {
-      "table": "ui",
       "key": "At most:",
       "source": "At most:",
       "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",

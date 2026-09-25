@@ -546,7 +546,9 @@ def stream_masks_from_stack(
         intensity_settings.get(f"{object_type}_min_intensity", 0),
         intensity_settings.get(f"{object_type}_max_intensity", 0),
     )
-    filter_by_raw_intensity = minimum > 0 or maximum > 0
+    from .qt.mask_engine import filters_need_intensity, settings_filters
+    filter_by_raw_intensity = (minimum > 0 or maximum > 0 or filters_need_intensity(
+        settings_filters(intensity_settings, object_type)))
 
     scratch = Path(npz_dir) if npz_dir else stacks[0].path.parent / "_scratch"
     scratch.mkdir(parents=True, exist_ok=True)

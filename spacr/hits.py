@@ -146,7 +146,7 @@ def tested_family(features: Iterable[Any]) -> np.ndarray:
     >>> tested_family(["Intercept", "fraction:grna[233460_1]"]).tolist()
     [False, True]
     """
-    series = pd.Series(list(features), dtype=object).astype(str)
+    series = pd.Series([str(value) for value in features], dtype=object)
     if series.empty:
         return np.zeros(0, dtype=bool)
     return ~series.str.contains(NUISANCE_TERMS, regex=True).to_numpy(dtype=bool)
@@ -178,7 +178,7 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
     ...                "gene_fraction:gene[233460]"]).tolist()
     ['', 'grna', 'gene']
     """
-    series = pd.Series(list(features), dtype=object).astype(str)
+    series = pd.Series([str(value) for value in features], dtype=object)
     if series.empty:
         return np.zeros(0, dtype=object)
     labels = np.full(len(series), "gene", dtype=object)

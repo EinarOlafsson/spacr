@@ -1053,6 +1053,12 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cell_model_name', 'cpsam')
     settings.setdefault('nucleus_model_name', 'cpsam')
     settings.setdefault('pathogen_model_name', 'cpsam')
+    settings.setdefault('cellpose3_add_nucleus_channel', True)
+    settings.setdefault('cellpose3_size_model', False)
+    settings.setdefault('cellpose3_resample', True)
+    settings.setdefault('cellpose3_augment', False)
+    settings.setdefault('cellpose3_percentile_low', 1.0)
+    settings.setdefault('cellpose3_percentile_high', 99.0)
 
     settings.setdefault('seg_qc', 'report')
     settings.setdefault('seg_qc_min_objects', 10)
@@ -1154,6 +1160,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_max_intensity', 0.0)
     settings.setdefault('pathogen_min_intensity', 0.0)
     settings.setdefault('pathogen_max_intensity', 0.0)
+    settings.setdefault('object_filters', {})
     settings.setdefault('cell_remove_border_objects', False)
     settings.setdefault('nucleus_remove_border_objects', False)
     settings.setdefault('pathogen_remove_border_objects', False)
@@ -3568,6 +3575,12 @@ expected_types = {
     "nucleus_model_name":str,
     "pathogen_model_name":str,
     "segmentation_backend":str,
+    "cellpose3_add_nucleus_channel":bool,
+    "cellpose3_size_model":bool,
+    "cellpose3_resample":bool,
+    "cellpose3_augment":bool,
+    "cellpose3_percentile_low":(int, float),
+    "cellpose3_percentile_high":(int, float),
     "normalize_input":bool,
     "filter_column":str,
     "target_unique_count":int,
@@ -3603,6 +3616,7 @@ expected_types = {
     'image_qc_mode':str,
     'image_qc_channels':list,
     'image_qc_min_focus':dict,
+    'object_filters':dict,
     'image_qc_max_saturation':dict,
     'image_qc_saturation_level':dict,
     'image_qc_max_nonfinite':float,
@@ -4182,12 +4196,19 @@ tooltips = {
     "nucleus_model_name": "(str) - Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
     "pathogen_model_name": "(str) - Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
     "segmentation_backend": "(str) - Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+    "cellpose3_add_nucleus_channel": "(bool) - Cellpose 3 reads two channels as [cyto, nucleus]. When True, a cell segmented by a Cellpose 3 model also receives the nucleus channel as its second channel, as cyto, cyto2 and cyto3 were trained; when False, the model sees the cell channel alone. Read only for objects whose model is a Cellpose 3 model. Default True.",
+    "cellpose3_size_model": "(bool) - When True, a named Cellpose 3 model estimates each image's object diameter with its own size model, which is slower and, on Toxoplasma vacuoles, far less accurate; when False, the object's diameter setting is used, or its magnification default when blank. Read only for Cellpose 3 models. Default False.",
+    "cellpose3_resample": "(bool) - When True, Cellpose 3 computes flows at the image's original size before building masks, which gives smoother outlines at some cost in time; when False, it builds them at the rescaled size. Read only for objects whose model is a Cellpose 3 model. Default True.",
+    "cellpose3_augment": "(bool) - When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
+    "cellpose3_percentile_low": "(float) - Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
+    "cellpose3_percentile_high": "(float) - Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
     "cell_diameter": "(int or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
     'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
     'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
+    'object_filters': "(dict) - Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
     'image_qc_min_focus': '(dict) - Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.',
     'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
@@ -4980,7 +5001,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 categories = {
     "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters"],
 
     "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
         "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",
@@ -5019,6 +5040,8 @@ categories = {
 
     "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
                       'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],
+
+    "Cellpose 3": ["cellpose3_add_nucleus_channel", "cellpose3_size_model", "cellpose3_resample", "cellpose3_augment", "cellpose3_percentile_low", "cellpose3_percentile_high"],
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
 
@@ -5188,6 +5211,14 @@ _ADVANCED_FAMILIES = (
     ), ()),
 )
 
+_FAMILY_SHARED_KEYS = {"Object filtration": ("object_filters",)}
+"""Keys a family heading takes whole rather than one per object.
+
+``object_filters`` (item 511) holds every object type's filter list in one
+mapping, so it has no object prefix for the suffix match to find, and it
+belongs beside the per-object area and intensity bounds it extends.
+"""
+
 #: Which heading each category nests under when the panel can draw a tree.
 #:
 #: DECLARED BESIDE THE CATEGORIES, NOT BY RENAMING THEM. Encoding the parent
@@ -5305,6 +5336,12 @@ def _regroup_advanced(table):
     by_family = [
         (heading, _advanced_family_members(out, suffixes, prefixes))
         for heading, suffixes, prefixes in _ADVANCED_FAMILIES
+    ]
+    filed_anywhere = {key for keys in out.values() for key in keys}
+    by_family = [
+        (heading, members + [key for key in _FAMILY_SHARED_KEYS.get(heading, ())
+                             if key in filed_anywhere and key not in members])
+        for heading, members in by_family
     ]
     moved = set()
     for _heading, members in by_family:

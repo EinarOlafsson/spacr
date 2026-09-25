@@ -1567,11 +1567,405 @@ def relative_tolerance(image: np.ndarray, percent: float) -> float:
     return max(1.0, (float(percent) / 100.0) * span)
 
 
-#: The four bounds :func:`filter_report` judges by, named as its keywords
-#: are, in the order it applies them. A :class:`FilterRemoval` names the ones
-#: an object failed with these strings, so the screen can put the number the
-#: user typed beside the reason without a second vocabulary.
 FILTER_BOUNDS = ("min_area", "max_area", "min_intensity", "max_intensity")
+"""The four legacy bounds, named as :func:`filter_report`'s keywords are.
+
+They are no longer a second filter. :func:`legacy_filters` turns them into
+entries of the one filter list (item 511), so a caller that still passes
+``min_area=20`` is judged by the same regionprops pass as a user who added
+an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound
+an object failed so the older ledgers read the same.
+"""
+
+FILTER_KEYS = ("property", "min", "max")
+"""The keys of one filter entry, the whole of its serialised form.
+
+A filter list is a plain list of ``{"property": name, "min": number or
+None, "max": number or None}`` dicts. It goes into the curation ledger, into
+a settings file and through JSON unchanged, which is what lets Make Masks and
+Mask generation be handed the same list and give the same answer.
+"""
+
+_LEGACY_PROPERTY = {"min_area": ("area", "min"), "max_area": ("area", "max"),
+                    "min_intensity": ("intensity_mean", "min"),
+                    "max_intensity": ("intensity_mean", "max")}
+
+
+_FILTER_CATALOGUE: Optional[Tuple[Tuple[str, ...], Tuple[str, ...]]] = None
+
+
+def _filter_catalogue() -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
+    """Every scalar regionprop, split into shape and intensity properties.
+
+    Enumerated FROM scikit-image rather than typed out here: the property
+    table the installed skimage declares is walked and each property is
+    computed once on a two-object probe. A property that gives exactly one
+    column named after itself is scalar and can carry a minimum and a
+    maximum; ``coords``, ``image``, ``bbox``, ``centroid`` and the moment
+    matrices give arrays or several columns and are left out. A property
+    that fails without an intensity image and works with one is an
+    intensity property. A newer skimage that adds a property adds a row
+    to the list with no change here.
+
+    :returns: ``(shape, intensity)``, each sorted by name. Cached for the
+        process, since the answer depends only on the installed skimage.
+    """
+    global _FILTER_CATALOGUE
+    if _FILTER_CATALOGUE is not None:
+        return _FILTER_CATALOGUE
+    from skimage.measure import _regionprops, regionprops_table
+
+    probe = np.zeros((12, 12), dtype=np.int32)
+    probe[1:5, 1:6] = 1
+    probe[7:11, 6:10] = 2
+    probe[8, 6] = 0
+    grey = np.linspace(0.0, 1.0, probe.size).reshape(probe.shape)
+    shape: List[str] = []
+    intensity: List[str] = []
+    skipped = set(getattr(_regionprops, "OBJECT_COLUMNS", ())) | {"label"}
+    for name in sorted(getattr(_regionprops, "COL_DTYPES", {})):
+        if name in skipped:
+            continue
+        target = shape
+        try:
+            columns = regionprops_table(probe, properties=[name])
+        except Exception:
+            target = intensity
+            try:
+                columns = regionprops_table(
+                    probe, intensity_image=grey, properties=[name])
+            except Exception:
+                continue
+        if list(columns) == [name]:
+            target.append(name)
+    _FILTER_CATALOGUE = (tuple(shape), tuple(intensity))
+    return _FILTER_CATALOGUE
+
+
+def filter_properties(*, intensity: bool = False) -> Tuple[str, ...]:
+    """The regionprops a filter row may name, for an image at hand.
+
+    :param intensity: True when an intensity image exists for the mask, so
+        the intensity statistics are real for it. Without one they are not
+        offered at all, rather than offered and refused later.
+    :returns: property names, shape properties first, each group sorted.
+    """
+    shape, measured = _filter_catalogue()
+    return shape + measured if intensity else shape
+
+
+def canonical_property(name) -> str:
+    """``name`` as the regionprop it means, or a ValueError naming the choices.
+
+    Old skimage spellings (``mean_intensity``, ``MajorAxisLength``,
+    ``convex_area``) are accepted and mapped to the current name through
+    skimage's own alias table, so a filter written against an older release
+    still names the same measurement.
+    """
+    from skimage.measure._regionprops import PROPS
+
+    text = str(name).strip()
+    canonical = PROPS.get(text, text)
+    shape, measured = _filter_catalogue()
+    if canonical not in shape and canonical not in measured:
+        raise ValueError(
+            f"'{name}' is not a scalar scikit-image regionprop an object "
+            f"filter can use. Choose one of: {', '.join(shape + measured)}.")
+    return canonical
+
+
+def property_needs_intensity(name) -> bool:
+    """Whether the regionprop ``name`` measures pixel values."""
+    return canonical_property(name) in _filter_catalogue()[1]
+
+
+def _bound(value, side: str, name: str) -> Optional[float]:
+    """One side of a filter as a float, with None and blank meaning off."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(
+            f"The {side} of the filter on {name} must be a number or empty, "
+            f"not {value!r}.") from error
+    if not np.isfinite(number):
+        raise ValueError(
+            f"The {side} of the filter on {name} must be finite, not {value!r}.")
+    return number
+
+
+def normalise_filters(filters, *, strict: bool = True) -> List[dict]:
+    """``filters`` as the canonical list of ``{property, min, max}`` dicts.
+
+    Accepts the list itself, one dict, ``(property, min, max)`` tuples, or
+    the list written as JSON or as a Python literal (a settings file stores
+    it as text). Every entry is checked here, once, so a typo in a property
+    name fails when the list is read rather than on the hundredth field.
+
+    :param strict: also refuse a minimum above its maximum. The engine
+        itself reads lists with ``strict=False``, because a migrated legacy
+        pair such as ``min_area=10, max_area=5`` always meant "remove every
+        object" and must go on meaning it.
+    :raises ValueError: for an unknown property, an unknown key, a bound
+        that is not a finite number, or (strict) a minimum above its maximum.
+    """
+    if filters is None:
+        return []
+    if isinstance(filters, str):
+        text = filters.strip()
+        if not text:
+            return []
+        try:
+            filters = json.loads(text)
+        except ValueError:
+            import ast
+            try:
+                filters = ast.literal_eval(text)
+            except (ValueError, SyntaxError) as error:
+                raise ValueError(
+                    f"Object filters must be a list of {{'property', 'min', "
+                    f"'max'}} entries, not {text!r}.") from error
+    if isinstance(filters, dict):
+        filters = [filters]
+    out: List[dict] = []
+    for entry in filters:
+        if isinstance(entry, (list, tuple)):
+            entry = dict(zip(FILTER_KEYS, entry))
+        if not isinstance(entry, dict) or "property" not in entry:
+            raise ValueError(
+                f"An object filter needs a 'property' and optional 'min' and "
+                f"'max', not {entry!r}.")
+        unknown = sorted(set(entry) - set(FILTER_KEYS))
+        if unknown:
+            raise ValueError(
+                f"An object filter takes only {', '.join(FILTER_KEYS)}; "
+                f"{', '.join(unknown)} is not one of them.")
+        name = canonical_property(entry["property"])
+        low = _bound(entry.get("min"), "minimum", name)
+        high = _bound(entry.get("max"), "maximum", name)
+        if strict and low is not None and high is not None and low > high:
+            raise ValueError(
+                f"The filter on {name} has a minimum ({low:g}) above its "
+                f"maximum ({high:g}), so it would remove every object.")
+        out.append({"property": name, "min": low, "max": high})
+    return out
+
+
+def legacy_filters(min_area=0, max_area=0, min_intensity=0.0,
+                   max_intensity=0.0) -> List[dict]:
+    """The four old hard-coded bounds as entries of the filter list.
+
+    This is the migration: 0 meant off for each old bound, and it becomes a
+    missing side here, so an old settings file or call is judged by the one
+    filter engine with the answer it always had. Area becomes ``area`` and
+    mean intensity becomes ``intensity_mean``; equality was kept before and
+    is kept now.
+    """
+    area_low, area_high = int(min_area or 0), int(max_area or 0)
+    int_low, int_high = float(min_intensity or 0.0), float(max_intensity or 0.0)
+    out: List[dict] = []
+    if area_low > 0 or area_high > 0:
+        out.append({"property": "area",
+                    "min": float(area_low) if area_low > 0 else None,
+                    "max": float(area_high) if area_high > 0 else None})
+    if int_low > 0 or int_high > 0:
+        out.append({"property": "intensity_mean",
+                    "min": int_low if int_low > 0 else None,
+                    "max": int_high if int_high > 0 else None})
+    return out
+
+
+def settings_filters(settings, object_type: str) -> List[dict]:
+    """The ``object_filters`` list a Mask run applies to ``object_type``.
+
+    ``object_filters`` maps an object type (``cell``, ``nucleus``,
+    ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so
+    each object type is filtered on its own properties. A missing or empty
+    setting is no filters. The legacy ``{object}_min_area`` family is
+    migrated by :func:`legacy_filters` where it is read, not here.
+
+    :raises ValueError: when the setting is not a mapping, names an object
+        type spaCR does not segment, or holds an invalid filter.
+    """
+    raw = (settings or {}).get("object_filters")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return []
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError:
+            import ast
+            raw = ast.literal_eval(raw)
+    if not isinstance(raw, dict):
+        raise ValueError(
+            "object_filters maps each object type to its filter list, for "
+            "example {'cell': [{'property': 'solidity', 'min': 0.9}]}.")
+    from ..object_settings_table import OBJECT_ORDER
+
+    unknown = sorted(str(key) for key in raw if str(key) not in OBJECT_ORDER)
+    if unknown:
+        raise ValueError(
+            f"object_filters names {', '.join(unknown)}, which is not an "
+            f"object type. Use one of: {', '.join(OBJECT_ORDER)}.")
+    return normalise_filters(raw.get(object_type))
+
+
+def filters_need_intensity(filters) -> bool:
+    """Whether any entry of ``filters`` needs an intensity image."""
+    return any(property_needs_intensity(entry["property"])
+               for entry in normalise_filters(filters, strict=False))
+
+
+class FailedBound(NamedTuple):
+    """One side of one filter entry that an object fell outside.
+
+    :ivar index: the entry's position in the filter list.
+    :ivar property: the regionprop it judged.
+    :ivar side: ``"min"`` or ``"max"``.
+    :ivar bound: the number the user set.
+    :ivar value: the object's measured value.
+    """
+
+    index: int
+    property: str
+    side: str
+    bound: float
+    value: float
+
+
+class ObjectRemoval(NamedTuple):
+    """One object a filter list removed, with what it was measured as.
+
+    :ivar label: the object's id in the label image that was judged.
+    :ivar values: every property the pass measured for it, by name.
+    :ivar failed: each bound it fell outside, in list order.
+    """
+
+    label: int
+    values: Dict[str, float]
+    failed: Tuple[FailedBound, ...]
+
+
+def filter_removals(labels: np.ndarray, filters, intensity=None, *,
+                    report=(), require_finite_intensity: bool = False
+                    ) -> List[ObjectRemoval]:
+    """Judge every object of ``labels`` against ``filters``; return the failures.
+
+    THE ONE FILTER ENGINE. Make Masks' Filter list, :func:`filter_report`,
+    and Mask generation's :func:`spacr.utils._filter_objects` all run this,
+    so one list gives one answer wherever it is applied. It calls
+    :func:`skimage.measure.regionprops_table` ONCE per mask with every
+    property the list names plus ``report``, never once per filter.
+
+    An object is kept when ``min <= value <= max`` for every entry; a side
+    that is None is off. A NaN measurement fails no bound, since there is
+    nothing to compare.
+
+    :param labels: integer label image, 2-D or 3-D.
+    :param filters: the filter list, in any form :func:`normalise_filters`
+        accepts.
+    :param intensity: pixel values the same shape as ``labels``; required
+        exactly when an entry names an intensity property.
+    :param report: extra properties to measure in the same pass so a caller
+        can print them; they judge nothing.
+    :param require_finite_intensity: raise when an intensity property is
+        not finite for some object, as Mask generation always has.
+    :returns: the removals sorted by label; empty when nothing fails.
+    :raises ValueError: an intensity property without an intensity image,
+        or a property scikit-image cannot compute for this dimensionality.
+    """
+    rules = normalise_filters(filters, strict=False)
+    needs = sorted({entry["property"] for entry in rules
+                    if property_needs_intensity(entry["property"])})
+    grey = None
+    if intensity is not None and np.shape(intensity) == np.shape(labels):
+        grey = np.asarray(intensity)
+        if not np.issubdtype(grey.dtype, np.floating):
+            grey = grey.astype(np.float64)
+    if needs and grey is None:
+        raise ValueError(
+            "An intensity plane with the same shape as the mask is "
+            f"required: the filter on {', '.join(needs)} measures pixel "
+            "values, so it cannot run on a mask alone.")
+    active = [entry for entry in rules
+              if entry["min"] is not None or entry["max"] is not None]
+    lab = np.asarray(labels)
+    if not active or not lab.size or not lab.any():
+        return []
+    extra = [name for name in (report or ())
+             if grey is not None or not property_needs_intensity(name)]
+    names = list(dict.fromkeys([entry["property"] for entry in active] + extra))
+    from skimage.measure import regionprops_table
+
+    try:
+        table = regionprops_table(
+            lab if np.issubdtype(lab.dtype, np.integer) else lab.astype(np.int32),
+            intensity_image=grey, properties=["label"] + names)
+    except NotImplementedError as error:
+        raise ValueError(
+            f"scikit-image cannot measure {', '.join(names)} on a "
+            f"{lab.ndim}-D mask: {error}") from error
+    if require_finite_intensity:
+        for name in needs:
+            if not np.all(np.isfinite(np.asarray(table[name], dtype=float))):
+                raise ValueError(
+                    "Intensity filtering requires finite object mean intensities")
+    ids = np.asarray(table["label"]).astype(np.int64)
+    columns = {name: np.asarray(table[name], dtype=float) for name in names}
+    failures: Dict[int, List[FailedBound]] = {}
+    for index, entry in enumerate(rules):
+        if entry["min"] is None and entry["max"] is None:
+            continue
+        values = columns[entry["property"]]
+        for side, bound, outside in (
+                ("min", entry["min"], lambda v, b: v < b),
+                ("max", entry["max"], lambda v, b: v > b)):
+            if bound is None:
+                continue
+            for row in np.flatnonzero(outside(values, bound)):
+                failures.setdefault(row, []).append(FailedBound(
+                    index, entry["property"], side, float(bound),
+                    float(values[row])))
+    removals = [ObjectRemoval(int(ids[row]),
+                              {name: float(columns[name][row]) for name in names},
+                              tuple(sorted(failed, key=lambda f: (f.index, f.side != "min"))))
+                for row, failed in failures.items()]
+    removals.sort(key=lambda removal: removal.label)
+    return removals
+
+
+def apply_filters(mask: np.ndarray, image, filters, *,
+                  preserve_ids: bool = False, report=("area",)
+                  ) -> Tuple[np.ndarray, List[ObjectRemoval]]:
+    """Make Masks' filter list applied to one mask; ``(mask, removals)``.
+
+    Objects are judged under :func:`canonical_labels` ids, the ids the hover
+    readout shows, and the failing ones are zeroed in a copy; the other ids
+    are left as they were. An intensity property reads ``image``, the raw
+    loaded pixels (a 3-D image is averaged over its last axis first), never
+    the contrast-stretched display.
+
+    :param report: properties measured for the ledger in the same pass;
+        ``intensity_mean`` is added whenever an image is given.
+    :returns: the original array untouched and an empty list when nothing
+        fails.
+    """
+    if mask is None or not np.asarray(mask).size or not np.asarray(mask).max():
+        return mask, []
+    grey = None
+    if image is not None:
+        grey = np.asarray(image, dtype=np.float32)
+        if grey.ndim == 3 and np.ndim(mask) == 2:
+            grey = grey.mean(axis=2)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids).astype(np.int32)
+    extra = tuple(report or ()) + (("intensity_mean",) if grey is not None else ())
+    removals = filter_removals(labels, filters, grey, report=extra)
+    if not removals:
+        return mask, []
+    out = mask.copy()
+    out[np.isin(labels, [removal.label for removal in removals])] = 0
+    return out, removals
 
 
 class FilterRemoval(NamedTuple):
@@ -1585,110 +1979,80 @@ class FilterRemoval(NamedTuple):
         id the hover readout showed for it.
     :ivar area: its pixel count.
     :ivar mean_intensity: its mean value on the raw image.
-    :ivar bounds: the names of every bound it failed, a subset of
-        :data:`FILTER_BOUNDS` in that order. USUALLY ONE, and more when an
-        object misses on two sides at once -- which is worth saying, because
-        an object outside two bounds does not come back by moving one.
+    :ivar bounds: the names of every LEGACY bound it failed, a subset of
+        :data:`FILTER_BOUNDS` in that order.
+    :ivar failed: every bound it failed, legacy or listed, as
+        :class:`FailedBound` entries.
     """
 
     label: int
     area: int
     mean_intensity: float
     bounds: Tuple[str, ...]
+    failed: Tuple[FailedBound, ...] = ()
 
 
 def filter_report(mask: np.ndarray, image: np.ndarray, *,
                   min_area: int = 0, max_area: int = 0,
                   min_intensity: float = 0.0, max_intensity: float = 0.0,
-                  preserve_ids: bool = False
+                  filters=None, preserve_ids: bool = False
                   ) -> Tuple[np.ndarray, List[FilterRemoval]]:
-    """Filter as :func:`filter_objects` does, measuring what it removed.
+    """Filter ``mask`` by the legacy bounds and ``filters``, measuring what went.
 
-    The same pass and the same arithmetic -- this is what
-    :func:`filter_objects` now runs -- with each dropped object's area, mean
-    and failed bounds kept instead of thrown away. Nothing else measures
-    them a second time, so the ledger the screen prints cannot disagree with
-    the mask it printed it about.
+    The four keyword bounds are migrated into the filter list by
+    :func:`legacy_filters` and judged together with ``filters`` by
+    :func:`apply_filters` -- one engine, one regionprops pass.
 
     :param mask: 2-D label mask; it is not modified.
     :param image: raw intensity image the same height and width as ``mask``;
         a 3-D image is averaged over its last axis first.
-    :returns: ``(mask, removals)``, the removals sorted by id. Nothing to do
-        returns the original array untouched and an empty list.
+    :param filters: further filter entries (see :func:`normalise_filters`).
     :param preserve_ids: measure all pixels bearing an ID as one object,
         including lone or disconnected primary/secondary labels.
+    :returns: ``(mask, removals)``, the removals sorted by id. Nothing to do
+        returns the original array untouched and an empty list.
     """
-    bounds = (int(min_area or 0), int(max_area or 0),
-              float(min_intensity or 0.0), float(max_intensity or 0.0))
-    lo_area, hi_area, lo_int, hi_int = bounds
-    if not any(bounds) or mask is None or not mask.size or not mask.max():
+    legacy = legacy_filters(min_area, max_area, min_intensity, max_intensity)
+    rules = legacy + normalise_filters(filters)
+    if not rules:
         return mask, []
-
-    from skimage.measure import regionprops
-
-    grey = np.asarray(image, dtype=np.float32)
-    if grey.ndim == 3:
-        grey = grey.mean(axis=2)
-    labels = canonical_labels(mask, preserve_ids=preserve_ids)
-    removals: List[FilterRemoval] = []
-    for region in regionprops(labels.astype(np.int32), intensity_image=grey):
-        area = int(region.area)
-        mean = float(region.intensity_mean
-                     if hasattr(region, "intensity_mean")
-                     else region.mean_intensity)
-        failed = tuple(name for name, failure in (
-            ("min_area", bool(lo_area and area < lo_area)),
-            ("max_area", bool(hi_area and area > hi_area)),
-            ("min_intensity", bool(lo_int and mean < lo_int)),
-            ("max_intensity", bool(hi_int and mean > hi_int)),
-        ) if failure)
-        if failed:
-            removals.append(
-                FilterRemoval(int(region.label), area, mean, failed))
-    if not removals:
-        return mask, []
-    removals.sort(key=lambda removal: removal.label)
-    out = mask.copy()
-    out[np.isin(labels, [removal.label for removal in removals])] = 0
-    return out, removals
+    names = {("area", "min"): "min_area", ("area", "max"): "max_area",
+             ("intensity_mean", "min"): "min_intensity",
+             ("intensity_mean", "max"): "max_intensity"}
+    out, removals = apply_filters(mask, image, rules, preserve_ids=preserve_ids)
+    reported = []
+    for removal in removals:
+        legacy_failed = {names[(f.property, f.side)] for f in removal.failed
+                         if f.index < len(legacy)}
+        reported.append(FilterRemoval(
+            removal.label, int(round(removal.values.get("area", 0))),
+            float(removal.values.get("intensity_mean", float("nan"))),
+            tuple(name for name in FILTER_BOUNDS if name in legacy_failed),
+            removal.failed))
+    return out, reported
 
 
 def filter_objects(mask: np.ndarray, image: np.ndarray, *,
                    min_area: int = 0, max_area: int = 0,
                    min_intensity: float = 0.0,
-                   max_intensity: float = 0.0,
+                   max_intensity: float = 0.0, filters=None,
                    preserve_ids: bool = False) -> Tuple[np.ndarray, List[int]]:
-    """Drop objects outside the size/intensity bounds. Each bound is off at 0.
+    """Drop objects outside the bounds; ``(mask, dropped ids)``.
 
-    Area is the object's pixel count; intensity is its MEAN value on the
-    *raw* image, not on the contrast-stretched display -- the display
-    percentiles are a viewing choice and a filter that moved when you
-    changed them would not be reproducible.
-
-    Zero means "no bound on this side" rather than "reject everything",
-    which is what makes all four bounds independently optional: a minimum
-    area of 0 would exclude nothing anyway, so the value is free to carry
-    the off switch.
-
-    :returns: ``(mask, dropped)`` -- a new mask with the failing objects
-        zeroed and the sorted ids that were dropped. The ids are what the
-        curation ledger records, so an automatic filter is as traceable as a
-        click. Nothing to do returns the original array untouched and an
-        empty list.
-
-    :func:`filter_report` is this function keeping what it measured; a
-    caller that has to tell the user WHY an object went wants that one.
+    :func:`filter_report` without the measurements: the same engine, the
+    same list, only the ids kept. Area is the pixel count; intensity is the
+    mean on the *raw* image. Each legacy bound is off at 0.
 
     :param mask: 2-D label mask; it is not modified.
-    :param image: raw intensity image the same height and width as ``mask``;
-        a 3-D image is averaged over its last axis first.
+    :param image: raw intensity image the same height and width as ``mask``.
+    :param filters: further filter entries (see :func:`normalise_filters`).
     :param preserve_ids: retain primary/secondary identities when measuring
         and removing labels; disconnected pieces sharing an ID count together.
     """
     out, removals = filter_report(
         mask, image, min_area=min_area, max_area=max_area,
         min_intensity=min_intensity, max_intensity=max_intensity,
-        preserve_ids=preserve_ids)
+        filters=filters, preserve_ids=preserve_ids)
     return out, [removal.label for removal in removals]
 
 

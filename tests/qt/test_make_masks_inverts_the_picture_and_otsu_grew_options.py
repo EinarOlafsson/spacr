@@ -265,8 +265,7 @@ def test_the_object_filter_measures_the_original_pixels(screen):
     """``filter_objects`` is handed ``canvas.image``, inverted or not."""
     screen._min_area.setValue(4)
     screen._btn_otsu.click()
-    screen._filter_min_int.setValue(0.0)
-    screen._filter_max_int.setValue(0.0)
+    screen._filter_list.set_filter("intensity_mean", 1.0)
     upright = screen.apply_object_filter()
     screen._on_undo()
     screen._invert_display.setChecked(True)

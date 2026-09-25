@@ -191,7 +191,7 @@ def test_the_toggle_hides_and_shows_the_settings_as_one_group(
     screen._open_folder(str(folder_2))
     # a card from each corner of the panel, so "as a group" means the group
     settings_widgets = (screen._brush_slider, screen._wand_pct,
-                        screen._norm_hi, screen._filter_min_area,
+                        screen._norm_hi, screen._filter_add,
                         screen._btn_otsu)
     for w in settings_widgets:
         assert screen._settings_scroll.isAncestorOf(w)

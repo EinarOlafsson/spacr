@@ -1,7 +1,8 @@
 FILTERS ARE ANY scikit-image REGIONPROP, ADDED BY THE USER
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned.
+Status: DONE 2026-09-25 (engine, Make Masks list, object_filters setting;
+        see BUILT below). Filed 2026-09-24.
+Owner: Claude (item 511 worktree).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "there should be other filter options as well, basically the user should be
@@ -22,3 +23,72 @@ needs an intensity image), rather than failing later.
 DONE WHEN
 A user can filter objects on a property spaCR never hard-coded, the filter is
 recorded, and removing it restores the objects it hid.
+
+BUILT 2026-09-25
+Engine, one for both apps (spacr/qt/mask_engine.py; no new module):
+  _filter_catalogue / filter_properties (1597/1645): every scalar regionprop,
+    enumerated from skimage's own COL_DTYPES by computing each on a probe;
+    non-scalar ones (coords, image, bbox, centroid, moments...) left out;
+    intensity_* offered only with an intensity image. skimage 0.23.2 gives
+    16 shape + 4 intensity properties.
+  normalise_filters (1698): the serialised list [{"property","min","max"}],
+    None/blank = off, old skimage names mapped (mean_intensity ->
+    intensity_mean), JSON or literal text accepted, errors named.
+  legacy_filters (1755): THE MIGRATION -- min/max_area and min/max_intensity
+    (0 = off) become "area" and "intensity_mean" entries.
+  settings_filters (1779): reads the object_filters setting per object type.
+  filter_removals (1850): one regionprops_table call per mask with every
+    requested property; an intensity property without an intensity image is
+    refused ("An intensity plane with the same shape as the mask is required:
+    the filter on X measures pixel values, so it cannot run on a mask alone.").
+  apply_filters (1938); filter_report / filter_objects (1995-) now run on it.
+Mask generation: spacr/utils.py:621 _filter_objects migrates its legacy
+  bounds into the list and judges them with filters= in one pass (same run-log
+  lines, plus "Object filters: removed N"); filters= threaded through
+  _process_single_fov_in_memory, merge_split_objects, _process_single_fov.
+  Wired where the size filters apply, per object type: spacr/object.py:128
+  (merge_split_filter_masks), :777 (masks, incl. the 3-D branch), :1487
+  (organelle slots), spacr/pipeline_v2.py:551, live_preview.py:1063. Raw
+  intensity planes are loaded whenever a listed filter needs them.
+Make Masks: spacr/qt/screens/make_masks.py:6887 ObjectFilterList -- property
+  box + "Add a filter", rows of property / min / max / Remove, starts empty
+  (opt-in); in the Filter category at :8451. Applied live
+  (apply_object_filter :9287) against a baseline (_filter_base :9262), so
+  removing a row or loosening a bound brings back what it hid; edits made
+  since the last run are folded into the baseline; undo, redo and opening a
+  field start a new one. The ledger's "filter" entry records filters=<list>
+  (provenance). The four fixed spin boxes are gone; set_filters() accepts an
+  old bounds dict and migrates it.
+LEFT FOR THE MAINTAINER: Mask's per-object {obj}_min_area, _max_area,
+  _min_intensity, _max_intensity settings still exist in the form (many
+  tests, tables and translations hang on them). They are migrated into the
+  list where read, so there is one engine, but still two ways to type an area
+  bound in Mask. Retiring them is a separate decision.
+
+TESTS (2026-09-25)
+  New: tests/test_object_filters_are_any_regionprop.py (29: each of the 20
+  properties, refusal, restore, migration, once per mask, Mask run labels ==
+  Make Masks labels); tests/qt/test_make_masks_filters_are_any_regionprop.py
+  (9: offered list with/without an image, add/remove rows, live restore,
+  provenance, editor vs run, legacy dict). Existing Make Masks and filter
+  tests moved to the list API. 69 files (all Make Masks qt tests, mask
+  filter/intensity/merge tests, settings and i18n pins):
+  before 1458 passed / 1 failed (stale reviewed translations, pre-existing);
+  after, pre-merge 1865 passed / 0 failed; after merging nightly
+  1863 passed / 2 failed -- test_runtime_i18n_syntax sv and fr, which fail on
+  nightly itself (316's 721adc238 retired 17 sv records, file 246 vs pinned
+  263); 511's own deltas (-4 / -1) are applied in that test.
+
+NEW SETTING (docs lane): object_filters (dict, Mask, "Object filtration"
+  category, default {}), e.g. {'cell': [{'property': 'solidity', 'min': 0.9}]}.
+NEW tr() STRINGS (make_masks.py): "Add a filter"; "Remove"; "no minimum";
+  "no maximum"; tooltips of the property box, Add, row label, min, max and
+  Remove; the Filter category subtitle; the Filter button and ledger
+  tooltips; "Nothing is hidden. Add a filter above and set a bound.";
+  "Object filters: nothing outside the bounds."; "Object filter removed
+  {count} object(s) — Ctrl+Z to undo"; ledger pieces "Object {label} with
+  area {area} px", "and intensity {mean}", "was removed by", "and",
+  "minimum", "maximum", "area", "intensity", "(was {value})"; "{name}
+  measures pixel values, and no intensity image is open, so it cannot filter
+  this mask." Retired captions (reviewed records deleted): Min/Max area (px),
+  the old Filter subtitle, button and ledger tooltips, and placeholder.

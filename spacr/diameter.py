@@ -43,8 +43,20 @@ For each requested object channel, on each sampled field:
 3. **Threshold and label.** Otsu, fill holes, label, drop components that
    touch the image border (truncated, so their size is a lie) and components
    that are absurd (equivalent diameter below ``min_object_diameter``, or area
-   above ``max_object_fraction`` of the field). Characteristic size is the
-   median equivalent diameter, ``2 * sqrt(area / pi)``.
+   above ``max_object_fraction`` of the field). Sizes are equivalent
+   diameters, ``2 * sqrt(area / pi)``.
+3b. **Drop specks, then take the median.** A textured or punctate stain
+   (a mitochondrial cell stain, a parasite marker) thresholds into a few
+   whole objects plus hundreds of 4-10 px specks, and a plain median counts
+   every speck as an object: on spaCR's own test plate that put the cell at
+   8 px and the pathogen at 11 px against 175 px and 32 px in the curated
+   masks, while the nucleus, whose stain is solid, came out right at 91 px.
+   So the typical object is first located by the stained area it carries
+   (the area-weighted median, which specks cannot move because they hold
+   almost no area), everything narrower than :data:`SPECK_FRACTION` of it
+   is dropped, and the characteristic size is the median of what remains.
+   Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the
+   stained area or more are a second population, not specks, and stay.
 4. **Cross-check by distance transform.** Step 3 has one dominant failure
    mode: a confluent monolayer fuses into a single component, that component
    touches the border and is dropped, and the estimate is then computed from
@@ -137,6 +149,18 @@ SETTING_KEYS: Dict[str, str] = {obj: f"{obj}_diameter" for obj in OBJECT_TYPES}
 
 _HIGH, _MEDIUM, _LOW = "high", "medium", "low"
 _LEVELS = (_HIGH, _MEDIUM, _LOW)
+
+#: Components narrower than this fraction of the area-weighted median
+#: diameter (so holding under 1/16 of its area) are specks, not objects.
+#: Measured on the test plate: 0.25 to 0.5 give the same cell (160 px) and
+#: nucleus (97 px); the pathogen, whose objects vary most, reads 32 px at
+#: 0.25 against 32 px in the masks and drifts up to 55 px by 0.5.
+SPECK_FRACTION = 0.25
+
+#: Small components are specks only while together they hold less than this
+#: share of the stained area. On the test plate they hold 0.3-7 %; the small
+#: discs of a genuine two-size population hold a quarter and are kept.
+SPECK_MAX_AREA_SHARE = 0.15
 
 
 
@@ -674,6 +698,40 @@ def _demote(level: str, steps: int = 1) -> str:
     return _LEVELS[min(len(_LEVELS) - 1, _LEVELS.index(level) + steps)]
 
 
+def _without_specks(
+    diams: np.ndarray,
+    fraction: float = SPECK_FRACTION,
+    max_share: float = SPECK_MAX_AREA_SHARE,
+) -> np.ndarray:
+    """Drop the components too small, next to the typical object, to be one.
+
+    The typical object is the area-weighted median: the diameter of the
+    component that holds the median stained pixel. Many specks cannot move
+    it, because together they hold little area, whereas they outnumber the
+    real objects and so decide a plain median. Components narrower than
+    ``fraction`` of it are removed, but only while together they hold less
+    than ``max_share`` of the stained area: small objects that carry a real
+    share of the stain are a second population, and are kept so the spread
+    shows it. The component at the area-weighted median always survives, so
+    a non-empty input stays non-empty.
+
+    :param diams: pooled equivalent diameters.
+    :param fraction: the speck cut-off, as a fraction of the typical diameter.
+    :param max_share: the largest share of the stained area specks may hold.
+    :returns: the diameters that are objects rather than specks.
+    """
+    diams = np.asarray(diams, dtype=np.float64)
+    if diams.size < 2:
+        return diams
+    order = np.sort(diams)
+    weight = np.cumsum(order ** 2)
+    typical = float(order[int(np.searchsorted(weight, 0.5 * weight[-1]))])
+    specks = diams < fraction * typical
+    if float((diams[specks] ** 2).sum()) >= max_share * float(weight[-1]):
+        return diams
+    return diams[~specks]
+
+
 def _aggregate(
     object_type: str,
     channel: int,
@@ -696,8 +754,10 @@ def _aggregate(
             f"{object_type} stain and that the channel index is not off by one.",
         )
 
-    thresh = np.concatenate([r.thresh_diams for r in usable]) if usable else np.empty(0)
-    split = np.concatenate([r.split_diams for r in usable]) if usable else np.empty(0)
+    thresh_all = np.concatenate([r.thresh_diams for r in usable])
+    split_all = np.concatenate([r.split_diams for r in usable])
+    thresh = _without_specks(thresh_all)
+    split = _without_specks(split_all)
     fg = float(np.median([r.fg_fraction for r in usable]))
 
     d_thresh = float(np.median(thresh)) if thresh.size else float("nan")
@@ -721,8 +781,10 @@ def _aggregate(
 
     if fused:
         chosen, diameter, method = split, d_split, "watershed_edt"
+        n_specks = int(split_all.size - split.size)
     elif thresh.size:
         chosen, diameter, method = thresh, d_thresh, "threshold_otsu"
+        n_specks = int(thresh_all.size - thresh.size)
     else:
         return _no_estimate(
             object_type,
@@ -783,6 +845,12 @@ def _aggregate(
                 f"the two measurements disagree ({d_thresh:.1f} px by thresholding vs "
                 f"{d_split:.1f} px by distance transform)"
             )
+
+    if n_specks:
+        notes.append(
+            f"{n_specks} specks narrower than {SPECK_FRACTION * 100:.0f}% of the "
+            f"typical object were set aside as debris or stain texture"
+        )
 
     if n_used < 2:
         level = _demote(level)

@@ -1255,6 +1255,90 @@ EXAMPLE_DATA_SECTIONS = {
 }
 
 
+def _window_of(screen):
+    """The window ``screen`` sits in, read before a load that may retire it.
+
+    A screen a rebuild replaced has no parent left, so its window can only be
+    found while it is still mounted.
+    """
+    window = getattr(screen, "window", None)
+    try:
+        return window() if callable(window) else None
+    except RuntimeError:
+        return None
+
+
+def _screen_after_the_load(screen, window):
+    """The screen holding ``screen``'s form once example settings are in.
+
+    ITEM 514. Applying a shipped settings pack that changes the form's shape
+    has the window build a new screen and destroy this one
+    (:meth:`AppScreen.apply_settings_dict`). Every Load test data route then
+    wrote ``src`` into the field it had looked up BEFORE the load, which
+    belonged to the retired screen, so the screen on view kept the pack's
+    ``<src>`` and its Live preview was never told. A second press rebuilt
+    nothing, because the form already had the pack's shape, which is why it
+    worked.
+
+    :param screen: the screen the button was pressed on.
+    :param window: its window, from :func:`_window_of` before the load.
+    :returns: the screen that replaced it, or ``screen`` itself.
+    """
+    screens = getattr(window, "_screens", None) if window is not None else None
+    key = getattr(screen, "app_key", None)
+    fresh = screens.get(key) if isinstance(screens, dict) else None
+    return fresh if fresh is not None else screen
+
+
+def _live_is_on(screen) -> bool:
+    """Whether ``screen``'s Live switch is on, without building anything."""
+    switch = getattr(screen, "__dict__", {}).get("_preview_switch")
+    try:
+        return bool(switch is not None and switch.isChecked())
+    except RuntimeError:
+        return False
+
+
+def _show_the_src_live(screen, *, live_was_on: bool = False) -> None:
+    """Have ``screen``'s Live preview show what ``src`` holds, now.
+
+    Called once ``src`` holds the test data. A preview that is on loads it at
+    once rather than after the typing debounce; one that was on before a
+    rebuild is switched on again on the new screen; one that is off keeps the
+    source for when it is opened.
+
+    :param screen: the screen whose ``src`` was just written.
+    :param live_was_on: whether Live was on when the button was pressed.
+    """
+    state = getattr(screen, "__dict__", {})
+    timer = state.get("_live_src_timer")
+    if timer is not None:
+        try:
+            timer.stop()
+        except RuntimeError:
+            pass
+    switch = state.get("_preview_switch")
+    if switch is None:
+        return
+    source = screen._settings_src_path() or ""
+    live_card = getattr(screen, "_preview_card_attr", "") == "_live_preview_card"
+    was_primed = bool(getattr(screen, "_preview_primed", False))
+    if live_was_on and not switch.isChecked():
+        switch.setChecked(True)
+    if not switch.isChecked():
+        if live_card:
+            screen._autoload_live_preview(source)
+        else:
+            screen._preview_primed = False
+        return
+    if not was_primed and getattr(screen, "_preview_primed", False):
+        return
+    if live_card:
+        screen._autoload_live_preview(source)
+    else:
+        screen._prime_preview()
+
+
 
 def _each_fractal_backdrop(screen):
     """Yield every fractal backdrop reachable from ``screen``.
@@ -2993,6 +3077,42 @@ class AppScreen(QWidget):
                     continue
                 try:
                     signal.connect(slot)
+                    break
+                except Exception:                            # noqa: BLE001
+                    continue
+        self._watch_the_cellpose3_choosers(model)
+
+    def _watch_the_cellpose3_choosers(self, model) -> None:
+        """Show the Cellpose 3 rows as soon as a Cellpose 3 model is chosen.
+
+        Item 503. The model zoo writes ``cellpose3:<model>`` into a model
+        field with ``setText``, which is not a commit -- no
+        ``editingFinished`` follows -- so the text itself is followed, and
+        the visibility pass waits for the text to settle for a moment rather
+        than running on every keystroke typed into the field.
+
+        :param model: the screen's settings model.
+        """
+        from .settings_model import _cellpose3_choosers
+
+        widgets = getattr(model, "_widgets", {}) or {}
+        keys = _cellpose3_choosers(widgets)
+        if not keys:
+            return
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.setInterval(250)
+        timer.timeout.connect(self._show_the_objects_the_run_has)
+        self._cellpose3_rows_timer = timer
+        for key in keys:
+            widget = widgets.get(key)
+            for name in ("textChanged", "currentTextChanged", "valueChanged",
+                         "currentIndexChanged"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(lambda *_: timer.start())
                     break
                 except Exception:                            # noqa: BLE001
                     continue
@@ -4896,6 +5016,7 @@ class AppScreen(QWidget):
         if console is not None:
             console.append_stdout(
                 tr("Source directory (src): {path}", path=source) + "\n")
+        _show_the_src_live(self)
         return True
 
     def _install_measure_example_button(self, section) -> None:
@@ -5013,17 +5134,21 @@ class AppScreen(QWidget):
         from pathlib import Path
 
         source = str(Path(destination))
+        window = _window_of(self)
+        live_was_on = _live_is_on(self)
         model = getattr(self, "_settings_model", None)
         control = (model._widgets.get("src")
                    if model is not None and hasattr(model, "_widgets")
                    else None)
         if control is not None and hasattr(control, "setText"):
             control.setText(source)
-        self._console.append_stdout(
-            tr("Source directory (src): {path}", path=source) + "\n")
         self.apply_settings_that_came_with(destination)
-
-        return {"src": self.keep_the_src_openable(destination)}
+        screen = _screen_after_the_load(self, window)
+        screen._console.append_stdout(
+            tr("Source directory (src): {path}", path=source) + "\n")
+        kept = screen.keep_the_src_openable(destination)
+        _show_the_src_live(screen, live_was_on=live_was_on)
+        return {"src": kept}
 
     def _install_sequencing_example_button(self, section) -> None:
         """Add Map Barcodes' control for the published reads."""
@@ -5199,14 +5324,19 @@ class AppScreen(QWidget):
         from pathlib import Path
 
         destination = Path(destination)
+        window = _window_of(self)
+        live_was_on = _live_is_on(self)
         applied = self.apply_settings_that_came_with(destination)
+        screen = _screen_after_the_load(self, window)
         if not applied:
-            self._console.append_notice(
+            screen._console.append_notice(
                 "[example] no settings file for {app} in the example data\n",
-                app=self.app_key)
-        self._console.append_stdout(
+                app=screen.app_key)
+        screen._console.append_stdout(
             tr("Example data ready: {path}", path=str(destination)) + "\n")
-        return {"src": self.keep_the_src_openable(destination)}
+        source = screen.keep_the_src_openable(destination)
+        _show_the_src_live(screen, live_was_on=live_was_on)
+        return {"src": source}
 
     def example_images_destination(self):
         """The shared example plate folder. See `hf_download.example_plate_folder`."""
@@ -5265,32 +5395,34 @@ class AppScreen(QWidget):
         return placed
 
     def _put_the_example_images_in_place(self, images, settings) -> dict:
-        """Write the fetched folder into `src` and say so."""
-        model = getattr(self, "_settings_model", None)
-        control = (model._widgets.get("src")
-                   if model is not None and hasattr(model, "_widgets")
-                   else None)
-        self._console.append_stdout(
+        """Apply the shipped settings, then write the fetched folder into `src`.
+
+        In that order, and on the screen that holds the form AFTERWARDS: a
+        pack that reshapes the form replaces this screen, so the field and
+        console are looked up once the settings are in (item 514).
+        """
+        window = _window_of(self)
+        live_was_on = _live_is_on(self)
+        self.apply_settings_that_came_with(images, pack_folder=settings)
+        screen = _screen_after_the_load(self, window)
+
+        screen._console.append_stdout(
             tr("Source directory (src): {path}", path=str(images)) + "\n"
         )
         if settings is not None:
-            self._console.append_stdout(
+            screen._console.append_stdout(
                 tr(
                     "Compatible example settings: {path}",
                     path=str(settings),
                 ) + "\n"
             )
-        # THE `settings` ARGUMENT WAS ANNOUNCED AND THEN DISCARDED. This
-        # method printed "Compatible example settings: <path>" and then
-        # searched `images` instead, so the console named the shipped pack
-        # while the form was filled from whatever sat in the plate's own
-        # settings folder -- which, after one run, is the user's own output.
-        # Reporting the right path and reading a different one is worse than
-        # either mistake alone.
-        self.apply_settings_that_came_with(images, pack_folder=settings)
-
+        model = getattr(screen, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
         if control is not None and hasattr(control, "setText"):
             control.setText(str(images))
+        _show_the_src_live(screen, live_was_on=live_was_on)
         return {"src": str(images),
                 "settings": str(settings) if settings else ""}
 

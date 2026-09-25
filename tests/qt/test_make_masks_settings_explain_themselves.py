@@ -211,6 +211,9 @@ def _awaiting_translation(screen) -> set:
     Owed since 2026-09-25 by item 509 (deconvolution infers its own values):
     the PSF objective, camera, fluorophore and optics fields, and the image
     pixel help, which no longer says that no calibration is inferred.
+
+    Owed since 2026-09-25 by item 511 (filters are any regionprop): the
+    Filter category's property box.
     """
     widgets = [screen._btn_otsu, screen._btn_to_mask]
     widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
@@ -225,7 +228,7 @@ def _awaiting_translation(screen) -> set:
                  "_enh_morphology", "_enh_morphology_radius", "_enh_split",
                  "_enh_percentile_clip", "_enh_percentile_low",
                  "_enh_percentile_high", "_enh_log", "_enh_log_gain",
-                 "_enh_sqrt"):
+                 "_enh_sqrt", "_filter_property"):
         widget = getattr(screen, name, None)
         if widget is not None:
             widgets.append(widget)
