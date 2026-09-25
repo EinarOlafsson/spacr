@@ -1,19 +1,29 @@
 {
-  "lesson": "06_api", "language": "is",
-  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
-  "review": {"kind": "Editorial caption translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
-  "title": "Python-forritaskil og núverandi verkferlar án myndræns viðmóts",
-  "description": "Finndu uppsettar lotukeyrsluleiðir, greindu gagnvirk verkfæri frá Python-föllum og skoðaðu prufukeyrslu með raunverulegu dæmi án þess að halda því fram að greining hafi verið framkvæmd.",
-  "objectives": ["Staðfesta útgáfu pakkans í virka Python-umhverfinu.", "Finna núverandi skipanalykla og föllin sem þeir kalla í raun á.", "Greina á milli gagnvirks verkferlis, Python-falls og lotuskipunar.", "Lesa stillingar, lokakóða og takmarkanir prufukeyrslu áður en keyrt er án eftirlits."],
-  "prerequisite": "Ljúktu fyrst kennslustund um uppsetningu. Notaðu sótt pöruð gögn og vistaðar stillingar úr Regression-kennslustundinni fyrir forathugunina sem sýnd er; skiptu slóðum þessarar tölvu út fyrir þínar eigin. Engin greining er framkvæmd og engin skýrsla búin til í þessari upptöku.",
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Python-API og runuskipanir",
+  "description": "Finndu greiningarfall, hlaðu inn vistuðum stillingum, athugaðu inntökin og keyrðu spaCR úr skipanaglugga.",
+  "objectives": [
+    "Finna uppsettar runuskipanir og Python-föll þeirra.",
+    "Skoða undirskrift falls og API-tilvísun þess.",
+    "Athuga vistaðar stillingar áður en greining er keyrð."
+  ],
+  "prerequisite": "Settu upp spaCR og virkjaðu Python-umhverfi þess. Fylgdu Regression-kennslunni til að útbúa pöruð töflur með stigum og talningum og vista greiningarstillingarnar. Notaðu eigin skráarslóðir í skipununum.",
   "scenes": [
-    "Flyttu pakkann inn og prentaðu útgáfuna í umhverfinu þar sem þú settir spaCR upp. Þessi raunverulegi skipanagluggi sýnir útgáfu einn punktur fimm punktur núll punktur fjórir. Athugaðu eigin útgáfu áður en þú fylgir skipununum, því eldra umhverfi getur boðið önnur föll og stillingar.",
-    "Keyrðu spacr-run með valkostinum list. Lotukeyrsluhlutinn sýnir nákvæma skipanalykla og Python-inngangsföll, þar á meðal mask, measure og classify_merged. Nöfn á Home-skjánum og innfelldir hnappar eru ekki sjálfkrafa lotuskipanir. Notaðu uppsetta listann í stað þess að giska á lykil út frá heiti kennslustundar.",
-    "Notaðu describe með regression til að sjá fallið perform_regression í spacr.ml, fallið sem skilar sjálfgefnum gildum og kröfur um inntak. Þetta tengir skipunina við raunverulega greiningarfallið. Vistaðar stillingar fyrir pöruð gögn koma úr Regression-dæminu sem tengt er við, ekki úr tilbúinni mælimöppu.",
-    "Annotate er gagnvirkur verkferill. Kallið spacr-run annotate skilar í raun lokakóðanum tveir og útskýrir að engin samsvarandi lotukeyrsla sé til. Notaðu Annotate í skjáborðsforritinu til að merkja myndútskurði. Þessi vænta höfnun sannar ekki að uppsetningin sé biluð.",
-    "Aðrir eiginleikar hafa Python-forritaskil án samsvarandi lotuskipanalykils. Hér flytjum við build_report inn úr spacr.report og skoðum raunverulega færibreytulýsingu fallsins. Við köllum ekki á það og búum ekki til skýrslu. Skoðaðu skjöl og viðföng fallsins í stað þess að gera ráð fyrir að spacr-run report sé til.",
-    "Sendu regression vistuðu stillingaskrána og bættu við dry-run. Raunverulega skipunin ákvarðar stillingar og framkvæmir forathuganir, en tekur síðan sérstaklega fram að ekki hafi verið kallað á perform_regression. Lestu lokakóðann og skilaboðin; upptakan hóf ekki aðra aðhvarfsgreiningu og skrifaði ekki niðurstöður hennar.",
-    "Forathugun án villna sannar hvorki að öll greiningin takist né að hún sé vísindalega gild. Almenna áætlunin í þessari útgáfu nefnir mæligagnagrunn þótt aðhvarfsgreiningin okkar noti paraðar töflur. Skoðaðu raunverulegt inntak einingarinnar og prófaðu afmarkaða keyrslu áður en þú treystir á keyrslu án eftirlits.",
-    "Fjarlægðu dry-run aðeins þegar þú ætlar að framkvæma greininguna. Geymdu nákvæmar stillingar, auðkenni inntaksgagna, pakkaútgáfu og skipanaskrá með niðurstöðunum. Fylgdu tengdu kennslustundinni fyrir eininguna til að sjá sýnda keyrslu og skoðaðu núverandi API-lýsingu fallsins þegar þú skrifar Python-skriftur."
+    "Virkjaðu Python-umhverfið sem þú settir spaCR upp í. Fluttu inn spacr og prentaðu útgáfu þess með skipuninni sem sést. Geymdu útgáfuna með greiningarglósunum svo þú getir endurtekið sömu keyrslu síðar.",
+    "Keyrðu spacr-run --list til að finna tiltækar runuskipanir. Listinn sýnir lykil hverrar skipunar og Python-fall hennar. Veldu skipunina fyrir verkið þitt, til dæmis mask, measure eða regression. Notaðu skjáborðsforritið fyrir gagnvirk verk eins og að merkja myndir í Annotate.",
+    "Keyrðu spacr-run --describe regression. Lestu nauðsynleg inntök, sjálfgefin gildi og heiti fallsins. Hér kallar runuskipunin á perform_regression í spacr.ml. Opnaðu það fall í API-tilvísuninni til að lesa stika þess og niðurstöðurnar sem það skilar.",
+    "Í Python flytur þú inn fallið sem þú þarft og skoðar undirskrift þess. Þetta dæmi flytur inn build_report úr spacr.report. Flettu upp sama heiti í API-tilvísuninni, útbúðu nauðsynleg færibreytugildi og kallaðu á fallið úr skriftu eða vinnubók.",
+    "Vistaðu stillingarnar úr verkferli einingarinnar og sendu svo skrána með --settings. Bættu við --dry-run til að athuga stillingarnar og inntaksslóðirnar. Í þessu Regression-dæmi para stillingarnar svipgerðarstig við fjölda leiðsagnar-RNA fyrir hverja plötu. Lestu skilaboðin og lagaðu inntök sem vantar áður en þú heldur áfram.",
+    "Til að framkvæma greininguna keyrirðu sömu skipun án --dry-run. Fylgstu með stjórnborðinu þar til skipuninni lýkur og skoðaðu svo úttakið sem lýst er í kennslu og API-síðu einingarinnar. Geymdu stillingaskrána, inntakstöflurnar, útgáfu pakkans og annál stjórnborðsins með niðurstöðunum."
   ]
 }
