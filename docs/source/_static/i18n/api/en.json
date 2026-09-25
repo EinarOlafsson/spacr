@@ -47885,10 +47885,11 @@
     },
     "spacr.qt.model_install.SpotDetectorCombo.setCurrentText": {
       "source_blocks_sha256": [
-        "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1"
+        "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
+        "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481"
       ],
-      "source_sha256": "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
-      "text": "Select the row whose caption or value is ``text``, if usable."
+      "source_sha256": "686905a3f54882806efedb8e5b83c27860e473841aab9585142574775cdc37dd",
+      "text": "Select the row whose caption or value is ``text``, if usable.\n\n:param text: a caption or stored value; a row that is not installed\n    (disabled), or no match, leaves the selection alone."
     },
     "spacr.qt.model_install.backend_row": {
       "source_blocks_sha256": [
@@ -86629,10 +86630,11 @@
       "source_blocks_sha256": [
         "261e8eb938598d94fb8a5cd74c2fa891e3ab499411fc78d102f88491bf8471cf",
         "5cc5300993a359a8a40f278ccc4315ab5132556078a30fa52e00650fdf269620",
+        "60bb2a7bfde4b88ae622f2b062041e79d832159db0f2c299adf170c96216bf79",
         "cd6002185b110ac97e5c05a7de358447b496b83d6e0c8cba4627ad0fd5153bf8"
       ],
-      "source_sha256": "c5096c13b9a4ff25365681e22c797c408f930a40c8fc0ea589ab30dfd87c099b",
-      "text": "Draw ``layers`` (bottom first) in the third panel.\n\nNothing ticked puts the panel away again.\n\n:returns: whether a picture was drawn."
+      "source_sha256": "c4f06b34bcbd6eb13f7c80c7be0f26a22877007d61fdd7935e458600257ffd07",
+      "text": "Draw ``layers`` (bottom first) in the third panel.\n\nNothing ticked puts the panel away again.\n\n:param layers: the :class:`~spacr.qt.widgets.mask_comparison.Layer`\n    stack, bottom first, as\n    :func:`~spacr.qt.widgets.mask_comparison.composite` takes it.\n:returns: whether a picture was drawn."
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.shutdown": {
       "source_blocks_sha256": [
@@ -86981,10 +86983,13 @@
     },
     "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.move": {
       "source_blocks_sha256": [
-        "cf0a87da99962c7ecd94e59b0a815359da341715349641b327739cb948cde5f8"
+        "cf0a87da99962c7ecd94e59b0a815359da341715349641b327739cb948cde5f8",
+        "5978391b0648d6b6d5b6076dfeccf305dcd88a91fe4149779f4301668bc9e50d",
+        "c11c282f9274d2a7c4403938a4358c4de6a94dfab4d2ab5d5e7c427f3eb8ba2b",
+        "a2f2ad2b4b3ed04bdaa360fc4511ec40b82915a8dabdebadd83da59700199056"
       ],
-      "source_sha256": "cf0a87da99962c7ecd94e59b0a815359da341715349641b327739cb948cde5f8",
-      "text": "Move row ``index`` by ``step`` places; ``-1`` is up the stack."
+      "source_sha256": "b54f0f828464dec13a3c47b763b23d84d546fe431a35786a726b7931d17bbe11",
+      "text": "Move row ``index`` by ``step`` places; ``-1`` is up the stack.\n\nA move that would leave the stack does nothing.\n\n:param index: the row to move, top of the stack first.\n:param step: how many places to move it; negative is up."
     },
     "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.rows": {
       "source_blocks_sha256": [
@@ -87006,10 +87011,11 @@
     "spacr.qt.widgets.mask_comparison.layer_rgb": {
       "source_blocks_sha256": [
         "2989511191d5f2fb130e997ce76a15eb25103a0b666d27e89911c69c9c296fb8",
+        "6992e78e38c43de1184c7e66fca156ea13ca5086360535b275a16c913a7ba18d",
         "b893e93250c63b06e24fc6abd82a65611e8576563d2e60b101edf20d01baf691"
       ],
-      "source_sha256": "a866917b62af0b3423b7bf72c26c3c6491df34f327008f8bfe333df5e5a01094",
-      "text": "A layer's colour and the pixels it covers.\n\n:returns: ``(H x W x 3 float32 colour, H x W bool coverage)``."
+      "source_sha256": "4e410bb57b2c3d9535f0567fadc57fe6a380175b7ac7aa2647e22ce1e50e3c9e",
+      "text": "A layer's colour and the pixels it covers.\n\n:param layer: a mask layer covers its non-zero pixels in its own\n    colour; an image layer covers every pixel with its own values.\n:returns: ``(H x W x 3 float32 colour, H x W bool coverage)``."
     },
     "spacr.qt.widgets.measure_input_table": {
       "source_blocks_sha256": [
@@ -95599,10 +95605,11 @@
     },
     "spacr.qt.widgets.segmentation_views.PictureCanvas.set_picture_name": {
       "source_blocks_sha256": [
-        "7bb44894c24916570816586f199baea976667c6816a5f410881972fff0c1da58"
+        "7bb44894c24916570816586f199baea976667c6816a5f410881972fff0c1da58",
+        "6bc58ede8f5a9e6d04e1ca369451de03affdfb47d06de7458f7e384ad6cf70a0"
       ],
-      "source_sha256": "7bb44894c24916570816586f199baea976667c6816a5f410881972fff0c1da58",
-      "text": "Name what the canvas shows, for the save dialog."
+      "source_sha256": "d0c8068cf8a2bfcc532c2133417134a552ed506e21ea5ac350eb4f79fe8fa0bf",
+      "text": "Name what the canvas shows, for the save dialog.\n\n:param name: the suggested file name; empty means ``picture``."
     },
     "spacr.qt.widgets.segmentation_views.SegmentationViews": {
       "source_blocks_sha256": [
@@ -95756,10 +95763,11 @@
     },
     "spacr.qt.widgets.segmentation_views.boundary_of": {
       "source_blocks_sha256": [
-        "c80bea77d3ff48d91da3f0a87625cc84b2fb279e64d3016ff5233947de41b029"
+        "c80bea77d3ff48d91da3f0a87625cc84b2fb279e64d3016ff5233947de41b029",
+        "7b7a48f69c283c458e0ecf4b163c712d20e394474f2807dbe20d6c863e3249b3"
       ],
-      "source_sha256": "c80bea77d3ff48d91da3f0a87625cc84b2fb279e64d3016ff5233947de41b029",
-      "text": "The 4-connected boundary of a label image, as a bool array."
+      "source_sha256": "a1cf3b45d260dbc0b1c31c5dfe1375528d930ca171629be1919388a3e3e9c338",
+      "text": "The 4-connected boundary of a label image, as a bool array.\n\n:param labels: ``H x W`` label image; a pixel is on the boundary when a\n    4-neighbour has a different label."
     },
     "spacr.qt.widgets.segmentation_views.cell_probability": {
       "source_blocks_sha256": [
@@ -95775,10 +95783,12 @@
       "source_blocks_sha256": [
         "39825f12571587bb34469effd5b99c1ccf6dee1776abcdf2bb4de50041b94376",
         "253b68aa39d92a45f71ab93b5196cee6e40e1a383c411ef12168e9ac9c305947",
+        "95de8c29ae3d64e9b1b540ae98569ac90b8baa1c43f6c124bfe114a769b19cc0",
+        "d0f6b1a95aba164a3952530675d8e7f4968dc4fdf0602e5cd68e90b2b62736d3",
         "e6e1c939f63e23a8adca3562bedf79221a0c8e1ea7be047b5663e3f5190be2fb"
       ],
-      "source_sha256": "b4b9fbaf78d9988d72d52deaab966aee4bdea9f7aaca273dc95316ed2de18cab",
-      "text": "``count`` vivid colours, spread round the hue circle by the golden angle.\n\nDeterministic for a given ``seed``, so the same object keeps its colour\nfrom one redraw to the next.\n\n:returns: ``count x 3`` ``uint8``."
+      "source_sha256": "504a3eb0e017246c2daa9ab00ac5230c4c7a38e380178807d5a14a14828a8aba",
+      "text": "``count`` vivid colours, spread round the hue circle by the golden angle.\n\nDeterministic for a given ``seed``, so the same object keeps its colour\nfrom one redraw to the next.\n\n:param count: how many colours; zero or less gives none.\n:param seed: shifts the start of the sequence.\n:returns: ``count x 3`` ``uint8``."
     },
     "spacr.qt.widgets.segmentation_views.per_object": {
       "source_blocks_sha256": [
@@ -95791,10 +95801,11 @@
     },
     "spacr.qt.widgets.segmentation_views.picture_name_of": {
       "source_blocks_sha256": [
-        "2b972ed8381ca213e36d5ae3d6de45022438982c488c736a2c45596f8139201d"
+        "2b972ed8381ca213e36d5ae3d6de45022438982c488c736a2c45596f8139201d",
+        "8ae8a295a056188b27311cea3524ad71423f95cae789e83bd0f111121680db34"
       ],
-      "source_sha256": "2b972ed8381ca213e36d5ae3d6de45022438982c488c736a2c45596f8139201d",
-      "text": "The file name a saved picture of ``view`` is offered under."
+      "source_sha256": "6fe8428fab693061aa02fe156b55641dfe13d357f058bf74cf5a3571ffb2c512",
+      "text": "The file name a saved picture of ``view`` is offered under.\n\n:param view: one of :data:`VIEWS`; lower-cased with spaces as\n    underscores, and ``picture`` when empty."
     },
     "spacr.qt.widgets.segmentation_views.render_cellprob": {
       "source_blocks_sha256": [
@@ -95838,10 +95849,11 @@
     },
     "spacr.qt.widgets.segmentation_views.to_qpixmap": {
       "source_blocks_sha256": [
-        "a80af02f02fb4b8c00d846a40142c283b117c752766ac45bea5572427659727b"
+        "a80af02f02fb4b8c00d846a40142c283b117c752766ac45bea5572427659727b",
+        "c0fa139b5ed41a026892ad23ff4067be9a1c0901c5af373d03bb931c718e9ace"
       ],
-      "source_sha256": "a80af02f02fb4b8c00d846a40142c283b117c752766ac45bea5572427659727b",
-      "text": "A ``QPixmap`` of ``rgb``; a null one when there is nothing to draw."
+      "source_sha256": "24ce45aaf298dee6e641d47b3a2d4978e096e78069fcab7caf8bb8cab3c1746e",
+      "text": "A ``QPixmap`` of ``rgb``; a null one when there is nothing to draw.\n\n:param rgb: anything :func:`to_rgb8` accepts."
     },
     "spacr.qt.widgets.segmentation_views.to_rgb8": {
       "source_blocks_sha256": [

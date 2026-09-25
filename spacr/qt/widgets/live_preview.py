@@ -4997,6 +4997,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         Nothing ticked puts the panel away again.
 
+        :param layers: the :class:`~spacr.qt.widgets.mask_comparison.Layer`
+            stack, bottom first, as
+            :func:`~spacr.qt.widgets.mask_comparison.composite` takes it.
         :returns: whether a picture was drawn.
         """
         from .mask_comparison import composite

@@ -293,6 +293,10 @@ def install_picture_save(view, picture: Callable[[], object],
     :returns: whether the menu was installed.
     """
     def _menu(point) -> str:
+        """Offer the save menu at ``point``; the path written, or ``""``.
+
+        :param point: where the right-click landed, in ``view`` coordinates.
+        """
         if unless is not None:
             try:
                 if unless():
