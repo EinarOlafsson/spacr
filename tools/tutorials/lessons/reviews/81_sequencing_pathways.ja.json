@@ -28,7 +28,7 @@
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
     "native_speaker_signoff": false,
     "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "34cd5a614a03f9b87f2d15821e3ff4198eb4ff2c302cefe205d0ec45ec0be052",
+    "phrase_bank_sha256": "2aa30f040225b37c849b82807847ac0866a5081931d8a53e1e55af52c11f1084",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."

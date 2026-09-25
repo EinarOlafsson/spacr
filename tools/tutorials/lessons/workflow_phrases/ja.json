@@ -1283,7 +1283,7 @@
     {
       "source": "{items}, and {last}",
       "source_sha256": "233abe6fe1f1373843adf917c956883e1ca47d5c30685944bef135b525393251",
-      "translation": "{items}、{last}"
+      "translation": "{items}、および {last}"
     },
     {
       "source": "the image embeddings",
