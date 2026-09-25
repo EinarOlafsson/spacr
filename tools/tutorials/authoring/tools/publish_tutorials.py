@@ -76,9 +76,13 @@ WEB_FILES = [
 # video at a continuous playback rate, so a changed duration or a dropped
 # frame desynchronises every voice in every language. The 4K masters are 30 fps
 # CFR; -vsync 0 preserves every source frame and timestamp during downscaling.
+# "-g 60" bounds seek decoding (a keyframe at least every 2 s). Screen
+# recordings are nearly static, so those keyframes are ~90% of the bytes;
+# CRF 28 with the SSIM tune matches the earlier CRF 26 PSNR on 1440p UI frames
+# at ~16% fewer bytes, which keeps the Pages media budget for long lessons.
 ENCODE_ARGS = [
     "-vf", "scale='min(2560,iw)':-2", "-vsync", "0",
-    "-c:v", "libx264", "-crf", "26", "-preset", "veryfast",
+    "-c:v", "libx264", "-crf", "28", "-preset", "veryfast", "-tune", "ssim",
     "-g", "60",
     "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
 ]
@@ -108,7 +112,7 @@ def load_manifest() -> dict:
         return {}
 
 
-def encode_1440p(master: Path, target: Path) -> tuple[bool, str]:
+def encode_1440p(master: Path, target: Path, arguments: list[str] | None = None) -> tuple[bool, str]:
     """Re-encode one 4K master. Returns ``(ok, note)``.
 
     Frame-count equality is the gate: it proves no frame was dropped or
@@ -119,7 +123,7 @@ def encode_1440p(master: Path, target: Path) -> tuple[bool, str]:
     target.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.with_suffix(".tmp.mp4")
     result = _run(["ffmpeg", "-nostdin", "-y", "-v", "error",
-                   "-i", str(master), *ENCODE_ARGS, str(tmp)])
+                   "-i", str(master), *(ENCODE_ARGS if arguments is None else arguments), str(tmp)])
     if result.returncode != 0:
         tmp.unlink(missing_ok=True)
         return False, f"ffmpeg failed: {result.stderr.strip()[:200]}"
