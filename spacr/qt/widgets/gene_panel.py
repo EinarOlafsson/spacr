@@ -212,6 +212,9 @@ class GenePanel(QWidget):
 
         Deferring the worker until the panel is shown avoids creating a
         background thread for panels that are constructed but never used.
+
+        :param event: the show event; passed on to the base class before the
+            warm-up starts.
         """
         super().showEvent(event)
         self._shown = True
@@ -258,7 +261,12 @@ class GenePanel(QWidget):
         return self._columns
 
     def set_frame_provider(self, provider: Optional[Callable[[], Any]]) -> None:
-        """Point the panel at where the current results frame lives."""
+        """Point the panel at where the current results frame lives.
+
+        :param provider: a no-argument callable returning the current results
+            frame, called each time a feature is shown; ``None`` builds tiles
+            without a frame.
+        """
         self.summary.set_frame_provider(provider)
 
     def clear(self) -> None:
@@ -313,6 +321,9 @@ class GenePanel(QWidget):
         is not emitted when the resolver RAISES, and the one case where the
         lower half must not be left showing the previous gene is exactly the
         one where the upper half failed.
+
+        :param key: the clicked feature string, e.g. a gene or results-row key;
+            it is passed to the summary tile as given.
         """
         self.summary.show_feature(key)
         self._render_known(self.summary.tile)
@@ -418,6 +429,9 @@ class GenePanel(QWidget):
     def save_topology(self, path) -> bool:
         """Write the clicked gene's full DeepTMHMM record to ``path``.
 
+        :param path: the CSV file to write, passed to
+            :func:`spacr.annotation.supplementary`. Nothing is written when no
+            clicked gene is known or DeepTMHMM is not bundled.
         :returns: whether a file was written.
 
         Straight through :func:`spacr.annotation.supplementary`, which is the
@@ -494,6 +508,9 @@ class GenePanel(QWidget):
 
         Qt aborts the process if a running QThread is destroyed, and a
         warm-up outliving its panel is exactly that.
+
+        :param event: the close event; passed on to the base class after the
+            warm-up worker is stopped.
         """
         self._shut_down_warming()
         super().closeEvent(event)

@@ -387,7 +387,13 @@ class ReferenceOrbit:
 
 def depth_decades(seconds: float, zoom_rate: float = 1.0,
                   seconds_per_decade: float = 24.0) -> float:
-    """How many decades of magnification ``seconds`` of flight is worth."""
+    """How many decades of magnification ``seconds`` of flight is worth.
+
+    :param seconds: seconds of flight; the result is never negative.
+    :param zoom_rate: multiplier on the descent speed.
+    :param seconds_per_decade: seconds of flight per decade at a ``zoom_rate``
+        of 1.0.
+    """
     return max(0.0, float(seconds) * float(zoom_rate)
                / max(1e-6, float(seconds_per_decade)))
 
@@ -396,6 +402,10 @@ def iteration_budget(depth: float, base: int = 300,
                      per_decade: float = 55.0, ceiling: int = 2200) -> int:
     """How many iterations a given depth needs.
 
+    :param depth: the depth in decades.
+    :param base: iterations at depth 0, and the minimum.
+    :param per_decade: iterations added per decade of depth.
+    :param ceiling: the maximum.
     :returns: at least ``base`` and at most ``ceiling``.
 
     DEEPER NEEDS MORE. Near the boundary the escape time grows with
@@ -433,6 +443,9 @@ def scale_at(depth: float, initial_scale: float = 1.25) -> float:
     Clamped at 307 decades, which is where a float64 underflows -- past it
     the scale would silently become zero and every pixel would sample the
     same point.
+
+    :param depth: the depth in decades; values past 307 are treated as 307.
+    :param initial_scale: the half-height at depth 0.
     """
     return float(initial_scale) * 10.0 ** (-min(float(depth), 307.0))
 
@@ -503,6 +516,9 @@ def structure_mask(escaped: np.ndarray, iterations: np.ndarray,
                    max_iter: int) -> np.ndarray:
     """Where the picture has detail worth steering toward.
 
+    :param escaped: 2-D boolean map, True where the point escaped.
+    :param iterations: escape-time map of the same shape as ``escaped``.
+    :param max_iter: the iteration budget the escape times are divided by.
     :returns: a boolean map the same shape as ``escaped``.
 
     SET MEMBERSHIP IS NOT ENOUGH ONCE THE ZOOM IS DEEP. Around a Misiurewicz
@@ -552,6 +568,8 @@ def boundary_mask(escaped: np.ndarray) -> np.ndarray:
 
     The frame's own edge is excluded: a point there may look like a boundary
     only because the map stopped.
+
+    :param escaped: 2-D boolean map, True where the point escaped.
     """
     bounded = ~escaped
     neighbour_escaped = np.zeros_like(escaped)
@@ -572,6 +590,13 @@ def candidate_score(escaped, iterations, row, col, max_iter) -> float:
     CHANGES across the patch (detail), how much the escape TIME varies
     (depth of structure), and how BALANCED bounded and escaping are (an
     edge, rather than a speck in a field of one or the other).
+
+    :param escaped: 2-D boolean map, True where the point escaped.
+    :param iterations: escape-time map of the same shape as ``escaped``.
+    :param row: row index of the point; the 7 x 7 patch around it, clipped to
+        the map, is scored.
+    :param col: column index of the point.
+    :param max_iter: the iteration budget the escape times are divided by.
     """
     r0, r1 = max(0, row - 3), min(escaped.shape[0], row + 4)
     c0, c1 = max(0, col - 3), min(escaped.shape[1], col + 4)
@@ -663,6 +688,9 @@ def eased(fraction: float) -> float:
 
     A linear move between two points is a lurch at both ends; this is the
     difference between the camera being steered and being teleported.
+
+    :param fraction: progress through the move; values outside 0..1 are
+        clamped.
     """
     x = 0.0 if fraction < 0.0 else (1.0 if fraction > 1.0 else float(fraction))
     return x * x * (3.0 - 2.0 * x)
@@ -717,6 +745,16 @@ class SteeringCamera:
         carrying one. A move longer than the gap before the next re-targets
         the camera before it has settled, which is the reported jerking, so
         the duration is bounded here as well as there.
+
+        :param strength: how far off centre to look; 0 means do not steer.
+            Negative values become 0.
+        :param interval: decades of descent between one target and the next;
+            floored at 0.01.
+        :param duration: the follow's time constant, in seconds; capped at
+            0.45 x ``interval`` x ``seconds_per_decade`` and then floored at
+            0.5.
+        :param seconds_per_decade: seconds of flight per decade of
+            magnification; floored at 0.1.
         """
         self.strength = max(0.0, float(strength))
         self.interval = max(0.01, float(interval))
@@ -735,7 +773,11 @@ class SteeringCamera:
         return self.strength > 0.0
 
     def wants_a_target(self, depth: float) -> bool:
-        """Whether it is time to choose somewhere new to head."""
+        """Whether it is time to choose somewhere new to head.
+
+        :param depth: the current depth in decades; True once steering is on
+            and it has reached the scheduled next re-target.
+        """
         return self.steering and float(depth) >= self.next_steer
 
     def aim_at(self, offset, depth: float, scale: float) -> None:
@@ -788,6 +830,16 @@ class SteeringCamera:
 
         A drag is a decision; leaving the target in place would have the
         camera pull back toward it and fight the hand.
+
+        :param dx: horizontal pointer movement since the last frame, in the
+            pointer's -1..1 widget space.
+        :param dy: vertical pointer movement since the last frame, in the same
+            space.
+        :param span: the viewport half-height at the current depth, as
+            :func:`scale_at` gives it; the centre moves by the movement times
+            ``span``.
+        :param depth: the current depth in decades; the next re-target waits
+            until ``depth`` plus the camera's ``interval``.
         """
         self.centre = (self.centre[0] - float(dx) * float(span),
                        self.centre[1] - float(dy) * float(span))
@@ -955,6 +1007,14 @@ def rebased_orbit(orbit, dx: float, dy: float, digits: int = 320,
                   max_iter: int = 2200):
     """A new reference at ``(dx, dy)`` from the current one.
 
+    :param orbit: the current :class:`ReferenceOrbit`; its centre is the origin
+        of the offset.
+    :param dx: real-axis offset of the new centre from the current one.
+    :param dy: imaginary-axis offset of the new centre from the current one.
+    :param digits: working precision in decimal digits; it is also set as
+        mpmath's global precision.
+    :param max_iter: iteration budget of the new orbit; a candidate that
+        escapes before 90 % of it is refused.
     :returns: ``(centre, orbit)``, or ``(None, None)`` when the result
         escapes too early to be usable.
 
