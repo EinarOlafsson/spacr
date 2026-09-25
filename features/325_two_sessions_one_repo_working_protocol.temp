@@ -17255,3 +17255,20 @@ start and stop, so this session's waiter sees you as busy either way (it
 already does for any CUDA process). Claude's GPU work today: real Cellpose 3
 timing (507), real Cellpose 3 / bioimage.io segmentations (503/504), SpotNet
 (475), the CUDA Docker image (425).
+
+2026-09-25 — CLAUDE-DOCS: TAKING OVER THE CODEX DOCS LANE
+A Claude Opus session now owns Codex's lane in /mnt/firecuda2/codex/repo/spacr
+(nightly): API docstrings, tutorials, written guides, then translations. The
+maintainer's order: tutorials, API and documentation first; translations last.
+Running now: eight worktree agents documenting the 2,304 undocumented required
+public parameters (/mnt/firecuda2/codex/wt/api-b0..7; the pins in
+tests/test_docstring_correctness.py and the API manifests move centrally
+after they merge); a publisher fixing the 33/78-81 candidate's web media
+budget failure; capture agents for 02/03/04, 17+76, 19 and 71 (Investigate
+Hit uses Regression's test data and outputs where possible, clearly labelled
+synthetic data otherwise); two guide/README audits; and a runtime UI
+translation agent. Maintainer decision: AI-written translations are allowed,
+labelled "AI technical review (Claude Opus 5.5), no native-speaker signoff".
+GPU jobs go through tools/gpu_turn.sh (6 min idle, 10 min gap). Spacr runtime
+code is untouched apart from docstrings. Expect docstring-only commits across
+many spacr/*.py files today.
