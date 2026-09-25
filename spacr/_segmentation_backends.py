@@ -1366,6 +1366,59 @@ def _pump(stream, sink, done=None):
         done()
 
 
+_OUTPUT_LISTENERS = []
+_OUTPUT_LOCK = threading.Lock()
+
+
+def _listen_to_workers(listener):
+    """Hear every line a backend worker prints to stderr, as it prints it.
+
+    Item 507. A worker's progress bars (Cellpose 3 restoration and
+    segmentation, a model download) were kept only for an error message; a
+    screen that wants them as live progress registers here. ``listener`` is
+    called as ``listener(label, line)`` on the worker's reader thread, with
+    the line's own ending kept (a bar's redraw ends in ``\\r``), so it must
+    return at once and hand the line to its own thread. A bound method is
+    held weakly and goes away with its object.
+
+    :param listener: ``listener(label, line)``.
+    :returns: a function that stops the listening.
+    """
+    import weakref
+
+    try:
+        held = weakref.WeakMethod(listener)
+    except TypeError:
+        held = (lambda: listener)
+    with _OUTPUT_LOCK:
+        _OUTPUT_LISTENERS.append(held)
+
+    def _stop():
+        """Stop hearing the workers."""
+        with _OUTPUT_LOCK:
+            if held in _OUTPUT_LISTENERS:
+                _OUTPUT_LISTENERS.remove(held)
+
+    return _stop
+
+
+def _tell_listeners(label, line):
+    """Pass one worker line to everyone listening; a listener that fails or
+    has gone is dropped, and the worker never waits on one."""
+    with _OUTPUT_LOCK:
+        held = list(_OUTPUT_LISTENERS)
+    for ref in held:
+        listener = ref()
+        try:
+            if listener is None:
+                raise RuntimeError("gone")
+            listener(label, line)
+        except Exception:
+            with _OUTPUT_LOCK:
+                if ref in _OUTPUT_LISTENERS:
+                    _OUTPUT_LISTENERS.remove(ref)
+
+
 def _run_step(argv, *, env=None, cwd=None, on_line=None, cancel=None,
               popen=None, poll=0.1):
     """Run one install command, streaming its output, until it ends or
@@ -1731,8 +1784,10 @@ class _WorkerProcess:
         A line that ended in a carriage return is a progress bar about to
         redraw itself, and the next line takes its place (see
         :func:`_final_lines`), so the tail an error quotes holds each bar
-        once, in its last state.
+        once, in its last state. Every raw line, redraws included, also goes
+        to the screens listening (:func:`_listen_to_workers`).
         """
+        _tell_listeners(getattr(self, "label", "") or self.name, line)
         shown = _final_lines([line])
         text = shown[-1] if shown else ""
         if self._overwrite and self._stderr:

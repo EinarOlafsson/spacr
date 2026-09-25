@@ -1949,212 +1949,157 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "समय-श्रृंखला ट्रैकिंग",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "host_app_key": "mask",
-      "description": "Mask के भीतर आठ कृत्रिम फ़्रेम चलाएँ और Track preview में वास्तविक मास्क के लिंक की तुलना करें।",
+      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
       "objectives": [
-        "Mask में Timelapse ढूँढें और समय-अक्ष तथा मूल चित्र सुरक्षित रखें।",
-        "उन्हीं मास्क पर शुरुआती, खंडित और बहाल ट्रैक की तुलना करें।",
-        "ट्रैकिंग संकेतक, प्लेबैक, मॉडल अनुमान और मापी गई जैविक गति अलग समझें।"
+        "Load the example images and masks in Track preview.",
+        "Adjust overlap and inspect object identities across frames.",
+        "Configure a time-series Mask run and find its tracked outputs."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "नए फ़ोल्डर में Help > Demos > Timelapse demo चुनें: 256 गुणा 256 पिक्सेल के आठ कृत्रिम समय-बिंदु, न्यूक्लियस चैनल 0 और कोशिका चैनल 1। Plot और Keep original images चालू रखें; सभी सोलह TIFF सुरक्षित रहते हैं। ZIP में इसी रन के वास्तविक कोशिका-चित्र और लेबल प्लेन हैं, रिकॉर्ड किया गया प्रयोग या सही संदर्भ मास्क नहीं। image_sequences/field_A01 तथा label_sequences/field_A01 अलग चुनें; प्रीव्यू चैनल 0, आठ फ़्रेम और एक फ़ील्ड रखें। सीमा 0.1 पर सोलह पूरे ट्रैक, 1.0 पर 128 एक-फ़्रेम ट्रैक मिलते हैं। 0.1 बहाल करके रुकें, फिर Re-link दबाएँ: टाइप करते समय बीच का मान रन शुरू कर सकता है। Propagate settings न दबाएँ; वह IoU सीमा नहीं भेजता। flow threshold, संबंध तालिका और सेटिंग स्थिति की चेतावनियाँ स्पष्ट रखी गई हैं। जैविक शुद्धता या भौतिक गति का सत्यापन नहीं। API: spacr.core.preprocess_generate_masks और spacr.timelapse। AI बंद है।",
+      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Mask खोलें और उसका Time स्विच चालू करें। Timelapse अब Mask के भीतर है, Home पर अलग टाइल नहीं। यह सेगमेंटेशन प्रक्रिया में समय-अक्ष और ट्रैकिंग सेटिंग्स जोड़ता है। गतिशीलता की माप Measure में होती है, जो बाद का चरण है।",
+          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
             "18_motility"
-          ],
-          "speech_text": "Mask खोलें और उसका Time स्विच चालू करें। Timelapse अब Mask के भीतर है, Home पर अलग टाइल नहीं। यह सेगमेंटेशन प्रक्रिया में समय-अक्ष और ट्रैकिंग सेटिंग्स जोड़ता है। गतिशीलता की माप Measure में होती है, जो बाद का चरण है।"
-        },
-        {
-          "visual": "03_actual_demo_menu",
-          "narration": "Help, Demos, फिर Timelapse demo चुनें और नया फ़ोल्डर दें। इससे खिसकते ऑब्जेक्ट वाले आठ कृत्रिम फ़्रेम बनते हैं और उनकी सेटिंग्स लोड होती हैं। ये शिक्षण चित्र हैं, जैविक प्रयोग या सेगमेंटेशन की शुद्धता का प्रमाण नहीं।",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ],
-          "speech_text": "Help, Demos, फिर Timelapse demo चुनें और नया फ़ोल्डर दें। इससे खिसकते ऑब्जेक्ट वाले आठ कृत्रिम फ़्रेम बनते हैं और उनकी सेटिंग्स लोड होती हैं। ये शिक्षण चित्र हैं, जैविक प्रयोग या सेगमेंटेशन की शुद्धता का प्रमाण नहीं।"
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "भरे गए स्रोत और चैनल जाँचें। इस डेमो में न्यूक्लियस की तीव्रता चैनल शून्य और कोशिका की तीव्रता चैनल एक में है; रोगजनक का चैनल नहीं है। फ़ाइल नाम समय को फ़ील्ड और चैनल से अलग दर्ज करते हैं। समय-श्रृंखला की जगह सामान्य स्थिर टेस्ट प्लेट न लें।",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ],
-          "speech_text": "भरे गए स्रोत और चैनल जाँचें। इस डेमो में न्यूक्लियस की तीव्रता चैनल शून्य और कोशिका की तीव्रता चैनल एक में है; रोगजनक का चैनल नहीं है। फ़ाइल नाम समय को फ़ील्ड और चैनल से अलग दर्ज करते हैं। समय-श्रृंखला की जगह सामान्य स्थिर टेस्ट प्लेट न लें।"
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits शून्य से शुरू होने वाले स्लाइस की सीमाएँ हैं: शून्य से आठ सभी आठ फ़्रेम लेता है, लेकिन अंतिम सीमा शामिल नहीं होती। एक फ़ील्ड के समय-बिंदु साथ रखें। प्लेबैक दर से अनुपस्थित अधिग्रहण अंतराल नहीं मिलता; इस डेमो से भौतिक इकाइयों में गति स्थापित नहीं होती।",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ],
-          "speech_text": "Frame limits शून्य से शुरू होने वाले स्लाइस की सीमाएँ हैं: शून्य से आठ सभी आठ फ़्रेम लेता है, लेकिन अंतिम सीमा शामिल नहीं होती। एक फ़ील्ड के समय-बिंदु साथ रखें। प्लेबैक दर से अनुपस्थित अधिग्रहण अंतराल नहीं मिलता; इस डेमो से भौतिक इकाइयों में गति स्थापित नहीं होती।"
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "कोशिकाओं को ओवरलैप आधारित iou मोड से ट्रैक करें। यह पड़ोसी फ़्रेमों के मास्क के प्रतिच्छेद और संघ के अनुपात से लिंक बनाता है। दूसरे बैकएंड के अनुमान और वैकल्पिक निर्भरताएँ अलग हैं। विस्थापन की सेटिंग ओवरलैप सीमा नहीं है; चुना बैकएंड वास्तव में जिन नियंत्रणों को पढ़ता है, उन्हीं का उपयोग करें।",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ],
-          "speech_text": "कोशिकाओं को ओवरलैप आधारित iou मोड से ट्रैक करें। यह पड़ोसी फ़्रेमों के मास्क के प्रतिच्छेद और संघ के अनुपात से लिंक बनाता है। दूसरे बैकएंड के अनुमान और वैकल्पिक निर्भरताएँ अलग हैं। विस्थापन की सेटिंग ओवरलैप सीमा नहीं है; चुना बैकएंड वास्तव में जिन नियंत्रणों को पढ़ता है, उन्हीं का उपयोग करें।"
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "Run से पहले Keep original images चालू करें। वरना सफ़ाई के दौरान मध्यवर्ती और मूल चित्रों के फ़ोल्डर हट सकते हैं। इस रिकॉर्डिंग में बनाए गए सभी सोलह TIFF बिना बदलाव सुरक्षित हैं और पुराने ट्यूटोरियल डेटा को नहीं छुआ गया। वास्तविक प्रयोग का अलग बैकअप हमेशा रखें।",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ],
-          "speech_text": "Run से पहले Keep original images चालू करें। वरना सफ़ाई के दौरान मध्यवर्ती और मूल चित्रों के फ़ोल्डर हट सकते हैं। इस रिकॉर्डिंग में बनाए गए सभी सोलह TIFF बिना बदलाव सुरक्षित हैं और पुराने ट्यूटोरियल डेटा को नहीं छुआ गया। वास्तविक प्रयोग का अलग बैकअप हमेशा रखें।"
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "Plot चालू करके यह छोटा उदाहरण चलाएँ। अभी की पाइपलाइन पूरी आठ-फ़्रेम श्रृंखला साथ संसाधित करती है, भले आपने छोटा बैच माँगा हो। कंसोल और संसाधन मॉनिटर देखें: अधिक फ़्रेम, बड़े चित्र और अतिरिक्त ऑब्जेक्ट को बहुत अधिक मेमोरी लग सकती है।",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ],
-          "speech_text": "Plot चालू करके यह छोटा उदाहरण चलाएँ। अभी की पाइपलाइन पूरी आठ-फ़्रेम श्रृंखला साथ संसाधित करती है, भले आपने छोटा बैच माँगा हो। कंसोल और संसाधन मॉनिटर देखें: अधिक फ़्रेम, बड़े चित्र और अतिरिक्त ऑब्जेक्ट को बहुत अधिक मेमोरी लग सकती है।"
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "रन से पाँच चित्र और आठ मर्ज किए हुए ऐरे बनते हैं। इस सामान्यीकृत दृश्य में पहले दो प्लेन तीव्रता हैं; अंतिम दो कोशिका और न्यूक्लियस के लेबल हैं, अतिरिक्त अधिग्रहण चैनल नहीं। सेव हुई कोशिका तालिका में सोलह ट्रैक हैं, हर एक आठ फ़्रेम तक चलता है।",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ],
-          "speech_text": "रन से पाँच चित्र और आठ मर्ज किए हुए ऐरे बनते हैं। इस सामान्यीकृत दृश्य में पहले दो प्लेन तीव्रता हैं; अंतिम दो कोशिका और न्यूक्लियस के लेबल हैं, अतिरिक्त अधिग्रहण चैनल नहीं। सेव हुई कोशिका तालिका में सोलह ट्रैक हैं, हर एक आठ फ़्रेम तक चलता है।"
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "Finished के साथ चेतावनियाँ भी पढ़ें। यह बिल्ड पुराने flow threshold मानों, अनुपलब्ध संबंध तालिका और सेटिंग स्थिति की चेतावनी देता है। हमने सेव हुए मास्क और ट्रैक अलग जाँचे हैं; यह बिना समस्या वाला रिलीज़ परीक्षण नहीं, न ही Measure चलाने का विकल्प है।",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ],
-          "speech_text": "Finished के साथ चेतावनियाँ भी पढ़ें। यह बिल्ड पुराने flow threshold मानों, अनुपलब्ध संबंध तालिका और सेटिंग स्थिति की चेतावनी देता है। हमने सेव हुए मास्क और ट्रैक अलग जाँचे हैं; यह बिना समस्या वाला रिलीज़ परीक्षण नहीं, न ही Measure चलाने का विकल्प है।"
+          ]
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Track preview खोलें। लिंक का अभ्यास दोहराने के लिए नीचे दिया कृत्रिम प्रीव्यू संग्रह डाउनलोड करके निकालें। उसमें इस रिकॉर्ड किए गए बैच के ठीक वही कोशिका-चित्र और मास्क प्लेन हैं। ये मास्क लोड करने से दूसरा सेगमेंटेशन मॉडल चलाए बिना लिंक जाँचे जाते हैं।",
+          "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
-          ],
-          "speech_text": "Track preview खोलें। लिंक का अभ्यास दोहराने के लिए नीचे दिया कृत्रिम प्रीव्यू संग्रह डाउनलोड करके निकालें। उसमें इस रिकॉर्ड किए गए बैच के ठीक वही कोशिका-चित्र और मास्क प्लेन हैं। ये मास्क लोड करने से दूसरा सेगमेंटेशन मॉडल चलाए बिना लिंक जाँचे जाते हैं।"
+            360,
+            230,
+            3460,
+            1760
+          ]
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "फ़ील्ड ए शून्य एक की चित्र-श्रृंखला का फ़ोल्डर चुनें। निकाले गए चित्रों में केवल मूल कोशिका-तीव्रता प्लेन है, इसलिए यहाँ चैनल शून्य लें। चित्र और लेबल की श्रृंखलाएँ अलग पैरेंट फ़ोल्डर में रखें; Frames previewed आठ और Fields एक करें।",
-          "hold_after": 0.7,
-          "speech_text": "फ़ील्ड ए शून्य एक की चित्र-श्रृंखला का फ़ोल्डर चुनें। निकाले गए चित्रों में केवल मूल कोशिका-तीव्रता प्लेन है, इसलिए यहाँ चैनल शून्य लें। चित्र और लेबल की श्रृंखलाएँ अलग पैरेंट फ़ोल्डर में रखें; Frames previewed आठ और Fields एक करें।"
+          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Masks से संबंधित लेबल-श्रृंखला का फ़ोल्डर चुनें। ये गणना किए गए मास्क हैं, सही संदर्भ लेबल नहीं। Keep only full-length tracks बंद रखें और Propagate settings न दबाएँ। मौजूदा मास्क श्रृंखला पढ़ते समय मॉडल के नियंत्रण नए मास्क नहीं बनाते।",
-          "hold_after": 0.7,
-          "speech_text": "Masks से संबंधित लेबल-श्रृंखला का फ़ोल्डर चुनें। ये गणना किए गए मास्क हैं, सही संदर्भ लेबल नहीं। Keep only full-length tracks बंद रखें और Propagate settings न दबाएँ। मौजूदा मास्क श्रृंखला पढ़ते समय मॉडल के नियंत्रण नए मास्क नहीं बनाते।"
+          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "ओवरलैप सीमा शून्य दशमलव एक रखकर प्रीव्यू चलाएँ। इस उदाहरण में आठ फ़्रेम के सोलह ट्रैक मिलते हैं और कोई छोटा ट्रैक नहीं है। खंडित होने और छलाँग के मान सही संदर्भ के बिना निकले संकेतक हैं; छोटे मान अकेले जैविक पहचान की शुद्धता सिद्ध नहीं करते।",
+          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ],
-          "speech_text": "ओवरलैप सीमा शून्य दशमलव एक रखकर प्रीव्यू चलाएँ। इस उदाहरण में आठ फ़्रेम के सोलह ट्रैक मिलते हैं और कोई छोटा ट्रैक नहीं है। खंडित होने और छलाँग के मान सही संदर्भ के बिना निकले संकेतक हैं; छोटे मान अकेले जैविक पहचान की शुद्धता सिद्ध नहीं करते।"
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "ओवरलैप सीमा एक तक बढ़ाएँ। बिल्कुल समान ओवरलैप माँगने से यह चलते ऑब्जेक्ट वाला उदाहरण एक-एक फ़्रेम के एक सौ अट्ठाईस ट्रैक में टूट जाता है। चित्र और मास्क नहीं बदले, केवल लिंक बदले हैं। जानबूझकर अधिक रखा मान खंडन दिखाता है, अनुशंसित विश्लेषण सेटिंग नहीं।",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ],
-          "speech_text": "ओवरलैप सीमा एक तक बढ़ाएँ। बिल्कुल समान ओवरलैप माँगने से यह चलते ऑब्जेक्ट वाला उदाहरण एक-एक फ़्रेम के एक सौ अट्ठाईस ट्रैक में टूट जाता है। चित्र और मास्क नहीं बदले, केवल लिंक बदले हैं। जानबूझकर अधिक रखा मान खंडन दिखाता है, अनुशंसित विश्लेषण सेटिंग नहीं।"
+            379,
+            307,
+            3432,
+            958
+          ]
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "शून्य दशमलव एक वापस करें, वर्तमान प्रीव्यू समाप्त होने दें और फिर Re-link दबाएँ। टाइप करते समय बीच का मान गणना शुरू कर सकता है, इसलिए अंतिम पास स्पष्ट रूप से सुनिश्चित करें। सोलह पूरे ट्रैक लौटते हैं। Propagate settings न दबाएँ: ओवरलैप सीमा बैच फ़ॉर्म में नहीं जाती।",
+          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
-          ],
-          "speech_text": "शून्य दशमलव एक वापस करें, वर्तमान प्रीव्यू समाप्त होने दें और फिर Re-link दबाएँ। टाइप करते समय बीच का मान गणना शुरू कर सकता है, इसलिए अंतिम पास स्पष्ट रूप से सुनिश्चित करें। सोलह पूरे ट्रैक लौटते हैं। Propagate settings न दबाएँ: ओवरलैप सीमा बैच फ़ॉर्म में नहीं जाती।"
+            379,
+            307,
+            3432,
+            958
+          ]
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "आठवें फ़्रेम तक स्लाइडर ले जाकर जुड़े ऑब्जेक्ट देखें। प्लेबैक गति केवल देखने की रफ़्तार बदलती है, अधिग्रहण का समय नहीं। सत्यापित अंतराल और स्केल से Measure तथा Motility में माप जारी रखें। API और spaCR AI सेटिंग्स समझा सकते हैं, लेकिन चित्र, ट्रैक और चेतावनियाँ जाँचना ज़रूरी है।",
+          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
-          ],
-          "speech_text": "आठवें फ़्रेम तक स्लाइडर ले जाकर जुड़े ऑब्जेक्ट देखें। प्लेबैक गति केवल देखने की रफ़्तार बदलती है, अधिग्रहण का समय नहीं। सत्यापित अंतराल और स्केल से Measure तथा Motility में माप जारी रखें। API और स्पेकर AI सेटिंग्स समझा सकते हैं, लेकिन चित्र, ट्रैक और चेतावनियाँ जाँचना ज़रूरी है।"
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ]
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ]
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ]
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -10079,126 +10024,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS: मौजूदा स्क्रीन और चार इमेज टाइलों का संरेखण",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "सेगमेंटेशन मॉडल",
-      "description": "Mask के भीतर OPS खोजें और चार वास्तविक टाइलों पर जाँचा गया संरेखण तथा संयोजन देखें। यह पूरी प्लेट, कोशिका विभाजन या बारकोड डिकोडिंग का कार्यप्रवाह नहीं है।",
+      "section": "Segmentation models",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "OPS की नेस्टेड स्क्रीन और उदाहरण की सीमाएँ समझें।",
-        "मूल अधिग्रहण निर्देशांक बचाकर चार पड़ोसी टाइलें संरेखित करें।",
-        "ओवरलैप, कवरेज और सहेजे गए स्रोत रिकॉर्ड की जाँच करें।"
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "रिकॉर्डिंग में spaCR 1.5.0.7 nightly की ops_layout, ops_stitch और ops_compose API का CPU पर उपयोग हुआ है। GUI का Run अलग पुराने इंजन को चलाता है; उसे यहाँ नहीं चलाया गया। निजी NAS स्रोत: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, साइट 0, 1, 10 और 11। अधिकृत पहुँच आवश्यक है; यह सार्वजनिक डाउनलोड नहीं है और पुनर्वितरण की अनुमति नहीं देता। प्रत्येक uint16 TIFF में 1480 गुणा 1480 पिक्सेल के पाँच प्लेन हैं; DAPI प्लेन शून्य पर है। मूल 333-साइट लेआउट बना रहता है। दूसरी अधिग्रहण व्यवस्था पर बिना मापे यही लेआउट, ओवरलैप या सीमाएँ न अपनाएँ। मूल फ़ाइलों से बाहर नई आउटपुट फ़ोल्डर चुनें। पूरे वेल, सेगमेंटेशन, अलग चक्रों के संरेखण, डिकोडिंग या जैविक विश्लेषण का प्रदर्शन नहीं है।",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "ऑप्टिकल पूल्ड स्क्रीनिंग की शुरुआत पड़ोसी क्षेत्रों और दोहराए गए इमेजिंग चक्रों में ली गई छवियों से होती है। spaCR में Mask खोलकर OPS की नेस्टेड स्क्रीन खोजें। यह पाठ उसका स्थान और इमेज संरेखण का एक छोटा, जाँचा हुआ उदाहरण दिखाता है।",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "ऑप्टिकल पूल्ड स्क्रीनिंग की शुरुआत पड़ोसी क्षेत्रों और दोहराए गए इमेजिंग चक्रों में ली गई छवियों से होती है। स्पेकर में Mask खोलकर OPS की नेस्टेड स्क्रीन खोजें। यह पाठ उसका स्थान और इमेज संरेखण का एक छोटा, जाँचा हुआ उदाहरण दिखाता है।"
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+          "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "Mask की एक्शन पंक्ति में OPS टॉगल का उपयोग करें। यह मुख्य मॉड्यूल के अंदर एक अलग पेज खोलता है। OPS Home की दूसरी टाइल नहीं है और न ही सीक्वेंसिंग रीड फ़ाइलों वाला Map Barcodes कार्यप्रवाह है।",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
           "hold_after": 0.7,
-          "speech_text": "Mask की एक्शन पंक्ति में OPS टॉगल का उपयोग करें। यह मुख्य मॉड्यूल के अंदर एक अलग पेज खोलता है। OPS Home की दूसरी टाइल नहीं है और न ही सीक्वेंसिंग रीड फ़ाइलों वाला Map Barcodes कार्यप्रवाह है।"
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "मौजूदा OPS पेज पर इनपुट, स्टिचिंग, मोज़ेक, संरेखण और गुणवत्ता नियंत्रण की सेटिंग हैं। इसका Run बटन एक अलग पुराने इंजन को चलाता है। हम उसे शुरू नहीं करते और पूरे स्क्रीनिंग कार्यप्रवाह के सत्यापन का दावा नहीं करते। अगले चरण सीधे ज्यामिति API का उपयोग करते हैं।",
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7,
-          "speech_text": "मौजूदा OPS पेज पर इनपुट, स्टिचिंग, मोज़ेक, संरेखण और गुणवत्ता नियंत्रण की सेटिंग हैं। इसका Run बटन एक अलग पुराने इंजन को चलाता है। हम उसे शुरू नहीं करते और पूरे स्क्रीनिंग कार्यप्रवाह के सत्यापन का दावा नहीं करते। अगले चरण सीधे ज्यामिति API का उपयोग करते हैं।"
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "यह CPU उदाहरण मौजूदा अधिग्रहण की चार वास्तविक इमेज टाइलों को संरेखित और संयोजित करता है। यह कोशिकाओं का सेगमेंटेशन, बारकोड डिकोडिंग या पूरी प्लेट की प्रोसेसिंग नहीं करता। मूल अधिग्रहण कोई शामिल टेस्ट डाउनलोड नहीं है; ठीक यही परिणाम दोहराने के लिए फ़ाइलों की अधिकृत पहुँच चाहिए।",
-          "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
           "hold_after": 0.7,
-          "speech_text": "यह CPU उदाहरण मौजूदा अधिग्रहण की चार वास्तविक इमेज टाइलों को संरेखित और संयोजित करता है। यह कोशिकाओं का सेगमेंटेशन, बारकोड डिकोडिंग या पूरी प्लेट की प्रोसेसिंग नहीं करता। मूल अधिग्रहण कोई शामिल टेस्ट डाउनलोड नहीं है; ठीक यही परिणाम दोहराने के लिए फ़ाइलों की अधिकृत पहुँच चाहिए।"
+          "focus": [
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "पहले इमेजिंग चक्र की साइट शून्य, एक, दस और ग्यारह चुनें। हर मूल फ़ाइल में पाँच प्लेन हैं; प्लेन शून्य में न्यूक्लियस की स्टेनिंग है। तीन सौ तैंतीस साइटों का मूल लेआउट और उनकी संख्या बनाए रखें। चार टाइलें चुनने से नया चार-टाइल वेल नहीं बनता।",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
           "hold_after": 0.7,
-          "speech_text": "पहले इमेजिंग चक्र की साइट शून्य, एक, दस और ग्यारह चुनें। हर मूल फ़ाइल में पाँच प्लेन हैं; प्लेन शून्य में न्यूक्लियस की स्टेनिंग है। तीन सौ तैंतीस साइटों का मूल लेआउट और उनकी संख्या बनाए रखें। चार टाइलें चुनने से नया चार-टाइल वेल नहीं बनता।"
+          "focus": [
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "सहायक स्क्रिप्ट stitch_well को बुलाती है, चारों पड़ोसी ओवरलैप जाँचती है और फिर compose_window को बुलाती है। चारों टाइलें सही स्थान पर रखी जाती हैं। संयुक्त क्षेत्र की हर भुजा दो हज़ार सात सौ छप्पन पिक्सेल है। इस अधिग्रहण में ज्यामितीय लूप की त्रुटि एक चौथाई पिक्सेल तक है; यह हर डेटा पर सटीकता की गारंटी नहीं है।",
-          "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
           "hold_after": 0.7,
-          "speech_text": "सहायक स्क्रिप्ट stitch_well को बुलाती है, चारों पड़ोसी ओवरलैप जाँचती है और फिर compose_window को बुलाती है। चारों टाइलें सही स्थान पर रखी जाती हैं। संयुक्त क्षेत्र की हर भुजा दो हज़ार सात सौ छप्पन पिक्सेल है। इस अधिग्रहण में ज्यामितीय लूप की त्रुटि एक चौथाई पिक्सेल तक है; यह हर डेटा पर सटीकता की गारंटी नहीं है।"
+          "focus": [
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "केवल टाइलों के स्थान पर भरोसा न करें। संरेखण स्कोर से अलग, वास्तव में ओवरलैप करने वाले पिक्सेल की तुलना करें। यहाँ सही संरेखण का सहसंबंध, किसी भी अक्ष को जानबूझकर सत्रह पिक्सेल खिसकाने के बाद के सहसंबंध से बहुत अधिक है। ये गलत-ऑफसेट नियंत्रण सही दिखने वाली गलत स्थिति को पकड़ने में मदद करते हैं।",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
           "hold_after": 0.7,
-          "speech_text": "केवल टाइलों के स्थान पर भरोसा न करें। संरेखण स्कोर से अलग, वास्तव में ओवरलैप करने वाले पिक्सेल की तुलना करें। यहाँ सही संरेखण का सहसंबंध, किसी भी अक्ष को जानबूझकर सत्रह पिक्सेल खिसकाने के बाद के सहसंबंध से बहुत अधिक है। ये गलत-ऑफसेट नियंत्रण सही दिखने वाली गलत स्थिति को पकड़ने में मदद करते हैं।"
+          "focus": [
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "वास्तव में सहेजी गई छवि और कवरेज मैप देखें। बायाँ पैनल संयुक्त न्यूक्लियर छवि दिखाता है; दायाँ योगदान देने वाली टाइलें गिनता है। शून्य कवरेज का मतलब अधिग्रहित पिक्सेल का न होना है, जैविक पृष्ठभूमि नहीं। यह एक ही प्लेन के स्थानिक पड़ोसियों को जोड़ता है, अलग सीक्वेंसिंग चक्रों को कभी नहीं।",
-          "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
           "hold_after": 0.7,
-          "speech_text": "वास्तव में सहेजी गई छवि और कवरेज मैप देखें। बायाँ पैनल संयुक्त न्यूक्लियर छवि दिखाता है; दायाँ योगदान देने वाली टाइलें गिनता है। शून्य कवरेज का मतलब अधिग्रहित पिक्सेल का न होना है, जैविक पृष्ठभूमि नहीं। यह एक ही प्लेन के स्थानिक पड़ोसियों को जोड़ता है, अलग सीक्वेंसिंग चक्रों को कभी नहीं।"
+          "focus": [
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "ऐरे, कवरेज, टाइलों के स्थान, स्रोत चेकसम और रन रिपोर्ट एक साथ रखें। स्क्रिप्ट आउटपुट दोबारा खोलकर पुष्टि करती है कि चारों मूल फ़ाइलें अपरिवर्तित हैं। इसे दोहराया जा सकने वाला ज्यामितीय जाँच-बिंदु मानें। पूरे ऑप्टिकल स्क्रीनिंग ट्यूटोरियल के लिए आगे के चरणों का अलग सत्यापन अभी आवश्यक है।",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
           "hold_after": 0.7,
-          "speech_text": "ऐरे, कवरेज, टाइलों के स्थान, स्रोत चेकसम और रन रिपोर्ट एक साथ रखें। स्क्रिप्ट आउटपुट दोबारा खोलकर पुष्टि करती है कि चारों मूल फ़ाइलें अपरिवर्तित हैं। इसे दोहराया जा सकने वाला ज्यामितीय जाँच-बिंदु मानें। पूरे ऑप्टिकल स्क्रीनिंग ट्यूटोरियल के लिए आगे के चरणों का अलग सत्यापन अभी आवश्यक है।"
+          "focus": [
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",

@@ -315,13 +315,33 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
         def console_text():
             return '\n'.join(t for _, _, t in page._console._pipeline_console_blocks())
         wait_until = time.monotonic() + 600
-        while 'OPS: ' not in console_text() and not outcome['finished']:
+        while 'stitch:' not in console_text() and not outcome['finished']:
             if time.monotonic() > wait_until:
                 break
             settle(.5)
         page._console.jump_to_the_end()
         settle(.5)
         capture('10_run')
+        if os.environ.get('SPACR_OPS_RUN_FRAME_ONLY') == '1':
+            # Re-take of the run-start scene only. The frame shows this run's
+            # own console; the completed run's evidence is in the earlier
+            # recording. The process ends here without waiting for the run.
+            text = console_text()
+            inventory = json.loads((stage / 'runtime_inventory.json').read_text())
+            proof.update(accepted=True, scope='Run-start frame only: real Run press and live console',
+                         console_at_frame=text[-4000:],
+                         false_src_error_absent='src is missing' not in text,
+                         stitch_line_present='stitch:' in text)
+            if not proof['false_src_error_absent'] or not proof['stitch_line_present']:
+                proof['accepted'] = False
+            write_json(captures / 'scientific_acceptance.json', proof)
+            write_json(captures / 'provenance.json', {
+                'commit': inventory['commit'], 'version': inventory['version'], 'module': 'ops',
+                'download_requested': False, 'dataset_cache': str(stage / 'example_data'),
+                'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
+                'completed_capture': proof['accepted'], 'run_frame_only': True})
+            print('run frame only: stopping the recording process', flush=True)
+            os._exit(0 if proof['accepted'] else 3)
         progress_captured = False
         deadline = time.monotonic() + timeout
         while not outcome['finished'] or page._worker_thread_is_running():

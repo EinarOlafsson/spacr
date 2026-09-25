@@ -1619,7 +1619,64 @@ def plaque_inputs(paths: Sequence[Path], *, limit: int = 20000
             continue
         pdfs.extend(sorted(found_pdfs))
         images.extend(sorted(found_images))
+        if _holds_papers(path):
+            papers.append(path)
     return pdfs, images, papers
+
+
+def _holds_papers(folder: Path) -> bool:
+    """Whether ``folder`` holds papers already read into folders of their own.
+
+    :param folder: a folder.
+    :returns: True when Figure mode reads it paper by paper (item 526).
+    """
+    from ..plaque_papers import figure_folders
+
+    try:
+        return figure_folders(folder) != [folder]
+    except OSError:
+        return False
+
+
+def plaque_others(paths: Sequence[Path], *, limit: int = 20000) -> int:
+    """How many dropped files Plaque Assay leaves aside.
+
+    A file that is neither a plaque image nor a PDF, dropped or at the top of
+    a dropped folder, is ignored rather than refused (item 526); hidden
+    files are not counted, nor is what a paper folder holds.
+
+    :param paths: dropped files and folders, or ``[src]``.
+    :param limit: entries read per folder.
+    :returns: the number of such files.
+    """
+    from ..plaque_papers import LEGENDS_FILE, PAPER_FILE, TEXT_LAYER_FILE
+
+    usable = set(_plaque_image_suffixes()) | {".pdf"}
+    count = 0
+    for path in paths:
+        path = Path(path)
+        if path.is_file():
+            count += path.suffix.lower() not in usable
+            continue
+        if not path.is_dir() or any(
+                (path / marker).is_file()
+                for marker in (PAPER_FILE, LEGENDS_FILE, TEXT_LAYER_FILE)):
+            continue
+        try:
+            with os.scandir(path) as entries:
+                for index, entry in enumerate(entries):
+                    if index >= limit:
+                        break
+                    if (entry.name.startswith(".") or os.path.splitext(
+                            entry.name)[1].lower() in usable):
+                        continue
+                    try:
+                        count += entry.is_file()
+                    except OSError:
+                        continue
+        except OSError:
+            continue
+    return count
 
 
 def _pdfs_in(folder: Path) -> List[Path]:
@@ -1727,7 +1784,8 @@ class PlaqueDropHandler(DropHandler):
     """Plaque Assay's own drop policy and its own words.
 
     It takes plaque images, folders of them, both mixed, and in Figure mode
-    a paper's PDF. Before this handler Plaque Assay was given Make Masks'
+    any number of PDFs (item 526); other files dropped with them are left
+    aside quietly. Before this handler Plaque Assay was given Make Masks'
     policy, which refused a folder it could not use with Make Masks'
     sentence.
     """
@@ -1740,14 +1798,17 @@ class PlaqueDropHandler(DropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
-        """A plaque image, a PDF, or a folder with plaque images or PDFs in it.
+        """Any file, or a folder with plaque images or PDFs in it.
+
+        A file that is neither an image nor a PDF is taken so that
+        :meth:`apply_all` can leave it aside quietly when it was dropped with
+        images or PDFs, and refuse it when it was dropped alone.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
         if path.is_file():
-            suffix = path.suffix.lower()
-            return suffix == ".pdf" or suffix in _plaque_image_suffixes()
+            return True
         return bool(_plaque_images_in(path)) or bool(_pdfs_in(path))
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
@@ -1806,11 +1867,23 @@ class PlaqueDropHandler(DropHandler):
         :param screen: the Plaque Assay screen.
         :returns: True; the drop is always handled here.
         """
+        from .dnd import _report_drop_problem
         from .i18n import tr
         from .widgets.plaque_preview import FIGURE_MODE, follow_the_input
 
         paths = [Path(path) for path in paths]
         pdfs, images, papers = plaque_inputs(paths)
+        if not (pdfs or images or papers):
+            _report_drop_problem(
+                screen, paths[0], self.error_message(paths[0]),
+                "Open this module's source setting and choose a file or "
+                "folder matching the required layout.")
+            return True
+        others = plaque_others(paths)
+        if others:
+            _log(screen, "[drop] " + tr(
+                "{n} file(s) that are neither images nor PDFs were left "
+                "aside.", n=others) + "\n")
         name = paths[0].name if len(paths) == 1 else tr(
             "The {n} dropped items", n=len(paths))
         mode = follow_the_input(screen, pdfs, images, papers, name)
@@ -1818,12 +1891,14 @@ class PlaqueDropHandler(DropHandler):
             _log(screen, "[drop] left unread\n")
             return True
         rest = [path for path in paths
-                if not (path.is_file() and path.suffix.lower() == ".pdf")
-                and (path.is_file() or _plaque_images_in(path))]
+                if (path.suffix.lower() in _plaque_image_suffixes()
+                    if path.is_file() else bool(_plaque_images_in(path)))]
         if mode == FIGURE_MODE and pdfs:
             self._take_pdfs(pdfs, screen)
         elif rest:
             self._take_images(rest, screen)
+        elif mode == FIGURE_MODE and papers:
+            self._take_images(papers[:1], screen)
         elif pdfs:
             _log(screen, f"[drop] {len(pdfs)} PDF(s) left unread in Plaque "
                  f"mode\n")
@@ -1831,7 +1906,11 @@ class PlaqueDropHandler(DropHandler):
 
     @staticmethod
     def _take_pdfs(pdfs: Sequence[Path], screen) -> None:
-        """Read the first PDF's figures, the way Figure mode's PDF button does.
+        """Read every PDF's figures, one after another (item 526).
+
+        One PDF is read the way Figure mode's PDF button reads it; several
+        are read in the background one by one, each into a folder of its own
+        beside the first, and shown and run together.
 
         :param pdfs: the dropped PDFs, in drop order.
         :param screen: the Plaque Assay screen.
@@ -1850,21 +1929,21 @@ class PlaqueDropHandler(DropHandler):
                    "again."))
             return
         panel = getattr(screen, "_live_preview", None)
-        fetch = getattr(panel, "fetch_paper", None)
-        if not callable(fetch) or not fetch(str(first), str(first.parent)):
+        if len(pdfs) == 1:
+            fetch = getattr(panel, "fetch_paper", None)
+            started = callable(fetch) and fetch(str(first), str(first.parent))
+        else:
+            fetch = getattr(panel, "fetch_papers", None)
+            started = callable(fetch) and fetch(list(pdfs), str(first.parent))
+        if not started:
             _report_drop_problem(
                 screen, first,
                 tr("Plaque Assay could not start reading this PDF."),
                 tr("Wait for the paper being read to finish, then drop the "
                    "PDF again."))
             return
-        _log(screen, f"[drop] plaque figures from {first}\n")
-        if len(pdfs) > 1:
-            _report_drop_problem(
-                screen, pdfs[1],
-                tr("Plaque Assay reads one paper at a time; {n} more PDF(s) "
-                   "were left out.", n=len(pdfs) - 1),
-                tr("Drop each remaining PDF once this one has been read."))
+        _log(screen, f"[drop] plaque figures from {len(pdfs)} PDF(s), "
+             f"first {first}\n")
 
     @staticmethod
     def _take_images(paths: Sequence[Path], screen) -> None:

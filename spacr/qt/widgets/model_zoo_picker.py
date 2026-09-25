@@ -919,7 +919,9 @@ class _BackendInstallButton(QPushButton):
         translated, for an owner whose captions have reviewed translations
         of their own; built from the backend's name when None.
     :ivar said: ``(text, kind)`` for the screen's console. ``kind`` is
-        ``progress`` (one line, rewritten while the install runs), ``info``,
+        ``progress`` (one line, rewritten while the install runs),
+        ``stream`` (one line of the install's own output, pip's included,
+        for a console that redraws it in place and throttles it), ``info``,
         ``warning`` or ``error``.
     :ivar installed: the backend became ready through this button.
     """
@@ -1019,9 +1021,10 @@ class _BackendInstallButton(QPushButton):
                            "progress")
 
         def progressed(text):
-            """One line, rewritten, saying which step the install is on."""
+            """One line of the install's output (pip's included), rewritten
+            in place and throttled by whoever shows it."""
             self.said.emit("{}: {}".format(
-                tr("Installing {name}…", name=self._label), text), "progress")
+                tr("Installing {name}…", name=self._label), text), "stream")
 
         def stopped():
             """Cancelled or failed: the button is back to what the disk says."""
