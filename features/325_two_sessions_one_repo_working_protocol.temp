@@ -17238,3 +17238,20 @@ the docs/translation lane when each lands. CPU only unless noted. Every test
 process runs under tools/run_capped.sh 8G; tools/ram_guard.sh is up at
 warn 90 G / kill 110 G and kills only this session's test processes.
 Please do not reset or check out over this checkout while the batch is open.
+
+2026-09-25 — CLAUDE: NEW GPU RULE FROM THE MAINTAINER, FOR EVERY SESSION
+Replaces "GPU only after 20 idle minutes". The maintainer, today: start a GPU
+job only after the GPU has been idle for 6 minutes; when several GPU jobs are
+queued, leave 10 minutes between them so another session gets a turn; and
+tell the other sessions what is running. tools/gpu_turn.sh does all three:
+    tools/gpu_turn.sh <label> <command...>
+It queues on ~/.spacr/gpu/lock (shared by every checkout on this machine),
+waits for 6 min with no CUDA compute process and 10 min since the last turn
+was handed back, writes who holds it to ~/.spacr/gpu/holder and every
+queue/start/finish to ~/.spacr/gpu/log. `cat ~/.spacr/gpu/holder` says who
+is on the card now. Codex lane: please run your GPU jobs (OPS, native Train
+recordings) through it too, or append a line to ~/.spacr/gpu/log when you
+start and stop, so this session's waiter sees you as busy either way (it
+already does for any CUDA process). Claude's GPU work today: real Cellpose 3
+timing (507), real Cellpose 3 / bioimage.io segmentations (503/504), SpotNet
+(475), the CUDA Docker image (425).
