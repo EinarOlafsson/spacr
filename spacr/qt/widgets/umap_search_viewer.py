@@ -94,10 +94,11 @@ def colors_for_labels(labels: Optional[Sequence[int]], count: int, *,
                       cmap: str = "spaCR", alpha: float = 0.86) -> List[QColor]:
     """One readable colour per point, with HDBSCAN noise in grey.
 
-    :param labels: one cluster label per point, or ``None`` to colour every
-        point alike; negative labels are HDBSCAN noise and are drawn grey.
-        Labels whose shape is not ``(count,)`` give the plain point colour for
-        all.
+    :param labels: one cluster label per point, or ``None`` for no clusters
+        (every point in the plain point colour under ``"spaCR"``, otherwise
+        spread along ``cmap``); negative labels are HDBSCAN noise and are drawn
+        grey. Labels whose shape is not ``(count,)`` give the plain point
+        colour for all.
     :param count: number of points to colour.
     :param cmap: a colour map from :func:`available_colormaps`; ``"spaCR"`` is
         the native palette.
