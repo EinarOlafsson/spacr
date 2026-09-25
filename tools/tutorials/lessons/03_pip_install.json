@@ -65,7 +65,13 @@
       "related_lessons": [
         "05_home"
       ],
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        48,
+        318,
+        2712,
+        1332
+      ]
     },
     {
       "visual": "11_update_intentionally",

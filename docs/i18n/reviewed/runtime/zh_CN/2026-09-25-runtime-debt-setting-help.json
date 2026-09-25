@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "batch_covariate_column",
+      "source": "Metadata column(s) naming the biological effects ComBat must preserve, for example 'condition' or 'condition,timepoint'. ComBat estimates the batch effect from residuals after fitting these terms, so unlisted effects may be removed with the plate effect. Include every treatment effect that must remain in the corrected data. See spacr.batch_correction.correct_batch_effects. Default None.",
+      "source_sha256": "ef1da37a6df496997f04e8e080d89f814318b92e686117d56d8a1556051340c4",
+      "translation": "指定 ComBat 必须保留的生物学效应的元数据列，例如 'condition' 或 'condition,timepoint'。ComBat 在拟合这些项之后根据残差估计批次效应，因此未列出的效应可能会随孔板效应一起被去除。请包含校正后数据中必须保留的每个处理效应。参见 spacr.batch_correction.correct_batch_effects。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic).",
+      "source_sha256": "155e5ea5a56262610e28e2bb6950f17b52cb1a0f464c5706fa8d26a297b453f7",
+      "translation": "图像通道轴：0 表示通道在前，-1 表示通道在后，留空则根据掩膜维度推断。有歧义的图像需要明确指定轴。训练支持带可选通道的二维视野，不支持 Z 堆栈。默认 None（自动）。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "class_column",
+      "source": "Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'. Replication starts with the predictions column instead.",
+      "source_sha256": "1878c80e34ee161e94613e66b9d9706e70342f9c392678a28f360f4f1fd5fa87",
+      "translation": "包含每个对象类别标签的列，用于类别比例分析。缺失值会填充为 0，而不是删除相应的行；因此选错列可能会将每个对象都归为类别零，且不会报错。启用 group_by_class 时，该值还会附加到条件上。默认 'test'。复制分析则从预测列开始。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_count_column",
+      "source": "Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "2048d2bd7b04f936a1e688788436fc1381db73ce7cfe0619fa7ed9867297451f",
+      "translation": "每个空泡上可选的实测计数列。接受非负整数计数；缺失值保持为未知。可替代关联的寄生虫表。默认留空。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_channels",
+      "source": "Zero-based intensity channels whose vacuole-to-host-reference ratios are reported. Each selected channel needs matching intensity columns in both compartments; its threshold is configured separately. Adding a channel adds a marker result without changing host infection denominators. Default [0]. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "48e2c0fcd376ba331bbcb09349d95b095634c2fe061cb78ac87f74d5c729bb03",
+      "translation": "报告空泡与宿主参考强度比值的通道（从零开始编号）。每个所选通道在两个区室中都需要对应的强度列；其阈值单独配置。增加通道会增加一个标记结果，但不会改变宿主感染的分母。默认 [0]。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_thresholds",
+      "source": "Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "dea265f88dff2d6c022d5802d90da840462114714750cafc3159ffd4c92be1fa",
+      "translation": "通道到比值的阈值，例如 {0: 2.0, 1: 1.5}；比值大于或等于阈值即为阳性。请用实验对照校准阈值。未指定的通道保持未分类。默认 {}。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_parent",
+      "source": "Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "e9f7b49ab5f207cfe85506734c3974968e668e666501d4d9ae867e37e0b5d0c2",
+      "translation": "所选寄生虫表中的父空泡标签列。宿主细胞 ID 不能替代空泡 ID。未匹配的寄生虫会单独导出。默认 pathogen_id。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_table",
+      "source": "Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "708e43668eb7a6201f6e60982a836d9d5935ecbc26727d18950cfe4c8e27e758",
+      "translation": "可选的表，每个已分割的寄生虫占一行，并带有明确的父空泡列。若没有寄生虫计数，请留空。不要同时设置 hp_count_column。默认留空。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_prefix",
+      "source": "Prefix of reference-channel mean intensities. Missing or nonpositive reference values yield unknown ratios, never infinity or negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "0820ca9b01b2eb25f6c31bdfe9d21566d550cbe3dacb0c3547a00d9179b2b301",
+      "translation": "参考通道平均强度的列前缀。缺失或非正的参考值会得到未知比值，绝不会得到无穷大或阴性判定。默认 cytoplasm。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_table",
+      "source": "Select the per-host compartment used for recruitment-ratio denominators. Its object_label must identify the host cell so each vacuole is compared with its own host reference. Missing or invalid reference intensities produce unknown marker calls rather than negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "b95adc4ed6d004858a47033502622c18611fda0823e7d01ef479da477597f925",
+      "translation": "选择用作募集比值分母的每宿主区室。其 object_label 必须标识宿主细胞，以便每个空泡与其自身的宿主参考进行比较。缺失或无效的参考强度会产生未知的标记判定，而不是阴性判定。默认 cytoplasm。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_prefix",
+      "source": "Select the measured intensity column family used as the numerator of each recruitment ratio, for example pathogen_channel_0_mean_intensity. Match the prefix in the selected vacuole table; changing it does not change masks or infer a different object type. Default pathogen. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "a2ea3695cf00cb10db3f3ad89096ed527d85a5b93f3ca9444f98f5f2795eb0f0",
+      "translation": "选择用作每个募集比值分子的实测强度列族，例如 pathogen_channel_0_mean_intensity。需与所选空泡表中的前缀一致；更改它不会改变掩膜，也不会推断出不同的对象类型。默认 pathogen。API：spacr.host_pathogen.summarize_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_table",
+      "source": "Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.",
+      "source_sha256": "50e6735db450bb08a4d9b7c7a277a410ae66dc667a77f299275dab05365a2817",
+      "translation": "测量表，每个完整空泡对应一个对象，并通过 cell_id 关联到其宿主。请使用完整空泡掩膜，而非单个寄生虫掩膜。默认 pathogen。API：spacr.host_pathogen.analyze_host_pathogen。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_channels",
+      "source": "Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].",
+      "source_sha256": "c579a01ee68d3542c171c1b01a594de1031fbbe2245cc9b78840114734bdc52b",
+      "translation": "在 Mask 之前要筛查的采集通道标识符。留空表示所有已存储的原始通道。在 v1 中这些是从零开始的数组通道，在 v2 中是映射后的采集通道标识符。阈值字典使用相同的标识符。默认 []。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_nonfinite",
+      "source": "Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.",
+      "source_sha256": "31b6c5aceb730de3abdd98ebfa971549eb01e8f77b8dc814c933f0bea0f16195",
+      "translation": "每个筛查通道允许的 NaN 或无穷像素的最大比例。超过时会标记该视野；仅在排除模式下才会排除。范围 0-1；默认 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_saturation",
+      "source": "Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.",
+      "source_sha256": "0f688b2bbe5fa5ceffd31f2a342a9f58df9f3eec423a93405b11344926600932",
+      "translation": "各通道允许的最大饱和像素比例，例如 {2: 0.01}。取值范围 0 到 1。饱和判断使用采集饱和水平或整数 dtype 上限，绝不使用观察到的最亮像素。留空则禁用饱和排除。默认 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_min_focus",
+      "source": "Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.",
+      "source_sha256": "ddb3927e005e66effe8b514248b8bf8c01e82a8e6e764a1b0ecc9b3eb375922f",
+      "translation": "各通道可接受的最小原始拉普拉斯方差，例如 {0: 25.0, 2: 10.0}。留空则禁用对焦排除。请使用同一次采集中有代表性的视野校准；单位为强度的平方。对于体数据，使用最佳对焦平面，因此仅相邻 z 平面失焦不会导致其被拒绝。默认 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_mode",
+      "source": "Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.",
+      "source_sha256": "4e3b656baa6ef995f480bc91ce4ba1d895a944b4ef9443fdd0478303faa0a454",
+      "translation": "分割前的图像筛查。off 保持常规运行；report 保存指标和标记，但不排除任何内容；exclude 按已保存的策略跳过被标记的视野。不会删除任何图像，被排除的视野也不会报告为零对象结果。报告：qc/image_quality.json 和 .csv。默认 off。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_saturation_level",
+      "source": "Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.",
+      "source_sha256": "62c64541c0fbee6c3a344bf0ae87d35d430bfd7fdd838c1fa159414873ac53cb",
+      "translation": "各通道的采集饱和水平，例如 {0: 4095, 2: 65535}。以 uint16 存储的 12 位探测器请设为 4095。缺失的整数水平使用 dtype 上限；若启用饱和排除，浮点图像需要明确的水平。默认 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training. Default blank.",
+      "source_sha256": "a2f9df08456a4cf904fc3067512e3d4134db60623b1ace6d556f46e1605cc404",
+      "translation": "可选的独立文件夹，存放整数对象标签掩膜（背景为 0）。留空则使用图像文件夹内的掩膜。需与图像主文件名一致，可带 _masks 后缀。缺失或有歧义的配对会中止训练。默认留空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size. Default None (automatic).",
+      "source_sha256": "0f3671c230794de5986a79a4f3dd10febee720ec20df25d860c323600542d8c2",
+      "translation": "加载到内存中的成对训练图像数量上限（可选），按文件名顺序。留空或非正值则使用全部配对。这不会改变小批量大小。默认 None（自动）。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_fwhm_um",
+      "source": "Gaussian full width at half maximum in micrometers: [Y, X] or [Z, Y, X]. This is an explicit approximation, not an inferred microscope PSF. All widths must be positive and finite.",
+      "source_sha256": "ee72b5378cc515a4440aad30dfd28d8682341bbe1698f08fbc41a54f50a5a44c",
+      "translation": "高斯半高全宽（微米）：[Y, X] 或 [Z, Y, X]。这是明确的近似，而非推断出的显微镜 PSF。所有宽度必须为正的有限值。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_image_sampling_um",
+      "source": "Explicit image sampling in micrometers: [Y, X] for 2D or [Z, Y, X] for a volume. All values must be positive and finite. A volume's sampling must agree with Measure's voxel calibration or anisotropy. No physical sampling is guessed.",
+      "source_sha256": "ea618fb519309c0ffd3efd46b129900c4b864d1204973473f4eecd31f37dff8c",
+      "translation": "明确的图像采样间距（微米）：二维为 [Y, X]，体数据为 [Z, Y, X]。所有值都必须为正的有限值。体数据的采样必须与 Measure 的体素校准或各向异性一致。不会猜测任何物理采样。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_kernel_sampling_um",
+      "source": "Measured kernel sampling in micrometers, in the same YX or ZYX order as the image. Must match image sampling exactly within numerical tolerance; no implicit resampling. Unused for a Gaussian approximation.",
+      "source_sha256": "583363c6fedcb7a910c33113cd69a28d96e7824993cfb71f6dfc8476b9afad8a",
+      "translation": "实测卷积核的采样间距（微米），与图像采用相同的 YX 或 ZYX 顺序。必须在数值容差内与图像采样完全一致；不做隐式重采样。高斯近似时不使用。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_operation",
+      "source": "With processed measurement intensities selected, convolve adds calibrated blur and deconvolve performs Richardson–Lucy restoration. Select original to keep normal Measure intensities without PSF processing. Stored images and exported crops are unchanged; the database records the intensity source and full PSF provenance. Configure a kernel appropriate to every selected intensity channel.",
+      "source_sha256": "790d0be1f226506a2d9b483da9025aab9c7e23403a54eff5b02d98a3b9ab1964",
+      "translation": "选择经处理的测量强度时，convolve 添加经校准的模糊，deconvolve 执行 Richardson–Lucy 复原。选择 original 可保留常规 Measure 强度，不做 PSF 处理。已存储的图像和导出的裁剪图保持不变；数据库会记录强度来源和完整的 PSF 溯源信息。请配置适合每个所选强度通道的卷积核。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_path",
+      "source": "Measured PSF TIFF or NPY kernel, with odd spatial dimensions and finite nonnegative values. Use YX for a 2D field or ZYX for a volume. The center pixel is the optical origin; sampling must match the image. Captured once per run and sent to each worker, with exact kernel/file identity recorded.",
+      "source_sha256": "1bc362caea3ff61a56df226a423374ae1e2e79309b80796381d34c1c3904ab15",
+      "translation": "实测 PSF 的 TIFF 或 NPY 卷积核，空间维度须为奇数，值须为有限非负数。二维视野使用 YX，体数据使用 ZYX。中心像素为光学原点；采样必须与图像一致。每次运行捕获一次并发送给每个工作进程，同时记录卷积核/文件的确切标识。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_source",
+      "source": "gaussian constructs an explicitly sampled Gaussian approximation from the supplied FWHM and image sampling. measured captures a calibrated TIFF or NPY kernel. The same kernel applies independently to every selected measurement intensity channel, so its calibration must suit all selected channels. Neither choice estimates microscope optics.",
+      "source_sha256": "e29df1f16e3f8c561c8ce36183f2c6d4f8ee86050e8cdcd992811189551bbd12",
+      "translation": "gaussian 根据提供的 FWHM 和图像采样构建明确采样的高斯近似。measured 捕获经过校准的 TIFF 或 NPY 卷积核。同一卷积核会独立应用于每个所选的测量强度通道，因此其校准必须适合所有所选通道。两种选择都不会估计显微镜光学特性。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_train_masks",
+      "source": "Minimum labeled objects required per training image. Cellpose excludes fields below this count. Default 5. Lower it for deliberately sparse training fields.",
+      "source_sha256": "ed8880223f3e9c805703f6803f508be7c93cc9bda5f53cd1ddeae82dc39ac71c",
+      "translation": "每张训练图像所需的最少标记对象数。Cellpose 会排除低于此数量的视野。默认 5。对于刻意稀疏的训练视野，请调低。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "motility_analysis",
+      "source": "Run the automated motility assay once per plate, after all masks are merged: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
+      "source_sha256": "f5f1b5902485579ead4d5ddb0b22492440a18bd1284691abe36722062fec55ab",
+      "translation": "在所有掩膜合并后，每块孔板运行一次自动运动性分析：从 merged/*.npy 重建每个对象的测量值，清理轨迹，计算每条轨迹的速度和直线度，应用感染 QC，并写出 motility_plots 以及孔级汇总表。仅当 timelapse 也为 True 时才会触发，并且会显示 Motility 设置类别。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM. Default None (automatic).",
+      "source_sha256": "7cae0a66de40c80617cf9dbef7450b5dffdd744ce3490bfa4766871d0bec8636",
+      "translation": "每个训练轮次抽样的图像数量（可选）。留空则使用全部训练图像。这改变的是抽样方式，而非加载到内存中的文件数。默认 None（自动）。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source. Default None (automatic).",
+      "source_sha256": "17f9c94623655bc4a14f4a07dab0ac9d4f3f2f6f6d4e06aded3da67a8e5b580c",
+      "translation": "每个评估轮次抽样的验证图像数量（可选）。留空则使用全部验证图像。需要验证图像来源。默认 None（自动）。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "number_of_organelles",
+      "source": "How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.",
+      "source_sha256": "57d7edf6c82f6ea3046df54a7618d0162493b810c6aa7c1ade2b9e463ceeb216",
+      "translation": "本次运行的细胞器槽位数量，从 0 到 26。每个槽位都是一个独立对象，有自己的通道、自己的类型预设，以及每项检测设置的独立副本，其名称匹配模式 organelle(?:[b-z]|[a-z]{2})?_.*；增大该数字会生成另一个槽位的设置，减小则会隐藏超出新数字的槽位而不删除它们。隐藏的槽位会保留其值，仍会写入设置文件，并在数字再次增大时原样恢复，因此可以尝试较小的数字而不会丢失工作。默认 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_estimate_growth",
+      "source": "Optional experimental plaque time/scale suggestions, saved separately from measurements. Uses the largest quarter of plaques and an assumed linear growth relation. Defaults off. The RH/HFF seven-day reference has about 40 hours held-out endpoint error and has not been validated across times or other conditions. Without a known scale or time, the reference duration is explicitly assumed.",
+      "source_sha256": "d8c7450e0f2d484b872a9406e2a2f520a875e67965f458729e10a1cc573168f5",
+      "translation": "可选的实验性蚀斑时间/比例建议，与测量值分开保存。使用最大的四分之一蚀斑，并假定线性生长关系。默认关闭。RH/HFF 七天参考值的留出终点误差约为 40 小时，且尚未在其他时间点或其他条件下验证。若比例或时间未知，则明确假定为参考时长。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_formation_hours",
+      "source": "Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+      "source_sha256": "2b3e6d7315e18921803be8fd5976f3e7c9d35711aee3315a12b1b0771c198f9a",
+      "translation": "蚀斑形成经过的时间（小时），作为实验元数据记录。允许为零；留空表示未知。图版预览允许逐孔覆盖。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_hours",
+      "source": "Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
+      "source_sha256": "181f2afb0dbc3309ca3ad1eb3dbf7ada19cf391eda1a6c92991a94eac9009201",
+      "translation": "与生长参考直径对应的形成时间（小时，正值）。默认 168（七天）。假定直径从零开始线性增长；这不是拟合得到的时间生长曲线。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_um",
+      "source": "Reference median equivalent diameter in micrometers of the largest 25 percent of plaques. Default 893.8178699548309, derived from three independent RH/HFF vehicle-control experiments in Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Replace with a matched local reference when available.",
+      "source_sha256": "ea05d7b7a593bb270b172804e155feeb86e3f89734ced617ad7631801a65780e",
+      "translation": "最大 25% 蚀斑的参考中位等效直径（微米）。默认 893.8178699548309，来自 Kelsen 等人 2023 年 S20 数据中三次独立的 RH/HFF 溶剂对照实验，DOI 10.1371/journal.pbio.3002110。如有匹配的本地参考值，请替换。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_pixels_per_um",
+      "source": "Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
+      "source_sha256": "96e6048781ffaebde645f32909f3a21dfd266078b74d8abf686650ed6be9652f",
+      "translation": "所分析图像中已知的每微米像素数。正值会覆盖检测到的标尺。留空则自动按比例尺或孔直径校准。在图版预览中输入的逐孔值优先。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_iterations",
+      "source": "Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+      "source_sha256": "15995e9a85faa1c1ac0aca6504a0701fba97366ea4df0db30e1db28170c526d2",
+      "translation": "Richardson–Lucy 迭代次数，1–200；默认 20。数值越高越可能放大噪声和伪影。卷积时不使用。处理可在迭代之间取消，使用对称边界，并保留浮点强度，不会截断到整数源范围。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_kernel_sampling_um",
+      "source": "Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
+      "source_sha256": "d7abfbd0b061ae3fb2b44eec9621b08bb4f8e1baac5ce81c01aaea0f42f9845d",
+      "translation": "默认 None（未设置）。实测卷积核的像素间距 [Y, X]，单位为微米。必须与图像采样一致；不匹配的卷积核会被拒绝，而不会被静默重采样。高斯近似时不使用。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_measurement_source",
+      "source": "original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
+      "source_sha256": "3a3d2176cc09548a6cd3cd0f980203cd67e0c4e3691212ab505b91177dc73def",
+      "translation": "original（默认）测量常规 Measure 强度，包括其标准重缩放和已注册的光照/预处理钩子，不做 PSF 处理。选择此项时会忽略已存储的 PSF 参数。processed 在这些阶段之后、计算定量特征之前应用经校准的 PSF；请选择 convolve 或 deconvolve。源文件和导出的裁剪图保持原有行为。intensity_rescale 数据库表会记录所做选择、卷积核标识、校准和算法。不兼容的现有测量需要单独的项目/输出数据库。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_operation",
+      "source": "Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
+      "source_sha256": "7d1d52fddda865aaa4f3e46474bd76b8532a02809eec0ecbd834e9318c398339",
+      "translation": "在光照校正之后、归一化之前，对每个所选分割强度通道进行可选的点扩散处理。none 表示关闭（默认）；convolve 模拟光学模糊；deconvolve 使用 Richardson–Lucy。源图像和测量强度保持原样。开启预处理时，更改此设置会重建 Mask 输入；关闭预处理时则需要与已完成结果完全匹配。此操作作用于二维投影视野，而非三维光学重建。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_path",
+      "source": "Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
+      "source_sha256": "c8ee98e07fbe20c88ed567862359351eecf41dedbee60cdf414b0a6f2287a967",
+      "translation": "默认 None（未设置）。实测二维 PSF 的 TIFF/NPY 文件。空间维度须为奇数；值须为有限、非负且非零。中心像素为光学原点。卷积核会归一化为总和为一，并在每次处理运行中捕获一次。其内容和文件标识会写入 psf/segmentation_application.json。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_source",
+      "source": "gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+      "source_sha256": "570fef418261c59faa9c0d34609d808343d69adafdbe4e47d82f07bac8e827cf",
+      "translation": "gaussian（默认）根据明确的 FWHM 和图像像素间距构建采样后的高斯近似；它不会估计显微镜光学特性。measured 加载经过校准的 TIFF 或 NPY 卷积核。单个卷积核会独立应用于每个所选的分割通道；仅在其校准适合每个所选通道时使用。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "replication_method",
+      "source": "Readout for spacr.submodules.analyze_replication. direct_count counts individually segmented parasites per assigned vacuole. size_proxy delegates to the existing area-derived endodyogeny analysis, which aggregates pathogen area per host cell and assumes one vacuole per host for a vacuole interpretation; it does not count parasites or measure volume. deep_learning_coming_soon is reserved for the forthcoming whole-vacuole classification model and cannot run yet. Default direct_count.",
+      "source_sha256": "daede075628af91a4668a10c4520d5139f156ff5050939f25047a9b343a67790",
+      "translation": "spacr.submodules.analyze_replication 的读出方式。direct_count 统计每个已分配空泡中单独分割出的寄生虫。size_proxy 交由现有的基于面积的内二芽殖分析处理，它按宿主细胞汇总病原体面积，并在空泡解释中假定每个宿主只有一个空泡；它不计数寄生虫，也不测量体积。deep_learning_coming_soon 为即将推出的完整空泡分类模型保留，目前还无法运行。默认 direct_count。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_each",
+      "source": "Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.",
+      "source_sha256": "e291a7df3f7f40ff8779dbec7dfeac2d50c0841fc5a69ae960b1876e5ef60139",
+      "translation": "保留各轮次的独立检查点，而不是替换周期性检查点。默认 False。启用后可比较中间模型，但会占用额外磁盘空间。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_every",
+      "source": "Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.",
+      "source_sha256": "261834f7052527fb6c0758c1554da30a4246ae86cc94186c25eb56806a1be556",
+      "translation": "检查点间隔（轮次）。默认 100。即使运行短于此间隔，Cellpose 也总会保存最终模型。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too. Default blank.",
+      "source_sha256": "4c34d9ea911146a161724263c3bea8dcc8724a7d105beb9edb73f1f9419bcc01",
+      "translation": "检查点输出文件夹。Cellpose 将权重写入其 models 子文件夹。留空则使用 <image source>/models/cellpose_model。“使用训练好的模型”也读取此位置。默认留空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "scale_range",
+      "source": "Range of Cellpose's random training scale augmentation, from 0 to 2. Default 0.5. Cellpose also applies its native rotation, flip and crop augmentation; no eight-fold duplicate dataset is created.",
+      "source_sha256": "7936e2082ff9feb05ea95ed4150f16d133af90fb1746c1c4f7e1c9cc541116d6",
+      "translation": "Cellpose 随机训练尺度增强的范围，从 0 到 2。默认 0.5。Cellpose 还会应用其自带的旋转、翻转和裁剪增强；不会创建八倍重复的数据集。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder. Default blank.",
+      "source_sha256": "2267cd466956b49de435571a452f67a9f834bb80feaa3562aad365e049c90612",
+      "translation": "可选的验证标签掩膜文件夹。留空则使用验证图像文件夹内的 masks 子文件夹。默认留空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields. Default blank.",
+      "source_sha256": "51a5cf1e3f5b49e5bbc21a2e6e8720aa024cb979455bdb178a18ebae1c9b84a9",
+      "translation": "可选的验证图像文件夹，与训练图像分开。留空则在没有验证损失的情况下训练。请按孔或实验划分，以避免相关视野之间的信息泄漏。默认留空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.batch_size",
+      "source": "Training minibatch size, not a dataset limit. Default 1 reduces GPU memory use for Cellpose-SAM. Raise it only when memory permits.",
+      "source_sha256": "1656fb46d5f0786dac81e9e7c0caa3f85ed9a761324aa5014105abec379ec9ba",
+      "translation": "训练小批量大小，而非数据集上限。默认 1 可降低 Cellpose-SAM 的 GPU 显存占用。仅在显存允许时再调高。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks.",
+      "source_sha256": "52ff79122e0c4f3a095def96459324ad9d39d1b8447035a6f346f91076ea4cbc",
+      "translation": "图像通道轴：0 表示通道在前，-1 表示通道在后，留空则根据掩膜维度推断。有歧义的图像需要明确指定轴。训练支持带可选通道的二维视野，不支持 Z 堆栈。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channels",
+      "source": "Zero-based image channels to train on (one to three), or leave blank to preserve all channels in images with at most three. Channels are never averaged. Larger images require an explicit selection.",
+      "source_sha256": "387f591ef0ab765d87cbdfa25fe1addd7315d9e924a1a8c1bee6cd147ff91413",
+      "translation": "用于训练的通道（从零开始编号，一到三个），或留空以保留最多三个通道的图像中的全部通道。通道绝不会被平均。更大的图像需要明确选择。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.learning_rate",
+      "source": "AdamW learning rate for Cellpose 4 fine-tuning. Default 0.00001 (1e-5), the Cellpose-SAM recommendation. Reduce it if loss becomes unstable.",
+      "source_sha256": "7c807b8fec4864e016684711500af4431d95ad5f67b8dea2fe678e6a72cd2fa4",
+      "translation": "Cellpose 4 微调的 AdamW 学习率。默认 0.00001 (1e-5)，即 Cellpose-SAM 的推荐值。若损失变得不稳定，请调低。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training.",
+      "source_sha256": "2c4de5b3fd73339163260b9b39e69c72381216414a509973e6ab878e92c957c5",
+      "translation": "可选的独立文件夹，存放整数对象标签掩膜（背景为 0）。留空则使用图像文件夹内的掩膜。需与图像主文件名一致，可带 _masks 后缀。缺失或有歧义的配对会中止训练。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size.",
+      "source_sha256": "db08b150e9e52356ad2f890ac5e6e3435a23b3a9049cc7304b30baff1cc5ee3d",
+      "translation": "加载到内存中的成对训练图像数量上限（可选），按文件名顺序。留空或非正值则使用全部配对。这不会改变小批量大小。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.model_name",
+      "source": "Name for the newly trained checkpoint. The epoch count is appended. Use a distinct name for each experiment to preserve earlier runs.",
+      "source_sha256": "4e41df1e350191f5a1837f9531f00a6c9e1d6c7be63e5b6094ad9da2e3be91d3",
+      "translation": "新训练检查点的名称，会附加轮次数。每个实验请使用不同名称，以保留先前的运行结果。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.n_epochs",
+      "source": "Training epochs. Default 100 follows Cellpose-SAM fine-tuning guidance. Monitor training and validation losses before extending a run.",
+      "source_sha256": "ae4c4df81e39ca2724175a8ec36beecfb42dbb15a2f440fdaa9b4c6ca49308a8",
+      "translation": "训练轮次。默认 100 遵循 Cellpose-SAM 微调指南。延长运行前请先监测训练和验证损失。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM.",
+      "source_sha256": "453177e6167402652cdbd2e7abbfa238d24bc86f30e2f5054c054d3888aa8aeb",
+      "translation": "每个训练轮次抽样的图像数量（可选）。留空则使用全部训练图像。这改变的是抽样方式，而非加载到内存中的文件数。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source.",
+      "source_sha256": "16e1646f814de87a47ea22e9eb81e12df3f3d733abe8bd530d8cfc6ea4676826",
+      "translation": "每个评估轮次抽样的验证图像数量（可选）。留空则使用全部验证图像。需要验证图像来源。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.normalize",
+      "source": "Apply Cellpose's per-channel percentile normalization once during training. Disable only for intentionally pre-normalized data. Default True.",
+      "source_sha256": "b6bbd94d503792b9bcd4268fe64a7e5d1a177c1dcec7af523203140e8a06bff6",
+      "translation": "训练期间对每个通道应用一次 Cellpose 的百分位归一化。仅对有意预先归一化的数据禁用。默认 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.percentiles",
+      "source": "Lower and upper intensity percentiles used when normalization is enabled. Default [1, 99], matching Cellpose. Native image geometry and separate channels are preserved.",
+      "source_sha256": "054c2cddb98c420a4d610c9393627c118b30a3dfa12880bb1fb3d6dd2dc94b5b",
+      "translation": "启用归一化时使用的强度下、上百分位。默认 [1, 99]，与 Cellpose 一致。保留原始图像几何和独立通道。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too.",
+      "source_sha256": "8e4612fba7c09d871efdd3e8cf52fdd992b9698c9f8df8ef3618fbb92bb739b9",
+      "translation": "检查点输出文件夹。Cellpose 将权重写入其 models 子文件夹。留空则使用 <image source>/models/cellpose_model。“使用训练好的模型”也读取此位置。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.src",
+      "source": "Folder containing training microscopy images. Masks default to the masks subfolder. Legacy project/train/images and project/train/masks layouts also remain supported.",
+      "source_sha256": "f8603d851f381facce6ddd52d26ebe897b2989dcba82175acba0d96b4cd72f7a",
+      "translation": "包含训练用显微图像的文件夹。掩膜默认位于 masks 子文件夹。仍支持旧版 project/train/images 和 project/train/masks 布局。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder.",
+      "source_sha256": "40d49cb69393a999e378139af670630a75b6b48a100e1dd4350ee62f5a684aa9",
+      "translation": "可选的验证标签掩膜文件夹。留空则使用验证图像文件夹内的 masks 子文件夹。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields.",
+      "source_sha256": "ab03e850b280d62b1ba43fbb73d44fe7f4bf9bb78fec7119ccf58852046fb417",
+      "translation": "可选的验证图像文件夹，与训练图像分开。留空则在没有验证损失的情况下训练。请按孔或实验划分，以避免相关视野之间的信息泄漏。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.weight_decay",
+      "source": "AdamW weight decay. Default 0.1, as recommended for Cellpose-SAM fine-tuning.",
+      "source_sha256": "2f489484388f4b4c178b7db4879d555479e04797334021edd901a4067fb2a5ed",
+      "translation": "AdamW 权重衰减。默认 0.1，这是 Cellpose-SAM 微调的推荐值。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_aggregation",
+      "source": "Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.",
+      "source_sha256": "97a29e510ba88a81f2eecdd005f4f595406b5afd30cfae75736c237bf8486fa1",
+      "translation": "使用 probability_mean 或 majority_vote 合并测试时的各视图。投票平局时优先选择平均概率较高者，其次是类别索引较小者。pred 保留平均概率；predicted_label 和 cv_predictions 保留所选标签。默认 probability_mean。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_enabled",
+      "source": "Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.",
+      "source_sha256": "64c2a8c295c53141776bc2d92db7b00c6b8ebb24f67a83a77a55b127d43f626a",
+      "translation": "推断时为每个表型裁剪图的所选旋转或镜像版本打分。在此类别中选择变换；原始视图始终包含在内。保存原始预测、平均概率、标准差、一致率和审查标记。当方向具有生物学意义时请保持禁用。不会改变训练时的增强。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_horizontal_flip",
+      "source": "With test-time augmentation enabled, include horizontal reflections of the selected rotations. Each distinct reflected view is classified before aggregation; equivalent orientations are evaluated once. Disable when horizontal direction has biological meaning in the assay. Default False.",
+      "source_sha256": "ceb57712d39ba20ec8c18a52be352881339b5284b6f40025f06c47f63d0b442e",
+      "translation": "启用测试时增强（TTA）时，加入所选旋转的水平镜像。每个不同的镜像视图都会在汇总前分类；等效方向只评估一次。若水平方向在该实验中具有生物学意义，请禁用。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_max_std",
+      "source": "Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.",
+      "source_sha256": "96913b03962a5bf4db05b6cf374796273ca6e9f2c60620d7675d46ab13f716dd",
+      "translation": "当对象的正类概率（二分类）或所选类别概率（多分类）在各方向间的总体标准差高于此值时，标记该对象。范围 0-1；默认 0.15。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_min_agreement",
+      "source": "Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.",
+      "source_sha256": "2a6c2845ec9136291ad5355c977b5f75ee86bc79ffe7f5d9229c34c3255fa957",
+      "translation": "当与所选标签一致的方向预测比例低于此值时，标记该对象以供审查。一致率衡量的是方向稳定性，而非校准后的置信度。范围 0-1；默认 0.75。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_rotations",
+      "source": "With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.",
+      "source_sha256": "68fe2bdc40f5a5420aad6a796360b266c81cf242ea4dbd7ba72684cc29018922",
+      "translation": "启用测试时增强（TTA）时，加入 90、180 和 270 度旋转。使用精确的像素旋转，不做插值。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_vertical_flip",
+      "source": "With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False.",
+      "source_sha256": "38af2efefe83bfb5c8593c196d6fe6467d22fb6fc4f28bfcdc5c84c00edd6ad9",
+      "translation": "启用测试时增强（TTA）时，加入垂直镜像。等效方向只评估一次；所有旋转加两种翻转共产生八个不同视图。默认 False。"
+    }
+  ]
+}

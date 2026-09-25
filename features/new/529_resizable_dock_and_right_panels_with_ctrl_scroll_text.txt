@@ -1,0 +1,32 @@
+THE DOCK AND THE RIGHT-HAND PANELS CAN BE RESIZED, AND CTRL+SCROLL SIZES THEIR TEXT
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 471 (whole-GUI scale, collapsible splitter),
+378 (hold Z and scroll to resize the interface), 376 (the dock).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the user should be able to modify the width of the dock when not hidden
+    and the width of the pannels to the right (not individually but one
+    together.)for the pannels to the right holding ctrl and scrolling should
+    increase or decrease the font size."
+
+WHAT TO BUILD
+  1. DOCK WIDTH: while the dock is shown, its edge can be dragged to make it
+     wider or narrower (sensible minimum and maximum), and the width is
+     remembered between sessions. Hiding and showing it keeps the width.
+  2. RIGHT-HAND PANELS AS ONE: the column of panels on the right of a module
+     screen (console, System, Actions and the rest) is resized by dragging
+     its one left edge; they all change width together, not one by one. The
+     width is remembered per module or globally, whichever the existing
+     preferences pattern does for similar widths.
+  3. CTRL + SCROLL over those right-hand panels makes their text larger or
+     smaller (their font size only, not the whole GUI scale of 471), with
+     limits, remembered between sessions, and a way back to the default
+     (e.g. Ctrl+0 while hovering, matching 471's reset shortcut style).
+
+DONE WHEN
+Offscreen tests: dragging the dock edge changes and persists its width;
+dragging the right column's edge changes every right panel's width together
+and persists; Ctrl+wheel over the right column changes its font size within
+limits and persists, and the reset returns it; nothing else on screen
+changes font size.

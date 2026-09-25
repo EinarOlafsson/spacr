@@ -1,0 +1,28 @@
+SPACEOUT: FRACTAL THEME CHANGES TAKE EFFECT WITHOUT A RESTART
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: spacr/qt/spaceout.py, fractal_defaults.py,
+night_themes.py; 471's Keep/Revert-with-countdown pattern for GUI scale.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "in spaceout model, i noticed that i need to restart the application for
+    fractal theme changes to take effect. it would be better if they just
+    toook effect right away without restarting. if the restart is necessary,
+    then at least have a popup saying so with a button to restart and get
+    back to the settings when restarted with a keep or revert options"
+
+WHAT TO BUILD
+  1. Changing a fractal theme setting in Spaceout applies at once to the
+     running backdrop/fractal (rebuild the shader/renderer or restart just
+     that renderer, not the application).
+  2. Only if a particular setting truly cannot apply live (measure it, do not
+     assume): a popup says so, with "Restart now" and "Later". Restart now
+     relaunches spaCR, reopens the settings where the user was, and asks
+     Keep or Revert (with 471's auto-revert countdown); Revert restores the
+     previous value.
+
+DONE WHEN
+Every fractal theme setting is listed in this file as live or restart-only,
+with the reason for each restart-only one; an offscreen test changes each
+live setting and sees the renderer's parameters change without a restart;
+the restart path (if any remains) is tested with the relaunch faked.

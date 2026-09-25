@@ -84,11 +84,11 @@
     "verify_staged_lesson --web-rendition passed (2560x1440)"
   ],
   "published": false,
-  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "media_status": "Accepted immutable media (item 520 re-render); Pages source prepared; live deployment requires separate verification.",
   "publication": {
-    "candidate": "release-candidate-append-31kkmyz_",
-    "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
-    "tag": "tutorials-hosted-20260925-31kkmyz_",
+    "candidate": "release-candidate-append-1rjwna77",
+    "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+    "tag": "tutorials-item520-20260925-1rjwna77",
     "readback_files": 650,
     "web_copy_hosted_on_media_revision": true,
     "narration": "English af_heart only; other voices fall back to English",
@@ -109,5 +109,16 @@
       "verify_staged_lesson --sentence-cues passed",
       "verify_staged_lesson --web-rendition passed"
     ]
-  }
+  },
+  "superseded_publications": [
+    {
+      "candidate": "release-candidate-append-31kkmyz_",
+      "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+      "tag": "tutorials-hosted-20260925-31kkmyz_",
+      "readback_files": 650,
+      "web_copy_hosted_on_media_revision": true,
+      "narration": "English af_heart only; other voices fall back to English",
+      "all_ready_local_and_hosted_playback": true
+    }
+  ]
 }

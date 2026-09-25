@@ -1,0 +1,40 @@
+COMMUNITY IMAGES AND MASKS UPLOAD FROM MAKE MASKS
+
+Status: OPEN, filed 2026-09-25. Not started. Builds on 523 (community plaque
+training data uploads to Hugging Face): reuse its upload plumbing, consent
+step and conscience text rather than a second copy.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the community data should be possible to uploade to through make masks.
+    the tooltip shoudl be something like. "If you do not have the ability to
+    train your own model, uploade your images and masks here and we will
+    train it for you." and so on. the user should be able to easily uploade
+    their image+ mask during curation or navigate to a folder with images
+    then a folder with masks (this window should have 2 paths to fill) when
+    both are filled and the same number of files with the same names are
+    present in both then the image and mask files are uploaded as whatwever
+    the user specifies to a new community foldr."
+
+WHAT TO BUILD
+  1. A "Contribute images and masks…" button in Make Masks, with the tooltip
+     in the maintainer's spirit: "If you can't train a model yourself, upload
+     your images and masks here and we'll train one for you. ..." (plus what
+     happens next, the licence and the care note from 523).
+  2. TWO WAYS IN:
+       * During curation: the field on screen and its current mask, one click
+         (and the whole curated queue, if the user wants).
+       * A dialog with TWO path fields: an images folder and a masks folder.
+         Upload is enabled only when both are filled and every image has a
+         mask with the same name (and the counts match); mismatches are
+         listed by name.
+  3. THE USER SAYS WHAT IT IS: a name for the dataset (e.g. organism, object
+     type, stain/modality) that becomes the community folder the files go to
+     (community_<name>, created if new), plus short free-text notes.
+  4. No mask, no upload; the 523 consent and conscience text apply.
+
+DONE WHEN
+An offscreen test drives both routes (upload faked): matched folders upload
+to community_<name>; a name mismatch or a missing mask blocks the upload
+and names the files; curation's one-click route sends the on-screen image
+and its mask.
