@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial caption translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "nb",
-  "title": "Invasjonsanalyse",
-  "description": "Konfigurer dagens tofargeanalyse, skill fargingsreferansebrønner fra forsøksbetingelser, og undersøk faktiske terskler, figurer og filer. Eksempeldatabasen er uttrykkelig syntetisk.",
+  "title": "Invasion Assay: poengsett ytre farging og totalfarging",
+  "description": "Koble to fargingskanaler, velg grunnlinjen for farging, kjør analysen og undersøk invasjonsvurderinger og terskelfølsomhet.",
   "objectives": [
-    "Koble utvendig og total farging til riktige målekolonner.",
-    "Bruke den omdøpte fargingsreferansen og undersøke terskelfølsomheten.",
-    "Lese figurer og nevnere per brønn uten å tolke syntetiske mønstre som biologiske effekter."
+    "Velge måledatabasen og koble ytre farging og totalfarging.",
+    "Angi grunnlinjebrønner og terskelinnstillinger og deretter kjøre analysen.",
+    "Undersøke fordelinger, nevnere per brønn og lagrede resultattabeller."
   ],
-  "prerequisite": "Den eksisterende syntetiske databasen bevares; dagens grensesnitt kjøres på en ny byte-identisk kopi. Av 1 800 oppdiktede målinger er 360 referanseobjekter og 1 440 analyseobjekter i tolv kunstige brønner. Virkelige tofargebilder mangler, og den generelle nedlastingsplaten dokumenterer heller ikke fargingsopplegget før og etter permeabilisering. Vehicle og inhibitor er undervisningsnavn, ikke testede behandlinger. Gjennomsnittsintensitet velges fordi kolonnene finnes, ikke som et generelt beste mål for overflatefarging. Uavhengige beregninger kontrollerer klasser, terskler, antall, sammendrag og figurgeometri uten å validere bilder, effekt eller statistisk inferens. Originalen og inndatakopien er uendret. Innstillingen heter nå stain_baseline_wells i stedet for control_wells, og bimodalitetsgrensen med seks desimaler registreres nøyaktig.",
+  "prerequisite": "Pakk ut det lenkede syntetiske Invasion Assay-eksemplet og bruk innstillingsreferansen. Databasen inneholder 1 800 syntetiske parasittmålinger; navnene på betingelsene og resultatene er bare illustrasjoner. For din egen analyse bruker du et validert tofarget fargingsoppsett med ytre farging før permeabilisering og totalfarging etterpå, og går gjennom representative bilder.",
   "scenes": [
-    "Åpne Invasion Assay under Assays på Home. Modulen klassifiserer allerede målte parasitter; den segmenterer ikke bilder her. Databasen vår er uttrykkelig syntetisk. Figurene forklarer innstillinger og beregninger, ikke observert invasjon eller en behandlingseffekt.",
-    "Velg forsøksmappen med measurements/measurements.db. Den nye private kopien inneholder 1 800 oppdiktede parasittrader: 360 fargingsreferanseobjekter og 1 440 objekter i analysebrønnene. Den vanlige nedlastingsplaten erstatter ikke et validert tofarget fargingsforsøk.",
-    "Outside channel er fargingen før permeabilisering, her kanal 1. Total channel er fargingen etterpå, her kanal 0. En parasitt med positiv utvendig farging klassifiseres som attached; ved eller under terskelen klassifiseres den som invaded. Svak utvendig farging kan dermed gi falske invaded-klassifiseringer.",
-    "Vi velger mean fordi undervisningsdatabasen inneholder kolonner for gjennomsnittsintensitet. Det er ingen generell anbefaling for overflatefarging. Undersøk hvilke rand- eller persentilmålinger som finnes og passer for virkelige data. En lokal bakgrunnsring er også noe annet enn selve kanalen for utvendig farging.",
-    "Sett Stain baseline wells til kolonne 1. Navnet erstatter tidligere control wells og angir den kunstige negative fargingsreferansen, ikke vehikkelbetingelsen. Disse objektene bestemmer terskelen og tas ikke med i analysens resultatnevnere. Vehicle og inhibitor blir i kolonne 2 og 3.",
-    "Control quantile er 0,99. De 360 referanseobjektene gir en terskel på omtrent 22,8 intensitetsenheter. Outside threshold holdes tomt slik at den referansebaserte terskelen brukes. Den automatiske metoden gir ikke terskelen som anvendes i denne kjøringen.",
-    "Threshold sensitivity er 0,25: terskelen vurderes også 25 prosent lavere og høyere. En høyere terskel kan klassifisere flere parasitter som invaded. Undersøk effektivitetsintervallet og kvalitetsflaggene før du tolker endringer; en vellykket kjøring beviser ikke at fargingen er pålitelig.",
-    "Extracellular class avgjør hvordan objekter uten forbindelse til en vertscelle håndteres. Her lar classify fargingen avgjøre; alle undervisningsradene har allerede en vertstilknytning. Velg bevisst mellom attached, exclude og classify for virkelige data etter å ha undersøkt vertscellesegmenteringen.",
-    "Run lager tre faktiske figurer. Terskelsiden viser én fordeling per brønn, ikke per parasitt. Her kommer den anvendte linjen fra referansen, og alle tolv brønnene er synlige. Vurder om terskelen skiller plausible populasjoner; oppdiktede fordelinger erstatter ikke representative fargingsbilder.",
-    "Hvis en tegnforklaring går utenfor tegneflaten, åpne Figure settings og velg best for Legend position i aksefanen. Bekreft dialogen slik at etikettene er synlige. Dette endrer bare visningen: vi har kontrollert at tegnede verdier og lagrede resultattabeller er uendret.",
-    "Stolpene per brønn viser andelene attached og invaded, med 120 klassifiserte parasitter over hver stolpe. Referansebrønnene er ikke med. Les nevneren sammen med andelen: en høy andel basert på svært få objekter er ikke likeverdig med samme andel i en godt undersøkt brønn.",
-    "De to oppdiktede betingelsene har 720 klassifiserte parasitter hver. Andelene invaded er omtrent 39,7 og 68,9 prosent. Sammendraget viser også gjennomsnittet over brønner, som vanligvis ikke tilsvarer å slå sammen alle objektene. Verken navnene eller en p-verdi påviser en biologisk effekt her.",
-    "Undersøk konsollen og resultatmappen for parasittklasser, feltterskler, effektivitet per brønn, betingelsessammendrag og sammenligninger. Bruk uavhengige forsøksbrønner til inferens, ikke enkeltparasitter som utskiftbare replikater. spaCR AI er valgfritt og ble ikke brukt i denne lokale analysen. Valider farging og bilder før biologiske konklusjoner."
+    "Fra Home åpner du Toxoplasma og velger deretter Invasion Assay. Begynn med en måledatabase som inneholder parasittintensiteter for den ytre fargingen og totalfargingen. Bruk den lenkede syntetiske prøven til å øve på kanalkobling, terskelvalg og gjennomgang av resultater.",
+    "Pakk ut prøven og sett Source til mappen invasion, som inneholder measurements/measurements.db. Legg inn den medfølgende innstillingsreferansen og erstatt plassholderen for Source. Prøven inneholder grunnlinjebrønner og to analysebetingelser.",
+    "Sett Outside channel til 1 og Total channel til 0. Den ytre fargingen påføres før permeabiliseringen og totalfargingen etterpå. Parasitter som er positive for ytre farging, klassifiseres som festet, og de som ligger på eller under den ytre terskelen, som invadert. Kontroller rekkefølgen på opptakskanalene når du bruker egne målinger.",
+    "Velg mean under Intensity statistic slik at det samsvarer med kolonnene i eksempeldatabasen. For din egen analyse velger du en tilgjengelig statistikk som passer fargingen, og undersøker representative objekter. Behold Minimum total intensity på 100 for denne prøven.",
+    "Sett Stain baseline wells til kolonne 1 med c1. Disse målingene uten farging fastsetter grenseverdien og utelates fra nevnerne i analysen. Under Pathogen plate metadata kobler du vehicle til kolonne 2 og inhibitor til kolonne 3.",
+    "Sett Control quantile til 0,99 og la den faste Outside threshold stå tom. Da bestemmer grunnlinjemålingene grenseverdien, omtrent 22,8 i dette eksemplet. Kontroller den anvendte terskelen i utdataene før du tolker klassifiseringene.",
+    "Sett Threshold sensitivity til 0,25. Da vurderes også grenseverdier 25 prosent under og over den valgte terskelen. Sammenlign det resulterende området for invasjonseffektivitet for å se hvor mye resultatet avhenger av terskelvalget.",
+    "Sett Extracellular class til classify for prøven. For objekter uten kobling til en vertscelle bruker classify fargingen, attached regner dem som festet, og exclude fjerner dem fra den poengsatte populasjonen. Velg denne innstillingen med tanke på kvaliteten på vertscelletilordningene dine.",
+    "La Save være på og klikk på Run. Åpne terskelfiguren når behandlingen er ferdig. Den viser fordelinger per brønn og den anvendte grenseverdien. I et eksperiment sammenligner du disse fordelingene med representative fargede bilder og undersøker svak ytre farging.",
+    "Hvis en tegnforklaring går utenfor figuren, åpner du Figure settings. I fanen axes setter du Legend position til best og bekrefter. Kontroller at etikettene er synlige både i figuren på skjermen og i den eksporterte figuren.",
+    "Åpne figuren per brønn. Hver stolpe viser andelene festede og invaderte parasitter, med antallet poengsatte parasitter over. Grunnlinjebrønner er utelatt. Les antallene sammen med andelene når du sammenligner brønner.",
+    "Åpne sammendraget per betingelse. Sammenlign den samlede invasjonsandelen med gjennomsnittet over brønnene, siden de vektes ulikt. Kontroller variasjonen i resultatene per brønn før du sammenligner betingelser.",
+    "Alt havner i results/analyze_invasion inne i Source. parasite_calls.csv inneholder vurderingen av hver parasitt, field_thresholds.csv grenseverdiene bak dem, well_invasion.csv andelene per brønn og condition_summary.csv den samlede sammenligningen. Oppbevar figurer og innstillinger sammen med dem, og sammenlign betingelser på tvers av uavhengige replikater."
   ]
 }
