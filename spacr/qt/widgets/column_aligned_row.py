@@ -117,7 +117,11 @@ class ColumnAlignedRow(QLayout):
 
 
     def addItem(self, item) -> None:                          # noqa: N802
-        """Qt's own door, used by ``addWidget``: no column, so it trails."""
+        """Qt's own door, used by ``addWidget``: no column, so it trails.
+
+        :param item: the ``QLayoutItem`` to manage; it is placed in the
+            trailing run after the column-aligned widgets.
+        """
         self._items.append((item, None))
 
     def add_over_column(self, widget: QWidget,
@@ -127,6 +131,12 @@ class ColumnAlignedRow(QLayout):
         Separate from ``addWidget`` because Qt's signature has no room for
         the column, and a column set afterwards through a second call would
         be a second place the pairing is written down.
+
+        :param widget: the widget to place; it is reparented to the layout's
+            parent widget, and ``None`` or a deleted widget is ignored.
+        :param column: the table's logical column index to centre the widget
+            over, or ``None`` to put it in the trailing run. An index past the
+            header's end or a hidden column also trails.
         """
         if widget is None or not _alive(widget):
             return
@@ -228,7 +238,11 @@ class ColumnAlignedRow(QLayout):
             self._in_callback = False
 
     def setGeometry(self, rect: QRect) -> None:               # noqa: N802
-        """Put each widget over its column, and the rest after them."""
+        """Put each widget over its column, and the rest after them.
+
+        :param rect: the rectangle the layout is given, in the parent widget's
+            coordinates; widgets are vertically centred in it.
+        """
         super().setGeometry(rect)
         owner = self.parentWidget()
         if owner is None:
@@ -293,7 +307,13 @@ class ColumnAlignedRow(QLayout):
         self.activate()
 
     def eventFilter(self, watched, event):                    # noqa: N802
-        """Follow the table when it moves or changes size."""
+        """Follow the table when it moves or changes size.
+
+        :param watched: the object the event is for (the table header's
+            viewport); not read.
+        :param event: the event; a resize, move or show re-lays the row out. It
+            is never consumed.
+        """
         if event.type() in (QEvent.Resize, QEvent.Move, QEvent.Show):
             self._restate()
         return False
