@@ -150,7 +150,11 @@ class ProposalModel(QAbstractTableModel):
         self._rows: List[List[str]] = []
 
     def set_plan(self, plan: Optional["imp.ImportPlan"]) -> None:
-        """Show ``plan``'s parse, or clear the table for None."""
+        """Show ``plan``'s parse, or clear the table for None.
+
+        :param plan: the import plan whose ``columns()`` and ``rows()`` fill
+            the table, or ``None``.
+        """
         self.beginResetModel()
         if plan is None:
             self._header, self._rows = [], []
@@ -164,7 +168,10 @@ class ProposalModel(QAbstractTableModel):
         return list(self._header)
 
     def row(self, index: int) -> List[str]:
-        """One row's cells, or an empty list when ``index`` is out of range."""
+        """One row's cells, or an empty list when ``index`` is out of range.
+
+        :param index: the zero-based row number.
+        """
         return list(self._rows[index]) if 0 <= index < len(self._rows) else []
 
     def value_at(self, index: int, column: str) -> str:
@@ -173,6 +180,10 @@ class ProposalModel(QAbstractTableModel):
         The columns depend on the folder — a tiled tree has a ``tile`` column
         and a flat one does not — so a caller that wants the channel must ask
         for "channel" rather than for column 4.
+
+        :param index: the zero-based row number.
+        :param column: the column name; an unknown name or out-of-range row
+            gives ``""``.
         """
         if column not in self._header:
             return ""
@@ -256,7 +267,12 @@ class AnswerModel(QAbstractTableModel):
 
     def set_plan(self, plan: Optional["imp.ImportPlan"]) -> None:
         """Ask, for every token position the names could not place, what its
-        values mean — carrying forward any answer already given."""
+        values mean — carrying forward any answer already given.
+
+        :param plan: the import plan whose ``layout.unplaced`` values become
+            question rows, pre-filled from its ``mapping``; ``None`` clears
+            the table.
+        """
         self.beginResetModel()
         self._rows = []
         if plan is not None:
@@ -289,7 +305,12 @@ class AnswerModel(QAbstractTableModel):
         return [list(row) for row in self._rows]
 
     def set_answer(self, row: int, text: str) -> bool:
-        """Type into one row's answer cell, the way the editor would."""
+        """Type into one row's answer cell, the way the editor would.
+
+        :param row: the question row; out of range returns ``False``.
+        :param text: the answer, normally a channel number; stored stripped.
+        :returns: True when the answer changed.
+        """
         return self.setData(self.index(row, 2), text, Qt.EditRole)
 
 
@@ -641,6 +662,9 @@ class ImageImportScreen(QWidget):
         because a destination INSIDE the folder being read is the
         ``consolidate`` bug this module replaces: the second run imports the
         first run's output.
+
+        :param path: the folder of images to read; ``None`` or empty clears
+            the field.
         """
         self._root_edit.setText(str(path or ""))
         if path and not self._dst_edit.text().strip():
@@ -651,7 +675,10 @@ class ImageImportScreen(QWidget):
         return self._root_edit.text().strip()
 
     def set_destination(self, path: str) -> None:
-        """Where the project will be written."""
+        """Where the project will be written.
+
+        :param path: the destination folder; ``None`` or empty clears it.
+        """
         self._dst_edit.setText(str(path or ""))
 
     def destination_path(self) -> str:
@@ -659,7 +686,10 @@ class ImageImportScreen(QWidget):
         return self._dst_edit.text().strip()
 
     def set_plate_name(self, name: str) -> None:
-        """The plate name every written filename carries."""
+        """The plate name every written filename carries.
+
+        :param name: the plate name; ``None`` or empty clears it.
+        """
         self._plate_edit.setText(str(name or ""))
 
     def plate_name(self) -> str:
@@ -667,7 +697,11 @@ class ImageImportScreen(QWidget):
         return self._plate_edit.text().strip() or "plate1"
 
     def set_sample(self, count: int) -> None:
-        """How many files the scan reads before deciding."""
+        """How many files the scan reads before deciding.
+
+        :param count: the number of files; converted with ``int`` and held to
+            the box's range of 10 to 1,000,000.
+        """
         self._sample_box.setValue(int(count))
 
     def sample(self) -> int:
@@ -675,7 +709,10 @@ class ImageImportScreen(QWidget):
         return int(self._sample_box.value())
 
     def set_read_inside(self, on: bool) -> None:
-        """Whether the scan opens each file for its own axis metadata."""
+        """Whether the scan opens each file for its own axis metadata.
+
+        :param on: truthy to read metadata inside each file.
+        """
         self._inside_box.setChecked(bool(on))
 
     def read_inside(self) -> bool:
@@ -683,7 +720,10 @@ class ImageImportScreen(QWidget):
         return self._inside_box.isChecked()
 
     def set_link(self, on: bool) -> None:
-        """Whether the import symlinks rather than copies."""
+        """Whether the import symlinks rather than copies.
+
+        :param on: truthy to symlink, falsy to copy.
+        """
         self._link_box.setChecked(bool(on))
 
     def link(self) -> bool:
@@ -718,6 +758,8 @@ class ImageImportScreen(QWidget):
         it is what a caller who has not heard of stitching means: off is now
         the DEFAULT policy rather than the skip it used to be, since a
         stitched field is what it always wanted.
+
+        :param on: truthy selects the ``"fields"`` policy, falsy ``"stitch"``.
         """
         self.set_tile_policy("fields" if on else "stitch")
 
@@ -924,7 +966,12 @@ class ImageImportScreen(QWidget):
         return self._model.headers()
 
     def proposal_value(self, row: int, column: str) -> str:
-        """One parsed field, by row and column name."""
+        """One parsed field, by row and column name.
+
+        :param row: the zero-based row of the proposal table.
+        :param column: the column name; an unknown name or out-of-range row
+            gives ``""``.
+        """
         return self._model.value_at(row, column)
 
     def question_count(self) -> int:
@@ -936,7 +983,13 @@ class ImageImportScreen(QWidget):
         return self._answers.answers()
 
     def answer_question(self, row: int, channel: str) -> bool:
-        """Answer one row of the question table, as an editor would."""
+        """Answer one row of the question table, as an editor would.
+
+        :param row: the question row; out of range returns ``False``.
+        :param channel: the answer typed into the row, normally a channel
+            number.
+        :returns: True when the answer changed.
+        """
         return self._answers.set_answer(row, channel)
 
     def problems(self) -> List[str]:
@@ -945,7 +998,13 @@ class ImageImportScreen(QWidget):
 
 
     def save_plan(self, path: str) -> bool:
-        """Write the plan on screen where a later run can load it back."""
+        """Write the plan on screen where a later run can load it back.
+
+        :param path: destination file, written with
+            :func:`spacr.image_import.save_plan`.
+        :returns: False, with the reason in the status line, when there is no
+            plan yet or the write fails.
+        """
         if self._plan is None:
             self._set_status("There is no plan to save — press Scan first.",
                              error=True)
@@ -968,6 +1027,11 @@ class ImageImportScreen(QWidget):
         the point of loading one: this week's plate may have more images than
         last week's, and replaying a stale file table would silently import
         last week's.
+
+        :param path: the saved plan file, read with
+            :func:`spacr.image_import.load_plan`.
+        :returns: False, with the reason in the status line, when the file
+            cannot be read.
         """
         try:
             plan = imp.load_plan(str(path))
