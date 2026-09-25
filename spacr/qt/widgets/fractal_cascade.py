@@ -380,6 +380,17 @@ if njit is not None:
         When Numba is unavailable, the public ``render_into`` name instead
         accepts arbitrary positional and keyword arguments and raises
         ``RuntimeError``.
+
+        :param output: preallocated ``uint8`` RGB buffer of shape (height,
+            width, 3), overwritten in place; its shape sets the frame size.
+        :param t: the animation time to render; the camera drift, palette and
+            zoom depth are all functions of it.
+        :param speed: zoom-speed multiplier; the zoom depth advances as
+            ``t * speed / 12``.
+        :param dream: strength of the camera wandering and the image warp;
+            larger values wander further.
+        :param iterations: iteration budget of the fractal layer at each
+            sample.
         """
         camera_rotation = (
             0.26 * _fast_sin(_FAST_TWO_PI * t / 59.0)
@@ -508,6 +519,15 @@ class CascadeEngine:
         the failure signal fired, no image ever arrived, and the widget
         painted its fallback colour. That is why the CPU cascade was black
         while the GPU one was fine and the CPU orbit followed the mouse.
+
+        :param width: frame width in pixels; the buffer is reallocated when the
+            size changes.
+        :param height: frame height in pixels.
+        :param t: the animation time to render.
+        :param speed: zoom-speed multiplier.
+        :param dream: strength of the camera wandering and the image warp.
+        :param iterations: iteration budget of the fractal layer at each
+            sample.
         """
         from numba import set_num_threads
 
