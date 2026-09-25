@@ -102,6 +102,9 @@ class OrganelleType:
     def morphology_for(self, diameter_px: Optional[float]) -> Optional[str]:
         """The morphology this type implies at ``diameter_px``.
 
+        :param diameter_px: the expected object diameter in pixels, or None.
+            Only used by size-split types: at or above ``RING_RESOLVABLE_PX``
+            (15) gives the large morphology, below it or None the small one.
         :returns: one of the four morphologies, or None for ``custom``,
             which deliberately recommends nothing.
         """
@@ -327,6 +330,8 @@ def known_types() -> Tuple[str, ...]:
 def resolve_type(name: Optional[str]) -> OrganelleType:
     """The preset called ``name``.
 
+    :param name: the preset name, matched case-insensitively after stripping
+        whitespace; None or empty means ``DEFAULT_TYPE`` (``custom``).
     :raises ValueError: for an unknown name, listing the known ones.
         Falling back to 'custom' would mean a typo silently segmented with
         different settings than the user asked for.
@@ -448,7 +453,11 @@ BASIC_SETTINGS: Tuple[str, ...] = (
 
 
 def is_basic(setting: str) -> bool:
-    """True when ``setting`` belongs in the plain Organelle category."""
+    """True when ``setting`` belongs in the plain Organelle category.
+
+    :param setting: a settings key, compared as a string against
+        ``BASIC_SETTINGS``.
+    """
     return str(setting) in BASIC_SETTINGS
 
 
@@ -593,7 +602,11 @@ def organelle_number(role: str) -> int:
 
 
 def organelle_slot_label(role: str) -> str:
-    """What the user calls a slot: ``Organelle 1``, ``Organelle 2``, ..."""
+    """What the user calls a slot: ``Organelle 1``, ``Organelle 2``, ...
+
+    :param role: a slot prefix such as ``'organelle'`` or ``'organelleb'``;
+        anything else raises :class:`ValueError`.
+    """
     return f"Organelle {organelle_number(role)}"
 
 
@@ -642,6 +655,9 @@ def primary_setting(key: str) -> str:
 
     The inverse of :func:`slot_setting`. A key belonging to no slot is
     returned unchanged, so a caller can run a whole settings dict through it.
+
+    :param key: any settings key, e.g. ``'organelleb_channel'``, which becomes
+        ``'organelle_channel'``.
     """
     text = str(key)
     role = organelle_role_of(text)
@@ -712,6 +728,9 @@ def active_organelle_roles(
     What a panel shows. A slot outside this tuple is HIDDEN, not gone: its
     keys are still typed, still in the settings dict and still written back
     out, which is what makes lowering the number reversible.
+
+    :param settings: a run settings mapping; its slot count is read as in
+        :func:`organelle_count`.
     """
     return organelle_roles(organelle_count(settings))
 
@@ -725,6 +744,9 @@ def declared_organelle_roles(
     values": a file written at seven and opened at two declares seven, so the
     defaults machinery leaves slots three to seven exactly as it found them
     instead of dropping them on the way back out.
+
+    :param settings: a run settings mapping; its slot count and the slot
+        prefixes of its keys are both read.
     """
     active = active_organelle_roles(settings)
     present = {organelle_role_of(key) for key in (settings or {})}
@@ -740,6 +762,10 @@ def organelle_slot_is_active(key: str,
     True for every key that belongs to no slot, so a caller can use it as a
     filter over a whole settings dict without having to know which keys are
     organelle settings.
+
+    :param key: any settings key; a key belonging to no slot counts as active.
+    :param settings: the run settings mapping whose slot count decides which
+        slots are active.
     """
     role = organelle_role_of(key)
     return role is None or role in active_organelle_roles(settings)

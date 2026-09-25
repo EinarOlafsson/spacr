@@ -194,7 +194,11 @@ class LevelSetFilter(logging.Filter):
 
 
 def normalise_levels(levels: Iterable[int]) -> frozenset:
-    """Keep only the five switchable levels, discarding anything else."""
+    """Keep only the five switchable levels, discarding anything else.
+
+    :param levels: numeric logging levels (anything ``int()`` accepts); values
+        other than DEBUG, INFO, WARNING, ERROR and CRITICAL are dropped.
+    """
     return frozenset(int(level) for level in levels if int(level) in LEVELS)
 
 
@@ -206,6 +210,10 @@ def clamp_console_to_file(console: Iterable[int],
     console is fed from the same records. Showing a user a line they will
     not find in the log file they are about to attach to a bug report is
     worse than not showing it.
+
+    :param console: numeric logging levels requested for the console.
+    :param file_levels: numeric logging levels the log file records; only
+        levels in both sets are kept.
     """
     return normalise_levels(console) & normalise_levels(file_levels)
 
@@ -695,6 +703,9 @@ def set_timing_threshold_ms(ms: int) -> None:
 
     Defaults to 5 ms (env-overridable via ``SPACR_TIME_THRESHOLD_MS``).
     Setting to 0 logs every call.
+
+    :param ms: threshold in milliseconds, converted with ``int()``; negative
+        values are clamped to 0.
     """
     global _TIMING_THRESHOLD_MS
     _TIMING_THRESHOLD_MS = max(0, int(ms))

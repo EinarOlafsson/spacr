@@ -14,7 +14,8 @@ The spaCR Qt interface includes ten built-in languages:
 * Icelandic (Íslenska)
 * French (Français)
 
-Select a language under **spaCR → Preferences → Language** and press Save.
+Open **spaCR → Preferences…**, choose a **Language** on the General tab and
+press Save.
 Existing windows and lazily opened module screens are translated immediately.
 The selection is retained by ``QSettings`` for later launches.
 
@@ -24,7 +25,7 @@ What is translated
 Language support covers the presentation layer of the Qt application:
 
 * navigation, Preferences, common actions, tabs and section headings;
-* the **AI** and **LIVE** controls, AI-provider setup, chat placeholders,
+* the **AI** and **Live** controls, AI-provider setup, chat placeholders,
   streaming status and other chat chrome;
 * spaCR-authored console notices such as run start, safe stop, completion,
   settings import and provider guidance;
@@ -47,11 +48,11 @@ option values are immutable during catalog generation. A translation is
 accepted only when those structural values survive; otherwise spaCR uses the
 canonical English text.
 
-The teal API dots beside settings retain the exact documentation URL in every
-language. Their hover captions and accessible names follow the selected
-language, and changing language refreshes already-open settings windows.
-Where visual help exists, the tooltip footer offers an **Animation** word that
-reveals the drawing beside the text. The scientific drawing itself is
+The **API** link at the foot of each setting's tooltip keeps the exact
+documentation URL in every language. Its caption and accessible name follow
+the selected language, and changing language refreshes already-open settings
+windows. Where visual help exists, the tooltip footer also offers an
+**Animation** word that reveals the drawing beside the text. The scientific drawing itself is
 language-neutral. See the
 :doc:`setting animation gallery <setting_animations>` for every exact mapping.
 

@@ -381,6 +381,9 @@ def register_console_target(panel: Any) -> None:
 
     Called from the GUI thread (the AppScreen constructor), which is
     where the relay wants to be built — see :class:`_ConsoleRelay`.
+
+    :param panel: the console panel that receives log lines; it is held by weak
+        reference and dropped when its ``destroyed`` signal fires.
     """
     global _console_ref
     _ensure_handler()
@@ -404,6 +407,10 @@ def apply_console_levels(levels) -> None:
     The handler keeps passing everything and a filter decides, so the set
     can change while another thread is mid-log without the handler being
     swapped underneath it.
+
+    :param levels: numeric logging levels the console should show; anything
+        outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are
+        lowered to the lowest level kept.
     """
     from ..logging_util import LevelSetFilter, normalise_levels
     handler = _ensure_handler()
@@ -443,6 +450,10 @@ def apply_verbose_logging(on: bool) -> None:
 
     The ``cellpose`` logger goes to INFO while verbose is on, so it can
     say which model it loaded, and back to WARNING when verbose is off.
+
+    :param on: ``True`` sets the console handler, file handler and attached
+        spaCR loggers to DEBUG (and ``cellpose`` to INFO); ``False`` sets them
+        to INFO (and ``cellpose`` to WARNING).
     """
     handler = _ensure_handler()
     file_handler = _ensure_file_handler()
@@ -474,6 +485,10 @@ def log_call(fn: Callable) -> Callable:
 
     Truncates giant reprs to 240 chars so a settings dict with 100
     entries doesn't wreck the console.
+
+    :param fn: the function or method to wrap; its arguments, return value or
+        raised exception are logged to ``spacr.trace`` while verbose mode is
+        on.
     """
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
@@ -506,6 +521,10 @@ def log_button_press(button_name: str,
     Wire this from Qt slot handlers so the console shows exactly which
     button the user hit, with any relevant context values (e.g. the
     current settings dict on a Run press).
+
+    :param button_name: name of the pressed button, shown in the
+        ``[button:<name>]`` trace line; nothing is logged unless verbose mode
+        is on.
     """
     if not is_verbose():
         return

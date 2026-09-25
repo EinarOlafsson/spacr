@@ -101,8 +101,8 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
 #:
 #: These are the seam. :func:`spacr.core.preprocess_generate_masks` groups
 #: a plate into time stacks when ``timelapse`` is true, and
-#: :mod:`spacr.object` calls :func:`spacr.timelapse.automated_motility_assay`
-#: when ``timelapse and motility_analysis`` are both true -- so switching a
+#: the same function calls :func:`spacr.timelapse.automated_motility_assay`
+#: once per plate, after every mask is merged, when ``timelapse and motility_analysis`` are both true -- so switching a
 #: fold on is exactly setting its gate, and no new pipeline path is
 #: involved.
 #:

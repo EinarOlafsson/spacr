@@ -63,6 +63,12 @@ def module_summary(
 
     Plugin modules and future built-ins therefore remain readable until their
     own translation catalog supplies an exact description.
+
+    :param app_key: module key selecting the reviewed summary in
+        ``MODULE_SUMMARIES``.
+    :param english: the English summary, returned for English and as the last
+        fallback; a reviewed translation is used only when this text's SHA-256
+        matches the hash recorded at review time.
     """
     from .i18n import _exact_translation, current_language, normalize_language
 

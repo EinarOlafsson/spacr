@@ -196,7 +196,11 @@ class RefitDialog(QDialog):
 
 
 def ask_refit(settings: dict, parent=None) -> Optional[tuple]:
-    """Show the dialog; return ``(settings, notes)`` or None if cancelled."""
+    """Show the dialog; return ``(settings, notes)`` or None if cancelled.
+
+    :param settings: the settings the run on screen used; read only, and passed
+        to :class:`RefitDialog`.
+    """
     dialog = RefitDialog(settings, parent)
     if dialog.exec() != QDialog.Accepted:
         return None

@@ -268,7 +268,11 @@ class ReportScreen(QWidget):
         return str(self._format.currentData() or "html")
 
     def set_source(self, path: str) -> None:
-        """Put ``path`` in the source box without scanning."""
+        """Put ``path`` in the source box without scanning.
+
+        :param path: run folder shown in the source box; None or an empty value
+            clears it.
+        """
         self._path_edit.setText(str(path or ""))
         self._update_controls()
 
@@ -283,12 +287,20 @@ class ReportScreen(QWidget):
         self.scan()
 
     def set_output(self, path: str) -> None:
-        """Put ``path`` in the output box."""
+        """Put ``path`` in the output box.
+
+        :param path: output location shown in the output box; None or an empty
+            value clears it.
+        """
         self._out_edit.setText(str(path or ""))
         self._update_controls()
 
     def set_format(self, fmt: str) -> None:
-        """Select an output format by its ``build_report`` key."""
+        """Select an output format by its ``build_report`` key.
+
+        :param fmt: a key from :data:`FORMATS` (``"html"``, ``"pdf"`` or
+            ``"both"``); an unknown key leaves the current choice unchanged.
+        """
         index = self._format.findData(str(fmt))
         if index >= 0:
             self._format.setCurrentIndex(index)

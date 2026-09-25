@@ -172,7 +172,14 @@ def guide_control_threshold(
     guide_column: str = "grna",
     multiplier: float = 3.0,
 ) -> tuple[float, dict[str, float | int]]:
-    """Return arithmetic mean + ``multiplier`` sample SD of NT gRNAs."""
+    """Return arithmetic mean + ``multiplier`` sample SD of NT gRNAs.
+
+    :param guide_results: per-gRNA results; non-targeting controls are the rows
+        whose normalised guide name starts with ``000000_``, and at least two
+        are required.
+    :param effect_column: column of numeric control effects whose mean and
+        sample SD define the threshold.
+    """
     if guide_column not in guide_results:
         raise ValueError(f"Guide table lacks {guide_column!r}")
     guides = guide_results[guide_column].map(_normalise_guide)
@@ -201,7 +208,16 @@ def apply_primary_call(
     bh_column: str,
     effect_threshold: float,
 ) -> pd.DataFrame:
-    """Attach the common BH-plus-positive-gRNA-cut call fields."""
+    """Attach the common BH-plus-positive-gRNA-cut call fields.
+
+    :param results: regression results; the frame is copied, not modified.
+    :param effect_column: column of numeric effect sizes compared with
+        ``effect_threshold``; a non-numeric value raises.
+    :param bh_column: column whose truth value (after ``astype(bool)``) marks
+        rows that pass Benjamini-Hochberg correction.
+    :param effect_threshold: effect-size cut; ``primary_call`` is true where
+        the BH flag is set and the effect is strictly greater than this.
+    """
     frame = results.copy()
     effect = pd.to_numeric(frame[effect_column], errors="raise")
     bh = frame[bh_column].astype(bool)
@@ -219,7 +235,14 @@ def shared_limits(
     x_padding: float = 0.05,
     y_padding: float = 0.06,
 ) -> tuple[tuple[float, float], tuple[float, float]]:
-    """Return finite padded limits shared by a set of matched panels."""
+    """Return finite padded limits shared by a set of matched panels.
+
+    :param frames: the panels' data frames; at least one is required and every
+        value in both columns must be finite.
+    :param x_column: column giving horizontal positions.
+    :param y_column: column giving vertical positions; the lower y limit is
+        always 0.
+    """
     if not frames:
         raise ValueError("At least one frame is required")
     x = pd.concat(
@@ -441,7 +464,37 @@ def write_panel_package(
     style: PanelStyle = DEFAULT_PANEL_STYLE,
     palette: Mapping[str, str] = LOPIT_COLOURS,
 ) -> dict[str, Path]:
-    """Write the PDF, PNG, stats CSV, and plotted-data CSV for one panel."""
+    """Write the PDF, PNG, stats CSV, and plotted-data CSV for one panel.
+
+    :param results: regression results, one row per point; the frame is copied
+        and extended with the plotted values before writing.
+    :param destination: folder the four files (``<panel_id>.pdf``,
+        ``<panel_id>.png``, ``<panel_id>_stats.csv`` and
+        ``<panel_id>_data.csv``) are written to; created if absent.
+    :param panel_id: panel identifier used as the file-name stem and recorded
+        in the stats CSV.
+    :param x_column: column of horizontal (effect) values; must be numeric.
+    :param y_column: column of vertical values; must be numeric.
+    :param lopit_column: column of LOPIT/TAGM localisation categories that
+        colour the points; every category must have a colour in ``palette``.
+    :param x_label: horizontal axis label.
+    :param y_label: vertical axis label.
+    :param x_limits: ``(min, max)`` horizontal axis limits, also recorded in
+        the stats CSV.
+    :param y_limits: ``(min, max)`` vertical axis limits, also recorded in the
+        stats CSV.
+    :param horizontal_threshold: y value of the dashed horizontal threshold
+        line; points with a label that lie above it and to the right of
+        ``effect_threshold`` get their label drawn.
+    :param horizontal_threshold_label: what the dashed horizontal line
+        represents, quoted in the legend text and stats CSV.
+    :param effect_threshold: x value of the dotted vertical effect-threshold
+        line.
+    :param effect_threshold_label: what the dotted vertical line represents,
+        quoted in the legend text and stats CSV.
+    :param narrative: legend, purpose, observation and implication text placed
+        below the panel in the PDF.
+    """
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     unknown = sorted(set(results[lopit_column].astype(str)) - set(palette))
@@ -828,7 +881,26 @@ def write_box_jitter_package(
     statistics: Mapping[str, object] | None = None,
     style: PanelStyle = DEFAULT_PANEL_STYLE,
 ) -> dict[str, Path]:
-    """Write one deterministic box-and-jitter four-file panel package."""
+    """Write one deterministic box-and-jitter four-file panel package.
+
+    :param results: regression results, one row per point; the frame is copied
+        and extended with the plotted values before writing.
+    :param destination: folder the four files (``<panel_id>.pdf``,
+        ``<panel_id>.png``, ``<panel_id>_stats.csv`` and
+        ``<panel_id>_data.csv``) are written to; created if absent.
+    :param panel_id: panel identifier used as the file-name stem and recorded
+        in the stats CSV.
+    :param category_column: column holding each row's category, compared as
+        strings.
+    :param value_column: column of vertical values; every value must be numeric
+        and finite.
+    :param category_order: left-to-right order of the categories; the names
+        must be distinct and match the observed categories exactly.
+    :param x_label: horizontal axis label.
+    :param y_label: vertical axis label.
+    :param narrative: legend, purpose, observation and implication text placed
+        below the panel in the PDF.
+    """
     if not (0 < style.point_alpha <= 1):
         raise ValueError("point_alpha must be in (0, 1]")
     categories = [str(value) for value in category_order]
@@ -1016,7 +1088,13 @@ def compose_vector_figure(
     *,
     columns: int = 2,
 ) -> Path:
-    """Compose one vector page and transform every URI link rectangle."""
+    """Compose one vector page and transform every URI link rectangle.
+
+    :param panel_pdfs: single-page panel PDFs, placed row by row on a grid of
+        equal tiles; at least one is required.
+    :param destination: path of the composed PDF; its parent folder is created
+        and the file is replaced atomically.
+    """
     if not panel_pdfs:
         raise ValueError("At least one panel PDF is required")
     if columns < 1:
@@ -1073,7 +1151,18 @@ def build_manifest_packages(
     *,
     style: PanelStyle = DEFAULT_PANEL_STYLE,
 ) -> dict[str, Any]:
-    """Validate a declared run manifest, then write every panel and figure."""
+    """Validate a declared run manifest, then write every panel and figure.
+
+    :param manifest: the figure manifest, a mapping or the path of a JSON file,
+        with a filename-safe ``figure_id``, an optional ``columns`` count and a
+        non-empty ``panels`` list.
+    :param artifacts: run artifacts keyed by the ``source`` names the panels
+        use; each declares ``level`` (``'grna'`` or ``'gene'``), ``phenotype``
+        and exactly one of ``data`` (a DataFrame) or ``path``.
+    :param destination: output folder; each panel is written to its own
+        ``<panel_id>`` subfolder and the composed figure to
+        ``<figure_id>.pdf``.
+    """
     loaded = _load_panel_manifest(manifest)
     raw_panels = loaded["panels"]
     panels: list[dict[str, object]] = []

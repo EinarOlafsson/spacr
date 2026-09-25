@@ -206,13 +206,19 @@ class LazyScreenFactory:
 
 
 def declared_for(module: str):
-    """The row declared for ``module``, or ``None`` if it declares none."""
+    """The row declared for ``module``, or ``None`` if it declares none.
+
+    :param module: dotted module name of a screen, matched exactly against
+        :attr:`DeclaredApp.module`.
+    """
     return _BY_MODULE.get(module)
 
 
 def declared_app(key: str) -> DeclaredApp:
     """The row declared for app ``key``.
 
+    :param key: app key to look up, matched exactly against
+        :attr:`DeclaredApp.key`.
     :raises KeyError: if no declared app has that key.
     """
     return _BY_KEY[key]

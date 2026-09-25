@@ -87,7 +87,11 @@ class MetadataTablePanel(QWidget):
         self.set_rows(rows or [])
 
     def set_rows(self, rows: List[Dict[str, Any]]) -> None:
-        """Replace the table contents with ``rows``."""
+        """Replace the table contents with ``rows``.
+
+        :param rows: one dict per row, keyed by column; missing keys show
+            blank.
+        """
         self._guard = True
         try:
             self._table.setRowCount(0)
@@ -188,6 +192,8 @@ class MetadataTablePanel(QWidget):
     def write_filename_map(self, dst: Any) -> Path:
         """Write the current rows to ``dst`` as a ``filename_map.csv``.
 
+        :param dst: path of the CSV to write, converted to
+            :class:`~pathlib.Path`; its parent folders are created.
         :returns: the path written.
         """
         from ..folder_metadata import save_filename_map

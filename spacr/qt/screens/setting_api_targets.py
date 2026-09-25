@@ -374,7 +374,7 @@ SETTING_API_TARGETS = {
     'model_plate_position': ('spacr.ml', '', False),
     'model_type': ('spacr.classify', 'resolve_ml_model_type', True),
     'model_type_ml': ('spacr.classify', 'resolve_ml_model_type', True),
-    'motility_analysis': ('spacr.object', 'generate_cellpose_masks_sam', True),
+    'motility_analysis': ('spacr.core', 'preprocess_generate_masks', True),
     'motility_xlim': ('spacr.timelapse', '', False),
     'motility_ylim': ('spacr.timelapse', '', False),
     'multiple_testing_method': ('spacr.refit', 'refit_settings', True),

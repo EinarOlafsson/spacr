@@ -39,6 +39,12 @@ class PlotSpec:
     The retained frame supports graph-type compatibility checks, redrawing,
     data export, and statistical comparison without reconstructing the plot
     from rendered graphics.
+
+    :param frame: the table holding the observations, normally a pandas
+        DataFrame with ``value`` and optionally ``group`` columns; ``None``
+        gives no groups.
+    :param value: name of the column plotted on the value axis; its values are
+        converted to numbers and non-numeric entries dropped.
     """
 
     frame: Any
@@ -141,7 +147,11 @@ class GroupedPlot(FastPlot):
 
 
     def show_spec(self, spec: PlotSpec) -> int:
-        """Draw ``spec``. Returns the number of groups drawn."""
+        """Draw ``spec``. Returns the number of groups drawn.
+
+        :param spec: the data and display metadata to draw; an empty ``kind``
+            is replaced by the default kind for the data's shape.
+        """
         self.spec = spec
         kind = str(spec.kind or spec.default_kind())
         self.spec = replace(spec, kind=kind)
@@ -150,6 +160,8 @@ class GroupedPlot(FastPlot):
     def show_as(self, kind: str) -> int:
         """Redraw the retained data using graph type ``kind``.
 
+        :param kind: graph-type name to draw; it must fit the retained data's
+            shape (see :mod:`spacr.graph_types`).
         :raises ValueError: for a kind this data cannot support. Drawing it
             would otherwise imply a relationship unsupported by the available
             data shape.

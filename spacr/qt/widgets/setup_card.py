@@ -157,6 +157,8 @@ class SetupCard(QWidget):
 
         Ties go to the earlier corner, which only happens at the exact
         centre and is therefore never seen.
+
+        :param point: position in the card's own widget coordinates.
         """
         rect = QRectF(self.rect())
         points = (rect.topLeft(), rect.topRight(),
@@ -241,6 +243,8 @@ class SetupCard(QWidget):
         long, and paying for exact arc length here would buy an accuracy no
         eye can see on a value that is chasing a mouse anyway.
 
+        :param point: position in the card's own widget coordinates; it may lie
+            outside the card.
         :returns: the fraction, or None when the pointer is exactly at the
             centre and no direction can be read from it.
         """
@@ -275,6 +279,9 @@ class SetupCard(QWidget):
 
         A point at the exact centre names no direction and is ignored too,
         rather than being read as the top-left corner.
+
+        :param point: position in the card's own widget coordinates; it may lie
+            outside the card.
         """
         if self._laps:
             return
@@ -483,12 +490,20 @@ class SetupCard(QWidget):
             self._timer.start()
 
     def showEvent(self, event):                 # noqa: N802 - Qt naming
-        """Start following as soon as there is something to follow."""
+        """Start following as soon as there is something to follow.
+
+        :param event: the show event; it is not inspected, only passed on to
+            the base class before following starts.
+        """
         super().showEvent(event)
         self._start()
 
     def hideEvent(self, event):                 # noqa: N802 - Qt naming
-        """A card nobody is looking at does not need sixty frames a second."""
+        """A card nobody is looking at does not need sixty frames a second.
+
+        :param event: the hide event; it is not inspected, only passed on to
+            the base class before the animation timer stops.
+        """
         super().hideEvent(event)
         self._timer.stop()
 
@@ -580,6 +595,10 @@ class SetupCard(QWidget):
         window and two fifths of a small popup, and the short one reads as
         a thick bright band -- "the rim is to thick and bright. make the
         rim and window look exactly like the setup spacr window."
+
+        :param rect: the card's drawing rectangle; not read, because the
+            fraction is measured on the reference card size so every card's rim
+            looks alike.
         """
         key = (self._radius, self._arc)
         cached = self._span_cache
@@ -609,6 +628,9 @@ class SetupCard(QWidget):
 
         Both ends fall to zero, so neither has an edge to arrive or leave
         by. Where the peak sits is :meth:`accent_peak`.
+
+        :param along: position along the lit run, 0 at the tail and 1 at the
+            head; clamped to that range.
         """
         along = min(max(float(along), 0.0), 1.0)
         peak = self.accent_peak()
@@ -625,6 +647,9 @@ class SetupCard(QWidget):
         :attr:`position`, which is what puts the light on the pointer
         rather than beside it; with ``head`` the run ends there and trails
         backwards.
+
+        :param span: length of the lit run as a fraction of the rim, as
+            returned by :meth:`accent_span`.
         """
         if self.alignment() == "centre":
             return self.position - span / 2.0
@@ -672,6 +697,12 @@ class SetupCard(QWidget):
 
         Under an ordinary start with the shipped mode this returns the
         theme's accent and returns it unchanged, frame after frame.
+
+        :param along: position along the lit run, 0 at the tail and 1 at the
+            head.
+        :param accent: the theme's accent colour; returned as a copy in the
+            plain modes, and its saturation and value set the floor for the
+            spectral ones.
         """
         if self.spaceout():
             spectral = QColor()

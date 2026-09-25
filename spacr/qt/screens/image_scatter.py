@@ -206,6 +206,11 @@ class ScatterCanvas(QFrame):
         still line up with the caller's frame) but never drawn and never hit —
         dropping them would silently renumber every point and make a click
         open the wrong object.
+
+        :param x: horizontal values, one per row, flattened to a float array;
+            non-finite values are kept but not drawn.
+        :param y: vertical values, one per ``x``; a length mismatch raises
+            :class:`ValueError`.
         """
         self._x = np.asarray(x, dtype=float).ravel()
         self._y = np.asarray(y, dtype=float).ravel()
@@ -228,7 +233,11 @@ class ScatterCanvas(QFrame):
         return np.isfinite(self._x) & np.isfinite(self._y)
 
     def set_selected(self, mask: Sequence[bool]) -> None:
-        """Ring these points. A selection highlights; it never hides."""
+        """Ring these points. A selection highlights; it never hides.
+
+        :param mask: one boolean per point; a mask of the wrong length clears
+            the selection.
+        """
         selected = np.asarray(mask, dtype=bool).ravel()
         if len(selected) != len(self._x):
             selected = np.zeros(len(self._x), dtype=bool)
@@ -363,7 +372,10 @@ class ScatterCanvas(QFrame):
             self._project()
 
     def point_position(self, index: int) -> Optional[Tuple[float, float]]:
-        """Widget coordinates of point ``index``, or ``None`` if not drawn."""
+        """Widget coordinates of point ``index``, or ``None`` if not drawn.
+
+        :param index: the point's position in the plotted arrays.
+        """
         self._ensure_projection()
         if not (0 <= index < len(self._px)) or not np.isfinite(
                 self._px[index]):
@@ -377,6 +389,9 @@ class ScatterCanvas(QFrame):
         and is not worth the invalidation rules: at 200 000 points this is
         well under a millisecond, and the row cap in
         :func:`load_scatter_frame` keeps it there.
+
+        :param x: horizontal widget coordinate, in pixels.
+        :param y: vertical widget coordinate, in pixels.
         """
         self._ensure_projection()
         if not len(self._px):
@@ -583,6 +598,8 @@ class ImageScatterScreen(LinkedView, QWidget):
         An empty path is ignored rather than clearing the box: "no path
         known" must not throw away a path the user typed.
 
+        :param path: path to the SQLite measurement database; stripped, and
+            ignored when empty.
         :returns: True when the path was taken and the table listing started.
         """
         path = str(path or "").strip()
@@ -710,13 +727,21 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._apply_linked_selection()
 
     def key_at(self, index: int) -> str:
-        """The object key of point ``index``, or ``""``."""
+        """The object key of point ``index``, or ``""``.
+
+        :param index: the point's position in the plotted arrays; out-of-range
+            gives ``""``.
+        """
         if 0 <= index < len(self._keys):
             return self._keys[index]
         return ""
 
     def path_at(self, index: int) -> str:
-        """The crop path of point ``index``, or ``""``."""
+        """The crop path of point ``index``, or ``""``.
+
+        :param index: the point's position in the plotted arrays; out-of-range
+            gives ``""``.
+        """
         return self._paths.get(self.key_at(index), "")
 
     def _on_hover(self, index: int) -> None:
@@ -799,6 +824,7 @@ class ImageScatterScreen(LinkedView, QWidget):
     def open_point(self, index: int) -> Any:
         """Route point ``index``'s object to whatever shows crops.
 
+        :param index: the point's position in the plotted arrays.
         :returns: what the opener returned, or ``None`` when there is no key
             or nowhere to open it.
         """
@@ -825,7 +851,10 @@ class ImageScatterScreen(LinkedView, QWidget):
         return self.open_point(self.canvas.hovered)
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Ring the points another view selected."""
+        """Ring the points another view selected.
+
+        :param selection: the shared selection whose points are ringed.
+        """
         self._apply_linked_selection(selection)
 
     def _apply_linked_selection(self, selection=None) -> None:
@@ -850,6 +879,9 @@ class ImageScatterScreen(LinkedView, QWidget):
 
         Applied to the *plotted* frame rather than to the source, so clearing
         the filter widens it back without another database read.
+
+        :param data_filter: the shared filter; its ``describe()`` text is shown
+            in the status line before the plotted frame is re-plotted.
         """
         if self._frame.empty:
             return

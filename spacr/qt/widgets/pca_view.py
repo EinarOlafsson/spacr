@@ -124,6 +124,12 @@ def arrow_scale(result: PCAResult, kx: int, ky: int,
 
     Returns 0.0 when there is nothing to scale (no finite limits, or every
     correlation zero), which callers read as "draw no arrows".
+
+    :param result: the decomposition whose feature correlations are drawn.
+    :param kx: zero-based index of the component on the x axis.
+    :param ky: zero-based index of the component on the y axis.
+    :param x_limits: ``(low, high)`` of the drawn x axis.
+    :param y_limits: ``(low, high)`` of the drawn y axis.
     """
     if not result.n_components:
         return 0.0
@@ -203,7 +209,11 @@ class FeaturePicker(QWidget):
         outer.addWidget(self._count)
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
-        """Offer ``frame``'s continuous columns, all ticked."""
+        """Offer ``frame``'s continuous columns, all ticked.
+
+        :param frame: the table whose continuous columns are offered, or None
+            to offer none.
+        """
         self._all = () if frame is None else candidate_features(frame)
         self._checked = set(self._all)
         self._refilter()
@@ -442,6 +452,9 @@ class PCAScoresCanvas(GraphCanvas):
         Both together, always: a result and a frame that do not match would
         put arrows from one PCA over the points of another, which is a picture
         that looks entirely reasonable and is wrong.
+
+        :param result: the decomposition whose loadings are drawn, or None.
+        :param frame: the scores frame from the same decomposition, or None.
         """
         self._result = result
         self.set_frame(frame)
@@ -461,6 +474,8 @@ class PCAScoresCanvas(GraphCanvas):
         ``render=False`` is for a caller about to change the spec anyway: the
         spec change redraws, and doing it twice for one user action is a
         visible flicker on a large scatter.
+
+        :param on: whether to draw the loading arrows; converted to bool.
         """
         self._biplot = bool(on)
         if count is not None:
@@ -734,7 +749,11 @@ class PCAPanel(QWidget):
 
     def set_frame(self, frame: Optional[pd.DataFrame], *,
                   compute: bool = True) -> None:
-        """Point the panel at a table and (by default) decompose it."""
+        """Point the panel at a table and (by default) decompose it.
+
+        :param frame: the table to decompose, or None; its columns also fill
+            the colour-by list.
+        """
         self._frame = frame
         self.features.set_frame(frame)
         self._building = True
@@ -946,6 +965,9 @@ class PCAPanel(QWidget):
         The worker holds the table and delivers into widgets that are being
         destroyed, so the runner is shut down before the canvas it would have
         drawn into is closed.
+
+        :param event: the close event, passed to the base class after the fit
+            runner is shut down and the canvas closed.
         """
         self._jobs.shutdown()
         self.canvas.close()

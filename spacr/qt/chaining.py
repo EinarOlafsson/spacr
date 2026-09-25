@@ -860,7 +860,10 @@ class ChainingBar(QFrame):
 
 
 def chaining_bar(screen) -> Optional[ChainingBar]:
-    """Return the strip installed on ``screen``, or None."""
+    """Return the strip installed on ``screen``, or None.
+
+    :param screen: the screen widget whose ``_chaining_bar`` attribute is read.
+    """
     bar = getattr(screen, "_chaining_bar", None)
     return bar if isinstance(bar, ChainingBar) else None
 

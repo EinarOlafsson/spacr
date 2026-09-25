@@ -7,9 +7,9 @@
   "routes": 85,
   "catalog_languages": 14,
   "narration_tracks": 476,
-  "web_bytes": 649794231,
+  "web_bytes": 679135912,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 1703179308,
+  "media_host_bytes": 1703314292,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_heart.json",
@@ -1678,18 +1678,18 @@
     },
     {
       "path": "media_host/14_make_masks/audio/en/af_heart.json",
-      "sha256": "c0db41f7c3ff8834d259741b188911503b53cff94e7e01cfa3930005524b14e2",
-      "bytes": 108539
+      "sha256": "7dd5aa183c1ed931246ccf2d0e4b5f3abb6e76d6236e94d486648226c7bc0e44",
+      "bytes": 108364
     },
     {
       "path": "media_host/14_make_masks/audio/en/af_heart.m4a",
-      "sha256": "686e08fb4b32692583b3a1df5f0ee5195d5fb6492c681612c2bf57a94e239f27",
-      "bytes": 2493322
+      "sha256": "0e1251baf83e9d430f8f5603fdee7cb7dd97e139429aa1e090f34dbbbb2d50be",
+      "bytes": 2484971
     },
     {
       "path": "media_host/14_make_masks/video/14_make_masks_silent.mp4",
-      "sha256": "0c2e28bbf22a8388ff84df7235e3e609ad8602fbf8d07b12b3d3a400df31b256",
-      "bytes": 26579985
+      "sha256": "249569d6794b04b69800e95b99ec79bffa5b764656345bedf6a2df2ff5e2e947",
+      "bytes": 26579151
     },
     {
       "path": "media_host/15_image_umap/audio/en/af_heart.json",
@@ -2838,48 +2838,48 @@
     },
     {
       "path": "media_host/26_invasion/audio/en/af_heart.json",
-      "sha256": "dccd2c55b9dc5b3a99dd026376de4440de7eab11a12a75d3421a23106513ec95",
-      "bytes": 58827
+      "sha256": "e1b8b8a9c1d9b46bfefad37a2c4174e55542a2953116e12014a82ccd37713286",
+      "bytes": 58667
     },
     {
       "path": "media_host/26_invasion/audio/en/af_heart.m4a",
-      "sha256": "b7b1185340242d45cf4049a95a00453d8885757f9ec70c119d9910ef3fff34b2",
-      "bytes": 1403577
+      "sha256": "66b3d4bf7cd08618c0f04539f62e82589568813a4fc0abcbd12e6bcc3f103a01",
+      "bytes": 1424449
     },
     {
       "path": "media_host/26_invasion/video/26_invasion_silent.mp4",
-      "sha256": "b48f9bfc225951940bc3bfcc95ae7d9b3567ab1cb2ea82cf617f2d44b3c59a1d",
-      "bytes": 9233317
+      "sha256": "9ff3853e738e5bdc3c29a8ead676dc47cd0f27ef5575d9ad7521cdb93790ed81",
+      "bytes": 9262153
     },
     {
       "path": "media_host/27_replication/audio/en/af_heart.json",
-      "sha256": "529df1f843d59c57ba0ea1ed0efb8876b799571a44c15ca3f7555c1e0e244ada",
-      "bytes": 50406
+      "sha256": "6ed1a26c6398057096fd3a879d8388939d732106051ff55c9f0c855850483fb2",
+      "bytes": 50856
     },
     {
       "path": "media_host/27_replication/audio/en/af_heart.m4a",
-      "sha256": "16aca47eff368343b36bdbce44093993bad89781fcf7922f1bd1c238c01cc417",
-      "bytes": 1144521
+      "sha256": "bc1b89b7671a0f945b6c14ba50f0c336bc1e6f0a74e8fc55581d923219285aa3",
+      "bytes": 1168168
     },
     {
       "path": "media_host/27_replication/video/27_replication_silent.mp4",
-      "sha256": "438c6d9e3a6137a2630087e36b9a104350767ed6c12509fc5edd43cb70f53f48",
-      "bytes": 7501380
+      "sha256": "e800f67d19b86816c777177fa1c8c9a9d8d707048aeb506b8c2a5c9d18cbc227",
+      "bytes": 7532404
     },
     {
       "path": "media_host/28_training_runs/audio/en/af_heart.json",
-      "sha256": "f918b3077b57ed6d9bc5d853a676020327a2fc8374e52de273b76c54cf2cad9c",
-      "bytes": 62769
+      "sha256": "eb6bc33078b8d06a70f9db9b47ce075ac46b2c852bc847383fb06a5db77b4724",
+      "bytes": 63016
     },
     {
       "path": "media_host/28_training_runs/audio/en/af_heart.m4a",
-      "sha256": "4db4467d9b639614c961213888c330c02dd34f70a03bbbe6280afefa1e28a71c",
-      "bytes": 1394167
+      "sha256": "0475b4344f95bfc3251cb68027f5b9a033bffce8e9bad115d439742c11041757",
+      "bytes": 1388502
     },
     {
       "path": "media_host/28_training_runs/video/28_training_runs_silent.mp4",
-      "sha256": "0d375ce7403d6719bedcf1fe9aaaf9ae8f725c33309348804eec51c1c0e5bf76",
-      "bytes": 12173336
+      "sha256": "25ec8d8c2717f3985e53914eac447d4566caae856026ddaef2619000e42b9a00",
+      "bytes": 12170207
     },
     {
       "path": "media_host/29_report/audio/en/af_heart.json",
@@ -2973,33 +2973,33 @@
     },
     {
       "path": "media_host/35_converter/audio/en/af_heart.json",
-      "sha256": "fa607811852dd1a0bb625f11bb8e58d0013686d647d63716ac0bd580494b4ddf",
-      "bytes": 44050
+      "sha256": "bffa1e4530bfb70a33f15ea8c8e80a903896c2a2a9072d1021dd0c589af7e5db",
+      "bytes": 44345
     },
     {
       "path": "media_host/35_converter/audio/en/af_heart.m4a",
-      "sha256": "ab7d0f03712d1dc7f191f57714af43d42be1bf0bda1909b76c56856cb5a2d780",
-      "bytes": 935909
+      "sha256": "de173bd78ea0a606c49e7779260abf996a698bdcca662bc5634e416220553422",
+      "bytes": 950222
     },
     {
       "path": "media_host/35_converter/video/35_converter_silent.mp4",
-      "sha256": "ea3c4056bf35ea2477307686c4af3b38d5230da7624d5dbd89b873d40c9c4b95",
-      "bytes": 10327827
+      "sha256": "20506e0e929f1850b96cf414d4166c81a30e533ae51e1bcbcbcf3961f1ceeec8",
+      "bytes": 10346561
     },
     {
       "path": "media_host/36_import/audio/en/af_heart.json",
-      "sha256": "8e3031c89f0aa6d30023135c5c15e0d1779ba444c7773efa4714f49600f82481",
-      "bytes": 51938
+      "sha256": "7b010681b53f2d8a339b4371bad8f2db431996a09a7d3ae2913b24471a912eea",
+      "bytes": 52124
     },
     {
       "path": "media_host/36_import/audio/en/af_heart.m4a",
-      "sha256": "046a701b91457e43d1b92abe43d45aacf7ac24ad5634f19d04b6c6f3634e179a",
-      "bytes": 1123493
+      "sha256": "3ed8a235f5cf083643765f58d77ff899d7a2892a6152701c3458824b452b7182",
+      "bytes": 1124462
     },
     {
       "path": "media_host/36_import/video/36_import_silent.mp4",
-      "sha256": "dcfa9ce64c7062a049e756f3912c411094c6f8e7f85917db70adf729f0a31740",
-      "bytes": 15030449
+      "sha256": "990a6362fbd9c2a3e272b966f8a8b94981d0aa8f3cdd66c0063277957000565f",
+      "bytes": 15031677
     },
     {
       "path": "media_host/37_batch/audio/en/af_heart.json",
@@ -3558,18 +3558,18 @@
     },
     {
       "path": "media_host/75_regression_diagnostics/audio/en/af_heart.json",
-      "sha256": "8591b17d73ce68905157cfca3c5e2effd70aaede45843e62d5386d63b73af696",
-      "bytes": 37995
+      "sha256": "7c2ac352ef9e9f822f904128afc428f2b1bbe5f8f616171ed61e88f781c82443",
+      "bytes": 37768
     },
     {
       "path": "media_host/75_regression_diagnostics/audio/en/af_heart.m4a",
-      "sha256": "02a945bdcec3ef46d550879b5694f06b0ae24713719a3fe7174eee7d1956ca60",
-      "bytes": 851301
+      "sha256": "c9310013e936814c8b32426932800515481d1b7d951afd9c12a0b0b07368b7ca",
+      "bytes": 853554
     },
     {
       "path": "media_host/75_regression_diagnostics/video/75_regression_diagnostics_silent.mp4",
-      "sha256": "6b94cca51d7b6db31a72880514bd66c8666cd1379aa1751c64d3ed89b3d795fe",
-      "bytes": 4876828
+      "sha256": "408a692322d4f6430cd1bf84a46de9bf4ab9a2b3abac47d10a5d99ec27b1146a",
+      "bytes": 4887299
     },
     {
       "path": "media_host/76_ops/audio/en/af_aoede.json",
@@ -5203,73 +5203,73 @@
     },
     {
       "path": "web/catalog/captions_da.json",
-      "sha256": "9f36207673582a26d3997701692524e010d44380d928d5dc6ce0bbb419eeba49",
-      "bytes": 565157
+      "sha256": "7c1e22429d20213bdbed26a33498cd787bcef7c98f43122d7a1fd89d20134f70",
+      "bytes": 565381
     },
     {
       "path": "web/catalog/captions_de.json",
-      "sha256": "def140b811fa977d1f6c4cb959a56cf73829790ec91dfe47106b7a5cf939c7b2",
-      "bytes": 577161
+      "sha256": "8276953657c43ad333260bab74fafb033bfbc10cef2c133e6b12e9191076b42c",
+      "bytes": 577385
     },
     {
       "path": "web/catalog/captions_is.json",
-      "sha256": "e1e7ae2f70f90b856b2be93e63f3196210e3ccc753dbfa72af4c0e5c8f687a36",
-      "bytes": 561815
+      "sha256": "5d8874685065e74b998e4a4686c5de4b0671d6b6f38454e98edcf6f8094ee11b",
+      "bytes": 562039
     },
     {
       "path": "web/catalog/captions_ko.json",
-      "sha256": "7bf8e700cb9cd4de151266a2b180262b015e0b8fa70736688dc0e47beab9295d",
-      "bytes": 566286
+      "sha256": "01d27aaa48d5597fc9513bccaabe6e59a629f33dcd4a9c0eb34b5c59e7fafd6f",
+      "bytes": 566510
     },
     {
       "path": "web/catalog/captions_nb.json",
-      "sha256": "2478c225d54989ec3d0d8acb51889e04fba0b8eaee0c0d5652d01953e4d82adf",
-      "bytes": 562784
+      "sha256": "17653a796f20233a1c9c8d7376d556ed6a8fbb3f13eeaa156782c181f47adcd2",
+      "bytes": 563008
     },
     {
       "path": "web/catalog/captions_sv.json",
-      "sha256": "7f1bfa059bb65dc052c10df5e8b598547ebfd2946552ec9a4c566e427cb0b0cd",
-      "bytes": 565466
+      "sha256": "4cad3687a56959740e12a99db7786fe33cc8c49820769972f90ffda36122db2f",
+      "bytes": 565690
     },
     {
       "path": "web/catalog/lessons_en.json",
-      "sha256": "442b716170259123d76d14cd3746f3975526b92341f7710152bcfd6c68108310",
-      "bytes": 560847
+      "sha256": "d16ca8f96283cdc4b8e458e1cbd1c549381118918e12e6ac89f5a4a004273ff2",
+      "bytes": 561071
     },
     {
       "path": "web/catalog/lessons_es.json",
-      "sha256": "6c11c83ae9aa8b4f8aa504e344c2509dcaf169b13abed31befbca47a5372134e",
-      "bytes": 689954
+      "sha256": "331e53ce229472a3da4fbe01a22e21b72f69f1fd12ff90f40f9ee2d0bc9f8986",
+      "bytes": 690178
     },
     {
       "path": "web/catalog/lessons_fr.json",
-      "sha256": "545038e379edaa28cf14078ad1ccfb48ab176dba514b38bad6df25c981057b12",
-      "bytes": 702872
+      "sha256": "1a96ebbb880e0eca8c837e64190cb849eef07b4147fac0555199172c104d5c89",
+      "bytes": 703096
     },
     {
       "path": "web/catalog/lessons_hi.json",
-      "sha256": "8a9cfaa73bc77a45bbea4071135e6e180f29fd3a8c4efe0a2a115360ced54b6a",
-      "bytes": 884454
+      "sha256": "367d7577f16acbf91a9a5ca54bc204551a1fd271bb86e321ba8fdddea24e8898",
+      "bytes": 884678
     },
     {
       "path": "web/catalog/lessons_it.json",
-      "sha256": "293f7361f20078cde6851cf1658aad1df8c2c25091408155d8b0ae6a62483fb7",
-      "bytes": 684442
+      "sha256": "0193ee4109bc63949a598a8ce8c4e468db5f6fcd7cdc26087b7acf40eeb54b7d",
+      "bytes": 684666
     },
     {
       "path": "web/catalog/lessons_ja.json",
-      "sha256": "710c955d18186f699538d9286ad3a5a1e88cba618aa351b541bb5fe32e378576",
-      "bytes": 719913
+      "sha256": "860a072644e7a731b33bcc28301c0bdf15df68fe692b8158d94e8c4cba2cf021",
+      "bytes": 720137
     },
     {
       "path": "web/catalog/lessons_pt-BR.json",
-      "sha256": "648e1d825e62db67a9bcf8d00a678f1d11ac3ce334ba6af3a0fc1f8831ea0567",
-      "bytes": 683490
+      "sha256": "ff9025b75042e6a4dd639380e8f9b35e758fc543eb9adc409d56b8c2fa68631d",
+      "bytes": 683714
     },
     {
       "path": "web/catalog/lessons_zh-CN.json",
-      "sha256": "03e4320c1b85370850a8bd0318d9d02903de55d771e7359a5ad4f1cfa22ddcec",
-      "bytes": 638331
+      "sha256": "1b3bd5489bf768fbf4e0cbd13452bb7b5d6e36ddfbde65146cf860689d2bd809",
+      "bytes": 638555
     },
     {
       "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
@@ -5443,13 +5443,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "2cb3fd46e49756ef6d8b124524cb33054c123e714ee17db389e3d74eb7db6760",
-      "bytes": 15585
+      "sha256": "0c8274b5866055f3a04a001aa1cda306d012268a5af7815e7b8c261a7e1a8cb4",
+      "bytes": 15583
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "15644e4cf6f72913dc2de6581bad83e6727cadcd42be95402652ee0bee720570",
-      "bytes": 454687
+      "sha256": "d4d404d043a79a20157ea34f25c56f26adb46dad51c7f04d5599ee19fb6f5023",
+      "bytes": 454911
     },
     {
       "path": "web/logo_spacr.png",
@@ -5458,7 +5458,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "852c053d51519659e72357a653c9cd00bb4dc4b8843b82dd568fb3eb5b6e16de",
+      "sha256": "15404d92b023f808d4cd2940b981e6fc7863524293409c26ea0b62d6562cc637",
       "bytes": 16356
     },
     {
@@ -5598,8 +5598,8 @@
     },
     {
       "path": "web/production/14_make_masks/video/14_make_masks_silent.mp4",
-      "sha256": "02c5a8d766ec20b25707e41d342d8d7ba8897c15e378499f32ae37376283f20b",
-      "bytes": 7860218
+      "sha256": "70ab1b45eeb1d3b1cb4bf35ab8d3521e5b1d2411def8d255b4e3ac04d93fc176",
+      "bytes": 24818797
     },
     {
       "path": "web/production/15_image_umap/poster.jpg",
@@ -5718,8 +5718,8 @@
     },
     {
       "path": "web/production/26_invasion/video/26_invasion_silent.mp4",
-      "sha256": "d22ca6090e5c95152a594b2e07b21f2bb62c2ee989c5a0e8b95df605e06c81b4",
-      "bytes": 2809035
+      "sha256": "76e07fa78ff3b8c956d6eca4c018192434dedfff3b050229d996f4a121f97867",
+      "bytes": 7448334
     },
     {
       "path": "web/production/27_replication/poster.jpg",
@@ -5728,8 +5728,8 @@
     },
     {
       "path": "web/production/27_replication/video/27_replication_silent.mp4",
-      "sha256": "d8f160416fc369eefb0054dc18b0622b8a40649b181ca1113efe254efe213f18",
-      "bytes": 5961793
+      "sha256": "175d4e0cdd4a47e9673da1a7d8b489c2d7c635e205b587849182ffdd5ac8cf82",
+      "bytes": 6023172
     },
     {
       "path": "web/production/28_training_runs/poster.jpg",
@@ -5738,8 +5738,8 @@
     },
     {
       "path": "web/production/28_training_runs/video/28_training_runs_silent.mp4",
-      "sha256": "30da9ec3cb50017a8044900675b8aa327878b81dd553547a6fd8018869bd884e",
-      "bytes": 3777570
+      "sha256": "28d6b548d1931f4f1b0ca3fe837c689ace574e704b24d5b813cc0495b51fa30c",
+      "bytes": 11336983
     },
     {
       "path": "web/production/29_report/poster.jpg",
@@ -5808,8 +5808,8 @@
     },
     {
       "path": "web/production/35_converter/video/35_converter_silent.mp4",
-      "sha256": "7f99268f3654dba6b8baad7244c544b211d5bcf9c25850e804fb634d67ca9229",
-      "bytes": 8593773
+      "sha256": "07326d822b01be45352c3666fd7866edc4a1bf8320fe7bb7a858a810a8c07d62",
+      "bytes": 8699538
     },
     {
       "path": "web/production/36_import/poster.jpg",
@@ -5818,8 +5818,8 @@
     },
     {
       "path": "web/production/36_import/video/36_import_silent.mp4",
-      "sha256": "95d5effe206d231dfe487a10095c79fd4411d32b414a8bb40b6d94632ae6e2bf",
-      "bytes": 10497764
+      "sha256": "743ecea5e4d09c3de1816293a30ad5a568ae099b55fce0d6aa8022948cc2c9bc",
+      "bytes": 10506351
     },
     {
       "path": "web/production/37_batch/poster.jpg",
@@ -6198,8 +6198,8 @@
     },
     {
       "path": "web/production/75_regression_diagnostics/video/75_regression_diagnostics_silent.mp4",
-      "sha256": "ce3d568c85e0577ca3ce0fcb29ffefd870ac4318c3467082373c018239e28ec3",
-      "bytes": 4968786
+      "sha256": "5f6094c587043c6c0c72a528f4bdcea4a6813bc928d80a9b8ab19fa6563803e8",
+      "bytes": 4974087
     },
     {
       "path": "web/production/76_ops/poster.jpg",
@@ -6319,26 +6319,110 @@
   ],
   "web_checks": [
     {
-      "lesson": "33_plate_viewer",
-      "rendition_sha256": "52e7552a6b9346673909df64fe91b2e550894310aa557655a27b8746fec6e45a",
-      "browser_report_sha256": "a081ff1ba809b3719ed202fa34eb854742ab91921a53fcc8c5b40871f8a429dd"
+      "lesson": "14_make_masks",
+      "rendition_sha256": "70ab1b45eeb1d3b1cb4bf35ab8d3521e5b1d2411def8d255b4e3ac04d93fc176",
+      "browser_report_sha256": "0674fa9a3a80ed5ee64d4eb13030676a5c375bcb26dab963a1c30ffc1aa6456d"
+    },
+    {
+      "lesson": "26_invasion",
+      "rendition_sha256": "76e07fa78ff3b8c956d6eca4c018192434dedfff3b050229d996f4a121f97867",
+      "browser_report_sha256": "3920404444e654078d1daaf9c1da87a348c07ca8a4e46e22f69eece977eace2c"
+    },
+    {
+      "lesson": "27_replication",
+      "rendition_sha256": "175d4e0cdd4a47e9673da1a7d8b489c2d7c635e205b587849182ffdd5ac8cf82",
+      "browser_report_sha256": "5215667318e1f14fea3778da6a2830515d277f3228d9df64881ac8a38df0b879"
+    },
+    {
+      "lesson": "28_training_runs",
+      "rendition_sha256": "28d6b548d1931f4f1b0ca3fe837c689ace574e704b24d5b813cc0495b51fa30c",
+      "browser_report_sha256": "d4c2d6fb8b0b8571fdfa442a73fd70bf438a271be1f45f52223e2cd7ee721256"
+    },
+    {
+      "lesson": "35_converter",
+      "rendition_sha256": "07326d822b01be45352c3666fd7866edc4a1bf8320fe7bb7a858a810a8c07d62",
+      "browser_report_sha256": "3fa7a7466106dadad3e6105afe3f1cf77a73fd231bdfb492f710b2cf3899d6f8"
+    },
+    {
+      "lesson": "36_import",
+      "rendition_sha256": "743ecea5e4d09c3de1816293a30ad5a568ae099b55fce0d6aa8022948cc2c9bc",
+      "browser_report_sha256": "b69efad413f70301446ed896d83bb71468d28a68cbcc0294da57a32b95a64d39"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "rendition_sha256": "5f6094c587043c6c0c72a528f4bdcea4a6813bc928d80a9b8ab19fa6563803e8",
+      "browser_report_sha256": "b39120b6d4891196b8d7dcf2f833c0ee731c3803cddd21eb68d44df7cb9b4d1a"
     }
   ],
-  "baseline_manifest_sha256": "d43d665417b64041a94ffdc69a84d62d21f3ae6d81622b884ab030c3fe2f022a",
-  "preserved_lessons": 84,
+  "baseline_manifest_sha256": "bdfcc8332c1903b5d487997a4a4d10a00ea82b0440387996a33df1b3bf2cb32a",
+  "preserved_lessons": 78,
   "appended_lessons": [],
   "refreshed_lessons": [
-    "33_plate_viewer"
+    "14_make_masks",
+    "26_invasion",
+    "27_replication",
+    "28_training_runs",
+    "35_converter",
+    "36_import",
+    "75_regression_diagnostics"
   ],
   "link_only_updates": [],
   "outstanding_module_tutorials": [],
   "new_lesson_tracks": {
-    "33_plate_viewer": [
+    "14_make_masks": [
       {
         "language": "en",
         "voice": "af_heart",
-        "audio_sha256": "a2c2a6fd142797fe2ed0895bedf5fce5a01c301f401bfba1276b8582d7322746",
-        "timing_sha256": "cec6f3381817b4a91a25d6f9665ff71be00d21f078c84ff6b4710a3c8e72e7ce"
+        "audio_sha256": "0e1251baf83e9d430f8f5603fdee7cb7dd97e139429aa1e090f34dbbbb2d50be",
+        "timing_sha256": "7dd5aa183c1ed931246ccf2d0e4b5f3abb6e76d6236e94d486648226c7bc0e44"
+      }
+    ],
+    "26_invasion": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "66b3d4bf7cd08618c0f04539f62e82589568813a4fc0abcbd12e6bcc3f103a01",
+        "timing_sha256": "e1b8b8a9c1d9b46bfefad37a2c4174e55542a2953116e12014a82ccd37713286"
+      }
+    ],
+    "27_replication": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "bc1b89b7671a0f945b6c14ba50f0c336bc1e6f0a74e8fc55581d923219285aa3",
+        "timing_sha256": "6ed1a26c6398057096fd3a879d8388939d732106051ff55c9f0c855850483fb2"
+      }
+    ],
+    "28_training_runs": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "0475b4344f95bfc3251cb68027f5b9a033bffce8e9bad115d439742c11041757",
+        "timing_sha256": "eb6bc33078b8d06a70f9db9b47ce075ac46b2c852bc847383fb06a5db77b4724"
+      }
+    ],
+    "35_converter": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "de173bd78ea0a606c49e7779260abf996a698bdcca662bc5634e416220553422",
+        "timing_sha256": "bffa1e4530bfb70a33f15ea8c8e80a903896c2a2a9072d1021dd0c589af7e5db"
+      }
+    ],
+    "36_import": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "3ed8a235f5cf083643765f58d77ff899d7a2892a6152701c3458824b452b7182",
+        "timing_sha256": "7b010681b53f2d8a339b4371bad8f2db431996a09a7d3ae2913b24471a912eea"
+      }
+    ],
+    "75_regression_diagnostics": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "c9310013e936814c8b32426932800515481d1b7d951afd9c12a0b0b07368b7ca",
+        "timing_sha256": "7c2ac352ef9e9f822f904128afc428f2b1bbe5f8f616171ed61e88f781c82443"
       }
     ]
   },

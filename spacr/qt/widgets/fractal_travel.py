@@ -218,7 +218,12 @@ class Pointer:
 
 
 def clamp(value: float, low: float, high: float) -> float:
-    """Return ``value`` limited to the inclusive ``low``/``high`` range."""
+    """Return ``value`` limited to the inclusive ``low``/``high`` range.
+
+    :param value: the number to limit.
+    :param low: inclusive lower bound.
+    :param high: inclusive upper bound.
+    """
     return low if value < low else high if value > high else value
 
 
@@ -292,6 +297,9 @@ class RuntimeControls:
         The bounds are used in whichever order they are given: a min above a
         max is a swapped pair, not an empty range, and refusing to animate
         would be a worse answer than animating between the two numbers.
+
+        :param t: elapsed time in seconds; it sets the point on the sine sweep
+            when variable speed is on and is ignored otherwise.
         """
         if not self.variable_speed:
             return max(0.05, self.speed)
@@ -354,6 +362,11 @@ def resolved_cpu_threads(settings: Settings,
     Capped at 24 because beyond that the scheduling overhead grows for this
     image size, and capped below the machine's count because a backdrop that
     takes every core starves the run the user actually cares about.
+
+    :param settings: backdrop settings; a non-None ``cpu_threads`` is used,
+        clamped to the threads available, instead of the automatic choice.
+    :param hardware: CPU profile; its ``logical_cpus``, further capped by
+        Numba's thread limit and by 24, is the number of threads available.
     """
     numba_limit = hardware.logical_cpus
     if numba_config is not None:
@@ -420,6 +433,9 @@ def gpu_is_available() -> bool:
 def resolve_backend(requested: str) -> str:
     """Which renderer will actually run, given what is installed.
 
+    :param requested: ``'auto'``, ``'gpu'`` or ``'cpu'``; any other value is
+        treated as :data:`DEFAULT_BACKEND`, and ``'auto'`` picks the GPU when
+        one is available.
     :returns: ``'gpu'`` or ``'cpu'`` -- never ``'auto'``, because a caller
         showing the user which one they are on cannot show them "auto".
     """
@@ -1335,7 +1351,24 @@ void main() {
 
 @dataclass(frozen=True)
 class CameraState:
-    """Where the GPU field is looking, at one instant."""
+    """Where the GPU field is looking, at one instant.
+
+    :param t: the time the state was computed for, in seconds.
+    :param depth: distance travelled along the trajectory, divided by 12.
+    :param tx: horizontal drift offset in shader coordinates, scaled by the
+        dream amount.
+    :param ty: vertical drift offset in shader coordinates, scaled by the dream
+        amount.
+    :param rotation: rotation of the view in radians.
+    :param shear_x: upper off-diagonal term of the 2 × 2 stretch-and-shear
+        matrix applied after the rotation.
+    :param shear_y: lower off-diagonal term of that matrix.
+    :param stretch_x: horizontal diagonal term of that matrix; 1.0 leaves the
+        axis unstretched.
+    :param stretch_y: vertical diagonal term of that matrix; 1.0 leaves the
+        axis unstretched.
+    :param palette_phase: offset added to the colour palette's phase.
+    """
 
     t: float
     depth: float
@@ -1366,6 +1399,11 @@ def target_render_size(logical_width: int, logical_height: int,
     never fewer than 180,000, keeping the aspect ratio and an even
     width and height.
 
+    :param logical_width: widget width in logical pixels, floored at 320.
+    :param logical_height: widget height in logical pixels, floored at 180.
+    :param device_scale: device pixel ratio, floored at 1.0.
+    :param render_scale: linear fraction of the physical pixels to shade; 0 or
+        less uses ``base_pixels`` instead.
     :returns: ``(width, height)`` in physical pixels.
     """
     logical_width = max(320, int(logical_width))
@@ -1421,6 +1459,11 @@ class DepthPhase:
         A t that goes BACKWARDS -- a restart, a clock reset -- re-bases
         rather than rewinding: the phase is the distance travelled, and
         travel does not un-happen.
+
+        :param t: wall-clock time in seconds; the first call, or a time earlier
+            than the last one, only re-bases.
+        :param speed: travel rate in phase units per second; negative values
+            count as 0.
         """
         last = self._last_t
         self._last_t = t
@@ -1492,6 +1535,9 @@ class RegionTour:
         ``None`` when the tour is not steering, so a caller can leave the
         camera exactly where the user put it rather than being handed a
         coordinate it has to ignore.
+
+        :param seconds: time along the tour in seconds; it wraps after one full
+            circuit of the regions.
         """
         if not self.active:
             return None
@@ -1617,6 +1663,10 @@ def state_at_seconds(t: float, speed: float, dream: float,
                      depth_phase: Optional[float] = None) -> CameraState:
     """The camera at ``t``. Pure, so a test can assert it moves.
 
+    :param t: time in seconds; it drives every oscillation of the camera.
+    :param speed: travel rate, used only when ``depth_phase`` is None.
+    :param dream: amount of drift, shear and stretch; 0 keeps the camera
+        centred and unskewed, though it still rotates.
     :param depth_phase: the integrated distance travelled. When given it
         is what positions the camera along the trajectory, and ``speed``
         no longer does -- which is what stops a scroll teleporting it.

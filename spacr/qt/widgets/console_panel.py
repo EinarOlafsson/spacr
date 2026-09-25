@@ -121,7 +121,12 @@ AI_COLOR_DEFAULT = "#74AA9C"
 
 
 def ai_color_for_provider(provider_name: Optional[str]) -> str:
-    """Return the spaCR-AI text colour for a provider name."""
+    """Return the spaCR-AI text colour for a provider name.
+
+    :param provider_name: the provider's name, matched case-insensitively by
+        substring (``claude``, ``gpt``, ``gemini`` and the like); None or
+        unknown gives the default colour.
+    """
     p = (provider_name or "").lower()
     if "claude" in p or "anthropic" in p:
         return AI_COLOR_CLAUDE
@@ -192,6 +197,11 @@ def set_split_state(screen_key: str, state) -> None:
     purpose: a saved ``[572, 120]`` means something different on a laptop
     panel than on the 4K display the same user docks into, whereas
     ``restoreState`` is the mechanism Qt itself defines for this.
+
+    :param screen_key: the screen the state belongs to; stripped, and a blank
+        key stores nothing.
+    :param state: the ``QSplitter.saveState()`` bytes, stored as a
+        ``QByteArray``.
     """
     key = str(screen_key or "").strip()
     if not key:
@@ -1207,7 +1217,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self.set_console_font_pt(self._zoomed_font_pt())
 
     def set_console_font_pt(self, pt: int) -> None:
-        """Set the console font size and apply it to every existing entry."""
+        """Set the console font size and apply it to every existing entry.
+
+        :param pt: the font size in points, converted to int.
+        """
         self._font_pt = int(pt)
         for block in self._holder.findChildren(_StdoutBlock):
             block.set_console_font_pt(self._font_pt)
@@ -1313,7 +1326,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         return QThread.currentThread() is self.thread()
 
     def set_active_app(self, label: str) -> None:
-        """Set the label used in the next auto-inserted topic divider."""
+        """Set the label used in the next auto-inserted topic divider.
+
+        :param label: the text shown in the next automatic topic divider.
+        """
         self._active_app_label = label
 
     def set_run_context(self, module: str = "", function: str = "") -> None:
@@ -1399,6 +1415,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         ``#0`` in freed memory. Reproduced as ``pytest
         tests/qt/test_all_module_smoke.py
         tests/qt/test_batch_f_diagnostics.py`` (exit 139).
+
+        :param text: the pipeline output to append; empty does nothing.
         """
         if not text:
             return
@@ -1430,6 +1448,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         worker stdout, logs, tracebacks, paths and AI responses must remain
         byte-for-byte English/canonical. Off-thread notices carry their stable
         English template to the GUI thread and are translated only there.
+
+        :param source: the notice's untranslated English template; empty does
+            nothing. It is translated on the GUI thread and filled with the
+            keyword values.
         """
         if not source:
             return
@@ -1588,7 +1610,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         return start, None
 
     def section_text(self, bar: "_TopicBar") -> str:
-        """Return a topic bar and its content up to the next topic bar."""
+        """Return a topic bar and its content up to the next topic bar.
+
+        :param bar: the topic bar (section heading) whose section is meant. A
+            bar not in the console gives ``""``.
+        """
         start, stop = self._section_span(bar)
         if start is None:
             return ""
@@ -1602,6 +1628,9 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         about where it ends. A nested heading inside the span is part of the
         body: folding a module banner folds the "spaCR output" banner under
         it too, because that banner is the section's own content.
+
+        :param bar: the topic bar (section heading) whose section is meant. A
+            bar not in the console gives an empty list.
         """
         start, stop = self._section_span(bar)
         if start is None:
@@ -1626,6 +1655,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         yanks the viewport away is what makes a live log unreadable.
         Following resumes when they scroll back to the bottom, which is the
         convention every log viewer uses.
+
+        :param bar: the topic bar (section heading) whose section is meant.
         """
         bar.set_expanded(True)
         folded = False
@@ -1653,7 +1684,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         scrollbar.setValue(min(top, scrollbar.maximum()))
 
     def collapse_section(self, bar: "_TopicBar") -> None:
-        """Hide ``bar``'s body, leaving its heading in place."""
+        """Hide ``bar``'s body, leaving its heading in place.
+
+        :param bar: the topic bar (section heading) whose section is meant.
+        """
         bar.set_expanded(False)
         for widget in self.section_body(bar):
             widget.setVisible(False)
@@ -1680,6 +1714,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         sitting at the top has nowhere left to navigate to, and there
         collapsing is the one thing the gesture can still mean -- reachable
         on a second click, exactly where the user's hand already is.
+
+        :param bar: the topic bar (section heading) whose section is meant.
         """
         if bar.is_expanded() and self._is_raised(bar):
             self.collapse_section(bar)
@@ -1713,11 +1749,18 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._console_sent_lengths.clear()
 
     def set_ai_active(self, on: bool) -> None:
-        """Enable/disable AI routing for Enter-submits from the input."""
+        """Enable/disable AI routing for Enter-submits from the input.
+
+        :param on: whether Enter in the input goes to the AI; converted to
+            bool.
+        """
         self._ai_active = bool(on)
 
     def set_ai_provider(self, provider_name: Optional[str]) -> None:
-        """Select the provider used for AI submissions, or None to unset."""
+        """Select the provider used for AI submissions, or None to unset.
+
+        :param provider_name: the provider's name, or None to unset it.
+        """
         self._current_provider_name = provider_name
 
     def _current_provider(self) -> Optional[ChatProvider]:
@@ -1966,7 +2009,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._retired.clear()
 
     def closeEvent(self, event) -> None:
-        """Ensure the AI thread is drained before Qt destroys the panel."""
+        """Ensure the AI thread is drained before Qt destroys the panel.
+
+        :param event: the close event, passed to the base class after
+            :meth:`shutdown` drains the AI thread.
+        """
         self.shutdown()
         super().closeEvent(event)
 
@@ -2118,6 +2165,9 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         The console holds one conversation across a whole session, so without
         the second condition a report about one crash would carry an
         explanation of an earlier one, stated with equal confidence.
+
+        :param traceback_text: the traceback the report is about; compared,
+            whitespace-stripped, with the traceback the AI last explained.
         """
         mine = getattr(self, "_ai_error_traceback", "") or ""
         answer = getattr(self, "_ai_error_explanation", "") or ""

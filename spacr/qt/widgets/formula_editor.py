@@ -203,6 +203,9 @@ class FormulaPanel(QWidget):
         dangerous to keep, while a formula naming a missing column
         fails, says which column, and is exactly what the user wants back when
         they reload the same table.
+
+        :param frame: the table the formulas are computed on, or None to detach
+            the panel from any table.
         """
         self._frame = frame
         self._recompute()
@@ -227,7 +230,11 @@ class FormulaPanel(QWidget):
         return self._formulas
 
     def set_formulas(self, formulas: Sequence[ColumnFormula]) -> None:
-        """Replace the whole set — for restoring a saved analysis."""
+        """Replace the whole set — for restoring a saved analysis.
+
+        :param formulas: formulas to use, in the order they are applied; each
+            sees the columns made by the ones before it.
+        """
         self._formulas = FormulaSet(list(formulas))
         self._recompute()
         self._refresh_list()
@@ -236,6 +243,9 @@ class FormulaPanel(QWidget):
     def add_formula(self, formula: ColumnFormula) -> bool:
         """Add ``formula``, or report why it cannot be computed here.
 
+        :param formula: the derived-column formula to append; one with the same
+            name is replaced. When a table is loaded the formula is
+            test-applied first and rejected if it fails.
         :returns: True when it was added.
         """
         candidate = FormulaSet(list(self._formulas.formulas)).add(formula)
@@ -276,7 +286,11 @@ class FormulaPanel(QWidget):
         self.remove(item.data(Qt.UserRole))
 
     def remove(self, name: str) -> None:
-        """Drop the formula called ``name`` and its column."""
+        """Drop the formula called ``name`` and its column.
+
+        :param name: name of the formula (and of the column it makes); an
+            unknown name does nothing.
+        """
         if name not in self._formulas.names:
             return
         self._formulas.remove(name)

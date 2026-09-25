@@ -282,6 +282,9 @@ def describe_active(handles: Iterable) -> str:
 
     "Something is still running" is not information anybody can decide
     with; the name of the module and how long it has been going is.
+
+    :param handles: running job handles; each one's ``app_key`` (or ``'job'``)
+        and ``elapsed()`` seconds, shown in whole minutes, are listed.
     """
     lines = []
     for handle in handles:
@@ -303,6 +306,9 @@ def style_as_danger(button: QPushButton, palette: Optional[dict] = None) -> None
     this is the only red control on its row, and a global
     ``#DangerButton`` rule would be a new thing for every later screen to
     trip over.
+
+    :param button: the push button to restyle; it is given the object name
+        ``DangerButton`` when it has none.
     """
     from .theme import active_palette
 

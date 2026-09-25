@@ -158,6 +158,9 @@ class LinkedSelection(QObject):
         same object back would compare equal to itself and emit nothing,
         leaving the views showing a population that no longer matches the
         controls.
+
+        :param data_filter: the new shared filter; stored as given and
+            ``filter_changed`` is emitted.
         """
         self._filter = data_filter
         self.filter_changed.emit()
@@ -186,6 +189,9 @@ class LinkedSelection(QObject):
         the echo of its own selection rather than re-applying what it just
         drew — which otherwise costs a repaint per view per lasso, and can
         loop if a view normalises what it publishes.
+
+        :param selection: the new shared selection; stored as given and
+            ``selection_changed`` is emitted.
         """
         self._selection = selection
         self.selection_changed.emit()
@@ -201,7 +207,11 @@ class LinkedSelection(QObject):
 
     def select_frame(self, frame: pd.DataFrame, source: str = "",
                      *, timelapse: bool = False) -> None:
-        """Convenience: publish the rows of ``frame`` as the selection."""
+        """Convenience: publish the rows of ``frame`` as the selection.
+
+        :param frame: the rows to publish, turned into a selection by
+            :meth:`spacr.selection.Selection.from_frame`.
+        """
         self.set_selection(
             Selection.from_frame(frame, source=source, timelapse=timelapse))
 
@@ -211,6 +221,9 @@ class LinkedSelection(QObject):
         The one call a view needs to honour the filter. Selection is deliberately
         NOT applied — a selection highlights, it does not hide, and a view that
         dropped unselected rows would make the lasso destructive.
+
+        :param frame: the rows to narrow; the active filter's ``apply`` is
+            called on it.
         """
         return self._filter.apply(frame)
 
@@ -227,6 +240,11 @@ class LinkedSelection(QObject):
         the same reason — a screen closing must not take the registration of
         the screen that replaced it.
 
+        :param kind: the destination name, stripped of surrounding whitespace;
+            must not be blank.
+        :param fn: the callable that receives each
+            :class:`~spacr.selection.ObjectRequest` for ``kind``; must be
+            callable.
         :raises ValueError: on a blank kind.
         :raises TypeError: if ``fn`` is not callable — caught here, where the
             registration is, rather than at the click that would have used it.
@@ -264,6 +282,9 @@ class LinkedSelection(QObject):
         ``__func__`` match, which is the question being asked; anything that
         does not define ``__eq__`` (a lambda, a ``partial``) still falls back
         to identity, so the two-screen guarantee above is unchanged.
+
+        :param kind: the destination name, stripped of surrounding whitespace
+            before lookup.
         """
         key = str(kind).strip()
         current = self._openers.get(key)
@@ -276,6 +297,9 @@ class LinkedSelection(QObject):
         """Whether anything is registered for ``kind``.
 
         For greying out a menu entry rather than offering one that raises.
+
+        :param kind: the destination name, stripped of surrounding whitespace
+            before lookup.
         """
         return str(kind).strip() in self._openers
 
@@ -291,6 +315,12 @@ class LinkedSelection(QObject):
 
         The instance-level form of the module function of the same name; see
         :func:`open_objects` for the argument contract.
+
+        :param keys: what to open: a :class:`pandas.DataFrame` carrying the
+            object key columns, a :class:`~spacr.selection.Selection`, one key
+            string, or an iterable of key strings, as for :func:`open_objects`.
+        :param reason: why these objects, in the words the destination will
+            show; required and non-blank.
         """
         return self.open_request(ObjectRequest(
             keys=keys, reason=reason, source=source, kind=kind,
@@ -308,6 +338,9 @@ class LinkedSelection(QObject):
         both here would wipe the lasso the user opened it from. A receiver
         that wants both publishes :meth:`~spacr.selection.ObjectRequest.as_selection`.
 
+        :param request: the built :class:`~spacr.selection.ObjectRequest`; an
+            empty ``kind`` means ``DEFAULT_OPEN_KIND``. It is passed to the
+            registered opener and then emitted on ``objects_opened``.
         :raises NoObjectOpener: if nothing is registered for the kind.
         """
         kind = request.kind or DEFAULT_OPEN_KIND
@@ -413,6 +446,8 @@ class LinkedView:
         """The shared population moved: re-query and re-lay-out.
 
         Default: nothing, so a view can subscribe for selections alone.
+
+        :param data_filter: the shared filter now in force.
         """
 
     def on_linked_selection_changed(self, selection: Selection) -> None:
@@ -423,6 +458,8 @@ class LinkedView:
         state — draw it differently from a lasso that caught nothing.
 
         Default: nothing, so a view can subscribe for the filter alone.
+
+        :param selection: the shared selection now in force.
         """
 
     def publish_selection(self, keys: Any, *,
@@ -431,6 +468,9 @@ class LinkedView:
 
         ``keys`` is anything :func:`~spacr.selection.as_key_index` takes — the
         lassoed rows as a frame, or bare keys.
+
+        :param keys: the lassoed rows as a frame, or bare keys; anything
+            :func:`~spacr.selection.as_key_index` accepts.
         """
         selection = Selection(keys=as_key_index(keys, timelapse=timelapse),
                               source=self.link_source)
@@ -442,11 +482,17 @@ class LinkedView:
         self.link.clear_selection()
 
     def publish_filter(self, data_filter: DataFilter) -> None:
-        """Narrow the shared population from this view."""
+        """Narrow the shared population from this view.
+
+        :param data_filter: the filter to install as the shared one.
+        """
         self.link.set_filter(data_filter)
 
     def linked_visible(self, frame: pd.DataFrame) -> pd.DataFrame:
-        """``frame`` narrowed by the shared filter. A selection never hides."""
+        """``frame`` narrowed by the shared filter. A selection never hides.
+
+        :param frame: the rows to narrow by the shared filter.
+        """
         return self.link.visible(frame)
 
     def open_objects(self, keys: Any, *, reason: str,
@@ -456,6 +502,12 @@ class LinkedView:
         """Ask for these objects to be shown, as this view.
 
         The same call as :func:`open_objects` with ``source`` filled in.
+
+        :param keys: what to open: a :class:`pandas.DataFrame` carrying the
+            object key columns, a :class:`~spacr.selection.Selection`, one key
+            string, or an iterable of key strings, as for :func:`open_objects`.
+        :param reason: why these objects, in the words the destination will
+            show; required and non-blank.
         """
         return self.link.open_objects(
             keys, reason=reason, kind=kind, source=self.link_source,
@@ -511,6 +563,10 @@ def register_object_opener(kind: str, fn: ObjectOpener) -> Optional[ObjectOpener
     ``request.source``, ``request.timelapse`` and ``request.context``. The
     return value is handed back to the caller unchanged.
 
+    :param kind: the destination name, e.g. ``'annotate'``; must not be blank.
+    :param fn: the opener, called with each
+        :class:`~spacr.selection.ObjectRequest` for ``kind``; its return value
+        goes back to the caller.
     :returns: the opener this one displaced, or ``None``.
     """
     return linked_selection().register_object_opener(kind, fn)
@@ -522,6 +578,9 @@ def unregister_object_opener(kind: str,
 
     Pass the opener you registered: with two screens of the same kind open,
     the one closing must not withdraw the one that replaced it.
+
+    :param kind: the destination name, stripped of surrounding whitespace
+        before lookup.
     """
     return linked_selection().unregister_object_opener(kind, fn)
 
@@ -531,6 +590,9 @@ def has_object_opener(kind: str) -> bool:
 
     Ask before offering the action, so an unavailable destination is a greyed
     menu entry rather than a :class:`NoObjectOpener` on click.
+
+    :param kind: the destination name, stripped of surrounding whitespace
+        before lookup.
     """
     return linked_selection().has_object_opener(kind)
 
@@ -589,5 +651,8 @@ def open_request(request: ObjectRequest) -> Any:
 
     For building the request where the data is — off the event loop — and
     routing it on the GUI thread.
+
+    :param request: the built request, routed to the opener registered for its
+        ``kind``.
     """
     return linked_selection().open_request(request)

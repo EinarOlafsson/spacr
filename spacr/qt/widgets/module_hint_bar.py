@@ -104,6 +104,9 @@ class ModuleHintBar(QLabel):
         and its API and tutorial links still work -- but hovering the strip
         itself now shows nothing, which is what it already looked like it
         promised.
+
+        :param event: any event sent to the bar; a ``QEvent.ToolTip`` is
+            accepted and consumed, everything else goes to the base class.
         """
         if event.type() == QEvent.Type.ToolTip:
             event.accept()

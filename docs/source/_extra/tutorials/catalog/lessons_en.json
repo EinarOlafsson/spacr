@@ -1640,7 +1640,7 @@
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
+          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -3238,7 +3238,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
+          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
           "focus": [
             1510,
             1200,
@@ -3403,7 +3403,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
+          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
           "focus": [
             346,
             170,
@@ -3453,7 +3453,7 @@
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Training Runs provides a folder selector, run list, Metric menu, Folds menu and Overlay selected button. Begin by choosing the parent folder containing the runs you want to compare.",
+          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -4361,7 +4361,7 @@
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "Use the converter’s Source, Destination, Preview and Convert controls. Preview displays the planned source-to-target mapping so you can inspect the assignments before writing files.",
+          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4501,7 +4501,7 @@
         },
         {
           "visual": "02_fold_import_images",
-          "narration": "The header also opens Import Images, Format Converter and External Masks. Choose the tool that matches your starting files; this walkthrough uses images, masks and an existing measurement table together.",
+          "narration": "Pick the import tool by what you start with: Import Images or Format Converter for images alone, External Masks for images with masks. This screen takes images, masks and a measurement table together.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9838,7 +9838,7 @@
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
+          "narration": "Read the diagnostic files in that folder in order: design identifiability, then design diagnostics with the collinear guide pairs, then inference diagnostics, and last the summary that pulls them together.",
           "hold_after": 0.7,
           "focus": [
             535,

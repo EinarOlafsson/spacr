@@ -140,7 +140,14 @@ class TestDataChooser(QDialog):
         self.adjustSize()
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        """Fill the pane on hover, and empty it on leave."""
+        """Fill the pane on hover, and empty it on leave.
+
+        :param watched: the route button the event is for; its ``routeKey``
+            property picks the description shown.
+        :param event: the event; Enter shows the route's description and Leave
+            restores the resting text. It is always passed on to the base
+            class.
+        """
         kind = event.type()
         if kind == QEvent.Enter:
             key = str(watched.property("routeKey") or "")
@@ -230,6 +237,9 @@ class TestDataChooser(QDialog):
         A wider pane needs fewer lines and a narrower one needs more, so a
         height measured at one width clips at another. The user can resize
         this dialog, so this is reachable.
+
+        :param event: the resize event, passed to the base class before the
+            description pane is re-measured.
         """
         super().resizeEvent(event)
         self._laid_out = True
