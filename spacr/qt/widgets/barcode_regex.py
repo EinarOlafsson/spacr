@@ -43,7 +43,14 @@ EXAMPLE_BARCODE_READ = (
 
 @dataclass(frozen=True)
 class BarcodeRegexResult:
-    """Validation result shown by the inline field and test dialog."""
+    """Validation result shown by the inline field and test dialog.
+
+    :param valid: whether the pattern (and the sample, when one was given)
+        passed.
+    :param message: one-line explanation to show beside the field.
+    :param captures: the ``columnID``, ``grna`` and ``rowID`` values the
+        sample produced; empty when no sample was matched.
+    """
 
     valid: bool
     message: str
@@ -56,6 +63,13 @@ def evaluate_barcode_regex(pattern: str, sample: str = "") -> BarcodeRegexResult
     A usable mapping expression must define every named group consumed by
     :mod:`spacr.sequencing`.  When a sample is supplied it must also match and
     produce a non-empty value for each required group.
+
+    :param pattern: the regular expression, stripped of surrounding
+        whitespace; it must define the named groups ``columnID``, ``grna``
+        and ``rowID``.
+    :param sample: an optional read to match from its start with
+        ``re.match``; all whitespace is removed first, and empty skips the
+        match.
     """
     pattern = str(pattern or "").strip()
     if not pattern:
@@ -315,5 +329,9 @@ class BarcodeRegexWidget(QWidget):
         return self._line_edit.text().strip() or None
 
     def set_value(self, value) -> None:
-        """Replace the current regex and immediately refresh validation."""
+        """Replace the current regex and immediately refresh validation.
+
+        :param value: the regex text; ``None`` clears the field, anything
+            else is converted with ``str``.
+        """
         self._line_edit.setText("" if value is None else str(value))

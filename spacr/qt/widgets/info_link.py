@@ -49,7 +49,11 @@ class InfoLink(DotLink):
         return self._url
 
     def set_url(self, url: str) -> None:
-        """Change the destination without rebuilding the compact link."""
+        """Change the destination without rebuilding the compact link.
+
+        :param url: the address opened in the desktop browser on click;
+            converted with ``str``.
+        """
         self._url = str(url)
 
     def open_documentation(self) -> None:
