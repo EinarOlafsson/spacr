@@ -382,7 +382,7 @@ def attach_folded(screen: QWidget, app_key: str) -> Optional[_PreviewHost]:
     spec = PREVIEWS.get(key)
     if spec is None:
         return None
-    host = _attach(screen, key, spec)
+    host = _attach(screen, key, spec, in_heading=True)
     if host is None:
         return None
     host.toggle.setVisible(False)
@@ -391,8 +391,18 @@ def attach_folded(screen: QWidget, app_key: str) -> Optional[_PreviewHost]:
 
 
 def _attach(screen: QWidget, app_key: str,
-            spec: PreviewSpec) -> Optional[_PreviewHost]:
-    """Build ``spec``'s card, insert it hidden, and give it a toggle."""
+            spec: PreviewSpec, *,
+            in_heading: bool = False) -> Optional[_PreviewHost]:
+    """Build ``spec``'s card, insert it hidden, and give it a toggle.
+
+    :param in_heading: put the toggle in the Actions heading row when the
+        screen has one. A folded preview asks for this (item 520): its
+        toggle used to land in the Actions body or the settings strip, and
+        both fold away when a focus pane such as Plot figures opens, which
+        took the Track preview switch off Mask the moment a run drew its
+        first figure. The heading row is the one that stays on screen,
+        and the host's own Live switch already lives there.
+    """
     build = _resolve(spec.builder)
     if build is None:
         return None
@@ -443,7 +453,7 @@ def _attach(screen: QWidget, app_key: str,
 
     bar = getattr(screen, "_settings_search", None)
     heading = getattr(screen, '_actions_heading_row', None)
-    if app_key == 'host_pathogen' and heading is not None:
+    if (app_key == 'host_pathogen' or in_heading) and heading is not None:
         heading.addWidget(toggle)
     elif bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)

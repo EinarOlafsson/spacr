@@ -160,6 +160,7 @@ MASK_APPS = frozenset({"mask", "timelapse"})
 ALT_SRC_KEYS: Dict[str, str] = {
     "foreign": "images",
     "external_masks": "inputs",
+    "ops": "genotype_source",
 }
 
 CHANNEL_KEYS: Tuple[str, ...] = tuple(
@@ -650,6 +651,9 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         fix = (
             "Drop intensity images and label masks onto External Masks, "
             "then review their assignments.")
+    elif key == "genotype_source":
+        fix = ("Set genotype_source to the folder of sequencing tiles; OPS "
+               "searches it recursively.")
     else:
         fix = (
             "Set src to the folder holding the images (or, for measure, "
