@@ -910,8 +910,8 @@ class PairedFileTableWidget(QWidget):
         one thing the token pairing cannot know when the file is called
         ``measurements.db`` like everybody else's.
 
-        :param event: the drop event; its local file URLs and drop position are read,
-            and it is ignored when it carries no usable paths.
+        :param event: the drop event; its local file URLs and drop position
+            are read, and it is ignored when it carries no usable paths.
         """
         paths = self._dropped(event)
         if not paths:
