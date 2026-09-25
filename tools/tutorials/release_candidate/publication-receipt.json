@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "candidate-hosted-20260925-31kkmyz_",
+  "branch": "candidate-item520-20260925-1rjwna77",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
-  "tag": "tutorials-hosted-20260925-31kkmyz_",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
-  "manifest_sha256": "d70a9d612314a84edd6c8e7930c35c0be6e9e385be3dd4c7be695e13a5eeb682",
+  "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+  "tag": "tutorials-item520-20260925-1rjwna77",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b",
+  "manifest_sha256": "d380f5539eb0eabd31a2c9d012b12a3fb563fd78e768d467a16cf8f56bb3a1e1",
   "media_files": 650,
-  "media_bytes": 1483877669,
+  "media_bytes": 1483346423,
   "readback": {
-    "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+    "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
     "files_expected": 650,
     "metadata_matched": 650,
     "metadata_failures": [],
-    "bytes_read_back": 1483877669,
+    "bytes_read_back": 1483346423,
     "downloaded_sha256_matched": 650,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -6785,29 +6785,24 @@
       "73_parameter_sweep/audio/zh-CN/zm_yunyang.m4a",
       "README.md"
     ],
-    "seconds": 807.1,
+    "seconds": 275.1,
     "passed": true
   },
+  "readback_source": "readback after the hf upload completed and the machine lost power",
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 219,
     "bundled_tutorial_index_sha256": "8a2ed0ebe9f6f424055ecbfbb766266a82d661a3082c30bfff2583f0b93a19c1",
-    "index_sha256": "54dc999e36fb19d833bad7cff0b76ab44fcf8f8ed60491e16b4cf552f6191847",
-    "candidate_index_sha256": "47a287f4e281fe6cf23034bb1b0ca9978a9b94916fb49b83821c24b781484032",
-    "cache_key": "hosted-20260925-31kkmyz_",
+    "index_sha256": "e35eb1881d395363f19b204a69ed01cdd80c371cd08c2101a50dcc8d94dca05c",
+    "candidate_index_sha256": "e4427a61e89918406d6a2b59845f1eedb1b0718ca6d078650bf26e0f03d8cac3",
+    "cache_key": "item520-20260925-1rjwna77",
     "unchanged_versioned_assets": [
+      "app_v2.js",
       "styles.css",
       "voice_catalog.js"
     ],
     "hosted_web_copies": 6,
-    "removed_local_web_copies": [
-      "production/17_timelapse/video/17_timelapse_silent.mp4",
-      "production/76_ops/video/76_ops_silent.mp4",
-      "production/78_spacr_screens/video/78_spacr_screens_silent.mp4",
-      "production/79_module_inputs_outputs/video/79_module_inputs_outputs_silent.mp4",
-      "production/80_image_analysis_pathways/video/80_image_analysis_pathways_silent.mp4",
-      "production/81_sequencing_pathways/video/81_sequencing_pathways_silent.mp4"
-    ],
+    "removed_local_web_copies": [],
     "ready": 84,
     "routes": 85
   }

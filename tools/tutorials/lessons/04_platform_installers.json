@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "08_official_release",
-      "narration": "Open the official spaCR release on GitHub and download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup. Check the release’s installation notes before starting.",
+      "narration": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup. Keep SHA256SUMS dot txt from the same release if you want to verify the download.",
       "hold_after": 0.7
     },
     {
@@ -31,7 +31,7 @@
     },
     {
       "visual": "11_linux_commands",
-      "narration": "On Linux, make the downloaded installer executable, then run it from a terminal. Automatic acceleration selects a supported backend. Use the CPU option shown in the installer instructions if you want CPU-only operation.",
+      "narration": "On Linux, make the downloaded installer executable, then run it from a terminal. Automatic acceleration selects a supported backend. The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries.",
       "hold_after": 0.7
     },
     {
@@ -46,7 +46,7 @@
     },
     {
       "visual": "07_privacy_keep_off",
-      "narration": "On first launch, read the optional diagnostic-sharing and account choices. Choose the options you want, or select Skip, keep all off to continue with those optional features disabled.",
+      "narration": "Setup asks about optional diagnostic sharing and account setup. Answer y only for the options you want; n, the default, keeps each one off. The Windows installer shows the same choices as checkboxes.",
       "hold_after": 0.7
     },
     {
@@ -55,11 +55,17 @@
       "related_lessons": [
         "05_home"
       ],
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        48,
+        318,
+        2712,
+        1332
+      ]
     },
     {
       "visual": "05_doctor",
-      "narration": "If startup or a file format needs attention, run spacr-doctor from the installed runtime. Its report lists checks and suggested steps for missing dependencies.",
+      "narration": "If startup or a file format needs attention, run spacr-doctor from the installed runtime. It lists each check with a suggested fix. On this CPU-only installation the GPU check fails as expected, and the PATH check flags the installer’s own spacr launcher, which starts this same runtime, so neither needs a change here.",
       "hold_after": 0.7
     },
     {

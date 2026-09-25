@@ -29,7 +29,8 @@ def main():
         if bundle.testzip():
             raise ValueError('The example ZIP failed its CRC check')
         bundle.extractall(stage / 'Cellpose_training_images_masks')
-    home = stage / 'home'
+    # Not named 'home': the path policy reads '/home/<x>' as a personal folder.
+    home = stage / 'profile'
     models = home / '.cellpose/models'
     models.mkdir(parents=True)
     for name in ('cpsam', 'cpsam_v2'):
