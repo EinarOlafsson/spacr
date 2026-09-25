@@ -1,6 +1,7 @@
 DROP FILES AS WELL AS FOLDERS IN MAKE MASKS AND PLAQUE ASSAY
 
-Status: OPEN, filed 2026-09-25. Not started.
+Status: DONE 2026-09-25 (implemented, tests pass; awaiting the maintainer's
+check in the real app). Filed 2026-09-25.
 Owner: unassigned. Related: 137 (drag images in), 396 (Make Masks curates a
 queue), 468 (plaque and figure modes).
 
@@ -28,3 +29,88 @@ DONE WHEN
 Offscreen tests drop a folder, one file, several files and a mix on each of
 Make Masks and Plaque Assay and see them loaded; no Plaque message mentions
 Make Masks.
+
+NOTE 2026-09-25 -- implemented
+ROOT CAUSE OF THE PLAQUE MESSAGE. The drop registry mapped Plaque Assay to
+Make Masks' policy: spacr/qt/dnd_handlers.py:3538 (at 9996410da)
+    "analyze_plaques": MakeMasksDropHandler,
+That handler accepted only a folder with images at its top level
+(dnd_handlers.py:1435) and refused anything else with its own sentence,
+"Make Masks needs a folder of images to fine-tune Cellpose against."
+(dnd_handlers.py:1455), which the "Did you mean..." dialog prints under
+"<folder> can't be used as-is." (spacr/qt/dnd.py:1011). So a Plaque folder
+whose images were one level down, or a figure folder, got Make Masks' words.
+
+WHAT CHANGED
+  * spacr/qt/dnd.py: DropHandler.apply_all(paths, screen) (default declines);
+    _deliver_drop hands every accepted path of ONE drop to it once, in drop
+    order, before falling back to per-path apply(). Needed because apply()
+    once per path cannot tell a drop's second file from the next drop.
+  * spacr/qt/dnd_handlers.py
+      - MakeMasksDropHandler: accepts image files (mask_engine.IMAGE_EXTS)
+        as well as folders, accepts_multiple, apply_all -> the screen's
+        open_paths(). A screen without open_paths still gets src as before.
+      - CellposeFolderDropHandler: the old folder-only policy and sentence,
+        kept for train_cellpose / cellpose_masks / cellpose_all, whose src is
+        a folder the run lists.
+      - PlaqueDropHandler (registry: "analyze_plaques"): plaque images
+        (plaque_papers.IMAGE_SUFFIXES), folders of them, mixes, and a PDF.
+        One folder -> src as before. Files that are exactly one folder's
+        images -> that folder. Any other selection -> plaque_selection_folder:
+        plaque_selection_<time>/ beside the first image (temp folder if not
+        writable) holding symlinks (hard links as fallback) to the images,
+        never copies; the run writes its masks beneath it as for any folder.
+        A PDF in Figure mode goes to the panel's fetch_paper (the PDF...
+        button's route); in Plaque mode it is refused in plaque words.
+  * spacr/qt/screens/make_masks.py: MakeMasksScreen.open_paths(paths). One
+    folder -> _open_folder as before. Otherwise a queue of the named fields
+    in drop order (a folder stands for its images); when they span several
+    folders a parallel _field_folders list sets _folder per field in
+    _load_current, so each mask lands in its own <folder>/masks. Recrop
+    insert/pop keep the list aligned; "Mask the whole folder" refuses a
+    multi-folder queue.
+
+TESTS
+  New: tests/qt/test_517_drop_files_as_well_as_folders.py, 14 tests, real
+  QDragEnter/Move/QDropEvent with QMimeData file URLs on the real
+  MakeMasksScreen and AppScreen("analyze_plaques"), offscreen, small real
+  TIFF/PNG files: folder, one file, several files (drop order), mix across
+  folders (per-field mask folder) on each screen; a Plaque refusal of an
+  empty folder, a .txt and a PDF in Plaque mode, none mentioning Make Masks;
+  a PDF in Figure mode reaching fetch_paper; Cellpose screens folder-only.
+  Updated: tests/qt/test_dnd_handlers_full.py (a file is now accepted by
+  Make Masks; registry rows for plaque and the three Cellpose keys).
+  Before: 640 passed, 2 skipped (14 dnd/plaque/make_masks input files).
+  After merge with nightly: 993 passed, 2 skipped (those 14 files + the new
+  file + 12 make_masks/plaque Qt files).
+  Pinned-count guards (test_docstring_correctness, test_api_i18n_extractor,
+  test_nested_functions_are_documented) fail by 135 / 150 / 9 over their
+  pins and on picture_export.py, drift already on nightly and far larger
+  than this item's handful of callables (measured before the merge);
+  left to the docs lane.
+
+NEW tr() STRINGS
+  "Make Masks needs image files, or a folder of images, to fine-tune
+   Cellpose against."
+  "No images"
+  "None of the dropped items is an image Make Masks can open."
+  "{n} images from {k} folders, in the order dropped"
+  "Mask the whole folder works on one folder, and this queue was dropped
+   from several, so it was not started."
+  "Plaque Assay reads plaque images (JPG, PNG, TIFF, GIF, BMP or WebP), a
+   folder of them, or in Figure mode a paper's PDF."
+  "Plaque Assay reads a paper's PDF in Figure mode, and it is in Plaque
+   mode."
+  "Switch Plaque Assay to Figure mode, then drop the PDF again."
+  "Plaque Assay could not start reading this PDF."
+  "Wait for the paper being read to finish, then drop the PDF again."
+  "Plaque Assay reads one paper at a time; {n} more PDF(s) were left out."
+  "Drop each remaining PDF once this one has been read."
+  "Could not link {name} into {folder} ({why}). Drop the folder that holds
+   the plaque images instead."
+  Not yet in spacr/qt/i18n_catalogs (not edited here); English falls back.
+
+LEFT
+  Several PDFs in one Figure-mode drop: the first is read, the rest are
+  reported, not queued. The plaque_selection_<time> folder stays beside the
+  images after the run (it holds the run's masks), links only.
