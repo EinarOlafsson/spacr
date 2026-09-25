@@ -4,8 +4,9 @@ SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT
 
 Status:    FILED 2026-09-22. The zoo row, the backend, a real CPU install and
            an opt-in OPS setting (ops_spot_detector) are BUILT; the token
-           is read from a file. WAITING ON A DEEPCELL TOKEN for the first
-           real SpotNet detection and the comparison with native.
+           is read from a file. First real SpotNet-vs-native comparison
+           DONE 2026-09-25 (CPU): SpotNet does NOT beat native on the two
+           local A1 fields; native stays the default.
 Requested: 2026-09-22, by the maintainer: "as an additional model in the model
            zoo please add spotnet
            https://deepcell.readthedocs.io/en/master/data-gallery/spotnet.html"
@@ -148,3 +149,33 @@ environment and adds SpotNet's spots, owned reads, assignment rate,
 seconds, and the 2 px match fractions both ways. Only then can SpotNet be
 recommended, or not; native stays the default until it is. The three new
 GUI captions await catalog entries from the translation lane.
+
+2026-09-25 (later) -- REAL SPOTNET VS NATIVE, WELL A1, SITES 331 + 332
+With the maintainer's token in ~/.spacr/deepcell_token (mode 600), the
+worker fetched SpotDetection-8 into ~/.spacr/backends/spotnet/home/.deepcell
+/models. The token is in no log, receipt or commit (checked by grep).
+tools/compare_spotnet_ops.py, both detectors through the shipped
+_decode_field against the plate run's stored objects, CPU only:
+
+                          native        SpotNet
+  spots found             22,733        18,555
+  reads owned by nucleus  17,668        15,288
+  spots exact in library  18,194        13,174
+  objects with a read      7,870         7,600
+  objects assigned         3,476         2,523  (-27 %)
+  assigned, library exact  3,314 (95.3%) 2,405 (95.3%)
+  decode seconds, 2 fields  21.8         145.9  (+14.9 s worker start)
+  detection per field      ~2.4 s       ~61 s  (incl. ~2 s shared LoG)
+
+Match within 2 px (owned reads): 69.3 % of native's reads have a SpotNet
+read nearby; 79.6 % of SpotNet's have a native read nearby. SpotNet's
+barcodes are as pure, but it finds fewer reads and assigns 27 % fewer
+nuclei, about 25x slower on CPU. On this evidence native stays the default
+and SpotNet stays opt-in. Caveats: two fields, no ground truth, SpotNet
+fed one composite image per field (brightest base channel, cycle-averaged)
+at its default 0.95 threshold -- a lower threshold or per-cycle detection
+could change the count, and is the next thing to try if anyone wants it.
+GPU: SpotNet's TensorFlow 2.8.4 finds no CUDA 11 runtime in its
+environment (libcudart.so.11.0 absent), so its detection is CPU either
+way; a gpu_turn.sh run for the native side was queued behind other
+sessions. Receipt: 475_real_install_and_native_baseline_2026-09-25.json.

@@ -37,7 +37,7 @@ from spacr._segmentation_backends import _spotnet_readiness  # noqa: E402
 from spacr.ops_sbs import assign_reads_to_objects  # noqa: E402
 
 
-def _tasks(tiles, db, plate, well, sites, reference):
+def _tasks(tiles, db, plate, well, sites, reference, gpu=False):
     """The decode tasks for ``sites``, built as ``_decode`` builds them."""
     index = ops_engine._index_tiles(tiles, "cycled")
     cycle_files = index[well.upper()]
@@ -73,7 +73,7 @@ def _tasks(tiles, db, plate, well, sites, reference):
             "owned": owner_site[near] == site,
             "threshold": ops_engine._THRESHOLD_READS,
             "footprint": ops_engine._FOOTPRINT, "store_reads": True,
-            "gpu": False,
+            "gpu": bool(gpu),
         })
     return out
 
@@ -132,12 +132,15 @@ def main(argv=None):
     parser.add_argument("--reference", type=int, default=1)
     parser.add_argument("--library", default=None)
     parser.add_argument("--out", default=None)
+    parser.add_argument("--gpu", action="store_true",
+                        help="let the native alignment and peaks use the card")
     args = parser.parse_args(argv)
 
     library = ops_engine._load_library(args.library) if args.library else []
     tasks = _tasks(args.tiles, args.db, args.plate, args.well.upper(),
-                   args.sites, args.reference)
-    report = {"item": 475, "plate": args.plate, "well": args.well.upper(),
+                   args.sites, args.reference, gpu=args.gpu)
+    report = {"item": 475, "gpu": bool(args.gpu), "plate": args.plate,
+              "well": args.well.upper(),
               "sites": args.sites, "library_size": len(library),
               "match_radius_px": 2.0, "note": (
                   "Owned reads only: the positions compared are the reads "
@@ -148,6 +151,12 @@ def main(argv=None):
     if not ready:
         report["spotnet"] = {"not_run": reason}
     else:
+        from spacr._segmentation_backends import _detect_spots
+
+        started = time.perf_counter()
+        _detect_spots(np.zeros((64, 64), np.float32))
+        report["spotnet_startup_seconds"] = round(
+            time.perf_counter() - started, 1)
         spotnet, spotnet_at = _run(tasks, "spotnet", library)
         report["spotnet"] = spotnet
         both = [s for s in native_at if s in spotnet_at]
