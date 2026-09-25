@@ -1046,6 +1046,10 @@ class ModelZooPicker(QDialog):
     #: Emitted with the local path when the user accepts a model.
     model_chosen = Signal(str)
 
+    #: Emitted from the bioimage.io warm-up thread when its rows changed;
+    #: queued onto the GUI thread, where it redraws the table.
+    _bioimageio_warmed = Signal()
+
     def __init__(self, kinds: Optional[tuple] = None, parent: Optional[QWidget] = None):
         """Build the model zoo dialog.
 
@@ -1144,6 +1148,8 @@ class ModelZooPicker(QDialog):
 
         self.refresh()
         self._warm_the_community_catalogue()
+        self._bioimageio_warmed.connect(self.refresh)
+        self._warm_bioimageio()
         self._probe_backends()
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
@@ -1199,17 +1205,32 @@ class ModelZooPicker(QDialog):
             lambda: model_zoo.shared_catalogue(block=True),
             lambda _entries: self.refresh())
 
-        def _warm_bioimageio():
-            """Fill the bioimage.io cache on the same background pass, so the
-            listing has its rows without catalogue() ever making a network call.
-            """
+    def _warm_bioimageio(self) -> None:
+        """Refresh bioimage.io's collection off the GUI thread, then redraw.
+
+        :func:`spacr.model_zoo.catalogue` reads bioimage.io's rows from the
+        cache only, so the fetch happens here. It used to run only when the
+        community catalogue was stale, and the table was not redrawn when it
+        landed, so a first opening showed an empty bioimage.io category.
+        """
+        def _warm():
             try:
                 from ... import model_zoo
-                model_zoo.bioimageio_entries(allow_network=True)
-            except Exception:                                # noqa: BLE001
-                pass
 
-        threading.Thread(target=_warm_bioimageio, daemon=True).start()
+                def seen(rows):
+                    return [(e.key, e.uri, e.notes, e.size_bytes) for e in rows]
+
+                before = seen(model_zoo.bioimageio_entries())
+                after = seen(model_zoo.bioimageio_entries(allow_network=True))
+            except Exception:
+                return
+            if after != before:
+                try:
+                    self._bioimageio_warmed.emit()
+                except RuntimeError:
+                    pass
+
+        threading.Thread(target=_warm, daemon=True).start()
 
     def _probe_backends(self) -> None:
         """Check the network for the backends that are not installed, off
@@ -1600,18 +1621,23 @@ class ModelZooPicker(QDialog):
         knowingly.
         """
         entry = self.selected_entry()
-        local = self._local_path(entry) if entry else None
-        installs = entry is not None and _needs_install(entry)
+        refused = _cannot_run(entry) if entry is not None else ""
+        local = self._local_path(entry) if entry and not refused else None
+        installs = entry is not None and not refused and _needs_install(entry)
         backend_row = getattr(entry, "kind", "") == "backend"
         self.use_button.setEnabled(bool(local) and not backend_row)
         self.download_button.setText("Install" if installs else "Download")
         self.download_button.setEnabled(
-            bool(entry) and not local and not backend_row or installs)
+            bool(entry) and not local and not backend_row and not refused
+            or installs)
         self.uninstall_button.setEnabled(_removable(entry))
         self.use_button.setToolTip(
-            _where_a_backend_is_chosen(entry) if backend_row else "")
+            _where_a_backend_is_chosen(entry) if backend_row
+            else tr(refused) if refused else "")
         self._show_card(entry)
-        if backend_row:
+        if refused:
+            self.status.setText(tr(refused))
+        elif backend_row:
             self.status.setText(_where_a_backend_is_chosen(entry))
         elif installs:
             self.status.setText("")
@@ -1654,7 +1680,13 @@ class ModelZooPicker(QDialog):
 
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
                      "</b></p>")
-        if getattr(entry, "kind", "") == "cellpose3":
+        refused = _cannot_run(entry)
+        if refused:
+            import html as _html
+
+            html += ("<p><b style='color:#b45309'>"
+                     + _html.escape(tr(refused)) + "</b></p>")
+        elif getattr(entry, "kind", "") == "cellpose3":
             html += _cellpose3_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
@@ -1676,7 +1708,7 @@ class ModelZooPicker(QDialog):
         from ... import model_zoo
 
         entry = self.selected_entry()
-        if entry is None:
+        if entry is None or _cannot_run(entry):
             return
         if _needs_install(entry) or getattr(entry, "kind", "") == "backend":
             self._install_backend(entry)
@@ -1809,7 +1841,8 @@ class ModelZooPicker(QDialog):
         retired Cellpose name and run as cpsam.
         """
         entry = self.selected_entry()
-        local = self._local_path(entry) if entry else None
+        local = (self._local_path(entry)
+                 if entry and not _cannot_run(entry) else None)
         if not local:
             return
         if getattr(entry, "kind", "") == "cellpose3":
@@ -1898,6 +1931,8 @@ def _status_text(entry, local) -> str:
     source = getattr(entry, "source", "")
     if kind == "backend":
         return _BACKEND_STATUS.get(source, source)
+    if _cannot_run(entry):
+        return tr("spaCR cannot run this")
     if kind == "cellpose3" and source == "stock" and not local:
         return "needs the Cellpose 3 backend"
     return "on this machine" if local else "not downloaded"
@@ -1939,6 +1974,15 @@ def _where_a_backend_is_chosen(entry) -> str:
         "{name} is installed. It is a backend rather than a checkpoint file, "
         "so choose it in Make Masks' Mode box, or set segmentation_backend "
         "in Mask generation; this field takes a checkpoint.", name=name)
+
+
+def _cannot_run(entry) -> str:
+    """Why spaCR cannot run this row, or ``''``: a bioimage.io package
+    whose weights no Cellpose of spaCR's loads, said in place of Download
+    and Use rather than offered and then failing."""
+    from ... import model_zoo
+
+    return model_zoo._bioimageio_cannot_run(entry)
 
 
 def _needs_install(entry) -> bool:
