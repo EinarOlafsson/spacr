@@ -134,13 +134,15 @@ def set_preview_scale(name: str, scale: float) -> None:
     _settings().setValue(_KEY.format(name=name), clamp_preview_scale(scale))
 
 
-def _scaled_px(match, factor: float) -> str:
-    """One ``Npx`` scaled, never rounding a non-zero size to nothing."""
-    value = float(match.group(1))
-    if value == 0:
-        return match.group(0)
-    scaled = int(round(abs(value) * factor)) or 1
-    return f"{-scaled if value < 0 else scaled}px"
+def _scaled_px(match, factor: float, prop: str = "") -> str:
+    """One ``Npx`` scaled, never rounding a non-zero size to nothing.
+
+    A radius rounds down, as in :func:`spacr.qt.gui_scale._scaled_px`, so a
+    circle's radius never outgrows half of its rounded side.
+    """
+    from ..gui_scale import _scaled_px as scaled_px
+
+    return scaled_px(match, factor, prop)
 
 
 def scale_qss(text: str, factor: float, *, sizes_only: bool = False) -> str:
@@ -172,7 +174,7 @@ def scale_qss(text: str, factor: float, *, sizes_only: bool = False) -> str:
             name, value = declaration.split(":", 1)
             prop = name.strip().lower()
             if prop in SCALED_QSS_PROPERTIES and "px" in value:
-                value = _PX.sub(lambda m: _scaled_px(m, factor), value)
+                value = _PX.sub(lambda m: _scaled_px(m, factor, prop), value)
                 changed = True
                 kept.append(f"{name.strip()}: {value.strip()}")
             elif not sizes_only:
@@ -197,8 +199,9 @@ def _scale_bare_declarations(text: str, factor: float) -> str:
                 parts.append(declaration.strip())
             continue
         name, value = declaration.split(":", 1)
-        if name.strip().lower() in SCALED_QSS_PROPERTIES:
-            value = _PX.sub(lambda m: _scaled_px(m, factor), value)
+        prop = name.strip().lower()
+        if prop in SCALED_QSS_PROPERTIES:
+            value = _PX.sub(lambda m: _scaled_px(m, factor, prop), value)
         parts.append(f"{name.strip()}: {value.strip()}")
     return "; ".join(parts)
 
