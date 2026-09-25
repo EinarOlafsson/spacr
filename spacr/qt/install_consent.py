@@ -116,7 +116,12 @@ class InstallerConsentDialog(QDialog):
 
 
 def apply_choices(choices: Mapping[str, Any]) -> bool:
-    """Persist choices and return whether account setup was requested."""
+    """Persist choices and return whether account setup was requested.
+
+    :param choices: the consent answers, read by the keys
+        ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a
+        missing or unrecognised value counts as no.
+    """
     from . import preferences
     from .ai import settings as ai_settings
 
@@ -145,6 +150,8 @@ def _open_account_setup(parent) -> None:
 def maybe_show_installer_consent(parent) -> bool:
     """Apply installer choices once, asking in-app if no page was shown.
 
+    :param parent: the widget that parents the in-app consent dialog and, if
+        sign-in was chosen, the account setup dialog.
     :returns: ``True`` when an installer profile was handled this call.
     """
     store = _settings()

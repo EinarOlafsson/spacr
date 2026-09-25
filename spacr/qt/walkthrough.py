@@ -65,7 +65,11 @@ def _settings():
 
 
 def was_seen(app_key: str) -> bool:
-    """True once ``app_key``'s walkthrough has been finished or dismissed."""
+    """True once ``app_key``'s walkthrough has been finished or dismissed.
+
+    :param app_key: the module's registry key; its seen flag is read from
+        spaCR's ``QSettings``.
+    """
     raw = _settings().value(f"{_KEY_SEEN}/{app_key}", False)
     if isinstance(raw, bool):
         return raw
@@ -73,7 +77,11 @@ def was_seen(app_key: str) -> bool:
 
 
 def mark_seen(app_key: str) -> None:
-    """Remember that ``app_key``'s walkthrough has been shown."""
+    """Remember that ``app_key``'s walkthrough has been shown.
+
+    :param app_key: the module's registry key; its seen flag is set in
+        spaCR's ``QSettings``.
+    """
     _settings().setValue(f"{_KEY_SEEN}/{app_key}", True)
 
 
@@ -130,7 +138,11 @@ def register_steps(app_key: str, steps: List[WalkStep],
 
 
 def unregister_steps(app_key: str) -> bool:
-    """Drop a module's registered steps. ``True`` if there were any."""
+    """Drop a module's registered steps. ``True`` if there were any.
+
+    :param app_key: the module's registry key, as passed to
+        :func:`register_steps`.
+    """
     return _EXTRA_STEPS.pop(str(app_key), None) is not None
 
 
@@ -514,6 +526,10 @@ def maybe_show(window: QMainWindow, app_key: str) -> Optional[_TourOverlay]:
     Called when a module is opened. Per module, so a module added next
     release introduces itself instead of being silenced by a flag set the
     first time the app ever ran.
+
+    :param window: the main window the walkthrough is shown over.
+    :param app_key: the module's registry key; nothing is shown when
+        :func:`was_seen` is already true for it.
     """
     if was_seen(app_key):
         return None
@@ -582,6 +598,9 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
     Every module, not only the one on screen: the question "how does
     Measure work?" is usually asked from somewhere that is not Measure.
 
+    :param window: the main window; the submenu is inserted into its
+        menu-bar Help menu, before the first separator, and the window keeps
+        the submenu and the handler it creates.
     :returns: the submenu, or ``None`` when there is no Help menu or one is
         already installed.
     """
@@ -650,6 +669,10 @@ def install_window_hooks(window: QMainWindow) -> Optional[_WalkthroughHandler]:
     """Wire the walkthroughs into a live main window.
 
     Called once from :func:`spacr.qt.shortcuts.install`.
+
+    :param window: the main window; gets the Help-menu submenu, and its
+        ``_stack`` screen stack (when present) is followed so each module's
+        walkthrough is offered on the first visit. Wiring twice is a no-op.
     """
     install_help_menu(window)
     handler = getattr(window, "_walkthrough_handler", None)

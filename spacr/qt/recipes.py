@@ -165,7 +165,21 @@ def _slug(text: str) -> str:
 
 @dataclass
 class Recipe:
-    """One named settings bundle."""
+    """One named settings bundle.
+
+    :param name: display name chosen by the user; its slug becomes the file
+        stem when the recipe is saved.
+    :param app_key: key of the module the settings belong to; it picks the
+        recipe's subfolder and is checked against the screen on apply.
+    :param settings: setting key to value mapping written into the screen.
+    :param spacr_version: spaCR version the recipe was saved with; filled
+        in on save when empty.
+    :param created: ISO-8601 timestamp of creation, to the second; filled
+        in on save when empty and used to sort listings newest first.
+    :param notes: free-text notes stored with the recipe.
+    :param path: file the recipe was loaded from or saved to; not written
+        into the file itself.
+    """
 
     name: str
     app_key: str
@@ -192,6 +206,10 @@ class Recipe:
     def from_json(cls, data: Dict[str, Any], path: str = "") -> "Recipe":
         """Build a recipe from a parsed file.
 
+        :param data: the parsed JSON mapping; it must carry an integer
+            ``spacr_recipe`` format version no newer than this build reads
+            and a ``settings`` dict. Missing ``name`` falls back to
+            ``"Untitled"``.
         :raises ValueError: when the mapping is not a recipe at all, or is a
             format version this build does not understand. Both are worth an
             explicit error: silently treating an arbitrary JSON file as a
@@ -245,6 +263,8 @@ def save_recipe(recipe: Recipe, directory: Optional[str] = None) -> str:
 def load_recipe(path: str) -> Recipe:
     """Read one recipe file.
 
+    :param path: path to a recipe JSON file; it is recorded on the returned
+        recipe.
     :raises ValueError: on anything that is not a readable recipe.
     """
     try:
@@ -280,7 +300,11 @@ def list_recipes(app_key: Optional[str] = None) -> List[Recipe]:
 
 
 def delete_recipe(recipe: Recipe) -> bool:
-    """Remove a recipe's file. ``True`` when something was removed."""
+    """Remove a recipe's file. ``True`` when something was removed.
+
+    :param recipe: the recipe whose ``path`` is deleted; an empty or missing
+        path removes nothing.
+    """
     if not recipe.path or not os.path.isfile(recipe.path):
         return False
     os.remove(recipe.path)
@@ -344,6 +368,12 @@ def apply_recipe(recipe: Recipe, screen) -> int:
         overlap between two modules are exactly the generic ones (``src``,
         ``verbose``, ``n_jobs``), so a "successful" cross-module apply
         writes the least meaningful half and reports success.
+
+    :param recipe: the recipe to apply; its settings are copied, not
+        mutated.
+    :param screen: the module screen to write into; its ``app_key`` must
+        match the recipe's (when both are set) and it must provide
+        ``apply_settings_dict``.
     """
     app_key = str(getattr(screen, "app_key", "") or "")
     if recipe.app_key and app_key and recipe.app_key != app_key:
@@ -363,6 +393,11 @@ def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
     Run would use — including the defaults the user never touched. That is
     deliberate: a recipe is meant to reproduce a result, and a bundle of
     only the edits reproduces something different the day a default changes.
+
+    :param screen: the module screen to capture; it must have a settings
+        model (``_settings_model``) or :class:`ValueError` is raised, and
+        its ``app_key`` is stored on the recipe.
+    :param name: display name for the recipe; empty gives ``"Untitled"``.
     """
     model = getattr(screen, "_settings_model", None)
     if model is None:
@@ -484,6 +519,10 @@ class RecipeDialog(QDialog):
         runner that inspects the fully configured message box and returns an
         answer without blocking; a host can use the same seam for a custom
         presentation.
+
+        :param runner: callable given the configured Apply/Cancel
+            ``QMessageBox``; the recipe is applied only when it returns
+            ``QMessageBox.Apply``.
         """
         self._confirmation_runner = runner
 
@@ -628,7 +667,11 @@ class RecipeDialog(QDialog):
 
 
 def open_recipes(screen, parent: Optional[QWidget] = None) -> RecipeDialog:
-    """Open the recipe dialog for ``screen``."""
+    """Open the recipe dialog for ``screen``.
+
+    :param screen: the module screen whose recipes are listed and applied,
+        passed to :class:`RecipeDialog`.
+    """
     dialog = RecipeDialog(screen, parent=parent)
     dialog.show()
     return dialog
@@ -642,6 +685,10 @@ def install(screen) -> Optional[QToolButton]:
     settings it bundles — and it already exists, so this costs no chrome of
     its own. Returns ``None`` when the screen has no strip (a bespoke
     screen), or when one is already installed.
+
+    :param screen: the module screen; its ``_settings_search`` strip must
+        provide ``add_trailing_widget``. If the screen already has a
+        ``_recipe_button``, that button is returned unchanged.
     """
     if getattr(screen, "_recipe_button", None) is not None:
         return screen._recipe_button
@@ -751,6 +798,9 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
     Returns the action, or ``None`` when there is no Help menu or one is
     already installed. The command palette mirrors menu actions, so this
     also makes recipes reachable from Ctrl+K for free.
+
+    :param window: the main window; its menu-bar menu titled "Help" (``&``
+        ignored) receives the action, before the first separator.
     """
     menu = _find_menu(window, "Help")
     if menu is None:
@@ -816,6 +866,10 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
 
     Called once from :func:`spacr.qt.shortcuts.install`. Every failure is
     logged and swallowed: a missing recipe button must not cost a window.
+
+    :param window: the main window; the Help-menu action is added to it and
+        its ``_stack`` screen stack is watched so each shown screen gets a
+        Templates button. Without a ``_stack`` the result is ``None``.
     """
     install_help_action(window)
     stack = getattr(window, "_stack", None)

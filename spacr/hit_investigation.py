@@ -48,41 +48,139 @@ def _hash_run(folder: str) -> str:
     return digest.hexdigest()
 
 
+def _with_object_key(cells: pd.DataFrame) -> pd.DataFrame:
+    """Return ``cells`` with the ``prcfo`` object key as a column.
+
+    A Measure database stores ``prcfo`` on ``png_list`` only. Its ``cell``
+    table carries ``prcf`` and the integer ``object_label``, and
+    :func:`spacr.io._read_and_join_tables` brings ``png_path`` across from
+    ``png_list`` but not ``prcfo``. The key is therefore composed the way
+    :func:`spacr.schema.compose_prcfo` composes it: the stored ``prcf``, the
+    key separator and :func:`spacr.schema.object_id` of the label, so
+    ``'plate1_r12_c2_f17'`` with label ``1`` gives ``'plate1_r12_c2_f17_o1'``,
+    the spelling ``png_list`` and the crop file names carry. The plate id is
+    made canonical, as it is on every other key the join compares.
+
+    :param cells: measured objects as read from the database.
+    :returns: ``cells`` with ``prcfo`` as a column when it is present, is the
+        index, or can be composed; otherwise ``cells`` unchanged.
+    """
+    if "prcfo" in cells.columns:
+        return cells
+    if cells.index.name == "prcfo":
+        return cells.reset_index()
+    if not {"prcf", "object_label"}.issubset(cells.columns):
+        return cells
+    from .schema import KEY_SEPARATOR, canonical_plate_id, object_id
+    keyed = cells.copy()
+    labels = keyed["object_label"].map(object_id, na_action="ignore")
+    keyed["prcfo"] = (keyed["prcf"].astype(str) + KEY_SEPARATOR + labels).map(
+        canonical_plate_id, na_action="ignore")
+    return keyed
+
+
+def _read_crop_keys(db_path: str, path_column: str) -> pd.DataFrame:
+    """Read the ``prcfo`` and ``png_path`` of every crop in ``png_list``.
+
+    :param db_path: the measurements database the predictions were made on.
+    :param path_column: prediction column naming crops, quoted in the error.
+    :returns: one row per ``png_list`` crop with its plate id canonical.
+    :raises HitAttributionError: when the database has no ``png_list`` table
+        carrying ``prcfo`` and ``png_path``.
+    """
+    from .schema import normalise_plate_columns
+    connection = sqlite3.connect(db_path, timeout=30)
+    try:
+        png = pd.read_sql_query(
+            'SELECT "prcfo", "png_path" FROM "png_list"', connection)
+    except (sqlite3.Error, pd.errors.DatabaseError) as error:
+        raise HitAttributionError(
+            f"predictions name crops in {path_column!r}, but {db_path} has no "
+            f"png_list table with prcfo and png_path to map crops to measured "
+            f"objects ({error}). Export prcfo with the predictions, or choose "
+            f"the database the Measure module wrote the crops into.") from error
+    finally:
+        connection.close()
+    return normalise_plate_columns(png)
+
+
 def _read_cells(db_path: str, predictions_file: str,
                 score_column: str, path_column: str) -> pd.DataFrame:
-    """Return measured cells joined to predictions by object or crop key."""
+    """Return measured cells joined to predictions by object or crop key.
+
+    Measured cells are keyed by ``prcfo`` (see :func:`_with_object_key`). A
+    prediction file that carries ``prcfo`` joins on it directly. One that
+    names crops in ``path_column``, as Classify and Annotate write them, is
+    mapped to ``prcfo`` through the crop basenames recorded in ``png_list``.
+    Only the score, and ``png_path`` when the cells lack it, is added.
+
+    :param db_path: the measurements database the predictions were made on.
+    :param predictions_file: CSV with ``score_column`` and ``prcfo`` or
+        ``path_column``.
+    :param score_column: prediction column holding the phenotype score.
+    :param path_column: prediction column holding crop paths or basenames.
+    :returns: one row per measured cell that has a prediction.
+    :raises HitAttributionError: when a key is missing or repeated, or when
+        no prediction matches a measured cell.
+    """
     from .io import _read_and_join_tables
-    cells = _read_and_join_tables(db_path)
-    if cells.index.name == "prcfo" and "prcfo" not in cells:
-        cells = cells.reset_index()
+    from .schema import normalise_plate_columns
+    cells = _with_object_key(_read_and_join_tables(db_path))
     predictions = pd.read_csv(predictions_file)
     if score_column not in predictions:
         raise HitAttributionError(
             f"prediction file has no {score_column!r} column")
     if score_column in cells:
         return cells
-    if "prcfo" in predictions and "prcfo" in cells:
-        if predictions["prcfo"].duplicated().any():
+    if "prcfo" not in cells:
+        raise HitAttributionError(
+            f"measured cells in {db_path} carry neither prcfo nor the prcf "
+            f"and object_label columns it is composed from, so predictions "
+            f"cannot be joined to them")
+    if cells["prcfo"].dropna().duplicated().any():
+        raise HitAttributionError(
+            f"measured cells in {db_path} repeat prcfo, so a prediction "
+            f"cannot be assigned to one cell")
+    if "prcfo" in predictions:
+        scores = normalise_plate_columns(
+            predictions[["prcfo", score_column]].copy())
+        if scores["prcfo"].duplicated().any():
             raise HitAttributionError("prediction file repeats prcfo")
-        return cells.merge(
-            predictions[["prcfo", score_column]], on="prcfo", how="inner",
-            validate="one_to_one")
-    if path_column not in predictions:
+        matched_by = "prcfo"
+    else:
+        if path_column not in predictions:
+            raise HitAttributionError(
+                "predictions need prcfo or the configured crop-path column")
+        png = _read_crop_keys(db_path, path_column)
+        png["_crop"] = png["png_path"].astype(str).map(os.path.basename)
+        predictions["_crop"] = predictions[path_column].astype(str).map(
+            os.path.basename)
+        if png["_crop"].duplicated().any() or predictions["_crop"].duplicated().any():
+            raise HitAttributionError(
+                "crop basenames are not unique; export prcfo with predictions")
+        scores = png.merge(predictions[["_crop", score_column]], on="_crop",
+                           how="inner", validate="one_to_one")
+        if scores.empty:
+            raise HitAttributionError(
+                f"none of the {len(predictions)} crops named in "
+                f"{path_column!r} is recorded in png_list of {db_path}; choose "
+                f"the database whose crops the predictions scored")
+        if scores["prcfo"].dropna().duplicated().any():
+            raise HitAttributionError(
+                "predictions score more than one crop of the same object; "
+                "export prcfo with predictions")
+        matched_by = f"the crop basenames in {path_column!r}"
+    columns = ["prcfo", score_column]
+    if "png_path" in scores and "png_path" not in cells:
+        columns.append("png_path")
+    joined = cells.merge(scores[columns], on="prcfo", how="inner",
+                         validate="one_to_one")
+    if joined.empty:
         raise HitAttributionError(
-            "predictions need prcfo or the configured crop-path column")
-    with sqlite3.connect(db_path, timeout=30) as connection:
-        png = pd.read_sql_query(
-            'SELECT "prcfo", "png_path" FROM "png_list"', connection)
-    png["_crop"] = png["png_path"].astype(str).map(os.path.basename)
-    predictions["_crop"] = predictions[path_column].astype(str).map(os.path.basename)
-    if png["_crop"].duplicated().any() or predictions["_crop"].duplicated().any():
-        raise HitAttributionError(
-            "crop basenames are not unique; export prcfo with predictions")
-    scores = png.merge(predictions[["_crop", score_column]], on="_crop",
-                       how="inner", validate="one_to_one")
-    return cells.merge(
-        scores[["prcfo", "png_path", score_column]], on="prcfo", how="inner",
-        validate="one_to_one")
+            f"none of the {len(scores)} predictions matches a measured cell "
+            f"in {db_path} by {matched_by}; choose the database whose "
+            f"objects the predictions scored")
+    return joined
 
 
 def _read_fractions(path: str) -> pd.DataFrame:

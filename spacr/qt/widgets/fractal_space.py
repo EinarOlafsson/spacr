@@ -328,6 +328,14 @@ if njit is not None:
         When Numba is unavailable, the public ``sample_space`` name instead
         accepts arbitrary positional and keyword arguments and raises
         ``RuntimeError``.
+
+        :param x: horizontal scene coordinate; ``0`` is the frame centre and
+            the shorter frame edge lies at about ``±1.08``.
+        :param y: vertical scene coordinate, positive upwards, on the same
+            scale.
+        :param t: elapsed animation time used to advance the flight.
+        :param speed: multiplier applied to the flight's forward motion.
+        :returns: ``(red, green, blue)``, each clamped to ``[0, 1]``.
         """
         depth = t * speed / 14.0
         roll = 0.025 * math.sin(0.009 * t)
@@ -398,6 +406,17 @@ if njit is not None:
         When Numba is unavailable, the public ``render_space_frame`` name
         instead accepts arbitrary positional and keyword arguments and raises
         ``RuntimeError``.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        :param t: elapsed animation time used to advance the flight.
+        :param speed: multiplier applied to the flight's forward motion.
+        :param offset_x: horizontal shift added to every pixel's scene
+            coordinate, which steers the flight's heading.
+        :param offset_y: vertical shift added likewise.
+        :param samples: ``1`` or less takes one sample at each pixel centre;
+            anything larger averages a 2 x 2 grid of samples per pixel.
+        :returns: ``(height, width, 3)`` uint8 RGB array.
         """
         out = np.empty((height, width, 3), dtype=np.uint8)
         denominator = float(min(width, height))

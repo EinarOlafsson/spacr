@@ -92,7 +92,18 @@ def available_colormaps() -> List[str]:
 
 def colors_for_labels(labels: Optional[Sequence[int]], count: int, *,
                       cmap: str = "spaCR", alpha: float = 0.86) -> List[QColor]:
-    """One readable colour per point, with HDBSCAN noise in grey."""
+    """One readable colour per point, with HDBSCAN noise in grey.
+
+    :param labels: one cluster label per point, or ``None`` for no clusters
+        (every point in the plain point colour under ``"spaCR"``, otherwise
+        spread along ``cmap``); negative labels are HDBSCAN noise and are drawn
+        grey. Labels whose shape is not ``(count,)`` give the plain point
+        colour for all.
+    :param count: number of points to colour.
+    :param cmap: a colour map from :func:`available_colormaps`; ``"spaCR"`` is
+        the native palette.
+    :param alpha: point opacity, clipped to 0.05-1.0.
+    """
     opacity = int(round(255.0 * float(np.clip(alpha, 0.05, 1.0))))
     if labels is None:
         if cmap == "spaCR":
@@ -140,7 +151,17 @@ def _rotation(yaw: float, pitch: float) -> np.ndarray:
 def project_points(coords: Any, width: int, height: int, *,
                    yaw: float = 0.0, pitch: float = 0.0,
                    zoom: float = 1.0) -> Tuple[np.ndarray, np.ndarray]:
-    """Orthographically project a 2-D/3-D map without distorting its axes."""
+    """Orthographically project a 2-D/3-D map without distorting its axes.
+
+    :param coords: the embedding, an array of shape (n, 2) or (n, 3); a 2-D map
+        gets a zero third axis, and an empty, NaN-holding or otherwise shaped
+        array raises :class:`ValueError`.
+    :param width: width of the drawing area, in pixels.
+    :param height: height of the drawing area, in pixels.
+    :param yaw: rotation about the vertical axis, in radians.
+    :param pitch: rotation about the horizontal axis, in radians.
+    :param zoom: magnification of the fitted view, floored at 0.05.
+    """
     xyz = _coordinates(coords)
     centred = xyz - np.mean(xyz, axis=0, keepdims=True)
     rotated = centred @ _rotation(float(yaw), float(pitch)).T
@@ -155,7 +176,17 @@ def project_points(coords: Any, width: int, height: int, *,
 
 def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
                pitch: float = 0.0, zoom: float = 1.0) -> dict:
-    """Return projected grid lines and exactly two or three primary axes."""
+    """Return projected grid lines and exactly two or three primary axes.
+
+    :param coords: the embedding, an array of shape (n, 2) or (n, 3); a 2-D map
+        gets a zero third axis, and an empty, NaN-holding or otherwise shaped
+        array raises :class:`ValueError`.
+    :param width: width of the drawing area, in pixels.
+    :param height: height of the drawing area, in pixels.
+    :param yaw: rotation about the vertical axis, in radians.
+    :param pitch: rotation about the horizontal axis, in radians.
+    :param zoom: magnification of the fitted view, floored at 0.05.
+    """
     raw = np.asarray(coords, dtype=float)
     dimensions = raw.shape[1] if raw.ndim == 2 else 0
     xyz = _coordinates(raw)
@@ -275,7 +306,15 @@ class UmapAppearanceDialog(QDialog):
 
 def thumbnail_image(coords: Any, labels: Optional[Sequence[int]] = None,
                     *, size: int = 170) -> QImage:
-    """Deterministic black-background thumbnail used by the all-map grid."""
+    """Deterministic black-background thumbnail used by the all-map grid.
+
+    :param coords: the embedding, an array of shape (n, 2) or (n, 3); a 2-D map
+        gets a zero third axis, and an empty, NaN-holding or otherwise shaped
+        array raises :class:`ValueError`.
+    :param labels: one cluster label per point, or ``None``; coloured as
+        :func:`colors_for_labels` does.
+    :param size: side of the square thumbnail in pixels; at least 48.
+    """
     size = max(48, int(size))
     xyz = _coordinates(coords)
     points, depth = project_points(xyz, size, size, yaw=0.22, pitch=-0.16)
@@ -367,7 +406,15 @@ class UmapEmbeddingView(QWidget):
         }
 
     def set_appearance(self, values: dict) -> None:
-        """Apply rendering-only changes without changing the embedding."""
+        """Apply rendering-only changes without changing the embedding.
+
+        :param values: the rendering settings to change, read by the keys
+            ``marker`` (``"circle"``, ``"square"``, ``"diamond"`` or
+            ``"cross"``; anything else raises :class:`ValueError`), ``size``
+            (clipped to 1-24), ``alpha`` (clipped to 0.05-1.0) and ``cmap`` (an
+            unknown colour map falls back to ``"spaCR"``). A missing key keeps
+            its current value.
+        """
         marker = str(values.get("marker", self._marker))
         if marker not in {"circle", "square", "diamond", "cross"}:
             raise ValueError(f"Unknown point rendering: {marker!r}.")

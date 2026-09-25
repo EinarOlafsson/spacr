@@ -294,7 +294,11 @@ class RunHistoryScreen(QWidget):
         return widget
 
     def showEvent(self, event) -> None:
-        """Load history on first display, not during application startup."""
+        """Load history on first display, not during application startup.
+
+        :param event: the show event; passed to the base class and otherwise
+            not read.
+        """
         super().showEvent(event)
         if not self._loaded_once and not self._busy:
             self.refresh()
@@ -366,6 +370,10 @@ class RunHistoryScreen(QWidget):
         process-wide — but it survives *ownerless*, and an ownerless job in
         the run registry is what ``MainWindow.closeEvent`` reads when it
         decides whether the application may quit.
+
+        :param event: the close event; passed to the base class once every
+            history job has been cancelled and drained (up to three seconds
+            each).
         """
         from ..bridge import drain_thread
 

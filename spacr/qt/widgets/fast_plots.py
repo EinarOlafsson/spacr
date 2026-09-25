@@ -440,6 +440,10 @@ def style_field_choices(style, name: str, choices=None):
     style's class. Three, because the styles in this package declare their
     sets in all three ways and a mechanism that read only one would silently
     turn a closed set into a free-text box.
+
+    :param style: the style dataclass instance whose field metadata and
+        class ``CHOICES`` are consulted.
+    :param name: the field's name.
     """
     import dataclasses
 
@@ -458,7 +462,12 @@ def style_field_choices(style, name: str, choices=None):
 
 
 def style_field_group(name: str) -> str:
-    """Which menu group ``name`` belongs on."""
+    """Which menu group ``name`` belongs on.
+
+    :param name: a style field name; the first group (Data, Axes, Size) with
+        a fragment found in it, case-insensitively, wins, and anything else
+        is ``"Appearance"``.
+    """
     lowered = str(name).lower()
     for group, fragments in _STYLE_GROUPS:
         if any(fragment in lowered for fragment in fragments):
@@ -472,6 +481,14 @@ def style_field_label(name: str, value, kind: str) -> str:
     The CURRENT VALUE is in the label for everything but a flag, which shows
     its state as a tick. A menu of settings that does not say what they are
     set to is one the user has to open each entry to read.
+
+    :param name: the field name; underscores become spaces and the first
+        letter is capitalised.
+    :param value: the field's current value, shown after the name; ``None``
+        reads as "automatic".
+    :param kind: the editor kind from :func:`style_field_kind`; ``"flag"``
+        and ``"unsupported"`` show the name alone, ``"multi"`` lists the
+        chosen items and ``"pair"`` and ``"number"`` format with ``:g``.
     """
     pretty = str(name).replace("_", " ").strip().capitalize()
     if kind == "flag":
@@ -554,6 +571,9 @@ def style_kind(style) -> str:
     so it has to be derived from the class rather than passed in: a caller
     that had to name its own kind would eventually name two of them the same
     and one lab's house style would land on another figure type.
+
+    :param style: a style instance; its class name, less a ``Style`` suffix,
+        is converted to snake case (``"figure"`` if nothing is left).
     """
     name = type(style).__name__
     if name.endswith("Style"):
@@ -573,6 +593,9 @@ def style_as_dict(style) -> dict:
     JSON does anyway -- so a pair field round-trips as a list and
     :func:`apply_style_dict` puts it back as a tuple rather than leaving two
     representations of one value in the store.
+
+    :param style: the style dataclass instance to convert with
+        ``dataclasses.asdict``.
     """
     import dataclasses
 
@@ -593,6 +616,11 @@ def apply_style_dict(style, values, on_change=None) -> list:
     field: a host that redraws per field would redraw sixty times for one
     load, and the interesting question for the host is "the whole style
     changed", not "line_width did".
+
+    :param style: the style dataclass instance, modified in place.
+    :param values: mapping of field name to value; ``None`` applies nothing,
+        and a list is turned into a tuple where the field currently holds a
+        tuple.
     """
     import dataclasses
 
@@ -619,6 +647,11 @@ def save_style(style, path) -> str:
     (``VolcanoStyle.from_dict`` / ``asdict``); what did not was any way for a
     user to reach it, which made a restyle something they redid every time
     they needed the picture.
+
+    :param style: the style dataclass instance to save, together with its
+        :func:`style_kind`.
+    :param path: destination file; ``.json`` is appended when it has no
+        suffix, and an existing file is overwritten.
     """
     import json
     from pathlib import Path
@@ -636,6 +669,8 @@ def save_style(style, path) -> str:
 def load_style(style, path, on_change=None) -> list:
     """Read a saved style into ``style``. Returns the fields that changed.
 
+    :param style: the style dataclass instance to update in place.
+    :param path: a JSON style file written by :func:`save_style`.
     :raises ValueError: for a file that is not a style, and for a style of
         the WRONG KIND. Refused rather than partially applied: a volcano's
         style loaded into a heatmap would set the four fields whose names
@@ -794,6 +829,9 @@ def apply_default_style(style, on_change=None) -> list:
     already edited would undo their edits at the next redraw -- the same
     mistake as a host that re-asserts an axis choice, which cost this module
     a day.
+
+    :param style: the style dataclass instance to update in place; the
+        default saved in preferences for its :func:`style_kind` is applied.
     """
     try:
         from ..preferences import get_figure_style_default
@@ -1050,6 +1088,7 @@ def pick_colour(parent, initial=None, title: str = "Colour"):
     on installs that may not have every sibling widget module, and a colour
     picker is not worth an import-time dependency at the top of the file.
 
+    :param parent: the dialog's parent widget, or ``None``.
     :returns: a :class:`QColor`. Check ``isValid()`` -- an invalid one is the
         user cancelling, which is an answer and not a failure.
     """
@@ -1059,7 +1098,11 @@ def pick_colour(parent, initial=None, title: str = "Colour"):
 
 
 def colour_for(index: int, alpha: int = 255) -> QColor:
-    """Stable colour for category ``index``."""
+    """Stable colour for category ``index``.
+
+    :param index: category number; wraps around the length of
+        :data:`PALETTE`.
+    """
     colour = QColor(PALETTE[index % len(PALETTE)])
     colour.setAlpha(alpha)
     return colour
@@ -1534,6 +1577,9 @@ class FastPlot(QWidget):
                      colour: str = "#55A868") -> str:
         """Lay one diagnostic curve over the points already drawn.
 
+        :param x: predictor values, one per point, in data units of the x
+            axis; passed to :func:`spacr.nonparametric_fits.smooth`.
+        :param y: response values aligned one-to-one with ``x``.
         :returns: what to say about it -- the method, its note, and the band
             when it reports one -- or the refusal, which is a sentence the
             caller shows rather than an exception it swallows. Returns ``""``
@@ -2163,6 +2209,11 @@ class FastPlot(QWidget):
         and the design forbids it for the same reason.
 
         So the answer is the count, and the user moves the band.
+
+        :param low: bottom of the band to hide, in y data units.
+        :param high: top of the band to hide, in y data units; it must be
+            above ``low``, and both must be finite (and positive on a log
+            axis).
         """
         if not self.plots_available:
             return "this build has no pyqtgraph, so nothing is drawn"
@@ -2408,7 +2459,11 @@ class FastPlot(QWidget):
         return bool(self._grid_on)
 
     def set_grid(self, on: bool) -> None:
-        """Draw the grid, or stop. Reachable from the Appearance group."""
+        """Draw the grid, or stop. Reachable from the Appearance group.
+
+        :param on: ``True`` shows the x and y grid lines, ``False`` hides
+            them.
+        """
         self._grid_on = bool(on)
         self.plot.showGrid(x=self._grid_on, y=self._grid_on, alpha=0.25)
 
@@ -2613,6 +2668,8 @@ class FastPlot(QWidget):
         before this change: the bottom axis' tick font came back as None at
         every setting, i.e. the control moved two strings out of about
         twenty.
+
+        :param points: font size in points, converted to ``int``.
         """
         self._font_size = int(points)
         self.apply_text_style()
@@ -2627,6 +2684,9 @@ class FastPlot(QWidget):
         Separate from :meth:`restyle`, which resolves the THEME's ink. This
         is the user overriding it for one figure, so it is re-applied after a
         theme switch rather than being quietly reverted by one.
+
+        :param colour: anything ``QColor`` accepts (a name, ``"#rrggbb"`` or a
+            ``QColor``); ``None`` makes the text follow the theme again.
         """
         self._font_colour = None if colour is None else QColor(colour).name()
         self.apply_text_style()
@@ -2741,6 +2801,9 @@ class FastPlot(QWidget):
         axes back to the theme's -- the "Follow the theme" half, which a user
         who has set a colour needs or the freeze the API is intended to fix
         just happens by hand instead of by accident.
+
+        :param colour: anything ``QColor`` accepts, or ``None`` to follow the
+            theme.
         """
         self._line_colour = None if colour is None else QColor(colour).name()
         return self.set_line_style(colour=self._line_colour or "\0theme")
@@ -2818,6 +2881,7 @@ class FastPlot(QWidget):
         range and the number of missing values; missing values are drawn grey
         instead of being placed at the bottom of the scale.
 
+        :param column: a continuous (numeric) column of the plotted table.
         :raises ValueError: for a column that is not there or not continuous,
             and for a colormap this build does not provide.
         """
@@ -2882,6 +2946,8 @@ class FastPlot(QWidget):
     def shape_by_column(self, column: str) -> int:
         """Draw each value of ``column`` as its own marker. Returns n shaped.
 
+        :param column: a column of the plotted table; its values are compared
+            as strings, and each distinct one gets its own marker.
         :raises ValueError: for a column that is not there, or one with more
             values than there are shapes a reader can tell apart. Refused
             rather than truncated: reusing a circle for the ninth and the
@@ -2986,6 +3052,9 @@ class FastPlot(QWidget):
 
         This does not change export dimensions; use :meth:`set_export_size`
         to configure the exported page.
+
+        :param width: fixed width in pixels, converted to ``int``.
+        :param height: fixed height in pixels, converted to ``int``.
         """
         if self._size_bounds is None:
             self._size_bounds = (self.minimumWidth(), self.minimumHeight(),
@@ -3023,6 +3092,9 @@ class FastPlot(QWidget):
         The shape constrains both the on-screen canvas and exported page; it
         does not alter the data-unit aspect ratio configured by
         :meth:`set_aspect_ratio`.
+
+        :param name: ``"square"``, ``"wide"``, ``"tall"`` or ``"free"`` (see
+            :data:`CANVAS_SHAPES`); any other name raises :class:`ValueError`.
         """
         name = str(name)
         if name not in dict(CANVAS_SHAPES):
@@ -3082,7 +3154,11 @@ class FastPlot(QWidget):
             self._shaping = False
 
     def resizeEvent(self, event) -> None:      # noqa: N802 - Qt's own name
-        """Re-impose the canvas shape whenever the box around it changes."""
+        """Re-impose the canvas shape whenever the box around it changes.
+
+        :param event: the resize event; passed to the base class, and the new
+            size is read back from the widget itself.
+        """
         super().resizeEvent(event)
         if self._canvas_shape != "free":
             self._apply_canvas_shape()
@@ -4080,7 +4156,11 @@ class FastPlot(QWidget):
                 pass
 
     def set_status(self, text: str) -> None:
-        """What this plot has to say about ITSELF. Survives a selection."""
+        """What this plot has to say about ITSELF. Survives a selection.
+
+        :param text: the headline sentence; the status line is rewritten from
+            it, the level note and the style note.
+        """
         self._headline = text
         self._status.setText(self._compose(text, self._level_note,
                                            self._style_note))
@@ -4094,6 +4174,9 @@ class FastPlot(QWidget):
         redraw rewrites, nor in the click note, which every click rewrites;
         either would leave the reader looking at a picture whose key had been
         overwritten by something unrelated.
+
+        :param note: the restyle's sentence, e.g. a colour scale's range;
+            an empty string removes it.
         """
         self._style_note = note
         self._status.setText(self._compose(self._headline, self._level_note,
@@ -4112,6 +4195,9 @@ class FastPlot(QWidget):
         guide -- and overwriting those with the name of whatever was just
         clicked trades the panel's whole content for a string the user can
         already read in the table. Both fit.
+
+        :param note: the sentence about the clicked item, shown last; an
+            empty string removes it.
         """
         self._note = note
         self._status.setText(self._compose(getattr(self, "_headline", ""),
@@ -4240,6 +4326,9 @@ class FastPlot(QWidget):
         clicked; it reports no identifier to other components, which is the
         truthful answer and is not the same as reporting the empty string,
         which would collide with every other unidentified row.
+
+        :param keys: one identifier per frame row, in row order; each is
+            stored as ``str``, and ``None`` or NaN marks a row without one.
         """
         if keys is None:
             keys = ()
@@ -4264,7 +4353,10 @@ class FastPlot(QWidget):
         return any(key is not None for key in self._keys)
 
     def key_for_row(self, row: int) -> Optional[str]:
-        """The identifier at frame position ``row``, if this plot has keys."""
+        """The identifier at frame position ``row``, if this plot has keys.
+
+        :param row: zero-based frame position; out of range gives ``None``.
+        """
         if self._keys and 0 <= int(row) < len(self._keys):
             return self._keys[int(row)]
         return None
@@ -4276,6 +4368,9 @@ class FastPlot(QWidget):
         its point was not plotted (an unusable p-value) or because it is a
         nuisance term this plot deliberately leaves off. Saying so beats
         ringing something near it.
+
+        :param key: the row identifier to select, compared as ``str``;
+            ``None`` clears the selection and the ring.
         """
         key = None if key is None else str(key)
         self._selected_key = key
@@ -4332,6 +4427,10 @@ class FastPlot(QWidget):
         term this plot leaves off -- and dropping it from the selection would
         make the count on screen disagree with what the consumers receive.
         So the ring is what is conditional here, never the membership.
+
+        :param keys: the identifiers to select, in pick order; compared as
+            ``str``, duplicates dropped, and the last one is the current
+            selection. ``None`` or empty clears the selection.
         """
         wanted = []
         for key in keys or ():
@@ -4363,6 +4462,9 @@ class FastPlot(QWidget):
         """Add ``key`` to the selection, or remove it if it is already in.
 
         The modifier-click half of the platform gesture.
+
+        :param key: the row identifier, compared as ``str``; ``None`` leaves
+            the selection unchanged.
         """
         key = None if key is None else str(key)
         if key is None:
@@ -5515,6 +5617,9 @@ class FastPlot(QWidget):
         ``font_size``, ``line_width``, ``aspect``, ``x_title``, ``y_title``
         -- so the preview and the file go through one styling path and
         cannot disagree.
+
+        :param path: destination file; its extension picks the format (PDF,
+            SVG or PNG), as for :meth:`export`.
         """
         with self._dressed_for_the_file(ink, background, grid, **styling):
             return self.export(path)
@@ -5541,6 +5646,11 @@ class FastPlot(QWidget):
         otherwise, source pixel width is retained. Height follows the selected
         canvas ratio, explicit page ratio, or source aspect ratio, in that
         order.
+
+        :param source_width: width of the source scene rectangle in pixels;
+            values below 1 are treated as 1.
+        :param source_height: height of the source scene rectangle in pixels;
+            values below 1 are treated as 1.
         """
         source_width = max(1.0, float(source_width))
         source_height = max(1.0, float(source_height))
@@ -5686,7 +5796,11 @@ class FastPlot(QWidget):
             self.apply_text_style()
 
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Retire the parentless menus that belong to this plot."""
+        """Retire the parentless menus that belong to this plot.
+
+        :param event: the close event; passed to the base class once the
+            menus are retired.
+        """
         try:
             from ..widget_cleanup import retire_pyqtgraph_menus
 
@@ -5845,6 +5959,11 @@ class VolcanoPlot(FastPlot):
         ``"adjusted"`` IS KEPT AND IS NOT THE DEFAULT. It is honest and
         stepped, because that is what BH is, and a user reproducing a
         published figure drawn that way needs to be able to.
+
+        :param kind: ``"raw"``, ``"adjusted"`` or ``"lfdr"`` (see
+            :attr:`P_AXES`); anything else raises :class:`ValueError`, and
+            ``"adjusted"`` falls back to ``"raw"`` while no correction is in
+            force.
         """
         kind = str(kind)
         if kind not in self.P_AXES:
@@ -5874,6 +5993,9 @@ class VolcanoPlot(FastPlot):
         colour carrying the claim -- and a ramp answers a different question:
         it shows how far each test is from the threshold, which is a reading
         aid and not a call. It is an OFFER.
+
+        :param mode: ``"call"`` (binary significance colour) or ``"ramp"``
+            (continuous over q); anything else raises :class:`ValueError`.
         """
         mode = str(mode)
         if mode not in self.Q_COLOURS:
@@ -5896,6 +6018,9 @@ class VolcanoPlot(FastPlot):
         colour ramp cannot do.
 
         Both are offers, not defaults. Neither is on until it is asked for.
+
+        :param mode: ``"none"``, ``"size"`` or ``"opacity"``; anything else
+            raises :class:`ValueError`.
         """
         mode = str(mode)
         if mode not in self.Q_MARKS:
@@ -6033,7 +6158,13 @@ class VolcanoPlot(FastPlot):
         return self._run_method
 
     def set_correction(self, method) -> None:
-        """Recompute the correction on the spot. ``None`` goes back to the run's."""
+        """Recompute the correction on the spot. ``None`` goes back to the run's.
+
+        :param method: a multiple-testing method name or alias accepted by
+            :func:`spacr.multiple_testing.canonical_method`, or ``None``; an
+            unknown name raises :class:`ValueError`. Choosing ``"none"`` moves
+            an adjusted p axis back to raw.
+        """
         from ...multiple_testing import canonical_method
 
         self._correction = None if method is None else canonical_method(method)
@@ -6963,7 +7094,11 @@ class BinnedPlot(FastPlot):
 
 
     def bin_at(self, x) -> Optional[int]:
-        """The bar under data coordinate ``x``, or ``None`` beyond the axis."""
+        """The bar under data coordinate ``x``, or ``None`` beyond the axis.
+
+        :param x: position on the x axis in data units (not view units on a
+            log axis); outside the outer bin edges gives ``None``.
+        """
         if self._edges is None or not len(self._bin_rows):
             return None
         if x < self._edges[0] or x > self._edges[-1]:
@@ -6972,7 +7107,11 @@ class BinnedPlot(FastPlot):
         return int(np.clip(index, 0, len(self._bin_rows) - 1))
 
     def keys_in_bin(self, index: int) -> list:
-        """Every identifier the bar at ``index`` was built from."""
+        """Every identifier the bar at ``index`` was built from.
+
+        :param index: zero-based bar number; out of range gives ``[]``, and
+            rows without an identifier are left out.
+        """
         if not 0 <= int(index) < len(self._bin_rows):
             return []
         found = (self.key_for_row(int(row)) for row in self._bin_rows[index])
@@ -6987,6 +7126,8 @@ class BinnedPlot(FastPlot):
         So the honest split: a bar that holds exactly one row selects it like
         any other point, and a bar that holds more says what it holds and
         hands the whole set over for the table to narrow to.
+
+        :param index: zero-based bar number; out of range selects nothing.
         """
         keys = self.keys_in_bin(index)
         if self._edges is None or not 0 <= int(index) < len(self._bin_rows):
@@ -7030,7 +7171,11 @@ class BinnedPlot(FastPlot):
             self.select_bin(index)
 
     def highlight_bin(self, index: int) -> bool:
-        """Outline one bar. The histogram's answer to ringing a point."""
+        """Outline one bar. The histogram's answer to ringing a point.
+
+        :param index: zero-based bar number; out of range (or no histogram
+            drawn yet) gives ``False``.
+        """
         if self._edges is None or self._counts is None:
             return False
         if not 0 <= int(index) < len(self._counts):
@@ -7465,6 +7610,13 @@ class InfluencePlot(FastPlot):
         ``ctx.std_resid`` and :func:`spacr.regression_qc.cooks_distance` --
         rather than being recomputed here, so the live panel and the saved
         report cannot name different wells as influential.
+
+        :param leverage: hat value per well, the x coordinate; aligned with
+            the other two arrays.
+        :param std_resid: standardised residual per well, the y coordinate;
+            wells where it or the leverage is not finite are not drawn.
+        :param cooks: Cook's distance per well; wells above ``4 / n`` (``n``
+            the number plotted) are drawn larger in the influential colour.
         """
         self._reset_scene()
         h, s, d = _finite(leverage), _finite(std_resid), _finite(cooks)
@@ -7640,6 +7792,9 @@ class GroupedPlot(FastPlot):
     def set_mark(self, kind: str) -> bool:
         """Draw the groups as ``kind``. Returns True if the mark changed.
 
+        :param kind: a mark key from :data:`MARK_TYPES`, e.g. ``"points"``,
+            ``"bar"``, ``"box"`` or ``"violin"``; it becomes the user's choice,
+            so later redraws keep it.
         :raises ValueError: on a mark this module cannot draw. Loudly, because
             the only callers are this class's own menu and a test -- a silent
             fallback would make a typo look like a working option.
@@ -7849,7 +8004,12 @@ class ControlSeparation(GroupedPlot):
         return total
 
     def group_of(self, row: int) -> Optional[str]:
-        """Which group the flat row ``row`` belongs to."""
+        """Which group the flat row ``row`` belongs to.
+
+        :param row: zero-based position in the flat sequence of all groups'
+            values, in the order the groups were given; ``None`` is returned
+            for a row in no group.
+        """
         for start, stop, name in self._spans:
             if start <= int(row) < stop:
                 return name
@@ -8144,7 +8304,12 @@ class ResultsTable(QWidget):
     def set_frame(self, frame, *, alpha: float = 0.05,
                   significance_column: Optional[str] = None,
                   key_column: Optional[str] = None) -> int:
-        """Fill the table. Returns the row count."""
+        """Fill the table. Returns the row count.
+
+        :param frame: the results table, one table row per frame row and one
+            column per frame column; ``None`` or an empty frame shows
+            "Nothing to show."
+        """
         from PySide6.QtWidgets import QTableWidgetItem
 
         self._frame = frame
@@ -8192,6 +8357,9 @@ class ResultsTable(QWidget):
         hundred coefficients and cannot select one of them, but "show me the
         hundred" is a question the table can answer exactly. Returns how many
         rows are visible afterwards.
+
+        :param keys: identifiers to keep visible, compared as ``str`` against
+            the key column; ``None`` removes the restriction.
         """
         self._key_restriction = None if keys is None else {
             str(key) for key in keys}
@@ -8277,7 +8445,11 @@ class ResultsTable(QWidget):
                 self._only_hits.setChecked(False)
 
     def key_for_row(self, index: int) -> Optional[str]:
-        """The identifier at frame position ``index``, or ``None``."""
+        """The identifier at frame position ``index``, or ``None``.
+
+        :param index: zero-based position in the frame (not the sorted
+            table); its key-column value is returned as ``str``.
+        """
         if self._frame is None or not self._key_column:
             return None
         if self._key_column not in self._frame.columns:
@@ -8291,6 +8463,9 @@ class ResultsTable(QWidget):
 
         This is the other half of clicking a point on the volcano: the dot and
         the numbers behind it should be two views of one thing.
+
+        :param index: zero-based position in the frame; the table row is
+            found wherever sorting has put it.
         """
         for row in range(self.table.rowCount()):
             item = self.table.item(row, 0)
@@ -8310,6 +8485,9 @@ class ResultsTable(QWidget):
         A hidden row is unhidden to select it: silently doing nothing because
         the filter box excludes the point the user just clicked reads as a
         broken click.
+
+        :param key: the identifier, compared as ``str`` with the text of the
+            key column's cells.
         """
         if self._frame is None or not self._key_column:
             return False

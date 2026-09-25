@@ -2232,6 +2232,11 @@ def stretch_to_uint8(array: np.ndarray,
     same footing as the contrast-stretched intensity image the canvas
     already draws, which is the only way the panes can be compared with
     it by eye.
+
+    :param array: any numeric array; it is read as float32, and an empty array
+        gives an empty uint8 array.
+    :param lower_pct: percentile mapped to 0.
+    :param upper_pct: percentile mapped to 255.
     """
     values = np.asarray(array, dtype=np.float32)
     if not values.size:
@@ -2254,6 +2259,9 @@ def cellprob_heatmap(cellprob: np.ndarray) -> np.ndarray:
     Matplotlib's ``magma`` is used where it is importable, and a plain
     black-to-white ramp stands in where it is not, so the pane is never
     the thing that fails.
+
+    :param cellprob: Cellpose's cell-probability map, a 2-D float array; it is
+        percentile-stretched with :func:`stretch_to_uint8` before colouring.
     """
     scaled = stretch_to_uint8(cellprob).astype(np.float32) / 255.0
     try:
@@ -2273,6 +2281,10 @@ def flow_rgb(flow: np.ndarray) -> Optional[np.ndarray]:
     vector field. This takes the picture where it is given one and builds
     an equivalent from the vectors otherwise, so the pane fills whichever
     entry a caller passes.
+
+    :param flow: either Cellpose's RGB flow picture, an array of shape (H, W, 3
+        or more), or the raw vector field of shape (2, H, W); ``None`` or any
+        other shape gives ``None``.
     """
     if flow is None:
         return None
@@ -2385,6 +2397,10 @@ def load_cellpose_model(model_name: str):
     the difference between most of an hour and most of a day. On a GPU
     nothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides
     there, as it does for the pipeline.
+
+    :param model_name: a Cellpose model name or the path of a fine-tuned
+        checkpoint, resolved by
+        :func:`spacr.utils._resolve_cellpose_pretrained`.
     """
     import inspect
 
@@ -6271,6 +6287,9 @@ def fold_description(key: str) -> tuple:
     row has been dropped — which is what folding a module ends in — the
     answer comes from :data:`FOLD_FALLBACK`, so the button goes on carrying
     the name, the sentence and the maturity colour its tile had.
+
+    :param key: the app registry key of the folded module; an unknown key gives
+        empty strings.
     """
     from .. import app as app_module
 
@@ -6502,7 +6521,12 @@ class NapariBridgeScreen(QWidget):
         return self._image_edit.text().strip()
 
     def say(self, text: str, *, append: bool = False) -> str:
-        """Display a status message and return the complete displayed text."""
+        """Display a status message and return the complete displayed text.
+
+        :param text: the message; converted to ``str``.
+        :param append: add the message below the current text, after a blank
+            line, instead of replacing it.
+        """
         text = str(text)
         if append and self.status.toPlainText():
             self.status.setPlainText(
@@ -11884,6 +11908,9 @@ class MakeMasksScreen(QWidget):
         be told to stop rather than be collected out from under Qt. A model
         download is cancelled; a backend install is left to finish, because
         ``pip`` stopped half way can leave the environment broken.
+
+        :param event: the close event; it is passed on to the base class once
+            the workers and folded modules have been stopped.
         """
         from ..bridge import drain_thread
 
@@ -12017,6 +12044,11 @@ class MakeMasksScreen(QWidget):
         field in the queue, and marked on the canvas. Rejected selections are
         reported in the status label without modifying the queue.
 
+        :param x0: x of the first selection corner, in image pixels.
+        :param y0: y of the first selection corner, in image pixels.
+        :param x1: x of the opposite corner, in image pixels. The corners may
+            come in either order and are clipped to the image.
+        :param y1: y of the opposite corner, in image pixels.
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
