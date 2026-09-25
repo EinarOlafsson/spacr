@@ -2,7 +2,12 @@
 TEST DATA FOR OPS AND FOR ALIGN & STITCH, FROM THE PUBLISHED OPS SCREEN
 ================================================================================
 
-Status:    BUILT AND PUBLISHED 2026-09-21. The maintainer approved rehosting
+Status:    DONE here, re-verified 2026-09-25 against the published sets
+           (live download); remaining: docs lane -- Hindi and Icelandic lack
+           "Downloading the OPS test data" and "Downloading the Align &
+           Stitch test data" (item 316's catalog debt); every other runtime
+           string of this item is in all eight locales.
+           BUILT AND PUBLISHED 2026-09-21. The maintainer approved rehosting
            and the coordinator published both repos
            (huggingface.co/datasets/einarolafsson/spacr-example-stitch and
            .../spacr-example-ops; SHA256SUMS verified). spacr-download
@@ -100,3 +105,14 @@ OPS, run_ops on the two fields, ops_gpu off:
 item's nine new runtime captions. They are present in the English manifest;
 the nine-language translations remain open under future/411. No example-data
 implementation or acceptance decision was changed by this translation pass.
+
+2026-09-25 -- RE-VERIFIED LIVE ON NIGHTLY
+* tests/qt/test_ops_and_stitch_test_data.py + tests/test_cli_download.py:
+  77 passed, 2 skipped (offscreen, mocked downloads).
+* The two skipped are the live ones; run with SPACR_OPS_EXAMPLE_LIVE=1 they
+  fetched both published repos from huggingface.co (about 0.6 GB) and passed:
+  the stitch set plans 9 of 9 tiles with 0 nominal, and the OPS set indexes
+  cycles 1-11 with sites 331 and 332 for A1. 3 passed in 144.7 s.
+* Translations: of the item's runtime strings, all are in de/es/fr/ko/pt/
+  zh_CN; hi and is miss the two "Downloading the ... test data" titles. That
+  is 316's translation debt (docs lane), not code owed here.
