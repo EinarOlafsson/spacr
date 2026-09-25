@@ -618,7 +618,11 @@ class SpotDetectorCombo(QComboBox):
         return bool(ready), reason
 
     def setCurrentText(self, text: Any) -> None:                # noqa: N802
-        """Select the row whose caption or value is ``text``, if usable."""
+        """Select the row whose caption or value is ``text``, if usable.
+
+        :param text: a caption or stored value; a row that is not installed
+            (disabled), or no match, leaves the selection alone.
+        """
         wanted = "" if text is None else str(text).strip()
         index = self.findText(wanted)
         if index < 0:

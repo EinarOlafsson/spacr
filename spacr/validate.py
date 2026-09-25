@@ -1477,9 +1477,12 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 'Choose original intensities or configure a calibrated PSF for processed measurements.'))
 
     if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
+        from .point_spread import fill_psf_settings
         from .psf_pipeline import prepare_psf
         try:
-            prepare_psf(settings)
+            candidate = dict(settings)
+            fill_psf_settings(candidate)
+            prepare_psf(candidate)
         except (ValueError, OSError) as exc:
             problems.append(Problem(
                 ERROR, 'psf_operation', f'PSF preparation failed: {exc}',

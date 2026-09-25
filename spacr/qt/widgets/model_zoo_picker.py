@@ -557,6 +557,11 @@ class BackendInstallDialog(QDialog):
     :param uninstall: remove the backend's environment instead.
     :param job: ``job(progress=..., cancel=...)``; the real install or
         uninstall when None. Tests pass their own.
+    :param reinstall: build an installed backend's environment again
+        (item 518), for a backend installed before a package it now needs
+        was pinned; the dialog says so and its button says Reinstall.
+    :param why: a sentence saying why the install is offered, shown above
+        the progress.
     :ivar error: the last failure's message, verbatim; empty until one.
 
     THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,
@@ -576,7 +581,8 @@ class BackendInstallDialog(QDialog):
     job_cancelled = Signal()
 
     def __init__(self, name: str, parent: Optional[QWidget] = None, *,
-                 uninstall: bool = False, job=None):
+                 uninstall: bool = False, job=None, reinstall: bool = False,
+                 why: str = ""):
         """Describe the backend and wait for the button."""
         super().__init__(parent)
         from ... import _segmentation_backends as backends
@@ -609,16 +615,22 @@ class BackendInstallDialog(QDialog):
                     """Remove the environment; there is nothing to cancel."""
                     return backends._uninstall_backend(_name)
             else:
-                def job(progress=None, cancel=None, _name=spec.name):
+                def job(progress=None, cancel=None, _name=spec.name,
+                        _again=bool(reinstall)):
                     """Build the environment and install into it."""
+                    extra = {"reinstall": True} if _again else {}
                     return backends._install_backend(
-                        _name, progress=progress, cancel=cancel)
+                        _name, progress=progress, cancel=cancel, **extra)
         self._job = job
+        self._reinstall = bool(reinstall) and not self._uninstall
 
         state = backends._backend_state(spec.name)
-        verb = tr("Uninstall") if self._uninstall else tr("Install")
-        self.setWindowTitle(tr("Uninstall {name}", name=self._label)
-                            if self._uninstall else tr("Install {name}", name=self._label))
+        verb = tr("Uninstall") if self._uninstall else (
+            tr("Reinstall") if self._reinstall else tr("Install"))
+        self.setWindowTitle(
+            tr("Uninstall {name}", name=self._label) if self._uninstall else
+            tr("Reinstall {name}", name=self._label) if self._reinstall else
+            tr("Install {name}", name=self._label))
         self.setMinimumWidth(scaled_px(560))
         layout = QVBoxLayout(self)
 
@@ -638,6 +650,14 @@ class BackendInstallDialog(QDialog):
                 "unfinished environment.", environment=state.env,
                 packages=packages, size_gb=spec.size_gb),
                 tr("Licence: {licence}", licence=tr(spec.licence_note))))
+            if self._reinstall:
+                text = "\n\n".join((tr(
+                    "Reinstalling deletes {name}'s environment, {environment}, "
+                    "and builds it again with what spaCR pins for it now. If "
+                    "it fails, nothing is left and it can be installed again.",
+                    name=self._label, environment=state.env), text))
+            if why:
+                text = "\n\n".join((str(why), text))
         self.blurb = QLabel(text, self)
         self.blurb.setWordWrap(True)
         self.blurb.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -811,19 +831,22 @@ class BackendInstallDialog(QDialog):
         super().closeEvent(event)
 
 
-def install_backend(parent, name: str, *, watch=None) -> bool:
+def install_backend(parent, name: str, *, watch=None, reinstall: bool = False,
+                    why: str = "") -> bool:
     """Open the install dialog for one backend. True when it is ready after.
 
-    Shared by the Model Zoo screen, the Model Zoo button and the Make Masks
-    Mode box, so the three places that can start an install say the same
-    thing about it and run the same install.
+    Shared by the Model Zoo screen, the Model Zoo button, the Make Masks
+    Mode box and Plaque Assay's Figure mode, so the places that can start an
+    install say the same thing about it and run the same install.
 
     :param parent: the widget asking.
     :param name: the backend.
     :param watch: ``watch(dialog)``, called before the dialog opens, so the
         caller can connect to its ``job_*`` signals and follow the install.
+    :param reinstall: build an installed backend again (item 518).
+    :param why: a sentence saying why it is offered, shown in the dialog.
     """
-    dialog = BackendInstallDialog(name, parent)
+    dialog = BackendInstallDialog(name, parent, reinstall=reinstall, why=why)
     if watch is not None:
         watch(dialog)
     dialog.exec()

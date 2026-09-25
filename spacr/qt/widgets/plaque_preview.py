@@ -50,6 +50,7 @@ from PySide6.QtGui import (QActionGroup, QColor, QFont, QImage, QPainter,
 from PySide6.QtWidgets import (
     QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QDoubleSpinBox, QFileDialog, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
+    QMessageBox,
     QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSizePolicy, QTableWidget,
     QSpinBox, QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
@@ -2359,6 +2360,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "Install the plaque figure reader (YOLO and RapidOCR) into an "
             "environment of its own under ~/.spacr/backends; spaCR's own "
             "packages are not changed."))
+        self._reader_fix = ""
         self._install_btn.clicked.connect(lambda _checked=False: self._offer_install())
         banner.addWidget(self._install_btn)
         outer.addWidget(self._deps_banner)
@@ -2873,9 +2875,23 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if not figure:
             self._legend_box.hide()
         missing = missing_papers_packages() if figure else []
-        self._deps_banner.setVisible(bool(missing))
+        stale = ""
+        if figure and not missing:
+            from ...plaque_papers import reader_problem
+
+            kind, why = reader_problem(pdf=True)
+            stale = why if kind == "reinstall" else ""
+        self._reader_fix = "reinstall" if stale else ("install" if missing else "")
+        self._deps_banner.setVisible(bool(missing or stale))
         if missing:
             self._deps_text.setText(papers_install_message(missing))
+            self._install_btn.setText(tr("Install"))
+            self._install_btn.setVisible(True)
+        elif stale:
+            self._deps_text.setText(tr(
+                "The plaque figure reader needs reinstalling before it can "
+                "read PDFs: {why}", why=stale))
+            self._install_btn.setText(tr("Reinstall"))
             self._install_btn.setVisible(True)
         if self._figure is not None and not figure:
             self._clear_figure()
@@ -3590,25 +3606,96 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         else:
             self.set_preview_status(tr("Download failed: {why}", why=message))
 
-    def _offer_install(self, *, dialog: Any = None) -> None:
-        """Install the figure reader into an environment of its own.
+    def _offer_install(self, *, dialog: Any = None, reinstall: Optional[bool] = None,
+                       why: str = "", installer: Optional[Callable] = None) -> bool:
+        """Install, or reinstall, the figure reader right here.
 
         Its download brings dependencies of its own, so they are contained
         in a separate environment. The same dialog the Model Zoo uses for
         Cellpose 3, DINOCell and SAMCell: it says where it installs and what
         it downloads, shows progress, and Cancel removes what it built.
+        While it runs, and after, this panel's status line says what the
+        install is doing and how it ended, in the words Make Masks' install
+        button uses (item 507), so the person is never sent to the Model
+        Zoo to find out (item 518).
 
         :param dialog: replaces the install dialog, for tests.
+        :param reinstall: build the installed reader again; decided from
+            the reader's install record when None.
+        :param why: a sentence shown in the dialog saying why it is offered.
+        :param installer: ``installer(parent, name, watch=, reinstall=,
+            why=) -> bool``; :func:`.model_zoo_picker.install_backend` when
+            None. Tests pass a fake.
+        :returns: True when the reader is ready afterwards.
         """
-        from ...plaque_papers import READER_BACKEND
+        from ...plaque_papers import READER_BACKEND, reader_problem
 
-        if dialog is None:
-            from .model_zoo_picker import BackendInstallDialog
+        if dialog is not None:
+            dialog.exec()
+            ready = bool(getattr(dialog, "installed", False))
+            if ready:
+                self.set_mode(self.mode())
+            return ready
+        if reinstall is None:
+            kind, found = reader_problem(pdf=True)
+            reinstall = kind == "reinstall"
+            why = why or found
+        if installer is None:
+            from .model_zoo_picker import install_backend as installer
+        label = tr("Plaque figure reader")
+        failed: List[str] = []
+        self._install_btn.setEnabled(False)
+        try:
+            ready = bool(installer(
+                self, READER_BACKEND, reinstall=bool(reinstall), why=why,
+                watch=lambda box: self._follow_reader_install(box, failed, label)))
+        except Exception as exc:
+            LOG.warning("the figure reader install did not run", exc_info=True)
+            failed.append(str(exc))
+            self.set_preview_status("{} {}".format(tr(
+                "Installing {name} failed. Nothing was left half-built.",
+                name=label), exc))
+            ready = False
+        finally:
+            self._install_btn.setEnabled(True)
+        if ready:
+            self.set_preview_status(tr("{name} is installed", name=label))
+        elif not failed:
+            self.set_preview_status(tr("{name} was not installed.", name=label))
+        self.set_mode(self.mode())
+        return ready
 
-            dialog = BackendInstallDialog(READER_BACKEND, self)
-        dialog.exec()
-        if getattr(dialog, "installed", False):
-            self.set_mode(self.mode())
+    def _follow_reader_install(self, dialog: Any, failed: List[str],
+                               label: str) -> None:
+        """Say in the status line what the reader's install is doing.
+
+        :param dialog: the install dialog, before it opens.
+        :param failed: gets the failure message, so the caller does not
+            also say "not installed" over it.
+        :param label: the reader's translated name.
+        """
+        def progressed(text: str) -> None:
+            """One line, rewritten, saying which step the install is on."""
+            self.set_preview_status("{}: {}".format(
+                tr("Installing {name}…", name=label), text))
+
+        def failure(message: str) -> None:
+            """Say why, in the installer's own words."""
+            failed.append(message)
+            self.set_preview_status("{} {}".format(tr(
+                "Installing {name} failed. Nothing was left half-built.",
+                name=label), message))
+
+        def cancelled() -> None:
+            """Say that nothing was installed and nothing was left."""
+            failed.append("")
+            self.set_preview_status(tr("Cancelled. Nothing was left behind."))
+
+        dialog.job_started.connect(lambda: self.set_preview_status(
+            tr("Installing {name}…", name=label)))
+        dialog.job_progressed.connect(progressed)
+        dialog.job_failed.connect(failure)
+        dialog.job_cancelled.connect(cancelled)
 
     def _legend_for(self, stem: str) -> str:
         """The legend ``legends.csv`` holds for a figure, or ``''``."""
@@ -4338,7 +4425,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self.fetch_paper(reference, parent)
 
     def fetch_paper(self, reference: str, parent: Any, *,
-                    fetch: Optional[Callable] = None) -> bool:
+                    fetch: Optional[Callable] = None,
+                    offer_install: bool = True) -> bool:
         """Fetch a paper's figures into ``parent/<paper>``, off the GUI thread.
 
         The figure legends are gathered automatically:
@@ -4350,7 +4438,17 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         :param reference: a DOI, PMID, PMC id or PDF path.
         :param parent: the folder the paper's folder is made in.
         :param fetch: replaces ``fetch_paper_to_folder`` (tests).
-        :returns: True when the fetch was started.
+        :param offer_install: offer the reader's install when it is needed;
+            False for the fetch that follows an install, so one offer is made
+            per PDF however the install ends.
+        :returns: True when the fetch was started, or when a PDF that needs
+            the figure reader was answered with its install (item 518).
+
+        A PDF on disk is read by the figure reader, so when the reader is not
+        installed, or was installed before it read PDFs, the install is
+        offered here first and the PDF read once it is ready. A reader that
+        says so only while reading gets the same offer when the fetch comes
+        back (:meth:`_on_paper_fetched`).
         """
         reference = str(reference or "").strip()
         if not reference or not parent:
@@ -4358,6 +4456,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if self._paper_jobs.is_busy():
             self.set_preview_status(tr("A paper is already being fetched."))
             return False
+        if offer_install and fetch is None and reference.lower().endswith(".pdf"):
+            from ...plaque_papers import reader_problem
+
+            kind, why = reader_problem(pdf=True)
+            if kind:
+                if self._offer_install(reinstall=kind == "reinstall", why=why):
+                    return self.fetch_paper(reference, parent, fetch=fetch,
+                                            offer_install=False)
+                return True
         dest = Path(str(parent)).expanduser() / paper_folder_name(reference)
         if fetch is None:
             from ...plaque_papers import fetch_paper_to_folder as fetch
@@ -4365,8 +4472,21 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_btn.setText(tr("Fetching…"))
         self.set_preview_status(tr("Fetching {ref} into {path}…",
                                    ref=reference, path=dest))
-        self._paper_jobs.submit(lambda: fetch(reference, dest),
-                                self._on_paper_fetched)
+
+        def job() -> Dict[str, Any]:
+            """Fetch, turning a reader that must be installed into an answer."""
+            from ...plaque_papers import ReaderNeedsInstall
+
+            try:
+                return fetch(reference, dest)
+            except ReaderNeedsInstall as exc:
+                if not offer_install:
+                    raise
+                return {"needs_reader": "reinstall" if exc.reinstall else "install",
+                        "why": str(exc), "reference": reference,
+                        "parent": str(parent)}
+
+        self._paper_jobs.submit(job, self._on_paper_fetched)
         return True
 
     def _paper_idle(self) -> None:
@@ -4381,8 +4501,18 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                    why=message))
 
     def _on_paper_fetched(self, result: Dict[str, Any]) -> None:
-        """Report the fetch and switch the preview to the new folder."""
+        """Report the fetch and switch the preview to the new folder.
+
+        A fetch the figure reader could not do because it must be installed
+        or reinstalled offers that install here, then fetches again.
+        """
         self._paper_idle()
+        if result.get("needs_reader"):
+            if self._offer_install(reinstall=result["needs_reader"] == "reinstall",
+                                   why=str(result.get("why") or "")):
+                self.fetch_paper(result.get("reference"), result.get("parent"),
+                                 offer_install=False)
+            return
         folder = str(result.get("folder") or "")
         licence = result.get("licence") or tr("not stated")
         self._paper_note.setText(tr(
@@ -4517,6 +4647,7 @@ def install_plaque_mode(screen: Any) -> Optional[PlaqueModeSwitch]:
                     LOG.debug("could not keep plaque_mode", exc_info=True)
         show(mode)
 
+    screen._plaque_mode_chooser = choose
     switch.mode_changed.connect(choose)
     if isinstance(panel, PlaquePreviewPanel):
         panel.mode_changed.connect(choose)
@@ -4531,4 +4662,245 @@ def install_plaque_mode(screen: Any) -> Optional[PlaqueModeSwitch]:
                 continue
             break
     show(state["mode"])
+    _follow_the_src(screen, widgets.get("src"))
     return switch
+
+
+TO_FIGURE = "to_figure"
+TO_PLAQUE = "to_plaque"
+MIXED = "mixed"
+
+
+def input_mode_question(pdfs: Sequence[Any], images: Sequence[Any],
+                        figures: Sequence[Any], mode: Any) -> str:
+    """Which question, if any, what was found asks about the mode.
+
+    Item 518: PDFs are read in Figure mode and plaque images in Plaque mode,
+    so input for the other mode asks to switch, and input for both asks
+    which to read.
+
+    :param pdfs: PDFs found.
+    :param images: images found outside a figure folder.
+    :param figures: folders a paper was fetched into (they hold its
+        ``paper.json``, ``legends.csv`` or ``text_layer.json``).
+    :param mode: the mode Plaque Assay is in.
+    :returns: :data:`TO_FIGURE`, :data:`TO_PLAQUE`, :data:`MIXED`, or ``''``
+        when the input fits the mode.
+    """
+    mode = normalise_mode(mode)
+    figure_side = bool(pdfs) or bool(figures)
+    if figure_side and images:
+        return MIXED
+    if figure_side and mode == PLAQUE_MODE:
+        return TO_FIGURE
+    if images and not figure_side and mode == FIGURE_MODE:
+        return TO_PLAQUE
+    return ""
+
+
+def input_mode_box(parent: Any, question: str, name: str, mode: Any, *,
+                   pdfs: int = 0, images: int = 0) -> QMessageBox:
+    """The dialog that asks :func:`input_mode_question`'s question.
+
+    A :class:`QMessageBox`, so it wears the same glass card as every other
+    dialog spaCR opens. Each answer button carries the mode it chooses in
+    its ``plaque_mode`` property; Cancel carries ``''``.
+
+    :param parent: the screen.
+    :param question: :data:`TO_FIGURE`, :data:`TO_PLAQUE` or :data:`MIXED`.
+    :param name: what was dropped or found, as the person knows it.
+    :param mode: the mode Plaque Assay is in.
+    :param pdfs: how many PDFs or paper folders were found.
+    :param images: how many images were found.
+    :returns: the dialog, not yet shown.
+    """
+    mode = normalise_mode(mode)
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Question)
+    if question == MIXED:
+        box.setWindowTitle(tr("PDFs or images?"))
+        box.setText(tr("PDFs are read in Figure mode, images in Plaque mode."))
+        box.setInformativeText(tr(
+            "{name} holds {pdfs} PDF(s) or paper folder(s) and {images} "
+            "image(s). Which should Plaque Assay read?", name=name, pdfs=pdfs,
+            images=images))
+        answers = ((tr("Figure mode: read the PDFs"), FIGURE_MODE,
+                    QMessageBox.AcceptRole),
+                   (tr("Plaque mode: read the images"), PLAQUE_MODE,
+                    QMessageBox.AcceptRole),
+                   (tr("Cancel"), "", QMessageBox.RejectRole))
+    elif question == TO_FIGURE:
+        box.setWindowTitle(tr("Switch to Figure mode?"))
+        box.setText(tr("{name} holds a paper's PDF or its figures. PDFs are "
+                       "read in Figure mode, and Plaque Assay is in Plaque "
+                       "mode.", name=name))
+        answers = ((tr("Switch to Figure mode"), FIGURE_MODE,
+                    QMessageBox.AcceptRole),
+                   (tr("Stay in Plaque mode"), PLAQUE_MODE,
+                    QMessageBox.RejectRole))
+    else:
+        box.setWindowTitle(tr("Switch to Plaque mode?"))
+        box.setText(tr("{name} holds images. Plaque images are read in "
+                       "Plaque mode, and Plaque Assay is in Figure mode, "
+                       "which reads published figures.", name=name))
+        answers = ((tr("Switch to Plaque mode"), PLAQUE_MODE,
+                    QMessageBox.AcceptRole),
+                   (tr("Stay in Figure mode"), FIGURE_MODE,
+                    QMessageBox.RejectRole))
+    for text, chosen, role in answers:
+        button = box.addButton(text, role)
+        button.setProperty("plaque_mode", chosen)
+        if chosen and chosen != mode:
+            box.setDefaultButton(button)
+    return box
+
+
+def ask_input_mode(parent: Any, question: str, name: str, mode: Any, *,
+                   pdfs: int = 0, images: int = 0) -> Optional[str]:
+    """Ask :func:`input_mode_box`'s question and return the answer.
+
+    :returns: the mode to read the input in, or None to leave it unread.
+        Closing a switch question keeps the mode it is in; closing the
+        PDFs-or-images question reads neither.
+    """
+    box = input_mode_box(parent, question, name, mode, pdfs=pdfs,
+                         images=images)
+    box.exec()
+    clicked = box.clickedButton()
+    chosen = clicked.property("plaque_mode") if clicked is not None else None
+    if chosen is None:
+        return None if question == MIXED else normalise_mode(mode)
+    return normalise_mode(chosen) if chosen else None
+
+
+def choose_plaque_mode(screen: Any, mode: Any) -> None:
+    """Put Plaque Assay in ``mode`` the way its switch does.
+
+    :param screen: the Plaque Assay screen.
+    :param mode: ``'plaque'`` or ``'figure'``.
+    """
+    mode = normalise_mode(mode)
+    chooser = getattr(screen, "_plaque_mode_chooser", None)
+    if callable(chooser):
+        chooser(mode)
+        return
+    panel = getattr(screen, "_live_preview", None)
+    if isinstance(panel, PlaquePreviewPanel):
+        panel.set_mode(mode)
+    model = getattr(screen, "_settings_model", None)
+    setter = getattr(model, "set_value_for_key", None)
+    if callable(setter):
+        try:
+            setter(MODE_KEY, mode)
+        except Exception:
+            LOG.debug("could not write plaque_mode", exc_info=True)
+
+
+def follow_the_input(screen: Any, pdfs: Sequence[Any], images: Sequence[Any],
+                     figures: Sequence[Any], name: str) -> Optional[str]:
+    """Ask about the mode when the input is for the other one, and switch.
+
+    Used for a drop (:class:`spacr.qt.dnd_handlers.PlaqueDropHandler`) and
+    for a new ``src`` (:func:`_follow_the_src`).
+
+    :param screen: the Plaque Assay screen.
+    :param pdfs: PDFs found.
+    :param images: plaque images found.
+    :param figures: paper folders found.
+    :param name: what was dropped or found, as the person knows it.
+    :returns: the mode the input is to be read in, now current, or None to
+        leave it unread.
+    """
+    from ..dnd_handlers import _plaque_mode_of
+
+    mode = _plaque_mode_of(screen)
+    question = input_mode_question(pdfs, images, figures, mode)
+    if not question:
+        return mode
+    answer = ask_input_mode(screen, question, name, mode,
+                            pdfs=len(pdfs) + len(figures), images=len(images))
+    if answer and answer != mode:
+        choose_plaque_mode(screen, answer)
+    return answer
+
+
+def remember_the_input(screen: Any, source: Any, mode: Any = None) -> None:
+    """Note that ``source`` was settled for ``mode``, so writing it into
+    ``src`` does not ask again.
+
+    :param screen: the Plaque Assay screen.
+    :param source: the folder or file.
+    :param mode: the mode it was settled for; the current one when None.
+    """
+    from ..dnd_handlers import _plaque_mode_of
+
+    answers = screen.__dict__.setdefault("_plaque_input_answers", {})
+    try:
+        key = str(Path(str(source)).expanduser().resolve())
+    except (OSError, RuntimeError):
+        key = str(source)
+    answers[key] = normalise_mode(mode if mode is not None
+                                  else _plaque_mode_of(screen))
+
+
+def check_the_src(screen: Any, source: str) -> Optional[str]:
+    """Ask about the mode for a new ``src`` when it holds the other mode's input.
+
+    Asked once per source and mode, and only while the screen is on
+    screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode
+    -- already, or after the answer switched to it -- has its first PDF
+    read the way a dropped one is, so the preview and the run get the
+    paper's figure folder rather than a PDF they cannot open.
+
+    :param screen: the Plaque Assay screen.
+    :param source: ``src`` as the form holds it.
+    :returns: the question asked, or ``''``.
+    """
+    from ..dnd_handlers import PlaqueDropHandler, _plaque_mode_of, plaque_inputs
+
+    text = str(source or "").strip()
+    if not text or text in {"path", "/path/to/src", "/path"}:
+        return ""
+    path = Path(text).expanduser()
+    if not path.exists() or not screen.isVisible():
+        return ""
+    mode = _plaque_mode_of(screen)
+    answers = screen.__dict__.setdefault("_plaque_input_answers", {})
+    try:
+        key = str(path.resolve())
+    except (OSError, RuntimeError):
+        key = str(path)
+    if answers.get(key) == mode:
+        return ""
+    pdfs, images, figures = plaque_inputs([path])
+    question = input_mode_question(pdfs, images, figures, mode)
+    answers[key] = mode
+    answer: Optional[str] = mode
+    if question:
+        answer = follow_the_input(screen, pdfs, images, figures, name=path.name)
+        if answer:
+            answers[key] = answer
+    if answer == FIGURE_MODE and pdfs and not figures and (question or not images):
+        PlaqueDropHandler._take_pdfs(pdfs, screen)
+    return question
+
+
+def _follow_the_src(screen: Any, field: Any) -> None:
+    """Check each new ``src`` for the other mode's input, 400 ms after typing
+    stops, the same wait the live preview uses.
+
+    :param screen: the Plaque Assay screen.
+    :param field: the form's ``src`` control, or None.
+    """
+    signal = getattr(field, "textChanged", None)
+    if signal is None:
+        return
+    timer = QTimer(screen)
+    timer.setSingleShot(True)
+    timer.setInterval(400)
+    timer.timeout.connect(lambda: check_the_src(screen, _form_value(field)))
+    screen._plaque_src_mode_timer = timer
+    try:
+        signal.connect(lambda *_a: timer.start())
+    except Exception:
+        LOG.debug("could not follow src for the plaque mode", exc_info=True)

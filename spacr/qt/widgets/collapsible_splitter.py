@@ -274,6 +274,8 @@ class FoldSection(QWidget):
         (a Refresh button, a count); they stay visible while folded.
     :param follow_body: False keeps the section shown whatever the body's
         own flag says.
+    :param folded: start folded until the user opens it; with a
+        ``persist_key`` the opening is remembered.
     :ivar heading: the heading label (object name ``FoldHeading``).
     :ivar folder: the section's Folder; HELD, it owns the click filter.
     :ivar body: the content widget.
@@ -281,7 +283,7 @@ class FoldSection(QWidget):
 
     def __init__(self, body: QWidget, name: str, parent=None, *,
                  persist_key: str = "", stretch: int = 1, actions=(),
-                 follow_body: bool = True):
+                 follow_body: bool = True, folded: bool = False):
         """Wrap ``body`` under a heading called ``name``."""
         super().__init__(parent)
         from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
@@ -320,7 +322,8 @@ class FoldSection(QWidget):
         if body_hidden:
             body.setVisible(False)
         self.folder = make_foldable(self.heading, self._holder, name=str(name),
-                                    persist_key=persist_key)
+                                    persist_key=persist_key,
+                                    shut_by_default=bool(folded))
         lock_folded_to_bottom(self, self.folder, Qt.Vertical)
         if self._follow_body:
             body.installEventFilter(self)

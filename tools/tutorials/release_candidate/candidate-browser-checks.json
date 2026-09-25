@@ -1,6 +1,6 @@
 {
   "scope": "Candidate browser checks, not native-language listening or deployment",
-  "manifest_sha256": "8609635fd7471d162d4d39da15bcd10f4616c5a9ce96cb0e37124c4954bdb209",
+  "manifest_sha256": "06124070577ecb3fe9d7d850d67cc3154aeca8e6b83ccd00a61b807dba22380a",
   "placeholder_cases": [
     {
       "lesson": "71_investigate_hit",
@@ -78,14 +78,14 @@
       "lesson": "01_pypi_github",
       "audio_sha256": "ae049364ab85c9ca88afc9b6070ed5c67048b328c5a8b9e55275372510e40d10",
       "clocks": {
-        "audio": 29.662997,
-        "video": 29.636524,
-        "expected": 29.665969542038276,
+        "audio": 29.654274,
+        "video": 29.601277,
+        "expected": 29.65724566790259,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.275000000000002,
-        "seek_elapsed_seconds": 1.5055709190000925
+        "seek_elapsed_seconds": 1.5115217480015417
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -96,14 +96,14 @@
       "lesson": "02_conda_install",
       "audio_sha256": "c42a5d7d2b6d34204b20c38cfa2a929265eeacd3761fc4ae42822d77b20f7630",
       "clocks": {
-        "audio": 36.67798,
-        "video": 36.498721,
-        "expected": 36.675883360608196,
+        "audio": 36.700998,
+        "video": 36.384261,
+        "expected": 36.698900044820206,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 35.255,
-        "seek_elapsed_seconds": 1.5068729299982806
+        "seek_elapsed_seconds": 1.507843329996831
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -114,14 +114,14 @@
       "lesson": "03_pip_install",
       "audio_sha256": "34d8cbef2ef81a8525e541f7fede5aa294a97d99a586acf34c28f3de064e9352",
       "clocks": {
-        "audio": 31.518667,
-        "video": 31.60017,
-        "expected": 31.518667,
+        "audio": 31.512169,
+        "video": 31.589983,
+        "expected": 31.512169,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 30.115,
-        "seek_elapsed_seconds": 1.5071630859983998
+        "seek_elapsed_seconds": 1.5070745980010543
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -132,14 +132,14 @@
       "lesson": "04_platform_installers",
       "audio_sha256": "c682ac3262a2e473083209949f17b66335cc6a8d770b8646938e6b0bfc35dfa2",
       "clocks": {
-        "audio": 42.426439,
-        "video": 42.414675,
-        "expected": 42.44835186600753,
+        "audio": 42.432274,
+        "video": 42.355677,
+        "expected": 42.45418987973143,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 41.01,
-        "seek_elapsed_seconds": 1.506502165000711
+        "seek_elapsed_seconds": 1.5110828999968362
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -147,8 +147,8 @@
         {
           "requested_audio_time": 2.8325,
           "text": "Use the official spaCR GitHub release and match the installer to your operating system.",
-          "audio": 3.047712,
-          "video": 3.027167,
+          "audio": 3.060916,
+          "video": 3.019723,
           "cues": [
             "Use the official spaCR GitHub release and match the installer to your operating system."
           ]
@@ -156,8 +156,8 @@
         {
           "requested_audio_time": 10.2125,
           "text": "The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required.",
-          "audio": 10.432227,
-          "video": 10.446515,
+          "audio": 10.426826,
+          "video": 10.416384,
           "cues": [
             "The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required."
           ]
@@ -165,8 +165,8 @@
         {
           "requested_audio_time": 17.685,
           "text": "For this Linux example, we checked the downloaded file against the release checksum before running it.",
-          "audio": 17.895661,
-          "video": 17.944788,
+          "audio": 17.911302,
+          "video": 17.924468,
           "cues": [
             "For this Linux example, we checked the downloaded file against the release checksum before running it."
           ]
@@ -174,8 +174,8 @@
         {
           "requested_audio_time": 22.75,
           "text": "On Windows, select the online setup executable.",
-          "audio": 22.945004,
-          "video": 22.993321,
+          "audio": 22.960778,
+          "video": 22.973836,
           "cues": [
             "On Windows, select the online setup executable."
           ]
@@ -183,8 +183,8 @@
         {
           "requested_audio_time": 28.784999999999997,
           "text": "The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation.",
-          "audio": 28.987254,
-          "video": 28.852493,
+          "audio": 28.984881,
+          "video": 28.799867,
           "cues": [
             "The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation."
           ]
@@ -192,8 +192,8 @@
         {
           "requested_audio_time": 36.845,
           "text": "This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
-          "audio": 37.042421,
-          "video": 36.907666,
+          "audio": 37.043436,
+          "video": 36.874863,
           "cues": [
             "This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer."
           ]
@@ -201,8 +201,8 @@
         {
           "requested_audio_time": 43.599999999999994,
           "text": "On macOS, select the universal online package for Intel and Apple silicon.",
-          "audio": 43.804102,
-          "video": 43.731551,
+          "audio": 43.808309,
+          "video": 43.671825,
           "cues": [
             "On macOS, select the universal online package for Intel and Apple silicon."
           ]
@@ -210,8 +210,8 @@
         {
           "requested_audio_time": 48.27499999999999,
           "text": "The app launcher starts per-user setup if its runtime is missing.",
-          "audio": 48.464548,
-          "video": 48.516719,
+          "audio": 48.47084,
+          "video": 48.495641,
           "cues": [
             "The app launcher starts per-user setup if its runtime is missing."
           ]
@@ -219,8 +219,8 @@
         {
           "requested_audio_time": 53.0625,
           "text": "Verify the official source before approving security prompts, and allow time for downloads.",
-          "audio": 53.259419,
-          "video": 53.156166,
+          "audio": 53.269111,
+          "video": 53.089906,
           "cues": [
             "Verify the official source before approving security prompts, and allow time for downloads."
           ]
@@ -228,8 +228,8 @@
         {
           "requested_audio_time": 58.0575,
           "text": "This is source-reviewed guidance, not an executed macOS installation.",
-          "audio": 58.273948,
-          "video": 58.260937,
+          "audio": 58.269453,
+          "video": 58.230171,
           "cues": [
             "This is source-reviewed guidance, not an executed macOS installation."
           ]
@@ -237,8 +237,8 @@
         {
           "requested_audio_time": 63.0525,
           "text": "On Linux, make the verified download executable and run it from its folder.",
-          "audio": 63.256609,
-          "video": 63.300032,
+          "audio": 63.271987,
+          "video": 63.253434,
           "cues": [
             "On Linux, make the verified download executable and run it from its folder."
           ]
@@ -246,8 +246,8 @@
         {
           "requested_audio_time": 69.32499999999999,
           "text": "Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need.",
-          "audio": 69.538243,
-          "video": 69.635122,
+          "audio": 69.53107,
+          "video": 69.629351,
           "cues": [
             "Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need."
           ]
@@ -255,8 +255,8 @@
         {
           "requested_audio_time": 77.7175,
           "text": "Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
-          "audio": 77.925578,
-          "video": 78.030655,
+          "audio": 77.940208,
+          "video": 78.031141,
           "cues": [
             "Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies."
           ]
@@ -264,8 +264,8 @@
         {
           "requested_audio_time": 85.56,
           "text": "Read the actual install profile rather than inferring the backend from a successful launch.",
-          "audio": 85.778087,
-          "video": 85.78597,
+          "audio": 85.775146,
+          "video": 85.756109,
           "cues": [
             "Read the actual install profile rather than inferring the backend from a successful launch."
           ]
@@ -273,8 +273,8 @@
         {
           "requested_audio_time": 91.08500000000001,
           "text": "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",
-          "audio": 91.29408,
-          "video": 91.41448,
+          "audio": 91.312904,
+          "video": 91.402729,
           "cues": [
             "Here the request was auto and the selected backend is CUDA on NVIDIA hardware."
           ]
@@ -282,8 +282,8 @@
         {
           "requested_audio_time": 95.32499999999999,
           "text": "The installed Torch build is CUDA thirteen point two.",
-          "audio": 95.531532,
-          "video": 95.511817,
+          "audio": 95.550124,
+          "video": 95.413267,
           "cues": [
             "The installed Torch build is CUDA thirteen point two."
           ]
@@ -291,8 +291,8 @@
         {
           "requested_audio_time": 99.25999999999999,
           "text": "This identifies the selection; it is not a GPU speed benchmark.",
-          "audio": 99.478555,
-          "video": 99.317024,
+          "audio": 99.477661,
+          "video": 99.311266,
           "cues": [
             "This identifies the selection; it is not a GPU speed benchmark."
           ]
@@ -300,8 +300,8 @@
         {
           "requested_audio_time": 104.04999999999998,
           "text": "Check the installed package version, Qt import and package path.",
-          "audio": 104.256659,
-          "video": 104.306937,
+          "audio": 104.256713,
+          "video": 104.276157,
           "cues": [
             "Check the installed package version, Qt import and package path."
           ]
@@ -309,8 +309,8 @@
         {
           "requested_audio_time": 108.57249999999999,
           "text": "This private runtime contains spaCR one point five point zero point five.",
-          "audio": 108.789464,
-          "video": 108.638036,
+          "audio": 108.799426,
+          "video": 108.628576,
           "cues": [
             "This private runtime contains spaCR one point five point zero point five."
           ]
@@ -318,8 +318,8 @@
         {
           "requested_audio_time": 113.04749999999999,
           "text": "Its files come from the installation, not an editable source checkout.",
-          "audio": 113.257985,
-          "video": 113.29637,
+          "audio": 113.268894,
+          "video": 113.209606,
           "cues": [
             "Its files come from the installation, not an editable source checkout."
           ]
@@ -327,8 +327,8 @@
         {
           "requested_audio_time": 117.82,
           "text": "Successful imports do not validate every analysis or optional file format.",
-          "audio": 118.042097,
-          "video": 117.910688,
+          "audio": 118.052741,
+          "video": 117.880852,
           "cues": [
             "Successful imports do not validate every analysis or optional file format."
           ]
@@ -336,8 +336,8 @@
         {
           "requested_audio_time": 124.18499999999997,
           "text": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup.",
-          "audio": 124.394489,
-          "video": 124.41831,
+          "audio": 124.406519,
+          "video": 124.351102,
           "cues": [
             "The real first launch asks about optional diagnostic sharing, public issue reports and account setup."
           ]
@@ -345,8 +345,8 @@
         {
           "requested_audio_time": 129.0775,
           "text": "Reports would be public, so read the explanation.",
-          "audio": 129.298952,
-          "video": 129.158257,
+          "audio": 129.318295,
+          "video": 129.144167,
           "cues": [
             "Reports would be public, so read the explanation."
           ]
@@ -354,8 +354,8 @@
         {
           "requested_audio_time": 133.1925,
           "text": "This recording rejects the dialog with Escape, equivalent to Skip, keep all off.",
-          "audio": 133.422972,
-          "video": 133.375723,
+          "audio": 133.425816,
+          "video": 133.306326,
           "cues": [
             "This recording rejects the dialog with Escape, equivalent to Skip, keep all off."
           ]
@@ -363,8 +363,8 @@
         {
           "requested_audio_time": 138.815,
           "text": "No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
-          "audio": 139.034862,
-          "video": 139.124377,
+          "audio": 139.037197,
+          "video": 139.099976,
           "cues": [
             "No accounts are connected, and the private preferences confirm that sharing and issue actions remain off."
           ]
@@ -372,8 +372,8 @@
         {
           "requested_audio_time": 145.82,
           "text": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules.",
-          "audio": 146.029073,
-          "video": 145.896769,
+          "audio": 146.037011,
+          "video": 145.895314,
           "cues": [
             "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules."
           ]
@@ -381,8 +381,8 @@
         {
           "requested_audio_time": 150.32750000000001,
           "text": "The window closes normally too.",
-          "audio": 150.545738,
-          "video": 150.536319,
+          "audio": 150.554366,
+          "video": 150.438917,
           "cues": [
             "The window closes normally too."
           ]
@@ -390,8 +390,8 @@
         {
           "requested_audio_time": 155.52,
           "text": "Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
-          "audio": 155.725533,
-          "video": 155.838809,
+          "audio": 155.739348,
+          "video": 155.816393,
           "cues": [
             "Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test."
           ]
@@ -399,8 +399,8 @@
         {
           "requested_audio_time": 162.715,
           "text": "Run spacr-doctor from the installed runtime and read warnings as well as passes.",
-          "audio": 162.95674,
-          "video": 162.985545,
+          "audio": 162.943937,
+          "video": 162.955806,
           "cues": [
             "Run spacr-doctor from the installed runtime and read warnings as well as passes."
           ]
@@ -408,7 +408,7 @@
         {
           "requested_audio_time": 168.365,
           "text": "Here it confirms the installer backend but warns about a missing optional CZI dependency.",
-          "audio": 168.595212,
+          "audio": 168.587906,
           "video": 168.451958,
           "cues": [
             "Here it confirms the installer backend but warns about a missing optional CZI dependency."
@@ -417,8 +417,8 @@
         {
           "requested_audio_time": 173.5025,
           "text": "This run skipped GPU allocation, database and settings checks.",
-          "audio": 173.744126,
-          "video": 173.694657,
+          "audio": 173.715137,
+          "video": 173.63955,
           "cues": [
             "This run skipped GPU allocation, database and settings checks."
           ]
@@ -426,8 +426,8 @@
         {
           "requested_audio_time": 178.4375,
           "text": "A skipped check is not a pass; assess the suggested repair before changing the environment.",
-          "audio": 178.668636,
-          "video": 178.747101,
+          "audio": 178.664141,
+          "video": 178.728611,
           "cues": [
             "A skipped check is not a pass; assess the suggested repair before changing the environment."
           ]
@@ -435,8 +435,8 @@
         {
           "requested_audio_time": 185.59750000000003,
           "text": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem.",
-          "audio": 185.819165,
-          "video": 185.844525,
+          "audio": 185.813496,
+          "video": 185.790052,
           "cues": [
             "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem."
           ]
@@ -444,8 +444,8 @@
         {
           "requested_audio_time": 191.2375,
           "text": "Review logs for private information before sharing them.",
-          "audio": 191.467956,
-          "video": 191.583801,
+          "audio": 191.465431,
+          "video": 191.558216,
           "cues": [
             "Review logs for private information before sharing them."
           ]
@@ -453,8 +453,8 @@
         {
           "requested_audio_time": 195.21000000000004,
           "text": "Record the version used for each analysis, and treat updates deliberately.",
-          "audio": 195.428587,
-          "video": 195.434811,
+          "audio": 195.430915,
+          "video": 195.350848,
           "cues": [
             "Record the version used for each analysis, and treat updates deliberately."
           ]
@@ -462,8 +462,8 @@
         {
           "requested_audio_time": 200.16000000000003,
           "text": "The pip and Conda lessons describe the separate environment-based installation routes.",
-          "audio": 200.387096,
-          "video": 200.490352,
+          "audio": 200.396504,
+          "video": 200.468059,
           "cues": [
             "The pip and Conda lessons describe the separate environment-based installation routes."
           ]
@@ -473,16 +473,16 @@
     },
     {
       "lesson": "05_home",
-      "audio_sha256": "f699eb92730677987c3b168367d39bce43f1f678b73607ab8638c1afa15ac8e2",
+      "audio_sha256": "77019f033fce08e49b3b05eff53db26c7b4e4ffe637d39aed49dc2b6c6c7517f",
       "clocks": {
-        "audio": 36.844166,
-        "video": 36.667875,
-        "expected": 36.84542530510982,
+        "audio": 36.84598,
+        "video": 36.871449,
+        "expected": 36.847199359419534,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 35.400000000000006,
-        "seek_elapsed_seconds": 1.506572287000381
+        "requested_audio_time": 35.410000000000004,
+        "seek_elapsed_seconds": 1.5193607699984568
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -493,14 +493,14 @@
       "lesson": "06_api",
       "audio_sha256": "8b0f2c263ca48c0cb2b4a24d6d29ec44dfe291df85d123cf0a418061ed48f339",
       "clocks": {
-        "audio": 32.484101,
-        "video": 32.550465,
-        "expected": 32.48093829909455,
+        "audio": 32.447528,
+        "video": 32.521694,
+        "expected": 32.4443688598968,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 31.069999999999997,
-        "seek_elapsed_seconds": 1.506594316999326
+        "seek_elapsed_seconds": 1.517081882997445
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -511,14 +511,14 @@
       "lesson": "07_mask",
       "audio_sha256": "29f9f1583b5bacbb9ba7cb178aeef7ce848d3298e1dfede50992c6438c41a6a8",
       "clocks": {
-        "audio": 30.507835,
-        "video": 30.45009,
-        "expected": 30.508993553975536,
+        "audio": 30.572867,
+        "video": 30.206704,
+        "expected": 30.574028023606107,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 29.11,
-        "seek_elapsed_seconds": 1.5066156459997728
+        "seek_elapsed_seconds": 1.5199366939996253
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -529,14 +529,14 @@
       "lesson": "08_measure",
       "audio_sha256": "9f04a489db6b8f0f69cadc91a69d91b20cf3fd6301c4f453a6d35b35d08b280c",
       "clocks": {
-        "audio": 31.040059,
-        "video": 30.961765,
-        "expected": 31.04298942694402,
+        "audio": 33.958513,
+        "video": 33.872461,
+        "expected": 33.96171895207226,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 29.64,
-        "seek_elapsed_seconds": 1.5114938770002482
+        "seek_elapsed_seconds": 4.4277661490014
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -547,14 +547,14 @@
       "lesson": "09_annotate",
       "audio_sha256": "f6b0914afb36b770c97c78a82ccfd457ecb3666dc3a3f2f04eeff9d7cd948b8c",
       "clocks": {
-        "audio": 20.053851,
-        "video": 20.014829,
-        "expected": 20.054012289989227,
+        "audio": 19.974845,
+        "video": 19.908583,
+        "expected": 19.97500565455632,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.615,
-        "seek_elapsed_seconds": 1.5072543539990875
+        "seek_elapsed_seconds": 1.5258572040002036
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -565,14 +565,14 @@
       "lesson": "10_classify_cv",
       "audio_sha256": "aebedbd21e43e6ac24ac432b41d4de469cf4e8a858fdc78cfe32e8ce2d58ccff",
       "clocks": {
-        "audio": 29.533435,
-        "video": 29.443322,
-        "expected": 29.5309095516347,
+        "audio": 29.501253,
+        "video": 29.201622,
+        "expected": 29.49873030356583,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.12,
-        "seek_elapsed_seconds": 1.5066429380003683
+        "seek_elapsed_seconds": 1.5124876590016356
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -583,14 +583,14 @@
       "lesson": "11_classify_ml",
       "audio_sha256": "9947dd7fe1848119e3307d6c2ba29fac6044da43320ae40f49ac834423cdfac9",
       "clocks": {
-        "audio": 25.904287,
-        "video": 25.8323,
-        "expected": 25.904578251788553,
+        "audio": 25.860902,
+        "video": 25.805434,
+        "expected": 25.86119276399443,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.47,
-        "seek_elapsed_seconds": 1.50691320399892
+        "seek_elapsed_seconds": 1.5076218729991524
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -601,14 +601,14 @@
       "lesson": "12_map_barcodes",
       "audio_sha256": "3732e86bdcf7f6b58aeb84213bba4045eb7cd96a85700ee9bd92e853499a8df8",
       "clocks": {
-        "audio": 27.294287,
-        "video": 27.344604,
-        "expected": 27.29482361215461,
+        "audio": 27.291333,
+        "video": 27.291894,
+        "expected": 27.29186955407827,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.895,
-        "seek_elapsed_seconds": 1.5057958599991252
+        "seek_elapsed_seconds": 1.5074153630012006
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -616,8 +616,8 @@
         {
           "requested_audio_time": 1.125,
           "text": "From Home, open Map Barcodes.",
-          "audio": 1.33792,
-          "video": 1.36863,
+          "audio": 1.334122,
+          "video": 1.339025,
           "cues": [
             "From Home, open Map Barcodes."
           ]
@@ -625,8 +625,8 @@
         {
           "requested_audio_time": 5.0575,
           "text": "The inputs are sequencing reads and reference tables that name the barcodes in your library.",
-          "audio": 5.275928,
-          "video": 5.189422,
+          "audio": 5.251019,
+          "video": 5.096124,
           "cues": [
             "The inputs are sequencing reads and reference tables that name the barcodes in your library."
           ]
@@ -634,8 +634,8 @@
         {
           "requested_audio_time": 11.2925,
           "text": "The output counts each observed combination, ready for sequencing quality control and downstream analysis.",
-          "audio": 11.499401,
-          "video": 11.491138,
+          "audio": 11.498862,
+          "video": 11.422882,
           "cues": [
             "The output counts each observed combination, ready for sequencing quality control and downstream analysis."
           ]
@@ -643,8 +643,8 @@
         {
           "requested_audio_time": 17.3225,
           "text": "Click Load test data and select both mates of the first archive run.",
-          "audio": 17.536223,
-          "video": 17.57995,
+          "audio": 17.513921,
+          "video": 17.5644,
           "cues": [
             "Click Load test data and select both mates of the first archive run."
           ]
@@ -652,8 +652,8 @@
         {
           "requested_audio_time": 22.45,
           "text": "Limit each file to ten thousand reads for this example, then wait for the paired sample to download.",
-          "audio": 22.667994,
-          "video": 22.560655,
+          "audio": 22.649799,
+          "video": 22.454275,
           "cues": [
             "Limit each file to ten thousand reads for this example, then wait for the paired sample to download."
           ]
@@ -661,8 +661,8 @@
         {
           "requested_audio_time": 27.697499999999998,
           "text": "Select the matching column, row and guide reference tables.",
-          "audio": 27.910487,
-          "video": 27.894367,
+          "audio": 27.916775,
+          "video": 27.847433,
           "cues": [
             "Select the matching column, row and guide reference tables."
           ]
@@ -670,8 +670,8 @@
         {
           "requested_audio_time": 31.025,
           "text": "Each table pairs barcode names with sequences.",
-          "audio": 31.245028,
-          "video": 31.128791,
+          "audio": 31.236172,
+          "video": 31.030318,
           "cues": [
             "Each table pairs barcode names with sequences."
           ]
@@ -679,8 +679,8 @@
         {
           "requested_audio_time": 35.8425,
           "text": "Keep those names consistent with the plate layout and guide identifiers used by the rest of your analysis.",
-          "audio": 36.048265,
-          "video": 36.05265,
+          "audio": 36.041616,
+          "video": 35.998836,
           "cues": [
             "Keep those names consistent with the plate layout and guide identifiers used by the rest of your analysis."
           ]
@@ -688,8 +688,8 @@
         {
           "requested_audio_time": 40.8575,
           "text": "Open Find barcodes and start the search.",
-          "audio": 41.070878,
-          "video": 41.096777,
+          "audio": 41.064287,
+          "video": 41.090893,
           "cues": [
             "Open Find barcodes and start the search."
           ]
@@ -697,8 +697,8 @@
         {
           "requested_audio_time": 44.59,
           "text": "The preview samples both mates and checks barcode positions and orientations.",
-          "audio": 44.80307,
-          "video": 44.735459,
+          "audio": 44.802512,
+          "video": 44.648626,
           "cues": [
             "The preview samples both mates and checks barcode positions and orientations."
           ]
@@ -706,8 +706,8 @@
         {
           "requested_audio_time": 48.57000000000001,
           "text": "Wait for the results before changing the main form.",
-          "audio": 48.791002,
-          "video": 48.835712,
+          "audio": 48.795282,
+          "video": 48.82245,
           "cues": [
             "Wait for the results before changing the main form."
           ]
@@ -715,8 +715,8 @@
         {
           "requested_audio_time": 53.95250000000001,
           "text": "Compare Observed with By chance, then inspect the proposed orientation, offset and verdict for each barcode.",
-          "audio": 54.159546,
-          "video": 54.060629,
+          "audio": 54.167527,
+          "video": 53.959047,
           "cues": [
             "Compare Observed with By chance, then inspect the proposed orientation, offset and verdict for each barcode."
           ]
@@ -724,8 +724,8 @@
         {
           "requested_audio_time": 59.92750000000001,
           "text": "Prefer positions supported by many reads and distinct expected references.",
-          "audio": 60.149094,
-          "video": 60.098422,
+          "audio": 60.140533,
+          "video": 60.01738,
           "cues": [
             "Prefer positions supported by many reads and distinct expected references."
           ]
@@ -733,8 +733,8 @@
         {
           "requested_audio_time": 64.3225,
           "text": "Open the verdict explanation if the result is uncertain.",
-          "audio": 64.552396,
-          "video": 64.390067,
+          "audio": 64.545606,
+          "video": 64.323764,
           "cues": [
             "Open the verdict explanation if the result is uncertain."
           ]
@@ -742,8 +742,8 @@
         {
           "requested_audio_time": 67.8675,
           "text": "Inspect the guide results for both mates.",
-          "audio": 68.083893,
-          "video": 68.057731,
+          "audio": 68.100565,
+          "video": 68.005586,
           "cues": [
             "Inspect the guide results for both mates."
           ]
@@ -751,8 +751,8 @@
         {
           "requested_audio_time": 73.00999999999999,
           "text": "In this example, read one supports the reverse-complemented guide sequence and read two supports the stored orientation.",
-          "audio": 73.219113,
-          "video": 73.293855,
+          "audio": 73.216961,
+          "video": 73.288595,
           "cues": [
             "In this example, read one supports the reverse-complemented guide sequence and read two supports the stored orientation."
           ]
@@ -760,8 +760,8 @@
         {
           "requested_audio_time": 79.195,
           "text": "Use the results for your library and read pair when choosing an orientation.",
-          "audio": 79.412908,
-          "video": 79.305221,
+          "audio": 79.41268,
+          "video": 79.196556,
           "cues": [
             "Use the results for your library and read pair when choosing an orientation."
           ]
@@ -769,8 +769,8 @@
         {
           "requested_audio_time": 82.87249999999999,
           "text": "Check the row barcode as well.",
-          "audio": 83.099237,
-          "video": 83.109865,
+          "audio": 83.077733,
+          "video": 83.079096,
           "cues": [
             "Check the row barcode as well."
           ]
@@ -778,8 +778,8 @@
         {
           "requested_audio_time": 86.66999999999999,
           "text": "Here, read one supports its reverse complement and read two supports the stored sequence.",
-          "audio": 86.883765,
-          "video": 86.805418,
+          "audio": 86.877158,
+          "video": 86.672768,
           "cues": [
             "Here, read one supports its reverse complement and read two supports the stored sequence."
           ]
@@ -787,8 +787,8 @@
         {
           "requested_audio_time": 92.90499999999999,
           "text": "Review column, guide and row together so the complete combination identifies the intended well and guide.",
-          "audio": 93.136348,
-          "video": 93.092121,
+          "audio": 93.124716,
+          "video": 93.058262,
           "cues": [
             "Review column, guide and row together so the complete combination identifies the intended well and guide."
           ]
@@ -796,8 +796,8 @@
         {
           "requested_audio_time": 98.24249999999998,
           "text": "Open the read viewer to inspect individual reads.",
-          "audio": 98.48124,
-          "video": 98.480968,
+          "audio": 98.471246,
+          "video": 98.455461,
           "cues": [
             "Open the read viewer to inspect individual reads."
           ]
@@ -805,8 +805,8 @@
         {
           "requested_audio_time": 102.12999999999998,
           "text": "Use the colour legend to find the column, guide, row and anchor segments.",
-          "audio": 102.355228,
-          "video": 102.256708,
+          "audio": 102.347838,
+          "video": 102.166952,
           "cues": [
             "Use the colour legend to find the column, guide, row and anchor segments."
           ]
@@ -814,8 +814,8 @@
         {
           "requested_audio_time": 106.90249999999997,
           "text": "Check that the proposed positions agree with the expected library structure.",
-          "audio": 107.139922,
-          "video": 107.129527,
+          "audio": 107.104924,
+          "video": 107.090644,
           "cues": [
             "Check that the proposed positions agree with the expected library structure."
           ]
@@ -823,8 +823,8 @@
         {
           "requested_audio_time": 112.47749999999996,
           "text": "Review the proposed extraction settings, then click Apply these settings to copy them into the form.",
-          "audio": 112.681073,
-          "video": 112.543529,
+          "audio": 112.714561,
+          "video": 112.479711,
           "cues": [
             "Review the proposed extraction settings, then click Apply these settings to copy them into the form."
           ]
@@ -832,8 +832,8 @@
         {
           "requested_audio_time": 117.19499999999996,
           "text": "The example uses an extraction window of eighty-nine bases.",
-          "audio": 117.429093,
-          "video": 117.372101,
+          "audio": 117.421793,
+          "video": 117.303656,
           "cues": [
             "The example uses an extraction window of eighty-nine bases."
           ]
@@ -841,8 +841,8 @@
         {
           "requested_audio_time": 120.64749999999998,
           "text": "Check the updated fields before starting the run.",
-          "audio": 120.869787,
-          "video": 120.711653,
+          "audio": 120.890995,
+          "video": 120.649871,
           "cues": [
             "Check the updated fields before starting the run."
           ]
@@ -850,8 +850,8 @@
         {
           "requested_audio_time": 124.71499999999997,
           "text": "Follow the orientation notes when selecting your final reference files.",
-          "audio": 124.946924,
-          "video": 124.909753,
+          "audio": 124.947562,
+          "video": 124.854772,
           "cues": [
             "Follow the orientation notes when selecting your final reference files."
           ]
@@ -859,8 +859,8 @@
         {
           "requested_audio_time": 130.69499999999996,
           "text": "For this example, select reverse-complemented copies of the row and guide references and keep the column reference as stored.",
-          "audio": 130.915435,
-          "video": 130.963052,
+          "audio": 130.918512,
+          "video": 130.95426,
           "cues": [
             "For this example, select reverse-complemented copies of the row and guide references and keep the column reference as stored."
           ]
@@ -868,8 +868,8 @@
         {
           "requested_audio_time": 136.34499999999997,
           "text": "Preserve every barcode name when preparing those copies.",
-          "audio": 136.574456,
-          "video": 136.451207,
+          "audio": 136.563435,
+          "video": 136.34768,
           "cues": [
             "Preserve every barcode name when preparing those copies."
           ]
@@ -877,8 +877,8 @@
         {
           "requested_audio_time": 140.90749999999997,
           "text": "Choose the downloaded read pair, two workers and chunks of one thousand reads.",
-          "audio": 141.12401,
-          "video": 141.123544,
+          "audio": 141.136361,
+          "video": 141.07299,
           "cues": [
             "Choose the downloaded read pair, two workers and chunks of one thousand reads."
           ]
@@ -886,8 +886,8 @@
         {
           "requested_audio_time": 145.56499999999994,
           "text": "Enable annotated-read saving if you want to inspect individual assignments.",
-          "audio": 145.7914,
-          "video": 145.645817,
+          "audio": 145.782508,
+          "video": 145.567861,
           "cues": [
             "Enable annotated-read saving if you want to inspect individual assignments."
           ]
@@ -895,8 +895,8 @@
         {
           "requested_audio_time": 149.49999999999994,
           "text": "Click Run; this mapping workflow uses the CPU.",
-          "audio": 149.714016,
-          "video": 149.712728,
+          "audio": 149.73569,
+          "video": 149.681212,
           "cues": [
             "Click Run; this mapping workflow uses the CPU."
           ]
@@ -904,8 +904,8 @@
         {
           "requested_audio_time": 154.59749999999997,
           "text": "When mapping finishes, inspect unique_combinations.csv and the quality-control outputs.",
-          "audio": 154.824165,
-          "video": 154.655108,
+          "audio": 154.823562,
+          "video": 154.600539,
           "cues": [
             "When mapping finishes, inspect unique_combinations.csv and the quality-control outputs."
           ]
@@ -913,8 +913,8 @@
         {
           "requested_audio_time": 159.71749999999997,
           "text": "The count table links column, row and guide names with read counts.",
-          "audio": 159.953225,
-          "video": 159.870981,
+          "audio": 159.955653,
+          "video": 159.797189,
           "cues": [
             "The count table links column, row and guide names with read counts."
           ]
@@ -922,8 +922,8 @@
         {
           "requested_audio_time": 165.40999999999997,
           "text": "Review unmatched and ambiguous assignments in Barcode QC, then pair these counts with phenotype scores in Regression.",
-          "audio": 165.633195,
-          "video": 165.63653,
+          "audio": 165.639278,
+          "video": 165.591181,
           "cues": [
             "Review unmatched and ambiguous assignments in Barcode QC, then pair these counts with phenotype scores in Regression."
           ]
@@ -935,14 +935,14 @@
       "lesson": "13_regression",
       "audio_sha256": "906875a42f785bfec00fd271775bc0f057b8b6c2c99011a14dc2258e2fec1491",
       "clocks": {
-        "audio": 22.894114,
-        "video": 22.82049,
-        "expected": 22.895070154125857,
+        "audio": 22.897535,
+        "video": 22.714065,
+        "expected": 22.898491297001154,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.49,
-        "seek_elapsed_seconds": 1.508480127000439
+        "seek_elapsed_seconds": 1.5071928819997993
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -953,14 +953,14 @@
       "lesson": "14_make_masks",
       "audio_sha256": "0e1251baf83e9d430f8f5603fdee7cb7dd97e139429aa1e090f34dbbbb2d50be",
       "clocks": {
-        "audio": 26.135101,
-        "video": 26.142498,
-        "expected": 26.134523132546246,
+        "audio": 26.161476,
+        "video": 26.112519,
+        "expected": 26.16089754937444,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.7,
-        "seek_elapsed_seconds": 1.506552933000421
+        "seek_elapsed_seconds": 1.5070339710000553
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -971,14 +971,14 @@
       "lesson": "15_image_umap",
       "audio_sha256": "92374fb9c3109b0e2e4a1524335a3e2da1475129314340c4c0e804d8da01615d",
       "clocks": {
-        "audio": 29.388817,
-        "video": 29.361789,
-        "expected": 29.391062878467537,
+        "audio": 29.382143,
+        "video": 29.304484,
+        "expected": 29.384388368443847,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.985,
-        "seek_elapsed_seconds": 1.507651738000277
+        "seek_elapsed_seconds": 1.5109527650020027
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -989,14 +989,14 @@
       "lesson": "16_activation",
       "audio_sha256": "8689be1521d2f36867690d703d56e818f14930a67d2de20609ed2fd158523ce8",
       "clocks": {
-        "audio": 31.071764,
-        "video": 30.943683,
-        "expected": 31.0714484266574,
+        "audio": 31.073304,
+        "video": 30.857478,
+        "expected": 31.072988411016738,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 29.675,
-        "seek_elapsed_seconds": 1.505564045999563
+        "seek_elapsed_seconds": 1.5061278590001166
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1007,14 +1007,14 @@
       "lesson": "17_timelapse",
       "audio_sha256": "712a21a680f4e8fbcb8b2a92189761a47ddef7f2d245e3dffa2bed9be3ddf146",
       "clocks": {
-        "audio": 32.357453,
-        "video": 32.421965,
-        "expected": 32.357453,
+        "audio": 32.332246,
+        "video": 32.416573,
+        "expected": 32.332246,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 30.939999999999998,
-        "seek_elapsed_seconds": 1.5059286239993526
+        "seek_elapsed_seconds": 1.5076389070018195
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1025,14 +1025,14 @@
       "lesson": "18_motility",
       "audio_sha256": "7a4bf6152f58d9aa9b6d337ffaec157fb3c2226da184c5fe1cc4f4454a56763a",
       "clocks": {
-        "audio": 24.647806,
-        "video": 24.721908,
-        "expected": 24.64999128291515,
+        "audio": 24.647008,
+        "video": 24.719146,
+        "expected": 24.649193212164196,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.234999999999996,
-        "seek_elapsed_seconds": 1.5067790119992424
+        "seek_elapsed_seconds": 1.5095412139999098
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1043,14 +1043,14 @@
       "lesson": "19_train_cellpose",
       "audio_sha256": "3560db8d365079cc829442874e1a88724a49e3152f81f477c61c8cb47a46a68a",
       "clocks": {
-        "audio": 39.338327,
-        "video": 39.235489,
-        "expected": 39.33723621383252,
+        "audio": 39.316904,
+        "video": 39.167755,
+        "expected": 39.315813807856564,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 37.92000000000001,
-        "seek_elapsed_seconds": 1.505487135000294
+        "seek_elapsed_seconds": 1.507182859997556
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1061,14 +1061,14 @@
       "lesson": "20_cellpose_masks",
       "audio_sha256": "efb383f6e32fce2312fb9c7c9592b43b981c3d61e7150293992ae4bb6ee9bdde",
       "clocks": {
-        "audio": 29.258695,
-        "video": 29.224939,
-        "expected": 29.258695,
+        "audio": 29.24093,
+        "video": 29.173984,
+        "expected": 29.24093,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.845,
-        "seek_elapsed_seconds": 1.5084041280006204
+        "seek_elapsed_seconds": 1.507043417001114
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1079,14 +1079,14 @@
       "lesson": "21_model_compare",
       "audio_sha256": "98b3505d4d968aefda9436c2683d12c640537da84f989757e40b98d60006736e",
       "clocks": {
-        "audio": 28.290789,
-        "video": 28.132787,
-        "expected": 28.29223543330436,
+        "audio": 28.216217,
+        "video": 28.007083,
+        "expected": 28.217659620635,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.825,
-        "seek_elapsed_seconds": 1.5064688259990362
+        "seek_elapsed_seconds": 1.507970728998771
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1094,8 +1094,8 @@
         {
           "requested_audio_time": 1.645,
           "text": "From Home, open Make Masks and choose Model Compare.",
-          "audio": 1.859508,
-          "video": 1.873486,
+          "audio": 1.869086,
+          "video": 1.844004,
           "cues": [
             "From Home, open Make Masks and choose Model Compare."
           ]
@@ -1103,8 +1103,8 @@
         {
           "requested_audio_time": 5.6899999999999995,
           "text": "Use this workflow to inspect segmentation differences on the same image.",
-          "audio": 5.88787,
-          "video": 5.81359,
+          "audio": 5.90376,
+          "video": 5.716797,
           "cues": [
             "Use this workflow to inspect segmentation differences on the same image."
           ]
@@ -1112,8 +1112,8 @@
         {
           "requested_audio_time": 10.315,
           "text": "This walkthrough uses the linked saved-mask example and its Python helper.",
-          "audio": 10.522284,
-          "video": 10.53915,
+          "audio": 10.504331,
+          "video": 10.486896,
           "cues": [
             "This walkthrough uses the linked saved-mask example and its Python helper."
           ]
@@ -1121,8 +1121,8 @@
         {
           "requested_audio_time": 15.169999999999998,
           "text": "Keep the model weights and preprocessing settings with each set of masks.",
-          "audio": 15.383797,
-          "video": 15.387424,
+          "audio": 15.372234,
+          "video": 15.318546,
           "cues": [
             "Keep the model weights and preprocessing settings with each set of masks."
           ]
@@ -1130,8 +1130,8 @@
         {
           "requested_audio_time": 21.8525,
           "text": "When preparing your own comparison, use the same fields and pixel geometry so object overlaps refer to corresponding image locations.",
-          "audio": 22.050814,
-          "video": 22.123761,
+          "audio": 22.04259,
+          "video": 22.109111,
           "cues": [
             "When preparing your own comparison, use the same fields and pixel geometry so object overlaps refer to corresponding image locations."
           ]
@@ -1139,8 +1139,8 @@
         {
           "requested_audio_time": 27.689999999999998,
           "text": "Extract the linked example.",
-          "audio": 27.906373,
-          "video": 27.950179,
+          "audio": 27.903725,
+          "video": 27.913502,
           "cues": [
             "Extract the linked example."
           ]
@@ -1148,8 +1148,8 @@
         {
           "requested_audio_time": 30.502499999999998,
           "text": "The inputs are image.tif, batch.tif and preview.npy.",
-          "audio": 30.705709,
-          "video": 30.679528,
+          "audio": 30.706205,
+          "video": 30.585773,
           "cues": [
             "The inputs are image.tif, batch.tif and preview.npy."
           ]
@@ -1157,8 +1157,8 @@
         {
           "requested_audio_time": 35.6225,
           "text": "Both masks describe the same field; they were produced with the same model and different preprocessing settings.",
-          "audio": 35.833659,
-          "video": 35.89198,
+          "audio": 35.814051,
+          "video": 35.877617,
           "cues": [
             "Both masks describe the same field; they were produced with the same model and different preprocessing settings."
           ]
@@ -1166,8 +1166,8 @@
         {
           "requested_audio_time": 40.4725,
           "text": "Keep their original filenames for the supplied helper.",
-          "audio": 40.668155,
-          "video": 40.598543,
+          "audio": 40.675542,
+          "video": 40.474569,
           "cues": [
             "Keep their original filenames for the supplied helper."
           ]
@@ -1175,8 +1175,8 @@
         {
           "requested_audio_time": 44.307500000000005,
           "text": "Run the supplied helper in your spaCR Python environment.",
-          "audio": 44.523679,
-          "video": 44.544354,
+          "audio": 44.516759,
+          "video": 44.457005,
           "cues": [
             "Run the supplied helper in your spaCR Python environment."
           ]
@@ -1184,8 +1184,8 @@
         {
           "requested_audio_time": 48.58500000000001,
           "text": "Set source to the example input folder and output to a new results folder.",
-          "audio": 48.807951,
-          "video": 48.694167,
+          "audio": 48.798775,
+          "video": 48.587484,
           "cues": [
             "Set source to the example input folder and output to a new results folder."
           ]
@@ -1193,8 +1193,8 @@
         {
           "requested_audio_time": 54.377500000000005,
           "text": "The printed summary lists object counts, matched objects, mean matched overlap and adjusted Rand index.",
-          "audio": 54.587481,
-          "video": 54.565478,
+          "audio": 54.578078,
+          "video": 54.38028,
           "cues": [
             "The printed summary lists object counts, matched objects, mean matched overlap and adjusted Rand index."
           ]
@@ -1202,8 +1202,8 @@
         {
           "requested_audio_time": 60.94250000000001,
           "text": "Higher agreement means the masks are more similar; it does not by itself establish which mask is correct.",
-          "audio": 61.168984,
-          "video": 61.173522,
+          "audio": 61.177216,
+          "video": 61.089584,
           "cues": [
             "Higher agreement means the masks are more similar; it does not by itself establish which mask is correct."
           ]
@@ -1211,8 +1211,8 @@
         {
           "requested_audio_time": 65.7,
           "text": "Open comparison.png.",
-          "audio": 65.911648,
-          "video": 65.947881,
+          "audio": 65.90938,
+          "video": 65.881813,
           "cues": [
             "Open comparison.png."
           ]
@@ -1220,8 +1220,8 @@
         {
           "requested_audio_time": 69.70250000000001,
           "text": "Compare the two mask overlays with the image and inspect splits, merges and boundary shifts.",
-          "audio": 69.921866,
-          "video": 69.824642,
+          "audio": 69.949708,
+          "video": 69.706063,
           "cues": [
             "Compare the two mask overlays with the image and inspect splits, merges and boundary shifts."
           ]
@@ -1229,8 +1229,8 @@
         {
           "requested_audio_time": 74.67250000000001,
           "text": "The right panel highlights pixels where foreground membership differs.",
-          "audio": 74.883356,
-          "video": 74.900621,
+          "audio": 74.898335,
+          "video": 74.822027,
           "cues": [
             "The right panel highlights pixels where foreground membership differs."
           ]
@@ -1238,8 +1238,8 @@
         {
           "requested_audio_time": 78.3825,
           "text": "Check touching-object boundaries in the overlays as well.",
-          "audio": 78.601851,
-          "video": 78.506777,
+          "audio": 78.628283,
+          "video": 78.386507,
           "cues": [
             "Check touching-object boundaries in the overlays as well."
           ]
@@ -1247,8 +1247,8 @@
         {
           "requested_audio_time": 84.72999999999999,
           "text": "Open comparison.csv for the numerical results and retain it with comparison.png, the inputs and the recorded settings.",
-          "audio": 84.93531,
-          "video": 84.892987,
+          "audio": 84.961982,
+          "video": 84.734332,
           "cues": [
             "Open comparison.csv for the numerical results and retain it with comparison.png, the inputs and the recorded settings."
           ]
@@ -1256,8 +1256,8 @@
         {
           "requested_audio_time": 93.19749999999999,
           "text": "Use reviewed reference masks and representative fields when comparing segmentation accuracy or choosing a model for your experiment.",
-          "audio": 93.409754,
-          "video": 93.362607,
+          "audio": 93.440347,
+          "video": 93.202264,
           "cues": [
             "Use reviewed reference masks and representative fields when comparing segmentation accuracy or choosing a model for your experiment."
           ]
@@ -1269,14 +1269,14 @@
       "lesson": "22_model_zoo",
       "audio_sha256": "6cebcd7917176bde1e8990c7815d29b258cd488410c550c70dfcf3299f8510eb",
       "clocks": {
-        "audio": 21.598181,
-        "video": 21.571127,
-        "expected": 21.601871524747963,
+        "audio": 21.627869,
+        "video": 21.405895,
+        "expected": 21.6315645975964,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.154999999999998,
-        "seek_elapsed_seconds": 1.505473945000631
+        "seek_elapsed_seconds": 1.5221838899997238
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1284,8 +1284,8 @@
         {
           "requested_audio_time": 1.635,
           "text": "From Home, open Make Masks, then choose Model Zoo.",
-          "audio": 1.849833,
-          "video": 1.868448,
+          "audio": 1.858913,
+          "video": 1.77152,
           "cues": [
             "From Home, open Make Masks, then choose Model Zoo."
           ]
@@ -1293,8 +1293,8 @@
         {
           "requested_audio_time": 5.7125,
           "text": "Use this page to find a segmentation model and try it on a small image set.",
-          "audio": 5.934052,
-          "video": 5.944488,
+          "audio": 5.920794,
+          "video": 5.837503,
           "cues": [
             "Use this page to find a segmentation model and try it on a small image set."
           ]
@@ -1302,8 +1302,8 @@
         {
           "requested_audio_time": 10.4175,
           "text": "Click Choose folder and select your model directory to scan it.",
-          "audio": 10.644962,
-          "video": 10.608196,
+          "audio": 10.644034,
+          "video": 10.493791,
           "cues": [
             "Click Choose folder and select your model directory to scan it."
           ]
@@ -1311,8 +1311,8 @@
         {
           "requested_audio_time": 13.592500000000001,
           "text": "If you type the path instead, click Scan.",
-          "audio": 13.805744,
-          "video": 13.845734,
+          "audio": 13.802801,
+          "video": 13.774364,
           "cues": [
             "If you type the path instead, click Scan."
           ]
@@ -1320,8 +1320,8 @@
         {
           "requested_audio_time": 17.27,
           "text": "Turn on the source headings you want to browse, such as Cellpose or local models.",
-          "audio": 17.489874,
-          "video": 17.528999,
+          "audio": 17.477583,
+          "video": 17.444098,
           "cues": [
             "Turn on the source headings you want to browse, such as Cellpose or local models."
           ]
@@ -1329,8 +1329,8 @@
         {
           "requested_audio_time": 22.369999999999997,
           "text": "Select a model family and use its Version control to choose the checkpoint.",
-          "audio": 22.581414,
-          "video": 22.597753,
+          "audio": 22.603543,
+          "video": 22.495237,
           "cues": [
             "Select a model family and use its Version control to choose the checkpoint."
           ]
@@ -1338,8 +1338,8 @@
         {
           "requested_audio_time": 26.857499999999998,
           "text": "Read the details for its image type, training information and local path.",
-          "audio": 27.076576,
-          "video": 27.125888,
+          "audio": 27.096054,
+          "video": 27.091715,
           "cues": [
             "Read the details for its image type, training information and local path."
           ]
@@ -1347,8 +1347,8 @@
         {
           "requested_audio_time": 31.507499999999997,
           "text": "For a remote checkpoint, choose a Save to folder and click Download before trying it.",
-          "audio": 31.711053,
-          "video": 31.760096,
+          "audio": 31.709986,
+          "video": 31.676906,
           "cues": [
             "For a remote checkpoint, choose a Save to folder and click Download before trying it."
           ]
@@ -1356,8 +1356,8 @@
         {
           "requested_audio_time": 36.7875,
           "text": "Extract the linked example and choose its images folder under Test on fields.",
-          "audio": 36.999384,
-          "video": 37.064278,
+          "audio": 37.026009,
+          "video": 37.03161,
           "cues": [
             "Extract the linked example and choose its images folder under Test on fields."
           ]
@@ -1365,8 +1365,8 @@
         {
           "requested_audio_time": 40.150000000000006,
           "text": "Set the field count to three.",
-          "audio": 40.359399,
-          "video": 40.382734,
+          "audio": 40.365095,
+          "video": 40.261934,
           "cues": [
             "Set the field count to three."
           ]
@@ -1374,8 +1374,8 @@
         {
           "requested_audio_time": 43.9375,
           "text": "For your own images, start with a small set that includes typical fields and difficult cases.",
-          "audio": 44.154143,
-          "video": 44.173676,
+          "audio": 44.12988,
+          "video": 44.071858,
           "cues": [
             "For your own images, start with a small set that includes typical fields and difficult cases."
           ]
@@ -1383,8 +1383,8 @@
         {
           "requested_audio_time": 49.227500000000006,
           "text": "Select the local segmentation model and click Test on fields.",
-          "audio": 49.451591,
-          "video": 49.4927,
+          "audio": 49.439701,
+          "video": 49.398869,
           "cues": [
             "Select the local segmentation model and click Test on fields."
           ]
@@ -1392,8 +1392,8 @@
         {
           "requested_audio_time": 52.15500000000001,
           "text": "Wait for the trial to finish.",
-          "audio": 52.371604,
-          "video": 52.389186,
+          "audio": 52.380474,
+          "video": 52.288228,
           "cues": [
             "Wait for the trial to finish."
           ]
@@ -1401,8 +1401,8 @@
         {
           "requested_audio_time": 55.29750000000001,
           "text": "Larger images and models can take longer, especially on a CPU.",
-          "audio": 55.522217,
-          "video": 55.557403,
+          "audio": 55.510289,
+          "video": 55.493603,
           "cues": [
             "Larger images and models can take longer, especially on a CPU."
           ]
@@ -1410,8 +1410,8 @@
         {
           "requested_audio_time": 59.61250000000001,
           "text": "Select a result row to inspect its mask preview.",
-          "audio": 59.845907,
-          "video": 59.861854,
+          "audio": 59.823757,
+          "video": 59.788684,
           "cues": [
             "Select a result row to inspect its mask preview."
           ]
@@ -1419,8 +1419,8 @@
         {
           "requested_audio_time": 63.31500000000001,
           "text": "Check boundaries, touching objects and missed objects against the image.",
-          "audio": 63.538299,
-          "video": 63.576076,
+          "audio": 63.54829,
+          "video": 63.550693,
           "cues": [
             "Check boundaries, touching objects and missed objects against the image."
           ]
@@ -1428,8 +1428,8 @@
         {
           "requested_audio_time": 68.0575,
           "text": "Use the object count and quality flags to help find fields that need closer inspection.",
-          "audio": 68.28898,
-          "video": 68.297148,
+          "audio": 68.282667,
+          "video": 68.257744,
           "cues": [
             "Use the object count and quality flags to help find fields that need closer inspection."
           ]
@@ -1437,8 +1437,8 @@
         {
           "requested_audio_time": 73.74750000000002,
           "text": "Review the field summaries, then keep the chosen checkpoint path for your analysis module.",
-          "audio": 73.967288,
-          "video": 73.998291,
+          "audio": 73.966875,
+          "video": 73.968083,
           "cues": [
             "Review the field summaries, then keep the chosen checkpoint path for your analysis module."
           ]
@@ -1446,8 +1446,8 @@
         {
           "requested_audio_time": 79.81250000000001,
           "text": "To compare two different model families on the same images, select both rows and choose Compare the two selected.",
-          "audio": 80.020627,
-          "video": 80.060452,
+          "audio": 80.04721,
+          "video": 80.003309,
           "cues": [
             "To compare two different model families on the same images, select both rows and choose Compare the two selected."
           ]
@@ -1455,8 +1455,8 @@
         {
           "requested_audio_time": 85.31500000000001,
           "text": "Use the version control to try another version of one family.",
-          "audio": 85.539403,
-          "video": 85.578428,
+          "audio": 85.545971,
+          "video": 85.545394,
           "cues": [
             "Use the version control to try another version of one family."
           ]
@@ -1468,14 +1468,14 @@
       "lesson": "23_agreement",
       "audio_sha256": "9823c77567ddb8e42f400e5946d3472bcdc4332fc84552e27f9b37f003cc4e10",
       "clocks": {
-        "audio": 28.742016,
-        "video": 28.72286,
-        "expected": 28.74029385569421,
+        "audio": 28.745445,
+        "video": 28.658201,
+        "expected": 28.74372265023775,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.319999999999997,
-        "seek_elapsed_seconds": 1.507398686999295
+        "seek_elapsed_seconds": 1.5151222930035146
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1486,14 +1486,14 @@
       "lesson": "24_plaque",
       "audio_sha256": "a75b22b514d36de48d577f37bf06b2837c47005676cf32ee233937fce3765a12",
       "clocks": {
-        "audio": 28.288567,
-        "video": 28.325672,
-        "expected": 28.288135426814616,
+        "audio": 28.315373,
+        "video": 28.275539,
+        "expected": 28.314941017859617,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.875,
-        "seek_elapsed_seconds": 1.506991697999183
+        "seek_elapsed_seconds": 1.5115768030009349
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1504,14 +1504,14 @@
       "lesson": "25_recruitment",
       "audio_sha256": "af58acb17ec2abd1fb8ab214a13f23189197cc556a284dbcd179d5d39d20d696",
       "clocks": {
-        "audio": 31.447563,
-        "video": 31.431688,
-        "expected": 31.447563,
+        "audio": 31.477364,
+        "video": 31.38195,
+        "expected": 31.477364,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 30.009999999999998,
-        "seek_elapsed_seconds": 1.5060155310002301
+        "seek_elapsed_seconds": 1.508514204997482
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1522,14 +1522,14 @@
       "lesson": "26_invasion",
       "audio_sha256": "66b3d4bf7cd08618c0f04539f62e82589568813a4fc0abcbd12e6bcc3f103a01",
       "clocks": {
-        "audio": 33.919049,
-        "video": 33.929421,
-        "expected": 33.916692583192464,
+        "audio": 33.877043,
+        "video": 33.928738,
+        "expected": 33.87468950142417,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.480000000000004,
-        "seek_elapsed_seconds": 1.5060939630002395
+        "seek_elapsed_seconds": 1.5127969860004669
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1540,14 +1540,14 @@
       "lesson": "27_replication",
       "audio_sha256": "bc1b89b7671a0f945b6c14ba50f0c336bc1e6f0a74e8fc55581d923219285aa3",
       "clocks": {
-        "audio": 32.796337,
-        "video": 32.778949,
-        "expected": 32.79510819715197,
+        "audio": 32.781922,
+        "video": 32.753537,
+        "expected": 32.78069373724866,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 31.36,
-        "seek_elapsed_seconds": 1.50678655000047
+        "seek_elapsed_seconds": 1.5116620699991472
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1558,14 +1558,14 @@
       "lesson": "28_training_runs",
       "audio_sha256": "0475b4344f95bfc3251cb68027f5b9a033bffce8e9bad115d439742c11041757",
       "clocks": {
-        "audio": 26.346152,
-        "video": 26.347049,
-        "expected": 26.347605645245483,
+        "audio": 26.34639,
+        "video": 26.274782,
+        "expected": 26.347843658377098,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.93,
-        "seek_elapsed_seconds": 1.5069909619996906
+        "seek_elapsed_seconds": 1.5080290219993913
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1576,14 +1576,14 @@
       "lesson": "29_report",
       "audio_sha256": "b429963738fc14a84bfec719fdde342af3584bfae7549e4f6ae3ac9b5666d2ab",
       "clocks": {
-        "audio": 20.227386,
-        "video": 20.229983,
-        "expected": 20.227126293045313,
+        "audio": 20.23306,
+        "video": 20.21582,
+        "expected": 20.232800220194708,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.794999999999998,
-        "seek_elapsed_seconds": 1.5059340940006223
+        "seek_elapsed_seconds": 1.5105711149990384
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1594,14 +1594,14 @@
       "lesson": "30_plate_queue",
       "audio_sha256": "a0635d6f4dee07bcf73fd8785e8307c0331c326cd9fecc74ce537d9a83fd7d65",
       "clocks": {
-        "audio": 23.586268,
-        "video": 23.614489,
-        "expected": 23.586268,
+        "audio": 23.583408,
+        "video": 23.604481,
+        "expected": 23.583408,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.15,
-        "seek_elapsed_seconds": 1.5068618430013885
+        "seek_elapsed_seconds": 1.5113105320015165
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1612,14 +1612,14 @@
       "lesson": "31_external_masks",
       "audio_sha256": "7f8179c8398b5cb637ea105efcb6e149e3616c87224346649d21c2799ee94b18",
       "clocks": {
-        "audio": 25.767989,
-        "video": 25.783796,
-        "expected": 25.76868059099815,
+        "audio": 25.765402,
+        "video": 25.77207,
+        "expected": 25.766093521565264,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.33,
-        "seek_elapsed_seconds": 1.5066380279986333
+        "seek_elapsed_seconds": 1.5137704689987004
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1630,14 +1630,14 @@
       "lesson": "32_align_stitch",
       "audio_sha256": "edb23d09d37c4defa626379c1057b1b37ed3751eb14b94c538f2803a9b2d0886",
       "clocks": {
-        "audio": 25.050692,
-        "video": 25.079196,
-        "expected": 25.04932572902844,
+        "audio": 25.050475,
+        "video": 25.065588,
+        "expected": 25.04910874086367,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.61,
-        "seek_elapsed_seconds": 1.5069628109995392
+        "seek_elapsed_seconds": 1.5129032120021293
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1648,14 +1648,14 @@
       "lesson": "33_plate_viewer",
       "audio_sha256": "a2c2a6fd142797fe2ed0895bedf5fce5a01c301f401bfba1276b8582d7322746",
       "clocks": {
-        "audio": 23.095148,
-        "video": 23.085005,
-        "expected": 23.09581486414523,
+        "audio": 23.088135,
+        "video": 23.022106,
+        "expected": 23.088801661647363,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.675,
-        "seek_elapsed_seconds": 1.506850684998426
+        "seek_elapsed_seconds": 1.5080149799978244
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1666,14 +1666,14 @@
       "lesson": "34_database",
       "audio_sha256": "d66fdc9d831ae77605c523fdee537b0753d660a5f3d7cd162e0411ccecb797f3",
       "clocks": {
-        "audio": 12.649217,
-        "video": 12.687605,
-        "expected": 12.651085071338255,
+        "audio": 12.607639,
+        "video": 12.691616,
+        "expected": 12.609500930984263,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 11.215,
-        "seek_elapsed_seconds": 1.5057995269999083
+        "seek_elapsed_seconds": 1.5114496409987623
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1684,14 +1684,14 @@
       "lesson": "35_converter",
       "audio_sha256": "de173bd78ea0a606c49e7779260abf996a698bdcca662bc5634e416220553422",
       "clocks": {
-        "audio": 23.370871,
-        "video": 23.439996,
-        "expected": 23.37167914934818,
+        "audio": 23.422593,
+        "video": 23.42507,
+        "expected": 23.423402937860917,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.97,
-        "seek_elapsed_seconds": 1.5065016130010918
+        "seek_elapsed_seconds": 1.5097140760008187
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1702,14 +1702,14 @@
       "lesson": "36_import",
       "audio_sha256": "3ed8a235f5cf083643765f58d77ff899d7a2892a6152701c3458824b452b7182",
       "clocks": {
-        "audio": 24.130931,
-        "video": 24.163311,
-        "expected": 24.132579769125226,
+        "audio": 24.116184,
+        "video": 24.161476,
+        "expected": 24.11783176152223,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.715,
-        "seek_elapsed_seconds": 1.5060854299990751
+        "seek_elapsed_seconds": 1.5108357499993872
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1720,14 +1720,14 @@
       "lesson": "37_batch",
       "audio_sha256": "fe37f7fabd4c6c69f2972d6770987494aced007c31d702d35c72cfe9fe562be0",
       "clocks": {
-        "audio": 17.965068,
-        "video": 17.99472,
-        "expected": 17.965068,
+        "audio": 17.980762,
+        "video": 17.954092,
+        "expected": 17.980762,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.544999999999998,
-        "seek_elapsed_seconds": 1.5055987370014918
+        "seek_elapsed_seconds": 1.5075133720019949
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1738,14 +1738,14 @@
       "lesson": "38_distributed_jobs",
       "audio_sha256": "cd78e1b310a03eea8705f8849e1a89300b66f41941c1584c8f1552c2a3301d89",
       "clocks": {
-        "audio": 20.970615,
-        "video": 21.01019,
-        "expected": 20.972406829118633,
+        "audio": 20.98755,
+        "video": 21.009649,
+        "expected": 20.989343276125606,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.544999999999998,
-        "seek_elapsed_seconds": 1.5055619400009164
+        "seek_elapsed_seconds": 1.5145091459999094
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1756,14 +1756,14 @@
       "lesson": "39_classifier_evaluation",
       "audio_sha256": "f7012ce9f8a4c8c13bd3a0c4ff3c166fd821dd1302b2cafb55592728ffd948b8",
       "clocks": {
-        "audio": 18.683694,
-        "video": 18.761628,
-        "expected": 18.685216703767924,
+        "audio": 18.683102,
+        "video": 18.756894,
+        "expected": 18.68462465552048,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 17.279999999999998,
-        "seek_elapsed_seconds": 1.5084527810013242
+        "seek_elapsed_seconds": 1.5106670159984787
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1774,14 +1774,14 @@
       "lesson": "40_run_history",
       "audio_sha256": "17f17b5508c11ec3ea8d0d7cee2a34bf628207e5c9f3f7b120e4ade394750d55",
       "clocks": {
-        "audio": 14.941787,
-        "video": 14.967008,
-        "expected": 14.940685873216262,
+        "audio": 14.961847,
+        "video": 14.953852,
+        "expected": 14.960744394905584,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 13.5,
-        "seek_elapsed_seconds": 1.5055799150013627
+        "seek_elapsed_seconds": 1.5107521080026345
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1792,14 +1792,14 @@
       "lesson": "41_classify",
       "audio_sha256": "b029d42811ede2257eb5dfa5db22750dbbea615111af173a9692840591ff2ce9",
       "clocks": {
-        "audio": 23.205678,
-        "video": 23.124424,
-        "expected": 23.203855230539624,
+        "audio": 23.198809,
+        "video": 23.021939,
+        "expected": 23.19698677008876,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.785,
-        "seek_elapsed_seconds": 1.5068581419982365
+        "seek_elapsed_seconds": 1.5080700059988885
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1810,14 +1810,14 @@
       "lesson": "42_curate",
       "audio_sha256": "9d49cf6b867ef13914f549c52f657f43dc12a04ce54793beff84acd556ec2f82",
       "clocks": {
-        "audio": 20.095145,
-        "video": 20.155662,
-        "expected": 20.09708300221815,
+        "audio": 20.10437,
+        "video": 20.149565,
+        "expected": 20.106308891889284,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.694999999999997,
-        "seek_elapsed_seconds": 1.5068906809992768
+        "seek_elapsed_seconds": 1.5260631710007146
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1828,14 +1828,14 @@
       "lesson": "43_illumination",
       "audio_sha256": "4034bfcfd2300fc667cf6942361b8513d12d6ecd59ab6830e2bde40e4ca66a56",
       "clocks": {
-        "audio": 17.773477,
-        "video": 17.794989,
-        "expected": 17.774158002222308,
+        "audio": 17.70814,
+        "video": 17.760875,
+        "expected": 17.708818498793057,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.335,
-        "seek_elapsed_seconds": 1.5073273920006613
+        "seek_elapsed_seconds": 1.5126201909988595
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1846,14 +1846,14 @@
       "lesson": "44_data_manager",
       "audio_sha256": "df800cb5cf137c04b233e1cfbca29a6f8af101bf9ed51c1162f10d477ef35b41",
       "clocks": {
-        "audio": 16.688605,
-        "video": 16.676311,
-        "expected": 16.690511349986846,
+        "audio": 16.658558,
+        "video": 16.572063,
+        "expected": 16.660460917698884,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 15.254999999999999,
-        "seek_elapsed_seconds": 1.505576032001045
+        "seek_elapsed_seconds": 1.5166333619999932
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1864,14 +1864,14 @@
       "lesson": "45_project_browser",
       "audio_sha256": "4ad1808bfba19450d91305909dd6d5f99417a34e161b908a6ba45d3d5d689d8a",
       "clocks": {
-        "audio": 16.628557,
-        "video": 16.640279,
-        "expected": 16.630591559011265,
+        "audio": 16.586739,
+        "video": 16.57182,
+        "expected": 16.588768442440493,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 15.195,
-        "seek_elapsed_seconds": 1.506234766000489
+        "seek_elapsed_seconds": 1.5100177300009818
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1882,14 +1882,14 @@
       "lesson": "46_napari_bridge",
       "audio_sha256": "fa59541c3acdb28fbd1af926bf5766987aca6391f0e35e36a2791776623470fa",
       "clocks": {
-        "audio": 20.445198,
-        "video": 20.528036,
-        "expected": 20.444370710392935,
+        "audio": 20.472393,
+        "video": 20.494873,
+        "expected": 20.471564609980952,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.044999999999998,
-        "seek_elapsed_seconds": 1.5061336090002442
+        "seek_elapsed_seconds": 1.5105749540016404
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1900,14 +1900,14 @@
       "lesson": "47_barcode_qc",
       "audio_sha256": "d7a0843eca895a82739a0d6682a9aa27a1b3edfe7f6fb18ca4f685ebb1edf18a",
       "clocks": {
-        "audio": 18.98638,
-        "video": 18.966705,
-        "expected": 18.984717590403648,
+        "audio": 18.949692,
+        "video": 18.935827,
+        "expected": 18.94803280273181,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 17.555,
-        "seek_elapsed_seconds": 1.5051965319999
+        "seek_elapsed_seconds": 1.509904310998536
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1918,14 +1918,14 @@
       "lesson": "48_hit_list",
       "audio_sha256": "fa3ba8eadee55fe27fd7d91fefcbf4477e063cb5db2631b72aaca643bed315a9",
       "clocks": {
-        "audio": 22.334082,
-        "video": 22.420689,
-        "expected": 22.33219578092081,
+        "audio": 22.345389,
+        "video": 22.407219,
+        "expected": 22.343501825991073,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.944999999999997,
-        "seek_elapsed_seconds": 1.5063927170012903
+        "seek_elapsed_seconds": 1.5088651119986025
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1936,14 +1936,14 @@
       "lesson": "49_methods_results",
       "audio_sha256": "e43f36a6d43952a1c621483a47a323ed97eb00badc67350f41a30b0740cf0787",
       "clocks": {
-        "audio": 26.686813,
-        "video": 26.729028,
-        "expected": 26.68383247329763,
+        "audio": 26.690411,
+        "video": 26.720615,
+        "expected": 26.687430071453655,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.27,
-        "seek_elapsed_seconds": 1.5074765980007214
+        "seek_elapsed_seconds": 1.5127331889998459
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1954,14 +1954,14 @@
       "lesson": "50_run_compare",
       "audio_sha256": "b608b79055349ad2a0838ba68290f32f15eeccbd5f52617534531ee4b11fce24",
       "clocks": {
-        "audio": 16.235504,
-        "video": 16.289188,
-        "expected": 16.237912233744428,
+        "audio": 16.237428,
+        "video": 16.263734,
+        "expected": 16.239836519133892,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 14.835,
-        "seek_elapsed_seconds": 1.5070323160016414
+        "seek_elapsed_seconds": 1.5128426580013183
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1972,14 +1972,14 @@
       "lesson": "51_control_charts",
       "audio_sha256": "989aecf65017ba4015b7aaa342f999293efd363dccff916bba4c6dd53a660ae3",
       "clocks": {
-        "audio": 22.067398,
-        "video": 22.0791,
-        "expected": 22.06775877430948,
+        "audio": 22.029705,
+        "video": 22.083085,
+        "expected": 22.03006515807615,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.63,
-        "seek_elapsed_seconds": 1.507295510999029
+        "seek_elapsed_seconds": 1.512487495001551
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1990,14 +1990,14 @@
       "lesson": "52_pipeline_graph",
       "audio_sha256": "7a0a27b1af12752e6cdef70094a7d08ae41e6cea4ad718aa6ea799cc2beff7e6",
       "clocks": {
-        "audio": 18.041117,
-        "video": 18.07522,
-        "expected": 18.041117,
+        "audio": 18.03783,
+        "video": 18.037041,
+        "expected": 18.03783,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.62,
-        "seek_elapsed_seconds": 1.5060503040003823
+        "seek_elapsed_seconds": 1.5080191080014629
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2008,14 +2008,14 @@
       "lesson": "53_prediction_profiler",
       "audio_sha256": "4dae5eff5cc6487ae855ccef93953702487b6d5c79b8300b570aa548d591b6a0",
       "clocks": {
-        "audio": 20.764876,
-        "video": 20.842592,
-        "expected": 20.76449825079618,
+        "audio": 20.762171,
+        "video": 20.832911,
+        "expected": 20.76179330000483,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.37,
-        "seek_elapsed_seconds": 1.5063080449999688
+        "seek_elapsed_seconds": 1.5116662010004802
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2026,14 +2026,14 @@
       "lesson": "54_qc_dashboard",
       "audio_sha256": "3b15e7ed8aca5825432c35a79e9837a612a9a5f93ad38982ab86bdc7f91cc9b3",
       "clocks": {
-        "audio": 16.265037,
-        "video": 16.278744,
-        "expected": 16.26682461421204,
+        "audio": 16.249663,
+        "video": 16.253057,
+        "expected": 16.25144892452754,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 14.83,
-        "seek_elapsed_seconds": 1.507501329000661
+        "seek_elapsed_seconds": 1.5100895920004405
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2044,14 +2044,14 @@
       "lesson": "55_image_scatter",
       "audio_sha256": "8384fa21f9ab74af32e730ad13a7fb086ee9cf9a9e46227ebb8bc180a96c97e7",
       "clocks": {
-        "audio": 20.284529,
-        "video": 20.276747,
-        "expected": 20.28387873227703,
+        "audio": 20.264793,
+        "video": 20.23058,
+        "expected": 20.264143364960386,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.849999999999998,
-        "seek_elapsed_seconds": 1.5061204329995235
+        "seek_elapsed_seconds": 1.5071024120006768
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2062,14 +2062,14 @@
       "lesson": "56_lineage",
       "audio_sha256": "ba80efd43bfc41e198a5ce4023c406d09ac7f3ba033614cdbef96bec061113ab",
       "clocks": {
-        "audio": 22.72709,
-        "video": 22.731471,
-        "expected": 22.728320370901216,
+        "audio": 22.724411,
+        "video": 22.692249,
+        "expected": 22.72564122586885,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.305,
-        "seek_elapsed_seconds": 1.5061458760010282
+        "seek_elapsed_seconds": 1.5084751270005654
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2080,14 +2080,14 @@
       "lesson": "57_layer_viewer",
       "audio_sha256": "b0118caaa482410fb62fc86fb837a7a0e37c72302d6aac8a73ca2a782a4f7a0d",
       "clocks": {
-        "audio": 21.139588,
-        "video": 21.17438,
-        "expected": 21.139231736427142,
+        "audio": 21.144268,
+        "video": 21.160058,
+        "expected": 21.143911657555524,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.705,
-        "seek_elapsed_seconds": 1.5066715240009216
+        "seek_elapsed_seconds": 1.5072820440000214
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2098,14 +2098,14 @@
       "lesson": "58_graph_builder",
       "audio_sha256": "dd6cc6b98c27cc1b4deee37777bd023f46d08e451575f27be9a633fd00982727",
       "clocks": {
-        "audio": 22.347038,
-        "video": 22.396735,
-        "expected": 22.347554415985954,
+        "audio": 22.345733,
+        "video": 22.356464,
+        "expected": 22.346249385828806,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.955,
-        "seek_elapsed_seconds": 1.5065436759996373
+        "seek_elapsed_seconds": 1.508676428002218
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2116,14 +2116,14 @@
       "lesson": "59_anndata_export",
       "audio_sha256": "4011ec9598edca07936b04c19b49e20882520793c27f8d71f7edd3b4d61f49b5",
       "clocks": {
-        "audio": 23.177247,
-        "video": 23.209878,
-        "expected": 23.175695748611208,
+        "audio": 23.164476,
+        "video": 23.184256,
+        "expected": 23.16292560337327,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.764999999999997,
-        "seek_elapsed_seconds": 1.5059747790000984
+        "seek_elapsed_seconds": 1.5094729230004305
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2134,14 +2134,14 @@
       "lesson": "60_pca",
       "audio_sha256": "c8bc0090577690a40dd1164471a9e31055f63e8ea64172c7e3f6a99cbce08858",
       "clocks": {
-        "audio": 26.346935,
-        "video": 26.384624,
-        "expected": 26.347122082148726,
+        "audio": 26.363309,
+        "video": 26.37115,
+        "expected": 26.36349619841588,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.925,
-        "seek_elapsed_seconds": 1.5067399619983917
+        "seek_elapsed_seconds": 1.5069476179996855
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2152,14 +2152,14 @@
       "lesson": "61_tabulate",
       "audio_sha256": "8369d5cb62ad2ecd4ed19a7dab5ab226f4e5bc423684b704cd872fad78ee28f3",
       "clocks": {
-        "audio": 28.68928,
-        "video": 28.78214,
-        "expected": 28.68928,
+        "audio": 28.689252,
+        "video": 28.773375,
+        "expected": 28.689252,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.3,
-        "seek_elapsed_seconds": 1.5053329189995566
+        "seek_elapsed_seconds": 1.5091501040005824
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2170,14 +2170,14 @@
       "lesson": "62_feature_dictionary",
       "audio_sha256": "1b1db71171219ecef32a12f7b6893aa382a8f01807a2d5885e2d3c0a0d032c44",
       "clocks": {
-        "audio": 18.333248,
-        "video": 18.327878,
-        "expected": 18.330980852780584,
+        "audio": 18.334675,
+        "video": 18.298107,
+        "expected": 18.332407676313263,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.900000000000002,
-        "seek_elapsed_seconds": 1.5073340290000488
+        "seek_elapsed_seconds": 1.513617507996969
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2188,14 +2188,14 @@
       "lesson": "63_small_multiples",
       "audio_sha256": "4ff44d668ee85a59a8ea416bac3e336452c959483d3bd20a639a9714c778e025",
       "clocks": {
-        "audio": 27.951767,
-        "video": 27.977586,
-        "expected": 27.94986478597192,
+        "audio": 27.978213,
+        "video": 27.970222,
+        "expected": 27.97630898623052,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.514999999999997,
-        "seek_elapsed_seconds": 1.5065346410010534
+        "seek_elapsed_seconds": 1.507285668001714
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2206,14 +2206,14 @@
       "lesson": "64_gate_editor",
       "audio_sha256": "1a74e04c9ec781d4fb9a55c0be4677c88c77e15020810da4e50684648854ba2b",
       "clocks": {
-        "audio": 25.99134,
-        "video": 26.011959,
-        "expected": 25.989800319886264,
+        "audio": 25.989769,
+        "video": 25.985405,
+        "expected": 25.98822941294947,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.57,
-        "seek_elapsed_seconds": 1.5070691199998691
+        "seek_elapsed_seconds": 1.5091742439981317
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2224,14 +2224,14 @@
       "lesson": "65_feature_explorer",
       "audio_sha256": "3ea68fb66b7772a0740dd19e8beec2f2ac5ed3e4eb6acc68d5f3631f54f81492",
       "clocks": {
-        "audio": 23.830921,
-        "video": 23.87152,
-        "expected": 23.829026095004213,
+        "audio": 23.844787,
+        "video": 23.838064,
+        "expected": 23.84289099245544,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.43,
-        "seek_elapsed_seconds": 1.5062877759992261
+        "seek_elapsed_seconds": 1.5127239119974547
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2242,14 +2242,14 @@
       "lesson": "66_outliers",
       "audio_sha256": "ed1e45220518aa83c482b1be075ec641e3da1b6cac653c67f92ca202ce1ee8a9",
       "clocks": {
-        "audio": 21.658989,
-        "video": 21.625365,
-        "expected": 21.65969044991578,
+        "audio": 21.646544,
+        "video": 21.598682,
+        "expected": 21.64724504687092,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.22,
-        "seek_elapsed_seconds": 1.5064260680010193
+        "seek_elapsed_seconds": 1.51604905700151
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2260,14 +2260,14 @@
       "lesson": "67_experiment_design",
       "audio_sha256": "7938a13eb438e4ea992ac554f38117a8d8bbb987456113fc5c0d839b1970b8fc",
       "clocks": {
-        "audio": 20.807139,
-        "video": 20.789339,
-        "expected": 20.806230187135007,
+        "audio": 20.850786,
+        "video": 20.771196,
+        "expected": 20.849875280724174,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.389999999999997,
-        "seek_elapsed_seconds": 1.5063706260007166
+        "seek_elapsed_seconds": 1.5088306489997194
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2278,14 +2278,14 @@
       "lesson": "68_power_design",
       "audio_sha256": "78d7affac6ec54cd32ee472104a8316c6b8712e07b472854868969b55318da5e",
       "clocks": {
-        "audio": 25.067804,
-        "video": 25.050598,
-        "expected": 25.06693301553108,
+        "audio": 25.082994,
+        "video": 25.018615,
+        "expected": 25.082122487752336,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.65,
-        "seek_elapsed_seconds": 1.5055413669997506
+        "seek_elapsed_seconds": 1.507412523998937
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2296,14 +2296,14 @@
       "lesson": "69_dose_response",
       "audio_sha256": "98e20dc5e519af9ec729a4a0650d27eccb23af1c615b1c475f946f9b8f55f203",
       "clocks": {
-        "audio": 20.643166,
-        "video": 20.595694,
-        "expected": 20.64266472110925,
+        "audio": 20.618717,
+        "video": 20.541596,
+        "expected": 20.61821631480537,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.185,
-        "seek_elapsed_seconds": 1.5059796309997182
+        "seek_elapsed_seconds": 1.506904695997946
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2314,14 +2314,14 @@
       "lesson": "70_explain_cv",
       "audio_sha256": "39464df5fd2c1bcf05a36c5f9f1b0e03e63bbeb3c873b2f699170b114cf26c8a",
       "clocks": {
-        "audio": 24.171473,
-        "video": 24.186065,
-        "expected": 24.174551837909753,
+        "audio": 24.19346,
+        "video": 24.169081,
+        "expected": 24.19654163850073,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.74,
-        "seek_elapsed_seconds": 1.5066534280013002
+        "seek_elapsed_seconds": 1.5097809879989654
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2332,14 +2332,14 @@
       "lesson": "72_volcano_explorer",
       "audio_sha256": "34d0a15b6e6269d793fe50cfd9c05eb6ea2594eeaf3cc95791d3b954c5f9232f",
       "clocks": {
-        "audio": 22.205251,
-        "video": 22.22073,
-        "expected": 22.203815717794583,
+        "audio": 22.241904,
+        "video": 22.190364,
+        "expected": 22.240466348652316,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.79,
-        "seek_elapsed_seconds": 1.5051158389997
+        "seek_elapsed_seconds": 1.528668368999206
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2350,14 +2350,14 @@
       "lesson": "73_parameter_sweep",
       "audio_sha256": "bee0b8db8227f8bd25881419192c3d8d6c6abde426a917d03637f7a96af07efb",
       "clocks": {
-        "audio": 23.314434,
-        "video": 23.304834,
-        "expected": 23.316064885024314,
+        "audio": 23.289118,
+        "video": 23.272165,
+        "expected": 23.290747114126283,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.855,
-        "seek_elapsed_seconds": 1.5070565810001426
+        "seek_elapsed_seconds": 1.508860720001394
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2368,14 +2368,14 @@
       "lesson": "74_import_images",
       "audio_sha256": "5c19359fff5310b7ac5af989796569474e39f9aae0734f7719f2543518b2de42",
       "clocks": {
-        "audio": 20.349191,
-        "video": 20.349468,
-        "expected": 20.348598496692556,
+        "audio": 20.374985,
+        "video": 20.328141,
+        "expected": 20.37439174565384,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.915,
-        "seek_elapsed_seconds": 1.5066011540002364
+        "seek_elapsed_seconds": 1.5098096600013378
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2386,14 +2386,14 @@
       "lesson": "75_regression_diagnostics",
       "audio_sha256": "c9310013e936814c8b32426932800515481d1b7d951afd9c12a0b0b07368b7ca",
       "clocks": {
-        "audio": 27.327209,
-        "video": 27.415616,
-        "expected": 27.32615799392331,
+        "audio": 27.366821,
+        "video": 27.391508,
+        "expected": 27.36576847044345,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.935,
-        "seek_elapsed_seconds": 1.5066983199994866
+        "seek_elapsed_seconds": 1.5079833899981168
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2404,14 +2404,14 @@
       "lesson": "77_embeddings",
       "audio_sha256": "7a008bb3cadd684328becdfb9e9ea62997c53de5bbad02c67f9711e705400a58",
       "clocks": {
-        "audio": 24.850502,
-        "video": 24.885414,
-        "expected": 24.85226250357633,
+        "audio": 24.851633,
+        "video": 24.854883,
+        "expected": 24.85339358370065,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.455,
-        "seek_elapsed_seconds": 1.506100365999373
+        "seek_elapsed_seconds": 1.5097039029969892
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2419,8 +2419,8 @@
         {
           "requested_audio_time": 1.2425,
           "text": "From Home, open Embeddings in Data.",
-          "audio": 1.460899,
-          "video": 1.485533,
+          "audio": 1.451611,
+          "video": 1.458829,
           "cues": [
             "From Home, open Embeddings in Data."
           ]
@@ -2428,8 +2428,8 @@
         {
           "requested_audio_time": 6.115,
           "text": "You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
-          "audio": 6.316537,
-          "video": 6.392839,
+          "audio": 6.315131,
+          "video": 6.381897,
           "cues": [
             "You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object."
           ]
@@ -2437,8 +2437,8 @@
         {
           "requested_audio_time": 11.184999999999999,
           "text": "Choose crop folder under Crops from.",
-          "audio": 11.396747,
-          "video": 11.430997,
+          "audio": 11.39981,
+          "video": 11.409769,
           "cues": [
             "Choose crop folder under Crops from."
           ]
@@ -2446,8 +2446,8 @@
         {
           "requested_audio_time": 15.294999999999998,
           "text": "You can also use a measurements database when you want to select an object class, plate or condition.",
-          "audio": 15.491488,
-          "video": 15.543681,
+          "audio": 15.495703,
+          "video": 15.512268,
           "cues": [
             "You can also use a measurements database when you want to select an object class, plate or condition."
           ]
@@ -2455,8 +2455,8 @@
         {
           "requested_audio_time": 20.65,
           "text": "This walkthrough uses the crop folder from Annotate’s downloadable example.",
-          "audio": 20.852601,
-          "video": 20.906979,
+          "audio": 20.862025,
+          "video": 20.897355,
           "cues": [
             "This walkthrough uses the crop folder from Annotate’s downloadable example."
           ]
@@ -2464,8 +2464,8 @@
         {
           "requested_audio_time": 25.235,
           "text": "Copy sixteen example PNGs into a working folder.",
-          "audio": 25.433443,
-          "video": 25.479756,
+          "audio": 25.447427,
+          "video": 25.465304,
           "cues": [
             "Copy sixteen example PNGs into a working folder."
           ]
@@ -2473,8 +2473,8 @@
         {
           "requested_audio_time": 28.834999999999997,
           "text": "Enter that folder’s path and press Enter, or use Browse.",
-          "audio": 29.03923,
-          "video": 29.088512,
+          "audio": 29.034794,
+          "video": 29.083147,
           "cues": [
             "Enter that folder’s path and press Enter, or use Browse."
           ]
@@ -2482,8 +2482,8 @@
         {
           "requested_audio_time": 32.1575,
           "text": "Set At most to sixteen, then click Load crops.",
-          "audio": 32.346234,
-          "video": 32.43715,
+          "audio": 32.346853,
+          "video": 32.420314,
           "cues": [
             "Set At most to sixteen, then click Load crops."
           ]
@@ -2491,8 +2491,8 @@
         {
           "requested_audio_time": 35.697500000000005,
           "text": "Read the loaded crop count, size and channel count.",
-          "audio": 35.893033,
-          "video": 35.936032,
+          "audio": 35.894549,
+          "video": 35.89026,
           "cues": [
             "Read the loaded crop count, size and channel count."
           ]
@@ -2500,8 +2500,8 @@
         {
           "requested_audio_time": 40.4925,
           "text": "The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels.",
-          "audio": 40.689054,
-          "video": 40.761292,
+          "audio": 40.717199,
+          "video": 40.754682,
           "cues": [
             "The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels."
           ]
@@ -2509,8 +2509,8 @@
         {
           "requested_audio_time": 45.69,
           "text": "Check the crop export’s channel mapping before comparing results.",
-          "audio": 45.894907,
-          "video": 45.921722,
+          "audio": 45.88496,
+          "video": 45.889214,
           "cues": [
             "Check the crop export’s channel mapping before comparing results."
           ]
@@ -2518,8 +2518,8 @@
         {
           "requested_audio_time": 50.4975,
           "text": "Choose Per channel to encode each channel separately and concatenate its features.",
-          "audio": 50.710192,
-          "video": 50.767491,
+          "audio": 50.704909,
+          "video": 50.747382,
           "cues": [
             "Choose Per channel to encode each channel separately and concatenate its features."
           ]
@@ -2527,8 +2527,8 @@
         {
           "requested_audio_time": 55.2475,
           "text": "Keep resnet18 as the Backbone and set Batch to four for this small run.",
-          "audio": 55.455928,
-          "video": 55.500884,
+          "audio": 55.453369,
+          "video": 55.471143,
           "cues": [
             "Keep resnet18 as the Backbone and set Batch to four for this small run."
           ]
@@ -2536,8 +2536,8 @@
         {
           "requested_audio_time": 58.78,
           "text": "Smaller batches reduce memory use.",
-          "audio": 58.996207,
-          "video": 59.041907,
+          "audio": 58.999492,
+          "video": 59.021919,
           "cues": [
             "Smaller batches reduce memory use."
           ]
@@ -2545,8 +2545,8 @@
         {
           "requested_audio_time": 61.52000000000001,
           "text": "Click Embed and wait for the preview.",
-          "audio": 61.743205,
-          "video": 61.772747,
+          "audio": 61.750745,
+          "video": 61.765546,
           "cues": [
             "Click Embed and wait for the preview."
           ]
@@ -2554,8 +2554,8 @@
         {
           "requested_audio_time": 65.78500000000001,
           "text": "The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions.",
-          "audio": 66.021072,
-          "video": 66.032299,
+          "audio": 66.009409,
+          "video": 66.011185,
           "cues": [
             "The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions."
           ]
@@ -2563,8 +2563,8 @@
         {
           "requested_audio_time": 71.8075,
           "text": "The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
-          "audio": 72.029873,
-          "video": 72.051396,
+          "audio": 72.024925,
+          "video": 72.029726,
           "cues": [
             "The table shows only the first few dimensions and, for larger runs, up to fifty objects."
           ]
@@ -2572,8 +2572,8 @@
         {
           "requested_audio_time": 76.5875,
           "text": "Select Project to three and click Embed again.",
-          "audio": 76.818027,
-          "video": 76.868156,
+          "audio": 76.819894,
+          "video": 76.863281,
           "cues": [
             "Select Project to three and click Embed again."
           ]
@@ -2581,8 +2581,8 @@
         {
           "requested_audio_time": 80.11,
           "text": "This encodes the combined image instead of each channel separately.",
-          "audio": 80.327486,
-          "video": 80.342774,
+          "audio": 80.339991,
+          "video": 80.315837,
           "cues": [
             "This encodes the combined image instead of each channel separately."
           ]
@@ -2590,8 +2590,8 @@
         {
           "requested_audio_time": 84.14500000000001,
           "text": "Use the same crops and backbone when comparing the two policies.",
-          "audio": 84.378913,
-          "video": 84.381603,
+          "audio": 84.365941,
+          "video": 84.342588,
           "cues": [
             "Use the same crops and backbone when comparing the two policies."
           ]
@@ -2599,8 +2599,8 @@
         {
           "requested_audio_time": 88.625,
           "text": "The projected example has five hundred twelve dimensions per object.",
-          "audio": 88.846634,
-          "video": 88.907348,
+          "audio": 88.835242,
+          "video": 88.903173,
           "cues": [
             "The projected example has five hundred twelve dimensions per object."
           ]
@@ -2608,8 +2608,8 @@
         {
           "requested_audio_time": 92.64,
           "text": "Keep the channel policy and encoder settings with your results.",
-          "audio": 92.869723,
-          "video": 92.917089,
+          "audio": 92.860044,
+          "video": 92.914485,
           "cues": [
             "Keep the channel policy and encoder settings with your results."
           ]
@@ -2617,8 +2617,8 @@
         {
           "requested_audio_time": 97.945,
           "text": "Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
-          "audio": 98.166931,
-          "video": 98.188993,
+          "audio": 98.160965,
+          "video": 98.184326,
           "cues": [
             "Use the complete vectors for downstream analysis; individual dimensions are not biological measurements."
           ]
@@ -2626,8 +2626,8 @@
         {
           "requested_audio_time": 103.615,
           "text": "The screen currently provides a preview without an export button.",
-          "audio": 103.844192,
-          "video": 103.862203,
+          "audio": 103.822695,
+          "video": 103.836296,
           "cues": [
             "The screen currently provides a preview without an export button."
           ]
@@ -2635,8 +2635,8 @@
         {
           "requested_audio_time": 108.395,
           "text": "To save complete matrices, download the linked Python helper and follow its README.",
-          "audio": 108.613221,
-          "video": 108.621458,
+          "audio": 108.615004,
+          "video": 108.572628,
           "cues": [
             "To save complete matrices, download the linked Python helper and follow its README."
           ]
@@ -2644,8 +2644,8 @@
         {
           "requested_audio_time": 114.2175,
           "text": "It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
-          "audio": 114.444995,
-          "video": 114.455932,
+          "audio": 114.44979,
+          "video": 114.434065,
           "cues": [
             "It writes vectors, object filenames, settings and exploratory plots to a new output folder."
           ]
@@ -2657,14 +2657,14 @@
       "lesson": "76_ops",
       "audio_sha256": "32792383902b604fac4d9d7e503a3b4ed421c8e970a6b93c5fd027592ec9d50a",
       "clocks": {
-        "audio": 29.700396,
-        "video": 29.646318,
-        "expected": 29.700704929336617,
+        "audio": 29.697788,
+        "video": 29.61717,
+        "expected": 29.698096902209446,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.294999999999998,
-        "seek_elapsed_seconds": 1.50536965900028
+        "seek_elapsed_seconds": 1.510104961002071
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2672,8 +2672,8 @@
         {
           "requested_audio_time": 3.3,
           "text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles.",
-          "audio": 3.527693,
-          "video": 3.480528,
+          "audio": 3.526928,
+          "video": 3.45026,
           "cues": [
             "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles."
           ]
@@ -2681,8 +2681,8 @@
         {
           "requested_audio_time": 8.54,
           "text": "In spaCR, open Mask to find the nested OPS screen.",
-          "audio": 8.752213,
-          "video": 8.815282,
+          "audio": 8.75293,
+          "video": 8.810901,
           "cues": [
             "In spaCR, open Mask to find the nested OPS screen."
           ]
@@ -2690,8 +2690,8 @@
         {
           "requested_audio_time": 12.91,
           "text": "This lesson shows its location and a small, verified image-alignment example.",
-          "audio": 13.125785,
-          "video": 13.051348,
+          "audio": 13.130726,
+          "video": 13.040407,
           "cues": [
             "This lesson shows its location and a small, verified image-alignment example."
           ]
@@ -2699,8 +2699,8 @@
         {
           "requested_audio_time": 17.24,
           "text": "Use the OPS toggle in Mask's action row.",
-          "audio": 17.464123,
-          "video": 17.480582,
+          "audio": 17.448917,
+          "video": 17.474536,
           "cues": [
             "Use the OPS toggle in Mask's action row."
           ]
@@ -2708,8 +2708,8 @@
         {
           "requested_audio_time": 20.2075,
           "text": "It opens a separate page inside the host module.",
-          "audio": 20.416721,
-          "video": 20.356261,
+          "audio": 20.425332,
+          "video": 20.315478,
           "cues": [
             "It opens a separate page inside the host module."
           ]
@@ -2717,8 +2717,8 @@
         {
           "requested_audio_time": 24.784999999999997,
           "text": "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
-          "audio": 24.986282,
-          "video": 25.050192,
+          "audio": 24.995935,
+          "video": 25.042446,
           "cues": [
             "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files."
           ]
@@ -2726,8 +2726,8 @@
         {
           "requested_audio_time": 31.5375,
           "text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings.",
-          "audio": 31.746564,
-          "video": 31.722949,
+          "audio": 31.757506,
+          "video": 31.702523,
           "cues": [
             "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings."
           ]
@@ -2735,8 +2735,8 @@
         {
           "requested_audio_time": 36.315,
           "text": "Its Run button uses a different, legacy engine.",
-          "audio": 36.511175,
-          "video": 36.363515,
+          "audio": 36.523936,
+          "video": 36.325334,
           "cues": [
             "Its Run button uses a different, legacy engine."
           ]
@@ -2744,8 +2744,8 @@
         {
           "requested_audio_time": 40.35249999999999,
           "text": "We do not start it here or imply that a complete screening pipeline has been validated.",
-          "audio": 40.556514,
-          "video": 40.535942,
+          "audio": 40.570885,
+          "video": 40.485745,
           "cues": [
             "We do not start it here or imply that a complete screening pipeline has been validated."
           ]
@@ -2753,8 +2753,8 @@
         {
           "requested_audio_time": 44.5575,
           "text": "The next steps use the geometry APIs directly.",
-          "audio": 44.759793,
-          "video": 44.611886,
+          "audio": 44.772504,
+          "video": 44.577307,
           "cues": [
             "The next steps use the geometry APIs directly."
           ]
@@ -2762,8 +2762,8 @@
         {
           "requested_audio_time": 50.145,
           "text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition.",
-          "audio": 50.353573,
-          "video": 50.329196,
+          "audio": 50.37287,
+          "video": 50.293655,
           "cues": [
             "This CPU demonstration registers and composes four real image tiles from an existing acquisition."
           ]
@@ -2771,8 +2771,8 @@
         {
           "requested_audio_time": 55.9225,
           "text": "It does not segment cells, decode barcodes or process a whole plate.",
-          "audio": 56.118292,
-          "video": 56.176643,
+          "audio": 56.139831,
+          "video": 56.175248,
           "cues": [
             "It does not segment cells, decode barcodes or process a whole plate."
           ]
@@ -2780,8 +2780,8 @@
         {
           "requested_audio_time": 62.212500000000006,
           "text": "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
-          "audio": 62.422214,
-          "video": 62.281761,
+          "audio": 62.445904,
+          "video": 62.241437,
           "cues": [
             "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files."
           ]
@@ -2789,8 +2789,8 @@
         {
           "requested_audio_time": 68.9725,
           "text": "Select sites zero, one, ten and eleven from the first imaging cycle.",
-          "audio": 69.191631,
-          "video": 69.179647,
+          "audio": 69.193191,
+          "video": 69.167845,
           "cues": [
             "Select sites zero, one, ten and eleven from the first imaging cycle."
           ]
@@ -2798,8 +2798,8 @@
         {
           "requested_audio_time": 73.7775,
           "text": "Each original file has five planes; plane zero contains the nuclear stain.",
-          "audio": 73.984229,
-          "video": 73.848082,
+          "audio": 73.987472,
+          "video": 73.802438,
           "cues": [
             "Each original file has five planes; plane zero contains the nuclear stain."
           ]
@@ -2807,8 +2807,8 @@
         {
           "requested_audio_time": 78.44,
           "text": "Keep the original three hundred thirty-three-site layout and site numbers.",
-          "audio": 78.659442,
-          "video": 78.617775,
+          "audio": 78.662541,
+          "video": 78.60161,
           "cues": [
             "Keep the original three hundred thirty-three-site layout and site numbers."
           ]
@@ -2816,8 +2816,8 @@
         {
           "requested_audio_time": 82.465,
           "text": "Four selected tiles do not define a new four-tile well.",
-          "audio": 82.671049,
-          "video": 82.519959,
+          "audio": 82.674843,
+          "video": 82.47323,
           "cues": [
             "Four selected tiles do not define a new four-tile well."
           ]
@@ -2825,8 +2825,8 @@
         {
           "requested_audio_time": 87.42250000000001,
           "text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window.",
-          "audio": 87.660753,
-          "video": 87.58746,
+          "audio": 87.641782,
+          "video": 87.563926,
           "cues": [
             "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window."
           ]
@@ -2834,8 +2834,8 @@
         {
           "requested_audio_time": 91.0,
           "text": "All four tiles are placed.",
-          "audio": 91.204573,
-          "video": 91.049094,
+          "audio": 91.238125,
+          "video": 91.000946,
           "cues": [
             "All four tiles are placed."
           ]
@@ -2843,8 +2843,8 @@
         {
           "requested_audio_time": 93.83000000000001,
           "text": "Their patch is two thousand seven hundred fifty-six pixels square.",
-          "audio": 94.051708,
-          "video": 94.051175,
+          "audio": 94.059574,
+          "video": 94.02509,
           "cues": [
             "Their patch is two thousand seven hundred fifty-six pixels square."
           ]
@@ -2852,8 +2852,8 @@
         {
           "requested_audio_time": 98.72,
           "text": "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
-          "audio": 98.928715,
-          "video": 98.772915,
+          "audio": 98.941082,
+          "video": 98.737854,
           "cues": [
             "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee."
           ]
@@ -2861,8 +2861,8 @@
         {
           "requested_audio_time": 103.00999999999999,
           "text": "Do not trust placement alone.",
-          "audio": 103.227421,
-          "video": 103.266801,
+          "audio": 103.240669,
+          "video": 103.257823,
           "cues": [
             "Do not trust placement alone."
           ]
@@ -2870,8 +2870,8 @@
         {
           "requested_audio_time": 106.345,
           "text": "Compare actual overlapping pixels independently of the registration score.",
-          "audio": 106.574795,
-          "video": 106.498728,
+          "audio": 106.56826,
+          "video": 106.480158,
           "cues": [
             "Compare actual overlapping pixels independently of the registration score."
           ]
@@ -2879,8 +2879,8 @@
         {
           "requested_audio_time": 112.91749999999999,
           "text": "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels.",
-          "audio": 113.135403,
-          "video": 113.123024,
+          "audio": 113.129779,
+          "video": 113.104817,
           "cues": [
             "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels."
           ]
@@ -2888,8 +2888,8 @@
         {
           "requested_audio_time": 119.595,
           "text": "Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
-          "audio": 119.821758,
-          "video": 119.853567,
+          "audio": 119.816866,
+          "video": 119.845675,
           "cues": [
             "Those wrong-offset controls help detect a plausible-looking but incorrect placement."
           ]
@@ -2897,8 +2897,8 @@
         {
           "requested_audio_time": 124.14,
           "text": "Inspect the actual saved image and coverage map.",
-          "audio": 124.377518,
-          "video": 124.362799,
+          "audio": 124.374101,
+          "video": 124.355868,
           "cues": [
             "Inspect the actual saved image and coverage map."
           ]
@@ -2906,8 +2906,8 @@
         {
           "requested_audio_time": 128.39249999999998,
           "text": "The left panel shows the composed nuclear image; the right counts contributing tiles.",
-          "audio": 128.618153,
-          "video": 128.49764,
+          "audio": 128.616006,
+          "video": 128.463997,
           "cues": [
             "The left panel shows the composed nuclear image; the right counts contributing tiles."
           ]
@@ -2915,8 +2915,8 @@
         {
           "requested_audio_time": 133.41750000000002,
           "text": "Zero coverage means no acquisition pixel, not biological background.",
-          "audio": 133.651611,
-          "video": 133.621333,
+          "audio": 133.630526,
+          "video": 133.602337,
           "cues": [
             "Zero coverage means no acquisition pixel, not biological background."
           ]
@@ -2924,8 +2924,8 @@
         {
           "requested_audio_time": 138.3275,
           "text": "This combines spatial neighbors within one plane, never different sequencing cycles.",
-          "audio": 138.549445,
-          "video": 138.385691,
+          "audio": 138.551174,
+          "video": 138.340271,
           "cues": [
             "This combines spatial neighbors within one plane, never different sequencing cycles."
           ]
@@ -2933,8 +2933,8 @@
         {
           "requested_audio_time": 143.73250000000002,
           "text": "Save the array, coverage, placements, source checksums and run report together.",
-          "audio": 143.962271,
-          "video": 143.938198,
+          "audio": 143.965992,
+          "video": 143.926654,
           "cues": [
             "Save the array, coverage, placements, source checksums and run report together."
           ]
@@ -2942,8 +2942,8 @@
         {
           "requested_audio_time": 148.7175,
           "text": "The helper reopens its outputs and confirms all four source files are unchanged.",
-          "audio": 148.933306,
-          "video": 148.779327,
+          "audio": 148.940453,
+          "video": 148.740495,
           "cues": [
             "The helper reopens its outputs and confirms all four source files are unchanged."
           ]
@@ -2951,8 +2951,8 @@
         {
           "requested_audio_time": 152.775,
           "text": "Treat this as a reproducible geometry checkpoint.",
-          "audio": 153.00015,
-          "video": 152.967068,
+          "audio": 152.98725,
+          "video": 152.951047,
           "cues": [
             "Treat this as a reproducible geometry checkpoint."
           ]
@@ -2960,8 +2960,8 @@
         {
           "requested_audio_time": 157.085,
           "text": "A full optical screening tutorial still needs separately validated downstream stages.",
-          "audio": 157.302645,
-          "video": 157.142039,
+          "audio": 157.311812,
+          "video": 157.128172,
           "cues": [
             "A full optical screening tutorial still needs separately validated downstream stages."
           ]
@@ -2971,16 +2971,16 @@
     },
     {
       "lesson": "78_spacr_screens",
-      "audio_sha256": "9f47aa717a6272160a733bd7d3a1ca46872bbca89671b17d8ad232a32918e0dc",
+      "audio_sha256": "52398feb9996c00f7e66d549961fe7572b802a48253af8f051955577ebcf3ad8",
       "clocks": {
-        "audio": 56.314561,
-        "video": 56.363851,
-        "expected": 56.31712694084546,
-        "width": 2560,
-        "height": 1440,
+        "audio": 54.196308,
+        "video": 54.221518,
+        "expected": 54.19593534239926,
+        "width": 1920,
+        "height": 1080,
         "error": null,
-        "requested_audio_time": 54.905,
-        "seek_elapsed_seconds": 1.5084079220014246
+        "requested_audio_time": 52.75,
+        "seek_elapsed_seconds": 1.5068936410025344
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2989,16 +2989,16 @@
     },
     {
       "lesson": "79_module_inputs_outputs",
-      "audio_sha256": "01f520a8813f801f23a17ec68475668f0f704c4f4d015676b5a9076739c439f9",
+      "audio_sha256": "390d7c5e4f044d05799b4aa0e43c2f78dde28e95d3ab28c316f71b8819a686ed",
       "clocks": {
-        "audio": 136.346735,
-        "video": 136.323384,
-        "expected": 136.3468111016074,
-        "width": 2560,
-        "height": 1440,
+        "audio": 139.213617,
+        "video": 139.251532,
+        "expected": 139.2139678629885,
+        "width": 1920,
+        "height": 1080,
         "error": null,
-        "requested_audio_time": 134.91000000000003,
-        "seek_elapsed_seconds": 1.50599941299879
+        "requested_audio_time": 137.775,
+        "seek_elapsed_seconds": 1.5068346070002008
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3007,16 +3007,16 @@
     },
     {
       "lesson": "80_image_analysis_pathways",
-      "audio_sha256": "9f46baf8fe23a24517761ed2c642fa66498674496fc7214c285b69a103b9b08d",
+      "audio_sha256": "0f925f0b2715de3b679ddb7f2019c4bc80d562b653fa7e76b77e3170e51bd088",
       "clocks": {
-        "audio": 61.442473,
-        "video": 61.470267,
-        "expected": 61.442088458202164,
-        "width": 2560,
-        "height": 1440,
+        "audio": 53.143629,
+        "video": 53.174416,
+        "expected": 53.14335454082858,
+        "width": 1920,
+        "height": 1080,
         "error": null,
-        "requested_audio_time": 60.02,
-        "seek_elapsed_seconds": 1.5073556440001994
+        "requested_audio_time": 51.705000000000005,
+        "seek_elapsed_seconds": 1.5058226879991707
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3025,16 +3025,16 @@
     },
     {
       "lesson": "81_sequencing_pathways",
-      "audio_sha256": "0dbfe2c4a0f08b06cad739fb67e5a978c58f271c037b2d73cfcbb5df196cd32a",
+      "audio_sha256": "3fe7eec0a2f821c92cac4aec4aba013eaa1a00cd01d7b5c3d3963b0615ad447c",
       "clocks": {
-        "audio": 61.986682,
-        "video": 61.903861,
-        "expected": 61.98668200000001,
-        "width": 2560,
-        "height": 1440,
+        "audio": 63.290615,
+        "video": 63.303556,
+        "expected": 63.29093640330284,
+        "width": 1920,
+        "height": 1080,
         "error": null,
-        "requested_audio_time": 60.55500000000001,
-        "seek_elapsed_seconds": 1.5056544010003563
+        "requested_audio_time": 61.86000000000001,
+        "seek_elapsed_seconds": 1.5077011160028633
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3043,16 +3043,16 @@
     },
     {
       "lesson": "82_toxoplasma",
-      "audio_sha256": "0d33161384a3a65a063758f0c7bc304f16399325546b5246785e34cceaad29ab",
+      "audio_sha256": "6540878a1e27baa63293d3c7a7bc00dd1d6465f2f042dfe8d395f85b2b584c97",
       "clocks": {
-        "audio": 22.118633,
-        "video": 22.146175,
-        "expected": 22.119482031484385,
+        "audio": 25.30766,
+        "video": 25.296859,
+        "expected": 25.307234010509216,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 20.679999999999996,
-        "seek_elapsed_seconds": 1.5070178050009417
+        "requested_audio_time": 23.885,
+        "seek_elapsed_seconds": 1.5073921820003306
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3061,16 +3061,16 @@
     },
     {
       "lesson": "83_plasmodium",
-      "audio_sha256": "08c6bb920de83012847d3df15f2897e15e609b91e7a48ed6e183cfc68c718657",
+      "audio_sha256": "1ab47d30c80b984995f75ff1ef3eec491d742ef9f5fbe16a1f6639158c1f8224",
       "clocks": {
-        "audio": 19.665306,
-        "video": 19.703514,
-        "expected": 19.66228115468578,
+        "audio": 21.106133,
+        "video": 21.108584,
+        "expected": 21.102351216627845,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 18.245,
-        "seek_elapsed_seconds": 1.5061604689999513
+        "requested_audio_time": 19.669999999999998,
+        "seek_elapsed_seconds": 1.5078857490007067
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3079,16 +3079,16 @@
     },
     {
       "lesson": "84_candida",
-      "audio_sha256": "3341ea6ca3894ef1dcb9d0c5e67287cf320a9a398cb31128f9dee5c93d15545e",
+      "audio_sha256": "18260a0ef103c0a782ce0787819ea2f64f75ad1e724f96a8fd40ffaee35f5256",
       "clocks": {
-        "audio": 17.627399,
-        "video": 17.66525,
-        "expected": 17.622240161384845,
+        "audio": 17.804336,
+        "video": 17.802977,
+        "expected": 17.807400957135478,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 16.205000000000002,
-        "seek_elapsed_seconds": 1.5067610169990076
+        "requested_audio_time": 16.39,
+        "seek_elapsed_seconds": 1.5069032089995744
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3097,16 +3097,16 @@
     },
     {
       "lesson": "85_host_pathogen",
-      "audio_sha256": "8cb84b55729a3697ee89b16552398072a7fab783082f7741c8af8475f6c91540",
+      "audio_sha256": "4abe49ef26f9ed312bf575d2ef7cd569b0b88ee5c458123f7e5f94a2791f68ad",
       "clocks": {
-        "audio": 27.605925,
-        "video": 27.591678,
-        "expected": 27.604951403396242,
+        "audio": 28.997404,
+        "video": 29.017777,
+        "expected": 28.999552114971475,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 26.185,
-        "seek_elapsed_seconds": 1.506960276999962
+        "requested_audio_time": 27.554999999999996,
+        "seek_elapsed_seconds": 1.512622198999452
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,

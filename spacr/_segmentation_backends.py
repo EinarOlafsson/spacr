@@ -785,6 +785,44 @@ def _write_marker(env, record):
     os.replace(temporary, path)
 
 
+def _requirement_name(requirement):
+    """The distribution a requirement names, normalised for comparison.
+
+    :param requirement: e.g. ``'pdfplumber==0.11.10'``.
+    :returns: e.g. ``'pdfplumber'``; ``'rapidocr-onnxruntime'`` for either
+        spelling of that name.
+    """
+    name = re.split(r"[<>=!~\[;@ ]", str(requirement).strip(), maxsplit=1)[0]
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def _stale_requirements(name, record=None, root=None):
+    """The pins ``name`` needs now that its install record does not list.
+
+    An environment holds what spaCR pinned on the day it was built. A pin
+    added later -- the figure reader's pdfplumber, added by item 424 after
+    the reader first installed (item 469) -- is in no environment built
+    before it, and only building the environment again adds it (item 518).
+    The record's own list is the evidence; nothing is imported and no
+    process is started, so this is cheap enough for the GUI thread.
+
+    :param name: the backend.
+    :param record: its install record; read from disk when None.
+    :param root: the backends folder, when ``record`` is read.
+    :returns: the missing requirements in the spec's order; empty when the
+        record lists every one or keeps no list to compare with.
+    """
+    spec = _spec(name)
+    if record is None:
+        record = _read_marker(os.path.join(_backends_root(root), spec.name))
+    listed = (record or {}).get("requirements")
+    if not isinstance(listed, list):
+        return []
+    have = {_requirement_name(item) for item in listed}
+    return [item for item in spec.requirements
+            if _requirement_name(item) not in have]
+
+
 #: ``name -> interpreters`` found for it, once per process.
 _CANDIDATES = {}
 
@@ -1501,7 +1539,7 @@ def _preflight(spec, root, *, run=None, probe=None):
 
 def _install_backend(name, *, root=None, progress=None, cancel=None,
                      torch_index=None, runner=None, preflight=None,
-                     worker=None):
+                     worker=None, reinstall=False):
     """Build ``name``'s environment and install it there. Off the GUI thread.
 
     The environment is marked finished only after its self-test has loaded
@@ -1520,6 +1558,11 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
     :param runner: :func:`_run_step`, or a stand-in for tests.
     :param preflight: :func:`_preflight`, or a stand-in for tests.
     :param worker: the worker's path, for tests.
+    :param reinstall: build it again even though it is installed, the way a
+        backend whose record lacks a pin spaCR now needs is brought up to
+        date (item 518; see :func:`_stale_requirements`). Its running worker
+        is stopped first and its environment removed. Without it an
+        installed backend is returned as it is.
     :returns: the :class:`_BackendState` afterwards.
     :raises _InstallBlocked: when this computer cannot install it.
     :raises _InstallFailed: when a step failed, with its output.
@@ -1529,7 +1572,7 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
     root = _backends_root(root)
     env = os.path.join(root, spec.name)
     state = _backend_state(spec.name, root)
-    if state.state == _INSTALLED:
+    if state.state == _INSTALLED and (not reinstall or state.in_process):
         return state
     report = progress or (lambda step, steps, text: None)
     report(0, 1, "Checking this computer can install it")
@@ -1539,6 +1582,7 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
         interpreter = (preflight or _preflight)(spec, root)
         _PROBED.pop(spec.name, None)
         if os.path.lexists(env):
+            _shutdown_workers(spec.name)
             _remove_tree(env, root)
         index = _torch_index_url() if torch_index is None else (torch_index or None)
         steps = _install_plan(spec, env, interpreter, torch_index=index,
@@ -2903,11 +2947,20 @@ def _worker_read_pdf(request, adapters):
     """
     try:
         import pdfplumber
+    except ModuleNotFoundError as exc:
+        if exc.name != "pdfplumber":
+            raise ImportError(
+                f"pdfplumber is in the figure reader's environment but does "
+                f"not load: {exc}") from exc
+        raise ModuleNotFoundError(
+            "This figure reader's environment has no pdfplumber: it was "
+            "installed before the reader read PDFs. Plaque Assay offers to "
+            "reinstall it in Figure mode, which adds pdfplumber.",
+            name="pdfplumber") from exc
     except ImportError as exc:
         raise ImportError(
-            "This figure reader was installed before it read PDFs. "
-            "Reinstall the plaque figure reader from the Model Zoo to add "
-            "pdfplumber.") from exc
+            f"pdfplumber is in the figure reader's environment but does not "
+            f"load: {exc}") from exc
     dest = request["dest"]
     os.makedirs(dest, exist_ok=True)
     dpi = int(request.get("dpi", 200))

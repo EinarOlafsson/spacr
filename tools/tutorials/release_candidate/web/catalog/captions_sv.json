@@ -340,7 +340,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Open Data to bring existing files into a project or work with results. Import accepts images, masks and measurement tables. Use Run Compare to compare runs, Experiment Design to prepare plate layouts, and QC to inspect recorded quality checks. Choose the tile that matches your next task.",
+          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -360,7 +360,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Open Tools for image editing and exploration. Make Masks lets you edit masks and open the Cellpose Workbench. Align and Stitch combines overlapping image tiles. Image UMAP, Gate Editor and Graph Builder help you explore measurements and make plots. Open a module to find its related tools in the toolbar.",
+          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -405,7 +405,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "The toolbar in Classify opens Classifier Evaluation, Explain CV Model, Activation, Training Runs and Feature Explorer. Hover over an icon to see its name, then click it to open the tool. Use these views to inspect a model, compare training runs or explore important features.",
+          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -10117,21 +10117,21 @@
       "id": "78_spacr_screens",
       "number": 78,
       "slug": "spacr_screens",
-      "title": "Screening med spaCR",
+      "title": "spaCR screens",
       "series": 1,
       "app_key": null,
-      "section": "Arbetsflöden",
-      "description": "Följ en poolad bildbaserad screening från Home via bildmätningar, fenotypklassificering och streckkodsräkning till regression.",
+      "section": "Workflows",
+      "description": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
       "objectives": [
-        "Välja startmodul utifrån de data som redan finns.",
-        "Identifiera vilka data varje modul läser och skriver.",
-        "Använda de länkade modullektionerna och API-beskrivningarna för nästa steg."
+        "Choose a starting module from the data you already have.",
+        "Identify what each module reads and writes.",
+        "Follow the linked module lessons and API contracts for the next step."
       ],
-      "prerequisite": "Installera spaCR och öppna Home. Den här lektionen förklarar navigering och dataöverföring; de länkade modullektionerna innehåller genomarbetade dataexempel. In- och utdata omfattar villkorade alternativ som förklaras för varje modul.",
+      "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
       "scenes": [
         {
           "visual": "home",
-          "narration": "Börja på Home med det material du redan har. En poolad bildbaserad screening har två datagrenar: bilder beskriver fenotypen, medan sekvensering identifierar vilka perturbationer som finns representerade i varje brunn. Mask, Measure, Annotate och Classify bygger bildgrenen. Map Barcodes bygger sekvenseringsgrenen. Regression sammanför kompatibla poäng och guideantal. Det är sammankopplade dataprodukter, inte sex knappar som alltid måste köras i en bestämd ordning.",
+          "narration": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -10139,7 +10139,7 @@
         },
         {
           "visual": "module_mask",
-          "narration": "Öppna Mask från Home. Välj kanaler och modeller, granska en förhandsvisning och kör sedan Mask. Measure använder de sammanslagna arrayerna; räkningsdatabasen är ännu inte en tabell med egenskaper. Indata: mikroskopbilder; segmenteringscheckpoint. Utdata: bilder och etikettmasker; etikettmasker; objektantal. Mask till Measure: använd samma projekt och rätt kanalindex för bilder och masker.",
+          "narration": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10148,7 +10148,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Öppna Measure från Home. Measure läser bilder och etikettplan tillsammans. Aktivera sparande av utsnitt om du behöver PNG-filer; behåll databasen och källprojektet tillsammans för utsnitt som läses vid behov. Indata: bilder och etikettmasker; etikettmasker. Utdata: uppmätta objekt; objektutsnitt. Mask till Measure: använd samma projekt och rätt kanalindex för bilder och masker. Measure till Annotate: spara eller läs utsnitt vid behov med stabila objektidentifierare. Measure till Classify: välj bildfamiljen eller den tabulära familjen efter dina indata.",
+          "narration": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10159,7 +10159,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Öppna Annotate från Home. Märk representativa objekt i png_list före övervakad träning. Använd separata annoteringar för olika frågeställningar och håll tränings- och utvärderingsgrupper oberoende av varandra. Indata: uppmätta objekt; objektutsnitt; återanvändbara urvalsgrindar. Utdata: träningsannoteringar. Measure till Annotate: spara eller läs utsnitt vid behov med stabila objektidentifierare. Annotate till Classify: håll annoterade tränings- och utvärderingsgrupper åtskilda.",
+          "narration": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10169,7 +10169,7 @@
         },
         {
           "visual": "module_classify_merged",
-          "narration": "Öppna Classify från Home. Välj Computer Vision för utsnitt eller objektbilder som läses vid behov, eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De två familjerna använder olika indata. Indata: uppmätta objekt; objektutsnitt; träningsannoteringar. Utdata: klassificeringspoäng för objekt; tränad bildklassificerare; anpassad egenskapsklassificerare; utvärderingspaket för klassificerare. Measure till Classify: välj bildfamiljen eller den tabulära familjen efter dina indata. Annotate till Classify: håll annoterade tränings- och utvärderingsgrupper åtskilda. Classify till Regression: välj den avsedda CV- eller ML-poängkolumnen och bevara platt- och brunnsidentifierarna.",
+          "narration": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10180,7 +10180,7 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Öppna Map Barcodes från Home. Ange referenserna som kodar ditt experiment. Granska mappade antal och kvalitetskontrollen av streckkoder innan du parar ihop guideantal per brunn med fenotyppoäng. Indata: sekvenseringsläsningar. Utdata: guideantal per brunn. Map Barcodes till Regression: para ihop guideantal med fenotyppoäng med konsekventa nycklar för platta och brunn.",
+          "narration": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -10189,7 +10189,7 @@
         },
         {
           "visual": "module_regression",
-          "narration": "Öppna Regression från Home. Matcha platt- och brunnsidentifierare mellan fenotypdata och guideantal, välj responsvariabel och kontroller och granska diagnostiken innan du tolkar träffar. Direkt uppmätta responser stöds också. Indata: klassificeringspoäng för objekt; guideantal per brunn; optiska streckkodstilldelningar; uppmätta objekt. Utdata: regressionsresultat och träffar. Classify till Regression: välj den avsedda CV- eller ML-poängkolumnen och bevara platt- och brunnsidentifierarna. Map Barcodes till Regression: para ihop guideantal med fenotyppoäng med konsekventa nycklar för platta och brunn. OPS till Regression: sammanfoga eller aggregera uttryckligen avkodade objekt till fenotyp- och guideindata före Regression; detta är inte en direkt CSV-överföring.",
+          "narration": "This is where the two halves of the screen meet. Open Regression from Home and give it both: the phenotype scores from Classify and the guide counts from Map Barcodes. Regression matches them on plate and well, so those keys have to agree in both files. Choose the response column and your controls, run the fit, and open the diagnostics before you believe any hit. If your barcodes were read optically with OPS instead, join and aggregate the decoded objects to your phenotype and guide data first; OPS does not hand over a ready-made count table. Regression can also model a directly measured response. It writes a results folder of coefficients, hit tables, settings and diagnostic figures.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -10200,76 +10200,13 @@
         },
         {
           "visual": "home_summary",
-          "narration": "Kontrollera före Regression att bildpoäng, sekvenseringsantal och försökslayout använder matchande platt- och brunnsidentifierare. Bevara objektidentifierare, annoteringskolumn, klassificerarinställningar och streckkodsreferenser tillsammans med körningen. Använd de länkade modullektionerna för ett genomarbetat exempel på varje steg; välj genomgången för poolad screening om du vill att Home ska vägleda navigeringen.",
+          "narration": "So a pooled screen runs as two streams that meet in Regression. Before you open it, check that the plate and well identifiers match across your scores, guide counts and plate layout, and keep the annotation column, classifier settings and barcode references with the run. The linked module lessons walk through each step, or choose the pooled-screen walkthrough on Home.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_aoede",
-          "af_bella",
-          "af_heart",
-          "af_jessica",
-          "af_river",
-          "af_sarah",
-          "af_sky",
-          "am_adam",
-          "am_echo",
-          "am_eric",
-          "am_fenrir",
-          "am_liam",
-          "am_michael",
-          "am_onyx",
-          "am_puck",
-          "am_santa",
-          "bf_alice",
-          "bf_emma",
-          "bf_isabella",
-          "bf_lily",
-          "bm_daniel",
-          "bm_fable",
-          "bm_george",
-          "bm_lewis"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
+          "af_heart"
         ]
       }
     },
@@ -10277,21 +10214,21 @@
       "id": "79_module_inputs_outputs",
       "number": 79,
       "slug": "module_inputs_outputs",
-      "title": "Modulernas indata och utdata",
+      "title": "Module inputs and outputs",
       "series": 1,
       "app_key": null,
-      "section": "Arbetsflöden",
-      "description": "Hitta varje aktuell moduls indata, sparade utdata, tidigare producenter och efterföljande konsumenter, inklusive verktyg inuti en Home-modul.",
+      "section": "Workflows",
+      "description": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
       "objectives": [
-        "Välj startmodul utifrån de data du redan har.",
-        "Identifiera vad varje modul läser och skriver.",
-        "Följ de länkade modullektionerna och API-kontrakten för nästa steg."
+        "Choose a starting module from the data you already have.",
+        "Identify what each module reads and writes.",
+        "Follow the linked module lessons and API contracts for the next step."
       ],
-      "prerequisite": "Installera spaCR och öppna Home. Lektionen förklarar navigering och dataöverföringar; de länkade modullektionerna ger genomarbetade dataexempel. Indata och utdata omfattar villkorliga alternativ som förklaras för varje modul.",
+      "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
       "scenes": [
         {
           "visual": "home",
-          "narration": "Välj modul efter de data du har och det resultat du behöver. Home visar huvudmodulerna; relaterade verktyg kan öppnas inuti en överordnad modul. Den här kapitelindelade referensen täcker alla aktuella vägar. Indata och utdata kan vara villkorliga: en bildklassificerare och en egenskapsklassificerare behöver olika data, och en visare sparar inte automatiskt allt den visar. Anteckningarna för varje modul förklarar skillnaderna. Behåll originalfilerna och använd registrerade objekt-, platt- och brunnsidentiteter när resultat överförs mellan moduler.",
+          "narration": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -10299,7 +10236,7 @@
         },
         {
           "visual": "module_mask",
-          "narration": "Öppna Mask från Home. Välj kanaler och modeller, inspektera en förhandsvisning och kör sedan Mask. Measure använder de sammanslagna arrayerna; databasen med antal är ännu ingen egenskapstabell. Indata: Mikroskopbilder; Segmenteringskontrollpunkt. Mikroskopbilder: Källbildmapp; originalfiler, leverantörsfiler som stöds eller importerade TIFF-filer. Segmenteringskontrollpunkt: Sparad Cellpose-kompatibel kontrollpunkt eller en kompatibel installerad beräkningsmotor vald med sin egen konfiguration. Utdata: Bilder och etikettmasker; Etikettmasker; Objektantal. Bilder och etikettmasker: merged/*.npy i projektet; kanaler och heltalsetikettplan delar varje bildfälts array. Etikettmasker: masks/ när den behålls, eller uttryckligen sparade bild- och maskpar. Mellanliggande masker kan tas bort vid rensning. Objektantal: measurements/measurements.db; enbart Masks antal är inte egenskapsmätningar per objekt. Mask till Measure: Använd samma projekt och rätt kanalindex för bild och mask. Cellpose Workbench till Mask: Välj den sparade kompatibla kontrollpunkten i Mask. Import Images till Mask: Använd importerade bildplan och identiteter; import av enbart bilder kräver fortfarande segmentering. Format Converter till Mask: Använd den konverterade layouten och bevara källidentitetsmappningarna. Mask till Timelapse: Aktivera den inbäddade tidsserievägen innan länkade etiketter skapas. Import till Mask: För import av enbart bilder använder du Import Images eller Format Converter och anger det formaterade bildprojektet i Mask. Externa mätningar ensamma är inte segmenteringsindata.",
+          "narration": "Open Mask from Home. Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table. Mask reads the microscope images and the segmentation checkpoint. Look for the microscope images here: Source image folder; original files, supported vendor files or imported TIFFs. Look for the segmentation checkpoint here: Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration. From those, Mask produces the images and label masks, the label masks, and the object counts. You'll find the images and label masks here: merged/*.npy in the project; channels and integer label planes share each field array. You'll find the label masks here: masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup. You'll find the object counts here: measurements/measurements.db; Mask counts alone are not per-object feature measurements. Measure picks up the images and label masks next. Use the same project and the correct image/mask channel indices. Cellpose Workbench can supply the segmentation checkpoint. Select the saved compatible checkpoint in Mask. If you start in Import Images, it provides the microscope images. Use imported image planes and identities; image-only imports still need segmentation. Format Converter can supply them as well. Use the converted layout and preserve source identity mappings. You can also take the microscope images on to Timelapse. Enable the nested time-series route before generating linked labels. The microscope images from Import work here too. For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10313,7 +10250,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Öppna Measure från Home. Measure läser bilder och etikettplan tillsammans. Aktivera lagring av utsnitt om du behöver PNG-filer; håll databasen och källprojektet tillsammans för utsnitt som hämtas vid behov. Indata: Bilder och etikettmasker; Etikettmasker. Utdata: Uppmätta objekt; Objektbeskärningar. Uppmätta objekt: measurements/measurements.db; objekttabellerna beror på aktiverade masker för cell, nucleus, pathogen och organelle. Relevanta tabeller beror på vald väg: cell, nucleus, pathogen, cytoplasm. Relevanta kolumner beror på vald väg: plateID, rowID, columnID, fieldID. Objektbeskärningar: data/**/*_png när save_png är aktiverat; png_list indexerar sparade utsnitt. Arbetsflöden som stöds kan i stället hämta utsnitt vid behov från sammanslagna arrayer och masker. Relevanta tabeller beror på vald väg: png_list. Relevanta kolumner beror på vald väg: png_path, prcfo. Mask till Measure: Använd samma projekt och rätt kanalindex för bild och mask. Measure till Annotate: Spara eller hämta utsnitt vid behov med stabila objektidentiteter. Measure till Classify: Välj bildfamiljen eller den tabulära familjen efter dina indata. Make Masks till Measure: Använd FEATURES för att para ihop bilder och masker och skriva ett uppmätt projekt; fristående masker är inte sammanslagna arrayer. External Masks till Measure: Mät om endast vid behov; External Masks kan redan utföra mätning. Measure till Image UMAP: Välj egenskapskolumner och inspektera representativa utsnitt. Measure till Embeddings: Bevara uppgifter om kodarens och kanalpolicyns ursprung. Measure till Gate Editor: Använd de faktiska uppmätta egenskapernas definitioner och enheter. Measure till Graph Builder: Välj uttryckligen variabler, grupper och filter. Measure till QC: Granska tillgängliga kontroller och saknade belägg. Measure till Recruitment: Kräv avsedda kompartmentintensiteter och identiteter. Measure till Invasion Assay: Kräv mätningar av tvåfärgsfärgning och lämpliga baslinjekontroller. Measure till Replication Assay: Kräv uttryckliga kopplingar mellan parasit- och vakuolidentiteter. Timelapse till Measure: Använd tidsserieprojektet med stabila bildrute- och objektidentiteter. Measure till Motility Assay: Kombinera uppmätta objekt med motsvarande spår. Measure till Feature Explorer: Definiera klassjämförelsen och inspektera filtreringen. Measure till Database Browser: Inspektera de faktiska tabellerna före export. Measure till AnnData Export: Exportera kompatibla egenskaps- och metadatakolumner. Measure till Dose–Response: Koppla den uppmätta responsen till uttryckliga doser och kontroller. Measure till Endodyogeny size proxy: Tillhandahåll de uppmätta projektens rötter och nödvändiga objekt- och png_list-tabeller. Kontrollera aggregering per värdcell och areaenheter innan storleksintervall tolkas; Masks antalsdatabas räcker inte ensam. Import till Measure: Importera motsvarande bilder och externa heltalsmasker för att bygga sammanfogade projektarrayer och öppna sedan Measure för projektet. Hoppa över steget om kompatibla mätningar redan har importerats eller beräknats. Lägg inte till dubbla mätningar i en befintlig importerad tabell. Measure till Host–Pathogen Analysis: Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol.",
+          "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Measure reads the images and label masks, and the label masks. From those, Measure produces the measured objects and the object crops. You'll find the measured objects here: measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Depending on the route, the tables that matter are cell, nucleus, pathogen, cytoplasm. The columns to keep an eye on are plateID, rowID, columnID, fieldID. You'll find the object crops here: data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are png_path, prcfo. Mask can supply the images and label masks. Use the same project and the correct image/mask channel indices. Annotate picks up the measured objects and the object crops next. Save or stream crops with stable object identities. Classify uses them too. Choose the image or tabular family to match your input. If you start in Make Masks, it provides the label masks. Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. The images and label masks from External Masks work here too. Re-measure only when needed; External Masks can already perform measurement. You can also take the measured objects and the object crops on to Image UMAP. Choose feature columns and inspect representative crops. They also feed Embeddings. Retain encoder and channel-policy provenance. Gate Editor reads the measured objects as well. Use the actual measured feature definitions and units. Graph Builder is another place they go. Choose explicit variables, groups and filters. QC uses them too. Review available checks and missing evidence. They also feed Recruitment. Require the intended compartment intensities and identities. Invasion Assay is another place they go. Require two-colour stain measurements and appropriate baseline controls. Replication Assay uses them too. Require explicit parasite-to-vacuole identities. Timelapse can supply the images and label masks. Use the time-series project with stable frame/object identities. Motility Assay picks up the measured objects next. Combine measured objects with matching tracks. They also feed Feature Explorer. Define the class comparison and inspect filtering. Database Browser is another place they go. Inspect actual tables before exporting. AnnData Export uses them too. Export compatible feature and metadata columns. They also feed Dose–Response. Join the measured response to explicit doses and controls. Endodyogeny size proxy is another place they go. Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient. If you start in Import, it provides the images and label masks, and the label masks. Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. You can also take the measured objects on to Host–Pathogen Analysis. Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10342,7 +10279,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Öppna Annotate från Home. Märk representativa objekt i png_list före övervakad träning. Använd separata annoteringar för olika frågor och håll tränings- och utvärderingsgrupper oberoende. Indata: Uppmätta objekt; Objektbeskärningar; Återanvändbara grindar. Återanvändbara grindar: Sparade definitioner av tröskel- eller polygonbaserade urvalsgrindar eller en vald objektmängd; tillämpa grinden på samma egenskapsdefinitioner. Utdata: Träningsannoteringar. Träningsannoteringar: En vald annoteringskolumn i measurements/measurements.db, tabellen png_list; etiketterna hör till objektidentiteter. Relevanta tabeller beror på vald väg: png_list. Relevanta kolumner beror på vald väg: prcfo. Measure till Annotate: Spara eller hämta utsnitt vid behov med stabila objektidentiteter. Annotate till Classify: Håll märkta tränings- och utvärderingsgrupper åtskilda. External Masks till Annotate: Håll ihop det nymätta projektet och utsnittsindexet. Import till Annotate: Importerade tabeller kräver uttryckliga mappningar av kolumner och objektidentiteter. Gate Editor till Annotate: Tillämpa kompatibla urvalsgrindar och granska sedan kandidatetiketter. Annotate till Annotator Agreement: Välj oberoende annoteringskolumner för samma objekt.",
+          "narration": "Open Annotate from Home. Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent. Annotate reads the measured objects, the object crops and the reusable gates. Look for the reusable gates here: Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions. From those, Annotate produces the training annotations. You'll find the training annotations here: A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are prcfo. Measure can supply the measured objects and the object crops. Save or stream crops with stable object identities. Classify picks up the training annotations next. Keep labelled training and evaluation groups separate. If you start in External Masks, it provides the measured objects and the object crops. Keep the newly measured project and crop index together. Import can supply them as well. Imported tables require explicit column and object-identity mappings. The reusable gates from Gate Editor work here too. Apply compatible gates, then review candidate labels. You can also take the training annotations on to Annotator Agreement. Choose independent annotation columns for the same objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10356,7 +10293,7 @@
         },
         {
           "visual": "module_classify_merged",
-          "narration": "Öppna Classify från Home. Välj Computer Vision för utsnitt eller objektbilder som hämtas vid behov, eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De två familjerna använder olika indata. Indata: Uppmätta objekt; Objektbeskärningar; Träningsannoteringar. Utdata: Poäng för objektklassificering; Tränad bildklassificerare; Anpassad egenskapsklassificerare; Utvärderingspaket för klassificerare. Poäng för objektklassificering: Sparade CSV-filer med poäng och, när de sammanfogas, measurements/measurements.db, tabellen png_list. Relevanta tabeller beror på vald väg: png_list. Relevanta kolumner beror på vald väg: pred, cv_predictions, ml_pred, predictions. Tränad bildklassificerare: Sparad kontrollpunkt för klassificeraren, modellinställningar och motsvarande kanal- och förbehandlingskonfiguration. Anpassad egenskapsklassificerare: Den anpassade tabulära klassificeraren och dess registrerade egenskapslista, träningsinställningar och valideringsresultat. Utvärderingspaket för klassificerare: Prediktioner och etiketter från oberoende utvärdering, metadata om datauppdelning samt kalibrerings- och läckagemått för en sparad klassificerarkörning. Measure till Classify: Välj bildfamiljen eller den tabulära familjen efter dina indata. Annotate till Classify: Håll märkta tränings- och utvärderingsgrupper åtskilda. Classify till Regression: Välj avsedd poängkolumn för CV eller ML och bevara platt- och brunnsidentitet. Classify till Classifier Evaluation: Använd motsvarande prediktioner från oberoende utvärdering och metadata om datauppdelningen. Classify till Activation: Tillhandahåll också motsvarande utsnitt och kanalförbehandling. Classify till Explain CV Model: Välj CV-prediktioner och motsvarande uppmätta objekt. Gate Editor till Classify: Skriv granskade grindurval till en annoteringskolumn och välj sedan samma kolumn och objektpopulation i Classify. Håll valideringsobjekt åtskilda från träningsetiketter. Image UMAP till Classify: Skriv granskade lassourval till en annoteringskolumn i motsvarande objektdatabas och välj sedan kolumnen i Classify. Granska bildutsnitten och validera etiketterna; kluster i inbäddningsrymden är inte referenssanning.",
+          "narration": "Open Classify from Home. Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs. Classify reads the measured objects, the object crops and the training annotations. From those, Classify produces the object classification scores, the trained image classifier, the fitted feature classifier and the classifier evaluation bundle. You'll find the object classification scores here: Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are pred, cv_predictions, ml_pred, predictions. You'll find the trained image classifier here: Saved classifier checkpoint, model settings and matching channel/preprocessing configuration. You'll find the fitted feature classifier here: The fitted tabular classifier and its recorded feature list, training settings and validation results. You'll find the classifier evaluation bundle here: Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run. Measure can supply the measured objects and the object crops. Choose the image or tabular family to match your input. If you start in Annotate, it provides the training annotations. Keep labelled training and evaluation groups separate. Regression picks up the object classification scores next. Select the intended CV or ML score column and preserve plate/well identity. You can also take the classifier evaluation bundle on to Classifier Evaluation. Use the matching held-out predictions and split metadata. Activation reads the trained image classifier as well. Also provide the matching crops and channel preprocessing. Explain CV Model picks up the object classification scores next. Select CV predictions and the matching measured objects. The training annotations from Gate Editor work here too. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels. Image UMAP can supply them as well. Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10372,7 +10309,7 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Öppna Map Barcodes från Home. Tillhandahåll referenserna som kodar experimentet. Inspektera mappade antal och kvalitetskontroll (QC) av streckkoder innan guideantal per brunn paras ihop med fenotyppoäng. Indata: Sekvenseringsläsningar. Sekvenseringsläsningar: Enkeländade eller parade FASTQ-filer med motsvarande referenstabeller för streckkoder. Utdata: Guideantal per brunn. Guideantal per brunn: Körningsmapp för Map Barcodes: unique_combinations.csv och annotated_reads.h5. Brunnsidentiteten kräver motsvarande streckkodsreferenser. Relevanta kolumner beror på vald väg: count. Map Barcodes till Regression: Para ihop guideantal med fenotyppoäng med konsekventa platt- och brunnsnycklar. Map Barcodes till Barcode QC: Kontrollera mappning och täckning innan guider filtreras.",
+          "narration": "Open Map Barcodes from Home. Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores. Map Barcodes reads the sequencing reads. Look for the sequencing reads here: Single-end or paired FASTQ files, with the matching barcode reference tables. From those, Map Barcodes produces the guide counts per well. You'll find the guide counts per well here: Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. The columns to keep an eye on are count. Regression picks up the guide counts per well next. Pair guide counts with phenotype scores using consistent plate/well keys. Barcode QC uses them too. Check mapping and coverage before guide filtering.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -10382,7 +10319,7 @@
         },
         {
           "visual": "module_regression",
-          "narration": "Öppna Regression från Home. Matcha platt- och brunnsidentifierare mellan fenotypdata och guideantal, välj respons och kontroller och inspektera diagnostik innan träffar tolkas. Direkt uppmätta responser stöds också. Indata: Poäng för objektklassificering; Guideantal per brunn; Optiska streckkodstilldelningar; Uppmätta objekt. Optiska streckkodstilldelningar: measurements.db på OPS målplats: tabeller för geometri per brunn, fenotypregistrering, cellkärnor och streckkoder; valfria läsningar per cykel. Relevanta tabeller beror på vald väg: ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads. Utdata: Regressionsresultat och träffar. Regressionsresultat och träffar: Resultatmapp för vald körning: CSV-filer med koefficienter och resultat, träfftabeller, inställningar och diagnostiska figurer. Classify till Regression: Välj avsedd poängkolumn för CV eller ML och bevara platt- och brunnsidentitet. Map Barcodes till Regression: Para ihop guideantal med fenotyppoäng med konsekventa platt- och brunnsnycklar. OPS till Regression: Sammanfoga eller aggregera avkodade objekt uttryckligen till fenotyp- och guideindata före Regression; detta är ingen direkt överföring av CSV. Regression till Run Compare: Jämför kompatibla sparade resultatuppsättningar och deras inställningar. Regression till Hit List: Inspektera rangordnade träffar och överensstämmelse mellan guider. Regression till Volcano Explorer: Inspektera sparade effekter och justerad signifikans. Regression till Diagnostics: Öppna den diagnostik som körningen faktiskt har skrivit. Regression till Methods & Results: Granska exporterad text och varje resultat den hänvisar till. Regression till Investigate Hit: Sammanfoga kompatibla fenotyp- och objektdata för den valda träffen.",
+          "narration": "Open Regression from Home. Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported. Regression reads the object classification scores, the guide counts per well, the optical barcode assignments and the measured objects. Look for the optical barcode assignments here: OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Depending on the route, the tables that matter are ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads. From those, Regression produces the regression results and hits. You'll find the regression results and hits here: Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures. Classify can supply the object classification scores. Select the intended CV or ML score column and preserve plate/well identity. If you start in Map Barcodes, it provides the guide counts per well. Pair guide counts with phenotype scores using consistent plate/well keys. The optical barcode assignments from OPS work here too. Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff. Run Compare picks up the regression results and hits next. Compare compatible saved result sets and their settings. Hit List uses them too. Inspect ranked hits and guide agreement. They also feed Volcano Explorer. Inspect saved effects and adjusted significance. Diagnostics is another place they go. Open the diagnostics actually written by this run. Methods & Results uses them too. Review exported prose and every traced result. They also feed Investigate Hit. Join compatible phenotype and object data for the chosen hit.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -10398,7 +10335,7 @@
         },
         {
           "visual": "module_feature_explorer",
-          "narration": "Öppna Classify från Home och välj sedan Feature Explorer. Rangordna uppmätta egenskaper för en vald klassjämförelse; granska filtrering och klassdefinitioner innan rangordningen tolkas. Indata: Uppmätta objekt; Träningsannoteringar. Utdata: Figurer och tabellexporter. Figurer och tabellexporter: Utdataplatsen som verktyget väljer; exporterna beskriver valda data och filter. Measure till Feature Explorer: Definiera klassjämförelsen och inspektera filtreringen.",
+          "narration": "Open Classify from Home, then choose Feature Explorer. Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking. Feature Explorer reads the measured objects and the training annotations. From those, Feature Explorer produces the figures and table exports. You'll find the figures and table exports here: The output location chosen by the tool; exports describe the selected data and filters. Measure can supply the measured objects. Define the class comparison and inspect filtering.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10407,7 +10344,7 @@
         },
         {
           "visual": "module_convert",
-          "narration": "Öppna Import från Home och välj sedan Format Converter. Konvertera mikroskopformat som stöds till en konfigurerad TIFF-layout med bevarade källmappningar. Konvertering skapar inga objektmätningar. Indata: Mikroskopbilder. Utdata: Mikroskopbilder. Format Converter till Mask: Använd den konverterade layouten och bevara källidentitetsmappningarna.",
+          "narration": "Open Import from Home, then choose Format Converter. Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements. Format Converter reads the microscope images. From those, Format Converter produces the microscope images. Mask picks up the microscope images next. Use the converted layout and preserve source identity mappings.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10416,7 +10353,7 @@
         },
         {
           "visual": "module_foreign",
-          "narration": "Öppna Import från Home. Importera externa mätningar med uttryckliga objekt- och kolumnmappningar, eller välj Import Images, Format Converter eller External Masks. Importerade mätningar är inte en ny Measure-körning. Med motsvarande källbilder och externa heltalsmasker bygger Import de sammanfogade projektarrayer som Measure använder. Välj den väg som passar filerna och granska objektidentiteterna före mätning; importerade egenskapstabeller kan användas direkt om de redan innehåller de mätningar som krävs. Indata: Mikroskopbilder; Etikettmasker; Externa mätningar. Externa mätningar: CSV- eller databastabeller med mätningar från tredje part och deras mappningar för bilder, masker och objektidentiteter. Utdata: Uppmätta objekt; Objektbeskärningar; Bilder och etikettmasker; Etikettmasker. Import till Annotate: Importerade tabeller kräver uttryckliga mappningar av kolumner och objektidentiteter. Import till Measure: Importera motsvarande bilder och externa heltalsmasker för att bygga sammanfogade projektarrayer och öppna sedan Measure för projektet. Hoppa över steget om kompatibla mätningar redan har importerats eller beräknats. Lägg inte till dubbla mätningar i en befintlig importerad tabell. Import till Mask: För import av enbart bilder använder du Import Images eller Format Converter och anger det formaterade bildprojektet i Mask. Externa mätningar ensamma är inte segmenteringsindata.",
+          "narration": "Open Import from Home. Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements. Import reads the microscope images, the label masks and the external measurements. Look for the external measurements here: Third-party measurement CSV/database tables and their image, mask and object-identity mappings. From those, Import produces the measured objects, the object crops, the images and label masks, and the label masks. Annotate picks up the measured objects and the object crops next. Imported tables require explicit column and object-identity mappings. You can also take the images and label masks, and the label masks on to Measure. Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. Mask reads the microscope images as well. For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10427,7 +10364,7 @@
         },
         {
           "visual": "module_external_masks",
-          "narration": "Öppna Import från Home och välj sedan External Masks. Tilldela motsvarande bilder och befintliga masker med heltalsetiketter och skapa och mät sedan ett spaCR-projekt utan att köra segmenteringen igen. Indata: Mikroskopbilder; Etikettmasker. Utdata: Bilder och etikettmasker; Uppmätta objekt; Objektbeskärningar. External Masks till Measure: Mät om endast vid behov; External Masks kan redan utföra mätning. External Masks till Annotate: Håll ihop det nymätta projektet och utsnittsindexet. Direct Cellpose mask generation till External Masks: Tillhandahåll sparade etikettfiler i TIFF-format och deras originalbilder till External Masks, tilldela objektroller och skapa det sammanslagna projektet före Measure.",
+          "narration": "Open Import from Home, then choose External Masks. Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation. External Masks reads the microscope images and the label masks. From those, External Masks produces the images and label masks, the measured objects, and the object crops. Measure picks up the images and label masks next. Re-measure only when needed; External Masks can already perform measurement. You can also take the measured objects and the object crops on to Annotate. Keep the newly measured project and crop index together. Direct Cellpose mask generation can supply the direct Cellpose TIFF masks. Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10437,7 +10374,7 @@
         },
         {
           "visual": "module_queue",
-          "narration": "Hitta Plate Queue i programmets hjälp- eller verktygsmenyer. Kör det valda arbetsflödet över flera plattor. Utdata är de som varje köad modul skapar; behåll varje platta och dess inställningar separat. Indata: Körningskö. Körningskö: Sparade jobbdefinitioner för modul, platta och inställningar samt beroendeordning. Utdata: Körningshistorik och produkter. Körningshistorik och produkter: Projektets körningsposter, inställningar, utdatasökvägar, produkternas ursprung, status och loggar.",
+          "narration": "Find Plate Queue in the application's Help or tools menus. Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately. Plate Queue reads the run queue. Look for the run queue here: Saved module/plate/settings job definitions and dependency order. From those, Plate Queue produces the run history and artifacts. You'll find the run history and artifacts here: Project run records, settings, output paths, artifact provenance, status and logs.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -10445,7 +10382,7 @@
         },
         {
           "visual": "module_batch",
-          "narration": "Hitta Batch Runner i programmets hjälp- eller verktygsmenyer. Validera och kör moduljobb i beroendeordning. Varje jobb skriver sin egen moduls utdata och logg. Indata: Körningskö. Utdata: Körningshistorik och produkter.",
+          "narration": "Find Batch Runner in the application's Help or tools menus. Validate and execute module jobs in dependency order. Each job writes its own module outputs and log. Batch Runner reads the run queue. From those, Batch Runner produces the run history and artifacts.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch"
@@ -10453,7 +10390,7 @@
         },
         {
           "visual": "module_distributed_jobs",
-          "narration": "Hitta Distributed Jobs i programmets hjälp- eller verktygsmenyer. Skicka en konfigurerad körning till en fjärrmiljö och inspektera status och loggar. Hämta de faktiska modulprodukterna före efterföljande analys. Indata: Körningskö. Utdata: Körningshistorik och produkter.",
+          "narration": "Find Distributed Jobs in the application's Help or tools menus. Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis. Distributed Jobs reads the run queue. From those, Distributed Jobs produces the run history and artifacts.",
           "hold_after": 0.7,
           "related_lessons": [
             "38_distributed_jobs"
@@ -10461,7 +10398,7 @@
         },
         {
           "visual": "module_db_browser",
-          "narration": "Hitta Database Browser i programmets hjälp- eller verktygsmenyer. Bläddra i valda tabeller och exportera rader; tabellinspektion kör inte om bildanalysen. Indata: Uppmätta objekt. Utdata: Figurer och tabellexporter. Measure till Database Browser: Inspektera de faktiska tabellerna före export.",
+          "narration": "Find Database Browser in the application's Help or tools menus. Browse selected tables and export rows; table inspection does not rerun image analysis. Database Browser reads the measured objects. From those, Database Browser produces the figures and table exports. Measure can supply the measured objects. Inspect actual tables before exporting.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10470,7 +10407,7 @@
         },
         {
           "visual": "module_run_history",
-          "narration": "Hitta Run History i programmets hjälp- eller verktygsmenyer. Inspektera sparad körningsstatus, inställningar, utdata och loggar; en slutförd körning visar inte biologisk giltighet. Indata: Körningshistorik och produkter. Utdata: Körningshistorik och produkter.",
+          "narration": "Find Run History in the application's Help or tools menus. Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity. Run History reads the run history and artifacts. From those, Run History produces the run history and artifacts.",
           "hold_after": 0.7,
           "related_lessons": [
             "40_run_history"
@@ -10478,7 +10415,7 @@
         },
         {
           "visual": "module_report",
-          "narration": "Hitta Report i programmets hjälp- eller verktygsmenyer. Samla registrerade resultat, inställningar och kvalitetskontroll (QC) i en delbar rapport utan att köra om analysen i det tysta. Indata: Körningshistorik och produkter; Kvalitetskontrollresultat; Figurer och tabellexporter. Kvalitetskontrollresultat: Lagrade projektkontroller och kvalitetskontrollrapporter (QC); en saknad kontroll är inte ett godkänt resultat. Utdata: Delbara rapporter. Delbara rapporter: Exporterade HTML/PDF-dokument eller metod- och resultatdokument som bygger på registrerade analysresultat.",
+          "narration": "Find Report in the application's Help or tools menus. Package recorded results, settings and QC into a shareable report without silently rerunning the analysis. Report reads the run history and artifacts, the quality-control results, and the figures and table exports. Look for the quality-control results here: Stored project checks and QC reports; a missing check is not a passing result. From those, Report produces the shareable reports. You'll find the shareable reports here: Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "29_report"
@@ -10486,7 +10423,7 @@
         },
         {
           "visual": "module_data_manager",
-          "narration": "Hitta Data Manager i programmets hjälp- eller verktygsmenyer. Inspektera projektfiler och diskutrymme. Borttagning av härledda produkter ogiltigförklarar senare användning av dessa filer; originalbilderna måste gå att återställa. Indata: Körningshistorik och produkter. Utdata: Körningshistorik och produkter.",
+          "narration": "Find Data Manager in the application's Help or tools menus. Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable. Data Manager reads the run history and artifacts. From those, Data Manager produces the run history and artifacts.",
           "hold_after": 0.7,
           "related_lessons": [
             "44_data_manager"
@@ -10494,7 +10431,7 @@
         },
         {
           "visual": "module_pipeline_graph",
-          "narration": "Hitta Pipeline Graph i programmets hjälp- eller verktygsmenyer. Läs registrerade produktberoenden och status för inaktuella eller saknade produkter. Grafen beskriver ursprung och återskapar inte saknade produkter. Indata: Körningshistorik och produkter. Utdata: Figurer och tabellexporter.",
+          "narration": "Find Pipeline Graph in the application's Help or tools menus. Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts. Pipeline Graph reads the run history and artifacts. From those, Pipeline Graph produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "52_pipeline_graph"
@@ -10502,7 +10439,7 @@
         },
         {
           "visual": "module_qc_dashboard",
-          "narration": "Öppna QC från Home. Inspektera lagrade kontroller av segmentering, enheter, läckage och platteffekter. Öppna dess inbäddade visare för en detaljerad granskning. Indata: Uppmätta objekt; Kvalitetskontrollresultat. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter. Measure till QC: Granska tillgängliga kontroller och saknade belägg.",
+          "narration": "Open QC from Home. Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection. QC reads the measured objects and the quality-control results. From those, QC produces the quality-control results, and the figures and table exports. Measure can supply the measured objects. Review available checks and missing evidence.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10511,7 +10448,7 @@
         },
         {
           "visual": "module_lineage",
-          "narration": "Öppna Database Browser via hjälpsökningen och välj sedan Lineage. Inspektera registrerade relationer där celler, kärnor, patogener och organeller innehåller varandra; detta är objektinneslutning, inte härledning av släktlinjer i tidsserier. Indata: Uppmätta objekt. Utdata: Figurer och tabellexporter.",
+          "narration": "Open Database Browser through Help search, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Lineage reads the measured objects. From those, Lineage produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "56_lineage"
@@ -10519,7 +10456,7 @@
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Öppna Experiment Design från Home. Ange betingelser, kontroller, replikat och plattbegränsningar och exportera sedan experimentlayouten före bildinsamlingen. Indata: Screeningdesign och styrkeberäkningar. Screeningdesign och styrkeberäkningar: Sparade planeringstabeller eller figurer baserade på uttryckligen valda effektstorlekar, variation och provtagningsantaganden. Utdata: Experimentlayout. Experimentlayout: Exporterad karta över plattor, betingelser, kontroller och replikat. Håll dess platt- och brunnsidentifierare konsekventa med insamlade data. Experiment Design till Power / Design: Använd experimentlayouten för att definiera provtagningsantaganden och revidera sedan designen. Experiment Design till Dose–Response: Samla först in och mät experimentet, med bevarade identiteter för doser och betingelser.",
+          "narration": "Open Experiment Design from Home. Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition. Experiment Design reads the screen design and power estimates. Look for the screen design and power estimates here: Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions. From those, Experiment Design produces the experimental layout. You'll find the experimental layout here: Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data. Power / Design picks up the experimental layout next. Use the experimental layout to define sampling assumptions, then revise the design. Dose–Response uses them too. Acquire and measure the experiment first, preserving dose/condition identities.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
@@ -10529,7 +10466,7 @@
         },
         {
           "visual": "module_layer_viewer",
-          "narration": "Öppna QC från Home och välj sedan Layer Viewer. Inspektera registrerade bild-, etikett- och punkt/ROI-lager för det valda bildfältet. Indata: Mikroskopbilder; Etikettmasker. Utdata: Figurer och tabellexporter.",
+          "narration": "Open QC from Home, then choose Layer Viewer. Inspect aligned image, label and point/ROI layers for the selected field. Layer Viewer reads the microscope images and the label masks. From those, Layer Viewer produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "57_layer_viewer"
@@ -10537,7 +10474,7 @@
         },
         {
           "visual": "module_power",
-          "narration": "Öppna Power / Design från Home. Uppskatta provtagningsbehov från valda effektstorlekar och variation; pilotmätningar är valfria belägg för antagandena. Indata: Screeningdesign och styrkeberäkningar; Uppmätta objekt; Experimentlayout. Utdata: Screeningdesign och styrkeberäkningar. Experiment Design till Power / Design: Använd experimentlayouten för att definiera provtagningsantaganden och revidera sedan designen.",
+          "narration": "Open Power / Design from Home. Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions. Power / Design reads the screen design and power estimates, the measured objects, and the experimental layout. From those, Power / Design produces the screen design and power estimates. Experiment Design can supply the experimental layout. Use the experimental layout to define sampling assumptions, then revise the design.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
@@ -10546,7 +10483,7 @@
         },
         {
           "visual": "module_run_compare",
-          "narration": "Öppna Run Compare från Home. Jämför kompatibla sparade inställningar, antal och träfflistor utan att behandla ändrade indata som en kontrollerad modelljämförelse. Indata: Körningshistorik och produkter; Regressionsresultat och träffar. Utdata: Körnings- och modelljämförelse. Körnings- och modelljämförelse: Jämförelsetabeller och figurer från kompatibla sparade körningar eller masker; överensstämmelse är inte noggrannhet mot en oberoende referens. Regression till Run Compare: Jämför kompatibla sparade resultatuppsättningar och deras inställningar.",
+          "narration": "Open Run Compare from Home. Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison. Run Compare reads the run history and artifacts, and the regression results and hits. From those, Run Compare produces the run/model comparison. You'll find the run/model comparison here: Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy. Regression can supply the regression results and hits. Compare compatible saved result sets and their settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -10555,7 +10492,7 @@
         },
         {
           "visual": "module_tabulate",
-          "narration": "Öppna Database Browser via hjälpsökningen och välj sedan Tabulate. Välj grupperingsvariabler och mätkolumner och inspektera sedan pivottabeller och stickprovsstorlekar per grupp. Indata: Uppmätta objekt. Utdata: Figurer och tabellexporter.",
+          "narration": "Open Database Browser through Help search, then choose Tabulate. Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes. Tabulate reads the measured objects. From those, Tabulate produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -10563,7 +10500,7 @@
         },
         {
           "visual": "module_dose_response",
-          "narration": "Öppna Dose–Response från Home. Tillhandahåll dos- och responskolumner, kontroller och enheter före kurvanpassning; denna väg kräver ingen sekvensering. Indata: Uppmätta objekt; Experimentlayout. Utdata: Analysresultat; Figurer och tabellexporter. Analysresultat: Analysspecifika resultattabeller och figurer på den konfigurerade målplatsen, med bevarade brunns- och betingelseidentiteter. Experiment Design till Dose–Response: Samla först in och mät experimentet, med bevarade identiteter för doser och betingelser. Measure till Dose–Response: Koppla den uppmätta responsen till uttryckliga doser och kontroller.",
+          "narration": "Open Dose–Response from Home. Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing. Dose–Response reads the measured objects and the experimental layout. From those, Dose–Response produces the assay results, and the figures and table exports. You'll find the assay results here: Assay-specific result tables and figures in the configured destination, preserving well and condition identities. Experiment Design can supply the experimental layout. Acquire and measure the experiment first, preserving dose/condition identities. If you start in Measure, it provides the measured objects. Join the measured response to explicit doses and controls.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10573,7 +10510,7 @@
         },
         {
           "visual": "module_project_browser",
-          "narration": "Hitta Project Browser i programmets hjälp- eller verktygsmenyer. Hitta projekt och inspektera deras stadium, senaste körning, diskutrymme och inaktuella utdata. Indata: Körningshistorik och produkter. Utdata: Körningshistorik och produkter.",
+          "narration": "Find Project Browser in the application's Help or tools menus. Locate projects and inspect their stage, last run, disk use and stale outputs. Project Browser reads the run history and artifacts. From those, Project Browser produces the run history and artifacts.",
           "hold_after": 0.7,
           "related_lessons": [
             "45_project_browser"
@@ -10581,7 +10518,7 @@
         },
         {
           "visual": "module_outliers",
-          "narration": "Öppna QC från Home och välj sedan Outliers. Granska robusta avvikelsepoäng för objekt och brunnar samt vald uteslutningsregel innan filtrerade data används i analys. Indata: Uppmätta objekt. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter.",
+          "narration": "Open QC from Home, then choose Outliers. Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis. Outliers reads the measured objects. From those, Outliers produces the quality-control results, and the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "66_outliers"
@@ -10589,7 +10526,7 @@
         },
         {
           "visual": "module_embeddings",
-          "narration": "Öppna Embeddings från Home. Koda objektbilder med en vald modell och kanalpolicy. Behåll objektidentiteter och kodarens ursprung när egenskaperna lämnas till efterföljande utforskning. Indata: Uppmätta objekt; Objektbeskärningar. Utdata: Bildrepresentationer. Bildrepresentationer: Objektindexerade kodaregenskaper, med kanalpolicy och kodarens ursprung. Kodnings-API:t returnerar egenskaper; lagringen beror på anroparen. Measure till Embeddings: Bevara uppgifter om kodarens och kanalpolicyns ursprung. Embeddings till Image UMAP: Tillhandahåll kodarens egenskapstabell med motsvarande objekt-ID:n; anta inte att varje GUI-väg sparar den automatiskt.",
+          "narration": "Open Embeddings from Home. Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration. Embeddings reads the measured objects and the object crops. From those, Embeddings produces the image embeddings. You'll find the image embeddings here: Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent. Measure can supply the measured objects and the object crops. Retain encoder and channel-policy provenance. Image UMAP picks up the image embeddings next. Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10599,7 +10536,7 @@
         },
         {
           "visual": "module_control_chart",
-          "narration": "Öppna QC från Home och välj sedan Control Charts. Jämför angivna kontroller mellan plattor och inspektera drift; definitionen av en kontroll kommer från experimentet. Indata: Uppmätta objekt; Experimentlayout. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter.",
+          "narration": "Open QC from Home, then choose Control Charts. Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment. Control Charts reads the measured objects and the experimental layout. From those, Control Charts produces the quality-control results, and the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "51_control_charts"
@@ -10607,7 +10544,7 @@
         },
         {
           "visual": "module_train_compare",
-          "narration": "Öppna Classify från Home och välj sedan Training Runs. Jämför sparade träningshistoriker, mätetal och inställningar från kompatibla modellkörningar. Indata: Körningshistorik och produkter. Utdata: Körnings- och modelljämförelse.",
+          "narration": "Open Classify from Home, then choose Training Runs. Compare saved training histories, metrics and settings from compatible model runs. Training Runs reads the run history and artifacts. From those, Training Runs produces the run/model comparison.",
           "hold_after": 0.7,
           "related_lessons": [
             "28_training_runs"
@@ -10615,7 +10552,7 @@
         },
         {
           "visual": "module_align",
-          "narration": "Öppna Align & Stitch från Home. Inspektera bildrutornas geometri, överlappning och kanalmappning och spara sedan mosaiken med koordinatuppgifter. OPS behöver även de ursprungliga cykel- och platsidentiteterna. Indata: Mikroskopbilder. Utdata: Registrerad mosaik och koordinater. Registrerad mosaik och koordinater: Målplats för Align & Stitch: den sammansatta bilden och de koordinat- och layoutuppgifter för bildrutor som behövs för att tolka den. Align & Stitch till OPS: Ta med bildrutornas koordinater och de ursprungliga sekvenseringscyklerna till OPS; en utplattad mosaik räcker inte ensam.",
+          "narration": "Open Align & Stitch from Home. Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities. Align & Stitch reads the microscope images. From those, Align & Stitch produces the aligned mosaic and coordinates. You'll find the aligned mosaic and coordinates here: Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it. OPS picks up the aligned mosaic and coordinates next. Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch",
@@ -10624,7 +10561,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Öppna Make Masks från Home. Granska bild- och maskpar för segmenteringsträning, eller använd FEATURES för att tilldela bilder och masker och starta mätning. Att spara en mask tränar inte en klassificerare. Indata: Mikroskopbilder; Etikettmasker. Utdata: Granskade träningsfält; Etikettmasker. Granskade träningsfält: Separata bildfiler och heltalsmasker med motsvarande bildfältsidentiteter; bevara originalbilder och etiketter. Make Masks till Cellpose Workbench: Använd oberoende kontrollerade bild- och maskpar. Make Masks till Measure: Använd FEATURES för att para ihop bilder och masker och skriva ett uppmätt projekt; fristående masker är inte sammanslagna arrayer. Make Masks till Plaque Assay: Använd plackmasker med motsvarande källbilder; cellmasker är inte automatiskt placketiketter.",
+          "narration": "Open Make Masks from Home. Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier. Make Masks reads the microscope images and the label masks. From those, Make Masks produces the curated training fields and the label masks. You'll find the curated training fields here: Separate image and integer-mask files with matching field identities; preserve original images and labels. Cellpose Workbench picks up the curated training fields next. Use independently checked image/mask pairs. You can also take the label masks on to Measure. Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Plaque Assay uses them too. Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10635,13 +10572,13 @@
         },
         {
           "visual": "module_plate_view",
-          "narration": "Öppna Graph Builder från Home och välj sedan Plate Viewer. Aggregera den valda mätningen per brunn och inspektera plattmönster och kontroller. Indata: Uppmätta objekt; Experimentlayout. Utdata: Figurer och tabellexporter.",
+          "narration": "Open Graph Builder from Home, then choose Plate Viewer. Aggregate the selected measurement by well and inspect plate patterns and controls. Plate Viewer reads the measured objects and the experimental layout. From those, Plate Viewer produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": []
         },
         {
           "visual": "module_umap",
-          "narration": "Öppna Image UMAP från Home. Projicera uppmätta egenskaper eller tillhandahållna kodaregenskaper och inspektera representativa utsnitt. Ett kluster är en kandidatgruppering, inte en validerad fenotyp. Använd lasso- och annoteringskontrollerna för att skriva granskade urval till en annoteringskolumn i motsvarande mätdatabas. Ett geometriskt urval ensamt fastställer ingen biologisk fenotyp. Indata: Uppmätta objekt; Objektbeskärningar; Bildrepresentationer. Utdata: Projektion och kluster; Träningsannoteringar. Projektion och kluster: Koordinattabeller från Image UMAP/PCA, valda kluster och figurer för inlästa mätdata. Measure till Image UMAP: Välj egenskapskolumner och inspektera representativa utsnitt. Embeddings till Image UMAP: Tillhandahåll kodarens egenskapstabell med motsvarande objekt-ID:n; anta inte att varje GUI-väg sparar den automatiskt. Image UMAP till Gate Editor: Tillhandahåll motsvarande koordinat- eller egenskapskolumner när ett urval definieras. Image UMAP till Classify: Skriv granskade lassourval till en annoteringskolumn i motsvarande objektdatabas och välj sedan kolumnen i Classify. Granska bildutsnitten och validera etiketterna; kluster i inbäddningsrymden är inte referenssanning.",
+          "narration": "Open Image UMAP from Home. Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype. Image UMAP reads the measured objects, the object crops and the image embeddings. From those, Image UMAP produces the projection and clusters, and the training annotations. You'll find the projection and clusters here: Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data. Measure can supply the measured objects and the object crops. Choose feature columns and inspect representative crops. If you start in Embeddings, it provides the image embeddings. Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it. Gate Editor picks up the projection and clusters next. Supply the matching coordinate/feature columns when defining a selection. You can also take the training annotations on to Classify. Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10653,7 +10590,7 @@
         },
         {
           "visual": "module_profiler",
-          "narration": "Öppna Regression från Home och välj sedan Prediction Profiler. Inspektera hur en anpassad modell svarar när en indataegenskap ändras; prediktioner visar inte kausala effekter. Indata: Anpassad egenskapsklassificerare. Utdata: Figurer och tabellexporter.",
+          "narration": "Open Regression from Home, then choose Prediction Profiler. Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects. Prediction Profiler reads the fitted feature classifier. From those, Prediction Profiler produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "53_prediction_profiler"
@@ -10661,7 +10598,7 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "Öppna Graph Builder från Home. Välj variabler, grupper och diagraminställningar från den inlästa tabellen och exportera sedan figuren med dess analyskontext. Indata: Uppmätta objekt. Utdata: Figurer och tabellexporter. Measure till Graph Builder: Välj uttryckligen variabler, grupper och filter.",
+          "narration": "Open Graph Builder from Home. Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context. Graph Builder reads the measured objects. From those, Graph Builder produces the figures and table exports. Measure can supply the measured objects. Choose explicit variables, groups and filters.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10670,7 +10607,7 @@
         },
         {
           "visual": "module_investigate_hit",
-          "narration": "Öppna Regression från Home och välj sedan Investigate Hit. Koppla en regressionsträff till kandidatobjekt och kvantitativa belägg på brunnsnivå. Detta validerar inte träffen oberoende. Indata: Regressionsresultat och träffar; Poäng för objektklassificering; Uppmätta objekt. Utdata: Figurer och tabellexporter. Regression till Investigate Hit: Sammanfoga kompatibla fenotyp- och objektdata för den valda träffen.",
+          "narration": "Open Regression from Home, then choose Investigate Hit. Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit. Investigate Hit reads the regression results and hits, the object classification scores, and the measured objects. From those, Investigate Hit produces the figures and table exports. Regression can supply the regression results and hits. Join compatible phenotype and object data for the chosen hit.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression"
@@ -10678,7 +10615,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Öppna Gate Editor från Home. Definiera tröskel- eller polygonbaserade urvalsgrindar på faktiska egenskaps- eller koordinatkolumner och tillämpa sedan den sparade grinden på kompatibla objekt. Använd Annotate för att skriva de visade grindarna till en annoteringskolumn; granska de valda objekten och välj binära etiketter eller etiketter för flera klasser. Indata: Uppmätta objekt; Projektion och kluster. Utdata: Återanvändbara grindar; Träningsannoteringar. Image UMAP till Gate Editor: Tillhandahåll motsvarande koordinat- eller egenskapskolumner när ett urval definieras. Gate Editor till Annotate: Tillämpa kompatibla urvalsgrindar och granska sedan kandidatetiketter. Measure till Gate Editor: Använd de faktiska uppmätta egenskapernas definitioner och enheter. Gate Editor till Classify: Skriv granskade grindurval till en annoteringskolumn och välj sedan samma kolumn och objektpopulation i Classify. Håll valideringsobjekt åtskilda från träningsetiketter.",
+          "narration": "Open Gate Editor from Home. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Gate Editor reads the measured objects, and the projection and clusters. From those, Gate Editor produces the reusable gates and the training annotations. Image UMAP can supply the projection and clusters. Supply the matching coordinate/feature columns when defining a selection. Annotate picks up the reusable gates next. Apply compatible gates, then review candidate labels. If you start in Measure, it provides the measured objects. Use the actual measured feature definitions and units. You can also take the training annotations on to Classify. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10690,7 +10627,7 @@
         },
         {
           "visual": "module_feature_dict",
-          "narration": "Hitta Feature Dictionary i programmets hjälp- eller verktygsmenyer. Slå upp egenskapsdefinitioner och enheter innan du väljer mätkolumner. Indata: Egenskapsdefinitioner. Egenskapsdefinitioner: Den installerade egenskapsordboken; definitionerna beskriver befintliga mätningar och beräknar dem inte. Utdata: Egenskapsdefinitioner.",
+          "narration": "Find Feature Dictionary in the application's Help or tools menus. Look up feature definitions and units before choosing measurement columns. Feature Dictionary reads the feature definitions. Look for the feature definitions here: The installed feature dictionary; definitions describe existing measurements and do not compute them. From those, Feature Dictionary produces the feature definitions.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -10698,7 +10635,7 @@
         },
         {
           "visual": "module_trellis",
-          "narration": "Öppna Graph Builder från Home och välj sedan Small Multiples. Jämför grupper i flera små diagram med uttryckligen gemensamma eller oberoende axlar. Indata: Uppmätta objekt. Utdata: Figurer och tabellexporter.",
+          "narration": "Open Graph Builder from Home, then choose Small Multiples. Compare groups in small-multiple plots with explicit shared or independent axes. Small Multiples reads the measured objects. From those, Small Multiples produces the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "63_small_multiples"
@@ -10706,7 +10643,7 @@
         },
         {
           "visual": "module_analyze_plaques",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Plaque Assay. Analysera plackbilder eller befintliga masker med den konfigurerade plackmodellen. Denna väg behöver inte gå genom Measure; använd det särskilda plackexemplet. Indata: Mikroskopbilder; Etikettmasker. Utdata: Analysresultat; Etikettmasker. Make Masks till Plaque Assay: Använd plackmasker med motsvarande källbilder; cellmasker är inte automatiskt placketiketter.",
+          "narration": "Open Toxoplasma from Home, then choose Plaque Assay. Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example. Plaque Assay reads the microscope images and the label masks. From those, Plaque Assay produces the assay results and the label masks. Make Masks can supply the label masks. Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
@@ -10715,7 +10652,7 @@
         },
         {
           "visual": "module_recruitment",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Recruitment. Använd kompartmentens intensitetsmätningar och motsvarande värd- och patogenidentiteter för att beräkna rekryteringskvoter. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Recruitment: Kräv avsedda kompartmentintensiteter och identiteter.",
+          "narration": "Open Toxoplasma from Home, then choose Recruitment. Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios. Recruitment reads the measured objects. From those, Recruitment produces the assay results. Measure can supply the measured objects. Require the intended compartment intensities and identities.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10724,7 +10661,7 @@
         },
         {
           "visual": "module_host_pathogen",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Host–Pathogen Analysis. Mät hela vakuoler och värdcellernas referenskompartment, och behåll oinfekterade värdceller i infektionsandelens nämnare. Välj markörkanaler och kvottrösklar kalibrerade mot kontroller. Räkna vid behov individuellt segmenterade parasiter med uttryckliga vakuolkopplingar eller en kolumn med uppmätta antal. Granska tabeller för vakuoler, värdceller och brunnar, gemensamma markörtillstånd, replikationsfördelningar och parasitkopplingar utan matchning; okända mätvärden förblir okända. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Host–Pathogen Analysis: Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol.",
+          "narration": "Open Toxoplasma from Home, then choose Host–Pathogen Analysis. Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown. Host–Pathogen Analysis reads the measured objects. From those, Host–Pathogen Analysis produces the assay results. Measure can supply the measured objects. Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10733,7 +10670,7 @@
         },
         {
           "visual": "module_invasion",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Invasion Assay. Använd nödvändiga mätningar av differentiell tvåfärgsfärgning och baslinjekontroller för färgningen för att skilja vidhäftning från invasion. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Invasion Assay: Kräv mätningar av tvåfärgsfärgning och lämpliga baslinjekontroller.",
+          "narration": "Open Toxoplasma from Home, then choose Invasion Assay. Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion. Invasion Assay reads the measured objects. From those, Invasion Assay produces the assay results. Measure can supply the measured objects. Require two-colour stain measurements and appropriate baseline controls.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10742,7 +10679,7 @@
         },
         {
           "visual": "module_replication",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Replication Assay. Räkna parasiter med uttryckliga vakuolidentiteter och jämför fördelningar mellan betingelser; enbart värdcellens identitet definierar inte en vakuol. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Replication Assay: Kräv uttryckliga kopplingar mellan parasit- och vakuolidentiteter.",
+          "narration": "Open Toxoplasma from Home, then choose Replication Assay. Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole. Replication Assay reads the measured objects. From those, Replication Assay produces the assay results. Measure can supply the measured objects. Require explicit parasite-to-vacuole identities.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10751,7 +10688,7 @@
         },
         {
           "visual": "module_train_cellpose",
-          "narration": "Öppna Make Masks från Home och välj sedan Cellpose Workbench. Öppna Cellpose Workbench i Make Masks och träna med verifierade bild- och maskpar. Utvärdera på separata bildfält innan kontrollpunkten väljs i Mask. Indata: Granskade träningsfält. Utdata: Segmenteringskontrollpunkt. Make Masks till Cellpose Workbench: Använd oberoende kontrollerade bild- och maskpar. Cellpose Workbench till Mask: Välj den sparade kompatibla kontrollpunkten i Mask. Cellpose Workbench till Direct Cellpose mask generation: Ange den tränade kontrollpunkten som custom_model med motsvarande bildkanaler och förbehandling.",
+          "narration": "Open Make Masks from Home, then choose Cellpose Workbench. Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask. Cellpose Workbench reads the curated training fields. From those, Cellpose Workbench produces the segmentation checkpoint. Make Masks can supply the curated training fields. Use independently checked image/mask pairs. Mask picks up the segmentation checkpoint next. Select the saved compatible checkpoint in Mask. Direct Cellpose mask generation uses them too. Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10761,7 +10698,7 @@
         },
         {
           "visual": "module_cellpose_all",
-          "narration": "Öppna Make Masks från Home och välj sedan Mask the whole folder. Tillämpa den valda segmenteringsmodellen på den öppna bildmappen genom Make Masks; inspektera sparade etiketter innan de mäts. Indata: Mikroskopbilder; Segmenteringskontrollpunkt. Utdata: Etikettmasker.",
+          "narration": "Open Make Masks from Home, then choose Mask the whole folder. Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them. Mask the whole folder reads the microscope images and the segmentation checkpoint. From those, Mask the whole folder produces the label masks.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks"
@@ -10769,7 +10706,7 @@
         },
         {
           "visual": "module_model_compare",
-          "narration": "Öppna Make Masks från Home och välj sedan Model Compare. Jämför modellmasker på identiska bildfält. Utan oberoende referensetiketter mäter överensstämmelse inte segmenteringsnoggrannhet. Indata: Mikroskopbilder; Etikettmasker; Segmenteringskontrollpunkt. Utdata: Körnings- och modelljämförelse.",
+          "narration": "Open Make Masks from Home, then choose Model Compare. Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy. Model Compare reads the microscope images, the label masks and the segmentation checkpoint. From those, Model Compare produces the run/model comparison.",
           "hold_after": 0.7,
           "related_lessons": [
             "21_model_compare"
@@ -10777,7 +10714,7 @@
         },
         {
           "visual": "module_model_zoo",
-          "narration": "Öppna Make Masks från Home och välj sedan Model Zoo. Inspektera modellernas ursprung och hämta eller installera kompatibla kontrollpunkter eller beräkningsmotorer. En listad motor är inte i sig en kontrollpunktsfil. Indata: Segmenteringskontrollpunkt. Utdata: Segmenteringskontrollpunkt.",
+          "narration": "Open Make Masks from Home, then choose Model Zoo. Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file. Model Zoo reads the segmentation checkpoint. From those, Model Zoo produces the segmentation checkpoint.",
           "hold_after": 0.7,
           "related_lessons": [
             "22_model_zoo"
@@ -10785,7 +10722,7 @@
         },
         {
           "visual": "module_curate",
-          "narration": "Öppna Make Masks från Home och välj sedan Curate. Korrigera etiketter och spårtilldelningar och behåll en historik över ändringarna. Indata: Mikroskopbilder; Etikettmasker; Länkade tidsserieobjekt. Länkade tidsserieobjekt: Spårade etiketter och kopplingar mellan bildrutor och objekt från tidsserieprojektet, med bildintervall och enheter. Utdata: Etikettmasker; Länkade tidsserieobjekt.",
+          "narration": "Open Make Masks from Home, then choose Curate. Correct labels and track assignments while retaining a record of the edits. Curate reads the microscope images, the label masks and the linked time-series objects. Look for the linked time-series objects here: Tracked labels and frame/object associations from the time-series project, with frame interval and units. From those, Curate produces the label masks and the linked time-series objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "42_curate"
@@ -10793,7 +10730,7 @@
         },
         {
           "visual": "module_napari_bridge",
-          "narration": "Öppna Make Masks från Home och välj sedan Napari Bridge. Skicka motsvarande bild och etiketter till napari och importera tillbaka de reviderade etiketterna med bevarad bildfältsidentitet. Indata: Mikroskopbilder; Etikettmasker. Utdata: Etikettmasker.",
+          "narration": "Open Make Masks from Home, then choose Napari Bridge. Send the matching image/labels to napari and import the revised labels back with field identity preserved. Napari Bridge reads the microscope images and the label masks. From those, Napari Bridge produces the label masks.",
           "hold_after": 0.7,
           "related_lessons": [
             "46_napari_bridge"
@@ -10801,7 +10738,7 @@
         },
         {
           "visual": "module_import_images",
-          "narration": "Öppna Import från Home och välj sedan Import Images. Granska bildfältsidentiteter, bildkanaler och valfria externa masker innan ett separat projekt skrivs. Import av enbart bilder kräver fortfarande segmentering före mätning. Indata: Mikroskopbilder. Utdata: Mikroskopbilder; Bilder och etikettmasker; Etikettmasker. Import Images till Mask: Använd importerade bildplan och identiteter; import av enbart bilder kräver fortfarande segmentering.",
+          "narration": "Open Import from Home, then choose Import Images. Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement. Import Images reads the microscope images. From those, Import Images produces the microscope images, the images and label masks, and the label masks. Mask picks up the microscope images next. Use imported image planes and identities; image-only imports still need segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10810,7 +10747,7 @@
         },
         {
           "visual": "module_barcode_qc",
-          "narration": "Öppna Map Barcodes från Home och välj sedan Barcode QC. Inspektera mappningsdjup, täckning, kollisioner och positionseffekter innan guideantal filtreras. Indata: Guideantal per brunn. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter. Map Barcodes till Barcode QC: Kontrollera mappning och täckning innan guider filtreras.",
+          "narration": "Open Map Barcodes from Home, then choose Barcode QC. Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering. Barcode QC reads the guide counts per well. From those, Barcode QC produces the quality-control results, and the figures and table exports. Map Barcodes can supply the guide counts per well. Check mapping and coverage before guide filtering.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -10819,7 +10756,7 @@
         },
         {
           "visual": "module_image_scatter",
-          "narration": "Öppna Image UMAP från Home och välj sedan Image Scatter. Rita upp valda mätkolumner med inspektion av objektutsnitt. Indata: Uppmätta objekt; Objektbeskärningar. Utdata: Projektion och kluster; Figurer och tabellexporter.",
+          "narration": "Open Image UMAP from Home, then choose Image Scatter. Plot selected measurement columns with object-crop inspection. Image Scatter reads the measured objects and the object crops. From those, Image Scatter produces the projection and clusters, and the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "55_image_scatter"
@@ -10827,7 +10764,7 @@
         },
         {
           "visual": "module_pca",
-          "narration": "Öppna Image UMAP från Home och välj sedan PCA. Inspektera huvudkomponenter och egenskapsladdningar för de valda uppmätta objekten. Indata: Uppmätta objekt. Utdata: Projektion och kluster; Figurer och tabellexporter.",
+          "narration": "Open Image UMAP from Home, then choose PCA. Inspect principal components and feature loadings for the selected measured objects. PCA reads the measured objects. From those, PCA produces the projection and clusters, and the figures and table exports.",
           "hold_after": 0.7,
           "related_lessons": [
             "60_pca"
@@ -10835,7 +10772,7 @@
         },
         {
           "visual": "module_volcano_explorer",
-          "narration": "Öppna Regression från Home och välj sedan Volcano Explorer. Öppna ett sparat regressionsresultat och inspektera effektstorlekar, justerad signifikans och enskilda träffposter. Indata: Regressionsresultat och träffar. Utdata: Figurer och tabellexporter. Regression till Volcano Explorer: Inspektera sparade effekter och justerad signifikans.",
+          "narration": "Open Regression from Home, then choose Volcano Explorer. Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records. Volcano Explorer reads the regression results and hits. From those, Volcano Explorer produces the figures and table exports. Regression can supply the regression results and hits. Inspect saved effects and adjusted significance.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -10844,7 +10781,7 @@
         },
         {
           "visual": "module_hit_list",
-          "narration": "Öppna Regression från Home och välj sedan Hit List. Filtrera och rangordna sparade träffar efter effekter, FDR och överensstämmelse mellan guider. Indata: Regressionsresultat och träffar. Utdata: Figurer och tabellexporter. Regression till Hit List: Inspektera rangordnade träffar och överensstämmelse mellan guider.",
+          "narration": "Open Regression from Home, then choose Hit List. Filter and rank saved hits with their effects, FDR and guide agreement. Hit List reads the regression results and hits. From those, Hit List produces the figures and table exports. Regression can supply the regression results and hits. Inspect ranked hits and guide agreement.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -10853,7 +10790,7 @@
         },
         {
           "visual": "module_methods_export",
-          "narration": "Öppna Regression från Home och välj sedan Methods & Results. Skriv utkast till metod- och resultattext från registrerade inställningar och resultat; granska varje påstående före publicering. Indata: Körningshistorik och produkter; Regressionsresultat och träffar. Utdata: Delbara rapporter. Regression till Methods & Results: Granska exporterad text och varje resultat den hänvisar till.",
+          "narration": "Open Regression from Home, then choose Methods & Results. Draft methods/results text from recorded settings and results; review every claim before publication. Methods & Results reads the run history and artifacts, and the regression results and hits. From those, Methods & Results produces the shareable reports. Regression can supply the regression results and hits. Review exported prose and every traced result.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -10862,7 +10799,7 @@
         },
         {
           "visual": "module_regression_diagnostics",
-          "narration": "Öppna Regression från Home och välj sedan Diagnostics. Inspektera diagnostikpanelerna som sparats av den valda regressionskörningen; skilj saknad diagnostik från kontrollerade antaganden. Indata: Regressionsresultat och träffar. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter. Regression till Diagnostics: Öppna den diagnostik som körningen faktiskt har skrivit.",
+          "narration": "Open Regression from Home, then choose Diagnostics. Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions. Diagnostics reads the regression results and hits. From those, Diagnostics produces the quality-control results, and the figures and table exports. Regression can supply the regression results and hits. Open the diagnostics actually written by this run.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -10871,7 +10808,7 @@
         },
         {
           "visual": "module_illumination",
-          "narration": "Öppna Measure från Home och välj sedan Illumination. Uppskatta och tillämpa flatfältskorrigering i konfigurerade steg. Håll korrigerade visningsvärden åtskilda från råmätningar och dokumentera den tillämpade policyn. Indata: Mikroskopbilder. Utdata: Mikroskopbilder.",
+          "narration": "Open Measure from Home, then choose Illumination. Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy. Illumination reads the microscope images. From those, Illumination produces the microscope images.",
           "hold_after": 0.7,
           "related_lessons": [
             "43_illumination"
@@ -10879,7 +10816,7 @@
         },
         {
           "visual": "module_anndata_export",
-          "narration": "Öppna Measure från Home och välj sedan AnnData Export. Exportera en AnnData-fil i .h5ad-format med objektmetadata och uppmätta egenskaper för efterföljande encellsanalys. Indata: Uppmätta objekt. Utdata: AnnData-export. AnnData-export: En exporterad .h5ad-fil med uppmätta egenskaper och objektmetadata. Measure till AnnData Export: Exportera kompatibla egenskaps- och metadatakolumner.",
+          "narration": "Open Measure from Home, then choose AnnData Export. Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis. AnnData Export reads the measured objects. From those, AnnData Export produces the AnnData export. You'll find the AnnData export here: An exported .h5ad file containing measured features and object metadata. Measure can supply the measured objects. Export compatible feature and metadata columns.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10888,7 +10825,7 @@
         },
         {
           "visual": "module_motility",
-          "narration": "Öppna Measure från Home och välj sedan Motility Assay. Inspektera spårhastighet och infektionsrelaterade mätningar med ett uttryckligt bildintervall och en pixelkalibrering. Indata: Länkade tidsserieobjekt; Uppmätta objekt. Utdata: Analysresultat; Figurer och tabellexporter. Timelapse till Motility Assay: Ange bildintervall och pixelkalibrering. Measure till Motility Assay: Kombinera uppmätta objekt med motsvarande spår.",
+          "narration": "Open Measure from Home, then choose Motility Assay. Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration. Motility Assay reads the linked time-series objects and the measured objects. From those, Motility Assay produces the assay results, and the figures and table exports. Timelapse can supply the linked time-series objects. Supply frame interval and pixel calibration. If you start in Measure, it provides the measured objects. Combine measured objects with matching tracks.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -10898,7 +10835,7 @@
         },
         {
           "visual": "module_timelapse",
-          "narration": "Öppna Mask från Home och välj sedan Timelapse. Öppna Timelapse i Mask för att segmentera och länka objekt över ordnade bildrutor; inspektera länkarna före efterföljande motilitetsanalys. Indata: Mikroskopbilder. Utdata: Bilder och etikettmasker; Etikettmasker; Länkade tidsserieobjekt. Mask till Timelapse: Aktivera den inbäddade tidsserievägen innan länkade etiketter skapas. Timelapse till Measure: Använd tidsserieprojektet med stabila bildrute- och objektidentiteter. Timelapse till Motility Assay: Ange bildintervall och pixelkalibrering.",
+          "narration": "Open Mask from Home, then choose Timelapse. Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis. Timelapse reads the microscope images. From those, Timelapse produces the images and label masks, the label masks, and the linked time-series objects. Mask can supply the microscope images. Enable the nested time-series route before generating linked labels. Measure picks up the images and label masks next. Use the time-series project with stable frame/object identities. You can also take the linked time-series objects on to Motility Assay. Supply frame interval and pixel calibration.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -10909,7 +10846,7 @@
         },
         {
           "visual": "module_ops",
-          "narration": "Öppna Mask från Home och välj sedan OPS. Använd bilder från sekvenseringscykler och fenotypregistrering för att avkoda streckkoder per cellkärna. Aggregera eller sammanfoga avkodade identiteter till kompatibla fenotypindata före Regression; OPS-databasen ersätter inte direkt en CSV med FASTQ-antal. Indata: Mikroskopbilder; Registrerad mosaik och koordinater. Utdata: Optiska streckkodstilldelningar. Align & Stitch till OPS: Ta med bildrutornas koordinater och de ursprungliga sekvenseringscyklerna till OPS; en utplattad mosaik räcker inte ensam. OPS till Regression: Sammanfoga eller aggregera avkodade objekt uttryckligen till fenotyp- och guideindata före Regression; detta är ingen direkt överföring av CSV.",
+          "narration": "Open Mask from Home, then choose OPS. Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV. OPS reads the microscope images, and the aligned mosaic and coordinates. From those, OPS produces the optical barcode assignments. Align & Stitch can supply the aligned mosaic and coordinates. Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient. Regression picks up the optical barcode assignments next. Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -10919,7 +10856,7 @@
         },
         {
           "visual": "module_classifier_evaluation",
-          "narration": "Öppna Classify från Home och välj sedan Classifier Evaluation. Inspektera prediktioner från oberoende utvärdering, kalibrering samt belägg för datauppdelning och läckage för motsvarande klassificerare. Indata: Utvärderingspaket för klassificerare. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter. Classify till Classifier Evaluation: Använd motsvarande prediktioner från oberoende utvärdering och metadata om datauppdelningen.",
+          "narration": "Open Classify from Home, then choose Classifier Evaluation. Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier. Classifier Evaluation reads the classifier evaluation bundle. From those, Classifier Evaluation produces the quality-control results, and the figures and table exports. Classify can supply the classifier evaluation bundle. Use the matching held-out predictions and split metadata.",
           "hold_after": 0.7,
           "related_lessons": [
             "39_classifier_evaluation",
@@ -10928,7 +10865,7 @@
         },
         {
           "visual": "module_explain_cv",
-          "narration": "Öppna Classify från Home och välj sedan Explain CV Model. Anpassa en ersättningsmodell baserad på uppmätta egenskaper till befintliga poäng från datorseende, med bevarade identitetskopplingar. En sådan modellförklaring visar inte kausalitet. Indata: Uppmätta objekt; Poäng för objektklassificering. Utdata: Anpassad egenskapsklassificerare; Figurer och tabellexporter. Classify till Explain CV Model: Välj CV-prediktioner och motsvarande uppmätta objekt.",
+          "narration": "Open Classify from Home, then choose Explain CV Model. Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality. Explain CV Model reads the measured objects and the object classification scores. From those, Explain CV Model produces the fitted feature classifier, and the figures and table exports. Classify can supply the object classification scores. Select CV predictions and the matching measured objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -10937,7 +10874,7 @@
         },
         {
           "visual": "module_activation",
-          "narration": "Öppna Classify från Home och välj sedan Activation. Tillämpa motsvarande bildklassificerare och förbehandling för att inspektera kartor över saliens eller modellrespons. Indata: Tränad bildklassificerare; Objektbeskärningar. Utdata: Bildattributionskartor. Bildattributionskartor: Sparade modellrespons- eller saliensbilder för motsvarande klassificerare och förbehandling av indata. Classify till Activation: Tillhandahåll också motsvarande utsnitt och kanalförbehandling.",
+          "narration": "Open Classify from Home, then choose Activation. Apply the matching image classifier and preprocessing to inspect saliency/model-response maps. Activation reads the trained image classifier and the object crops. From those, Activation produces the image attribution maps. You'll find the image attribution maps here: Saved model-response/saliency images for the matching classifier and input preprocessing. Classify can supply the trained image classifier. Also provide the matching crops and channel preprocessing.",
           "hold_after": 0.7,
           "related_lessons": [
             "16_activation",
@@ -10946,7 +10883,7 @@
         },
         {
           "visual": "module_agreement",
-          "narration": "Öppna Annotate från Home och välj sedan Annotator Agreement. Jämför oberoende annoteringskolumner och inspektera objekt med avvikande annoteringar; överensstämmelse är skild från klassificeringsnoggrannhet. Indata: Träningsannoteringar; Objektbeskärningar. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter. Annotate till Annotator Agreement: Välj oberoende annoteringskolumner för samma objekt.",
+          "narration": "Open Annotate from Home, then choose Annotator Agreement. Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy. Annotator Agreement reads the training annotations and the object crops. From those, Annotator Agreement produces the quality-control results, and the figures and table exports. Annotate can supply the training annotations. Choose independent annotation columns for the same objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10955,7 +10892,7 @@
         },
         {
           "visual": "module_classify",
-          "narration": "Öppna Classify från Home och välj sedan Computer Vision. Träna en bildklassificerare från märkta objektutsnitt, arkiv eller utsnitt som kan hämtas vid behov. Matcha kanaler och förbehandling när kontrollpunkten används. Indata: Uppmätta objekt; Objektbeskärningar; Träningsannoteringar. Utdata: Poäng för objektklassificering; Tränad bildklassificerare; Utvärderingspaket för klassificerare.",
+          "narration": "Open Classify from Home, then choose Computer Vision. Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint. Computer Vision reads the measured objects, the object crops and the training annotations. From those, Computer Vision produces the object classification scores, the trained image classifier and the classifier evaluation bundle.",
           "hold_after": 0.7,
           "related_lessons": [
             "10_classify_cv"
@@ -10963,7 +10900,7 @@
         },
         {
           "visual": "module_ml_analyze",
-          "narration": "Öppna Classify från Home och välj sedan Tabular Machine Learning. Träna en egenskapsbaserad klassificerare från uppmätta objekt och etiketter. Inspektera uteslutningar på grund av saknade egenskaper och oberoende utvärderingsresultat per grupp innan poäng används. Indata: Uppmätta objekt; Träningsannoteringar. Utdata: Poäng för objektklassificering; Anpassad egenskapsklassificerare; Utvärderingspaket för klassificerare.",
+          "narration": "Open Classify from Home, then choose Tabular Machine Learning. Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores. Tabular Machine Learning reads the measured objects and the training annotations. From those, Tabular Machine Learning produces the object classification scores, the fitted feature classifier and the classifier evaluation bundle.",
           "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
@@ -10971,7 +10908,7 @@
         },
         {
           "visual": "module_parameter_sweep",
-          "narration": "Öppna Regression från Home och välj sedan Parameter Sweep. Kör uttryckligen valda regressionsinställningar och jämför deras diagnostik. Håll indata och utvärderingsfrågan oförändrade. Indata: Poäng för objektklassificering; Guideantal per brunn. Utdata: Körnings- och modelljämförelse; Regressionsresultat och träffar.",
+          "narration": "Open Regression from Home, then choose Parameter Sweep. Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed. Parameter Sweep reads the object classification scores and the guide counts per well. From those, Parameter Sweep produces the run/model comparison, and the regression results and hits.",
           "hold_after": 0.7,
           "related_lessons": [
             "73_parameter_sweep"
@@ -10979,7 +10916,7 @@
         },
         {
           "visual": "module_toxoplasma",
-          "narration": "Öppna Toxoplasma från Home. Öppna organismguiden från Home, inspektera kompartmentdiagrammet och välj sedan Plaque Assay, Recruitment, Invasion Assay eller Replication Assay. De fyra rutorna märkta Coming soon beskriver förslag och kan inte köras. Guiden analyserar inte själv ett projekt och skapar ingen mättabell. Indata: Medföljande organismreferens. Medföljande organismreferens: Installerade organismbeskrivningar och celldiagram från SwissBioPics; inga projektdata behövs. Utdata: Organismguide och analysval. Organismguide och analysval: Markering av kompartment och navigering till tillgängliga analyser endast i GUI; inga mätningar eller filer skapas.",
+          "narration": "Open Toxoplasma from Home. Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table. Toxoplasma reads the bundled organism reference. Look for the bundled organism reference here: Installed organism descriptions and SwissBioPics cell diagrams; no project input is required. From those, Toxoplasma produces the organism guide and assay selection. You'll find the organism guide and assay selection here: GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
           "hold_after": 0.7,
           "related_lessons": [
             "82_toxoplasma"
@@ -10987,7 +10924,7 @@
         },
         {
           "visual": "module_plasmodium",
-          "narration": "Öppna Plasmodium spp. från Home. Öppna organismguiden från Home för att läsa om planerade arbetsflöden för malariaavbildning och inspektera det gemensamma apicomplexdiagrammet. Alla åtta analysrutor är märkta Coming soon; ingen startar en analys eller skapar ett resultat. Indata: Medföljande organismreferens. Utdata: Organismguide och analysval.",
+          "narration": "Open Plasmodium spp. from Home. Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Plasmodium spp. reads the bundled organism reference. From those, Plasmodium spp. produces the organism guide and assay selection.",
           "hold_after": 0.7,
           "related_lessons": [
             "83_plasmodium"
@@ -10995,7 +10932,7 @@
         },
         {
           "visual": "module_candida",
-          "narration": "Öppna Candida spp. från Home. Öppna organismguiden från Home för att läsa om planerade arbetsflöden för svampavbildning och inspektera det generiska diagrammet över knoppande jäst. Alla åtta analysrutor är märkta Coming soon; ingen startar en analys eller skapar ett resultat. Indata: Medföljande organismreferens. Utdata: Organismguide och analysval.",
+          "narration": "Open Candida spp. from Home. Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Candida spp. reads the bundled organism reference. From those, Candida spp. produces the organism guide and assay selection.",
           "hold_after": 0.7,
           "related_lessons": [
             "84_candida"
@@ -11003,7 +10940,7 @@
         },
         {
           "visual": "module_endodyogeny",
-          "narration": "Använd Endodyogeny size proxy från Python genom spacr.submodules.analyze_endodyogeny. Detta arbetsflöde finns bara i API:t och saknar ruta på Home och menypost. Läs uppmätta kompartmentareor, annotera betingelser och gruppera area ** 1.5 i log2-storleksfördubblingar. Standardinställningen aggregerar patogenarea per värdcell, inte per vakuol: flera vakuoler i samma cell kombineras. Detta är ett areabaserat storleksmått, inte uppmätt volym eller ett parasitantal. Använd Replication Assay med uttryckliga vakuolidentiteter för antal parasiter per vakuol. Konfigurera kompartment, areafilter, kalibrering, betingelser och gruppering före API-anropet; lagring är valfri. Indata: Kompartmentareor aggregerade per värdcell. Kompartmentareor aggregerade per värdcell: Varje src-projektrot/measurements/measurements.db; tables innehåller som standard cell, nucleus, pathogen och cytoplasm, med png_list tillagd för sammanfogning. Inställningen compartment väljer areakolumn; som standard summeras pathogen_area per värdcell. Relevanta tabeller beror på vald väg: cell, nucleus, pathogen, cytoplasm, png_list. Relevanta kolumner beror på vald väg: cell_id, pathogen_area. Utdata: Resultat för ett areabaserat storleksmått. Resultat för ett areabaserat storleksmått: Returnerade DataFrames data och chi_squared; save=True skriver även data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv och en figur under den första projektroten/results/analyze_endodyogeny/. Relevanta kolumner beror på vald väg: pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index. Measure till Endodyogeny size proxy: Tillhandahåll de uppmätta projektens rötter och nödvändiga objekt- och png_list-tabeller. Kontrollera aggregering per värdcell och areaenheter innan storleksintervall tolkas; Masks antalsdatabas räcker inte ensam.",
+          "narration": "Use Endodyogeny size proxy from Python through spacr.submodules.analyze_endodyogeny. This API-only workflow has no Home tile or menu entry. Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional. Endodyogeny size proxy reads the host-cell-aggregated compartment areas. Look for the host-cell-aggregated compartment areas here: Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Depending on the route, the tables that matter are cell, nucleus, pathogen, cytoplasm, png_list. The columns to keep an eye on are cell_id, pathogen_area. From those, Endodyogeny size proxy produces the area-derived size-proxy results. You'll find the area-derived size-proxy results here: Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. The columns to keep an eye on are pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index. Measure can supply the measured objects. Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -11011,7 +10948,7 @@
         },
         {
           "visual": "module_cellpose_masks",
-          "narration": "Använd Direct Cellpose mask generation från Python genom spacr.spacr_cellpose.identify_masks_finetune. Detta arbetsflöde finns bara i API:t och saknar ruta på Home och menypost. Kör en standardmodell eller egen Cellpose-modell på TIFF-bildfält via Python-API:t. Trots sitt historiska namn identify_masks_finetune utför funktionen inferens, inte träning. Granska normalisering, kanaler, storleksändring och modellparametrar; masker skrivs bara när save är aktiverat. Importera kompatibla bild- och maskpar genom External Masks före Measure, eller granska paren före träning. Anropet skapar inget sammanslaget projekt färdigt för Measure. Indata: TIFF-bildfält för direkt Cellpose-inferens; Segmenteringskontrollpunkt. TIFF-bildfält för direkt Cellpose-inferens: .tif-filer med gemener direkt i src; befintliga filer med samma namn i src/masks hoppas över. Ange konfigurerade kanaler och ett kompatibelt standardvärde för model_name eller en kontrollpunkt i custom_model. Utdata: Direkta Cellpose-masker i TIFF-format. Direkta Cellpose-masker i TIFF-format: När save=True innehåller src/masks/<image-name>.tif heltalsetiketter. Anropet returnerar None och skapar inga sammanslagna arrayer eller measurements.db. Cellpose Workbench till Direct Cellpose mask generation: Ange den tränade kontrollpunkten som custom_model med motsvarande bildkanaler och förbehandling. Direct Cellpose mask generation till External Masks: Tillhandahåll sparade etikettfiler i TIFF-format och deras originalbilder till External Masks, tilldela objektroller och skapa det sammanslagna projektet före Measure.",
+          "narration": "Use Direct Cellpose mask generation from Python through spacr.spacr_cellpose.identify_masks_finetune. This API-only workflow has no Home tile or menu entry. Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project. Direct Cellpose mask generation reads the TIFF fields for direct Cellpose inference and the segmentation checkpoint. Look for the TIFF fields for direct Cellpose inference here: Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint. From those, Direct Cellpose mask generation produces the direct Cellpose TIFF masks. You'll find the direct Cellpose TIFF masks here: When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db. Cellpose Workbench can supply the segmentation checkpoint. Pass the trained checkpoint as custom_model with the matching image channels and preprocessing. External Masks picks up the direct Cellpose TIFF masks next. Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
           "hold_after": 0.7,
           "related_lessons": [
             "19_train_cellpose",
@@ -11020,13 +10957,13 @@
         },
         {
           "visual": "module_simulation",
-          "narration": "Använd Pooled-screen simulation sweep från Python genom spacr.sim.run_multiple_simulations. Detta arbetsflöde finns bara i API:t och saknar ruta på Home och menypost. Använd Python-API:t för parameterstudier för att utforska angivna antaganden om screeningdesign. Det expanderar kombinationer, kör simuleringar i en processpool och skriver syntetisk sammanfattande statistik; det returnerar None. Ange ett litet uttryckligt max_workers-värde och ett begränsat parameterrutnät före körningen. Utdata ersätter inte mätningar eller streckkodsantal för experimentell Regression. Använd resultaten som planeringsunderlag med dokumenterade antaganden. Granska de syntetiska sammanfattningarna när du väljer planeringsantaganden; överför antagandena manuellt till Power / Design eller Experiment Design. Inget av verktygen importerar denna simuleringsdatabas eller exporterar rutnätet med simuleringsinställningar. Indata: Antaganden för simulering av poolad screening. Antaganden för simulering av poolad screening: Python-ordbok med inställningar: itererbara värden för att undersöka screeningstorlek, beläggning, klassificerarens noggrannhet och sekvenseringsantaganden samt replicates, src, name, variable, plot och max_workers. generate_parameters expanderar deras kartesiska produkt; börja med en liten parameterstudie och en uttrycklig gräns för arbetsprocesser. Utdata: Sammanfattningar av syntetiska screeningsimuleringar. Sammanfattningar av syntetiska screeningsimuleringar: src/<YYMMDD>/<name>/simulations.db; parameterstudien lägger till sammanfattningsrader i simulations och skriver valfritt diagram. Detta är syntetiska prestandauppskattningar, inte uppmätta experimentella träffar. Relevanta tabeller beror på vald väg: simulations.",
+          "narration": "Use Pooled-screen simulation sweep from Python through spacr.sim.run_multiple_simulations. This API-only workflow has no Home tile or menu entry. Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid. Pooled-screen simulation sweep reads the pooled-screen simulation assumptions. Look for the pooled-screen simulation assumptions here: Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound. From those, Pooled-screen simulation sweep produces the synthetic screen simulation summaries. You'll find the synthetic screen simulation summaries here: src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Depending on the route, the tables that matter are simulations.",
           "hold_after": 0.7,
           "related_lessons": []
         },
         {
           "visual": "home_summary",
-          "narration": "Återgå till kapitlet som motsvarar nästa dataprodukt i stället för att upprepa slutfört arbete. En tabell med antal är inte en tabell över uppmätta egenskaper, en projektion är inte en tränad klassificerare och en jämförelse är inte ett nytt experiment. De länkade API-sidorna har samma fil-, tabell- och kolumnkontrakt, och specialistlektionerna visar de enskilda kontrollerna.",
+          "narration": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
           "hold_after": 0.7
         }
       ],
@@ -11040,21 +10977,21 @@
       "id": "80_image_analysis_pathways",
       "number": 80,
       "slug": "image_analysis_pathways",
-      "title": "Bildanalysmoduler och hur de hänger ihop",
+      "title": "Image analysis modules and how they relate",
       "series": 1,
       "app_key": null,
-      "section": "Arbetsflöden",
-      "description": "Välj en bildanalysväg genom segmentering, mätning, annotering, klassificering, projektioner, urvalsgrindar, bildregistrering, kvalitetskontroll och analyser.",
+      "section": "Workflows",
+      "description": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
       "objectives": [
-        "Välj startmodul utifrån de data du redan har.",
-        "Identifiera vad varje modul läser och skriver.",
-        "Följ de länkade modullektionerna och API-kontrakten för nästa steg."
+        "Choose a starting module from the data you already have.",
+        "Identify what each module reads and writes.",
+        "Follow the linked module lessons and API contracts for the next step."
       ],
-      "prerequisite": "Installera spaCR och öppna Home. Lektionen förklarar navigering och dataöverföringar; de länkade modullektionerna ger genomarbetade dataexempel. Indata och utdata omfattar villkorliga alternativ som förklaras för varje modul.",
+      "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
       "scenes": [
         {
           "visual": "home",
-          "narration": "Börja på Home genom att avgöra om du har råbilder, befintliga masker eller uppmätta objekt. Mask skapar segmenteringsresultat; Make Masks används för att granska enskilda bildfält; Measure omvandlar kompatibla bilder och etiketter till objektmätningar och valfria utsnitt. Därefter avgör den vetenskapliga frågan om du ska klassificera, utforska en projektion, definiera en urvalsgrind eller köra en analys. Registrera bildrutor före analyser som kräver ett gemensamt koordinatsystem. Vägarna här är alternativ och förgreningar, inte ett krav på att köra alla moduler.",
+          "narration": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -11062,7 +10999,7 @@
         },
         {
           "visual": "module_mask",
-          "narration": "Öppna Mask från Home. Välj kanaler och modeller, inspektera en förhandsvisning och kör sedan Mask. Measure använder de sammanslagna arrayerna; databasen med antal är ännu ingen egenskapstabell. Indata: Mikroskopbilder; Segmenteringskontrollpunkt. Utdata: Bilder och etikettmasker; Etikettmasker; Objektantal. Mask till Measure: Använd samma projekt och rätt kanalindex för bild och mask.",
+          "narration": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -11071,7 +11008,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Öppna Make Masks från Home. Granska bild- och maskpar för segmenteringsträning, eller använd FEATURES för att tilldela bilder och masker och starta mätning. Att spara en mask tränar inte en klassificerare. Indata: Mikroskopbilder; Etikettmasker. Utdata: Granskade träningsfält; Etikettmasker. Make Masks till Measure: Använd FEATURES för att para ihop bilder och masker och skriva ett uppmätt projekt; fristående masker är inte sammanslagna arrayer. Make Masks till Plaque Assay: Använd plackmasker med motsvarande källbilder; cellmasker är inte automatiskt placketiketter.",
+          "narration": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11081,7 +11018,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Öppna Measure från Home. Measure läser bilder och etikettplan tillsammans. Aktivera lagring av utsnitt om du behöver PNG-filer; håll databasen och källprojektet tillsammans för utsnitt som hämtas vid behov. Indata: Bilder och etikettmasker; Etikettmasker. Utdata: Uppmätta objekt; Objektbeskärningar. Mask till Measure: Använd samma projekt och rätt kanalindex för bild och mask. Measure till Annotate: Spara eller hämta utsnitt vid behov med stabila objektidentiteter. Measure till Classify: Välj bildfamiljen eller den tabulära familjen efter dina indata. Make Masks till Measure: Använd FEATURES för att para ihop bilder och masker och skriva ett uppmätt projekt; fristående masker är inte sammanslagna arrayer. Measure till Image UMAP: Välj egenskapskolumner och inspektera representativa utsnitt. Measure till Embeddings: Bevara uppgifter om kodarens och kanalpolicyns ursprung. Measure till Gate Editor: Använd de faktiska uppmätta egenskapernas definitioner och enheter. Measure till QC: Granska tillgängliga kontroller och saknade belägg. Measure till Recruitment: Kräv avsedda kompartmentintensiteter och identiteter. Measure till Invasion Assay: Kräv mätningar av tvåfärgsfärgning och lämpliga baslinjekontroller. Measure till Replication Assay: Kräv uttryckliga kopplingar mellan parasit- och vakuolidentiteter. Measure till Endodyogeny size proxy: Tillhandahåll de uppmätta projektens rötter och nödvändiga objekt- och png_list-tabeller. Kontrollera aggregering per värdcell och areaenheter innan storleksintervall tolkas; Masks antalsdatabas räcker inte ensam. Measure till Host–Pathogen Analysis: Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol.",
+          "narration": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -11101,7 +11038,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Öppna Annotate från Home. Märk representativa objekt i png_list före övervakad träning. Använd separata annoteringar för olika frågor och håll tränings- och utvärderingsgrupper oberoende. Indata: Uppmätta objekt; Objektbeskärningar; Återanvändbara grindar. Utdata: Träningsannoteringar. Measure till Annotate: Spara eller hämta utsnitt vid behov med stabila objektidentiteter. Annotate till Classify: Håll märkta tränings- och utvärderingsgrupper åtskilda. Gate Editor till Annotate: Tillämpa kompatibla urvalsgrindar och granska sedan kandidatetiketter.",
+          "narration": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11112,7 +11049,7 @@
         },
         {
           "visual": "module_classify_merged",
-          "narration": "Öppna Classify från Home. Välj Computer Vision för utsnitt eller objektbilder som hämtas vid behov, eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De två familjerna använder olika indata. Indata: Uppmätta objekt; Objektbeskärningar; Träningsannoteringar. Utdata: Poäng för objektklassificering; Tränad bildklassificerare; Anpassad egenskapsklassificerare; Utvärderingspaket för klassificerare. Measure till Classify: Välj bildfamiljen eller den tabulära familjen efter dina indata. Annotate till Classify: Håll märkta tränings- och utvärderingsgrupper åtskilda. Classify till Regression: Välj avsedd poängkolumn för CV eller ML och bevara platt- och brunnsidentitet. Gate Editor till Classify: Skriv granskade grindurval till en annoteringskolumn och välj sedan samma kolumn och objektpopulation i Classify. Håll valideringsobjekt åtskilda från träningsetiketter. Image UMAP till Classify: Skriv granskade lassourval till en annoteringskolumn i motsvarande objektdatabas och välj sedan kolumnen i Classify. Granska bildutsnitten och validera etiketterna; kluster i inbäddningsrymden är inte referenssanning.",
+          "narration": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11125,7 +11062,7 @@
         },
         {
           "visual": "module_umap",
-          "narration": "Öppna Image UMAP från Home. Projicera uppmätta egenskaper eller tillhandahållna kodaregenskaper och inspektera representativa utsnitt. Ett kluster är en kandidatgruppering, inte en validerad fenotyp. Använd lasso- och annoteringskontrollerna för att skriva granskade urval till en annoteringskolumn i motsvarande mätdatabas. Ett geometriskt urval ensamt fastställer ingen biologisk fenotyp. Indata: Uppmätta objekt; Objektbeskärningar; Bildrepresentationer. Utdata: Projektion och kluster; Träningsannoteringar. Measure till Image UMAP: Välj egenskapskolumner och inspektera representativa utsnitt. Embeddings till Image UMAP: Tillhandahåll kodarens egenskapstabell med motsvarande objekt-ID:n; anta inte att varje GUI-väg sparar den automatiskt. Image UMAP till Gate Editor: Tillhandahåll motsvarande koordinat- eller egenskapskolumner när ett urval definieras. Image UMAP till Classify: Skriv granskade lassourval till en annoteringskolumn i motsvarande objektdatabas och välj sedan kolumnen i Classify. Granska bildutsnitten och validera etiketterna; kluster i inbäddningsrymden är inte referenssanning.",
+          "narration": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11137,7 +11074,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Öppna Gate Editor från Home. Definiera tröskel- eller polygonbaserade urvalsgrindar på faktiska egenskaps- eller koordinatkolumner och tillämpa sedan den sparade grinden på kompatibla objekt. Använd Annotate för att skriva de visade grindarna till en annoteringskolumn; granska de valda objekten och välj binära etiketter eller etiketter för flera klasser. Indata: Uppmätta objekt; Projektion och kluster. Utdata: Återanvändbara grindar; Träningsannoteringar. Image UMAP till Gate Editor: Tillhandahåll motsvarande koordinat- eller egenskapskolumner när ett urval definieras. Gate Editor till Annotate: Tillämpa kompatibla urvalsgrindar och granska sedan kandidatetiketter. Measure till Gate Editor: Använd de faktiska uppmätta egenskapernas definitioner och enheter. Gate Editor till Classify: Skriv granskade grindurval till en annoteringskolumn och välj sedan samma kolumn och objektpopulation i Classify. Håll valideringsobjekt åtskilda från träningsetiketter.",
+          "narration": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11149,7 +11086,7 @@
         },
         {
           "visual": "module_align",
-          "narration": "Öppna Align & Stitch från Home. Inspektera bildrutornas geometri, överlappning och kanalmappning och spara sedan mosaiken med koordinatuppgifter. OPS behöver även de ursprungliga cykel- och platsidentiteterna. Indata: Mikroskopbilder. Utdata: Registrerad mosaik och koordinater.",
+          "narration": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
@@ -11157,7 +11094,7 @@
         },
         {
           "visual": "module_analyze_plaques",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Plaque Assay. Analysera plackbilder eller befintliga masker med den konfigurerade plackmodellen. Denna väg behöver inte gå genom Measure; använd det särskilda plackexemplet. Indata: Mikroskopbilder; Etikettmasker. Utdata: Analysresultat; Etikettmasker. Make Masks till Plaque Assay: Använd plackmasker med motsvarande källbilder; cellmasker är inte automatiskt placketiketter.",
+          "narration": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
@@ -11166,7 +11103,7 @@
         },
         {
           "visual": "module_recruitment",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Recruitment. Använd kompartmentens intensitetsmätningar och motsvarande värd- och patogenidentiteter för att beräkna rekryteringskvoter. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Recruitment: Kräv avsedda kompartmentintensiteter och identiteter.",
+          "narration": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11175,7 +11112,7 @@
         },
         {
           "visual": "module_host_pathogen",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Host–Pathogen Analysis. Mät hela vakuoler och värdcellernas referenskompartment, och behåll oinfekterade värdceller i infektionsandelens nämnare. Välj markörkanaler och kvottrösklar kalibrerade mot kontroller. Räkna vid behov individuellt segmenterade parasiter med uttryckliga vakuolkopplingar eller en kolumn med uppmätta antal. Granska tabeller för vakuoler, värdceller och brunnar, gemensamma markörtillstånd, replikationsfördelningar och parasitkopplingar utan matchning; okända mätvärden förblir okända. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Host–Pathogen Analysis: Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol.",
+          "narration": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11184,7 +11121,7 @@
         },
         {
           "visual": "module_invasion",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Invasion Assay. Använd nödvändiga mätningar av differentiell tvåfärgsfärgning och baslinjekontroller för färgningen för att skilja vidhäftning från invasion. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Invasion Assay: Kräv mätningar av tvåfärgsfärgning och lämpliga baslinjekontroller.",
+          "narration": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11193,7 +11130,7 @@
         },
         {
           "visual": "module_replication",
-          "narration": "Öppna Toxoplasma från Home och välj sedan Replication Assay. Räkna parasiter med uttryckliga vakuolidentiteter och jämför fördelningar mellan betingelser; enbart värdcellens identitet definierar inte en vakuol. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Replication Assay: Kräv uttryckliga kopplingar mellan parasit- och vakuolidentiteter.",
+          "narration": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11202,7 +11139,7 @@
         },
         {
           "visual": "module_qc_dashboard",
-          "narration": "Öppna QC från Home. Inspektera lagrade kontroller av segmentering, enheter, läckage och platteffekter. Öppna dess inbäddade visare för en detaljerad granskning. Indata: Uppmätta objekt; Kvalitetskontrollresultat. Utdata: Kvalitetskontrollresultat; Figurer och tabellexporter. Measure till QC: Granska tillgängliga kontroller och saknade belägg.",
+          "narration": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11211,7 +11148,7 @@
         },
         {
           "visual": "module_embeddings",
-          "narration": "Öppna Embeddings från Home. Koda objektbilder med en vald modell och kanalpolicy. Behåll objektidentiteter och kodarens ursprung när egenskaperna lämnas till efterföljande utforskning. Indata: Uppmätta objekt; Objektbeskärningar. Utdata: Bildrepresentationer. Measure till Embeddings: Bevara uppgifter om kodarens och kanalpolicyns ursprung. Embeddings till Image UMAP: Tillhandahåll kodarens egenskapstabell med motsvarande objekt-ID:n; anta inte att varje GUI-väg sparar den automatiskt.",
+          "narration": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -11221,7 +11158,7 @@
         },
         {
           "visual": "module_endodyogeny",
-          "narration": "Använd Endodyogeny size proxy från Python genom spacr.submodules.analyze_endodyogeny. Detta arbetsflöde finns bara i API:t och saknar ruta på Home och menypost. Läs uppmätta kompartmentareor, annotera betingelser och gruppera area ** 1.5 i log2-storleksfördubblingar. Standardinställningen aggregerar patogenarea per värdcell, inte per vakuol: flera vakuoler i samma cell kombineras. Detta är ett areabaserat storleksmått, inte uppmätt volym eller ett parasitantal. Använd Replication Assay med uttryckliga vakuolidentiteter för antal parasiter per vakuol. Konfigurera kompartment, areafilter, kalibrering, betingelser och gruppering före API-anropet; lagring är valfri. Indata: Kompartmentareor aggregerade per värdcell. Utdata: Resultat för ett areabaserat storleksmått. Measure till Endodyogeny size proxy: Tillhandahåll de uppmätta projektens rötter och nödvändiga objekt- och png_list-tabeller. Kontrollera aggregering per värdcell och areaenheter innan storleksintervall tolkas; Masks antalsdatabas räcker inte ensam.",
+          "narration": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -11229,13 +11166,13 @@
         },
         {
           "visual": "module_cellpose_masks",
-          "narration": "Använd Direct Cellpose mask generation från Python genom spacr.spacr_cellpose.identify_masks_finetune. Detta arbetsflöde finns bara i API:t och saknar ruta på Home och menypost. Kör en standardmodell eller egen Cellpose-modell på TIFF-bildfält via Python-API:t. Trots sitt historiska namn identify_masks_finetune utför funktionen inferens, inte träning. Granska normalisering, kanaler, storleksändring och modellparametrar; masker skrivs bara när save är aktiverat. Importera kompatibla bild- och maskpar genom External Masks före Measure, eller granska paren före träning. Anropet skapar inget sammanslaget projekt färdigt för Measure. Indata: TIFF-bildfält för direkt Cellpose-inferens; Segmenteringskontrollpunkt. Utdata: Direkta Cellpose-masker i TIFF-format.",
+          "narration": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
           "hold_after": 0.7,
           "related_lessons": []
         },
         {
           "visual": "home_summary",
-          "narration": "För höginnehållsanalys, gå från Mask till Measure och välj sedan den metod som besvarar frågan. För segmenteringsträning, granska bild- och maskpar i Make Masks före Train Cellpose och testa den sparade modellen i Mask. Befintliga kompatibla masker eller mätningar gör att du kan börja senare. Bevara kanalidentiteter, enheter, objektnycklar och de inställningar som skapade varje resultat; följ den särskilda genomgången för den valda vägen.",
+          "narration": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
           "hold_after": 0.7
         }
       ],
@@ -11249,21 +11186,21 @@
       "id": "81_sequencing_pathways",
       "number": 81,
       "slug": "sequencing_pathways",
-      "title": "Sekvenseringsmoduler och hur de hänger ihop",
+      "title": "Sequencing modules and how they relate",
       "series": 1,
       "app_key": null,
-      "section": "Arbetsflöden",
-      "description": "Koppla sekvensering och optiska streckkodsflöden till fenotyppoäng, regression, försöksplanering, styrkeberäkningar, dos–responsanalys och jämförelser av körningar.",
+      "section": "Workflows",
+      "description": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
       "objectives": [
-        "Välja startmodul utifrån de data som redan finns.",
-        "Identifiera vilka data varje modul läser och skriver.",
-        "Använda de länkade modullektionerna och API-beskrivningarna för nästa steg."
+        "Choose a starting module from the data you already have.",
+        "Identify what each module reads and writes.",
+        "Follow the linked module lessons and API contracts for the next step."
       ],
-      "prerequisite": "Installera spaCR och öppna Home. Den här lektionen förklarar navigering och dataöverföring; de länkade modullektionerna innehåller genomarbetade dataexempel. In- och utdata omfattar villkorade alternativ som förklaras för varje modul.",
+      "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
       "scenes": [
         {
           "visual": "home",
-          "narration": "Börja på Home med frågeställningen och typen av streckkodsdata. Map Barcodes läser sekvenseringsfiler; optisk poolad screening läser registrerade bildcykler via OPS. Båda kräver en uttrycklig koppling mellan streckkodernas identiteter och experimentet. Regression kopplar samman kompatibla perturbationsantal och fenotyppoäng; den ersätter inte avkodning av streckkoder. Experiment Design och Power används före datainsamlingen när du planerar screeningen, medan Dose-Response och Run Compare granskar lämpliga resultat efteråt.",
+          "narration": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -11271,7 +11208,7 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Öppna Map Barcodes från Home. Ange referenserna som kodar ditt experiment. Granska mappade antal och streckkodernas kvalitetskontroll innan du kopplar guideantal per brunn till fenotyppoäng. Indata: sekvenseringsläsningar. Utdata: guideantal per brunn. Map Barcodes till Regression: koppla guideantal till fenotyppoäng med konsekventa platt- och brunnsnycklar. Map Barcodes till Barcode QC: kontrollera mappning och täckning innan du filtrerar guider.",
+          "narration": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -11281,7 +11218,7 @@
         },
         {
           "visual": "module_barcode_qc",
-          "narration": "Öppna Map Barcodes från Home och välj sedan Barcode QC. Granska mappningsdjup, täckning, kollisioner och positionseffekter innan du filtrerar guideantal. Indata: guideantal per brunn. Utdata: kvalitetskontrollresultat; figurer och tabellexporter. Map Barcodes till Barcode QC: kontrollera mappning och täckning innan du filtrerar guider.",
+          "narration": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -11290,7 +11227,7 @@
         },
         {
           "visual": "module_ops",
-          "narration": "Öppna Mask från Home och välj sedan OPS. Använd bilder från sekvenseringscykler och inpassning av fenotypbilder för att avkoda streckkoder per cellkärna. Aggregera eller koppla de avkodade identiteterna till kompatibla fenotypindata före Regression; OPS-databasen ersätter inte direkt en CSV med FASTQ-baserade antal. Indata: mikroskopbilder; inpassad mosaik och koordinater. Utdata: optiska streckkodstilldelningar. OPS till Regression: koppla eller aggregera uttryckligen avkodade objekt till fenotyp- och guideindata före Regression; detta är ingen direkt CSV-överföring.",
+          "narration": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -11299,7 +11236,7 @@
         },
         {
           "visual": "module_regression",
-          "narration": "Öppna Regression från Home. Matcha platt- och brunnsidentifierare mellan fenotypdata och guideantal, välj responsvariabel och kontroller och granska diagnostiken innan du tolkar träffar. Direkt uppmätta responser stöds också. Indata: objektklassificeringspoäng; guideantal per brunn; optiska streckkodstilldelningar; uppmätta objekt. Utdata: regressionsresultat och träffar. Classify till Regression: välj avsedd CV- eller ML-poängkolumn och bevara platt- och brunnsidentiteter. Map Barcodes till Regression: koppla guideantal till fenotyppoäng med konsekventa platt- och brunnsnycklar. OPS till Regression: koppla eller aggregera uttryckligen avkodade objekt till fenotyp- och guideindata före Regression; detta är ingen direkt CSV-överföring. Regression till Run Compare: jämför kompatibla sparade resultatuppsättningar och deras inställningar.",
+          "narration": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -11311,7 +11248,7 @@
         },
         {
           "visual": "module_power",
-          "narration": "Öppna Power / Design från Home. Uppskatta provtagningsbehov utifrån valda effektstorlekar och variation; pilotmätningar kan användas som frivilligt stöd för antagandena. Indata: screeningdesign och styrkeberäkningar; uppmätta objekt; försökslayout. Utdata: screeningdesign och styrkeberäkningar. Experiment Design till Power / Design: använd försökslayouten för att definiera provtagningsantaganden och revidera sedan designen.",
+          "narration": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
@@ -11320,7 +11257,7 @@
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Öppna Experiment Design från Home. Ange betingelser, kontroller, replikat och plattbegränsningar och exportera sedan försökslayouten före datainsamlingen. Indata: screeningdesign och styrkeberäkningar. Utdata: försökslayout. Experiment Design till Power / Design: använd försökslayouten för att definiera provtagningsantaganden och revidera sedan designen. Experiment Design till Dose–Response: genomför och mät först experimentet och bevara dos- och betingelseidentifierarna.",
+          "narration": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
@@ -11330,7 +11267,7 @@
         },
         {
           "visual": "module_dose_response",
-          "narration": "Öppna Dose–Response från Home. Ange dos- och responskolumner, kontroller och enheter före kurvanpassning; den här vägen kräver ingen sekvensering. Indata: uppmätta objekt; försökslayout. Utdata: analysresultat; figurer och tabellexporter. Experiment Design till Dose–Response: genomför och mät först experimentet och bevara dos- och betingelseidentifierarna.",
+          "narration": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
@@ -11339,7 +11276,7 @@
         },
         {
           "visual": "module_run_compare",
-          "narration": "Öppna Run Compare från Home. Jämför kompatibla sparade inställningar, antal och träfflistor utan att betrakta ändrade indata som en kontrollerad modelljämförelse. Indata: körhistorik och artefakter; regressionsresultat och träffar. Utdata: körnings- och modelljämförelse. Regression till Run Compare: jämför kompatibla sparade resultatuppsättningar och deras inställningar.",
+          "narration": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -11348,82 +11285,19 @@
         },
         {
           "visual": "module_simulation",
-          "narration": "Använd parametersvep för simulering av poolade screeningar från Python via spacr.sim.run_multiple_simulations. Detta arbetsflöde finns endast i API:t och har ingen Home-ruta eller menypost. Använd Python-API:t för parametersvep för att undersöka angivna antaganden om screeningdesign. Det utvecklar parameterkombinationer, kör simuleringar i en processpool och skriver syntetisk sammanfattande statistik; det returnerar None. Ange ett uttryckligt litet max_workers-värde och ett avgränsat parameterrutnät före körningen. Utdata ersätter inte mätningar eller streckkodsantal för experimentell Regression. Använd resultaten som planeringsunderlag och dokumentera antagandena. Granska de syntetiska sammanfattningarna när du väljer planeringsantaganden; överför antagandena manuellt till Power / Design eller Experiment Design. Inget av verktygen importerar den här simuleringsdatabasen, och inget exporterar simuleringsinställningarnas rutnät. Indata: antaganden för simulering av poolade screeningar. Utdata: syntetiska sammanfattningar av screeningsimuleringar.",
+          "narration": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database.",
           "hold_after": 0.7,
           "related_lessons": []
         },
         {
           "visual": "home_summary",
-          "narration": "Spara sekvenseringsreferenser och plattlayouter tillsammans med antalen och kontrollera kopplingen till bildbaserade poäng innan du tolkar en regression. Optiska tilldelningar kräver egen objektkoppling och aggregering; de är inte automatiskt en direkt ersättning för en fil med sekvenseringsantal. Håll isär planeringsantaganden, anpassade effekter och jämförelser mellan slutförda körningar. De länkade lektionerna och genomgångarna från Home visar vägen för varje typ av experiment.",
+          "narration": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well. Keep barcode references and plate layouts with your count tables, and for an optical screen, join the decoded objects to their phenotypes and aggregate them before Regression. The linked module lessons show the settings and outputs for each step.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_aoede",
-          "af_bella",
-          "af_heart",
-          "af_jessica",
-          "af_river",
-          "af_sarah",
-          "af_sky",
-          "am_adam",
-          "am_echo",
-          "am_eric",
-          "am_fenrir",
-          "am_liam",
-          "am_michael",
-          "am_onyx",
-          "am_puck",
-          "am_santa",
-          "bf_alice",
-          "bf_emma",
-          "bf_isabella",
-          "bf_lily",
-          "bm_daniel",
-          "bm_fable",
-          "bm_george",
-          "bm_lewis"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
+          "af_heart"
         ]
       }
     },
@@ -11445,37 +11319,37 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "From Home, choose Toxoplasma. This page brings the organism guide, cell diagram and available assays together. You can explore it before loading any images or measurements.",
+          "narration": "Every Toxoplasma experiment can start from one page. From Home, choose Toxoplasma: the organism guide, a cell diagram and the available assays sit side by side, ready to explore before you load any images.",
           "hold_after": 0.7
         },
         {
           "visual": "01_organism",
-          "narration": "Read the introduction in the information pane. Scroll each pane independently, or drag the divider to give the guide or assay tiles more room.",
+          "narration": "Begin with the introduction in the information pane. Each pane scrolls on its own, and dragging the divider gives the guide or the assay tiles more room.",
           "hold_after": 0.7
         },
         {
           "visual": "02_diagram",
-          "narration": "Hover over a cell component to read its description. Select several components to keep them highlighted, and use Clear components to reset the diagram.",
+          "narration": "The diagram is there to explore. Hover over a cell component and its description appears. Select several to keep them highlighted, and Clear components resets the picture.",
           "hold_after": 0.7
         },
         {
           "visual": "03_assays",
-          "narration": "Choose Plaque Assay for plaque counts and areas, Invasion Assay for entry measurements, Recruitment for marker ratios, Replication Assay for parasite counts, or Host–Pathogen for linked vacuole and host summaries. Open the matching lesson for its inputs, settings and results.",
+          "narration": "Pick the tile that matches your question. Plaque Assay counts plaques and measures their areas; Invasion Assay asks how many parasites got inside. Recruitment measures how much marker gathers at the vacuole, Replication Assay how many parasites each vacuole holds, and Host–Pathogen ties vacuoles to their host cells. Each has its own lesson.",
           "hold_after": 0.7
         },
         {
           "visual": "04_host_pathogen",
-          "narration": "Click Host–Pathogen to open its analysis screen. Use Load test data to start with the supplied microscopy example, then follow the Host–Pathogen tutorial through the settings, preview and Run.",
+          "narration": "Let's follow one of them. Click Host–Pathogen and its analysis screen opens. Load test data brings in the supplied microscopy example, and from there the Host–Pathogen tutorial walks you through the settings, preview and Run.",
           "hold_after": 0.7
         },
         {
           "visual": "05_starplast",
-          "narration": "Return to Toxoplasma and choose Starplast to explore the knowledge map in its separate application. On first use, follow the offered installation steps. The reference links also open organism resources in your browser.",
+          "narration": "Back on the Toxoplasma page, Starplast opens a knowledge map in its own application; the first time, it offers installation steps to follow. The reference links, meanwhile, open organism resources in your browser.",
           "hold_after": 0.7
         },
         {
           "visual": "06_home_return",
-          "narration": "The guide itself writes no analysis files. Return to Home when you need image segmentation or measurement first; use the assay pages once the required images or tables are ready.",
+          "narration": "The guide writes no analysis files, so the real work happens elsewhere. If your images still need segmenting or measuring, return Home first; once the images or tables are ready, the assay pages take over.",
           "hold_after": 0.7
         }
       ],
@@ -11503,27 +11377,27 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "From Home, choose Plasmodium. Open this guide to browse organism information, cell compartments and the planned assay topics.",
+          "narration": "Plasmodium has a guide of its own. From Home, choose Plasmodium to browse the organism, its cell compartments and the assays planned for it.",
           "hold_after": 0.7
         },
         {
           "visual": "01_organism",
-          "narration": "Scroll the information pane to read the blood-stage, liver-stage and motility sections. Drag the divider to adjust the space beside the module tiles.",
+          "narration": "The information pane tells the parasite's story in sections, from the blood stage and the liver stage to motility. Drag the divider for more room beside the module tiles.",
           "hold_after": 0.7
         },
         {
           "visual": "02_diagram",
-          "narration": "Hover over the apicomplexan diagram for compartment descriptions. Select components to highlight them together, then use Clear components to reset the view.",
+          "narration": "On the apicomplexan diagram, hover over a compartment to read what it is. Select several to highlight them together, and Clear components brings the view back.",
           "hold_after": 0.7
         },
         {
           "visual": "03_modules",
-          "narration": "The assay tiles currently show Coming soon and are disabled. Browse their descriptions to see the intended readouts. For an available image workflow, return to Home and open Mask or Measure with your own images and suitable channel settings.",
+          "narration": "The assay tiles are still marked Coming soon and can't be opened yet, but their descriptions show what each will measure. To analyse Plasmodium images today, go back Home and open Mask or Measure with your own images and suitable channel settings.",
           "hold_after": 0.7
         },
         {
           "visual": "04_references",
-          "narration": "Use the PlasmoDB and UniProt links to open organism resources in your browser. The guide requires no dataset, has no Run action and creates no output files.",
+          "narration": "For deeper reading, the PlasmoDB and UniProt links open organism resources in your browser. Nothing here needs a dataset or a Run, and the guide writes no files.",
           "hold_after": 0.7
         }
       ],
@@ -11551,27 +11425,27 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "From Home, choose Candida. Browse the guide for morphology, filamentation, biofilm and host-cell interaction topics.",
+          "narration": "From Home, choose Candida. Its guide covers morphology, filamentation, biofilms and how the yeast interacts with host cells.",
           "hold_after": 0.7
         },
         {
           "visual": "01_organism",
-          "narration": "Scroll the information pane and review the module descriptions beside it. Drag the divider to make either pane wider when reading.",
+          "narration": "Read the information pane with the module descriptions beside it, and drag the divider to widen whichever side you're reading.",
           "hold_after": 0.7
         },
         {
           "visual": "02_diagram",
-          "narration": "Hover over a component in the budding-yeast diagram to read its description. Select several components to keep them highlighted, and use Clear components to reset the selection.",
+          "narration": "The budding-yeast diagram works like the other guides. Hover over a component to read its description, select several to keep them highlighted, and Clear components resets the selection.",
           "hold_after": 0.7
         },
         {
           "visual": "03_modules",
-          "narration": "The Candida-specific assay tiles currently show Coming soon and are disabled. To analyse images with the available general tools, return to Home, select Mask and Measure, and choose channels and masks suited to your species and experiment.",
+          "narration": "The Candida-specific assay tiles are marked Coming soon for now, but you can still analyse your images with the general tools. Go back Home, segment them in Mask and measure them in Measure, choosing channels and masks that suit your species and experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "04_references",
-          "narration": "Open the Candida Genome Database or UniProt links for gene and protein information. This guide uses no input files and writes no analysis outputs. Follow a runnable module’s tutorial when you are ready to process images.",
+          "narration": "For gene and protein details, the Candida Genome Database and UniProt links open in your browser. The guide needs no input files and writes no outputs, so when you're ready to process images, follow a runnable module's tutorial.",
           "hold_after": 0.7
         }
       ],
@@ -11599,62 +11473,62 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "From Home, open Toxoplasma, then choose Host–Pathogen. This module joins vacuole marker measurements and parasite counts to their host cells and well summaries.",
+          "narration": "Host–Pathogen ties every vacuole's markers and parasite count back to its host cell and its well. To get there, open Toxoplasma from Home, then choose Host–Pathogen.",
           "hold_after": 0.7
         },
         {
           "visual": "01_test_data",
-          "narration": "Choose Load test data to download the microscopy example and fill in its settings. It contains two fields with images, host and vacuole masks, and measurement tables. Use it to practise the controls before selecting your own measured project.",
+          "narration": "The easiest way in is the example. Load test data downloads a small microscopy project and fills in the settings: two fields with images, host and vacuole masks, and measurement tables. Practise here before switching to your own measured project.",
           "hold_after": 0.7
         },
         {
           "visual": "02_source",
-          "narration": "Check Source. It should point to the project containing measurements/measurements.db. The module can also read a database directly or combine several project sources while keeping their identities separate.",
+          "narration": "Everything the module reads comes through Source, which should point at the project holding measurements/measurements.db. It can also read a database directly, or combine several projects while keeping each one's identity separate.",
           "hold_after": 0.7
         },
         {
           "visual": "03_compartments",
-          "narration": "Choose the vacuole table and its intensity-column prefix, then the host-reference table and prefix. The example uses pathogen for vacuoles and cytoplasm for the host reference. The object links must associate each vacuole with the correct host cell.",
+          "narration": "Now tell it where vacuoles and hosts live in that database: the vacuole table and its intensity-column prefix, then the host-reference table and its prefix. The example uses pathogen and cytoplasm. The object links connect each vacuole to its host cell, so check they are right.",
           "hold_after": 0.7
         },
         {
           "visual": "04_markers",
-          "narration": "Set Marker channels to the zero-based intensity channels you want to compare. The example selects channel one for the RNF213 marker. Each selected channel needs intensity measurements in both the vacuole and reference compartments.",
+          "narration": "Marker channels says which intensities to compare, counted from zero. The example picks channel one, the RNF213 marker. Whatever you pick needs intensity measurements in both the vacuole and the reference compartment, because the ratio is built from the two.",
           "hold_after": 0.7
         },
         {
           "visual": "05_thresholds",
-          "narration": "Leave Marker thresholds empty to inspect recruitment ratios first. To classify a marker as positive or negative, enter its channel number and a ratio threshold chosen from your assay controls. A ratio at or above the threshold is positive. Missing or invalid reference measurements remain unknown.",
+          "narration": "At first, leave Marker thresholds empty and simply look at the recruitment ratios. Once your controls show where positive begins, enter the channel number and that ratio threshold; anything at or above it counts as positive. If a reference measurement is missing or invalid, the state stays unknown rather than guessed.",
           "hold_after": 0.7
         },
         {
           "visual": "06_counts",
-          "narration": "For parasite counts, choose either a parasite table with explicit parent-vacuole links or a measured count column on each vacuole. The microscopy example has neither, so keep both choices empty. Its parasite counts and replication readouts remain unknown.",
+          "narration": "Parasite counts come from one of two places: a parasite table whose rows link to their parent vacuole, or a count column measured on each vacuole. The microscopy example has neither, so leave both empty here, and its parasite counts and replication readouts stay unknown.",
           "hold_after": 0.7
         },
         {
           "visual": "07_preview",
-          "narration": "Turn on Live, choose a field and click Run preview. Inspect the vacuole table beside the image. Select a row or click a vacuole to inspect the corresponding marker measurements and any available parasite count.",
+          "narration": "Before running everything, try one field. Turn on Live, choose a field and click Run preview. The vacuole table appears beside the image; select a row, or click a vacuole, to see its marker measurements and any parasite count.",
           "hold_after": 0.7
         },
         {
           "visual": "08_run",
-          "narration": "Turn off Live and expand Actions if it is folded. Keep Save enabled, then press Run. Wait for the output path in the console. Results are written to results/host_pathogen in the first selected project.",
+          "narration": "When the preview looks right, turn Live off and expand Actions if it is folded. Keep Save on and press Run. The console prints the output path when it finishes, and the results land in results/host_pathogen inside the first selected project.",
           "hold_after": 0.7
         },
         {
           "visual": "09_vacuoles",
-          "narration": "Open vacuoles.csv for one row per vacuole, including its host link, marker ratios, marker state and available parasite count. Open cells.csv for host-cell infection and vacuole counts, then wells.csv for their well summaries.",
+          "narration": "The results build from small to large. vacuoles.csv has one row per vacuole: its host link, marker ratios, marker state and any parasite count. cells.csv rolls those up into host-cell infection and vacuole counts, and wells.csv summarises them per well.",
           "hold_after": 0.7
         },
         {
           "visual": "10_summaries",
-          "narration": "Use marker_states.csv to inspect joint marker states and replication_distribution.csv for parasite counts per counted vacuole. orphan_parasites.csv lists parasites without a usable parent link. Keep settings.json with these tables so the channel and threshold choices remain available.",
+          "narration": "Two more tables answer the biology. marker_states.csv shows joint marker states, and replication_distribution.csv the parasite counts per counted vacuole. Parasites without a usable parent link land in orphan_parasites.csv. Keep settings.json with them so your channel and threshold choices travel along.",
           "hold_after": 0.7
         },
         {
           "visual": "11_denominators",
-          "narration": "Check the denominators before comparing conditions. Infection fractions use retained measured host cells, including uninfected hosts only when Measure retained them. Count distributions use vacuoles with known parasite counts; unknown values remain distinct from zero.",
+          "narration": "One last check before comparing conditions: the denominators. Infection fractions use the measured host cells that were kept, so uninfected hosts count only if Measure retained them. Count distributions use only vacuoles with a known parasite count, and unknown never quietly becomes zero.",
           "hold_after": 0.7
         }
       ],

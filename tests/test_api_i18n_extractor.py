@@ -34,9 +34,30 @@ builder = importlib.import_module("build_documentation_i18n")
 # and proved by subtraction on top of origin/nightly df1216b3f: the digest recomputed
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
+# Moved 2026-09-25 for the nine documented constants below, which arrived with
+# the implementation session's preview/segmentation work (items 502-513). The
+# digest without them returns f1da16e8..., the previous pin; no dunder moved.
+# With the two mask_engine constants of 03a02c3b8 it moved 3f293714 -> bc6cd219.
 _NEW_VISIBLE_DIGEST = (
+    "bc6cd219d30c142a73d0e8e9b527e79fd2eb94e9f638da775e1354f51191301b"
+)
+_PREVIOUS_VISIBLE_DIGEST = (
     "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70"
 )
+_ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
+    "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT",
+    "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS",
+    "spacr.qt.widgets.plaque_preview.IMAGE_TABS",
+    "spacr.qt.widgets.plaque_preview.OVERLAY_STYLE_KEY",
+    "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP",
+    "spacr.qt.widgets.segmentation_views.DEFAULT_COLOURS",
+    "spacr.qt.widgets.segmentation_views.SegmentationViews.view_changed",
+    "spacr.qt.widgets.segmentation_views.VIEWS",
+    "spacr.qt.widgets.segmentation_views.VIEW_HINTS",
+    # Item 511's object-filter vocabulary, on nightly 03a02c3b8.
+    "spacr.qt.mask_engine.FILTER_BOUNDS",
+    "spacr.qt.mask_engine.FILTER_KEYS",
+})
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
 
@@ -231,7 +252,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Removing it reproduces the previous visible-member digest exactly.
     # Starplast's package identity is the only further assignment. Removing
     # it recovers the previous fingerprint, independently of the count.
-    assert len(assignments) == 23
+    # 23 -> 32 on 2026-09-25: exactly _ASSIGNMENTS_ADDED_2026_09_25 (+9 / -0
+    # by set difference against af6d77376). The historical digests below are
+    # checked on the surface without them.
+    # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
+    assert len(assignments) == 34
+    assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
+    new_assignments = assignments
+    assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
     assert "spacr._starplast.PYPI_PACKAGE" in assignments
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
@@ -252,8 +280,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
+    ) == _PREVIOUS_VISIBLE_DIGEST
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders),
+         *(f"new_constant_attribute\0{key}" for key in new_assignments)]
     ) == _NEW_VISIBLE_DIGEST
-    assert dunders | assignments <= docs.keys()
+    assert dunders | new_assignments <= docs.keys()
 
     # Freeze the complete public API surface together with its exact aliases.
     # Any intentional public docstring addition must update this count and
@@ -1229,7 +1261,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Exact subtraction: 411_restoration_api_refresh_2026-09-24.json.
     # +1 private worker module overview; callable counts are unchanged.
     # Exact delta: 411_mask_batch_inventory_2026-09-24.json.
-    expected = 11_528
+    # 11,528 -> 11,651 on 2026-09-25, +124 / -1 by set difference against
+    # af6d77376, all from the implementation session (items 502-513): 109
+    # callables (named at the callable inventory in
+    # test_docstring_correctness), the tooltip_policy, mask_comparison,
+    # picture_export and segmentation_views module docstrings, and the eleven
+    # documented constants/attributes (the nine in
+    # _ASSIGNMENTS_ADDED_2026_09_25 plus HomePage.news_panel and
+    # NewsPanel.releases). -1: plaque_preview.render_cellprob, moved to
+    # segmentation_views. 11,651 -> 11,661 after rebasing on b84c3441c: ten
+    # callables from item 475 and the PSF/detect chain work, named at the
+    # callable inventory in test_docstring_correctness.
+    # 11,661 -> 11,710 on nightly 03a02c3b8, +49 / -0: 47 callables (named
+    # at the callable inventory) plus FILTER_BOUNDS and FILTER_KEYS.
+    expected = 11_710
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1271,7 +1316,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_528
+    # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_710
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1683,8 +1729,10 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     assignment_keys = _visible_assignment_docs()
 
     # Four organism registries, Starplast's URL/package identity and the
-    # Make Masks animation registry add seven to the original sixteen.
-    assert len(assignment_keys) == 23
+    # Make Masks animation registry add seven to the original sixteen; the
+    # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
+    # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS.
+    assert len(assignment_keys) == 34
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

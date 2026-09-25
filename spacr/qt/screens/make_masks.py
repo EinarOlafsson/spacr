@@ -6940,7 +6940,10 @@ class ObjectFilterList(QWidget):
         self._offer()
 
     def set_intensity_available(self, available: bool) -> None:
-        """Offer the intensity properties only when an image is open."""
+        """Offer the intensity properties only when an image is open.
+
+        :param available: whether an intensity image is open.
+        """
         self._intensity = bool(available)
         self._offer()
 
@@ -6986,6 +6989,10 @@ class ObjectFilterList(QWidget):
                    notify: bool = True) -> dict:
         """Add one row; return it as ``{widget, property, min, max, remove}``.
 
+        :param name: the regionprop the row filters on.
+        :param minimum: the lower bound, or ``None`` for none.
+        :param maximum: the upper bound, or ``None`` for none.
+        :param notify: emit ``changed`` once the row is added.
         :raises ValueError: when ``name`` is not a scalar regionprop, or is an
             intensity property while no intensity image is open.
         """
@@ -7031,14 +7038,24 @@ class ObjectFilterList(QWidget):
         return row
 
     def set_bounds(self, index: int, minimum=None, maximum=None) -> None:
-        """Set row ``index``'s bounds as if typed, and apply them."""
+        """Set row ``index``'s bounds as if typed, and apply them.
+
+        :param index: the row, in the order rows were added.
+        :param minimum: the lower bound, or ``None`` to clear it.
+        :param maximum: the upper bound, or ``None`` to clear it.
+        """
         row = self._rows[index]
         row["min"].setText("" if minimum is None else format(float(minimum), ".12g"))
         row["max"].setText("" if maximum is None else format(float(maximum), ".12g"))
         self.changed.emit()
 
     def set_filter(self, name, minimum=None, maximum=None) -> None:
-        """Set the bounds of the first row for ``name``, adding it if absent."""
+        """Set the bounds of the first row for ``name``, adding it if absent.
+
+        :param name: the regionprop, current or legacy spelling.
+        :param minimum: the lower bound, or ``None`` to clear it.
+        :param maximum: the upper bound, or ``None`` to clear it.
+        """
         name = engine.canonical_property(name)
         index = next((i for i, row in enumerate(self._rows)
                       if row["property"] == name), None)
@@ -7048,7 +7065,10 @@ class ObjectFilterList(QWidget):
         self.set_bounds(index, minimum, maximum)
 
     def remove_filter(self, index: int) -> None:
-        """Remove row ``index``; the objects only it hid come back."""
+        """Remove row ``index``; the objects only it hid come back.
+
+        :param index: the row, in the order rows were added.
+        """
         row = self._rows.pop(index)
         row["widget"].hide()
         row["widget"].setParent(None)
@@ -7074,6 +7094,9 @@ class ObjectFilterList(QWidget):
         A dict of the old four bounds (``min_area`` and the rest) is migrated
         by :func:`mask_engine.legacy_filters`, so a saved state from before
         item 511 opens as the rows it meant.
+
+        :param filters: a filter list in any form
+            :func:`mask_engine.normalise_filters` accepts, or the legacy dict.
         """
         if isinstance(filters, dict) and set(filters) <= set(engine.FILTER_BOUNDS):
             filters = engine.legacy_filters(**filters)
@@ -7109,6 +7132,7 @@ class MakeMasksScreen(QWidget):
         super().__init__(parent)
         self._folder: str = ""
         self._image_files: List[str] = []
+        self._field_folders: Optional[List[str]] = None
         #: The terminal-built session this screen is working through, or
         #: ``None`` when the folder was opened from the file dialog. Set by
         #: :meth:`open_queue`; what makes a save reach
@@ -7725,6 +7749,13 @@ class MakeMasksScreen(QWidget):
         if not self._folder or not self._image_files:
             self._status_label.setText(
                 "Open a folder of images before masking it.")
+            return False
+        if self._field_folders:
+            from ..i18n import tr
+
+            self._status_label.setText(tr(
+                "Mask the whole folder works on one folder, and this queue "
+                "was dropped from several, so it was not started."))
             return False
         if self._masks_dir or any(engine.is_seg_bundle(name)
                                   for name in self._image_files):
@@ -10776,7 +10807,7 @@ class MakeMasksScreen(QWidget):
             "illumination that changes over a short distance.")
         form.addRow("Background scale", self._enh_background_scale)
 
-        self._psf_controls = _PSFControls()
+        self._psf_controls = _PSFControls(image_paths=self._current_image_paths)
         form.addRow(self._psf_controls)
         self._restoration_controls = _RestorationControls()
         self._restoration_controls.said.connect(self._report)
@@ -10828,7 +10859,9 @@ class MakeMasksScreen(QWidget):
             "they are drawn on. Nothing is stretched; intensities keep their "
             "units."))
         card.body_layout.addWidget(self._enh_percentile_clip)
-        curve_form = QFormLayout()
+        curve_body = QWidget()
+        curve_form = QFormLayout(curve_body)
+        curve_form.setContentsMargins(0, 0, 0, 0)
         self._enh_percentile_low = QDoubleSpinBox()
         self._enh_percentile_low.setRange(0.0, 99.9)
         self._enh_percentile_low.setValue(1.0)
@@ -10841,7 +10874,9 @@ class MakeMasksScreen(QWidget):
         self._enh_percentile_high.setToolTip(tr(
             "The upper percentile of the clip, 0 to 100, above the lower."))
         curve_form.addRow(tr("Clip high percentile"), self._enh_percentile_high)
-        card.body_layout.addLayout(curve_form)
+        self._enh_percentile_details = self._folded_rows(
+            curve_body, "Percentile clip settings", "make_masks/percentile_details")
+        card.body_layout.addWidget(self._enh_percentile_details)
 
         self._enh_log = Toggle(tr("Logarithm"))
         self._enh_log.setToolTip(tr(
@@ -10849,7 +10884,9 @@ class MakeMasksScreen(QWidget):
             "it compresses the bright end and lifts the dim one, more "
             "strongly near zero than a gamma below 1."))
         card.body_layout.addWidget(self._enh_log)
-        log_form = QFormLayout()
+        log_body = QWidget()
+        log_form = QFormLayout(log_body)
+        log_form.setContentsMargins(0, 0, 0, 0)
         self._enh_log_gain = QDoubleSpinBox()
         self._enh_log_gain.setRange(0.01, 1000.0)
         self._enh_log_gain.setValue(10.0)
@@ -10857,7 +10894,9 @@ class MakeMasksScreen(QWidget):
             "What the intensities are multiplied by before the logarithm. "
             "Larger compresses the bright end harder."))
         log_form.addRow(tr("Logarithm gain"), self._enh_log_gain)
-        card.body_layout.addLayout(log_form)
+        self._enh_log_details = self._folded_rows(
+            log_body, "Logarithm settings", "make_masks/log_details")
+        card.body_layout.addWidget(self._enh_log_details)
 
         self._enh_sqrt = Toggle(tr("Square root"))
         self._enh_sqrt.setToolTip(tr(
@@ -10874,7 +10913,9 @@ class MakeMasksScreen(QWidget):
             "noise in empty tiles, which is what the clip limit is for.")
         card.body_layout.addWidget(self._enh_clahe)
 
-        clahe_form = QFormLayout()
+        clahe_body = QWidget()
+        clahe_form = QFormLayout(clahe_body)
+        clahe_form.setContentsMargins(0, 0, 0, 0)
         self._enh_clahe_tile = QSpinBox()
         self._enh_clahe_tile.setRange(8, 1024)
         self._enh_clahe_tile.setValue(64)
@@ -10896,7 +10937,9 @@ class MakeMasksScreen(QWidget):
             "contrast and more amplified noise in tiles that hold only "
             "background.")
         clahe_form.addRow("CLAHE clip limit", self._enh_clahe_clip)
-        card.body_layout.addLayout(clahe_form)
+        self._enh_clahe_details = self._folded_rows(
+            clahe_body, "CLAHE settings", "make_masks/clahe_details")
+        card.body_layout.addWidget(self._enh_clahe_details)
 
         self._enh_equalize = Toggle("Histogram equalisation (whole image)")
         self._enh_equalize.setToolTip(
@@ -10915,7 +10958,9 @@ class MakeMasksScreen(QWidget):
             "every object and a dark moat outside it.")
         card.body_layout.addWidget(self._enh_sharpen)
 
-        sharpen_form = QFormLayout()
+        sharpen_body = QWidget()
+        sharpen_form = QFormLayout(sharpen_body)
+        sharpen_form.setContentsMargins(0, 0, 0, 0)
         self._enh_sharpen_radius = QDoubleSpinBox()
         self._enh_sharpen_radius.setDecimals(2)
         self._enh_sharpen_radius.setRange(0.1, 50.0)
@@ -10934,7 +10979,9 @@ class MakeMasksScreen(QWidget):
             "How much of the mask is added back. 1 is a normal sharpen; "
             "above 2 the halos start to become objects of their own.")
         sharpen_form.addRow("Sharpen amount", self._enh_sharpen_amount)
-        card.body_layout.addLayout(sharpen_form)
+        self._enh_sharpen_details = self._folded_rows(
+            sharpen_body, "Unsharp mask settings", "make_masks/sharpen_details")
+        card.body_layout.addWidget(self._enh_sharpen_details)
 
         after_form = QFormLayout()
         self._enh_morphology = QComboBox()
@@ -11036,6 +11083,28 @@ class MakeMasksScreen(QWidget):
         self._restoration_controls.changed.connect(self._on_chain_changed)
         self._on_chain_changed()
         return card
+
+    @staticmethod
+    def _folded_rows(body: QWidget, name: str, key: str) -> QWidget:
+        """Put a step's parameter rows under a fold that starts shut (item 509).
+
+        The step's own switch stays visible above it; the fold remembers
+        being opened.
+        """
+        from ..widgets.collapsible_splitter import FoldSection
+
+        section = FoldSection(body, name, persist_key=key, follow_body=False,
+                              stretch=0, folded=True)
+        section.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        return section
+
+    def _current_image_paths(self) -> list:
+        """The open field's file, which "Infer from images…" reads first."""
+        files = getattr(self, "_image_files", None) or []
+        index = getattr(self, "_current_index", 0)
+        if not files or not 0 <= index < len(files):
+            return []
+        return [os.path.join(self._folder, files[index])]
 
     def _detect_chain(self) -> "detect_chain.Chain":
         """The applied enhancement chain, or no changes while Apply is off."""
@@ -12445,9 +12514,56 @@ class MakeMasksScreen(QWidget):
             return
         self._open_folder(d)
 
+    def open_paths(self, paths) -> bool:
+        """Open dropped image files and folders as one queue, in drop order.
+
+        One folder alone is what it always was, :meth:`_open_folder` on it.
+        Anything else -- one file, several, or files and folders together --
+        becomes a queue of the fields named, a folder standing for its
+        images, each field edited where it lies with its mask in its own
+        ``<folder>/masks``. Nothing is copied.
+
+        :param paths: the dropped files and folders, in the order dropped.
+        :returns: whether a queue was opened.
+        """
+        from ..i18n import tr
+
+        paths = [os.path.abspath(str(p)) for p in paths]
+        if len(paths) == 1 and os.path.isdir(paths[0]):
+            return self._open_folder(paths[0])
+        fields: list = []
+        for path in paths:
+            if os.path.isdir(path):
+                found = [(path, name) for name in engine.list_images(path)]
+            elif (os.path.isfile(path)
+                  and path.lower().endswith(engine.IMAGE_EXTS)):
+                found = [(os.path.dirname(path), os.path.basename(path))]
+            else:
+                found = []
+            for field in found:
+                if field not in fields:
+                    fields.append(field)
+        if not fields:
+            self._warn(tr("No images"),
+                       tr("None of the dropped items is an image Make Masks "
+                          "can open."))
+            return False
+        folders = [folder for folder, _name in fields]
+        spans = list(dict.fromkeys(folders))
+        if not self._open_folder(
+                folders[0], files=[name for _folder, name in fields],
+                field_folders=folders if len(spans) > 1 else None):
+            return False
+        if len(spans) > 1:
+            self._src_label.setText(tr(
+                "{n} images from {k} folders, in the order dropped",
+                n=len(fields), k=len(spans)))
+        return True
+
     def _open_folder(self, folder: str,
                      files: Optional[List[str]] = None,
-                     masks_dir: Optional[str] = None) -> bool:
+                     masks_dir: Optional[str] = None,
+                     field_folders: Optional[List[str]] = None) -> bool:
         """List the folder's images and load the first.
 
         :param folder: the folder to open.
@@ -12460,6 +12576,8 @@ class MakeMasksScreen(QWidget):
         :param masks_dir: the masks folder when it is not ``<folder>/masks``
             -- a sibling session's. Set BEFORE the first field loads, so the
             first draft shown is the set's own.
+        :param field_folders: the folder of each of ``files``, when a drop
+            queued fields from more than one folder; see :meth:`open_paths`.
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
@@ -12472,6 +12590,8 @@ class MakeMasksScreen(QWidget):
         self._masks_dir = masks_dir
         self._folder = folder
         self._image_files = files
+        self._field_folders = (list(field_folders)
+                               if field_folders is not None else None)
         self._current_index = 0
         self._src_label.setText(f"{folder}  —  {len(files)} images")
         self._load_current()
@@ -12484,6 +12604,8 @@ class MakeMasksScreen(QWidget):
         """Show the current field and whatever mask it already has."""
         if not self._image_files:
             return
+        if self._field_folders:
+            self._folder = self._field_folders[self._current_index]
         self._primary_selector.clear_field()
         self._load_token += 1
         token = self._load_token
@@ -12744,6 +12866,10 @@ class MakeMasksScreen(QWidget):
         self._canvas.update()
         self._image_files.insert(
             self._current_index + len(self._recrop_children) + 1, written.name)
+        if self._field_folders:
+            self._field_folders.insert(
+                self._current_index + len(self._recrop_children) + 1,
+                self._folder)
         self._recrop_children.append(written.name)
         area = (box[2] - box[0]) * (box[3] - box[1])
         self._record(engine.RECROP_KIND, written.name, area,
@@ -12788,6 +12914,8 @@ class MakeMasksScreen(QWidget):
             self._warn("Recrop failed", str(exc))
             return False
         self._image_files.pop(self._current_index)
+        if self._field_folders:
+            self._field_folders.pop(self._current_index)
         self._recrop_children = []
         self._canvas.recrop_boxes = []
         if not self._image_files:

@@ -15,7 +15,7 @@ Handler map (also read by ``get_handler``):
 | external_masks  | mixed image/label files or folders; assignment table  |
 | annotate        | folder with ``measurements/measurements.db``          |
 | classify        | folder with ``data/`` or ``measurements/``            |
-| make_masks      | folder with images + optional masks/                  |
+| make_masks      | image files and/or folders with images; one queue     |
 | map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |
 | umap            | folder with ``measurements/measurements.db``          |
 | ml_analyze      | ditto                                                 |
@@ -23,7 +23,7 @@ Handler map (also read by ``get_handler``):
 |                 | sweep card also takes score / gRNA count CSVs         |
 | recruitment     | folder with per-well recruitment CSVs                 |
 | activation      | folder with saved activation maps or the CV model dir |
-| analyze_plaques | folder with plaque images                             |
+| analyze_plaques | plaque images and/or folders of them; a PDF (Figure)  |
 | train_cellpose  | folder with image+mask pairs                          |
 | cellpose_masks  | folder with images                                    |
 | cellpose_all    | ditto — the "Mask the whole folder" key, kept so a    |
@@ -43,7 +43,7 @@ import threading
 import time
 from itertools import chain, islice
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QObject
 
@@ -1424,14 +1424,27 @@ class ClassifyDropHandler(DropHandler):
 
 
 class MakeMasksDropHandler(DropHandler):
-    """Accept a folder with images (or image+mask pairs)."""
+    """Accept image files, folders of images, or both; one drop, one queue."""
+
+    def accepts_multiple(self) -> bool:
+        """Several files and folders in one drop make one queue.
+
+        :returns: True.
+        """
+        return True
 
     def can_accept(self, path: Path) -> bool:
-        """A folder with images in it. Pairs are found later, not required here.
+        """An image file Make Masks opens, or a folder with images in it.
+
+        Pairs are found later, not required here.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
+        if path.is_file():
+            from .mask_engine import IMAGE_EXTS as MASK_IMAGE_EXTS
+
+            return path.name.lower().endswith(MASK_IMAGE_EXTS)
         return path.is_dir() and has_images_in(path)
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
@@ -1452,18 +1465,445 @@ class MakeMasksDropHandler(DropHandler):
         :param path: the dropped file or folder.
         :returns: the sentence shown when the drop is refused.
         """
-        return ("Make Masks needs a folder of images to fine-tune "
-                "Cellpose against.")
+        from .i18n import tr
+
+        return tr("Make Masks needs image files, or a folder of images, to "
+                  "fine-tune Cellpose against.")
+
+    def apply_all(self, paths: Sequence[Path], screen) -> bool:
+        """Hand the whole drop to Make Masks, which queues it in drop order.
+
+        :param paths: the accepted files and folders, in drop order.
+        :param screen: the screen to wire the drop into.
+        :returns: False for a screen that is not Make Masks, so each path
+            goes through :meth:`apply` as a source folder instead.
+        """
+        opener = getattr(screen, "open_paths", None)
+        if not callable(opener):
+            return False
+        opener([str(path) for path in paths])
+        _log(screen, "[drop] make_masks queue = "
+             + ", ".join(str(path) for path in paths) + "\n")
+        return True
 
     def apply(self, path: Path, screen) -> None:
-        """Set `src` to the folder as dropped; no drilling in, no normalising.
+        """Open the one path; a screen without a queue gets it as ``src``.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
         """
+        if self.apply_all([path], screen):
+            return
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] make_masks folder = {path}\n")
 
+
+class CellposeFolderDropHandler(MakeMasksDropHandler):
+    """Accept one folder with images, for the Cellpose training screens.
+
+    Their ``src`` is a folder the run lists, so a file is refused here even
+    though Make Masks itself takes one.
+    """
+
+    def accepts_multiple(self) -> bool:
+        """One folder is one source.
+
+        :returns: False.
+        """
+        return False
+
+    def can_accept(self, path: Path) -> bool:
+        """A folder with images in it.
+
+        :param path: the dropped file or folder.
+        :returns: True when this handler can use ``path`` as-is.
+        """
+        return path.is_dir() and has_images_in(path)
+
+    def error_message(self, path: Path) -> str:
+        """The sentence the Cellpose screens have always shown.
+
+        :param path: the dropped file or folder.
+        :returns: the sentence shown when the drop is refused.
+        """
+        return ("Make Masks needs a folder of images to fine-tune "
+                "Cellpose against.")
+
+    def apply_all(self, paths: Sequence[Path], screen) -> bool:
+        """Decline: each folder is set as ``src`` by :meth:`apply`.
+
+        :param paths: the accepted folders.
+        :param screen: the screen to wire the drop into.
+        :returns: False.
+        """
+        return False
+
+
+def _plaque_image_suffixes() -> frozenset:
+    """The image suffixes a plaque run and its preview read.
+
+    :returns: lower-case suffixes with their dot.
+    """
+    from ..plaque_papers import IMAGE_SUFFIXES
+
+    return frozenset(IMAGE_SUFFIXES)
+
+
+def _plaque_images_in(folder: Path) -> List[Path]:
+    """The plaque images directly inside ``folder``, sorted by name.
+
+    :param folder: a folder.
+    :returns: image paths; empty for a folder with none, or not a folder.
+    """
+    if not folder.is_dir():
+        return []
+    suffixes = _plaque_image_suffixes()
+    return sorted(child for child in folder.iterdir()
+                  if child.is_file() and child.suffix.lower() in suffixes)
+
+
+def plaque_inputs(paths: Sequence[Path], *, limit: int = 20000
+                  ) -> Tuple[List[Path], List[Path], List[Path]]:
+    """What a drop or a ``src`` holds for each Plaque Assay mode.
+
+    Only the top level of a folder is read, as the plaque run reads it, and
+    at most ``limit`` entries of each, so a huge folder on a slow share
+    cannot hold the window for long.
+
+    :param paths: dropped files and folders, or ``[src]``.
+    :param limit: entries read per folder.
+    :returns: ``(pdfs, images, paper_folders)``. A paper folder -- one a
+        paper was fetched into, holding its ``paper.json``, ``legends.csv``
+        or ``text_layer.json`` -- is Figure mode's input, and its figure
+        images are not counted as plaque images.
+    """
+    from ..plaque_papers import LEGENDS_FILE, PAPER_FILE, TEXT_LAYER_FILE
+
+    suffixes = _plaque_image_suffixes()
+    pdfs: List[Path] = []
+    images: List[Path] = []
+    papers: List[Path] = []
+    for path in paths:
+        path = Path(path)
+        if path.is_file():
+            suffix = path.suffix.lower()
+            if suffix == ".pdf":
+                pdfs.append(path)
+            elif suffix in suffixes:
+                images.append(path)
+            continue
+        if not path.is_dir():
+            continue
+        if any((path / marker).is_file()
+               for marker in (PAPER_FILE, LEGENDS_FILE, TEXT_LAYER_FILE)):
+            papers.append(path)
+            continue
+        found_pdfs: List[Path] = []
+        found_images: List[Path] = []
+        try:
+            with os.scandir(path) as entries:
+                for count, entry in enumerate(entries):
+                    if count >= limit:
+                        break
+                    suffix = os.path.splitext(entry.name)[1].lower()
+                    if suffix != ".pdf" and suffix not in suffixes:
+                        continue
+                    try:
+                        if not entry.is_file():
+                            continue
+                    except OSError:
+                        continue
+                    (found_pdfs if suffix == ".pdf" else found_images).append(
+                        Path(entry.path))
+        except OSError:
+            continue
+        pdfs.extend(sorted(found_pdfs))
+        images.extend(sorted(found_images))
+    return pdfs, images, papers
+
+
+def _pdfs_in(folder: Path) -> List[Path]:
+    """The PDFs directly inside ``folder``, sorted by name.
+
+    :param folder: a folder.
+    :returns: PDF paths; empty for a folder with none, or not a folder.
+    """
+    if not folder.is_dir():
+        return []
+    try:
+        return sorted(child for child in folder.iterdir()
+                      if child.is_file() and child.suffix.lower() == ".pdf")
+    except OSError:
+        return []
+
+
+def _plaque_mode_of(screen) -> str:
+    """Whether Plaque Assay is in Plaque or Figure mode now.
+
+    :param screen: the Plaque Assay screen.
+    :returns: ``'plaque'`` or ``'figure'``.
+    """
+    from .widgets.plaque_preview import normalise_mode
+
+    panel = getattr(screen, "_live_preview", None)
+    mode = getattr(panel, "mode", None)
+    if callable(mode):
+        try:
+            return normalise_mode(mode())
+        except Exception:
+            LOG.debug("plaque panel mode unreadable", exc_info=True)
+    try:
+        widget = screen._settings_model._widgets.get("plaque_mode")
+    except Exception:
+        widget = None
+    for reader in ("get_value", "currentText", "text"):
+        read = getattr(widget, reader, None)
+        if callable(read):
+            try:
+                return normalise_mode(read())
+            except Exception:
+                continue
+    return normalise_mode(None)
+
+
+def plaque_selection_folder(images: Sequence[Path],
+                            stamp: Optional[str] = None) -> Path:
+    """A folder that lists the dropped plaque images, without copying them.
+
+    A plaque run reads one folder and writes its masks beneath it, so a
+    drop of loose files becomes a folder of links to them -- symbolic,
+    else hard -- named ``plaque_selection_<time>`` beside the first image,
+    or in the temporary folder when that one cannot be written. Two images
+    with the same name from different folders keep both, the second under
+    its folder's name.
+
+    :param images: the images, in drop order.
+    :param stamp: the time part of the name; now when omitted.
+    :returns: the folder.
+    :raises OSError: when an image can be neither linked nor listed.
+    """
+    import tempfile
+
+    from .i18n import tr
+
+    name = "plaque_selection_" + (stamp or time.strftime("%Y%m%d-%H%M%S"))
+    base = Path(images[0]).parent
+    dest = None
+    for attempt in range(100):
+        candidate = base / (name if attempt == 0 else f"{name}_{attempt}")
+        try:
+            candidate.mkdir()
+        except FileExistsError:
+            continue
+        except OSError:
+            break
+        dest = candidate
+        break
+    if dest is None:
+        dest = Path(tempfile.mkdtemp(prefix=name + "_"))
+    taken = set()
+    for index, image in enumerate(images):
+        image = Path(image)
+        for label in (image.name, f"{image.parent.name}_{image.name}",
+                      f"{index:04d}_{image.name}"):
+            if label.lower() not in taken:
+                break
+        taken.add(label.lower())
+        link = dest / label
+        try:
+            os.symlink(image.resolve(), link)
+        except OSError:
+            try:
+                os.link(image, link)
+            except OSError as exc:
+                raise OSError(tr(
+                    "Could not link {name} into {folder} ({why}). Drop the "
+                    "folder that holds the plaque images instead.",
+                    name=image.name, folder=dest, why=exc)) from exc
+    return dest
+
+
+class PlaqueDropHandler(DropHandler):
+    """Plaque Assay's own drop policy and its own words.
+
+    It takes plaque images, folders of them, both mixed, and in Figure mode
+    a paper's PDF. Before this handler Plaque Assay was given Make Masks'
+    policy, which refused a folder it could not use with Make Masks'
+    sentence.
+    """
+
+    def accepts_multiple(self) -> bool:
+        """Several images and folders in one drop make one selection.
+
+        :returns: True.
+        """
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        """A plaque image, a PDF, or a folder with plaque images or PDFs in it.
+
+        :param path: the dropped file or folder.
+        :returns: True when this handler can use ``path`` as-is.
+        """
+        if path.is_file():
+            suffix = path.suffix.lower()
+            return suffix == ".pdf" or suffix in _plaque_image_suffixes()
+        return bool(_plaque_images_in(path)) or bool(_pdfs_in(path))
+
+    def suggest_alternatives(self, path: Path) -> List[Path]:
+        """Nearby folders that hold plaque images.
+
+        :param path: the dropped file or folder.
+        :returns: sibling and child folders with plaque images in them.
+        """
+        if not path.is_dir():
+            return []
+        hits: List[Path] = []
+        places = [path.parent] if path.parent != path else []
+        places.append(path)
+        for place in places:
+            try:
+                children = sorted(place.iterdir())
+            except OSError:
+                continue
+            for child in children:
+                if (child.is_dir() and child != path and child not in hits
+                        and _plaque_images_in(child)):
+                    hits.append(child)
+        return hits
+
+    def error_message(self, path: Path) -> str:
+        """Say what Plaque Assay reads, in its own terms.
+
+        :param path: the dropped file or folder.
+        :returns: the sentence shown when the drop is refused.
+        """
+        from .i18n import tr
+
+        return tr("Plaque Assay reads plaque images (JPG, PNG, TIFF, GIF, "
+                  "BMP or WebP), a folder of them, or in Figure mode a "
+                  "paper's PDF.")
+
+    def apply(self, path: Path, screen) -> None:
+        """Take one dropped path.
+
+        :param path: the dropped file or folder.
+        :param screen: the Plaque Assay screen.
+        """
+        self.apply_all([path], screen)
+
+    def apply_all(self, paths: Sequence[Path], screen) -> bool:
+        """Point Plaque Assay at the drop: PDFs to Figure mode, images to src.
+
+        The mode follows what was dropped (item 518): PDFs, or a folder of
+        them, dropped in Plaque mode ask to switch to Figure mode; images
+        dropped in Figure mode ask to switch to Plaque mode; PDFs and images
+        together say that PDFs are read in Figure mode and images in Plaque
+        mode, and ask which to read. Staying in Figure mode reads the images
+        as figures; staying in Plaque mode leaves the PDFs unread.
+
+        :param paths: the accepted files and folders, in drop order.
+        :param screen: the Plaque Assay screen.
+        :returns: True; the drop is always handled here.
+        """
+        from .i18n import tr
+        from .widgets.plaque_preview import FIGURE_MODE, follow_the_input
+
+        paths = [Path(path) for path in paths]
+        pdfs, images, papers = plaque_inputs(paths)
+        name = paths[0].name if len(paths) == 1 else tr(
+            "The {n} dropped items", n=len(paths))
+        mode = follow_the_input(screen, pdfs, images, papers, name)
+        if mode is None:
+            _log(screen, "[drop] left unread\n")
+            return True
+        rest = [path for path in paths
+                if not (path.is_file() and path.suffix.lower() == ".pdf")
+                and (path.is_file() or _plaque_images_in(path))]
+        if mode == FIGURE_MODE and pdfs:
+            self._take_pdfs(pdfs, screen)
+        elif rest:
+            self._take_images(rest, screen)
+        elif pdfs:
+            _log(screen, f"[drop] {len(pdfs)} PDF(s) left unread in Plaque "
+                 f"mode\n")
+        return True
+
+    @staticmethod
+    def _take_pdfs(pdfs: Sequence[Path], screen) -> None:
+        """Read the first PDF's figures, the way Figure mode's PDF button does.
+
+        :param pdfs: the dropped PDFs, in drop order.
+        :param screen: the Plaque Assay screen.
+        """
+        from .dnd import _report_drop_problem
+        from .i18n import tr
+        from .widgets.plaque_preview import FIGURE_MODE
+
+        first = pdfs[0]
+        if _plaque_mode_of(screen) != FIGURE_MODE:
+            _report_drop_problem(
+                screen, first,
+                tr("Plaque Assay reads a paper's PDF in Figure mode, and it "
+                   "is in Plaque mode."),
+                tr("Switch Plaque Assay to Figure mode, then drop the PDF "
+                   "again."))
+            return
+        panel = getattr(screen, "_live_preview", None)
+        fetch = getattr(panel, "fetch_paper", None)
+        if not callable(fetch) or not fetch(str(first), str(first.parent)):
+            _report_drop_problem(
+                screen, first,
+                tr("Plaque Assay could not start reading this PDF."),
+                tr("Wait for the paper being read to finish, then drop the "
+                   "PDF again."))
+            return
+        _log(screen, f"[drop] plaque figures from {first}\n")
+        if len(pdfs) > 1:
+            _report_drop_problem(
+                screen, pdfs[1],
+                tr("Plaque Assay reads one paper at a time; {n} more PDF(s) "
+                   "were left out.", n=len(pdfs) - 1),
+                tr("Drop each remaining PDF once this one has been read."))
+
+    @staticmethod
+    def _take_images(paths: Sequence[Path], screen) -> None:
+        """Set ``src`` to the folder that holds exactly the dropped images.
+
+        One folder is used as it is. Otherwise the images -- a folder
+        standing for the images in it -- are listed in drop order, and when
+        they are all of one folder's images that folder is used; any other
+        selection becomes a :func:`plaque_selection_folder`.
+
+        :param paths: the dropped image files and folders, in drop order.
+        :param screen: the Plaque Assay screen.
+        """
+        from .widgets.plaque_preview import remember_the_input
+
+        if len(paths) == 1 and paths[0].is_dir():
+            remember_the_input(screen, paths[0])
+            _set_src_on(screen, str(paths[0]))
+            _log(screen, f"[drop] plaque folder = {paths[0]}\n")
+            return
+        images: List[Path] = []
+        for path in paths:
+            found = _plaque_images_in(path) if path.is_dir() else [path]
+            for image in found:
+                if image not in images:
+                    images.append(image)
+        parents = {image.parent for image in images}
+        if len(parents) == 1:
+            folder = next(iter(parents))
+            if set(_plaque_images_in(folder)) == set(images):
+                remember_the_input(screen, folder)
+                _set_src_on(screen, str(folder))
+                _log(screen, f"[drop] plaque folder = {folder}\n")
+                return
+        folder = plaque_selection_folder(images)
+        remember_the_input(screen, folder)
+        _set_src_on(screen, str(folder))
+        _log(screen, f"[drop] plaque selection of {len(images)} image(s) "
+             f"= {folder}\n")
 
 
 class MapBarcodesDropHandler(DropHandler):
@@ -3535,10 +3975,10 @@ _HANDLERS = {
     "recruitment":     MeasurementsDropHandler,
     "activation":      MeasurementsDropHandler,
     "invasion":        MeasurementsDropHandler,
-    "analyze_plaques": MakeMasksDropHandler,
-    "train_cellpose":  MakeMasksDropHandler,
-    "cellpose_masks":  MakeMasksDropHandler,
-    "cellpose_all":    MakeMasksDropHandler,
+    "analyze_plaques": PlaqueDropHandler,
+    "train_cellpose":  CellposeFolderDropHandler,
+    "cellpose_masks":  CellposeFolderDropHandler,
+    "cellpose_all":    CellposeFolderDropHandler,
     "db_browser":      DatabaseDropHandler,
     "foreign":         ForeignProjectDropHandler,
     "import_images":   ImageImportDropHandler,

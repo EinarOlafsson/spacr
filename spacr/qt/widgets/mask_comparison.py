@@ -62,6 +62,8 @@ class Layer:
 def layer_rgb(layer: Layer) -> Tuple[np.ndarray, np.ndarray]:
     """A layer's colour and the pixels it covers.
 
+    :param layer: a mask layer covers its non-zero pixels in its own
+        colour; an image layer covers every pixel with its own values.
     :returns: ``(H x W x 3 float32 colour, H x W bool coverage)``.
     """
     array = np.asarray(layer.array)
@@ -191,7 +193,13 @@ class MaskComparisonDialog(QDialog):
         return list(self._rows)
 
     def move(self, index: int, step: int) -> None:
-        """Move row ``index`` by ``step`` places; ``-1`` is up the stack."""
+        """Move row ``index`` by ``step`` places; ``-1`` is up the stack.
+
+        A move that would leave the stack does nothing.
+
+        :param index: the row to move, top of the stack first.
+        :param step: how many places to move it; negative is up.
+        """
         target = index + step
         if not (0 <= index < len(self._layers)
                 and 0 <= target < len(self._layers)):

@@ -1,0 +1,184 @@
+PLAQUE ASSAY: THE FIGURE READER REINSTALLS IN PLACE, AND THE MODE FOLLOWS WHAT WAS DROPPED
+
+Status: DONE 2026-09-25 -- built and verified on this machine; the
+maintainer to confirm in his own session. Filed 2026-09-25.
+Owner: Claude. Related: 468 (plaque and figure modes), 469 (the figure
+reader in its own environment), 517 (dropping files and PDFs), 507 (an
+install button that says what happened).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "for the figure, now its telling me to reinstall the plaque figure reader
+    from the model zoo. this should trigger a pupup to reinstall it and if a
+    pdf or a folder with pgfs is dropped in or detected from the sourse then
+    the user should be prompted to switch, and sam for if both images and
+    figures are detected, then prompt the user and say pdfs are read in
+    figure mode and images in plawue mode and have them choose."
+
+WHAT TO BUILD
+  1. WHY IT ASKS: find out why Figure mode now says the plaque figure reader
+     must be reinstalled from the Model Zoo on this machine (the environment
+     from item 469 exists or not; a readiness check that changed; 475's
+     backend-environment changes). Fix a false alarm if it is one.
+  2. REINSTALL IN PLACE: when the reader genuinely needs (re)installing,
+     Plaque Assay offers a popup that installs it right there, with honest
+     progress and result (507's pattern), instead of sending the user to the
+     Model Zoo.
+  3. THE MODE FOLLOWS THE INPUT: when a PDF, or a folder containing PDFs, is
+     dropped or found in src while in Plaque mode, prompt to switch to
+     Figure mode. When both images and PDFs/figures are found, prompt with
+     "PDFs are read in Figure mode, images in Plaque mode" and let the user
+     choose which to run. The reverse (images while in Figure mode) prompts
+     too.
+
+DONE WHEN
+Figure mode on this machine either works or offers a working in-place
+reinstall; offscreen tests cover the three prompts (PDF in Plaque mode,
+images in Figure mode, mixed) for both drops and src detection.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- WHAT WAS FOUND AND WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+WHY IT ASKED TO "REINSTALL FROM THE MODEL ZOO"
+  The only sentence of that shape is the reader worker's own, in
+  _worker_read_pdf (spacr/_segmentation_backends.py:2905-2910 on nightly
+  83a726b59): "This figure reader was installed before it read PDFs.
+  Reinstall the plaque figure reader from the Model Zoo to add pdfplumber."
+  It is raised when `import pdfplumber` fails inside the reader's
+  environment, i.e. whenever a PDF is read in Figure mode (a drop, the PDF...
+  button, a paper fetch).
+
+  On THIS machine now it is not a false alarm and not reproducible: the
+  readiness check (_backend_state('papers')) says installed, the
+  environment ~/.spacr/backends/papers (built 2026-09-24 11:22 by spaCR's
+  installer) records and holds pdfplumber 0.11.10 and imports it under -I,
+  and a real PDF read through the worker returns its pages. 475's
+  backend-environment changes did not touch this path (_clean_env,
+  _worker_env and _serve_env pass the papers worker through unchanged). An
+  environment built before item 424 pinned pdfplumber (2026-09-21 23:16)
+  does raise it: the 469 sandbox reader
+  (/mnt/wd4tb/spacr_testdata/backends_sandbox/papers, 2026-09-21 16:20, no
+  pdfplumber) reproduces it. ~/.spacr/backends/papers was not modified.
+
+  What made the message a dead end, and is fixed:
+  * Nothing checked the install record before reading, so the old reader
+    was only found by failing mid-read.
+      -> _stale_requirements (spacr/_segmentation_backends.py:799) compares
+         the record's requirements with the pins spaCR has now;
+         plaque_papers.reader_problem (spacr/plaque_papers.py:895) answers
+         ('', '') / ('install', why) / ('reinstall', why) from disk only.
+  * The Model Zoo cannot reinstall: _install_backend returned at once for
+    an installed backend (spacr/_segmentation_backends.py:1532 on nightly).
+      -> reinstall=True (line 1575) stops the running worker and builds the
+         environment again.
+  * The worker blamed an old install for ANY ImportError, including a
+    pdfplumber that is present but fails to load.
+      -> only a ModuleNotFoundError naming pdfplumber says "installed before
+         the reader read PDFs"; anything else says pdfplumber does not load,
+         with the real error (line 2939). Neither mentions the Model Zoo.
+
+PDFs DID NOT LOAD THROUGH src
+  Priority from the maintainer mid-item: "he still can't load PDFs". Run
+  end to end on this machine with a generated plaque-figure PDF (a real
+  published plaque figure, 12860_2020_249_Fig6_HTML.png, on a page with a
+  text legend), in the real reader environment, Figure mode, both the
+  maintainer's spacr14 (Python 3.14) and base Python 3.12:
+      drop on the screen              read, 1 figure, preview shows page_001
+      drop on the live preview        read (the drop reaches the screen)
+      PDF... button                   read
+      src = the PDF                   "No images found in plaque_paper.pdf"
+  The src route was the gap: the preview was handed the PDF as a folder.
+  Now a src naming a PDF, or a folder of PDFs, in Figure mode is read the way
+  a dropped one is (check_the_src, spacr/qt/widgets/plaque_preview.py:4846),
+  and src becomes the paper's figure folder, which the run also reads. After
+  the fix all four routes read the PDF through the reader worker, and Run
+  preview on the page found "4 plaque wells, 45 words read ... from the
+  PDF's own text".
+
+THE READER INSTALLS IN PLACE
+  _offer_install (plaque_preview.py:3609) opens the Model Zoo's own
+  BackendInstallDialog through install_backend(watch=..., reinstall=,
+  why=) (model_zoo_picker.py), and follows its job signals the way 507's
+  _BackendInstallButton does: the status line says "Installing Plaque
+  figure reader...: <step>", then "Plaque figure reader is installed", or
+  "Installing ... failed. Nothing was left half-built. <pip's words>", or
+  "Cancelled. Nothing was left behind." The dialog has a Reinstall face
+  (title, button, and a sentence that the environment is deleted and built
+  again). Figure mode's banner shows Reinstall when the record lacks a pin.
+  A PDF that needs the reader offers the install before reading
+  (fetch_paper, :4427) and reads it once the install worked; a reader that
+  only says so while reading (ReaderNeedsInstall from the worker) gets the
+  same offer when the fetch returns. One offer per PDF.
+
+THE MODE FOLLOWS THE INPUT
+  plaque_inputs (dnd_handlers.py:1565) reads the top level of what was
+  dropped or named: PDFs, plaque images, and paper folders (paper.json,
+  legends.csv or text_layer.json -- Figure mode's input). input_mode_question
+  / input_mode_box / follow_the_input (plaque_preview.py:4701-4845), a
+  QMessageBox so it wears spaCR's glass dialog:
+    PDFs or paper folders in Plaque mode  -> "Switch to Figure mode?"
+       (Switch reads the first PDF; Stay leaves it unread)
+    images in Figure mode                 -> "Switch to Plaque mode?"
+       (Switch sets src; Stay reads them as figures)
+    both                                  -> "PDFs are read in Figure mode,
+       images in Plaque mode." with Figure mode: read the PDFs / Plaque
+       mode: read the images / Cancel.
+  For drops (PlaqueDropHandler.apply_all, dnd_handlers.py:1532; a folder of
+  PDFs is now accepted) and for src (400 ms after typing stops, asked once
+  per source and mode, only while the screen is shown; a src a drop wrote
+  is not asked about again).
+
+TESTS
+  New: tests/qt/test_518_plaque_mode_follows_the_input_and_the_reader_reinstalls.py,
+  31 tests, offscreen, every dialog answered by the test: the three prompts
+  for drops (PDF, PDF folder, images, mixed x3 answers, PDF+image files) and
+  for src (PDFs, images, mixed and asked once, drop-written src, paper
+  folder, src naming a PDF or a PDF folder read without asking); the record
+  check and reader_problem; the worker's pdfplumber message; a worker
+  ModuleNotFoundError becoming ReaderNeedsInstall; reinstall=True rebuilding
+  an installed reader (fake runner); the in-place flow with a fake installer
+  -- installed, failed, banner, PDF offered-then-read, PDF left unread on
+  failure, failure during reading; the Reinstall dialog face and job.
+  Updated: test_517 (a PDF in Plaque mode now asks instead of refusing).
+  Focused set (plaque/figure/dnd/make-masks install/backends/model zoo, 18
+  files): before 550 passed; after, with the new file and two backend-
+  install files, 607 passed, 9 xfailed; after `git merge nightly` 607
+  passed, 9 xfailed. Guard tests (docstrings, i18n extractor, nested
+  helpers): the same 8 failures on nightly without this item (pinned-count
+  drift, picture_export.py), none new.
+
+NEW tr() STRINGS (not in spacr/qt/i18n_catalogs; English falls back)
+  "The plaque figure reader needs reinstalling before it can read PDFs: {why}"
+  "Reinstall"
+  "Reinstall {name}"
+  "Reinstalling deletes {name}'s environment, {environment}, and builds it
+   again with what spaCR pins for it now. If it fails, nothing is left and
+   it can be installed again."
+  "Plaque figure reader"  (the backend label, already passed through tr())
+  "PDFs or images?"
+  "PDFs are read in Figure mode, images in Plaque mode."
+  "{name} holds {pdfs} PDF(s) or paper folder(s) and {images} image(s).
+   Which should Plaque Assay read?"
+  "Figure mode: read the PDFs"
+  "Plaque mode: read the images"
+  "Switch to Figure mode?"
+  "{name} holds a paper's PDF or its figures. PDFs are read in Figure mode,
+   and Plaque Assay is in Plaque mode."
+  "Switch to Figure mode"
+  "Stay in Plaque mode"
+  "Switch to Plaque mode?"
+  "{name} holds images. Plaque images are read in Plaque mode, and Plaque
+   Assay is in Figure mode, which reads published figures."
+  "Switch to Plaque mode"
+  "Stay in Figure mode"
+  "The {n} dropped items"
+  Reused unchanged from 507: "Installing {name}…", "Installing {name}
+  failed. Nothing was left half-built.", "Cancelled. Nothing was left
+  behind.", "{name} is installed", "{name} was not installed."
+
+LEFT
+  The Model Zoo row itself still shows an old reader as installed; the
+  reinstall is offered from Plaque Assay, where the need shows. A reinstall
+  deletes the old environment before building, so a failed reinstall
+  leaves none (the dialog says so). The reader's (English) reasons from
+  reader_problem are shown inside translated sentences.

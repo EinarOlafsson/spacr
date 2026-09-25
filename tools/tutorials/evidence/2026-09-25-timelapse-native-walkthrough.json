@@ -1,0 +1,87 @@
+{
+  "lesson": "17_timelapse",
+  "date": "2026-09-25",
+  "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/timelapse_current_walkthrough",
+  "capture_commit": "a6d6525e4d8cd68c6ff9c0bcedf3574b23fac556",
+  "version": "1.5.1.0",
+  "recorder": "tools/tutorials/capture_timelapse.py (neutral wrapper, CPU, dark/Blobs)",
+  "accepted": true,
+  "scope": "Downloadable preview example with independent track checks; bounded full run on a disclosed synthetic sequence; not biological validation",
+  "example_archive": {
+    "archive_sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868",
+    "archive_bytes": 1050432,
+    "members": [
+      "README.txt",
+      "image_sequences/field_A01/frame_00.npy",
+      "image_sequences/field_A01/frame_01.npy",
+      "image_sequences/field_A01/frame_02.npy",
+      "image_sequences/field_A01/frame_03.npy",
+      "image_sequences/field_A01/frame_04.npy",
+      "image_sequences/field_A01/frame_05.npy",
+      "image_sequences/field_A01/frame_06.npy",
+      "image_sequences/field_A01/frame_07.npy",
+      "label_sequences/field_A01/frame_00.npy",
+      "label_sequences/field_A01/frame_01.npy",
+      "label_sequences/field_A01/frame_02.npy",
+      "label_sequences/field_A01/frame_03.npy",
+      "label_sequences/field_A01/frame_04.npy",
+      "label_sequences/field_A01/frame_05.npy",
+      "label_sequences/field_A01/frame_06.npy",
+      "label_sequences/field_A01/frame_07.npy",
+      "manifest.json"
+    ]
+  },
+  "preview": {
+    "tracks_at_iou_0_1": 16,
+    "tracks_at_iou_1": 128,
+    "restored": 16,
+    "indicator": "16 tracks over 8 frames · mean length 8.0 (median 8) · 0 shorter than 3 frames · fragmentation 0 (0 late starts, 0 early ends) · 0 steps over 50 px (max 3 px) — swap risk\nFragmentation and swap figures are indicators computed without ground truth, not measurements.",
+    "worker_checks": {
+      "observed_results": 5,
+      "initial_threshold": 0.1,
+      "strict_threshold": 1,
+      "final_threshold": 0.1,
+      "segmentation_performed": false
+    },
+    "masks_loaded_not_segmented": true
+  },
+  "full_run": {
+    "inputs": "spacr.qt.synthetic.generate_timelapse_demo, 8 frames x 2 channels, imported via Import settings",
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 5,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "figures": 5,
+    "merged_arrays": 8,
+    "track_tables": [
+      "trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv"
+    ],
+    "track_rows": 128,
+    "track_ids": 16,
+    "inputs_preserved": true
+  },
+  "app_notes": [
+    "Help > Demos was removed; the full-run sequence comes from the package generator and the narration discloses it as synthetic.",
+    "After Plot figures appear, Mask collapses Settings, Console, System and Actions; the recorder reopens them through their own headings/handle to reach the Track preview switch.",
+    "The Time dimension switch only shows/hides time settings; tracking is enabled by the Timelapse fold icon at the top right, so scene 1 now says so."
+  ],
+  "narration_changes": [
+    "scene 1: Timelapse icon instead of Time",
+    "scene 8: discloses the synthetic eight-frame sequence"
+  ],
+  "media": {
+    "master_sha256": "7eebe078c7772786b6afa60535ad1481468f50bd2f2f8eb643caca3b8fcc78e6",
+    "web_sha256": "91dc61946047d95b2bd6c805b8d3ca09aaf7ad1f688fb7f535177fa341a9bca8",
+    "web_bytes": 7308424,
+    "audio_sha256": "bc8d8a75c408ec0404718f8b5a6ff59922b59f90715655035d19df010642a795"
+  },
+  "checks": [
+    "check_current_english_tracks passed",
+    "verify_staged_lesson --sentence-cues passed",
+    "verify_staged_lesson --web-rendition passed (2560x1440)"
+  ],
+  "published": false
+}

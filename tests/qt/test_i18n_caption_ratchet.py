@@ -1126,7 +1126,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 #: Captions written by a feature branch that the catalog lane has not built
 #: rows for yet; spacr/qt/i18n_catalogs is regenerated only by that lane.
 #: Owed since 2026-09-25 by item 508 (the enhancement chain reaches Mask
-#: generation). Self-emptying: a caption already in en.UI_SOURCES fails
+#: generation) and item 509 (PSF optics infer themselves). Self-emptying: a caption already in en.UI_SOURCES fails
 #: below and must leave this set.
 _AWAITING_CATALOG_REBUILD = frozenset({
     'A logarithmic curve on 0..1, log(1 + gain x) / log(1 + gain): it compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1.',
@@ -1149,6 +1149,50 @@ _AWAITING_CATALOG_REBUILD = frozenset({
     'What the intensities are multiplied by before the logarithm. Larger compresses the bright end harder.',
     "Write the configured chain and PSF into the Mask module's Image Enhancement and Point Spread Function settings, so a plate run applies these steps to every selected channel after illumination correction and before normalization. Morphology and split reshape a detector's labels and stay here.",
     'every step off',
+    # 509, 2026-09-25: the PSF optics chooser, Infer from images and value sources.
+    '0.51 × emission / NA',
+    'Camera',
+    'Camera pixel',
+    'Choose an image to infer optics from',
+    'Choose the camera, to fill its physical pixel pitch. Common sCMOS cameras have 6.5 µm pixels; the image pixel size is this pitch divided by the magnification. Default 6.5 µm.',
+    'Choose the fluorophore, to fill a typical emission wavelength: DAPI 461 nm, GFP 520 nm, Cy3 600 nm, Cy5 670 nm. A longer wavelength gives a wider PSF. Default GFP, 520 nm.',
+    'Choose the microscope objective the images were taken with. Its magnification, numerical aperture and immersion fill the optics below, which then give the image pixel size (camera pixel divided by magnification) and the Gaussian width (0.51 × emission wavelength / NA). Default 20× / NA 0.75 air.',
+    'Could not read the image: {error}',
+    'Emission wavelength',
+    'Emission wavelength in nanometers. Changing it recalculates the Gaussian FWHM as 0.51 × wavelength / NA.',
+    'Fluorophore',
+    'Image dimensions',
+    "Image pixel spacing in micrometers. Filled from the file's calibration when it has one, otherwise camera pixel / magnification; edit it to override.",
+    'Immersion refractive index',
+    'Infer from images…',
+    'Magnification',
+    'Not read yet; use Infer from images…',
+    'Not stated by the file',
+    'Numerical aperture',
+    'Objective',
+    'Physical camera pixel pitch in micrometers. Divided by the magnification it gives the image pixel size.',
+    'Pixel {pixel} µm ({pixel_source}); FWHM {fwhm} µm ({fwhm_source}); objective {objective}.',
+    'Read the current image file for OME or ImageJ calibration: pixel size, objective magnification, numerical aperture, immersion and emission wavelength. Whatever the file does not state comes from the objective chosen here and common defaults. Every value stays editable and says where it came from.',
+    'Reading image metadata…',
+    'Refractive index of the immersion medium: air 1.0, water 1.33, oil 1.515. The NA cannot exceed it.',
+    'TIFF images (*.tif *.tiff)',
+    'The objective NA, engraved on its barrel. Changing it recalculates the Gaussian FWHM as 0.51 × emission wavelength / NA.',
+    'Total magnification between specimen and camera, including any camera adapter. Changing it recalculates the image pixel size unless the pixel size was read from the file or entered.',
+    'calculated: {detail}',
+    'camera pixel / magnification',
+    'chosen',
+    'default',
+    'default ({detail})',
+    'entered by you',
+    'from ImageJ calibration ({detail})',
+    'from OME metadata ({detail})',
+    'from TIFF resolution tags ({detail})',
+    'from objective {detail}',
+    'from the file name ({detail})',
+    'from the image ({detail})',
+    'from {detail}',
+    '{height} × {width} pixels ({source})',
+    '{magnification}× / NA {aperture} {immersion}',
 })
 
 

@@ -1661,6 +1661,8 @@ def canonical_property(name) -> str:
     ``convex_area``) are accepted and mapped to the current name through
     skimage's own alias table, so a filter written against an older release
     still names the same measurement.
+
+    :param name: a regionprop name, current or legacy spelling.
     """
     from skimage.measure._regionprops import PROPS
 
@@ -1675,7 +1677,10 @@ def canonical_property(name) -> str:
 
 
 def property_needs_intensity(name) -> bool:
-    """Whether the regionprop ``name`` measures pixel values."""
+    """Whether the regionprop ``name`` measures pixel values.
+
+    :param name: a regionprop name, current or legacy spelling.
+    """
     return canonical_property(name) in _filter_catalogue()[1]
 
 
@@ -1703,6 +1708,8 @@ def normalise_filters(filters, *, strict: bool = True) -> List[dict]:
     it as text). Every entry is checked here, once, so a typo in a property
     name fails when the list is read rather than on the hundredth field.
 
+    :param filters: the list, one dict, tuples, or their JSON/literal text;
+        ``None`` is no filters.
     :param strict: also refuse a minimum above its maximum. The engine
         itself reads lists with ``strict=False``, because a migrated legacy
         pair such as ``min_area=10, max_area=5`` always meant "remove every
@@ -1785,6 +1792,8 @@ def settings_filters(settings, object_type: str) -> List[dict]:
     setting is no filters. The legacy ``{object}_min_area`` family is
     migrated by :func:`legacy_filters` where it is read, not here.
 
+    :param settings: the Mask run's settings; ``None`` is no filters.
+    :param object_type: the object type whose list is wanted.
     :raises ValueError: when the setting is not a mapping, names an object
         type spaCR does not segment, or holds an invalid filter.
     """
@@ -1812,7 +1821,11 @@ def settings_filters(settings, object_type: str) -> List[dict]:
 
 
 def filters_need_intensity(filters) -> bool:
-    """Whether any entry of ``filters`` needs an intensity image."""
+    """Whether any entry of ``filters`` needs an intensity image.
+
+    :param filters: a canonical filter list, as :func:`normalise_filters`
+        returns.
+    """
     return any(property_needs_intensity(entry["property"])
                for entry in normalise_filters(filters, strict=False))
 
@@ -1946,6 +1959,14 @@ def apply_filters(mask: np.ndarray, image, filters, *,
     loaded pixels (a 3-D image is averaged over its last axis first), never
     the contrast-stretched display.
 
+    :param mask: the label mask to filter.
+    :param image: the raw intensity image, or ``None`` when none is open;
+        required by any intensity property in ``filters``.
+    :param filters: the filter list, in any form :func:`normalise_filters`
+        accepts.
+    :param preserve_ids: judge objects by their supplied ids, as
+        :func:`canonical_labels` does with it; disconnected pieces sharing an
+        id count together.
     :param report: properties measured for the ledger in the same pass;
         ``intensity_mean`` is added whenever an image is given.
     :returns: the original array untouched and an empty list when nothing
