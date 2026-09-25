@@ -740,7 +740,11 @@ class DataManagerScreen(QWidget):
             self.set_project(chosen)
 
     def set_project(self, root: str) -> None:
-        """Point the screen at ``root`` and scan it."""
+        """Point the screen at ``root`` and scan it.
+
+        :param root: the project folder to show and scan; previous scan results
+            and plans are discarded.
+        """
         self._root = str(root)
         self._usage = None
         self._plan = None
@@ -759,7 +763,11 @@ class DataManagerScreen(QWidget):
             self.set_destination(chosen)
 
     def set_destination(self, path: str) -> None:
-        """Set the archive destination without touching anything."""
+        """Set the archive destination without touching anything.
+
+        :param path: the archive destination folder; stored as a string and
+            shown, and any previous archive plan is discarded.
+        """
         self._destination = str(path)
         self.destination_label.setText(self._destination)
         self._archive_plan = None
@@ -1098,6 +1106,9 @@ class DataManagerScreen(QWidget):
         is refused by :func:`spacr.data_manager.prune`, which re-checks the
         tree, rather than by a check duplicated here that could answer
         differently.
+
+        :param plan: the prune plan to carry out; its own ``token`` is passed
+            as the confirmation to :func:`spacr.data_manager.prune`.
         """
         return self._run(lambda: dm.prune(plan, confirm=plan.token),
                          self._after_prune)
