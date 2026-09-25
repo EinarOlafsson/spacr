@@ -1,0 +1,30 @@
+DROP FILES AS WELL AS FOLDERS IN MAKE MASKS AND PLAQUE ASSAY
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 137 (drag images in), 396 (Make Masks curates a
+queue), 468 (plaque and figure modes).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "in make masks and plaque assay, now the user needs to drop in a folder,
+    but they should be able to also drop in files."
+and, the same day:
+    "and in plaque analasys when i drop in a folder i get folder cant be used
+    as is make masks needs a folder ... so its reusing something from make
+    masks. please fix this."
+
+WHAT TO BUILD
+  1. Make Masks and Plaque Assay both accept dropped FILES (one or several
+     images, any supported format) as well as a dropped folder. Several
+     files become the queue/list in the order dropped; a mix of files and
+     folders is accepted.
+  2. Plaque Assay has its own drop handling and its own messages. Today a
+     folder dropped on it is refused with Make Masks' message ("... can't be
+     used as is; Make Masks needs a folder ..."), which means it reuses
+     Make Masks' drop validator. Plaque must accept its own inputs (a folder
+     of plaque images, plaque image files, or a PDF/figure in figure mode)
+     and word any refusal in plaque terms.
+
+DONE WHEN
+Offscreen tests drop a folder, one file, several files and a mix on each of
+Make Masks and Plaque Assay and see them loaded; no Plaque message mentions
+Make Masks.
