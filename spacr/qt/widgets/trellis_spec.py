@@ -351,6 +351,10 @@ def wrap_positions(count: int, wrap: int) -> Tuple[Tuple[int, int], ...]:
     rather than applied, so the caller can also work out how many trailing
     slots are blank — a wrapped grid of seven levels at three wide has two
     blanks, and they are *placeholders*, not empty groups.
+
+    :param count: number of levels to place.
+    :param wrap: panels per row; below 1 puts every level in its own row of
+        one.
     """
     if wrap < 1:
         return tuple((i, 0) for i in range(count))
@@ -367,6 +371,13 @@ class TrellisPanel:
     reason — a measurement frame carries a duplicated index often enough that
     positions are the only safe currency.
 
+    :param row: the panel's grid row, from 0.
+    :param col: the panel's grid column, from 0.
+    :param row_level: the row-facet level this panel holds, or ``None``.
+    :param col_level: the column-facet level this panel holds, or ``None``.
+    :param index: positional indices of this panel's rows in the laid-out
+        frame.
+    :param scales: the axis limits and orders this panel is drawn with.
     :param occupied: ``False`` for the blank slots at the end of a wrapped
         grid. A blank slot has no group at all, which is different from a group
         with no rows: the first is "the grid is 3 wide and 7 does not divide by
@@ -432,9 +443,15 @@ class TrellisPanel:
 class Trellis:
     """A computed grid: the panels, their scales, and what to say about it.
 
+    :param spec: the trellis specification the grid was computed from.
     :param frame: the rows that were laid out — post-filter, post-large-data
         policy. Panel indices are positions into *this*.
     :param source: the rows before the large-data policy, for an exact brush.
+    :param kinds: column name to column kind for ``frame``, with the graph
+        spec's role overrides applied.
+    :param grid: the facet layout the panels came from.
+    :param panels: every panel in row-major order, blank slots included.
+    :param shape: ``(rows, columns)`` of the panel grid.
     :param data: the large-data decision, carried whole so the caller can print
         :attr:`~spacr.qt.widgets.graph_spec.RenderData.notice` unchanged.
     :param shared: the whole-grid scales, computed whatever the modes are, so a
@@ -538,6 +555,16 @@ class Trellis:
         scales, so a brush stays exact when the panel was drawn from a sample
         or as a density raster, and a categorical axis under a free scale is
         matched against the levels that panel actually drew.
+
+        :param x0: one horizontal edge of the rectangle, in data units.
+        :param y0: one vertical edge, in data units.
+        :param x1: the other horizontal edge; the edges may come in either
+            order.
+        :param y1: the other vertical edge.
+        :param row: the grid row of the panel brushed, from 0.
+        :param col: the grid column of the panel brushed, from 0.
+        :returns: a boolean mask over :attr:`source`; all ``False`` for a
+            blank slot.
         """
         panel = self.panel(row, col)
         inside = brush_mask(self.source, self.spec.graph, self.kinds,
