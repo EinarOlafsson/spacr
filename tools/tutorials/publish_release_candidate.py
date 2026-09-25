@@ -245,6 +245,23 @@ def resume_receipt(root, branch, tag, checked):
     print('RECEIPT', root / RECEIPT, HOST + commit, flush=True)
 
 
+def drop_superseded_web_copies(pages_root, manifest):
+    """Remove the Pages copy of every web video the candidate now hosts.
+
+    Only the exact local path of a hosted lesson's web copy is removed; posters,
+    catalogs and other lessons' copies stay.
+    """
+    removed = []
+    for record in manifest['files']:
+        parts = Path(record['path']).parts
+        if len(parts) == 4 and parts[0] == 'media_host' and parts[2] == 'web':
+            relative = Path('production') / parts[1] / 'video' / parts[3]
+            if (pages_root / relative).is_file():
+                (pages_root / relative).unlink()
+                removed.append(relative.as_posix())
+    return removed
+
+
 def pages(root, key):
     """Write the Pages tree from the candidate, pinned to the verified commit."""
     receipt = read(root / RECEIPT)
@@ -281,7 +298,12 @@ def pages(root, key):
             raise SystemExit(f'Expected exactly one match for {pattern}, found {count}')
         return text
 
-    for attribute in ('audio-root', 'video4k-root'):
+    hosted = [r for r in manifest['files'] if len(Path(r['path']).parts) == 4
+              and r['path'].startswith('media_host/') and Path(r['path']).parts[2] == 'web']
+    if hosted and 'data-web-root=' not in index:
+        raise SystemExit('Hosted web copies need a data-web-root on the page')
+    attributes = ('audio-root', 'video4k-root') + (('web-root',) if 'data-web-root=' in index else ())
+    for attribute in attributes:
         index = replace(rf'data-{attribute}="\.\./media_host"', f'data-{attribute}="{receipt["media_root"]}"', index)
     for name in VERSIONED:
         if name in unchanged:
@@ -296,6 +318,7 @@ def pages(root, key):
     index = replace(r'Lesson 1 of \d+', f'Lesson 1 of {len(catalog)}', index)
     if '../media_host' in index or 'data-production-root="production"' not in index:
         raise SystemExit('Pages index still points at local media')
+    superseded = drop_superseded_web_copies(PAGES, manifest)
     index_temporary = PAGES / 'index.html.publishing'
     index_temporary.write_text(index, encoding='utf-8')
     index_temporary.replace(PAGES / 'index.html')
@@ -310,6 +333,7 @@ def pages(root, key):
                         'index_sha256': digest(PAGES / 'index.html'),
                         'candidate_index_sha256': web['index.html']['sha256'],
                         'cache_key': key, 'unchanged_versioned_assets': sorted(unchanged),
+                        'hosted_web_copies': len(hosted), 'removed_local_web_copies': superseded,
                         'ready': ready, 'routes': len(catalog)}
     write(root / RECEIPT, receipt)
     print('PAGES TREE', PAGES, receipt['pages'], flush=True)

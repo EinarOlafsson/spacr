@@ -2,9 +2,39 @@
 """Verify candidate inventory and bytes, not merely that a report exists."""
 from pathlib import Path
 
+from append_staged_lessons import parse_javascript
 from audit_staged_catalogs import CATALOGS
 from check_completed_matrix import digest
 from stage_lesson import read
+
+
+def hosted_web_path(identity):
+    """Where a hosted web copy lives on the media revision, beside the 4K master."""
+    return f'{identity}/web/{identity}_silent.mp4'
+
+
+def require_consistent_web_hosting(records, lessons):
+    """Each hosted lesson has exactly one web copy: on the media host, not on Pages.
+
+    ``lessons`` are the lesson_catalog.js objects; a hosted lesson names its
+    copy in ``web``. Returns the hosted lesson identities.
+    """
+    paths = {record['path'] for record in records}
+    hosted_files = {path for path in paths if path.startswith('media_host/')
+                    and len(Path(path).parts) == 4 and Path(path).parts[2] == 'web'}
+    flagged = set()
+    for lesson in lessons:
+        if 'web' not in lesson:
+            continue
+        identity = lesson['id']
+        expected = hosted_web_path(identity)
+        if (lesson['web'] != expected or 'media_host/' + expected not in paths
+                or f'web/production/{identity}/video/{identity}_silent.mp4' in paths):
+            raise ValueError(f'Hosted web copy is missing, misnamed or duplicated on Pages: {identity}')
+        flagged.add('media_host/' + expected)
+    if hosted_files != flagged:
+        raise ValueError(f'Hosted web copies without a catalog entry: {sorted(hosted_files - flagged)}')
+    return sorted(Path(path).parts[1] for path in flagged)
 
 
 def validate(root, *, include_hosted_media=False, require_browser=False):
@@ -41,6 +71,10 @@ def validate(root, *, include_hosted_media=False, require_browser=False):
         if not path.is_file() or path.stat().st_size != record['bytes'] or digest(path) != record['sha256']:
             raise ValueError(f'Candidate file differs from its recorded bytes: {relative}')
         checked += 1
+    # Without a lesson_catalog.js nothing may claim a hosted web copy.
+    player_catalog = root / 'web/lesson_catalog.js'
+    require_consistent_web_hosting(manifest['files'], parse_javascript(
+        player_catalog.read_text())['lessons'] if player_catalog.is_file() else [])
     actual_web = {p.relative_to(root).as_posix() for p in (root / 'web').rglob('*') if p.is_file()}
     if actual_web != {p for p in seen if p.startswith('web/')}:
         raise ValueError('Unrecorded or missing website files')

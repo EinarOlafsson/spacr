@@ -83,8 +83,13 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
     assert manifest['narration_tracks'] == 378
-    videos = {Path(r['path']).parts[2] for r in manifest['files']
-              if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
+    local = {Path(r['path']).parts[2] for r in manifest['files']
+             if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
+    hosted = {Path(r['path']).parts[1] for r in manifest['files']
+              if r['path'].startswith('media_host/') and Path(r['path']).parts[2:3] == ('web',)}
+    # One web copy per ready lesson: on Pages or on the media revision, never both.
+    assert not local & hosted and hosted == set(manifest.get('hosted_web_lessons', []))
+    videos = local | hosted
     assert videos == {x['id'] for x in ready}
     assert not videos & set(REMAINING_HOLDS)
 
