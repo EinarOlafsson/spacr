@@ -355,6 +355,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "tta_vertical_flip", "tta_aggregation", "tta_min_agreement", "tta_max_std",
     "psf_operation", "psf_source", "psf_path", "psf_image_sampling_um",
     "psf_kernel_sampling_um", "psf_fwhm_um", "psf_iterations",
+    # 508, 2026-09-25: the Make Masks enhancement chain as Mask settings.
+    "enhance_background", "enhance_background_radius", "enhance_background_scale",
+    "enhance_denoise", "enhance_denoise_strength",
+    "enhance_percentile_clip", "enhance_percentile_low", "enhance_percentile_high",
+    "enhance_gamma", "enhance_log", "enhance_log_gain", "enhance_sqrt",
+    "enhance_clahe", "enhance_clahe_tile", "enhance_clahe_clip", "enhance_equalize",
+    "enhance_sharpen", "enhance_sharpen_radius", "enhance_sharpen_amount",
     # 468, 2026-09-21: Plaque Assay's Plaque/Figure mode and the Figure
     # mode's detector, text reading and review switch.
     "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",
@@ -1383,6 +1390,7 @@ def _rendered_sections(app_key):
                 "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
                 'Image Quality',
                 "Illumination Correction", "Point Spread Function",
+                "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
@@ -1415,6 +1423,7 @@ def _rendered_sections(app_key):
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
                 'Image Quality',
                 "Illumination Correction", "Point Spread Function",
+                "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",

@@ -1,0 +1,84 @@
+{
+  "baseline_commit": "c2def6baa",
+  "comparisons_before": 716,
+  "comparisons_after": 735,
+  "added_pairs": [
+    [
+      "mask",
+      "enhance_background"
+    ],
+    [
+      "mask",
+      "enhance_background_radius"
+    ],
+    [
+      "mask",
+      "enhance_background_scale"
+    ],
+    [
+      "mask",
+      "enhance_denoise"
+    ],
+    [
+      "mask",
+      "enhance_denoise_strength"
+    ],
+    [
+      "mask",
+      "enhance_percentile_clip"
+    ],
+    [
+      "mask",
+      "enhance_percentile_low"
+    ],
+    [
+      "mask",
+      "enhance_percentile_high"
+    ],
+    [
+      "mask",
+      "enhance_gamma"
+    ],
+    [
+      "mask",
+      "enhance_log"
+    ],
+    [
+      "mask",
+      "enhance_log_gain"
+    ],
+    [
+      "mask",
+      "enhance_sqrt"
+    ],
+    [
+      "mask",
+      "enhance_clahe"
+    ],
+    [
+      "mask",
+      "enhance_clahe_tile"
+    ],
+    [
+      "mask",
+      "enhance_clahe_clip"
+    ],
+    [
+      "mask",
+      "enhance_equalize"
+    ],
+    [
+      "mask",
+      "enhance_sharpen"
+    ],
+    [
+      "mask",
+      "enhance_sharpen_radius"
+    ],
+    [
+      "mask",
+      "enhance_sharpen_amount"
+    ]
+  ],
+  "removed_pairs": []
+}
