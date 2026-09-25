@@ -3080,6 +3080,42 @@ class AppScreen(QWidget):
                     break
                 except Exception:                            # noqa: BLE001
                     continue
+        self._watch_the_cellpose3_choosers(model)
+
+    def _watch_the_cellpose3_choosers(self, model) -> None:
+        """Show the Cellpose 3 rows as soon as a Cellpose 3 model is chosen.
+
+        Item 503. The model zoo writes ``cellpose3:<model>`` into a model
+        field with ``setText``, which is not a commit -- no
+        ``editingFinished`` follows -- so the text itself is followed, and
+        the visibility pass waits for the text to settle for a moment rather
+        than running on every keystroke typed into the field.
+
+        :param model: the screen's settings model.
+        """
+        from .settings_model import _cellpose3_choosers
+
+        widgets = getattr(model, "_widgets", {}) or {}
+        keys = _cellpose3_choosers(widgets)
+        if not keys:
+            return
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.setInterval(250)
+        timer.timeout.connect(self._show_the_objects_the_run_has)
+        self._cellpose3_rows_timer = timer
+        for key in keys:
+            widget = widgets.get(key)
+            for name in ("textChanged", "currentTextChanged", "valueChanged",
+                         "currentIndexChanged"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(lambda *_: timer.start())
+                    break
+                except Exception:                            # noqa: BLE001
+                    continue
 
     def _form_shape(self) -> tuple:
         """What the form's shape currently depends on.
