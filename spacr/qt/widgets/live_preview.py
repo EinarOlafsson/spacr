@@ -1075,6 +1075,45 @@ class _ZoomView(QGraphicsView):
         self.setFrameShape(QGraphicsView.NoFrame)
         self.horizontalScrollBar().valueChanged.connect(self._mirror_pan)
         self.verticalScrollBar().valueChanged.connect(self._mirror_pan)
+        self._picture_name = "picture"
+        from .picture_export import install_picture_save
+
+        install_picture_save(self, self.picture, self.picture_name,
+                             unless=self._ruler_wants_the_right_button)
+
+    def _ruler_wants_the_right_button(self) -> bool:
+        """Whether the ruler is out, in which case right-click clears it.
+
+        Read through the attribute rather than captured, because the mask
+        canvas is handed the source canvas's ruler after both are built.
+        """
+        return bool(getattr(getattr(self, "ruler", None), "active", False))
+
+    def picture(self) -> Optional[QPixmap]:
+        """What this view is showing, at the resolution it was rendered at.
+
+        NOT a grab of the widget. The user may be zoomed into a corner of a
+        2048-pixel field inside a 300-pixel panel, and the thing they want
+        in a figure is the field, not the corner at the size of the panel.
+
+        :returns: the pixmap, or ``None`` while the view is empty.
+        """
+        if self._pixmap_item is None:
+            return None
+        pixmap = self._pixmap_item.pixmap()
+        return None if pixmap.isNull() else pixmap
+
+    def picture_name(self) -> str:
+        """The file name offered when this view's picture is saved."""
+        return self._picture_name
+
+    def set_picture_name(self, name: str) -> None:
+        """Name what this view is showing, for the save dialog.
+
+        Asked at save time rather than stored in the menu, so a view that
+        is Overlay one moment and Flows the next offers the right name.
+        """
+        self._picture_name = str(name or "picture")
 
     def set_pixmap(self, pixmap: QPixmap) -> None:
         """Show a new image, fitted, and forget any zoom the user had applied.
@@ -2057,8 +2096,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         canvas = QHBoxLayout()
         self._src_view = _ZoomView(self)
         self._src_view.setMinimumHeight(160)
+        self._src_view.set_picture_name("field")
         self._mask_view = _ZoomView(self)
         self._mask_view.setMinimumHeight(160)
+        self._mask_view.set_picture_name("overlay")
         self._src_view.set_peer(self._mask_view)
         self._mask_view.set_peer(self._src_view)
         self._mask_view.ruler = self._src_view.ruler
@@ -4347,6 +4388,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._src_view.set_pixmap(src_pix)
 
         mode = self._view_mode_choice()
+        self._mask_view.set_picture_name(str(mode or "overlay").lower())
         if mode == "Flows" and self._flows:
             self._mask_view.set_pixmap(numpy_to_qpixmap(
                 self._flows_rgb()))
