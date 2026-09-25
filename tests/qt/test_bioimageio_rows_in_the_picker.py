@@ -121,3 +121,55 @@ def test_the_warm_up_redraws_the_table_when_rows_arrive(qapp, qtbot,
             for stem, pairs in dialog._groups), timeout=5000)
     finally:
         dialog._stop_any_download()
+
+
+# ---------------------------------------------------------------------------
+# Make Masks
+# ---------------------------------------------------------------------------
+
+def test_make_masks_offers_cellpose3_rows_and_lists_what_comes_back(
+        qapp, monkeypatch):
+    """Its Model zoo… button asks for both Cellposes, and a Cellpose 3
+    checkpoint is added to the Model list under the setting that routes it."""
+    import types
+
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.screens import make_masks as mm
+
+    asked = []
+
+    def choose(parent, kinds=None):
+        asked.append(kinds)
+        return "cellpose3:/models/cellpose_cyto3.pth"
+
+    monkeypatch.setattr(mzp, "choose_model", choose)
+    combo = QComboBox()
+    host = types.SimpleNamespace(_cp_model=combo,
+                                 _fill_zoo_models=lambda: None)
+    chosen = mm.MakeMasksScreen._choose_cellpose_model_from_zoo(host)
+    assert asked == [("cellpose", "cellpose3")]
+    assert chosen == "cellpose3:/models/cellpose_cyto3.pth"
+    assert combo.currentData() == chosen
+    assert combo.currentText() == "Cellpose 3 · cellpose_cyto3.pth"
+
+
+def test_make_masks_loads_a_cellpose3_model_in_its_backend(monkeypatch):
+    """Not Cellpose 4, which would load the checkpoint and segment nonsense:
+    the same backend, given the same model, as Mask generation's route."""
+    import spacr._segmentation_backends as SB
+    from spacr.qt.screens import make_masks as mm
+
+    loaded = []
+
+    def load(name, **kwargs):
+        loaded.append((name, kwargs))
+        return "cellpose3-model"
+
+    monkeypatch.setattr(SB, "_load_backend", load)
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    monkeypatch.setattr(mm, "_BACKEND_MODEL_ENVS", {})
+    assert mm.load_cellpose_model(
+        "cellpose3:/models/cellpose_cyto3.pth") == "cellpose3-model"
+    assert loaded == [("cellpose3",
+                       {"model_name": "/models/cellpose_cyto3.pth"})]
