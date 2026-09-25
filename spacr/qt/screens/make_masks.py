@@ -7270,6 +7270,11 @@ class MakeMasksScreen(QWidget):
         #: :meth:`open_queue`; what makes a save reach
         #: ``curate_status.csv``.
         self._queue = None
+        #: A copy of the mask the current field opened with, and whether it
+        #: was read from the file a save would write. Together they are what
+        #: lets a save that changed nothing leave that file alone.
+        self._loaded_mask: Optional[np.ndarray] = None
+        self._loaded_from_save_path = False
         #: The masks folder of a sibling-layout session, which is beside the
         #: images rather than beneath them; ``None`` means ``<folder>/masks``.
         #: Set with the folder by :meth:`_open_folder`, so no field of one
@@ -7404,6 +7409,7 @@ class MakeMasksScreen(QWidget):
         if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
+        self._sync_button_states()
         notices = tuple(getattr(queue, "notices", ()) or ())
         self._src_label.setText(
             f"{queue.folder}  --  {len(files)} to curate this session, "
@@ -7633,6 +7639,18 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
         nav_row.addWidget(self._btn_save)
+
+        from ..i18n import tr
+
+        self._btn_skip = QPushButton(tr("Skip"))
+        self._btn_skip.setIcon(iconset.icon("next"))
+        self._btn_skip.setCursor(Qt.PointingHandCursor)
+        self._btn_skip.setToolTip(tr(
+            "Record this field as one that cannot be curated and move to the "
+            "next. It is written to the session's curate_status.csv as skip, "
+            "so the next session does not offer it again. No mask is written."))
+        self._btn_skip.clicked.connect(self._on_skip)
+        nav_row.addWidget(self._btn_skip)
 
         nav_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
@@ -12895,6 +12913,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.clear()
         self._history.clear()
         self._log = None
+        self._loaded_mask = None
+        self._loaded_from_save_path = False
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._warn("Load failed", str(error))
@@ -12920,6 +12940,9 @@ class MakeMasksScreen(QWidget):
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
+        self._loaded_mask = np.array(mask, copy=True)
+        self._loaded_from_save_path = os.path.isfile(engine.mask_save_path(
+            self._folder, filename, **self._layout_kwargs()))
         self._recrop_children = []
         self._reset_flow_panes()
         self._history.clear()
@@ -13106,9 +13129,83 @@ class MakeMasksScreen(QWidget):
         self._current_index += 1
         self._load_current()
 
+    def _save_would_change_nothing(self) -> bool:
+        """Whether the file a save would write already holds the canvas mask.
+
+        True only when the field's mask was read from that very file, the
+        file is still there, and the canvas holds exactly the labels it
+        opened with. Writing anyway is not neutral: every save goes through
+        :func:`spacr.qt.mask_engine.canonical_labels`, which splits a label
+        lying in two separated pieces, so "open, look, save" used to add an
+        object the curator never drew.
+
+        :returns: whether the save may leave the file untouched.
+        """
+        loaded = self._loaded_mask
+        mask = self._canvas.mask
+        if loaded is None or mask is None or not self._loaded_from_save_path:
+            return False
+        path = engine.mask_save_path(
+            self._folder, self._image_files[self._current_index],
+            **self._layout_kwargs())
+        return (os.path.isfile(path) and loaded.shape == mask.shape
+                and bool(np.array_equal(loaded, mask)))
+
+    def _on_skip(self) -> None:
+        """Record the field on screen as skipped and move to the next one.
+
+        Skip is not a lesser done. It records that this field cannot be
+        curated, so the next session does not offer it again, and it writes
+        no mask: whatever is on disk for the field stays exactly as it was.
+        Only a queue has a record to write it to, so the control does
+        nothing for a folder opened from the file dialog.
+        """
+        from ..i18n import tr
+
+        if self._queue is None or not self._image_files:
+            return
+        from ...curation_queue import mark_state
+
+        filename = self._image_files[self._current_index]
+        stem = engine.field_stem(filename)
+        try:
+            mark_state(self._queue.folder, stem, "skip")
+        except Exception as exc:                              # noqa: BLE001
+            LOG.warning("could not record %s as skipped", stem, exc_info=True)
+            self._warn(tr("Skip failed"), str(exc))
+            return
+        judged = os.path.basename(filename)
+        was = self._current_index
+        self._on_next()
+        if self._current_index != was:
+            now = os.path.basename(self._image_files[self._current_index])
+            self._status_label.setText(
+                tr("{judged} skipped, and will not be offered again  —  now on {now}").format(
+                    judged=judged, now=now))
+        else:
+            self._status_label.setText(
+                tr("{judged} skipped, and will not be offered again  —  that was the last field in this session").format(
+                    judged=judged))
+
     def _on_save(self):
-        """Write the mask for the field on screen."""
+        """Write the mask for the field on screen.
+
+        A save that changed nothing writes nothing: the field is still
+        recorded as done, with the object count of the file already on disk,
+        but that file is left byte for byte as it was.
+        """
         if not self._image_files or self._canvas.mask is None:
+            return
+        if self._save_would_change_nothing():
+            from ..i18n import tr
+
+            filename = self._image_files[self._current_index]
+            objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
+            self._note_curated(filename, n_objects=objects)
+            path = engine.mask_save_path(self._folder, filename,
+                                         **self._layout_kwargs())
+            self._status_label.setText(
+                tr("Unchanged, nothing rewritten → {path}").format(path=path))
             return
         try:
             self._validate_secondary_save()
@@ -13310,3 +13407,4 @@ class MakeMasksScreen(QWidget):
                    self._btn_levels,
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
+        self._btn_skip.setEnabled(editable and self._queue is not None)
