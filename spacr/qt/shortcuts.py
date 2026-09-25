@@ -217,6 +217,9 @@ def native(keys: str) -> str:
 
     `Ctrl` is the Command symbol on macOS and Qt already knows; writing
     "Ctrl+H" into a label hard-codes one platform into the help.
+
+    :param keys: a key sequence in Qt's portable spelling, such as
+        ``'Ctrl+H'``. Returned unchanged when Qt cannot convert it.
     """
     try:
         return QKeySequence(str(keys)).toString(QKeySequence.NativeText) \
@@ -235,6 +238,10 @@ def discover(window) -> List[ShortcutSpec]:
 
     Anything already in :data:`SHORTCUTS` is left to its declaration, which
     is where the label and the scope live.
+
+    :param window: the widget whose child :class:`QShortcut` and
+        :class:`QAction` objects are searched; a widget that cannot be searched
+        yields an empty list.
     """
     from PySide6.QtGui import QAction
 
@@ -268,6 +275,8 @@ def install(window: QMainWindow) -> None:
     """Wire every shortcut in :data:`SHORTCUTS` onto ``window``.
 
     Idempotent — safe to call from within reload paths.
+
+    :param window: the main window the application shortcuts are bound to.
     """
     _bind(window, "Ctrl+K", lambda: _open_palette(window))
     _bind(window, "Ctrl+/", lambda: _toggle_ai(window))
@@ -682,11 +691,19 @@ class ShortcutOverlay(QWidget):
         window.installEventFilter(self)
 
     def paintEvent(self, event) -> None:
-        """Leave the main window visible around the translucent shortcut card."""
+        """Leave the main window visible around the translucent shortcut card.
+
+        :param event: the paint event; ignored, so nothing is painted behind
+            the card.
+        """
         pass
 
     def resizeEvent(self, event) -> None:
-        """Keep the card centred when the window resizes."""
+        """Keep the card centred when the window resizes.
+
+        :param event: the resize event; not read, the card is re-centred for
+            the overlay's current size.
+        """
         self._reposition()
 
     def _reposition(self) -> None:
@@ -714,7 +731,14 @@ class ShortcutOverlay(QWidget):
         )
 
     def eventFilter(self, obj, event):
-        """Track the window's size so the overlay stays full-bleed."""
+        """Track the window's size so the overlay stays full-bleed.
+
+        :param obj: the watched object: the covered window or the card's scroll
+            viewport.
+        :param event: the event delivered to it. A resize of the window resizes
+            the overlay to match; a mouse press on the scroll viewport
+            dismisses the overlay and is consumed.
+        """
         # getattr: the overlay and its window are a reference cycle, so the
         # collector can clear this wrapper before the window's destructor
         # reaches the filter.
@@ -731,11 +755,18 @@ class ShortcutOverlay(QWidget):
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event) -> None:
-        """Any key closes it — that is the whole interaction."""
+        """Any key closes it — that is the whole interaction.
+
+        :param event: the key event; which key was pressed is not read.
+        """
         self.dismiss()
 
     def mousePressEvent(self, event) -> None:
-        """A click anywhere closes it too."""
+        """A click anywhere closes it too.
+
+        :param event: the mouse press event; its button and position are not
+            read.
+        """
         self.dismiss()
 
     def dismiss(self) -> None:
@@ -808,6 +839,10 @@ def show_cheat_sheet(parent) -> None:
     An overlay when ``parent`` is a real window, so ``?`` answers and gets
     out of the way. A modal dialog remains the fallback for a parentless or
     zero-sized caller, where an overlay would have nothing to cover.
+
+    :param parent: the window to cover. A :class:`QWidget` with a non-zero size
+        gets the overlay, replacing any overlay it already has; anything else
+        gets a modal dialog parented to it.
     """
     if isinstance(parent, QWidget) and parent.width() > 0 \
             and parent.height() > 0:
