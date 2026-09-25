@@ -629,6 +629,19 @@ class _StdoutBlock(QPlainTextEdit):
         self._trim_to_cap()
         self.updateGeometry()
 
+    def replace(self, text: str) -> None:
+        """Make ``text`` the block's whole contents, in place.
+
+        For a progress line: the console shows ONE line per task and
+        rewrites it, rather than stacking a new line for every step.
+
+        :param text: the new contents.
+        """
+        self.setPlainText(text or "")
+        self._chars = len(text or "")
+        self._apply_line_spacing()
+        self.updateGeometry()
+
     def _trim_to_cap(self) -> None:
         """Drop whole paragraphs off the head until back under the cap.
 
@@ -958,15 +971,23 @@ class ConsolePanel(QWidget):
     _relay_stdout = Signal(str)
     _relay_error = Signal(str)
     _relay_notice = Signal(str, object)
+    _relay_progress = Signal(str, str, bool)
 
     def __init__(self, active_app_label: str = "", parent=None,
-                 persist_key: str = ""):
+                 persist_key: str = "", *, follow_log: bool = True,
+                 chat: bool = True):
         """
         :param active_app_label: the app name shown in the output banner.
         :param parent: parent widget.
         :param persist_key: screen key the console/chat split is remembered
             against (usually the screen's ``app_key``). Empty means the split
             is not persisted, which is what a bare panel in a test wants.
+        :param follow_log: False keeps the application-wide log out of this
+            panel, for a screen whose console carries only its own messages
+            (Make Masks); the log still reaches the file and the shell's
+            console.
+        :param chat: False hides the chat row, for a console that only
+            reports.
         """
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
@@ -997,17 +1018,23 @@ class ConsolePanel(QWidget):
         self._ai_worker: Optional[StreamWorker] = None
         self._console_sent_lengths: Dict[int, int] = {}
         self._retired: List = []
+        #: ``key -> the one block that stands for that task's progress``.
+        self._progress_blocks: Dict[str, _StdoutBlock] = {}
 
         self._relay_stdout.connect(self.append_stdout)
         self._relay_error.connect(self.append_error)
         self._relay_notice.connect(self._append_notice_on_gui_thread)
+        self._relay_progress.connect(self._progress_on_gui_thread)
 
         self._build_ui()
-        try:
-            from ..logging_util import get_signal_handler
-            get_signal_handler().record_ready.connect(self._on_log_record)
-        except Exception:
-            pass
+        if not chat:
+            self._chat_row.setVisible(False)
+        if follow_log:
+            try:
+                from ..logging_util import get_signal_handler
+                get_signal_handler().record_ready.connect(self._on_log_record)
+            except Exception:
+                pass
         retranslate_widget_tree(self)
 
     def _build_ui(self):
@@ -1518,6 +1545,80 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             self._insert_entry(block)
             self._last_entry_kind = "stdout"
 
+    def set_progress(self, key: str, text: str) -> None:
+        """Show ``text`` as THE line that stands for task ``key``'s progress.
+
+        The first call for a key adds one line; every later call rewrites
+        that same line, so a task that reports a hundred steps leaves one
+        line and not a hundred stacked one after another. Safe from any
+        thread, like :meth:`append_stdout`.
+
+        :param key: names the task; one line per key.
+        :param text: what the line says now.
+        """
+        if not self._on_gui_thread():
+            self._relay_progress.emit(str(key), str(text or ""), False)
+            return
+        self._progress_on_gui_thread(str(key), str(text or ""), False)
+
+    def end_progress(self, key: str, text: str = "") -> None:
+        """Finish task ``key``'s line, leaving ``text`` on it when given.
+
+        The line stays in the scrollback as the task's last word; a later
+        :meth:`set_progress` with the same key starts a new line.
+
+        :param key: the task.
+        :param text: its final words; empty leaves the line as it was.
+        """
+        if not self._on_gui_thread():
+            self._relay_progress.emit(str(key), str(text or ""), True)
+            return
+        self._progress_on_gui_thread(str(key), str(text or ""), True)
+
+    def progress_text(self, key: str) -> str:
+        """What task ``key``'s line says now, or ``''`` without one."""
+        block = self._progress_blocks.get(str(key))
+        try:
+            return block.toPlainText() if block is not None else ""
+        except RuntimeError:
+            return ""
+
+    def _progress_on_gui_thread(self, key: str, text: str,
+                                finished: bool) -> None:
+        """Add or rewrite ``key``'s one progress line; see :meth:`set_progress`.
+
+        :param key: the task.
+        :param text: the line's text; empty on a finish keeps the old text.
+        :param finished: True retires the line after writing ``text``.
+        """
+        if console_write_in_progress():
+            return
+        block = self._progress_blocks.get(key)
+        try:
+            if block is not None:
+                block.isVisible()
+        except RuntimeError:
+            block = None
+            self._progress_blocks.pop(key, None)
+        if block is None:
+            if finished and not text:
+                return
+            with console_write():
+                accent = color_output()
+                self.begin_topic(self._output_banner("spaCR output"),
+                                 accent=accent)
+                block = _StdoutBlock(text_color=accent)
+                block.setProperty("consoleContextKind", "progress")
+                self._insert_entry(block)
+                self._last_entry_kind = "progress"
+                self._current_stdout = None
+            self._progress_blocks[key] = block
+        if text:
+            block.replace(text)
+        if finished:
+            self._progress_blocks.pop(key, None)
+        self._scroll_to_bottom()
+
     def as_text(self, start: int = 0, stop: Optional[int] = None) -> str:
         """The console as plain text, section headers included.
 
@@ -1697,6 +1798,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._last_entry_kind = ""
         self._current_stdout = None
         self._current_topic_label = None
+        self._progress_blocks.clear()
         self._pending_ai_topic = None
         self._pending_ai_block = None
         self._ai_messages.clear()

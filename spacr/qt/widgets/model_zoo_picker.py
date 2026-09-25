@@ -505,7 +505,23 @@ class BackendInstallDialog(QDialog):
     :param uninstall: remove the backend's environment instead.
     :param job: ``job(progress=..., cancel=...)``; the real install or
         uninstall when None. Tests pass their own.
+    :ivar error: the last failure's message, verbatim; empty until one.
+
+    THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,
+    :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`
+    tell the widget that opened the dialog what the install is doing, so a
+    button can say "installing" while it runs and a console can say why it
+    failed after the dialog has gone.
     """
+
+    #: The job started on its worker thread.
+    job_started = Signal()
+    #: The line the dialog now shows, already translated.
+    job_progressed = Signal(str)
+    #: The job failed; its message, verbatim.
+    job_failed = Signal(str)
+    #: The job was cancelled and nothing was left behind.
+    job_cancelled = Signal()
 
     def __init__(self, name: str, parent: Optional[QWidget] = None, *,
                  uninstall: bool = False, job=None):
@@ -534,6 +550,7 @@ class BackendInstallDialog(QDialog):
         self.state = None
         self.installed = False
         self.removed = False
+        self.error = ""
         if job is None:
             if self._uninstall:
                 def job(progress=None, cancel=None, _name=spec.name):
@@ -643,6 +660,7 @@ class BackendInstallDialog(QDialog):
         self._worker.failed.connect(self._on_failed)
         self._worker.cancelled.connect(self._on_cancelled)
         self._thread.start()
+        self.job_started.emit()
 
     def _on_progress(self, step: int, steps: int, text: str) -> None:
         """Show which step it is on, and the latest line it printed."""
@@ -657,6 +675,11 @@ class BackendInstallDialog(QDialog):
                 shown = translated + text[len(source):]
                 break
         self.status.setText(shown[:300])
+        if steps > 1:
+            shown = "{}  ({})".format(shown, tr(
+                "step {step} of {steps}", step=min(step + 1, steps),
+                steps=steps))
+        self.job_progressed.emit(shown[:300])
 
     def _join(self) -> None:
         """Retire the worker thread."""
@@ -688,6 +711,8 @@ class BackendInstallDialog(QDialog):
             tr("Installing {name} failed. Nothing was left half-built.", name=self._label))
         self.details.setPlainText(message)
         self.details.setVisible(True)
+        self.error = message
+        self.job_failed.emit(message)
         self.start_button.setText(tr("Try again"))
         self.start_button.setEnabled(True)
         self.cancel_button.setEnabled(True)
@@ -699,6 +724,7 @@ class BackendInstallDialog(QDialog):
         """Cancelled: the half-built environment is already gone."""
         self._join()
         self.status.setText(tr("Cancelled. Nothing was left behind."))
+        self.job_cancelled.emit()
         self.start_button.setEnabled(True)
         self.cancel_button.setEnabled(True)
         self.cancel_button.setText(tr("Close"))
@@ -726,7 +752,7 @@ class BackendInstallDialog(QDialog):
         super().closeEvent(event)
 
 
-def install_backend(parent, name: str) -> bool:
+def install_backend(parent, name: str, *, watch=None) -> bool:
     """Open the install dialog for one backend. True when it is ready after.
 
     Shared by the Model Zoo screen, the Model Zoo button and the Make Masks
@@ -735,10 +761,191 @@ def install_backend(parent, name: str) -> bool:
 
     :param parent: the widget asking.
     :param name: the backend.
+    :param watch: ``watch(dialog)``, called before the dialog opens, so the
+        caller can connect to its ``job_*`` signals and follow the install.
     """
     dialog = BackendInstallDialog(name, parent)
+    if watch is not None:
+        watch(dialog)
     dialog.exec()
     return dialog.installed
+
+
+#: How often a button whose backend another window is installing re-reads
+#: the disk, in milliseconds. File checks only, so cheap.
+POLL_MS = 2000
+
+#: The three faces, as :meth:`BackendInstallButton.face` names them.
+NOT_INSTALLED = "not installed"
+INSTALLING = "installing"
+INSTALLED = "installed"
+
+
+def _disk_state(name: str):
+    """Where ``name`` stands on disk, or None when that cannot be read."""
+    from ... import _segmentation_backends as backends
+
+    try:
+        return backends._backend_state(name)
+    except (OSError, ValueError):
+        return None
+
+
+class BackendInstallButton(QPushButton):
+    """Install one backend; the caption always says where it stands.
+
+    Item 507. The maintainer pressed "Install Cellpose 3…", saw a dialog,
+    pressed Install, and was told nothing afterwards: not that it was
+    installing, not that it had finished, and not that Cellpose 3 was already
+    there. This button has three faces, and each is read from the backend's
+    environment ON DISK (:func:`spacr._segmentation_backends._backend_state`
+    -- the marker the installer writes and the environment's own Python),
+    never from a flag this widget keeps:
+
+    * not installed -- "Install Cellpose 3…", enabled;
+    * installing -- "Installing Cellpose 3…", greyed, from the moment the job
+      starts until it ends, and also while ANOTHER window's install holds the
+      backend's lock;
+    * installed -- "Cellpose 3 is installed", greyed.
+
+    A failure is said in words by :attr:`said`, with the installer's own
+    message, so the screen can put it in its console after the dialog has
+    closed. The install itself is :func:`install_backend`, unchanged.
+
+    THE TOOLTIP IS ITS OWNER'S. Make Masks gives the button an API-linked
+    tooltip, and a caption that changes must not overwrite it; the caption
+    carries the state and :attr:`said` carries the reasons.
+
+    :param name: the backend, e.g. ``'cellpose3'``.
+    :param parent: parent widget.
+    :param probe: ``probe(name) -> state`` with ``.state``, ``.reason`` and
+        ``.env`` as :class:`spacr._segmentation_backends._BackendState` has
+        them; the real on-disk check when None. Tests pass a fake.
+    :param installer: ``installer(parent, name, watch=...) -> bool``;
+        :func:`install_backend` when None.
+    :ivar said: ``(text, kind)`` for the screen's console. ``kind`` is
+        ``progress`` (one line, rewritten while the install runs), ``info``,
+        ``warning`` or ``error``.
+    :ivar installed: the backend became ready through this button.
+    """
+
+    said = Signal(str, str)
+    installed = Signal()
+
+    def __init__(self, name: str, parent=None, *, probe=None, installer=None):
+        """Build the button and read where the backend stands."""
+        super().__init__(parent)
+        from ... import _segmentation_backends as backends
+
+        self._name = str(name)
+        self._label = tr(backends._spec(self._name).label)
+        self._probe = probe or _disk_state
+        self._installer = installer
+        self._running = False
+        self._face = ""
+        self._poll = QTimer(self)
+        self._poll.setInterval(POLL_MS)
+        self._poll.timeout.connect(self.sync)
+        self.clicked.connect(self._install)
+        self.sync()
+
+    def face(self) -> str:
+        """Which of the three faces the button shows now."""
+        return self._face
+
+    def sync(self) -> str:
+        """Read the backend's state from disk and show it.
+
+        :returns: the face now shown.
+        """
+        from ... import _segmentation_backends as backends
+
+        state = None if self._running else self._probe(self._name)
+        kind = getattr(state, "state", "")
+        if self._running or kind == backends._INSTALLING:
+            face = INSTALLING
+            self.setText(tr("Installing {name}…", name=self._label))
+        elif kind == backends._INSTALLED:
+            face = INSTALLED
+            self.setText(tr("{name} is installed", name=self._label))
+        else:
+            face = NOT_INSTALLED
+            self.setText(tr("Install {name}…", name=self._label))
+        self.setEnabled(face == NOT_INSTALLED)
+        polling = face == INSTALLING and not self._running
+        if polling and not self._poll.isActive():
+            self._poll.start()
+        elif not polling:
+            self._poll.stop()
+        self._face = face
+        return face
+
+    def showEvent(self, event) -> None:
+        """Re-read the disk whenever the button comes on screen: the backend
+        may have been installed or removed from the Model Zoo meanwhile."""
+        super().showEvent(event)
+        self.sync()
+
+    def _install(self) -> None:
+        """Open the installer, follow it, and say how it ended."""
+        installer = self._installer or install_backend
+        failed = []
+        try:
+            ready = bool(installer(self, self._name,
+                                   watch=lambda dialog: self._watch(dialog,
+                                                                    failed)))
+        finally:
+            self._running = False
+        face = self.sync()
+        if ready or face == INSTALLED:
+            self.said.emit(tr("{name} is installed", name=self._label), "info")
+            self.installed.emit()
+        elif not failed:
+            self.said.emit(tr("{name} was not installed.", name=self._label),
+                           "info")
+
+    def _watch(self, dialog, failed: list) -> None:
+        """Follow ``dialog``'s job: the caption while it runs, the words after.
+
+        :param dialog: the install dialog, before it opens.
+        :param failed: gets the failure message, so :meth:`_install` does not
+            also say "not installed" over it.
+        """
+        def started():
+            """The job began: the button says so and is greyed."""
+            self._running = True
+            self.sync()
+            self.said.emit(tr("Installing {name}…", name=self._label),
+                           "progress")
+
+        def progressed(text):
+            """One line, rewritten, saying which step the install is on."""
+            self.said.emit("{}: {}".format(
+                tr("Installing {name}…", name=self._label), text), "progress")
+
+        def stopped():
+            """Cancelled or failed: the button is back to what the disk says."""
+            self._running = False
+            self.sync()
+
+        def failure(message):
+            """Say why, in the installer's own words."""
+            failed.append(message)
+            stopped()
+            self.said.emit("{} {}".format(
+                tr("Installing {name} failed. Nothing was left half-built.",
+                   name=self._label), message), "error")
+
+        def cancelled():
+            """Say that nothing was installed and nothing was left."""
+            stopped()
+            failed.append("")
+            self.said.emit(tr("Cancelled. Nothing was left behind."), "info")
+
+        dialog.job_started.connect(started)
+        dialog.job_progressed.connect(progressed)
+        dialog.job_failed.connect(failure)
+        dialog.job_cancelled.connect(cancelled)
 
 
 def uninstall_backend(parent, name: str) -> bool:

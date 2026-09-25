@@ -15,9 +15,14 @@ from ..job_runner import JobRunner
 
 
 class _RestorationControls(QWidget):
-    """Capture model identity off-thread and invalidate obsolete loading results."""
+    """Capture model identity off-thread and invalidate obsolete loading results.
+
+    :ivar said: ``(text, kind)`` for the screen's console -- the model
+        loading, ready or failing, and the install button's report.
+    """
 
     changed = Signal()
+    said = Signal(str, str)
 
     def __init__(self, parent=None):
         """Build opt-in controls without loading a model or starting a worker."""
@@ -73,7 +78,9 @@ class _RestorationControls(QWidget):
             'First use may download weights. The captured package version, '
             'checkpoint hash and diameter are recorded with applied enhancement.'))
         form.addRow(self.reload)
-        self.install = QPushButton(tr('Install Cellpose 3…'))
+        from .model_zoo_picker import BackendInstallButton
+
+        self.install = BackendInstallButton('cellpose3')
         self.install.setToolTip(tr(
             'Open the Model Zoo installer for the isolated Cellpose 3 environment. '
             'The Cellpose version used by spaCR itself is unchanged.'))
@@ -86,7 +93,8 @@ class _RestorationControls(QWidget):
         self.structure.currentIndexChanged.connect(self._invalidate)
         self.diameter.valueChanged.connect(self._diameter_changed)
         self.reload.clicked.connect(self._invalidate)
-        self.install.clicked.connect(self._install)
+        self.install.installed.connect(self._invalidate)
+        self.install.said.connect(self.said)
         self._sync_controls()
         from ..screens.settings_model import attach_api_tooltip, retarget_field_tooltips
 
@@ -144,6 +152,7 @@ class _RestorationControls(QWidget):
                 return generation, None, str(exc)
 
         self.status.setText(tr('Loading restoration model on CPU…'))
+        self.said.emit(self.status.text(), 'progress')
         self._jobs.submit(work, self._loaded)
 
     def _loaded(self, result):
@@ -156,6 +165,8 @@ class _RestorationControls(QWidget):
             tr('Restoration ready: {model}. CPU processing; original intensities retained for measurements.',
                model=plan.model) if plan is not None else
             tr('Restoration unavailable: {error}', error=error))
+        self.said.emit(self.status.text(), 'info' if plan is not None else 'warning')
+        self.install.sync()
         self.changed.emit()
 
     def _chain_fields(self):
@@ -164,13 +175,6 @@ class _RestorationControls(QWidget):
             return {}
         return dict(restoration=True, restoration_plan=self._plan,
                     restoration_error=self._error)
-
-    def _install(self):
-        """Delegate explicit installation to the existing Model Zoo dialog."""
-        from .model_zoo_picker import install_backend
-
-        if install_backend(self, 'cellpose3'):
-            self._invalidate()
 
     def _shutdown(self):
         """Invalidate and cancel pending work without blocking window closure."""
