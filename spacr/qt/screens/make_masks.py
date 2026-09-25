@@ -113,6 +113,7 @@ from __future__ import annotations
 import logging
 import math
 import os
+import re
 import threading
 import time
 from collections import deque
@@ -408,6 +409,8 @@ SETTINGS_GAP = 12
 #: column was doing when this was measured on a rendered screen.
 SHORTCUTS_WIDTH = 230
 
+RESTORATION_SETTLE_MS = 400
+
 #: Where the settings panel's folded categories are remembered, as the titles
 #: folded away -- :func:`spacr.qt.preferences.get_section_layout` keyed by
 #: this name.
@@ -584,6 +587,159 @@ class _MaskLoadWorker(QThread):
                 self.filename,
                 self.folder,
             )
+
+
+class _StatusLabel(QLabel):
+    """The corner readout: one short line here, every line in the console.
+
+    Item 507. About a hundred places in this screen set the corner's text,
+    and some of them set a whole failure -- a backend's message and the
+    last forty lines it printed -- which piled up in the bottom right. The
+    corner now shows the first line, cut short, with the whole text as its
+    tooltip, and :attr:`said` hands every new text to the screen, which
+    puts it in its console.
+
+    :ivar said: ``(text,)``, each time the text changes to something new.
+    """
+
+    said = Signal(str)
+
+    LIMIT = 160
+
+    def __init__(self, text: str = "", parent=None):
+        """Start with ``text``, which is not reported."""
+        super().__init__(parent)
+        self._full = ""
+        self._quiet = False
+        self._show(text)
+
+    def text(self) -> str:
+        """The whole text last set, not the shortened line shown."""
+        return self._full
+
+    def setText(self, text: str) -> None:
+        """Show ``text``'s first line and report the whole of it once."""
+        text = str(text or "")
+        changed = text != self._full
+        self._show(text)
+        if changed and text.strip() and not self._quiet:
+            self.said.emit(text)
+
+    def set_quietly(self, text: str) -> None:
+        """Show ``text`` without reporting it; its sender already did."""
+        self._quiet = True
+        try:
+            self.setText(text)
+        finally:
+            self._quiet = False
+
+    def _show(self, text: str) -> None:
+        """Put the first line, shortened, on screen; the rest in the tooltip."""
+        self._full = text
+        lines = text.strip().splitlines()
+        line = lines[0] if lines else ""
+        if len(line) > self.LIMIT:
+            line = line[:self.LIMIT - 1].rstrip() + "…"
+        elif len(lines) > 1:
+            line = line.rstrip() + " …"
+        super().setText(line)
+        self.setToolTip(text if line != text else "")
+
+
+class _MasksConsole(QWidget):
+    """Make Masks' console: every status, progress, warning and failure line.
+
+    Item 507. It sits under the shortcut list, right of the image, in a
+    section that folds (item 471's :class:`FoldSection`). It is a
+    :class:`~spacr.qt.widgets.console_panel.ConsolePanel` without the chat
+    and without the application-wide log, so it carries this screen's own
+    lines, and under it ONE :class:`~spacr.qt.widgets.eliding.ProgressLine`
+    for the task that is running now: a task that reports a hundred steps
+    rewrites that line a hundred times rather than stacking a hundred lines.
+    When the task ends, its last words go into the scrollback and the line
+    hides.
+
+    A line identical to the one before it is not written again, so a
+    message repeated on every mouse move reads once.
+
+    :ivar console: the scrollback.
+    :ivar progress: the in-place progress line; hidden while nothing runs.
+    """
+
+    _relay = Signal(str, str)
+
+    PERCENT = re.compile(r"(\d{1,3}(?:\.\d+)?)\s?%")
+
+    def __init__(self, parent=None):
+        """Build the scrollback and the hidden progress line."""
+        super().__init__(parent)
+        from ..widgets.console_panel import ConsolePanel
+        from ..widgets.eliding import ProgressLine
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+        self.console = ConsolePanel(active_app_label="",
+                                    follow_log=False, chat=False)
+        layout.addWidget(self.console, 1)
+        self.progress = ProgressLine(self, detail=True, count_below=True)
+        self.progress.setVisible(False)
+        layout.addWidget(self.progress)
+        self._last = None
+        self._relay.connect(self.say)
+
+    def say(self, text: str, kind: str = "info") -> None:
+        """Write one line.
+
+        :param text: what to say; blank is ignored.
+        :param kind: ``progress`` rewrites the progress line; ``info``,
+            ``warning`` and ``error`` go into the scrollback, in the
+            console's colours for each, and end any progress shown.
+        """
+        if QThread.currentThread() is not self.thread():
+            self._relay.emit(str(text or ""), str(kind or "info"))
+            return
+        text = str(text or "").rstrip()
+        if not text.strip():
+            return
+        if kind == "progress":
+            self.show_progress(text)
+            return
+        self.progress.setVisible(False)
+        if (text, kind) == self._last:
+            return
+        self._last = (text, kind)
+        if kind == "error":
+            self.console.append_error(text)
+        elif kind == "warning":
+            self.console.append_warning(text)
+        else:
+            self.console.append_stdout(text + "\n")
+
+    def show_progress(self, text: str) -> None:
+        """Rewrite the one progress line with ``text``.
+
+        A percentage in the text moves the bar; without one the bar is busy.
+        """
+        found = self.PERCENT.findall(text)
+        if found:
+            self.progress.setRange(0, 100)
+            self.progress.setValue(int(min(100.0, float(found[-1]))))
+        else:
+            self.progress.setRange(0, 0)
+        self.progress.set_detail(text)
+        self.progress.setToolTip(text)
+        self.progress.setVisible(True)
+
+    def progress_text(self) -> str:
+        """What the progress line says, or ``''`` while it is hidden."""
+        if not self.progress.isVisibleTo(self):
+            return ""
+        return self.progress.toolTip()
+
+    def text(self) -> str:
+        """The scrollback as plain text."""
+        return self.console.as_text()
 
 
 class _MethodGroup(QWidget):
@@ -777,6 +933,12 @@ class _MaskCanvas(QLabel):
         #: while one is running does not ask again.
         self._enhance_worker = None
         self._enhance_cancel = threading.Event()
+        self._enhance_pending = None
+        self._enhance_started = None
+        self._enhance_timer = QTimer(self)
+        self._enhance_timer.setSingleShot(True)
+        self._enhance_timer.setInterval(RESTORATION_SETTLE_MS)
+        self._enhance_timer.timeout.connect(self._submit_pending_enhance)
         self._enhance_asked: Optional[tuple] = None
         self.enhanced_ready.connect(self._take_enhanced)
         self.wand_tolerance: float = 1000.0
@@ -1050,6 +1212,13 @@ class _MaskCanvas(QLabel):
         (:class:`_NewestRequestWorker`): dragging the background radius
         makes a request per step, and every one but the last is about a
         picture nobody will see.
+
+        A CHAIN WITH CELLPOSE 3 RESTORATION WAITS TO SETTLE (item 507). One
+        restoration of a whole field is tens of seconds on a CPU, and a
+        cancelled one still finishes in the worker before the next can
+        start, so a request is sent only after the chain has stood still
+        for :data:`RESTORATION_SETTLE_MS`; each change in between replaces
+        the waiting request rather than sending it.
         """
         asked = self._enhance_asked
         if asked is not None and asked[0] is base and asked[1] == chain:
@@ -1062,9 +1231,29 @@ class _MaskCanvas(QLabel):
             self._enhance_worker = _NewestRequestWorker(
                 _enhanced_picture_for, self._enhanced_done,
                 name="spacr-enhance")
-        self._enhance_worker.submit(
-            _EnhanceRequest(key=(id(base), chain, id(self._enhance_cancel)),
-                            image=base, chain=chain, cancelled=self._enhance_cancel))
+        request = _EnhanceRequest(
+            key=(id(base), chain, id(self._enhance_cancel)),
+            image=base, chain=chain, cancelled=self._enhance_cancel)
+        if getattr(chain, "restoration", False):
+            self._enhance_pending = request
+            self._enhance_timer.start()
+            return
+        self._enhance_pending = None
+        self._enhance_timer.stop()
+        self._enhance_worker.submit(request)
+
+    def _submit_pending_enhance(self) -> None:
+        """Send the request that waited for the chain to settle, if still wanted."""
+        request, self._enhance_pending = self._enhance_pending, None
+        worker = self._enhance_worker
+        if (request is None or worker is None
+                or request.cancelled is None or request.cancelled.is_set()):
+            return
+        from ..i18n import tr
+
+        self._enhance_started = (request.image, request.chain, time.monotonic())
+        self.status.emit(tr("Cellpose 3 restoration is running on the whole field…"))
+        worker.submit(request)
 
     def _enhanced_done(self, request, result, error) -> None:
         """Deliver the finished picture or exception to Qt from the worker."""
@@ -1093,9 +1282,15 @@ class _MaskCanvas(QLabel):
             return
         if isinstance(picture, Exception):
             self._enhance_failure = (base, chain, str(picture))
+            self._enhance_started = None
             self.status.emit(tr('Image enhancement failed: {error}', error=str(picture)))
             return
         self._enhance_failure = None
+        started = self._enhance_started
+        if started is not None and started[0] is base and started[1] == chain:
+            self._enhance_started = None
+            self.status.emit(tr("Cellpose 3 restoration finished in {seconds} s.",
+                                seconds=round(time.monotonic() - started[2], 1)))
         if isinstance(picture, _EnhancedImage):
             self._enhanced_cache = (base, chain, picture.prepared)
             picture = picture.picture
@@ -1106,6 +1301,8 @@ class _MaskCanvas(QLabel):
     def close_enhancer(self) -> bool:
         """Stop the enhanced-picture worker; True when none is left running."""
         self._enhance_cancel.set()
+        self._enhance_timer.stop()
+        self._enhance_pending = None
         worker = self._enhance_worker
         self._enhance_worker = None
         self._enhance_asked = None
@@ -2782,6 +2979,24 @@ def _counting_tiles(model, ticket):
 #: END, beside the same name in :meth:`_LiveMagnifier._model_settings`: a
 #: request key is this tuple positionally, and an insertion in the middle
 #: would make every key already cached mean something else.
+def _cellpose3_auto_diameter_note() -> str:
+    """Why a Cellpose 3 run with Diameter 0 over a whole field is slow.
+
+    Measured for item 507 on a real 1994 x 1994 Toxoplasma field: Cellpose 3
+    estimated 16 px for vacuoles whose median is 44 px, rescaled the field
+    by 30/16 and took 153 s on the CPU, matching 7 of 33 objects; Diameter
+    44 took 12 s and matched 24.
+    """
+    from ..i18n import tr
+
+    return tr(
+        "Cellpose 3 with Diameter 0 first estimates the object size and "
+        "rescales the whole field to it. On a 1994 x 1994 Toxoplasma field on "
+        "the CPU that took 153 s and guessed 16 px for vacuoles of 44 px; with "
+        "Diameter 44 it took 12 s. Set Diameter to the objects' size in pixels "
+        "to skip the estimate.")
+
+
 _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
@@ -3933,6 +4148,8 @@ class _LiveMagnifier(QObject):
         self.segment = partial(_segment_region, load_model=load_model)
         self._context = context
         self._field = 0
+        self._said_error: Optional[str] = None
+        self._said_diameter_note = False
         self._cursor: Optional[tuple] = None
         self._anchor: Optional[QPointF] = None
         self._requested_key: Optional[tuple] = None
@@ -4204,6 +4421,8 @@ class _LiveMagnifier(QObject):
         self._cursor = None
         self._anchor = None
         self._field += 1
+        self._said_error = None
+        self._said_diameter_note = False
         self._shown = None
         self._shown_image = None
         self._waiting.clear()
@@ -4770,6 +4989,11 @@ class _LiveMagnifier(QObject):
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
         values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
+        if (str(values.get("mode") or "").startswith("cellpose3")
+                and not values.get("diameter")
+                and not self._said_diameter_note):
+            self._said_diameter_note = True
+            self.status.emit(_cellpose3_auto_diameter_note())
         primary = self._primary_request_values((0, 0, width, height), values)
         if primary is None:
             from ..i18n import tr
@@ -5182,6 +5406,12 @@ class _LiveMagnifier(QObject):
         which is the whole picture and not a layer over the outlines: it IS
         the outlines, with what the Overlap rule would not add faded. One
         QImage is built per result either way.
+
+        A FAILURE IS SAID ONCE (item 507). While a whole-field enhancement
+        runs, every region fails with the same "enhancement is updating"
+        reason, and the magnifier asks for a region on every mouse move; the
+        reason used to be said, and logged, each time. It is said again only
+        when it changes, after a region succeeds, or on a new field.
         """
         from ..i18n import tr
 
@@ -5197,12 +5427,15 @@ class _LiveMagnifier(QObject):
                 self._shown = None
                 self._shown_image = None
                 self.canvas.update()
-            LOG.warning("magnifier could not segment %s: %s",
-                        request.box, error)
-            self.status.emit(tr(
-                "Magnifier could not segment this region: {error}",
-                error=error))
+            if str(error) != self._said_error:
+                self._said_error = str(error)
+                LOG.warning("magnifier could not segment %s: %s",
+                            request.box, error)
+                self.status.emit(tr(
+                    "Magnifier could not segment this region: {error}",
+                    error=error))
             return
+        self._said_error = None
         self._note_fallback(request, result)
         self._shown = result
         self._shown_image = _rgba_qimage(
@@ -6943,6 +7176,7 @@ class MakeMasksScreen(QWidget):
         self._levels_dialog = None
         self._histogram_worker = None
         self._histogram_delivered.connect(self._take_histogram)
+        self._masks_console = _MasksConsole()
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._canvas.status.connect(
@@ -7041,8 +7275,9 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._btn_save)
 
         nav_row.addStretch(1)
-        self._status_label = QLabel("Ready.")
+        self._status_label = _StatusLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
+        self._status_label.said.connect(self._report_status)
         nav_row.addWidget(self._status_label)
         outer.addWidget(nav)
 
@@ -9113,21 +9348,56 @@ class MakeMasksScreen(QWidget):
         it. It hides independently as an EDGE pane of its own splitter. Its handle
         folds it to the right edge and drags it wider, and the image takes
         the room it leaves.
+
+        THE CONSOLE IS UNDER THE LIST (item 507), in the same right-hand
+        column, where it was asked for: "to the right of the image and
+        below the hot key map". The column is a vertical splitter of the
+        list and the console's :class:`FoldSection`, so the console folds to
+        its heading at the bottom of the column and drags taller, and the
+        whole column still folds away as the one "Shortcuts" pane.
         """
         from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
 
         pane = CollapsibleSplitter(Qt.Horizontal,
                                    persist_key="make_masks::views")
         pane.setObjectName("MakeMasksViewPane")
-        self._shortcut_panel = self._build_shortcut_panel()
+        self._shortcut_card = self._build_shortcut_panel()
+        column = CollapsibleSplitter(Qt.Vertical,
+                                     persist_key="make_masks::side")
+        column.setObjectName("MakeMasksSideColumn")
+        column.add_pane(self._shortcut_card, "Shortcut list", stretch=1)
+        self._console_section = column.add_section(
+            self._masks_console, "Console", persist_key="make_masks/Console",
+            stretch=1, extent=240, minimum=120)
+        self._shortcut_panel = column
         pane.add_pane(self._view_tabs, "Views", stretch=1, extent=900)
-        pane.add_pane(self._shortcut_panel, "Shortcuts", mode=EDGE, stretch=0,
+        pane.add_pane(column, "Shortcuts", mode=EDGE, stretch=0,
                       extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
                       fold_key="make_masks/Shortcuts",
                       hint="or drag to make the shortcut list wider")
-        #: The splitter's right-hand child: the views and the shortcut list.
         self._view_pane = pane
         return pane
+
+    def _report(self, text: str, kind: str = "info") -> None:
+        """Say ``text`` in the console and show it in the corner.
+
+        :param text: the line.
+        :param kind: ``progress``, ``info``, ``warning`` or ``error``; see
+            :meth:`_MasksConsole.say`.
+        """
+        self._masks_console.say(text, kind)
+        self._status_label.set_quietly(text)
+
+    def _report_status(self, text: str) -> None:
+        """Copy a new corner text into the console.
+
+        A text that ends in an ellipsis says that something is under way,
+        and rewrites the console's one progress line; anything else is a
+        line of the scrollback and ends that progress.
+        """
+        stripped = str(text or "").rstrip()
+        running = stripped.endswith(("…", "..."))
+        self._masks_console.say(stripped, "progress" if running else "info")
 
     def _build_shortcut_panel(self) -> QWidget:
         """The gestures, one terse line each.
@@ -10245,6 +10515,7 @@ class MakeMasksScreen(QWidget):
         self._psf_controls = _PSFControls()
         form.addRow(self._psf_controls)
         self._restoration_controls = _RestorationControls()
+        self._restoration_controls.said.connect(self._report)
         form.addRow(self._restoration_controls)
 
         self._enh_denoise = QComboBox()
@@ -11024,6 +11295,8 @@ class MakeMasksScreen(QWidget):
                                     **self._chain_provenance()))
         self._detection_request = request
         self._btn_cellpose.setEnabled(False)
+        if str(model).startswith('cellpose3') and not parameters.get('diameter'):
+            self._report(_cellpose3_auto_diameter_note(), "warning")
         self._status_label.setText(tr("Object detection ({model}) running…", model=model))
         if self._detection_worker is None:
             self._detection_worker = _NewestRequestWorker(

@@ -1059,6 +1059,8 @@ class _Base:
             os._exit(3)
         if marker == 8.0:
             time.sleep(60)
+        if marker == 5.0:
+            time.sleep(2)
         if marker == 9.0:
             raise RuntimeError("the stand-in refused this image")
         if marker == 6.0:
@@ -1429,6 +1431,44 @@ def test_a_cancelled_request_stops_its_worker(faked):
                    len(asked) > 2)
     assert time.monotonic() - started < 30
     assert not SB._WORKERS["cellpose3"].alive
+
+
+def test_a_request_sent_to_be_kept_leaves_its_worker_running(
+        faked, monkeypatch):
+    """Item 507: restoration abandons a cancelled request instead of
+    killing the worker, which keeps its loaded models; the next request is
+    answered by the same worker once the abandoned one has finished."""
+    real = SB._WorkerProcess.request
+
+    def keep(self, op, **kw):
+        if op == "segment":
+            kw["keep_on_cancel"] = True
+        return real(self, op, **kw)
+
+    monkeypatch.setattr(SB._WorkerProcess, "request", keep)
+    slow = _field()
+    slow[0, 0] = 5.0
+    model = SB._RemoteBackend("cellpose3", model="cyto3")
+    asked = []
+    with pytest.raises(SB._BackendCancelled):
+        model.eval([slow], should_cancel=lambda: asked.append(1) or
+                   len(asked) > 1)
+    worker = SB._WORKERS["cellpose3"]
+    assert worker.alive, "a kept request does not stop its worker"
+    assert worker.busy, "an abandoned request still owes its reply"
+    masks, _flows, _ = model.eval([_field()])
+    assert SB._WORKERS["cellpose3"] is worker and masks[0].max() > 0
+    assert not worker._abandoned and not worker.busy
+
+
+def test_a_cancelled_request_still_queued_is_never_started(stub_cellpose):
+    replies = _ask([
+        {"protocol": SB._PROTOCOL, "id": 0, "op": "cancel", "target": 2},
+        _request("hello", 2), _request("hello", 3)])
+    assert [r["id"] for r in replies] == [2, 3]
+    assert replies[0]["ok"] is False
+    assert replies[0]["error"]["type"] == "Cancelled"
+    assert replies[1]["ok"] is True
 
 
 def test_a_worker_that_cannot_start_is_stopped(faked, monkeypatch):
