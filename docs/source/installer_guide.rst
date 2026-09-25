@@ -149,12 +149,17 @@ Update an environment installed from PyPI with:
 
 For reproducible work, install an exact version instead of following the
 latest release. Use the command for the package source already installed in
-the environment:
+the environment, replacing ``VERSION`` with a release that source publishes:
 
 .. code-block:: bash
 
-   conda install conda-forge::spacr=1.5.0.4
-   python -m pip install "spacr[qt]==1.5.0.4"
+   conda install conda-forge::spacr=VERSION
+   python -m pip install "spacr[qt]==VERSION"
+
+``python -m pip index versions spacr`` lists the PyPI releases, and
+``conda search -c conda-forge spacr`` lists the conda-forge builds.
+conda-forge can trail PyPI by a release or more, so check the source you
+install from.
 
 Uninstalling
 ------------
@@ -185,11 +190,11 @@ Offline installation
 The small desktop installers are online installers and cannot complete
 without network access. For an offline workstation, prepare a wheel directory
 on a networked machine with the same operating system, architecture and Python
-minor version:
+minor version, replacing ``VERSION`` with the release to install:
 
 .. code-block:: bash
 
-   python -m pip download --dest spacr-wheelhouse "spacr[qt]==1.5.0.4"
+   python -m pip download --dest spacr-wheelhouse "spacr[qt]==VERSION"
 
 Copy ``spacr-wheelhouse`` to the offline machine, create and activate a Python
 environment, then install without contacting a package index:
@@ -197,7 +202,7 @@ environment, then install without contacting a package index:
 .. code-block:: bash
 
    python -m pip install --no-index --find-links spacr-wheelhouse \
-       "spacr[qt]==1.5.0.4"
+       "spacr[qt]==VERSION"
 
 Repeat the download for the required optional extras. GPU-enabled PyTorch
 builds may require a separate wheel source, so prepare and test the complete

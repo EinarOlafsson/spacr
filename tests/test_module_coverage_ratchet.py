@@ -421,9 +421,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         'spacr/qt/widgets/restoration_controls.py', 'spacr/_gc.py',
         'spacr/_merged_names.py', 'spacr/_mask_workers.py',
         'spacr/qt/tooltip_policy.py', 'spacr/qt/widgets/picture_export.py',
+        'spacr/qt/widgets/mask_comparison.py', 'spacr/qt/widgets/segmentation_views.py',
     }
     assert added_since_608 <= shipped
-    assert len(shipped) == 608 + len(added_since_608) == 645
+    assert len(shipped) == 608 + len(added_since_608) == 647
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -743,7 +744,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # rule for every tooltip) and `spacr/qt/widgets/picture_export.py`
     # (505, right-click a picture and save it as a PNG or a PDF). Both are
     # installed Python and belong in the denominator.
-    assert "--expected-file-count 645" in combine_script
+    assert "--expected-file-count 647" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

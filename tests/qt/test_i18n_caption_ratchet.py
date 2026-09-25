@@ -76,9 +76,22 @@ ROOT = Path(__file__).resolve().parents[2]
 # "spaCR mode" gives e0b2c63f3e43a544..., the previous pin byte for byte.
 # Its `_ROWS` row stays; this test only requires a row per caption, not the
 # converse.
-COMPACT_CAPTION_COUNT = 208
+# 208 -> 243 on 2026-09-25, +39/-4, instruction 316. MEASURED BY SET
+# DIFFERENCE against this pin's own commit (89094e3c4), whose tree reproduces
+# 4663f4f0... byte for byte. Arrived with rows written here, AI technical
+# review (Claude Opus 5.5), no native-speaker signoff: 34 captions -- the
+# setup installer and GitHub CLI prompts (13), the ten night-theme names and
+# the Resonance backdrop (11), "Test data and walkthroughs" and its body on
+# the first-run tour (2), two Help shortcuts, Annotate's "Confirm/Reject the
+# suggested label" (item 512), "Install", "Keep installing", "Stop it and
+# close" and "Signing in to {label}…". Arrived with their nine rows already
+# written by the items that added them (5): "Candida spp.", "Plasmodium
+# spp.", "Toxoplasma", "Host–Pathogen Analysis" and the rewritten issue-filing
+# privacy note. Retired (4): "Demos menu", its one-click demo blurb,
+# "Settings recipes" and the old privacy note. Their `_ROWS` rows stay.
+COMPACT_CAPTION_COUNT = 243
 COMPACT_CAPTION_SHA256 = (
-    "4663f4f0872bf921d343da2b9909a56e6b8697ccb832936b011b144566b64eb2"
+    "6ad2ef9e9b4495a569d1011d594d21fa93f12c8ff161b4a0776369819db42618"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
