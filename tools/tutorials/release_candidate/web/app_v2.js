@@ -23,6 +23,10 @@ const AUDIO_ROOT = document.documentElement.dataset.audioRoot || PRODUCTION_ROOT
 // arbitrary playback rate to match the selected narration.
 // Empty means no 4K is available and the quality control stays hidden.
 const VIDEO_4K_ROOT = document.documentElement.dataset.video4kRoot || "";
+// Web copies that live on the same immutable media revision instead of the
+// Pages tree. Only a lesson whose catalog entry names its hosted copy
+// (lesson.web) uses it; every other lesson keeps its local copy.
+const WEB_VIDEO_ROOT = document.documentElement.dataset.webRoot || "";
 const STORAGE_KEY = "spacr-tutorial-progress-v2";
 const WATCH_KEY = "spacr-tutorial-watch-v2";
 const LANGUAGE_KEY = "spacr-tutorial-language-v2";
@@ -628,6 +632,9 @@ function videoSource(lesson = activeLesson) {
   if (!isPlayable(lesson)) return "";
   if (fourKAvailable() && elements.quality?.value === "4k") {
     return `${VIDEO_4K_ROOT}/${lesson.silent}`;
+  }
+  if (WEB_VIDEO_ROOT && lesson.web) {
+    return `${WEB_VIDEO_ROOT}/${lesson.web}`;
   }
   return `${PRODUCTION_ROOT}/${lesson.silent}`;
 }

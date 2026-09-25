@@ -191,8 +191,9 @@ def test_the_button_says_installing_then_how_it_ended(qtbot, outcome):
     button.said.connect(lambda text, kind: said.append((kind, text)))
     button.click()
     assert faces == [(zoo._INSTALLING_FACE, "Installing Cellpose 3…", False)]
-    assert ("progress", "Installing Cellpose 3…: Installing torch  (step 2 of 5)"
-            ) in said
+    assert ("progress", "Installing Cellpose 3…") in said
+    assert ("stream", "Installing Cellpose 3…: Installing torch  (step 2 of 5)"
+            ) in said, "the install's own lines stream, throttled"
     if outcome == "installed":
         assert said[-1] == ("info", "Cellpose 3 is installed")
         assert button.face() == zoo._INSTALLED_FACE and not button.isEnabled()
@@ -286,3 +287,150 @@ def test_a_cancelled_whole_field_on_the_cpu_stops_its_worker():
     assert SB._keep_restoring(field, cpu) is False
     assert SB._keep_restoring(box, cpu) is True
     assert SB._keep_restoring(field, gpu) is True
+
+
+# ---------------------------------------------------------------------------
+# 6. Streamed output: a worker's bar and an install's pip lines, live
+# ---------------------------------------------------------------------------
+
+_BAR = r'''
+import sys, time
+sys.stderr.write("loading weights\n")
+sys.stderr.flush()
+n = 200
+for i in range(n + 1):
+    sys.stderr.write("\r%3d%%|%-10s| %d/%d" % (
+        i * 100 // n, "#" * (i * 10 // n), i, n))
+    sys.stderr.flush()
+    time.sleep(0.004)
+sys.stderr.write("\n")
+sys.stderr.flush()
+'''
+
+
+def _record_draws(console):
+    """Every text the progress line is drawn with, and when."""
+    import time
+
+    drawn = []
+    show = console.show_progress
+
+    def recording(text):
+        drawn.append((time.monotonic(), text))
+        show(text)
+
+    console.show_progress = recording
+    return drawn
+
+
+def _assert_throttled(console, drawn, took):
+    """``drawn`` came from streamed output only, and no faster than allowed."""
+    gaps = [b[0] - a[0] for a, b in zip(drawn, drawn[1:])]
+    assert console.stream_updates == len(drawn) >= 2, "it moved while it ran"
+    assert len(drawn) <= took / (console.STREAM_MS / 1000.0) + 3, (
+        f"{len(drawn)} draws in {took:.2f} s is more than ten a second")
+    assert min(gaps) >= console.STREAM_MS / 1000.0 * 0.8, gaps
+
+
+def test_a_workers_tqdm_bar_streams_into_the_progress_line(qtbot):
+    import subprocess
+    import sys
+    import threading
+    import time
+
+    console = mm._MasksConsole()
+    qtbot.addWidget(console)
+    console.show()
+    drawn = _record_draws(console)
+    worker = SB._WorkerProcess.__new__(SB._WorkerProcess)
+    worker.name, worker.label, worker._stderr = "cellpose3", "Cellpose 3", []
+    proc = subprocess.Popen([sys.executable, "-c", _BAR],
+                            stderr=subprocess.PIPE, text=True,
+                            encoding="utf-8")
+    done = threading.Event()
+    start = time.monotonic()
+    threading.Thread(target=SB._pump, args=(SB._raw_lines(proc.stderr),
+                                            worker._said, done.set),
+                     daemon=True).start()
+    visible_while_running = []
+    while not done.is_set():
+        qtbot.wait(20)
+        visible_while_running.append(console.progress_text())
+        assert time.monotonic() - start < 30
+    took = time.monotonic() - start
+    proc.wait(timeout=10)
+    qtbot.wait(3 * console.STREAM_MS)
+
+    _assert_throttled(console, drawn, took)
+    texts = [text for _when, text in drawn]
+    assert all(t.startswith("Cellpose 3: ") and "%|" in t for t in texts)
+    percents = [int(t.split(": ")[1].split("%")[0]) for t in texts]
+    assert percents == sorted(percents), "the line moves forward in place"
+    assert any(v.startswith("Cellpose 3: ") for v in visible_while_running)
+    assert console.progress_text() == "", "the line ends when the bar does"
+    scrollback = console.text()
+    final = "Cellpose 3: 100%|##########| 200/200"
+    assert scrollback.count(final) == 1, scrollback
+    assert "50%" not in scrollback, "a redraw went into the scrollback"
+    assert "loading weights" not in scrollback, "chatter stays in the log"
+    assert worker._stderr[-1] == "100%|##########| 200/200"
+
+
+def test_an_install_streams_pip_lines_and_ends_with_one_line(qtbot):
+    import time
+
+    console = mm._MasksConsole()
+    qtbot.addWidget(console)
+    console.show()
+    drawn = _record_draws(console)
+    disk = _Disk(SB._INSTALLABLE)
+    took = []
+
+    def installer(parent, name, watch=None):
+        dialog = _Dialog()
+        watch(dialog)
+        dialog.job_started.emit()
+        start = time.monotonic()
+        for i in range(150):
+            dialog.job_progressed.emit(
+                f"Installing packages: Downloading torch-2.4.0.whl "
+                f"{i * 5.3:.1f}/797.1 MB  (step 3 of 5)")
+            time.sleep(0.004)
+            QApplication.processEvents()
+        dialog.job_progressed.emit(
+            "Installing packages: Successfully installed torch-2.4.0  "
+            "(step 3 of 5)")
+        took.append(time.monotonic() - start)
+        disk.state = SB._INSTALLED
+        return True
+
+    button = zoo._BackendInstallButton("cellpose3", probe=disk,
+                                      installer=installer)
+    qtbot.addWidget(button)
+    button.said.connect(console.say)
+    button.click()
+    qtbot.wait(3 * console.STREAM_MS)
+
+    assert drawn[0][1] == "Installing Cellpose 3…", "the start is said at once"
+    streamed = drawn[1:]
+    _assert_throttled(console, streamed, took[0])
+    assert all(text.startswith("Installing Cellpose 3…: Installing packages: "
+                               "Downloading torch") for _when, text in streamed)
+    assert console.progress_text() == ""
+    scrollback = console.text()
+    assert scrollback.count("Cellpose 3 is installed") == 1
+    assert "Downloading torch" not in scrollback
+    assert "Successfully installed" not in scrollback, (
+        "a line still waiting to be drawn does not outlive the end")
+
+
+def test_a_console_that_went_away_stops_listening(qtbot):
+    from PySide6.QtCore import QEvent
+
+    before = len(SB._OUTPUT_LISTENERS)
+    console = mm._MasksConsole()
+    assert len(SB._OUTPUT_LISTENERS) == before + 1
+    console.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert len(SB._OUTPUT_LISTENERS) == before
+    SB._tell_listeners("Cellpose 3", " 5%|bar\r")

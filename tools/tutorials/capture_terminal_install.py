@@ -80,37 +80,86 @@ def steps(route, version, phase):
                 ('run', 'spacr --version', 300), ('run', 'python -m pip check', 300),
                 ('shot', '11_update_intentionally'),
             ]
+        if phase == 'reinstall':
+            # The first take of the install scene showed only the end of the
+            # output. The environment is made again off camera and the frame
+            # is taken while pip downloads, with both commands on screen.
+            return [
+                ('quiet', 'rm -rf .venv'), ('quiet', 'python3 -m venv .venv'),
+                ('quiet', 'source .venv/bin/activate'),
+                ('clear',), ('run', 'python -m pip install --upgrade pip', 900),
+                ('run', 'python -m pip install spacr', 5400,
+                 [(r'Downloading torch-', None, '09_install_package')]),
+                ('run', VERSION_COMMAND, 300), ('evidence', 'reinstalled_environment'),
+            ]
         return [
             ('quiet', 'source .venv/bin/activate'),
             ('clear',), ('run', 'spacr-doctor', 900), ('shot', '05_doctor'),
             ('clear',), ('gui', 'spacr', '10_launch_commands', '06_installed_home'),
         ]
     if route == 'conda':
+        # Python and spaCR are solved together: adding spaCR to an existing
+        # Python-only environment took conda 26.7 over 20 minutes and 5 GB.
         if phase == 'install':
             return [
                 ('run', 'conda --version'), ('run', 'conda env list'), ('shot', '02_conda_environment'),
-                ('clear',), ('run', 'conda create -n spacr-conda -c conda-forge python=3.12', 1800, [PROCEED]),
+                ('clear',), ('run', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr', 5400,
+                             [PROCEED]),
                 ('shot', '07_create_conda'),
                 ('clear',), ('run', 'conda activate spacr-conda'),
                 ('run', 'python -c "import sys; print(sys.prefix)"'), ('shot', '08_activate_conda'),
-                ('clear',), ('run', 'conda install -c conda-forge spacr', 5400, [PROCEED]),
-                ('run', 'conda list spacr', 300), ('shot', '09_install_conda'),
+                ('clear',), ('run', 'conda list spacr', 300), ('shot', '09_install_conda'),
                 ('clear',), ('run', VERSION_COMMAND, 300), ('shot', '03_installed_versions'),
-                ('clear',), ('run', 'conda update -c conda-forge spacr', 1800, [PROCEED]),
+            ]
+        if phase == 'recreate':
+            # The install phase's frame for this scene showed only the end of
+            # the transaction. The environment is removed off camera and made
+            # again from Conda's own package cache, and the frame is taken
+            # just after the package plan is accepted.
+            return [
+                ('quiet', 'conda env remove -n spacr-conda -y', 900),
+                ('clear',), ('run', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr', 5400,
+                             [(r'Solving environment', None, '07_create_conda_command'), PROCEED],
+                             '07_create_conda'),
+                ('run', 'conda activate spacr-conda'), ('run', 'conda list spacr', 300),
+                ('evidence', 'recreated_environment'),
+            ]
+        if phase == 'update':
+            return [
+                ('quiet', 'conda activate spacr-conda'),
+                ('clear',), ('run', 'conda update -c conda-forge spacr', 3600, [PROCEED]),
                 ('run', 'conda list spacr', 300), ('shot', '10_current_release_choice'),
             ]
+        # conda-forge's spacr 1.5.0.8 omits vispy; spacr-doctor reports it
+        # with its own fix, which is followed on camera before the launch.
         return [
             ('quiet', 'conda activate spacr-conda'),
-            ('clear',), ('run', 'spacr-doctor', 900), ('shot', '05_doctor'),
+            ('clear',), ('check', 'spacr-doctor', 900), ('shot', '05_doctor'),
+            ('clear',), ('run', 'python -m pip install vispy', 900),
+            ('run', 'spacr-doctor', 900), ('evidence', 'doctor_after_fix'),
             ('clear',), ('gui', 'spacr', None, '06_installed_home'),
         ]
-    if phase == 'install':
-        raise ValueError('The desktop installer checks CUDA itself; record it in the gpu phase')
+    if phase == 'gpu':
+        raise ValueError('The installer route installs the CPU backend in its install phase')
+    tail = [
+        ('clear',), ('check', '~/.local/share/spacr/venv/bin/spacr-doctor', 900), ('shot', '05_doctor'),
+        ('clear',), ('run', 'ls ~/.local/share/spacr'),
+        ('run', 'tail -n 6 ~/.local/share/spacr/install.log'), ('shot', '12_logs_and_versions'),
+    ]
+    if phase == 'resume':
+        return tail
     name = installer_name(version)
+    if phase == 'relist':
+        # The first take of this scene showed the host account in `ls -l`.
+        # The file is returned to its downloaded mode off camera and the
+        # scene is taken again under the neutral account name.
+        return [('quiet', 'chmod 644 ' + name), ('clear',),
+                ('run', 'ls -l'), ('run', 'chmod +x ' + name), ('run', f'./{name} --help'),
+                ('shot', '11_linux_commands')]
     return [
         ('run', 'ls -l'), ('run', 'chmod +x ' + name), ('run', f'./{name} --help'),
         ('shot', '11_linux_commands'),
-        ('clear',), ('run', f'./{name} --skip-system-deps', 5400,
+        ('clear',), ('run', f'./{name} --torch-backend cpu --skip-system-deps', 5400,
                      [(r'report previews\? \[y/N\] ', 'n'),
                       (r'issue-report action\? \[y/N\] ', 'n'),
                       (r'on first launch\? \[y/N\] ', 'n')], '07_privacy_keep_off'),
@@ -118,10 +167,7 @@ def steps(route, version, phase):
         ('clear',), ('run', 'cat ~/.local/share/spacr/install-profile.json'),
         ('shot', '02_installer_backend'),
         ('clear',), ('run', 'spacr --version', 300), ('shot', '03_installed_versions'),
-        ('clear',), ('run', '~/.local/share/spacr/venv/bin/spacr-doctor', 900), ('shot', '05_doctor'),
-        ('clear',), ('run', 'ls ~/.local/share/spacr'),
-        ('run', 'tail -n 6 ~/.local/share/spacr/install.log'), ('shot', '12_logs_and_versions'),
-    ]
+    ] + tail
 
 
 # --------------------------------------------------------------------------
@@ -273,7 +319,7 @@ class Recorder:
         self.send('\x0c')
         time.sleep(0.8)
 
-    def run(self, command, timeout=180, answers=(), shot_after=None):
+    def run(self, command, timeout=180, answers=(), shot_after=None, allow_failure=False):
         before, offset, start = len(self.prompts()), self.size(), time.monotonic()
         self.send(command + '\r')
         answers, cursor = list(answers), 0
@@ -283,15 +329,22 @@ class Recorder:
                 raise TimeoutError(f'{command!r} exceeded {timeout} s')
             if answers:
                 text = self.transcript(offset).decode('utf-8', 'replace')
-                pattern, reply = answers[0]
+                entry = answers[0]
+                pattern, reply = entry[0], entry[1]
                 match = re.compile(pattern).search(text, cursor)
                 if match:
-                    time.sleep(1.2)
-                    self.send(reply + '\r')
                     cursor = match.end()
                     answers.pop(0)
-                    if not answers and shot_after:
+                    if reply is None:
+                        # (pattern, None, frame): photograph the screen when
+                        # the program reaches this point, without answering.
                         time.sleep(2.5)
+                        self.shot(entry[2], settle=0)
+                        continue
+                    time.sleep(1.2)
+                    self.send(reply + '\r')
+                    if not any(e[1] is not None for e in answers) and shot_after:
+                        time.sleep(1.5)
                         self.shot(shot_after, settle=0)
                     continue
             time.sleep(0.5)
@@ -302,8 +355,8 @@ class Recorder:
                                   unanswered_prompts=[a[0] for a in answers]))
         write(self.capture / 'commands.json', self.commands)
         print(f'{command} -> {status} ({time.monotonic() - start:.0f} s)', flush=True)
-        if status != 0:
-            self.shot('99_failure', settle=0.5)
+        if status != 0 and not allow_failure:
+            self.shot('99_failure', settle=0.5, evidence=True)
             raise RuntimeError(f'{command!r} exited {status}')
         return output
 
@@ -417,6 +470,11 @@ def inside(args):
             kind = step[0]
             if kind in ('run', 'quiet'):
                 recorder.run(step[1], *step[2:])
+            elif kind == 'check':
+                # A diagnostic whose non-zero exit is the result being shown.
+                recorder.run(step[1], step[2], allow_failure=True)
+            elif kind == 'evidence':
+                recorder.shot(step[1], evidence=True)
             elif kind == 'shot':
                 recorder.shot(step[1])
             elif kind == 'clear':
@@ -441,6 +499,16 @@ def sandbox(run_dir, route, cwd, phase='install'):
             '--chdir', cwd, '--clearenv']
     if route == 'pip':
         args += ['--bind', str(run_dir / 'python'), '/usr/local']
+    # `ls -l` and similar name the account: show the neutral one.
+    accounts = run_dir / 'accounts'
+    if not accounts.exists():
+        accounts.mkdir()
+        uid, gid = os.getuid(), os.getgid()
+        (accounts / 'passwd').write_text(
+            f'root:x:0:0:root:/root:/bin/bash\nuser:x:{uid}:{gid}:user:{NEUTRAL_HOME}:/bin/bash\n')
+        (accounts / 'group').write_text(f'root:x:0:\nuser:x:{gid}:\n')
+    args += ['--ro-bind', str(accounts / 'passwd'), '/etc/passwd',
+             '--ro-bind', str(accounts / 'group'), '/etc/group']
     environment = dict(
         HOME=NEUTRAL_HOME, USER='user', LOGNAME='user', SHELL='/bin/bash', TERM='xterm-256color',
         LANG='en_US.UTF-8', LC_ALL='en_US.UTF-8',
@@ -451,7 +519,10 @@ def sandbox(run_dir, route, cwd, phase='install'):
         UV_CONCURRENT_INSTALLS='4', UV_CONCURRENT_BUILDS='1', MAX_JOBS='2',
         QT_QPA_PLATFORM='xcb', QT_SCALE_FACTOR='2', NO_AT_BRIDGE='1', GSETTINGS_BACKEND='memory',
         PIP_NO_CACHE_DIR='1', SPACR_CTL=str(run_dir / ('ctl-' + phase)))
-    if phase != 'gpu':
+    # The installer route installs PyTorch's CPU-only build, which cannot
+    # start CUDA work, so the card stays visible to the installer's and the
+    # doctor's hardware reports without a GPU turn.
+    if phase != 'gpu' and route != 'installer':
         environment['CUDA_VISIBLE_DEVICES'] = ''
     for key in ('DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS'):
         if os.environ.get(key):
@@ -491,13 +562,16 @@ def prepare(route, run_dir, version, receipt):
         (home / 'spacr-project').mkdir()
         return f'{NEUTRAL_HOME}/spacr-project'
     if route == 'conda':
-        payload = fetch(MINIFORGE)
-        expected = fetch(MINIFORGE + '.sha256').decode().split()[0]
+        release = json.loads(fetch('https://api.github.com/repos/conda-forge/miniforge/releases/latest'))
+        tag = release['tag_name']
+        base = f'https://github.com/conda-forge/miniforge/releases/download/{tag}/'
+        payload = fetch(base + f'Miniforge3-{tag}-Linux-x86_64.sh')
+        expected = fetch(base + f'Miniforge3-{tag}-Linux-x86_64.sh.sha256').decode().split()[0]
         actual = hashlib.sha256(payload).hexdigest()
         if actual != expected:
             raise ValueError('The Miniforge download does not match its published checksum')
         (run_dir / 'Miniforge3.sh').write_bytes(payload)
-        receipt['miniforge'] = dict(source=MINIFORGE, sha256=actual)
+        receipt['miniforge'] = dict(release=tag, source=base, sha256=actual)
         for command in (['bash', str(run_dir / 'Miniforge3.sh'), '-b', '-p', f'{NEUTRAL_HOME}/miniforge3'],
                         [f'{NEUTRAL_HOME}/miniforge3/bin/conda', 'init', 'bash']):
             subprocess.run([*sandbox(run_dir, route, NEUTRAL_HOME), *command], check=True,
@@ -552,8 +626,10 @@ def main():
     parser.add_argument('--route', choices=('pip', 'conda', 'installer'))
     parser.add_argument('--version', default='1.5.1.0', help='Release expected from the route')
     parser.add_argument('--capture-name')
-    parser.add_argument('--phase', choices=('install', 'gpu'), default='install',
-                        help='install: CUDA hidden, no GPU turn. gpu: inside tools/gpu_turn.sh')
+    parser.add_argument('--phase', choices=('install', 'recreate', 'reinstall', 'update', 'resume', 'relist',
+                                            'gpu'),
+                        default='install',
+                        help='install/update: CUDA hidden, no GPU turn. gpu: inside tools/gpu_turn.sh')
     parser.add_argument('--installation', type=Path,
                         help='Continue in the throwaway folder an install phase kept')
     parser.add_argument('--keep-installation', action='store_true')
@@ -626,7 +702,9 @@ def main():
                    sys.executable, str(TOOL), '--inside', '--route', args.route, '--phase', args.phase,
                    '--version', args.version, '--installation', str(run_dir),
                    '--capture', str(capture), '--cwd', cwd]
-        if args.phase == 'gpu':
+        # SPACR_GPU_TURN_HELD=1: the caller already runs inside one gpu_turn.sh
+        # turn covering several recordings, so this one must not queue again.
+        if args.phase == 'gpu' and os.environ.get('SPACR_GPU_TURN_HELD') != '1':
             command = [str(REPO / 'tools/gpu_turn.sh'), f'358-install-{args.route}-capture', *command]
         started = time.time()
         result = subprocess.run(command, env=env, timeout=8 * 3600)
@@ -641,9 +719,19 @@ def main():
         if args.route != 'conda' and provenance['installed_identity']['version'] != args.version:
             raise RuntimeError('The installed release is not the expected version')
         provenance['frames'] = sorted(read(capture / 'frames.json'))
-        needed = {'pip': {'install', 'gpu'}, 'conda': {'install', 'gpu'}, 'installer': {'gpu'}}[args.route]
-        provenance['completed_capture'] = needed <= {k for k, v in provenance['phases'].items()
-                                                      if v['returncode'] == 0}
+        expected = {
+            'pip': {'01_python_version', '07_create_environment', '08_activate_environment',
+                    '02_pip_environment', '09_install_package', '03_installed_versions',
+                    '04_dependency_check', '05_doctor', '10_launch_commands', '06_installed_home',
+                    '11_update_intentionally'},
+            'conda': {'02_conda_environment', '07_create_conda_command', '07_create_conda',
+                      '08_activate_conda', '09_install_conda',
+                      '03_installed_versions', '05_doctor', '06_installed_home',
+                      '10_current_release_choice'},
+            'installer': {'11_linux_commands', '07_privacy_keep_off', '06_installed_home',
+                          '02_installer_backend', '03_installed_versions', '05_doctor',
+                          '12_logs_and_versions'}}[args.route]
+        provenance['completed_capture'] = expected <= set(provenance['frames'])
         write(capture / 'provenance.json', provenance)
         finished = True
         print(f'Phase {args.phase} complete: {capture}', flush=True)

@@ -90,6 +90,9 @@ def plaque_screen(qtbot, qt_theme_applied, monkeypatch):
     monkeypatch.setattr(made._live_preview, "fetch_paper",
                         lambda ref, parent: fetched.append((ref, parent))
                         or True)
+    monkeypatch.setattr(made._live_preview, "fetch_papers",
+                        lambda pdfs, parent: fetched.extend(
+                            (str(pdf), parent) for pdf in pdfs) or True)
     made.fetched = fetched
     return made
 
@@ -174,15 +177,17 @@ def test_a_pdf_dropped_in_plaque_mode_stays_unread_when_told_to_stay(
     assert plaque_screen.fetched == []
 
 
-def test_a_folder_of_pdfs_dropped_in_plaque_mode_asks_and_reads_the_first(
+def test_a_folder_of_pdfs_dropped_in_plaque_mode_asks_and_reads_them_all(
         plaque_screen, tmp_path, answer):
     answer("figure")
     folder = tmp_path / "papers"
-    _pdf(folder / "b.pdf")
+    second = _pdf(folder / "b.pdf")
     first = _pdf(folder / "a.pdf")
     _drop(plaque_screen, [folder])
     assert _mode(plaque_screen) == "figure"
-    assert plaque_screen.fetched[0] == (str(first), str(folder))
+    assert plaque_screen.fetched == [(str(first), str(folder)),
+                                     (str(second), str(folder))], (
+        "item 526: every PDF in the folder is read, not only the first")
 
 
 def test_images_dropped_in_figure_mode_ask_to_switch_to_plaque(

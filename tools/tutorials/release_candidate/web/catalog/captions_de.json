@@ -1899,31 +1899,31 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "Zeitreihen-Tracking",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Acht synthetische Bilder im eingebetteten Mask-Ablauf verarbeiten und echte Maskenverknüpfungen in Track preview vergleichen.",
+      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
       "objectives": [
-        "Timelapse in Mask finden und Zeitachse sowie Originalbilder erhalten.",
-        "Anfängliche, fragmentierte und wiederhergestellte Spuren mit denselben Masken vergleichen.",
-        "Tracking-Indikatoren, Wiedergabe, Inferenz und gemessene biologische Bewegung unterscheiden."
+        "Load the example images and masks in Track preview.",
+        "Adjust overlap and inspect object identities across frames.",
+        "Configure a time-series Mask run and find its tracked outputs."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Help > Demos > Timelapse demo in einem neuen Ordner verwenden: acht synthetische Zeitpunkte mit 256 × 256 Pixeln, Kernkanal 0, Zellkanal 1. Plot und Keep original images einschalten; alle sechzehn TIFFs bleiben erhalten. Das ZIP enthält die tatsächlichen Zellbild- und Maskenebenen dieses Laufs, keine aufgenommenen Versuchsdaten oder Referenzmasken. image_sequences/field_A01 und label_sequences/field_A01 getrennt wählen: Vorschaukanal 0, acht Bilder, ein Feld. Schwelle 0.1 ergibt sechzehn vollständige Spuren; 1.0 ergibt 128 Einzelbildspuren. Nach Rückkehr zu 0.1 warten und ausdrücklich Re-link klicken; Tippen kann einen Zwischenwert starten. Propagate settings nicht klicken: Die IoU-Schwelle wird nicht übertragen. Warnungen zu Flussschwelle, Beziehungstabelle und Einstellungsstatus werden offengelegt. Keine biologische Validierung oder physikalische Geschwindigkeitsmessung. API: spacr.core.preprocess_generate_masks und spacr.timelapse. AI bleibt aus.",
+      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Öffnen Sie Mask und aktivieren Sie den Schalter Time. Timelapse ist jetzt in Mask eingebettet und keine eigene Home-Kachel mehr. Es ergänzt den Segmentierungsablauf um Zeitachsen- und Tracking-Einstellungen. Motilitätsmessungen gehören zu Measure und folgen später.",
+          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
@@ -1931,164 +1931,125 @@
           ]
         },
         {
-          "visual": "03_actual_demo_menu",
-          "narration": "Wählen Sie Help, Demos, dann Timelapse demo und einen neuen Ordner. Dadurch entstehen acht synthetische Bilder mit bewegten Objekten; ihre Einstellungen werden geladen. Das sind Lehrbilder, kein biologisches Experiment und kein Nachweis der Segmentierungsgenauigkeit.",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ]
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "Prüfen Sie die eingetragene Quelle und die Kanäle. Im Beispiel liegt Kernintensität in Kanal null und Zellintensität in Kanal eins, ohne Erregerkanal. Die Dateinamen kodieren Zeit getrennt von Feld und Kanal. Ersetzen Sie eine Zeitreihe nicht durch die gewöhnliche statische Testplatte.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ]
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits verwendet bei null beginnende Schnittgrenzen: Null bis acht umfasst alle acht Bilder, die Endgrenze ist ausgeschlossen. Halten Sie die Zeitpunkte eines Feldes zusammen. Eine Wiedergaberate liefert kein fehlendes Aufnahmeintervall; dieses Beispiel bestimmt keine Geschwindigkeiten in physikalischen Einheiten.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ]
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "Verfolgen Sie Zellen mit dem überlappungsbasierten Modus iou. Er verknüpft Masken über Schnittmenge geteilt durch Vereinigungsmenge benachbarter Bilder. Andere Backends haben andere Annahmen und optionale Abhängigkeiten. Eine Verschiebung ist keine Überlappungsschwelle; verwenden Sie Einstellungen, die das gewählte Backend tatsächlich liest.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ]
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "Schalten Sie Keep original images vor Run ein. Andernfalls kann die Bereinigung Ordner mit Zwischen- und Originalbildern entfernen. Diese Aufnahme erhält alle sechzehn erzeugten TIFFs unverändert und berührt die älteren Tutorialdaten nicht. Halten Sie von aufgenommenen Experimenten stets eine separate Sicherung bereit.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ]
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "Schalten Sie Plot ein und starten Sie dieses kleine Beispiel. Die aktuelle Pipeline verarbeitet die gesamte Acht-Bilder-Sequenz gemeinsam, auch wenn eine kleinere Stapelgröße angefordert wird. Beobachten Sie Konsole und Ressourcenanzeige: Mehr Bilder, höhere Auflösung und zusätzliche Objekte können erheblich mehr Arbeitsspeicher benötigen.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ]
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "Der Lauf erzeugt fünf Abbildungen und acht zusammengeführte Arrays. In dieser normalisierten Darstellung sind die ersten beiden Ebenen Intensitäten; die letzten beiden sind Zell- und Kernlabels, keine zusätzlichen Aufnahmekanäle. Die gespeicherte Zelltabelle enthält sechzehn Spuren mit jeweils acht Bildern.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ]
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "Lesen Sie neben Finished auch die Warnungen. Dieser Build meldet übernommene Flussschwellen, eine nicht verfügbare Beziehungstabelle und einen Einstellungsstatus-Hinweis. Gespeicherte Masken und Spuren wurden separat geprüft; dies ist weder ein fehlerfreier Freigabetest noch ein Ersatz für Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ]
-        },
-        {
           "visual": "09_actual_track_preview",
-          "narration": "Öffnen Sie Track preview. Laden Sie für die reproduzierbare Verknüpfungsübung das unten verlinkte synthetische Vorschauarchiv herunter und entpacken Sie es. Es enthält exakt die Zellbild- und Maskenebenen des aufgenommenen Laufs. Diese Masken testen Verknüpfungen ohne erneuten Segmentierungsmodell-Lauf.",
+          "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            360,
+            230,
+            3460,
+            1760
           ]
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Wählen Sie den Bildsequenzordner für Feld A null eins. Die exportierten Bilder enthalten nur die ursprüngliche Zellintensitätsebene; wählen Sie hier daher Kanal null. Speichern Sie Bild- und Labelsequenzen unter getrennten übergeordneten Ordnern. Setzen Sie Frames previewed auf acht und Fields auf eins.",
+          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Wählen Sie mit Masks den passenden Labelsequenzordner. Das sind berechnete Masken, keine Referenzwahrheit. Lassen Sie Keep only full-length tracks aus und klicken Sie nicht auf Propagate settings. Beim Lesen einer vorhandenen Maskensequenz erzeugen die Modellregler keine neuen Masken.",
+          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Starten Sie die Vorschau mit der Überlappungsschwelle null Komma eins. Sie meldet sechzehn Spuren mit acht Bildern und hier keine kurzen Spuren. Fragmentierung und Sprünge sind ohne Referenzwahrheit berechnete Indikatoren; kleine Werte beweisen allein keine biologisch korrekte Identität.",
+          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ]
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "Erhöhen Sie die Überlappungsschwelle auf eins. Die Forderung nach exakter Überlappung zerlegt das bewegte Beispiel in hundertachtundzwanzig Einzelbildspuren. Bilder und Masken bleiben gleich; nur die Verknüpfungen ändern sich. Der absichtlich überhöhte Wert demonstriert Fragmentierung und ist keine empfohlene Analyseeinstellung.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
+            379,
+            307,
+            3432,
+            958
           ]
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Stellen Sie null Komma eins wieder her, warten Sie auf das Ende der laufenden Vorschau und klicken Sie Re-link. Tippen kann einen Durchlauf mit einem Zwischenwert starten; bestätigen Sie daher den endgültigen Durchlauf ausdrücklich. Die sechzehn vollständigen Spuren kehren zurück. Propagate settings überträgt die Schwelle nicht ins Stapelformular; klicken Sie es nicht.",
+          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            379,
+            307,
+            3432,
+            958
           ]
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Bewegen Sie den Schieber zu Bild acht, um die verknüpften Objekte zu prüfen. Wiedergabegeschwindigkeit verändert nur die Anzeige, nicht die Aufnahmezeit. Fahren Sie in Measure und Motility mit geprüftem Intervall und Maßstab fort. API und spaCR AI erklären Einstellungen, ersetzen aber nicht die Kontrolle von Bildern, Spuren und Warnungen.",
+          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
           ]
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ]
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ]
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ]
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -10001,117 +9962,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS: aktuelle Oberfläche und Ausrichtung von vier Bildkacheln",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "description": "Öffnen Sie OPS innerhalb von Mask und verfolgen Sie ein geprüftes Beispiel zur Ausrichtung und Zusammensetzung von vier echten Bildkacheln. Kein vollständiger Platten-, Segmentierungs- oder Dekodierungsablauf.",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "Die verschachtelte OPS-Seite und die Grenzen des Beispiels kennenlernen.",
-        "Vier benachbarte Bildkacheln mit ihren ursprünglichen Aufnahmekoordinaten ausrichten.",
-        "Überlappungen, Abdeckung und gespeicherte Herkunftsnachweise prüfen."
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "Aufnahme mit den Python-APIs ops_layout, ops_stitch und ops_compose aus spaCR 1.5.0.7 nightly auf der CPU. Run in der GUI verwendet eine andere ältere Engine und wird hier nicht gestartet. Private NAS-Quelle: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, Positionen 0, 1, 10 und 11. Autorisierter Zugriff ist nötig; kein öffentlicher Testdownload und keine Erlaubnis zur Weiterverteilung. Jede uint16-TIFF enthält fünf Ebenen mit 1480 × 1480 Pixeln; DAPI liegt auf Ebene null. Das ursprüngliche Layout mit 333 Positionen bleibt erhalten. Layout, Überlappung und Grenzwerte nicht ungeprüft auf andere Aufnahmen übertragen. Einen neuen Ausgabeordner außerhalb der Originaldaten wählen. Ganzes Well, Segmentierung, zyklusübergreifende Ausrichtung, Dekodierung und biologische Analyse werden nicht demonstriert.",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Optisches gepooltes Screening beginnt mit Bildern aus benachbarten Feldern und wiederholten Aufnahmezyklen. Öffnen Sie in spaCR Mask, um die darin verschachtelte OPS-Seite zu finden. Diese Lektion zeigt ihren Ort und ein kleines, geprüftes Beispiel zur Bildausrichtung.",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "Verwenden Sie den OPS-Schalter in der Aktionszeile von Mask. Er öffnet eine eigene Seite innerhalb des übergeordneten Moduls. OPS ist keine zweite Home-Kachel und nicht der Map-Barcodes-Ablauf für Dateien mit Sequenzierungsreads.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "Die aktuelle OPS-Seite bietet Einstellungen für Eingabe, Bildzusammenfügung, Mosaik, Ausrichtung und Qualitätskontrolle. Ihr Run-Knopf verwendet eine andere ältere Engine. Wir starten sie nicht und behaupten keine Validierung eines vollständigen Screening-Ablaufs. Die nächsten Schritte nutzen direkt die Geometrie-APIs.",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
+          "hold_after": 0.7,
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "Dieses CPU-Beispiel richtet vier echte Bildkacheln einer vorhandenen Aufnahme aus und setzt sie zusammen. Es segmentiert keine Zellen, dekodiert keine Barcodes und verarbeitet keine ganze Platte. Die Originalaufnahme ist kein mitgelieferter Testdownload; für eine genaue Wiederholung ist autorisierter Zugriff auf die Dateien nötig.",
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "Wählen Sie die Positionen null, eins, zehn und elf aus dem ersten Aufnahmezyklus. Jede Originaldatei enthält fünf Ebenen; Ebene null zeigt die Kernfärbung. Behalten Sie das ursprüngliche Layout mit dreihundertdreiunddreißig Positionen und deren Nummern bei. Vier ausgewählte Kacheln ergeben kein neues Well-Layout mit nur vier Kacheln.",
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "Das Hilfsskript ruft stitch_well auf, prüft alle vier benachbarten Überlappungen und ruft dann compose_window auf. Alle vier Kacheln werden platziert. Der zusammengesetzte Ausschnitt hat eine Seitenlänge von zweitausendsiebenhundertsechsundfünfzig Pixeln. Hier schließt die geometrische Schleife auf einen Viertelpixel genau; das ist keine allgemeine Genauigkeitsgarantie.",
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
-          "hold_after": 0.7
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "Vertrauen Sie nicht allein der Platzierung. Vergleichen Sie die tatsächlich überlappenden Pixel unabhängig vom Registrierungswert. Die Korrelationen nach Ausrichtung sind hier deutlich höher als nach einer absichtlichen Verschiebung einer Achse um siebzehn Pixel. Solche Fehlversatzkontrollen helfen, plausibel wirkende, aber falsche Platzierungen zu erkennen.",
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "Prüfen Sie das tatsächlich gespeicherte Bild und die Abdeckungskarte. Links steht das zusammengesetzte Kernbild, rechts die Anzahl beitragender Kacheln. Null Abdeckung bedeutet fehlende Aufnahmepixel, nicht biologischen Hintergrund. Hier werden räumliche Nachbarn innerhalb einer Ebene kombiniert, niemals verschiedene Sequenzierungszyklen.",
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
+          "hold_after": 0.7,
           "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
-          "hold_after": 0.7
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "Bewahren Sie Array, Abdeckung, Positionen, Prüfsummen der Quelldateien und Laufbericht zusammen auf. Das Skript öffnet die Ausgaben erneut und bestätigt, dass alle vier Originale unverändert sind. Dies ist ein reproduzierbarer Geometrie-Prüfschritt. Ein vollständiges optisches Screening-Tutorial benötigt weiterhin getrennt validierte Folgeschritte.",
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "hold_after": 0.7
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",
