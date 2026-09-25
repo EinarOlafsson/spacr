@@ -1,7 +1,7 @@
 EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
 
-Status: BUILT 2026-09-25 on branch worktree-agent-a3910aee4312c5567; awaiting
-        merge, docs lane and catalog rows (see the trailing note).
+Status: BUILT 2026-09-25, on nightly (5c207ad71 .. 2ca9d9a60, checked
+        2026-09-25); owed: docs lane and catalog rows (see the trailing note).
 Owner: Claude (item 508 session). Related: 473 (the chain), 479, 489, 490 (PSF).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
