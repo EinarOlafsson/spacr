@@ -2,9 +2,10 @@
 MAKE MASKS OFFERS EVERY DETECTION METHOD, AND WAYS TO MAKE OBJECTS EASIER TO SEE
 ================================================================================
 
-Status:    RUNTIME IMPLEMENTED. Detection methods, enhancement, Compare/Apply
-           and request provenance are built and tested. Later notes carry the
-           current contracts; API/tutorial/translation follow-up belongs to411.
+Status:    DONE 2026-09-25 (runtime). DONE WHEN met; the open question on
+           Mask preprocessing was answered and built by 508 (on nightly).
+           Owed elsewhere: catalog rows (catalog lane), API/tutorial prose
+           (docs lane, 411); a U-Net measurement needs a checkpoint.
 Owner:     Claude (spacr/qt/screens/make_masks.py and the detection engine).
 Requested: 2026-09-22, by the maintainer, in these words:
 
@@ -790,3 +791,21 @@ enhancement chain and the deconvolution options into Mask generation, and adds
 a logarithmic transform and a Gaussian filter to both. Item 507 gives Make
 Masks a console for the text these steps emit. Item 511 replaces the fixed
 filter rows with any scikit-image regionprop the user adds.
+
+2026-09-25 — CLOSED FOR THE RUNTIME
+Re-checked on nightly a93f937d2 (offscreen): test_make_masks_offers_every_
+detection_method.py, test_enhancement_reaches_mask_preview.py and
+test_make_masks_apply_and_adaptive.py, 77 passed in 20.3 s;
+test_make_masks_settings_explain_themselves.py, 18 passed (its
+_awaiting_translation list is the live catalog debt and still names the
+473/508/509/511 captions). The one decision this item was waiting on
+(should the Mask module's preprocessing run the same chain) was answered
+by the maintainer on 2026-09-24 and built as 508's enhance_* settings.
+What stays, each with its blocker:
+  * translations of the captions on _awaiting_translation -- catalog lane
+    (spacr/qt/i18n_catalogs is not edited by feature branches);
+  * API/tutorial reconciliation of the detector and provenance contracts --
+    docs lane (411);
+  * U-Net is offered but not measured -- there is no U-Net checkpoint in
+    the example data or on this machine's spaCR paths; it needs one from
+    the maintainer or a trained model.
