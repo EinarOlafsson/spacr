@@ -330,7 +330,12 @@ def save_run_states(folders, app_key: str = "") -> tuple:
 
 
 def describe_saved_states(saved, failures) -> str:
-    """One sentence about what a save did, for the panel's own note."""
+    """One sentence about what a save did, for the panel's own note.
+
+    :param saved: the run folders whose state was saved.
+    :param failures: ``(path, reason)`` pairs for runs that did not save; the
+        first three are named.
+    """
     if not saved and not failures:
         return "No run was selected, so nothing was saved."
     parts = []
@@ -423,6 +428,9 @@ def ordered_columns(frame) -> list:
     Ordering, not filtering. A column nobody thought to list is still worth
     seeing -- it is in the CSV, and hiding it means the user has to leave the
     application to read their own results.
+
+    :param frame: the frame whose columns are ordered; ``None`` returns an
+        empty list.
     """
     if frame is None:
         return []
@@ -644,6 +652,9 @@ class SweepRunsPanel(QWidget):
         below is pure string manipulation; everything that touches the disk
         goes to a worker and comes back to :meth:`_table_arrived`.
 
+        :param folder: the sweep destination folder, or a path ending in
+            ``.csv`` naming the results file itself; ``~`` is expanded and an
+            empty value returns ``False``.
         :returns: whether the tab now shows a row -- or, when the read went
             to a worker, whether it was started. The row count arrives with
             the `loaded` signal either way.
@@ -739,6 +750,9 @@ class SweepRunsPanel(QWidget):
         Returns False for a handle this panel never issued, rather than
         inventing a row: a run whose panel was rebuilt underneath it is a
         stale handle, and a phantom row is worse than a missing one.
+
+        :param handle: the handle returned when the run was recorded; an
+            unknown handle returns ``False``.
         """
         row = self._recorded.get(int(handle))
         if row is None:
@@ -918,6 +932,9 @@ class SweepRunsPanel(QWidget):
     def set_loaded_run(self, key) -> bool:
         """Make ``key`` the loaded run. ``key`` is a folder or a run name.
 
+        :param key: the run's folder (``~`` is expanded and made absolute for
+            matching) or its name; ``None`` or an empty string returns
+            ``False``.
         :returns: True when a row matched. False rather than a blank mark for
             a run this table does not hold -- a tick against nothing is worse
             than none, because it reads as an answer.
@@ -1232,6 +1249,9 @@ class SweepRunsPanel(QWidget):
 
         WORKER ONLY -- it walks the whole run folder and stats every file in
         it. Never call it from menu-build or paint code.
+
+        :param folder: path of the run folder to walk; an empty or missing
+            folder gives ``"nothing on disk"``.
         """
         figures = tables = other = 0
         total = 0
@@ -1270,6 +1290,9 @@ class SweepRunsPanel(QWidget):
         and the status line says exactly that rather than leaving the user to
         discover it.
 
+        :param records: run row dicts to take off the table, matched by folder
+            or else by name (and by ``trial_id`` in the sweep table); ``None``
+            removes nothing.
         :returns: how many rows left the table.
         """
         wanted = {self._row_key(record) for record in (records or [])
@@ -1768,6 +1791,12 @@ class SweepRunsPanel(QWidget):
         The safe half on the bare key, per the design. Deleting from
         disk is a separate, explicitly-worded choice and is not something a
         keystroke can reach.
+
+        :param watched: the object the event was sent to; only the run table is
+            handled here.
+        :param event: the filtered event; a Delete or Backspace ``KeyPress`` on
+            the run table removes the selected rows, and anything else goes to
+            the base class.
         """
         if (watched is self.table.table
                 and event.type() == QEvent.KeyPress
