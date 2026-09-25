@@ -140,7 +140,7 @@
     },
     {
       "visual": "10_setting_save",
-      "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
+      "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
       "focus": [
         346,
         170,

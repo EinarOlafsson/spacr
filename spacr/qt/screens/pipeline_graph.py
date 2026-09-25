@@ -213,7 +213,13 @@ class GraphCanvas(QWidget):
 
     def set_graph(self, graph: Optional[PipelineGraph],
                   visible: Optional[set] = None) -> None:
-        """Show ``graph``, drawing only the ids in ``visible`` when given."""
+        """Show ``graph``, drawing only the ids in ``visible`` when given.
+
+        :param graph: the pipeline graph to lay out and draw, or ``None`` for
+            an empty canvas.
+        :param visible: artifact ids to draw; ``None`` draws every node, and
+            ids not in the graph are ignored.
+        """
         self._graph = graph
         self._rects = layout_rects(graph) if graph is not None else {}
         if graph is None:
@@ -240,27 +246,43 @@ class GraphCanvas(QWidget):
                 if key in self._visible}
 
     def node_at(self, x: int, y: int) -> str:
-        """Artifact id of the box containing this point, or ``""``."""
+        """Artifact id of the box containing this point, or ``""``.
+
+        :param x: horizontal widget coordinate, in pixels.
+        :param y: vertical widget coordinate, in pixels.
+        """
         for artifact_id, rect in self._rects.items():
             if artifact_id in self._visible and rect.contains(int(x), int(y)):
                 return artifact_id
         return ""
 
     def select(self, artifact_id: str) -> None:
-        """Select a box by id (``""`` clears) and emit :attr:`node_clicked`."""
+        """Select a box by id (``""`` clears) and emit :attr:`node_clicked`.
+
+        :param artifact_id: the artifact to select; an id that is not drawn
+            clears the selection.
+        """
         self.selected = artifact_id if artifact_id in self._visible else ""
         self.update()
         self.node_clicked.emit(self.selected)
 
 
     def mousePressEvent(self, event) -> None:      # noqa: N802 - Qt override
-        """Select whatever box was clicked."""
+        """Select whatever box was clicked.
+
+        :param event: the mouse press; its ``position()`` picks the box, and
+            it is then passed on to the base-class handler.
+        """
         position = event.position()
         self.select(self.node_at(int(position.x()), int(position.y())))
         super().mousePressEvent(event)
 
     def paintEvent(self, event) -> None:           # noqa: N802 - Qt override
-        """Paint the edges, then the boxes, then the selection ring."""
+        """Paint the edges, then the boxes, then the selection ring.
+
+        :param event: the paint event; not read, the whole canvas is
+            repainted.
+        """
         painter = QPainter(self)
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
@@ -503,6 +525,9 @@ class PipelineGraphScreen(QWidget):
         Returns as soon as the job is submitted; :attr:`graph_loaded` fires
         when the graph is drawn. A project with no registry is not a failure
         — it draws the declared module order and says nothing has run.
+
+        :param project: the spaCR project folder; stripped, and an empty value
+            only asks for a folder.
         """
         project = str(project or "").strip()
         self.last_error = ""
@@ -556,6 +581,9 @@ class PipelineGraphScreen(QWidget):
 
         Split out from the widget so a test can assert on the content
         without reading a ``QTextEdit`` back.
+
+        :param artifact_id: the artifact to describe; an empty or unknown id,
+            or no graph loaded, gives ``""``.
         """
         if self._graph is None or not artifact_id:
             return ""
@@ -660,7 +688,10 @@ class PipelineGraphScreen(QWidget):
         return self._jobs.active_jobs()
 
     def closeEvent(self, event) -> None:             # noqa: N802 - Qt override
-        """Drain the worker before the widget goes."""
+        """Drain the worker before the widget goes.
+
+        :param event: the close event; passed on unchanged to the base class.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 

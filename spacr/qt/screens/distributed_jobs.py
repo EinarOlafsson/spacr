@@ -590,7 +590,13 @@ class DistributedJobsScreen(QWidget):
         outer.addWidget(self._status)
 
     def configure_submission(self, module: str, settings: dict) -> None:
-        """Preload an immutable settings snapshot handed off by an AppScreen."""
+        """Preload an immutable settings snapshot handed off by an AppScreen.
+
+        :param module: the ``spacr.cli.MODULES`` key to select in the module
+            box; an unknown key leaves the selection unchanged.
+        :param settings: the settings to submit; a shallow copy is kept and
+            used instead of a settings file until the path field is edited.
+        """
         index = self._module.findData(str(module))
         if index >= 0:
             self._module.setCurrentIndex(index)
@@ -1026,13 +1032,20 @@ class DistributedJobsScreen(QWidget):
         )
 
     def showEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Poll only while this screen is visible."""
+        """Poll only while this screen is visible.
+
+        :param event: the show event; passed on unchanged to the base class
+            before polling restarts (when auto-polling is on).
+        """
         super().showEvent(event)
         if self._auto_poll and not self._timer.isActive():
             self._timer.start()
 
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Stop background polling when another module is open."""
+        """Stop background polling when another module is open.
+
+        :param event: the hide event; passed on unchanged to the base class.
+        """
         self._timer.stop()
         super().hideEvent(event)
 
@@ -1044,6 +1057,9 @@ class DistributedJobsScreen(QWidget):
         owning them. An ownerless job stays in the process-wide run
         registry, which is what ``MainWindow.closeEvent`` consults when it
         decides whether the application may quit.
+
+        :param event: the close event; it is passed on unchanged to the
+            base-class handler after the workers are drained.
         """
         from ..bridge import drain_thread
 

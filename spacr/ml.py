@@ -662,7 +662,11 @@ class QuasiBinomial(Binomial):
         self.variance = _DispersedVariance(self.__dict__['variance'], dispersion)
 
     def variance(self, mu):
-        """Adjust the variance with the dispersion parameter."""
+        """Adjust the variance with the dispersion parameter.
+
+        :param mu: fitted mean probabilities, scalar or array; the binomial
+            variance of ``mu`` is multiplied by ``dispersion``.
+        """
         return self.dispersion * super().variance(mu)
 
 def calculate_p_values(X, y, model):
@@ -1146,6 +1150,9 @@ def screen_is_blockable(df) -> bool:
     The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated
     once for the formula path so a frame cannot be blocked on by one and not
     the other.
+
+    :param df: the design DataFrame, or ``None`` (returns ``False``); its
+        ``screenID`` column is compared as strings.
     """
     from .schema import SCREEN_KEY
 
@@ -4678,6 +4685,10 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
     and the guide as a random effect nested in the gene. Its guide output is
     BLUPs, which is why it cannot be split into two testing families.
 
+    :param df: long-format DataFrame of gRNA/gene fractions and the
+        dependent variable, passed to :func:`regression` for every level.
+    :param csv_path: path passed to :func:`regression`, which derives the
+        volcano-plot filename from it.
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
     :param dst: the run folder. With more than one fit each level's FIGURES go
         into ``<dst>/<level>/`` so they cannot overwrite each other; the
@@ -5233,6 +5244,14 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
     Anything other than ``inference='auto'`` is returned untouched, so an
     explicit choice is never overridden.
 
+    :param data: the analysis table (a DataFrame); its distinct well and
+        guide counts, and the permutation block column when present, size
+        the design.
+    :param settings: run settings; ``inference``, ``analysis_mode``,
+        ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are
+        read. It is not modified.
+    :param well_column: column whose distinct values count the wells.
+    :param guide_column: column whose distinct values count the guides.
     :returns: ``(analysis_mode, reason)``. ``reason`` is a sentence naming the
         counts, suitable for the log and for the Methods section.
     """
@@ -5298,6 +5317,15 @@ def normalize_regression_input_pairs(settings):
     New settings store ``paired_data``. Older files remain valid: their flat
     lists are zipped positionally, exactly matching the former behaviour, and
     the migration is reported so the invisible legacy assumption is visible.
+
+    :param settings: regression settings dictionary. ``paired_data`` is read
+        when present, otherwise the legacy ``score_data`` and ``count_data``
+        lists; the dictionary is updated in place with the normalised
+        ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.
+    :returns: ``(pairs, migrated)``, where ``migrated`` is ``True`` when the
+        rows came from the legacy lists.
+    :raises ValueError: when ``paired_data`` is malformed or there is not at
+        least one score path and one count path.
     """
     from itertools import zip_longest
 
@@ -5358,6 +5386,11 @@ def load_regression_input_pairs(pairs):
     Resolution order is own column, partner column, then pair-row order.
     Conflicting declarations are refused. Returns ``(count_frame,
     score_frame, audit_rows)``.
+
+    :param pairs: sequence of mappings with ``'score'`` and ``'count'`` table
+        paths (either may be empty), as returned by
+        :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``
+        is overwritten with the resolved plate label.
     """
     from .utils import correct_metadata
 
@@ -6083,6 +6116,11 @@ def results_folder_kind(settings) -> str:
     wrote them was fine, which is the failure the `results_dir` helper in
     tests/test_cov_ml_perform_regression.py was already written to prevent
     once. A suite pointing at the wrong file is worse than a silent one.
+
+    :param settings: run settings mapping, or ``None`` (treated as empty);
+        only ``analysis_mode`` and ``regression_type`` are read.
+    :returns: ``'guide_permutation'``, ``'auto'`` when no regression type is
+        set, or the regression type as a string.
     """
     settings = settings or {}
     if settings.get('analysis_mode') == 'guide_permutation':
@@ -8089,6 +8127,11 @@ def beta_logit(values):
 
     This is distinct from ``regression_type='beta'``, which selects a beta
     GLM. One transforms the response; the other selects the model family.
+
+    :param values: proportions in ``[0, 1]``, array-like; converted to a
+        float array. Non-finite entries pass through unchanged. When any
+        finite value is at or beyond 0 or 1 the finite values are squeezed
+        with ``(y * (n - 1) + 0.5) / n`` before the logit.
     """
     array = np.asarray(values, dtype=float)
     finite = np.isfinite(array)
@@ -8126,7 +8169,14 @@ def apply_transformation(X, transform):
     return transformer
 
 def check_normality(data, variable_name, verbose=False):
-    """Check if the data is normally distributed using the Shapiro-Wilk test."""
+    """Check if the data is normally distributed using the Shapiro-Wilk test.
+
+    :param data: numeric values, array-like; non-finite values are dropped
+        and fewer than 3 remaining values returns ``False`` without testing.
+    :param variable_name: name printed in the verbose messages only.
+    :param verbose: print the test statistic, P value and verdict.
+    :returns: ``True`` when the Shapiro-Wilk P value exceeds 0.05.
+    """
     values = np.asarray(data, dtype=float)
     values = values[np.isfinite(values)]
     if values.size < 3:

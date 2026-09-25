@@ -4217,76 +4217,106 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "孔板查看器",
+      "title": "Plate Viewer: inspect wells and export a heatmap table",
       "series": 4,
       "app_key": "plate_view",
-      "section": "结果与质量控制",
-      "description": "以板热图形式探索测量值，并检测空间伪影或边缘效应。",
+      "section": "Results and quality control",
+      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
       "objectives": [
-        "生成合适的板热图。",
-        "识别空间伪影和低计数伪影。",
-        "检查并导出可追溯的孔汇总。"
+        "Open Plate Viewer from Graph Builder and load example measurements.",
+        "Choose a feature, aggregation and minimum object count.",
+        "Inspect well details and export the current well grid."
       ],
-      "prerequisite": "测量一块具有稳定板标识符和孔标识符的板。",
+      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
       "scenes": [
         {
-          "narration": "Plate Viewer 会将对象测量值转换为孔层级热图，并在旁边显示空间质量检查。",
-          "visual": "01_overview",
+          "visual": "01_graph_builder_host",
+          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Plate Viewer 会将对象测量值转换为孔层级热图，并在旁边显示空间质量检查。"
+          "related_lessons": [
+            "58_graph_builder"
+          ]
         },
         {
-          "narration": "从 Results and quality control 部分打开 Plate Viewer。打开 measurements 数据库或运行文件夹。系统仅以只读方式查询数据源。",
-          "visual": "02_database",
+          "visual": "03_example_mean",
+          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "从 Results and quality control 部分打开 Plate Viewer。打开 measurements 数据库或运行文件夹。系统仅以只读方式查询数据源。"
+          "related_lessons": [
+            "08_measure",
+            "09_annotate"
+          ],
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "选择要显示的对象表、数值特征和板。",
-          "visual": "03_measurement",
+          "visual": "03_example_mean",
+          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
           "hold_after": 0.7,
-          "focus_key": "selection",
-          "speech_text": "选择要显示的对象表、数值特征和板。"
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "选择聚合方式、颜色缩放以及每个孔所需的最小证据量。计数有助于发现分割或接种量的差异。",
-          "visual": "04_options",
+          "visual": "04_colour_scale",
+          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
           "hold_after": 0.7,
-          "focus_key": "options",
-          "speech_text": "选择聚合方式、颜色缩放以及每个孔所需的最小证据量。计数有助于发现分割或接种量的差异。"
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "绘制视图，然后将热图与行、列、环形和边缘诊断进行比较。",
-          "visual": "05_render",
-          "hold_after": 0.7,
-          "focus_key": "render",
-          "speech_text": "绘制视图，然后将热图与行、列、环形和边缘诊断进行比较。"
+          "visual": "03_example_mean",
+          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "hold_after": 0.7
         },
         {
-          "narration": "选择一个孔，以检查其标识符、对象计数、显示值和位置。",
-          "visual": "07_well_detail",
-          "hold_after": 0.7,
-          "focus_key": "well_detail",
-          "speech_text": "选择一个孔，以检查其标识符、对象计数、显示值和位置。"
+          "visual": "05_well_detail",
+          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "hold_after": 0.7
         },
         {
-          "narration": "证据量低于阈值的孔会显示为明确的空白，而不是容易误导的零值。",
-          "visual": "11_filtered_result",
+          "visual": "06_count",
+          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
           "hold_after": 0.7,
-          "focus_key": "result",
-          "speech_text": "证据量低于阈值的孔会显示为明确的空白，而不是容易误导的零值。"
+          "focus": [
+            340,
+            300,
+            1800,
+            1300
+          ]
         },
         {
-          "narration": "导出当前整洁的孔网格，其中包含计数和空间注释，以供审核或重新绘图。",
-          "visual": "13_export",
-          "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "导出当前整洁的孔网格，其中包含计数和空间注释，以供审核或重新绘图。"
+          "visual": "07_filtered",
+          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_save_csv",
+          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_exported",
+          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "hold_after": 0.7
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "34_database",

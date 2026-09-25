@@ -16,27 +16,27 @@
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "From Home, choose Candida. Browse the guide for morphology, filamentation, biofilm and host-cell interaction topics.",
+      "narration": "From Home, choose Candida. Its guide covers morphology, filamentation, biofilms and how the yeast interacts with host cells.",
       "hold_after": 0.7
     },
     {
       "visual": "01_organism",
-      "narration": "Scroll the information pane and review the module descriptions beside it. Drag the divider to make either pane wider when reading.",
+      "narration": "Read the information pane with the module descriptions beside it, and drag the divider to widen whichever side you're reading.",
       "hold_after": 0.7
     },
     {
       "visual": "02_diagram",
-      "narration": "Hover over a component in the budding-yeast diagram to read its description. Select several components to keep them highlighted, and use Clear components to reset the selection.",
+      "narration": "The budding-yeast diagram works like the other guides. Hover over a component to read its description, select several to keep them highlighted, and Clear components resets the selection.",
       "hold_after": 0.7
     },
     {
       "visual": "03_modules",
-      "narration": "The Candida-specific assay tiles currently show Coming soon and are disabled. To analyse images with the available general tools, return to Home, select Mask and Measure, and choose channels and masks suited to your species and experiment.",
+      "narration": "The Candida-specific assay tiles are marked Coming soon for now, but you can still analyse your images with the general tools. Go back Home, segment them in Mask and measure them in Measure, choosing channels and masks that suit your species and experiment.",
       "hold_after": 0.7
     },
     {
       "visual": "04_references",
-      "narration": "Open the Candida Genome Database or UniProt links for gene and protein information. This guide uses no input files and writes no analysis outputs. Follow a runnable module’s tutorial when you are ready to process images.",
+      "narration": "For gene and protein details, the Candida Genome Database and UniProt links open in your browser. The guide needs no input files and writes no outputs, so when you're ready to process images, follow a runnable module's tutorial.",
       "hold_after": 0.7
     }
   ]

@@ -261,11 +261,19 @@ class SourceStrip(QWidget):
         row.addStretch(1)
 
     def heading(self, name: str) -> _SourceHeading:
-        """The label for one source, for a test or a tooltip retarget."""
+        """The label for one source, for a test or a tooltip retarget.
+
+        :param name: a source name from :data:`spacr.model_zoo.ZOO_SOURCES`;
+            converted to ``str``. An unknown name raises :class:`KeyError`.
+        """
         return self._headings[str(name)]
 
     def is_on(self, name: str) -> bool:
-        """Whether one heading is on."""
+        """Whether one heading is on.
+
+        :param name: a source name from :data:`spacr.model_zoo.ZOO_SOURCES`;
+            converted to ``str``, and an unknown name gives False.
+        """
         heading = self._headings.get(str(name))
         return bool(heading is not None and heading.is_on())
 
@@ -596,7 +604,9 @@ class BackendInstallDialog(QDialog):
         self.reason.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self.reason)
 
-        self.progress = QProgressBar(self)
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
 
@@ -744,7 +754,12 @@ class BackendInstallDialog(QDialog):
         super().reject()
 
     def closeEvent(self, event):                            # noqa: N802
-        """Closing the window is Cancel; it never leaves a thread behind."""
+        """Closing the window is Cancel; it never leaves a thread behind.
+
+        :param event: the close event; while a job is running it is ignored
+            and :meth:`reject` is called instead, otherwise it is passed on to
+            the base class.
+        """
         if self.running:
             self.reject()
             event.ignore()
@@ -1052,7 +1067,9 @@ class ModelZooPicker(QDialog):
         folder_row.addWidget(add)
         layout.addLayout(folder_row)
 
-        self.progress = QProgressBar(self)
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
 
@@ -1771,7 +1788,11 @@ class ModelZooPicker(QDialog):
         self._worker = None
 
     def closeEvent(self, event):                            # noqa: N802
-        """Join the download before the dialog goes away."""
+        """Join the download before the dialog goes away.
+
+        :param event: the close event; passed on to the base class after any
+            download is stopped.
+        """
         self._stop_any_download()
         super().closeEvent(event)
 

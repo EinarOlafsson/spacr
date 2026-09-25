@@ -183,7 +183,13 @@ class FeatureExplorerPanel(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
-        """Point the panel at a table and offer its class columns."""
+        """Point the panel at a table and offer its class columns.
+
+        :param frame: the object table, or ``None`` to empty the class picker.
+            Its :func:`~spacr.qt.widgets.feature_rank.candidate_labels` are
+            offered, keeping the previous choice when it is still there, and
+            the ranking reruns.
+        """
         self._frame = frame
         previous = self._label.currentText()
         self._label.blockSignals(True)
@@ -214,7 +220,13 @@ class FeatureExplorerPanel(QWidget):
         return self._result
 
     def set_spec(self, spec: ExplorerSpec) -> None:
-        """Push a whole spec in — restoring a saved analysis."""
+        """Push a whole spec in — restoring a saved analysis.
+
+        :param spec: the :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec`
+            to adopt; its label, statistic, top count and whether a
+            permutation null is on are shown in the controls, and the ranking
+            reruns.
+        """
         self._spec = spec
         index = self._label.findText(spec.label)
         self._label.blockSignals(True)

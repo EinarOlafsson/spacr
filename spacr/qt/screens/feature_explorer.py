@@ -206,7 +206,14 @@ class FeatureExplorerScreen(QWidget):
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
-        thread."""
+        thread.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` table, or any other file
+            treated as a measurement database whose table names fill the
+            table picker.
+        :param table: the database table to read; ``None`` reads the table
+            currently chosen in the picker.
+        """
         self._path = path
         names: List[str] = []
         if not str(path).lower().endswith((".csv", ".tsv", ".txt")):

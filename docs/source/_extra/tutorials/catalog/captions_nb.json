@@ -4138,38 +4138,108 @@
     },
     {
       "id": "33_plate_viewer",
+      "number": 33,
+      "slug": "plate_viewer",
+      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "series": 4,
+      "app_key": "plate_view",
+      "section": "Results and quality control",
+      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "objectives": [
+        "Open Plate Viewer from Graph Builder and load example measurements.",
+        "Choose a feature, aggregation and minimum object count.",
+        "Inspect well details and export the current well grid."
+      ],
+      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
       "scenes": [
         {
-          "narration": "Plate Viewer forvandler objektsmålinger til velnivå varme kart med rumslige kvalitet kontroller ved siden av dem."
+          "visual": "01_graph_builder_host",
+          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "58_graph_builder"
+          ]
         },
         {
-          "narration": "Åpne en måledatabase eller kjøre mappe. Kildekoden er bare for lest."
+          "visual": "03_example_mean",
+          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate"
+          ],
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Velg objekttabel, numerisk funksjon og plate som skal vises."
+          "visual": "03_example_mean",
+          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Velg aggregering, fargeskalare, og det minste beviset som kreves for en brønn. Tall er nyttig for å spotte segmentering eller å sette forskjeller."
+          "visual": "04_colour_scale",
+          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "Gi visningen, deretter sammenlign varmekartet med rad, kolonne, ring og kant diagnostikk."
+          "visual": "03_example_mean",
+          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "hold_after": 0.7
         },
         {
-          "narration": "Velg en brønn for å sjekke identifikatoren, objektantallet, den viste verdien og posisjonen."
+          "visual": "05_well_detail",
+          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "hold_after": 0.7
         },
         {
-          "narration": "Brønner under bevistrøskelen blir eksplisitte tomme i stedet for villedende noler."
+          "visual": "06_count",
+          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            300,
+            1800,
+            1300
+          ]
         },
         {
-          "narration": "Eksporter nåværende ordnet brønnett med tall og rumslige annoteringer for revisjon eller omplanlegging."
+          "visual": "07_filtered",
+          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_save_csv",
+          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_exported",
+          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "hold_after": 0.7
         }
       ],
-      "number": 33,
-      "app_key": "plate_view",
-      "series": 4,
-      "slug": "plate_viewer",
-      "section": "Results and quality control",
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "34_database",

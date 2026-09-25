@@ -112,6 +112,9 @@ class UsageBar(QWidget):
         widgets whose resolved font moved, so the columns are re-measured
         there rather than being right only for the sheet that happened to be
         current at construction.
+
+        :param event: the change event, passed to the base class; a font,
+            application-font or style change re-measures the columns.
         """
         super().changeEvent(event)
         if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange,
@@ -126,6 +129,9 @@ class UsageBar(QWidget):
         show. Measuring here as well as on the font change is what keeps a
         row that was never sent a font change -- because its own font was
         inherited whole -- from being sized by the default metrics.
+
+        :param event: the show event, passed to the base class after the
+            columns are re-measured.
         """
         self._size_the_columns()
         super().showEvent(event)

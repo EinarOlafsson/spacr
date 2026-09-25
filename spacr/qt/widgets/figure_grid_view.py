@@ -70,6 +70,9 @@ def cells_across(panel_width: int, target: int = TARGET_CELL_PX) -> int:
 
     Widening the window should show MORE figures, not bigger ones -- the
     opposite of what a stretch-to-fit view does.
+
+    :param panel_width: available width in pixels; the result is between 1
+        and 6, and 1 for a width of 0 or less.
     """
     if panel_width <= 0:
         return 1
@@ -589,6 +592,8 @@ class FigureGridView(QScrollArea):
         remain in place. Use :meth:`set_live_tiles` to replace the full live
         section.
 
+        :param pixmap: snapshot ``QPixmap`` of the regression graph; ``None``
+            or a null pixmap removes the pinned tile.
         :returns: True when a tile was pinned. A null or missing pixmap
             removes it.
         """
@@ -630,7 +635,11 @@ class FigureGridView(QScrollArea):
             pass
 
     def set_target_cell_width(self, pixels: int) -> None:
-        """How wide a single-width cell should be, before layout."""
+        """How wide a single-width cell should be, before layout.
+
+        :param pixels: target width in pixels, clamped to
+            :data:`MIN_CELL_PX`-:data:`MAX_CELL_PX`.
+        """
         self._target = max(MIN_CELL_PX, min(int(pixels), MAX_CELL_PX))
         self._relayout()
 
@@ -715,7 +724,12 @@ class FigureGridView(QScrollArea):
         }
 
     def apply_workspace_state(self, state) -> bool:
-        """Put the arrangement back. Returns whether anything applied."""
+        """Put the arrangement back. Returns whether anything applied.
+
+        :param state: dict as :meth:`workspace_state` returns it, with
+            ``"collapsed"`` (list of ``[label, start]`` section keys) and
+            ``"cell_width"`` (pixels); a non-dict applies nothing.
+        """
         if not isinstance(state, dict):
             return False
         applied = False
@@ -739,12 +753,22 @@ class FigureGridView(QScrollArea):
         return applied
 
     def is_section_collapsed(self, label, start) -> bool:
-        """Whether this run's figures are folded away."""
+        """Whether this run's figures are folded away.
+
+        :param label: the run's section heading text.
+        :param start: index of the run's first figure; with ``label`` it
+            identifies the section.
+        """
         return self._section_key(label, start) in self._collapsed
 
     def set_section_collapsed(self, label, start,
                                collapsed: bool = True) -> None:
-        """Fold a run's figures away, or bring them back."""
+        """Fold a run's figures away, or bring them back.
+
+        :param label: the run's section heading text.
+        :param start: index of the run's first figure; with ``label`` it
+            identifies the section.
+        """
         key = self._section_key(label, start)
         if collapsed:
             self._collapsed.add(key)
@@ -819,6 +843,10 @@ class FigureGridView(QScrollArea):
         top has nowhere left to navigate to, and there folding is the one
         thing the gesture can still mean, on a second click exactly where the
         user's hand already is.
+
+        :param header: the clicked section heading; its ``section_key``
+            names the section. A header without one does nothing and returns
+            ``True``.
         """
         key = getattr(header, "section_key", None)
         if key is None:

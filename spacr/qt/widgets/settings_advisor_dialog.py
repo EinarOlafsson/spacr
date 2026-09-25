@@ -180,7 +180,14 @@ class ProposalPage(QWidget):
         outer.addWidget(self.undecided)
 
     def show_the_proposal(self, advice: Advice, current: Dict[str, Any]) -> None:
-        """Display proposed values, current values, and supporting reasons."""
+        """Display proposed values, current values, and supporting reasons.
+
+        :param advice: the advisor's proposal: its reading fills the summary,
+            its chosen values the table and its undecided settings the list
+            below it.
+        :param current: the settings in effect now, by key; copied, and shown
+            beside each proposed value so unchanged ones can be greyed out.
+        """
         self._advice = advice
         self._current = dict(current or {})
         self._render()
@@ -237,7 +244,12 @@ class ProposalPage(QWidget):
                    language))
 
     def retranslate_dynamic_content(self, language: str) -> None:
-        """Refresh proposal chrome after the application language changes."""
+        """Refresh proposal chrome after the application language changes.
+
+        :param language: the new application language, used to re-render the
+            summary, table and undecided list; nothing is drawn before a
+            proposal has been shown.
+        """
         self._render(language)
 
 

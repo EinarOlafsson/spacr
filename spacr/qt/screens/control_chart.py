@@ -172,7 +172,13 @@ class ControlChartCanvas(QWidget):
 
     def set_result(self, result: Optional[ControlChartResult], *,
                    message: str = "") -> None:
-        """Draw ``result``; ``None`` draws ``message`` on an empty axis."""
+        """Draw ``result``; ``None`` draws ``message`` on an empty axis.
+
+        :param result: the control chart to draw, or ``None`` for an empty
+            axis.
+        :param message: the text drawn on the empty axis; empty shows "no chart
+            yet".
+        """
         self._result = result
         self._message = message or "no chart yet"
         self.render_now()
@@ -526,7 +532,13 @@ class ControlChartScreen(QWidget):
         return panel
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Chart ``frame``. The one call a host needs."""
+        """Chart ``frame``. The one call a host needs.
+
+        :param frame: the table to chart; its columns fill the pickers before
+            the chart is recomputed.
+        :param label: the source line to show; empty shows the row and column
+            counts.
+        """
         self._frame = frame
         self._loading = True
         try:
@@ -743,7 +755,15 @@ class ControlChartScreen(QWidget):
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
-        thread."""
+        thread.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
+        """
         self._path = path
         names: List[str] = []
         if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
@@ -809,7 +829,12 @@ class ControlChartScreen(QWidget):
             self.export_points(path)
 
     def export_points(self, path: str) -> Optional[str]:
-        """Write one row per plate — value, limits, z, rules fired — as CSV."""
+        """Write one row per plate — value, limits, z, rules fired — as CSV.
+
+        :param path: the CSV file to write, without an index column. Nothing is
+            written, and ``None`` is returned, when nothing has been charted
+            yet.
+        """
         if self._result is None:
             self._source.setText("Nothing charted yet.")
             return None

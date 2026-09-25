@@ -3475,6 +3475,11 @@ def normalize_language(code: object) -> str:
     Locale-shaped values such as ``pt_BR`` and ``zh-CN`` resolve to their
     bundled base/catalog variants. This also makes a manually edited
     ``QSettings`` file harmless.
+
+    :param code: any value; converted with ``str`` (``None`` and other falsy
+        values count as empty), hyphens read as underscores and matched
+        case-insensitively. Anything unrecognised returns
+        ``DEFAULT_LANGUAGE``.
     """
     raw = str(code or "").strip().replace("-", "_")
     if raw in LANGUAGE_BY_CODE:
@@ -3739,6 +3744,11 @@ def tr(text: object, language: Optional[str] = None, **values: object) -> str:
     Missing entries intentionally remain English. Keyword values are applied
     with ``str.format`` *after* translation, allowing catalogs to reorder
     placeholders safely.
+
+    :param text: the English UI string, converted with ``str``.
+    :param language: language code; ``None`` uses the current language.
+    :param values: placeholder values for ``str.format``; a template the
+        values do not fit is returned unformatted.
     """
     source = str(text)
     code = normalize_language(language or current_language())
@@ -3757,7 +3767,13 @@ def tr(text: object, language: Optional[str] = None, **values: object) -> str:
 
 
 def has_translation(text: object, language: Optional[str] = None) -> bool:
-    """Return whether ``text`` has an exact or conservative term translation."""
+    """Return whether ``text`` has an exact or conservative term translation.
+
+    :param text: the English UI string, converted with ``str``. For English
+        itself the answer is whether the string is a catalog row.
+    :param language: language code to check; ``None`` uses the current
+        language.
+    """
     source = str(text)
     code = normalize_language(language or current_language())
     if code == DEFAULT_LANGUAGE:
@@ -3769,7 +3785,13 @@ def has_translation(text: object, language: Optional[str] = None) -> bool:
 def catalog_coverage(
     sources: Iterable[str], language: Optional[str] = None,
 ) -> tuple[int, int]:
-    """Return ``(translated, total)`` for an iterable of source strings."""
+    """Return ``(translated, total)`` for an iterable of source strings.
+
+    :param sources: English UI strings; each is converted with ``str`` and
+        duplicates are counted once.
+    :param language: language code to check; ``None`` uses the current
+        language.
+    """
     items = tuple(dict.fromkeys(str(source) for source in sources))
     code = normalize_language(language or current_language())
     return sum(has_translation(item, code) for item in items), len(items)
@@ -3823,6 +3845,13 @@ def set_translatable_text(
     This is for application chrome such as ``Connecting to {provider}…``.
     User text, AI replies, worker output and scientific results must not use
     this helper because they intentionally remain untouched by localization.
+
+    :param widget: a widget with ``setText``; the template and values are
+        stored on it so a later language pass can re-render the text.
+    :param source: the English template, translated with :func:`tr`.
+    :param language: language code; ``None`` uses the current language.
+    :param values: placeholder values applied with ``str.format`` after
+        translation.
     """
     widget.setProperty("_spacr_i18n_text_template", str(source))
     widget._spacr_i18n_text_values = dict(values)
@@ -3986,6 +4015,14 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     widget is not compared. The one caller that asks for it is
     `_LateCaptionTranslator`, where three near-root passes an event turn
     apart re-walk the same tree while a module screen is being assembled.
+
+    :param root: the widget (or other ``QObject``) whose child widgets and
+        actions are walked; it is included itself when it is a ``QWidget``.
+        ``None`` does nothing.
+    :param language: language code to translate into; ``None`` uses the
+        current language.
+    :param only_new: skip widgets already stamped for this language and
+        catalog generation, as described above.
     """
     if root is None:
         return
@@ -4206,6 +4243,11 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
     Idempotent: a translator installed by an earlier call is removed
     first, so switching language twice does not leave the first one
     underneath answering for strings the second does not carry.
+
+    :param app: the ``QApplication`` the ``qtbase`` translator is installed
+        on; ``None`` returns ``False``.
+    :param language: language code to load; ``None`` uses the current
+        language. English and languages without a Qt catalog install nothing.
     """
     if app is None:
         return False
@@ -4248,6 +4290,10 @@ def install_dialog_translation(app) -> None:
     top-level ``QDialog`` show events and applies the same conservative exact
     catalog translation to their title, labels, buttons and accessible text.
     Dynamic paths, table data and user text remain outside that traversal.
+
+    :param app: the ``QApplication`` to install the event filter on. ``None``
+        does nothing, and an application that already has the filter is left
+        as it is.
     """
     if app is None or getattr(app, "_spacr_dialog_i18n_filter", None) is not None:
         return

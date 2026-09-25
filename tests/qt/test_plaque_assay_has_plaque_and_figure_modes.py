@@ -862,7 +862,8 @@ def test_right_click_opens_the_overlay_options(ran, monkeypatch):
     assert shown
     texts = [a.text() for a in shown[0].actions() if a.text()]
     assert texts == ["Outlines", "Filled overlay",
-                     "Random colour per object", "Overlay settings…"]
+                     "Random colour per object", "Overlay settings…",
+                     "Save picture…"]
     settings = [a for a in shown[0].actions()
                 if a.text() == "Overlay settings…"][0]
     settings.trigger()

@@ -356,7 +356,14 @@ class MeasurementComparePanel(QWidget):
                  settings: Optional[Dict[str, Any]] = None):
         """Point the panel at a new montage. The Graph tab calls this rather
         than being rebuilt, so a user's chosen measurement and level survive
-        a re-run."""
+        a re-run.
+
+        :param objects: the object rows for the montage and the contrasts; its
+            numeric measurement columns fill the measurement menu, and the
+            previous choice is kept when still offered.
+        :param groups: selected group names mapped to object-index values;
+            copied.
+        """
         self._objects = objects
         self._groups = dict(groups or {})
         if settings is not None:
@@ -541,7 +548,11 @@ class MeasurementComparePanel(QWidget):
         self.join_button.setText(self.JOIN_LABEL)
 
     def closeEvent(self, event):                # noqa: N802 - Qt naming
-        """Request cancellation of active work before closing the panel."""
+        """Request cancellation of active work before closing the panel.
+
+        :param event: the close event, passed on to the base class after the
+            join worker is asked to shut down.
+        """
         try:
             self._jobs.shutdown()
         except Exception:                                    # noqa: BLE001
@@ -574,7 +585,12 @@ class MeasurementComparePanel(QWidget):
         self.refresh()
 
     def set_selected_guides(self, guides) -> None:
-        """Set selected guides and derive their wells for the current scope."""
+        """Set selected guides and derive their wells for the current scope.
+
+        :param guides: the selected guides, stored as strings (``None`` for
+            none); any explicit well subset is cleared so wells are derived
+            from them.
+        """
         self._selected_guides = [str(g) for g in (guides or ())]
         self._selected_wells = None
         self.refresh()
@@ -588,7 +604,11 @@ class MeasurementComparePanel(QWidget):
         return wells_of(self._objects, getattr(self, "_selected_guides", []))
 
     def set_selected_wells(self, wells) -> None:
-        """Set an explicit well subset; ``None`` restores guide-based derivation."""
+        """Set an explicit well subset; ``None`` restores guide-based derivation.
+
+        :param wells: an explicit well subset, stored as strings, or ``None``
+            to derive the wells from the selected guides.
+        """
         self._selected_wells = (None if wells is None
                                 else [str(w) for w in wells])
         self.refresh()

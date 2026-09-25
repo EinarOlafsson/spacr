@@ -199,6 +199,15 @@ def scaled_for(source: Any, target: Any, width: SizeLike,
     A null or missing source comes back untouched -- a caller that already
     checks ``isNull()`` keeps its own answer, and one that does not is no
     worse off than it was with a bare ``.scaled()``.
+
+    :param source: the ``QPixmap`` or ``QImage`` to scale; ``None`` or a null
+        picture is returned unchanged.
+    :param target: the widget (or window, screen or paint device) the picture
+        will be shown on; its device pixel ratio is read through
+        :func:`device_ratio`.
+    :param width: logical width in widget pixels, or the whole size as a
+        single side length, a ``(w, h)`` pair or a ``QSize`` when ``height``
+        is not given.
     """
     if source is None:
         return source
@@ -222,6 +231,10 @@ def logical_size(picture: Any) -> QSize:
     ``QPixmap.width()`` counts device pixels; this counts the widget
     coordinates the picture covers, which is what centring, hit-testing
     and layout are all measured in. A null or missing picture is 0 x 0.
+
+    :param picture: a ``QPixmap`` or ``QImage`` (or ``None``); its
+        device-independent size is used when it has one, otherwise its pixel
+        size divided by its device pixel ratio.
     """
     if picture is None:
         return QSize(0, 0)
@@ -303,6 +316,13 @@ def follow_device_ratio(widget: Any,
 
     Returns the watcher (for tests to drive) or ``None`` if the widget
     cannot take an event filter.
+
+    :param widget: the ``QObject`` (normally a widget) to watch; it becomes
+        the watcher's parent. Anything that is not a ``QObject`` gives
+        ``None``.
+    :param redraw: zero-argument callable run when the widget's device pixel
+        ratio actually changes; an exception it raises is logged at debug
+        level and swallowed.
     """
     if not isinstance(widget, QObject):
         return None

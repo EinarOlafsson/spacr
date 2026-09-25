@@ -366,7 +366,11 @@ class ChatProvider(CommandLineTool, ABC):
     @abstractmethod
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
-        """Yield text chunks streaming from the CLI subprocess."""
+        """Yield text chunks streaming from the CLI subprocess.
+
+        :param messages: conversation history as ``{role, content}`` dicts,
+            oldest first; each implementation formats it into the CLI prompt.
+        """
 
 
 

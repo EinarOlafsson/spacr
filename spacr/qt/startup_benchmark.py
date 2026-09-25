@@ -623,7 +623,11 @@ class BenchmarkController(QObject):
 
 
 def maybe_start(app, window) -> Optional[BenchmarkController]:
-    """Install the controller named by the environment, or return ``None``."""
+    """Install the controller named by the environment, or return ``None``.
+
+    :param app: the running ``QApplication``, passed to the controller.
+    :param window: the main window the benchmark drives.
+    """
     output = os.environ.get(OUTPUT_ENV, "").strip()
     if not output:
         return None

@@ -1,8 +1,8 @@
 {
   "title": "spaCR screens",
   "description": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
-  "introduction": "Start on Home with the data you have. For a pooled image-based screen, use Mask and Measure to prepare image measurements, then Annotate and Classify to obtain phenotype scores. Use Map Barcodes for sequencing reads. Bring the scores and guide counts together in Regression, matching plate and well identifiers. Begin at the step that matches your existing results.",
-  "conclusion": "Before opening Regression, match the plate and well identifiers in your scores, guide counts and experimental layout. Keep the annotation column, classifier settings and barcode references with the run. Follow the linked module lessons for each step, or choose the pooled-screen walkthrough on Home for guided navigation.",
+  "introduction": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
+  "conclusion": "So a pooled screen runs as two streams that meet in Regression. Before you open it, check that the plate and well identifiers match across your scores, guide counts and plate layout, and keep the annotation column, classifier settings and barcode references with the run. The linked module lessons walk through each step, or choose the pooled-screen walkthrough on Home.",
   "pathways": [
     "pooled_screen"
   ],
@@ -14,6 +14,14 @@
     "map_barcodes",
     "regression"
   ],
+  "scenes": {
+    "mask": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
+    "measure": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+    "annotate": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+    "classify_merged": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
+    "map_barcodes": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
+    "regression": "This is where the two halves of the screen meet. Open Regression from Home and give it both: the phenotype scores from Classify and the guide counts from Map Barcodes. Regression matches them on plate and well, so those keys have to agree in both files. Choose the response column and your controls, run the fit, and open the diagnostics before you believe any hit. If your barcodes were read optically with OPS instead, join and aggregate the decoded objects to your phenotype and guide data first; OPS does not hand over a ready-made count table. Regression can also model a directly measured response. It writes a results folder of coefficients, hit tables, settings and diagnostic figures."
+  },
   "schema_version": 1,
   "source": "spacr/resources/module_workflows.json",
   "module_contracts": {

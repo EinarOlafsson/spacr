@@ -263,7 +263,12 @@ _REGISTRY: Optional[_Registry] = None
 
 
 def load_object(reference: str) -> Any:
-    """Import and return ``module:attribute`` (nested attributes supported)."""
+    """Import and return ``module:attribute`` (nested attributes supported).
+
+    :param reference: string of the form ``"package.module:attribute"``; the
+        attribute part may be dotted to reach nested objects. Anything else
+        raises ``ValueError``.
+    """
     if not isinstance(reference, str) or not _REF_RE.match(reference):
         raise ValueError(
             f"invalid object reference {reference!r}; expected 'package.module:attribute'"
@@ -370,7 +375,13 @@ def _report_from_mapping(value: Any) -> ReportSectionContribution:
 
 
 def plugin_from_mapping(value: Mapping[str, Any]) -> SpacrPlugin:
-    """Validate a mapping and return its immutable :class:`SpacrPlugin`."""
+    """Validate a mapping and return its immutable :class:`SpacrPlugin`.
+
+    :param value: manifest mapping whose keys are the :class:`SpacrPlugin`
+        fields; ``apps``, ``model_providers`` and ``report_sections`` may hold
+        mappings or contribution objects, and ``translations`` must map
+        language codes to string mappings. A non-mapping raises ``TypeError``.
+    """
     if not isinstance(value, Mapping):
         raise TypeError("plugin manifest must be a mapping")
     data = dict(value)
@@ -536,7 +547,11 @@ def plugin_apps() -> Tuple[AppContribution, ...]:
 
 
 def get_app(key: str) -> Optional[AppContribution]:
-    """Return a contributed app by key, or ``None``."""
+    """Return a contributed app by key, or ``None``.
+
+    :param key: ``key`` of an installed plugin's :class:`AppContribution`;
+        converted with ``str()`` before the registry lookup.
+    """
     return _registry().apps.get(str(key))
 
 
@@ -558,7 +573,12 @@ def diagnostics() -> Tuple[PluginDiagnostic, ...]:
 def record_diagnostic(
     plugin: str, message: str, exception: Any = "", severity: str = "error"
 ) -> None:
-    """Record a model/report/runtime plugin failure without aborting spaCR."""
+    """Record a model/report/runtime plugin failure without aborting spaCR.
+
+    :param plugin: name of the plugin that failed, stored on the
+        :class:`PluginDiagnostic` and written to the log.
+    :param message: user-facing account of the failed operation.
+    """
     diagnostic = PluginDiagnostic(
         str(plugin), str(severity), str(message), str(exception or "")
     )

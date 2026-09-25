@@ -359,6 +359,9 @@ def setting_dimension(key: str) -> str:
 
     Blank for the great majority of settings, which mean the same thing
     whatever axes the plate has.
+
+    :param key: settings key, matched exactly against the z (3-D) and t
+        (time-lapse and motility) setting sets of :func:`dimension_settings`.
     """
     for dimension, keys in dimension_settings().items():
         if key in keys:
@@ -465,6 +468,9 @@ class ModuleHeader(QWidget):
         Chart's table picker and Load button, Graph Builder's source
         label. They keep their row; they stop having to build the title
         part of it themselves.
+
+        :param widget: the control to append to the header row; it is also
+            returned, so a caller can build and keep it in one expression.
         """
         self._row.addWidget(widget, stretch)
         return widget
@@ -615,6 +621,13 @@ def settings_section_maturity(app_key: str, title: str) -> str:
     An alpha or beta module colours every one of its settings. A stable
     module can still contain an explicitly experimental ``(Beta)``/``(Alpha)``
     category, in which case that section receives the more cautious stage.
+
+    :param app_key: the module's registry key, whose stage comes from
+        :func:`module_maturity`.
+    :param title: the section heading; compared case-insensitively, it is
+        alpha when it is ``"alpha"`` or contains ``"(alpha)"``, beta
+        likewise, and stable otherwise.
+    :returns: ``"alpha"``, ``"beta"`` or ``"stable"``.
     """
     module_stage = module_maturity(app_key)
     normalized = str(title or "").strip().lower()
@@ -2073,6 +2086,10 @@ class AppScreen(QWidget):
         bar) and the ambient theme + palette (they are Preferences
         entries). Silently resetting a choice the user made is worse
         than a slightly off-theme one.
+
+        :param event: the state-change event; it is passed to the base
+            class, and only its type is read -- ``ApplicationPaletteChange``
+            and ``PaletteChange`` re-theme the backdrops.
         """
         super().changeEvent(event)
         if event.type() not in (QEvent.ApplicationPaletteChange,
@@ -2261,6 +2278,10 @@ class AppScreen(QWidget):
         base implementation is what draws the stylesheet background, and
         the stylesheet background is the ``bg`` slab being replaced —
         calling it afterwards would paint black straight back over this.
+
+        :param event: the paint event; handed to the base class only when
+            there is no page fill. The fill always covers the whole screen,
+            not just the event's region.
         """
         colour = self.page_fill()
         if colour is None:
@@ -4422,6 +4443,9 @@ class AppScreen(QWidget):
     def pick_wells_for(self, field, key: str = "") -> str:
         """Open the plate map on ``field``'s value. Returns what was written.
 
+        :param field: the settings field holding a well specification; its
+            ``text()`` seeds the picker and ``setText()`` receives the choice
+            when the field has them.
         :returns: the new specification, or ``""`` when the user closed
             without choosing -- in which case the field is untouched.
         """
@@ -5419,12 +5443,20 @@ class AppScreen(QWidget):
                     and not self.dimension_is_on(dimension))
 
     def dimension_switch(self, dimension: str):
-        """The 3D or Time toggle, or None on a screen that carries neither."""
+        """The 3D or Time toggle, or None on a screen that carries neither.
+
+        :param dimension: ``"z"`` for the 3D toggle or ``"t"`` for the Time
+            toggle.
+        """
         return (getattr(self, "_dimension_switches", None) or {}).get(
             str(dimension))
 
     def dimension_is_on(self, dimension: str) -> bool:
-        """Whether this screen is showing ``dimension``'s settings now."""
+        """Whether this screen is showing ``dimension``'s settings now.
+
+        :param dimension: ``"z"`` (3D) or ``"t"`` (time); a dimension this
+            screen does not track reads as off.
+        """
         return bool((getattr(self, "_dimension_on", None) or {}).get(
             str(dimension)))
 
@@ -5435,6 +5467,11 @@ class AppScreen(QWidget):
         shows a state the form does not have; a screen built without the
         action row still moves, which is what lets the settings panel be
         gated before the row that gates it exists.
+
+        :param dimension: ``"z"`` (3D) or ``"t"`` (time); a dimension this
+            screen does not track is ignored.
+        :param on: ``True`` to show the dimension's settings, ``False`` to
+            hide them.
         """
         dimension = str(dimension)
         if dimension not in (getattr(self, "_dimension_on", None) or {}):
@@ -5566,6 +5603,9 @@ class AppScreen(QWidget):
         this answer "hidden" for the entire settings panel of a module the
         user has not opened. ``isHidden`` and ``QFormLayout.isRowVisible``
         answer what was hidden ON PURPOSE, which is the question.
+
+        :param key: settings key of the row; a category still waiting to be
+            built is built first so its row can be read.
         """
         from PySide6.QtWidgets import QFormLayout
 
@@ -5883,7 +5923,15 @@ class AppScreen(QWidget):
 
 
     def eventFilter(self, obj, event):
-        """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
+        """Show/hide the hover tooltip and update the hint strip on Enter/Leave.
+
+        :param obj: the watched widget; its ``settingsCategory`` or
+            ``settingKey`` property decides whether a category blurb or a
+            setting's help is shown.
+        :param event: the filtered event; a ``ToolTip`` on a widget with
+            hover help is swallowed, ``Enter`` shows the help and ``Leave``
+            hides it, and every event is otherwise passed to the base class.
+        """
         event_type = event.type()
         if event_type == QEvent.ToolTip:
             if hasattr(self, "_hint_strip") and (
@@ -6815,6 +6863,7 @@ class AppScreen(QWidget):
 
         self._progress = QProgressBar()
         self._progress.setRange(0, 0)
+        self._progress.setTextVisible(False)
         self._progress.setVisible(False)
         self._progress.setFixedWidth(240)
         row.addWidget(self._progress)
@@ -7396,6 +7445,11 @@ class AppScreen(QWidget):
         was built is read back here rather than looked up again by the bare
         word, which would hand a filtration sub-heading the blurb about
         Cellpose models.
+
+        :param title: the category heading as built; its blurb is read from
+            the section's recorded blurbs, falling back to
+            :func:`category_tooltip`, and the translated heading is shown in
+            capitals before it.
         """
         strip = getattr(self, "_category_hint", None)
         if strip is None:
@@ -7433,6 +7487,10 @@ class AppScreen(QWidget):
         would need a restart. It costs a settings read and returns
         without touching anything when nothing changed — see
         :meth:`refresh_ambient_background`.
+
+        :param event: the show event; passed to the base class, and only a
+            non-spontaneous (application-initiated) show begins a new view
+            for the focus-collapse rule.
         """
         super().showEvent(event)
         focus = getattr(self, "_shell_focus", None)
@@ -8653,6 +8711,10 @@ class AppScreen(QWidget):
         A worker that has not reached a safe boundary keeps the screen alive;
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
+
+        :param event: the close event; ignored (so the screen stays open)
+            when the worker is still running three seconds after the cancel
+            request.
         """
         builder = self.__dict__.get("_idle_prebuild")
         if builder is not None:
@@ -9249,7 +9311,11 @@ class AppScreen(QWidget):
         return True
 
     def run_photograph(self, folder):
-        """The still kept for a run that is no longer live, or ``None``."""
+        """The still kept for a run that is no longer live, or ``None``.
+
+        :param folder: the run's output folder; looked up by absolute path,
+            and an empty value gives ``None``.
+        """
         if not folder:
             return None
         return self._run_photographs.get(os.path.abspath(str(folder)))
@@ -10483,6 +10549,10 @@ class AppScreen(QWidget):
         regression's fit level and the proportion plots' unit -- so replaying
         a measure screen's state into a regression screen would set keys that
         happen to collide and leave the rest.
+
+        :param state: mapping with ``app_key`` and ``settings`` keys, as
+            saved with the workspace; anything that is not a dict, names
+            another module, or has no settings applies nothing.
         """
         if not isinstance(state, dict):
             return False
@@ -10503,6 +10573,9 @@ class AppScreen(QWidget):
         loop. Silently skips keys the current app does not have — the same
         dict can safely be applied across several apps. Returns the count of
         keys actually applied.
+
+        :param settings: setting key to value mapping; legacy key names are
+            translated first, and it is merged over the current values.
         """
         settings = _translate_legacy_setting_keys(settings)
         settings = self._migrate_control_wells(settings)
@@ -10911,6 +10984,11 @@ def QtGui_QListWidgetItem_helper(fig, idx: int, target=None):
     Used in the figures panel's history strip. ``target`` is the widget the
     strip is on; the render is sized for that screen's pixel density, and
     falls back to the primary screen when no widget is given.
+
+    :param fig: the Matplotlib figure to render as a PNG thumbnail; a render
+        failure leaves the item without an icon.
+    :param idx: zero-based position in the history; the item's text is
+        ``#<idx + 1>``.
     """
     from io import BytesIO
     from PySide6.QtWidgets import QListWidgetItem

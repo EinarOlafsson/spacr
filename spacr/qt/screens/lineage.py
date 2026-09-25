@@ -237,6 +237,11 @@ class LineageScreen(LinkedView, QWidget):
 
         The seam a test — or another screen holding the same frames — goes
         through, so nothing here needs a database to be exercised.
+
+        :param frames: ``{table name: rows}``, as
+            :func:`spacr.lineage.build_forest` takes it; ``None`` counts as
+            empty. A ``LineageError`` from building the tree is shown in the
+            summary instead of raised.
         """
         self._frames = dict(frames or {})
         try:
@@ -479,7 +484,12 @@ class LineageScreen(LinkedView, QWidget):
             return None
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Reveal and highlight what another view selected, when we hold it."""
+        """Reveal and highlight what another view selected, when we hold it.
+
+        :param selection: the shared selection published by another view;
+            its ``keys`` are matched against the tree's object keys, and
+            ``None`` keys clear the highlight.
+        """
         if selection.keys is None:
             self.tree.clearSelection()
             return

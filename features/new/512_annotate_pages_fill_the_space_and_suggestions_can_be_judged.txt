@@ -1,7 +1,10 @@
 ANNOTATE: A PAGE FILLS THE SPACE, AND A SUGGESTION CAN BE JUDGED
 
-Status: OPEN, filed 2026-09-24. Not started.
-Owner: unassigned.
+Status: BUILT 2026-09-25, both parts (4d87aaf4c, 0d10e425c), tests green.
+        Needs the maintainer to try it on a real plate. Translations for
+        the new strings and the two new shortcut labels are for the docs
+        lane (listed in the note at the end).
+Owner: implementation lane (Claude); translations in the docs lane.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
     "in annotate, images should not be visable by scrolling they should ocupy
@@ -34,3 +37,151 @@ DONE WHEN
 No page of Annotate scrolls at any window size or console state, and a user
 can accept or reject every suggestion on a page without editing labels by
 hand, with the counts visible.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- BUILT, BOTH PARTS (Claude, worktree-agent-a9726c5922eacadbd)
+--------------------------------------------------------------------------------
+
+PART 1 -- THE PAGE IS WHAT FITS (commit 4d87aaf4c, plus the crop-pane
+minimum in 0d10e425c). Line numbers are from after the merge with nightly.
+  * spacr/qt/screens/annotate.py:581 grid_that_fits -- plain arithmetic
+    (tiles, gap, margins, always at least 1 x 1).
+  * :3897 _grid_area measures the crop pane (the content stack), not the
+    scroll viewport, because a viewport that has never been shown still
+    reports its default size. :3922 _compute_grid_dims sizes tiles at the
+    GUI scale in force. The grid's scroll bars are always off.
+  * :3987 _refit_grid runs on a window resize, on the crop pane's own
+    resize (console opened or a pane folded, caught in eventFilter) and on
+    a GUI scale change. It keeps _offset, so the first crop on screen stays
+    where it was. It reloads only when the shape changed.
+  * :5301 _page_counter_text -- "Page N of M · crops a–b of T".
+  * :467 CROP_PANE_MIN_HEIGHT = 140. The crop pane used to take the empty
+    state's 321 px minimum, which made the screen's minimum height 828 px
+    with the console open. At 1366 x 768 the window then grew past the
+    bottom of the screen. Now the minimum is 647 px, or about 700 with the
+    judge bar showing, and the console opens inside a 768 px window.
+
+PART 2 -- JUDGING A SUGGESTION (commit 0d10e425c)
+  * THE BADGE. The tile (:1158 set_badge, :1190 _paint_badge) draws an
+    amber "?" for a suggestion still to judge, a green tick once confirmed
+    and a red cross once rejected. The badge sits in the top right corner
+    and its marks are drawn as lines, so a font without a tick glyph cannot
+    turn it into a missing-glyph box. The colours come from :528
+    badge_colors (the theme's warning, success and error colours, with the
+    glyph in the theme's background colour). Each reads at 4.5:1 or better
+    in both dark and light, and a test checks that. The dashed ring from
+    379 stays as well.
+  * THE ACTION. On a suggested crop, a click CONFIRMS and a right-click
+    REJECTS (:5063 _on_thumb_left / right). On any other crop the click
+    labels 1 or 2 as before. Y and N do the same for the focused crop and
+    move to the next suggestion (:615 tokens, :5797 _kbd_judge). U undoes a
+    judgement along with its label, because the undo entry now carries the
+    verdict. "Confirm/Reject the rest of the page" judges what is left
+    (:5807 _judge_page). The core is :5727 _judge. Judging is refused while
+    a Suggest run is going, and the refusal says why.
+  * THE INSTRUCTIONS AND COUNTS. A bar above the key legend (:3805
+    _build_judge_bar, :5704 _refresh_judge_bar) shows the instruction and
+    "This page: N suggested · N confirmed · N rejected · N left. Whole
+    column: N left to judge · N confirmed · N rejected." The bar is hidden
+    until the column holds a suggestion or a judgement. Y and N are on the
+    shortcut map (spacr/qt/shortcuts.py:131). LEGEND_COMPACT/LEGEND_FULL
+    were left alone because they are pinned to catalog rows.
+  * THE DATABASE. The judgement is stored in "<column>_verdict": +c
+    confirmed, -c rejected, NULL not judged (spacr/suggest.py:368
+    verdict_column). THE MIGRATION is :382 ensure_verdict_column, called when
+    a source is opened (annotate.py:5679 _ensure_verdict_column). It adds an
+    INTEGER column with no default, so no row is rewritten. It is idempotent
+    and tested on an old table. Writes go through the one SaveWorker
+    (annotate_engine.py:1419 submit(batch, column=...)), in the same queue
+    as the labels. A label that contradicts a judgement withdraws the
+    judgement (annotate.py:555 verdict_contradicts, applied in :5407
+    _set_annotation), so the two columns never disagree. Counts are read
+    back at :5640 _recount_judgements and kept up to date after every
+    change. A bulk Keep records +c (suggest.py:329); a bulk Throw records
+    nothing, because "I do not want to review these" is not "these are
+    wrong". Clear column clears the verdicts (annotate_engine.py:1310).
+    Agreement does not offer <col>_verdict as an annotator
+    (agreement.py:158).
+  * THE NEXT ROUND. _SuggestWorker reads suggest.py:491
+    rejected_suggestions (rejected and not relabelled since) and passes
+    them as retrain_round(rejections=...) (annotate.py:910,
+    active_learning.py:2525). In a two-class column a rejected 1 is fitted
+    as a 2 (:2881 _rejections_as_labels). A crop labelled since the
+    rejection keeps its label. With more than two classes a rejection
+    cannot be fitted, and the round's notes count it. The console says how
+    many rejections were handed to the fit, and the model card records
+    rejections_fitted. What the user CONFIRMED is an ordinary label in the
+    column, so the fit reads it as it reads any label.
+
+TESTS
+  tests/qt/test_an_annotate_page_holds_what_fits.py -- 7 cases: the
+    arithmetic; no scroll range and every tile inside the viewport at
+    1366x768, 1000x720 and 760x560 with the console closed, open and closed
+    again (layout settled before measuring); the page shrinks when the
+    console opens and the counter's total grows; the first crop stays; the
+    console opens inside a 768 px window.
+  tests/qt/test_a_suggestion_can_be_judged.py -- 20 cases: badge per state;
+    badge contrast in dark and light; click confirms / right-click rejects,
+    with the counts and the bar text; a click on a crop that is not a
+    suggestion still labels it; Y/N judge and advance; Y on a crop that is
+    not a suggestion says so; undo restores the suggestion and the counts;
+    the page buttons; relabelling withdraws a confirmation; stored in the
+    database and still there after a restart (badges and counts come back);
+    MIGRATION of an old table on open, with no value changed; migration is
+    idempotent; a bulk Keep is recorded as confirming; Clear column clears
+    the verdicts; Agreement exclusion; the Suggest worker hands
+    retrain_round the rejections; a real retrain_round fits 10 rejections
+    as the other class.
+  Run after the merge with nightly (cc996d40e), with QT offscreen through
+  tools/run_capped.sh 8G, as one process:
+    every tests/qt file matching annotat|suggest (41 files), tests/ files
+    for suggest/active_learning/agreement, and the four shortcut test
+    files -- 59 files, 1263 passed, 0 failed.
+  The i18n inventory and ratchet tests were already red on nightly before
+  this work (strings from other items waiting for their catalog rows). This
+  item adds to that list; see below.
+  Screenshots at 1366x768, dark and light, with the console closed and open:
+  /tmp/spacr-512-scratch/shots/annotate_{dark,light}_console_{closed,open}.png.
+  Scroll range was 0 both ways in all four. With the console closed the
+  page is 2 x 11; with it open, 1 x 11 and the counter reads "of 28". All
+  three badges are legible in both themes.
+
+NOT DONE / OPEN
+  * A crop rejected in one round is suggested again by the next round,
+    usually as the other class, because the fit learned from the rejection.
+    It then needs judging again. Leaving it unsuggested was the
+    alternative, but it would hide the model's changed opinion. Say if you
+    want it the other way.
+  * The KEEP-is-withheld flag for a one-class run
+    (`_suggestions_are_a_ranking`) is still set from the synthetic-negative
+    count. When rejections supply the other class it can withhold KEEP on
+    a run that did not need to invent negatives. That errs on the safe side.
+  * Only tested offscreen and with a bare screen, not inside the main
+    window on a real display.
+
+NEW USER-VISIBLE STRINGS FOR THE DOCS LANE (all through tr() or the
+shortcut map; no catalog rows added)
+  "Page {page} of {pages} · crops {first}–{last} of {total}"
+  "Suggested crops wear a ? badge. Click one or press Y to confirm it;
+   right-click or press N to reject it; U undoes."
+  "This page: {suggested} suggested · {confirmed} confirmed · {rejected}
+   rejected · {left} left. Whole column: {tleft} left to judge ·
+   {tconfirmed} confirmed · {trejected} rejected."
+  "Confirm the rest of the page"   "Reject the rest of the page"
+  "Confirm every suggestion on this page you have not judged yet.
+   Undoable with U."  (and the same with "Reject")
+  "Nothing to judge — open a source first."
+  "A suggestion run is going; judge its suggestions when it has finished."
+  "This crop is not a suggestion; a number key labels it."
+  "Confirmed: class {cls}."   "Rejected: not class {cls}."
+  "{done} Every suggestion on this page is judged; Enter loads the next
+   page."
+  "Confirmed {n} suggestions on this page."
+  "Rejected {n} suggestions on this page."
+  console notices: "{n} rejected suggestions were handed to this round's
+   fit: a rejection is an example of the other class.\n" and "Judge them
+   one at a time: click or press Y to confirm a suggestion, right-click or
+   press N to reject it.\n"
+  shortcut map (compact layer, needs _ROWS + ratchet bump): "Confirm the
+   suggested label", "Reject the suggested label".

@@ -4217,76 +4217,106 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "プレートビューア",
+      "title": "Plate Viewer: inspect wells and export a heatmap table",
       "series": 4,
       "app_key": "plate_view",
-      "section": "結果と品質管理",
-      "description": "測定値をプレートヒートマップとして表示し、空間的アーティファクトやエッジ効果を検出します。",
+      "section": "Results and quality control",
+      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
       "objectives": [
-        "目的に適したプレートヒートマップを作成する。",
-        "空間的アーティファクトと低カウントによるアーティファクトを認識する。",
-        "追跡可能なウェル要約を確認してエクスポートする。"
+        "Open Plate Viewer from Graph Builder and load example measurements.",
+        "Choose a feature, aggregation and minimum object count.",
+        "Inspect well details and export the current well grid."
       ],
-      "prerequisite": "安定したプレート識別子とウェル識別子を用いてプレートを測定してください。",
+      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
       "scenes": [
         {
-          "narration": "Plate Viewer は、オブジェクト測定値をウェル単位のヒートマップに集約し、空間的な品質検査を併せて表示します。",
-          "visual": "01_overview",
+          "visual": "01_graph_builder_host",
+          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
           "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Plate Viewer は、オブジェクト測定値をウェル単位のヒートマップに集約し、空間的な品質検査を併せて表示します。"
+          "related_lessons": [
+            "58_graph_builder"
+          ]
         },
         {
-          "narration": "Results and quality control セクションから Plate Viewer を開きます。measurements データベースまたは実行フォルダーを開きます。入力元へのクエリは読み取り専用です。",
-          "visual": "02_database",
+          "visual": "03_example_mean",
+          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
           "hold_after": 0.7,
-          "focus_key": "source",
-          "speech_text": "Results and quality control セクションから Plate Viewer を開きます。measurements データベースまたは実行フォルダーを開きます。入力元へのクエリは読み取り専用です。"
+          "related_lessons": [
+            "08_measure",
+            "09_annotate"
+          ],
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "表示するオブジェクトテーブル、数値特徴量、プレートを選択します。",
-          "visual": "03_measurement",
+          "visual": "03_example_mean",
+          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
           "hold_after": 0.7,
-          "focus_key": "selection",
-          "speech_text": "表示するオブジェクトテーブル、数値特徴量、プレートを選択します。"
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "集約方法、カラースケール、ウェルに必要な最小エビデンスを選択します。Count は、セグメンテーションまたは播種の差を検出するのに有用です。",
-          "visual": "04_options",
+          "visual": "04_colour_scale",
+          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
           "hold_after": 0.7,
-          "focus_key": "options",
-          "speech_text": "集約方法、カラースケール、ウェルに必要な最小エビデンスを選択します。Count は、セグメンテーションまたは播種の差を検出するのに有用です。"
+          "focus": [
+            335,
+            240,
+            3450,
+            330
+          ]
         },
         {
-          "narration": "表示を作成し、ヒートマップを行、列、リング、エッジの診断結果と比較します。",
-          "visual": "05_render",
-          "hold_after": 0.7,
-          "focus_key": "render",
-          "speech_text": "表示を作成し、ヒートマップを行、列、リング、エッジの診断結果と比較します。"
+          "visual": "03_example_mean",
+          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "hold_after": 0.7
         },
         {
-          "narration": "ウェルを選択して、識別子、オブジェクト数、表示値、位置を確認します。",
-          "visual": "07_well_detail",
-          "hold_after": 0.7,
-          "focus_key": "well_detail",
-          "speech_text": "ウェルを選択して、識別子、オブジェクト数、表示値、位置を確認します。"
+          "visual": "05_well_detail",
+          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "hold_after": 0.7
         },
         {
-          "narration": "エビデンスしきい値を下回るウェルは、誤解を招くゼロではなく、明示的な空欄として表示されます。",
-          "visual": "11_filtered_result",
+          "visual": "06_count",
+          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
           "hold_after": 0.7,
-          "focus_key": "result",
-          "speech_text": "エビデンスしきい値を下回るウェルは、誤解を招くゼロではなく、明示的な空欄として表示されます。"
+          "focus": [
+            340,
+            300,
+            1800,
+            1300
+          ]
         },
         {
-          "narration": "監査または再描画に使用できるよう、カウントと空間アノテーションを含む現在の整然形式のウェルグリッドをエクスポートします。",
-          "visual": "13_export",
-          "hold_after": 0.7,
-          "focus_key": "export",
-          "speech_text": "監査または再描画に使用できるよう、カウントと空間アノテーションを含む現在の整然形式のウェルグリッドをエクスポートします。"
+          "visual": "07_filtered",
+          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_save_csv",
+          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_exported",
+          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "hold_after": 0.7
         }
       ],
-      "host_app_key": "graph_builder"
+      "host_app_key": "graph_builder",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "34_database",

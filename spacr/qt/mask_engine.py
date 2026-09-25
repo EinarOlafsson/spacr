@@ -104,7 +104,12 @@ _EIGHT = np.ones((3, 3), dtype=np.uint8)
 
 
 def list_images(folder: str) -> List[str]:
-    """Return filenames of image files in `folder`, sorted, or []."""
+    """Return filenames of image files in `folder`, sorted, or [].
+
+    :param folder: directory to list (not recursively); an empty value or a
+        missing directory gives ``[]``. Only names ending in
+        :data:`IMAGE_EXTS`, case-insensitively, are kept.
+    """
     if not folder or not os.path.isdir(folder):
         return []
     return sorted(
@@ -747,7 +752,12 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
 def normalize_uint16(image: np.ndarray,
                      lower_pct: float = 1.0,
                      upper_pct: float = 99.9) -> np.ndarray:
-    """Return image clipped + rescaled to its dtype's full range."""
+    """Return image clipped + rescaled to its dtype's full range.
+
+    :param image: integer-typed image (any integer dtype, despite the name);
+        clipped to its ``lower_pct`` and ``upper_pct`` percentiles. An empty
+        array is returned as is.
+    """
     if not image.size:
         return image
     lo = np.percentile(image, lower_pct)
@@ -1003,7 +1013,13 @@ def invert_for_detection(image: np.ndarray, *, bounds=None) -> np.ndarray:
 
 
 def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.ndarray:
-    """Blend a colorized label mask onto a grayscale image, uint8 RGB."""
+    """Blend a colorized label mask onto a grayscale image, uint8 RGB.
+
+    :param image: 2-D grayscale or RGB image in the 16-bit range; it is
+        divided by 256 to reach 8 bits.
+    :param mask: label mask with the image's height and width; each label
+        gets a fixed pseudo-random colour and 0 stays unblended.
+    """
     if image.ndim == 2:
         image = np.stack((image,) * 3, axis=-1)
     m = mask.astype(np.int32)
@@ -1025,7 +1041,14 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.
 
 def paint_disk(mask: np.ndarray, cx: int, cy: int, radius: int,
                value: int = 255) -> None:
-    """In-place stamp a filled square (radius half-width) at (cx, cy)."""
+    """In-place stamp a filled square (radius half-width) at (cx, cy).
+
+    :param mask: 2-D mask, modified in place; the square is clipped to it.
+    :param cx: centre column in pixels.
+    :param cy: centre row in pixels.
+    :param radius: half-width of the square in pixels; values below 1 are
+        treated as 1.
+    """
     if radius < 1:
         radius = 1
     h, w = mask.shape[:2]
@@ -1039,7 +1062,15 @@ def paint_disk(mask: np.ndarray, cx: int, cy: int, radius: int,
 
 def paint_line(mask: np.ndarray, x0: int, y0: int, x1: int, y1: int,
                radius: int, value: int = 255) -> None:
-    """In-place stamp a line of disks between two points (Bresenham)."""
+    """In-place stamp a line of disks between two points (Bresenham).
+
+    :param mask: 2-D mask, modified in place.
+    :param x0: start column in pixels.
+    :param y0: start row in pixels.
+    :param x1: end column in pixels.
+    :param y1: end row in pixels.
+    :param radius: half-width of each stamp; see :func:`paint_disk`.
+    """
     dx = abs(x1 - x0)
     dy = -abs(y1 - y0)
     sx = 1 if x0 < x1 else -1
@@ -1080,6 +1111,8 @@ def next_label(mask: np.ndarray) -> int:
     new object the id of one that was deleted makes two different cells
     share a name across a session, and nothing downstream can tell them
     apart afterwards.
+
+    :param mask: label mask; an empty array gives 1.
     """
     return (int(mask.max()) if mask.size else 0) + 1
 
@@ -1192,6 +1225,10 @@ def divide_object(mask: np.ndarray, p0, p1,
       halfway across would otherwise carve a groove into the object and
       call it a division; treating it as a miss means the gesture can just
       be redrawn.
+
+    :param mask: 2-D label mask; it is not modified.
+    :param p0: first end of the cut as ``(x, y)`` in pixels.
+    :param p1: second end of the cut as ``(x, y)`` in pixels.
     """
     band = _segment_band(mask.shape, p0, p1, width)
     if not band.any():
@@ -1238,13 +1275,20 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
 
 
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
-    """Return a mask whose connected components are labeled 1..N."""
+    """Return a mask whose connected components are labeled 1..N.
+
+    :param mask: label or binary mask; every pixel above 0 is foreground and
+        the result keeps its dtype.
+    """
     labeled, _ = _ndimage().label(mask > 0)
     return labeled.astype(mask.dtype)
 
 
 def clear_mask(mask: np.ndarray) -> np.ndarray:
-    """Return an all-zero array shaped like ``mask``."""
+    """Return an all-zero array shaped like ``mask``.
+
+    :param mask: label mask whose shape and dtype the result copies.
+    """
     return np.zeros_like(mask)
 
 
@@ -1263,6 +1307,9 @@ def invert_mask(mask: np.ndarray) -> np.ndarray:
     It is kept because it is a real thing to want -- a curator who has
     outlined the space BETWEEN the cells has drawn the complement of what is
     wanted -- but under the name that says what it does.
+
+    :param mask: label mask; every pixel above 0 counts as object. The result
+        keeps its dtype.
     """
     out = np.where(mask > 0, 0, 1).astype(mask.dtype)
     labeled, _ = _ndimage().label(out)
@@ -1270,7 +1317,13 @@ def invert_mask(mask: np.ndarray) -> np.ndarray:
 
 
 def remove_small_objects(mask: np.ndarray, min_area: int) -> np.ndarray:
-    """Drop connected components with area < min_area (in pixels)."""
+    """Drop connected components with area < min_area (in pixels).
+
+    :param mask: label or binary mask; every pixel above 0 is foreground. The
+        survivors are relabelled 1..N in the input's dtype.
+    :param min_area: smallest component to keep, in pixels; 0 or less
+        returns a copy unchanged.
+    """
     if min_area <= 0:
         return mask.copy()
     labeled, n = _ndimage().label(mask > 0)
@@ -1363,7 +1416,13 @@ def shrink_objects(mask: np.ndarray, distance: int = 1) -> np.ndarray:
 
 
 def erase_object_at(mask: np.ndarray, x: int, y: int) -> np.ndarray:
-    """Zero out the object under (x, y). No-op if no object there."""
+    """Zero out the object under (x, y). No-op if no object there.
+
+    :param mask: 2-D label mask; a modified copy is returned and the input is
+        left alone.
+    :param x: column in pixels; out of range returns ``mask`` itself.
+    :param y: row in pixels; out of range returns ``mask`` itself.
+    """
     if not (0 <= y < mask.shape[0] and 0 <= x < mask.shape[1]):
         return mask
     label_to_remove = int(mask[y, x])
@@ -1384,6 +1443,10 @@ def erase_object_in_place(mask: np.ndarray, x: int, y: int) -> int:
     both stutter and put every object of the sweep on its own undo step.
 
     The returned id is what the ledger records as the sweep's targets.
+
+    :param mask: 2-D label mask, modified in place.
+    :param x: column in pixels; out of range removes nothing.
+    :param y: row in pixels; out of range removes nothing.
     """
     height, width = mask.shape[:2]
     if not (0 <= y < height and 0 <= x < width):
@@ -1492,6 +1555,10 @@ def relative_tolerance(image: np.ndarray, percent: float) -> float:
     The floor of 1.0 keeps the wand usable on a flat field: a range of zero
     would otherwise give a tolerance of zero, and a tolerance of zero fills
     only pixels exactly equal to the seed.
+
+    :param image: intensity image whose max minus min sets the range; an
+        empty array gives ``1.0``.
+    :param percent: share of that range, in percent (``5`` means 5 %).
     """
     values = np.asarray(image, dtype=np.float32)
     if not values.size:
@@ -1543,6 +1610,9 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
     them a second time, so the ledger the screen prints cannot disagree with
     the mask it printed it about.
 
+    :param mask: 2-D label mask; it is not modified.
+    :param image: raw intensity image the same height and width as ``mask``;
+        a 3-D image is averaged over its last axis first.
     :returns: ``(mask, removals)``, the removals sorted by id. Nothing to do
         returns the original array untouched and an empty list.
     :param preserve_ids: measure all pixels bearing an ID as one object,
@@ -1609,6 +1679,9 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
     :func:`filter_report` is this function keeping what it measured; a
     caller that has to tell the user WHY an object went wants that one.
 
+    :param mask: 2-D label mask; it is not modified.
+    :param image: raw intensity image the same height and width as ``mask``;
+        a 3-D image is averaged over its last axis first.
     :param preserve_ids: retain primary/secondary identities when measuring
         and removing labels; disconnected pieces sharing an ID count together.
     """
@@ -3158,6 +3231,16 @@ def magic_wand(
     """BFS flood-fill from (seed_x, seed_y) filling pixels whose intensity
     is within `tolerance` (L2 distance) of the seed. Writes 255 (add) or
     0 (erase) into the returned mask copy.
+
+    :param image: intensity image, 2-D or with channels on the last axis;
+        distances are taken over the channel values.
+    :param mask: mask with the same height and width as ``image``; it is
+        copied, not modified.
+    :param seed_x: seed column in pixels.
+    :param seed_y: seed row in pixels. A seed outside the image returns
+        ``mask`` unchanged.
+    :param tolerance: largest distance from the seed value that still fills,
+        in the image's own intensity units; see :func:`relative_tolerance`.
     """
     if not (0 <= seed_y < image.shape[0] and 0 <= seed_x < image.shape[1]):
         return mask
@@ -3215,7 +3298,10 @@ class MaskHistory:
         self._redo.clear()
 
     def push(self, mask: np.ndarray) -> None:
-        """Store a deep-copy of ``mask`` and drop any redo history."""
+        """Store a deep-copy of ``mask`` and drop any redo history.
+
+        :param mask: label mask to record as the newest undo state.
+        """
         self._undo.append(np.array(mask, copy=True))
         self._redo.clear()
 
@@ -3320,6 +3406,9 @@ def _ordered_box(shape, p0, p1) -> Tuple[int, int, int, int]:
 def box_overlap(a, b) -> float:
     """Intersection over union of two ``(x0, y0, x1, y1)`` boxes.
 
+    :param a: first box; its first four items are read and truncated to
+        ``int``.
+    :param b: second box, read the same way.
     :returns: A value from 0 for disjoint boxes to 1 for identical boxes.
     """
     ax0, ay0, ax1, ay1 = (int(v) for v in a[:4])
@@ -3498,7 +3587,11 @@ def write_recrop(folder: str, filename: str, image: np.ndarray,
 
 
 def recrop_archive_dir(folder: str) -> str:
-    """Return the archive directory for recropped source fields."""
+    """Return the archive directory for recropped source fields.
+
+    :param folder: image folder; the archive is its
+        :data:`RECROP_ARCHIVE_DIRNAME` subfolder. Nothing is created.
+    """
     return os.path.join(folder, RECROP_ARCHIVE_DIRNAME)
 
 
@@ -3584,7 +3677,11 @@ def _append_recrop_manifest(archive: str, record: dict) -> str:
 
 
 def read_recrop_manifest(folder: str) -> List[dict]:
-    """Return recrop-archive records in chronological order."""
+    """Return recrop-archive records in chronological order.
+
+    :param folder: image folder whose :func:`recrop_archive_dir` holds the
+        manifest; a missing, unreadable or non-list manifest gives ``[]``.
+    """
     path = os.path.join(recrop_archive_dir(folder), RECROP_MANIFEST)
     try:
         with open(path, "r", encoding="utf-8") as handle:

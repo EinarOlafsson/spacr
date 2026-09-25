@@ -223,12 +223,19 @@ _COLLINEAR_SCAN_LIMIT = 1_500
 
 
 def component_name(index: int) -> str:
-    """``0 -> 'PC1'``. The column name a score lands in, in one place."""
+    """``0 -> 'PC1'``. The column name a score lands in, in one place.
+
+    :param index: the 0-based component index; converted to ``int``.
+    """
     return f"PC{int(index) + 1}"
 
 
 def component_index(name: str) -> Optional[int]:
-    """``'PC1' -> 0``, and ``None`` for anything that is not a PC column."""
+    """``'PC1' -> 0``, and ``None`` for anything that is not a PC column.
+
+    :param name: a column name such as ``"PC1"``; stripped and matched
+        case-insensitively.
+    """
     text = str(name).strip()
     if not text.upper().startswith("PC"):
         return None
@@ -251,6 +258,8 @@ def candidate_features(frame: pd.DataFrame) -> Tuple[str, ...]:
 
     A user who disagrees about a particular column puts it in
     :attr:`PCASpec.features` explicitly; nothing here refuses it.
+
+    :param frame: the measurement table whose columns are classified.
     """
     return tuple(sorted(name for name, kind in column_kinds(frame).items()
                         if kind == CONTINUOUS))
@@ -374,7 +383,12 @@ class PCASpec:
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "PCASpec":
         """Rebuild from :meth:`to_dict`; unknown keys ignored, missing keys
-        defaulted, so an analysis written by another build still opens."""
+        defaulted, so an analysis written by another build still opens.
+
+        :param payload: a mapping as :meth:`to_dict` writes it; ``features``,
+            ``n_components``, ``scaling``, ``nan_policy`` and
+            ``structural_missing`` are read and any other key is ignored.
+        """
         fields = {"features", "n_components", "scaling", "nan_policy",
                   "structural_missing"}
         known = {k: v for k, v in dict(payload).items() if k in fields}
@@ -432,7 +446,20 @@ class PCAResult:
     :param explained_variance_ratio: over the total variance of the analysed
         matrix — so it sums to 1 across all ``rank`` components, not across
         the ones returned.
+    :param total_variance: the analysed matrix's total variance, summed over
+        all components (not only the ones returned), in its own units.
+    :param centre: per feature, the mean subtracted before the decomposition,
+        aligned with ``features``.
+    :param scale: per feature, the divisor applied after centring: the standard
+        deviation (``ddof=1``) under z-score scaling, else 1.
     :param rank: the numerical rank. No more components than this exist.
+    :param n_rows_in: rows in the frame :func:`pca` was given, before the NaN
+        policy.
+    :param n_features_in: requested features that exist in the frame, before
+        the NaN policy and constant columns removed any.
+    :param scaling: the scaling mode used, one of :data:`SCALE_MODES`.
+    :param nan_policy: the missing-value policy used, one of
+        :data:`NAN_POLICIES`.
     :param dropped_features: ``{column: why}``, for everything that did not
         reach the decomposition.
     :param dropped_rows: objects removed by the NaN policy.
@@ -440,6 +467,8 @@ class PCAResult:
     :param collinear_groups: features that are perfectly correlated with each
         other. Kept in the analysis, reported because each such group weighs
         as many times as it has members.
+    :param notes: plain-language notes on what the analysis did, e.g. rank
+        deficiency.
     """
 
     features: Tuple[str, ...]
@@ -619,6 +648,11 @@ class PCAResult:
         lets the scores plot colour by ``gene``, facet by ``plateID`` and
         publish a real object-key selection when a cluster is brushed. The
         Graph Builder then draws it with no knowledge that it is a PCA.
+
+        :param source: the same frame :func:`pca` was given; its surviving rows
+            are taken by position.
+        :param components: how many ``PC`` columns to add; ``None`` adds all,
+            and other values are clamped between 1 and :attr:`n_components`.
         """
         k = self.n_components if components is None else \
             max(1, min(int(components), self.n_components))
@@ -940,6 +974,10 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     kept and reported, and no more components are returned than the data has
     independent directions.
 
+    :param frame: the measurement table; the features are read from its columns
+        and coerced to numbers, with ±inf treated as missing.
+    :param spec: what to decompose and how; ``None`` uses a default
+        :class:`PCASpec` (every candidate feature, z-scored).
     :raises PCAError: whenever the answer would be meaningless — with the
         reason and the way out in the message.
     """

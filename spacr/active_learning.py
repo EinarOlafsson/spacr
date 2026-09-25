@@ -90,8 +90,8 @@ from __future__ import annotations
 import os
 import sqlite3
 from collections import OrderedDict
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Sequence,
-                    Tuple)
+from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
+                    Sequence, Tuple)
 from urllib.parse import quote as _urlquote
 
 import numpy as np
@@ -2521,7 +2521,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                   measure: Any = DEFAULT_MEASURE,
                   diversity: Any = "well",
                   balance: str = "none",
-                  synthetic_negatives: Optional[int] = None) -> RoundResult:
+                  synthetic_negatives: Optional[int] = None,
+                  rejections: Optional[Mapping[Any, Any]] = None
+                  ) -> RoundResult:
     """Fit a model on the labels so far, score every crop, close the loop.
 
     This is the half of active learning that has been missing: the queue put
@@ -2582,6 +2584,15 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         probabilities -- so the round records which was in force, in
         ``notes`` and on the model card. The smaller
         class ("if there is class imbalance use the class with fewer").
+    :param rejections: ``{crop key: rejected class}`` -- suggestions the
+        annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In
+        a two-class column a rejection of class 1 is an example of class 2,
+        and it is fitted as one; a crop that has since been labelled is
+        left to its label, and in a column with any other classes the
+        rejection cannot be turned into a label and is counted in the notes
+        instead. A rejection is information, not silence: without this the
+        model that proposed the wrong class would be fitted on exactly the
+        same evidence next round and propose it again.
     :param synthetic_negatives: how many unannotated crops to draw at random
         and fit as the ABSENT class when only one class has been annotated.
         ``None`` (default) refuses instead, as before.
@@ -2651,6 +2662,24 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     raw_labels = list(crops.loc[train_index, annotation_column].to_numpy())
     class_values = sorted({_class_value(v) for v in raw_labels})
 
+    rejected_index: List[Any] = []
+    if rejections:
+        rejected_index, rejected_labels, unusable = _rejections_as_labels(
+            rejections, class_values, set(train_index), set(matrix.index))
+        if rejected_index:
+            train_index = train_index.append(pd.Index(rejected_index))
+            raw_labels = raw_labels + rejected_labels
+            class_values = sorted({_class_value(v) for v in raw_labels})
+            notes.append(
+                f"{len(rejected_index)} rejected suggestions were fitted as "
+                f"the other class: in a two-class column a rejection of "
+                f"class 1 is an example of class 2.")
+        if unusable:
+            notes.append(
+                f"{unusable} rejected suggestions could not be fitted: only "
+                f"a column whose classes are 1 and 2 has an 'other class' "
+                f"to fit a rejection as.")
+
     synthetic_index: List[Any] = []
     if len(class_values) == 1 and synthetic_negatives:
         present = class_values[0]
@@ -2661,8 +2690,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                 f"{annotation_column!r}, and synthetic negatives are defined "
                 f"for the binary classes 1 and 2 only. Annotate an example "
                 f"of the other class instead.")
+        already = set(rejected_index)
         pool = [i for i in crops.index[crops[annotation_column].isna()]
-                if i in matrix.index]
+                if i in matrix.index and i not in already]
         if len(pool) < int(synthetic_negatives):
             raise ValueError(
                 f"Asked for {int(synthetic_negatives)} synthetic negatives "
@@ -2775,6 +2805,7 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                 model_type, n_labels, n_new, notes,
                 {"balance": str(balance),
                  "synthetic_negatives": len(synthetic_index),
+                 "rejections_fitted": len(rejected_index),
                  "class_weight_balanced": _model_reweights(model_type)},
                 table=table, key=key, image_type=image_type)
 
@@ -2845,6 +2876,37 @@ def _model_reweights(model_type: str) -> bool:
     name = str(model_type).lower().replace("-", "_")
     return name in ("logistic_regression", "logistic", "lr",
                     "random_forest", "rf")
+
+
+def _rejections_as_labels(rejections: Mapping[Any, Any],
+                          class_values: Sequence[Any],
+                          labelled: set, scored: set):
+    """Turn rejected suggestions into rows the round can fit.
+
+    :param rejections: ``{crop key: rejected class}``.
+    :param class_values: the classes the annotator's own labels hold.
+    :param labelled: crop keys that already carry a label. Those win: the
+        label is the stronger statement and is already in the fit.
+    :param scored: crop keys that have a row in the feature matrix.
+    :returns: ``(keys, labels, unusable)`` -- the crops to add, the class
+        each is fitted as, and how many rejections had no "other class".
+    """
+    binary = set(_class_value(v) for v in class_values) <= {1, 2}
+    keys: List[Any] = []
+    labels: List[Any] = []
+    unusable = 0
+    seen = set()
+    for key, refused in dict(rejections).items():
+        if key in labelled or key not in scored or key in seen:
+            continue
+        other = _absent_binary_class(refused) if binary else None
+        if other is None:
+            unusable += 1
+            continue
+        seen.add(key)
+        keys.append(key)
+        labels.append(other)
+    return keys, labels, unusable
 
 
 def _absent_binary_class(present: Any) -> Optional[int]:

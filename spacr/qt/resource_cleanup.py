@@ -191,7 +191,14 @@ class Reclaim:
 
 @dataclass(frozen=True)
 class DiskEntry:
-    """One filesystem, and what it is holding."""
+    """One filesystem, and what it is holding.
+
+    :param path: the folder that was measured; it stands for the whole
+        filesystem it lives on.
+    :param total: the filesystem's size, in bytes.
+    :param used: bytes in use.
+    :param free: bytes free.
+    """
 
     path: str
     total: int
@@ -1380,7 +1387,11 @@ _CONFIRMATIONS: Dict[str, Tuple[str, str]] = {
 
 
 def confirmation_title(action: str) -> str:
-    """The title of ``action``'s confirmation dialog."""
+    """The title of ``action``'s confirmation dialog.
+
+    :param action: one of :data:`ACTIONS`; any other value raises
+        ``KeyError``.
+    """
     return _CONFIRMATIONS[action][0]
 
 
@@ -1390,6 +1401,9 @@ def confirmation_text(action: str) -> str:
     The long form, for the confirmation the user is asked to agree to. A
     bulleted list is right there: they are about to authorise it, and the
     bullets are what they are authorising.
+
+    :param action: one of :data:`ACTIONS`; any other value raises
+        ``KeyError``.
     """
     return _CONFIRMATIONS[action][1]
 

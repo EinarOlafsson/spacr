@@ -230,6 +230,9 @@ class RegexEditorDialog(QDialog):
         with: the intro wrapped to 54 px inside 36, and the sentence naming
         `chanID` -- the one thing the dialog exists to explain -- was the
         part cut off.
+
+        :param event: the resize event, passed to the base class first; the
+            labels are then re-fitted to the dialog's new width.
         """
         super().resizeEvent(event)
         for label in (self._intro, self._warnings_lbl):

@@ -74,7 +74,6 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -228,7 +227,11 @@ class ColumnMapModel(QAbstractTableModel):
 
 
     def set_maps(self, maps: Optional[List[fgn.ColumnMap]]) -> None:
-        """Replace the whole mapping."""
+        """Replace the whole mapping.
+
+        :param maps: the :class:`spacr.foreign.ColumnMap` rows to show, in
+            order; ``None`` empties the table.
+        """
         self.beginResetModel()
         self._maps = list(maps or [])
         self.endResetModel()
@@ -238,6 +241,9 @@ class ColumnMapModel(QAbstractTableModel):
 
         Shown as the row's tooltip, so a user can see *why* a column was
         renamed without leaving the table.
+
+        :param status: mapping of source column name to status word; ``None``
+            clears every status.
         """
         self._status = dict(status or {})
         if self._maps:
@@ -251,13 +257,20 @@ class ColumnMapModel(QAbstractTableModel):
         return list(self._maps)
 
     def map_at(self, row: int) -> Optional[fgn.ColumnMap]:
-        """One row's mapping, or None when ``row`` is out of range."""
+        """One row's mapping, or None when ``row`` is out of range.
+
+        :param row: zero-based table row.
+        """
         if 0 <= row < len(self._maps):
             return self._maps[row]
         return None
 
     def row_of(self, source: str) -> int:
-        """The row index for a source column name, or -1."""
+        """The row index for a source column name, or -1.
+
+        :param source: the foreign table's column name, compared as a string
+            with each mapping's ``source``.
+        """
         for index, mapping in enumerate(self._maps):
             if mapping.source == str(source):
                 return index
@@ -587,7 +600,9 @@ class ForeignScreen(QWidget):
         dst_row.addWidget(self._btn_import)
         outer.addLayout(dst_row)
 
-        self._progress_bar = QProgressBar(self)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress_bar = ProgressLine(self, detail=False)
         self._progress_bar.setRange(0, 100)
         self._progress_bar.setValue(0)
         self._progress_bar.setVisible(False)
@@ -625,7 +640,11 @@ class ForeignScreen(QWidget):
 
 
     def set_images(self, path: str) -> None:
-        """Point the screen at their image folder without opening a dialog."""
+        """Point the screen at their image folder without opening a dialog.
+
+        :param path: the foreign image folder. When the destination is still
+            empty it is filled with this path plus ``_spacr``.
+        """
         self._images_edit.setText(str(path or ""))
         if path and not self._dst_edit.text().strip():
             normalised = os.path.normpath(str(path))
@@ -638,6 +657,11 @@ class ForeignScreen(QWidget):
     def add_mask_folder(self, object_type: str, path: str) -> bool:
         """Register a mask folder for one object class.
 
+        :param object_type: storage name of a mask class in
+            :data:`OBJECT_CHOICES`, e.g. ``"cell"``; surrounding whitespace is
+            ignored.
+        :param path: folder holding that class's masks; replaces any folder
+            already registered for the class.
         :returns: False when the class is unknown or the path is blank,
             with the reason inline — never an exception into a GUI slot.
         """
@@ -659,7 +683,11 @@ class ForeignScreen(QWidget):
         return True
 
     def remove_mask_folder(self, object_type: str) -> bool:
-        """Forget one object class's mask folder."""
+        """Forget one object class's mask folder.
+
+        :param object_type: storage name of the mask class; returns ``False``
+            when no folder is registered for it.
+        """
         if str(object_type) not in self._masks:
             return False
         del self._masks[str(object_type)]
@@ -771,7 +799,11 @@ class ForeignScreen(QWidget):
         choose_import_test_data(self)
 
     def set_measurements(self, path: str) -> None:
-        """Point the screen at their measurement table."""
+        """Point the screen at their measurement table.
+
+        :param path: the foreign measurement table file; ``None`` or empty
+            clears the field.
+        """
         self._table_edit.setText(str(path or ""))
 
     def measurements_path(self) -> str:
@@ -779,7 +811,11 @@ class ForeignScreen(QWidget):
         return self._table_edit.text().strip()
 
     def set_destination(self, path: str) -> None:
-        """Set the destination project root."""
+        """Set the destination project root.
+
+        :param path: folder the import is written to; ``None`` or empty
+            clears the field.
+        """
         self._dst_edit.setText(str(path or ""))
         self._update_controls()
 
@@ -788,7 +824,11 @@ class ForeignScreen(QWidget):
         return self._dst_edit.text().strip()
 
     def set_pixel_size(self, value: Any) -> None:
-        """Set the µm-per-pixel scale; None or '' means unknown."""
+        """Set the µm-per-pixel scale; None or '' means unknown.
+
+        :param value: micrometres per pixel, as a number or text; it is shown
+            as typed and parsed later by :meth:`pixel_size`.
+        """
         self._scale_edit.setText("" if value in (None, "") else str(value))
 
     def pixel_size(self) -> Optional[float]:
@@ -807,7 +847,11 @@ class ForeignScreen(QWidget):
             return None
 
     def set_on_conflict(self, value: str) -> None:
-        """Choose refuse-or-rename for colliding targets."""
+        """Choose refuse-or-rename for colliding targets.
+
+        :param value: ``"refuse"`` or ``"rename"``, as in
+            :data:`CONFLICT_CHOICES`; anything else raises ``ValueError``.
+        """
         index = self._conflict_box.findData(value)
         if index < 0:
             raise ValueError(f"Unknown on_conflict: {value!r}")
@@ -1010,6 +1054,11 @@ class ForeignScreen(QWidget):
 
         The screen's own edit path, exposed so a test drives the same code
         an editor widget does rather than reaching into the model.
+
+        :param row: zero-based mapping row.
+        :param key: column name from :data:`MAP_COLUMNS`, e.g. ``"target"``;
+            an unknown or read-only column returns ``False``.
+        :param value: new cell text; surrounding whitespace is stripped.
         """
         columns = [name for name, _label, _editable in MAP_COLUMNS]
         if key not in columns:
@@ -1038,7 +1087,12 @@ class ForeignScreen(QWidget):
 
 
     def save_mapping(self, path: str) -> bool:
-        """Write the mapping on screen to a reviewable CSV."""
+        """Write the mapping on screen to a reviewable CSV.
+
+        :param path: destination CSV file, written by
+            :func:`spacr.foreign.save_column_map`. Returns ``False`` when there
+            is nothing to save or the write fails.
+        """
         if not self._model.rowCount():
             self._set_status("There is no mapping to save — press Preview "
                              "first.", error=True)
@@ -1053,7 +1107,12 @@ class ForeignScreen(QWidget):
         return True
 
     def load_mapping(self, path: str) -> bool:
-        """Read a mapping back and apply it to the plan on screen."""
+        """Read a mapping back and apply it to the plan on screen.
+
+        :param path: column-map CSV written by :meth:`save_mapping` or
+            :func:`spacr.foreign.save_column_map`, possibly edited. A read
+            error is shown in the status line and returns ``False``.
+        """
         try:
             maps = fgn.load_column_map(str(path))
         except Exception as exc:

@@ -154,7 +154,7 @@
     },
     {
       "visual": "14_actual_completion",
-      "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
+      "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
       "focus": [
         1510,
         1200,

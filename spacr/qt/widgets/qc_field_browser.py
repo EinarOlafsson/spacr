@@ -75,7 +75,15 @@ _MASK_COLOURS: Dict[str, Tuple[int, int, int]] = {
 
 @dataclass(frozen=True)
 class QCFieldVerdict:
-    """One object type's persisted verdict for the field on screen."""
+    """One object type's persisted verdict for the field on screen.
+
+    :param object_type: the object type the verdict is for, e.g. ``"cell"``;
+        may be empty.
+    :param severity: ``"ok"``, ``"warn"`` or ``"fail"``, as the field's QC
+        recorded it.
+    :param flags: the flags QC raised for this object type in this field.
+    :param note: QC's free-text note, or empty.
+    """
 
     object_type: str
     severity: str
@@ -85,7 +93,19 @@ class QCFieldVerdict:
 
 @dataclass(frozen=True)
 class QCFieldTarget:
-    """One unique plate/field target and everything QC said about it."""
+    """One unique plate/field target and everything QC said about it.
+
+    :param field: the field name, with any ``.npy`` suffix removed.
+    :param plate_root: the project root of the plate the field belongs to.
+    :param merged_dir: the folder of merged field arrays,
+        ``<plate_root>/merged``.
+    :param verdicts: each object type's verdict for this field, sorted by
+        object type.
+    :param reasons: the flags or kinds of the findings that point at this
+        field, as ``<object_type>:<flag>`` when the finding names an object
+        type.
+    :param finding_texts: headlines of the findings that point at this field.
+    """
 
     field: str
     plate_root: str
@@ -226,6 +246,9 @@ def targets_from_digest(digest: Any) -> Tuple[QCFieldTarget, ...]:
     Positional findings, which have no per-field flag, contribute all fields
     in their plate/object-type group so the browser does not quietly omit the
     very pattern the banner asked the user to inspect.
+
+    :param digest: the QC digest (a :class:`spacr.seg_qc.QCDigest`); its
+        ``scorecards`` and ``findings`` are read by attribute.
     """
     groups = _group_digest(digest)
     wanted = {
@@ -267,7 +290,16 @@ def finding_targets(
     finding: Any,
     targets: Optional[Sequence[QCFieldTarget]] = None,
 ) -> Tuple[QCFieldTarget, ...]:
-    """Return the browser targets belonging to one rendered finding."""
+    """Return the browser targets belonging to one rendered finding.
+
+    :param digest: the QC digest (a :class:`spacr.seg_qc.QCDigest`); its
+        ``scorecards`` and ``findings`` are read by attribute.
+    :param finding: one finding of that digest; a flag finding matches its
+        exact fields, a positional one every field of its plate and object
+        type.
+    :param targets: the targets to choose from; ``None`` builds them with
+        :func:`targets_from_digest`.
+    """
     groups = _group_digest(digest)
     keys = set(_keys_for_finding(finding, groups))
     return tuple(
@@ -333,6 +365,10 @@ def load_qc_field(
     scorecards date.  A merged-plane fallback supports plates whose stack
     folders have since been archived while the self-describing merged array
     remains.
+
+    :param target: the field to read; its merged array is looked up in
+        ``merged_dir`` (active or quarantined).
+    :param language: UI language code for the error and warning messages.
     """
     merged_dir = target.merged_dir
     path = resolve_field_path(merged_dir, target.field)
@@ -639,7 +675,15 @@ def render_qc_field(
     channel: int = -1,
     visible_masks: Iterable[str] = (),
 ) -> np.ndarray:
-    """Render a uint8 RGB composite with object-type-coloured outlines."""
+    """Render a uint8 RGB composite with object-type-coloured outlines.
+
+    :param payload: a field loaded by :func:`load_qc_field`; one without
+        intensities raises :class:`ValueError`.
+    :param channel: the channel to show in grey, or -1 for the composite; a
+        channel past the last raises :class:`IndexError`.
+    :param visible_masks: the object types whose outlines are drawn; a type
+        with no mask, or a mask of the wrong shape, is skipped.
+    """
     if payload.intensities is None:
         raise ValueError(payload.error or "field has no image")
     count = int(payload.intensities.shape[2])
@@ -1089,7 +1133,13 @@ class QCFieldBrowser(QDialog):
         self._show_target()
 
     def open_at(self, field: str, plate_root: str = "") -> bool:
-        """Reposition an existing browser at a banner-link target."""
+        """Reposition an existing browser at a banner-link target.
+
+        :param field: the field name, without ``.npy``, as held in
+            :attr:`QCFieldTarget.field`.
+        :param plate_root: the plate's project root, compared as an absolute
+            path; empty matches the first target with that field in any plate.
+        """
         for index, target in enumerate(self._targets):
             if target.field == field and (
                 not plate_root
@@ -1411,7 +1461,12 @@ class QCFieldBrowser(QDialog):
         return super().eventFilter(watched, event)
 
     def keyPressEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Keep the triage keys working when the dialog itself has focus."""
+        """Keep the triage keys working when the dialog itself has focus.
+
+        :param event: the key press; a triage key (Left and Right to move
+            between fields, or a verdict key such as Q) is handled and
+            accepted, anything else goes to the base class.
+        """
         if self._handle_triage_key(event.key()):
             event.accept()
             return
@@ -1445,7 +1500,11 @@ class QCFieldBrowser(QDialog):
             pass
 
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Retire an in-flight image load before Qt destroys the dialog."""
+        """Retire an in-flight image load before Qt destroys the dialog.
+
+        :param event: the close event; passed on to the base class after the
+            timers and image-load workers are stopped.
+        """
         self._run_timer.stop()
         self._recheck_timer.stop()
         try:

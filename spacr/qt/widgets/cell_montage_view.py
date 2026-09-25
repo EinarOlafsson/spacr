@@ -2492,6 +2492,11 @@ class CellMontageView(QWidget):
         restore that started it would freeze a window the user had just
         opened to look around in. The settings are put back and the button is
         there; 155's "the montage says how it chose" is on screen either way.
+
+        :param state: mapping as saved with the workspace; its
+            ``picture_settings``, ``widgets``, ``picture_mode`` and
+            ``coefficient`` entries are each applied when present, and a
+            non-dict applies nothing.
         """
         if not isinstance(state, dict):
             return False
@@ -3268,7 +3273,11 @@ class CellMontageView(QWidget):
             tab.fill(columns)
 
     def resizeEvent(self, event):        # noqa: N802 - Qt's spelling
-        """Reflow the grid after a resize settles."""
+        """Reflow the grid after a resize settles.
+
+        :param event: the resize event; passed to the base class, and the
+            reflow timer is restarted so only the last of a burst reflows.
+        """
         super().resizeEvent(event)
         self._reflow.start()
 
@@ -3288,6 +3297,10 @@ class CellMontageView(QWidget):
         self._jobs.shutdown()
 
     def closeEvent(self, event):         # noqa: N802 - Qt's spelling
-        """Shut the loader down before the widget goes."""
+        """Shut the loader down before the widget goes.
+
+        :param event: the close event; passed to the base class after
+            :meth:`shutdown`.
+        """
         self.shutdown()
         super().closeEvent(event)

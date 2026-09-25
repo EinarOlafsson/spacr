@@ -166,7 +166,17 @@ def iter_image_files(root: Path, cap: Optional[int] = None):
 
 @dataclass
 class NameMapping:
-    """One row of the generated filename_map.csv."""
+    """One row of the generated filename_map.csv.
+
+    :param original_path: path of the source image file, as a string.
+    :param canonical: canonical file name minted for it,
+        ``<plate>_<well>_F<field>_C<channel>.tif``.
+    :param plate: plate id used in the canonical name.
+    :param well: well name such as ``A01``.
+    :param field: field index within the well, starting at 1.
+    :param channel: channel index, starting at 1.
+    :param time: time-point index written to the ``time`` column.
+    """
     original_path: str
     canonical:     str
     plate:         str
@@ -247,6 +257,11 @@ def save_filename_map(dst: Path,
     """Write ``mappings`` to ``dst`` as a CSV Excel opens cleanly.
 
     Columns: ``original_path, canonical, plate, well, field, channel, time``.
+
+    :param dst: CSV file to write; missing parent folders are created and an
+        existing file is overwritten.
+    :param mappings: rows to write, one per :class:`NameMapping`, in the given
+        order after a header row.
     """
     dst = Path(dst)
     dst.parent.mkdir(parents=True, exist_ok=True)
