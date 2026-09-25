@@ -102,72 +102,129 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "使用Conda安装",
+      "title": "使用Conda安装spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在独立环境中安装官方conda-forge软件包，核实渠道的实际版本，并识别它与当前模块教程之间的差异。",
+      "description": "创建Conda环境，从conda-forge安装spaCR并启动应用程序。",
       "objectives": [
-        "创建并激活专用Conda环境。",
-        "验证渠道软件包、Qt和诊断结果。",
-        "当渠道仍提供旧界面时，选择较新的pip或桌面安装器途径。"
+        "创建并激活专用的Conda环境。",
+        "从conda-forge安装spaCR。",
+        "打开spaCR，并在需要时更新同一环境。"
       ],
-      "prerequisite": "需要预先安装兼容Conda的环境管理器。本录制于2026年9月10日在Linux、Python 3.12.14和Qt 6.11.2上验证conda-forge的spaCR 1.5.0.4。全新安装使用新的私有路径，仅使用conda-forge并固定渠道版本；命令卡片说明对应的命名环境流程，不是安装输出回放。实际GUI仍是Home (63)，而非PyPI/安装器1.5.0.5的新嵌套布局。默认spacr-doctor的小型CUDA内存分配检查成功，但报告可选CZI支持警告；这不是速度测试，也没有验证所有分析或格式。录制使用字体缩放1.5的私有深色配置、已关闭的导览和未改动的预加载默认值，没有使用不受支持的--no-setup。其他平台未测试。制作文件与发布版旁白不同，因此不声称原样复用了音频。",
+      "prerequisite": "安装Conda或Miniforge，然后打开可以使用conda命令的终端。",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "为spaCR使用专用Conda环境，并核实渠道实际提供哪个版本。录制时conda-forge安装的是一点五点零点四。PyPI和桌面安装器已经提供一点五点零点五；这些版本标签不能互换。",
+          "narration": "打开已启用Conda的终端。您将为spaCR创建一个环境，安装conda-forge软件包，并从该环境启动应用程序。",
           "hold_after": 0.7,
-          "speech_text": "为斯佩克尔使用专用Conda环境，并核实渠道实际提供哪个版本。录制时conda-forge安装的是一点五点零点四。派普和桌面安装器已经提供一点五点零点五；这些版本标签不能互换。"
+          "speech_text": "打开已启用Conda的终端。您将为斯佩克尔创建一个环境，安装conda-forge软件包，并从该环境启动应用程序。"
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "使用显示的命令，创建名为spacr-conda的环境，其中包含Python三点十二和来自conda-forge的spaCR。如果这个名称已被其他环境使用，请另选一个名称。",
+          "hold_after": 0.7,
+          "speech_text": "使用显示的命令，创建名为斯佩克尔-conda的环境，其中包含Python三点十二和来自conda-forge的斯佩克尔。如果这个名称已被其他环境使用，请另选一个名称。"
         },
         {
           "visual": "07_create_conda",
-          "narration": "打开支持Conda的命令行，使用Python三点十二创建新环境。卡片使用spacr-conda这个名称。如果它已经存在，请选择另一个未使用的名称，并将这个环境与进行中的分析分开。",
+          "narration": "Conda会求解环境并列出软件包计划。检查后输入字母y接受，然后等待下载和安装完成。",
           "hold_after": 0.7,
-          "speech_text": "打开支持Conda的命令行，使用Python三点十二创建新环境。卡片使用斯佩克尔-conda这个名称。如果它已经存在，请选择另一个未使用的名称，并将这个环境与进行中的分析分开。"
+          "speech_text": "Conda会求解环境并列出软件包计划。检查后输入字母y接受，然后等待下载和安装完成。"
         },
         {
           "visual": "08_activate_conda",
-          "narration": "激活环境并输出sys点prefix，确认Python属于哪个环境。实际验证使用较长的私有路径，而不是示例中的短名称。仅看终端提示符，不能证明正在使用预期的解释器。",
+          "narration": "激活spacr-conda。运行显示的Python命令查看环境路径，并确认它就是您刚创建的环境。",
           "hold_after": 0.7,
-          "speech_text": "激活环境并输出sys点prefix，确认Python属于哪个环境。实际验证使用较长的私有路径，而不是示例中的短名称。仅看终端提示符，不能证明正在使用预期的解释器。"
+          "speech_text": "激活斯佩克尔-conda。运行显示的Python命令查看环境路径，并确认它就是您刚创建的环境。"
         },
         {
           "visual": "09_install_conda",
-          "narration": "安装明确指定conda-forge渠道的软件包，再用conda list spacr检查版本与渠道。验证中的安装仅使用conda-forge，并固定了渠道发布版本。安装在录制验证画面前已完成；这些卡片是操作说明，不是伪造的终端输出。",
+          "narration": "运行conda list spacr查看已安装的版本，并确认它来自conda-forge。用一条命令同时安装Python和spaCR，可以让Conda一起求解所有软件包，这比向现有环境添加spaCR快得多。",
           "hold_after": 0.7,
-          "speech_text": "安装明确指定conda-forge渠道的软件包，再用conda list 斯佩克尔检查版本与渠道。验证中的安装仅使用conda-forge，并固定了渠道发布版本。安装在录制验证画面前已完成；这些卡片是操作说明，不是伪造的终端输出。"
+          "speech_text": "运行conda list 斯佩克尔查看已安装的版本，并确认它来自conda-forge。用一条命令同时安装Python和斯佩克尔，可以让Conda一起求解所有软件包，这比向现有环境添加斯佩克尔快得多。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "检查已安装环境中的spaCR版本、Qt版本和软件包位置。这里的软件包为一点五点零点四，Qt导入成功。这确认了正在使用哪个包，不代表已经验证每一种科学分析流程或可选格式。",
+          "narration": "检查已安装的spaCR版本和软件包位置。把这个版本记在分析笔记中，以便以后回到同一环境。",
           "hold_after": 0.7,
-          "speech_text": "检查已安装环境中的斯佩克尔版本、Qt版本和软件包位置。这里的软件包为一点五点零点四，Qt导入成功。这确认了正在使用哪个包，不代表已经验证每一种科学分析流程或可选格式。"
+          "speech_text": "检查已安装的斯佩克尔版本和软件包位置。把这个版本记在分析笔记中，以便以后回到同一环境。"
         },
         {
           "visual": "05_doctor",
-          "narration": "运行spacr-doctor，也要阅读警告。此处的小型GPU内存分配检查成功，但可选CZI支持缺少一个依赖。跳过的检查不等于通过。建议的修复针对该功能；应用之前请评估环境变化，尤其是在混用软件包管理器时。",
+          "narration": "运行spacr-doctor检查安装情况。这里它报告缺少核心依赖vispy，并显示安装它的命令。运行该命令，然后再次运行spacr-doctor。其他建议步骤只需针对您需要的文件格式或功能执行。",
           "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-doctor，也要阅读警告。此处的小型GPU内存分配检查成功，但可选CZI支持缺少一个依赖。跳过的检查不等于通过。建议的修复针对该功能；应用之前请评估环境变化，尤其是在混用软件包管理器时。"
+          "speech_text": "运行斯佩克尔-doctor检查安装情况。这里它报告缺少核心依赖vispy，并显示安装它的命令。运行该命令，然后再次运行斯佩克尔-doctor。其他建议步骤只需针对您需要的文件格式或功能执行。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "安装的Conda软件包能够正常打开和关闭，但这是有六十三个入口的旧Home。它没有新的模块嵌套布局。不要认为安装成功就意味着所有界面都与较新版本的教程一致。",
+          "narration": "输入spacr启动应用程序。完成首次启动时的选项，然后继续学习Home教程，查找模块及其示例数据。",
           "hold_after": 0.7,
-          "speech_text": "安装的Conda软件包能够正常打开和关闭，但这是有六十三个入口的旧主页。它没有新的模块嵌套布局。不要认为安装成功就意味着所有界面都与较新版本的教程一致。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "输入斯佩克尔启动应用程序。完成首次启动时的选项，然后继续学习主页教程，查找模块及其示例数据。"
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "要使用更新后模块教程中的新嵌套界面，请在独立环境中按照当前pip或Platform installers课程操作。如果需要Conda渠道，请记录实际版本，并再次检查更新。保留进行中分析所用的版本。",
+          "narration": "以后要更新时，关闭spaCR，激活此环境并更新conda-forge软件包。如果conda-forge没有更新的构建，Conda会报告所有请求的软件包都已安装。之后检查已安装的版本；pip和安装程序课程介绍了其他安装方式。",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "要使用更新后模块教程中的新嵌套界面，请在独立环境中按照当前pip或Platform installers课程操作。如果需要Conda渠道，请记录实际版本，并再次检查更新。保留进行中分析所用的版本。"
+          "speech_text": "以后要更新时，关闭斯佩克尔，激活此环境并更新conda-forge软件包。如果conda-forge没有更新的构建，Conda会报告所有请求的软件包都已安装。之后检查已安装的版本；pip和安装程序课程介绍了其他安装方式。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -177,174 +234,276 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "创建独立的Python环境，安装公开发布的软件包，验证依赖关系，并启动已安装的Qt应用。",
+      "description": "创建独立的Python环境，安装公开软件包，检查其依赖项，并启动已安装的Qt应用程序。",
       "objectives": [
-        "将spaCR的依赖保留在专用Python环境中。",
-        "检查已安装的软件包、Qt和可选功能警告。",
-        "打开Home，并有意识地更新正确的环境。"
+        "创建并激活Python虚拟环境。",
+        "安装spaCR并检查其依赖项。",
+        "启动应用程序并更新目标环境。"
       ],
-      "prerequisite": "本课在Linux和Python 3.12.13上验证公开PyPI版spaCR 1.5.0.5，而非源码的可编辑安装。命令卡片是操作说明，不是录制的终端输出；此处未执行Windows和macOS命令。全新安装在录制验证过程前已经完成。当前基础依赖包含Qt。Doctor报告可选CZI功能警告；GPU内存分配探测被明确跳过。GUI录制使用--no-setup、字体缩放1.5的私有深色配置，以及已经关闭的导览。它证明Home能够正常打开和关闭，不代表所有模块、可选格式、GPU计算或其他平台均已验证。",
+      "prerequisite": "安装Python 3.12并打开终端。使用适合您的操作系统和shell的激活命令。",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "将spaCR安装在独立的Python环境中。本演示使用Linux上的Python三点十二，以及PyPI公开发布版，而不是源码检出版本。在为环境选择解释器前，请检查python、两个短横线、version。",
+          "narration": "打开终端并检查Python版本。本演示使用Python三点十二。请把spaCR放在专用的虚拟环境中，便于管理它的软件包。",
           "hold_after": 0.7,
-          "speech_text": "将斯佩克尔安装在独立的Python环境中。本演示使用Linux上的Python三点十二，以及派普公开发布版，而不是源码检出版本。在为环境选择解释器前，请检查python、两个短横线、version。"
+          "speech_text": "打开终端并检查Python版本。本演示使用Python三点十二。请把斯佩克尔放在专用的虚拟环境中，便于管理它的软件包。"
         },
         {
           "visual": "07_create_environment",
-          "narration": "使用适合平台的命令创建新的虚拟环境。这里的点venv是工作目录中的新文件夹。Python三点十二需要预先安装；这个命令创建环境，不会安装Python本身。",
+          "narration": "使用适合您操作系统的命令，创建名为点venv的虚拟环境。这会创建一个文件夹，其中包含您将用于spaCR的Python环境。",
           "hold_after": 0.7,
-          "speech_text": "使用适合平台的命令创建新的虚拟环境。这里的点venv是工作目录中的新文件夹。Python三点十二需要预先安装；这个命令创建环境，不会安装Python本身。"
+          "speech_text": "使用适合您操作系统的命令，创建名为点venv的虚拟环境。这会创建一个文件夹，其中包含您将用于斯佩克尔的Python环境。"
         },
         {
           "visual": "08_activate_environment",
-          "narration": "用当前命令行环境对应的命令激活它。PowerShell、Command Prompt、bash和zsh使用不同的激活命令。如果PowerShell阻止脚本，请使用Command Prompt或直接调用环境中的Python，不要降低整台计算机的安全设置。",
+          "narration": "使用适合您shell的命令激活点venv。Windows PowerShell和命令提示符的激活命令不同；macOS和Linux通常使用这里显示的shell命令。",
           "hold_after": 0.7,
-          "speech_text": "用当前命令行环境对应的命令激活它。PowerShell、Command Prompt、bash和zsh使用不同的激活命令。如果PowerShell阻止脚本，请使用Command Prompt或直接调用环境中的Python，不要降低整台计算机的安全设置。"
+          "speech_text": "使用适合您shell的命令激活点venv。Windows PowerShell和命令提示符的激活命令不同；macOS和Linux通常使用这里显示的shell命令。"
         },
         {
           "visual": "02_pip_environment",
-          "narration": "运行python、短横线m、pip、两个短横线、version。显示的位置应当在选定的环境内。这是真实终端，其中较长的私有路径用于录制。使用python、短横线m、pip，会把软件包安装与该解释器关联起来。",
+          "narration": "运行python 横杠 m pip 横杠横杠 version。确认显示的路径属于点venv。安装命令请使用python 横杠 m pip，让pip使用这个解释器。",
           "hold_after": 0.7,
-          "speech_text": "运行python、短横线m、pip、两个短横线、version。显示的位置应当在选定的环境内。这是真实终端，其中较长的私有路径用于录制。使用python、短横线m、pip，会把软件包安装与该解释器关联起来。"
+          "speech_text": "运行python 横杠 m pip 横杠横杠 version。确认显示的路径属于点venv。安装命令请使用python 横杠 m pip，让pip使用这个解释器。"
         },
         {
           "visual": "09_install_package",
-          "narration": "先升级pip，再安装spacr。固定为一点五点零点五，可以使用本课验证的同一发布版本。全新安装在这些验证画面录制前已经完成。请为科学计算依赖预留时间和磁盘空间；当前基础依赖已经包含Qt桌面组件。",
+          "narration": "升级pip，然后安装spacr。等待科学计算软件包下载并安装完成。当前软件包包含打开应用程序所需的桌面组件。",
           "hold_after": 0.7,
-          "speech_text": "先升级pip，再安装斯佩克尔。固定为一点五点零点五，可以使用本课验证的同一发布版本。全新安装在这些验证画面录制前已经完成。请为科学计算依赖预留时间和磁盘空间；当前基础依赖已经包含Qt桌面组件。"
+          "speech_text": "升级pip，然后安装斯佩克尔。等待科学计算软件包下载并安装完成。当前软件包包含打开应用程序所需的桌面组件。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "检查安装的spaCR版本、Qt版本和软件包路径。这里三者都来自新环境。仅仅导入成功，不能证明每一种可选格式或分析都能运行，也不能证明窗口一定能打开。",
+          "narration": "使用显示的命令检查已安装的spaCR版本和软件包位置。把版本号与分析笔记一起保存。",
           "hold_after": 0.7,
-          "speech_text": "检查安装的斯佩克尔版本、Qt版本和软件包路径。这里三者都来自新环境。仅仅导入成功，不能证明每一种可选格式或分析都能运行，也不能证明窗口一定能打开。"
+          "speech_text": "使用显示的命令检查已安装的斯佩克尔版本和软件包位置。把版本号与分析笔记一起保存。"
         },
         {
           "visual": "04_dependency_check",
-          "narration": "运行python、短横线m、pip check。No broken requirements表示已安装依赖的声明相互一致。如果报告冲突，请先解决再继续；检查成功不等于对分析进行了科学验证。",
+          "narration": "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。",
           "hold_after": 0.7,
-          "speech_text": "运行python、短横线m、pip check。No broken requirements表示已安装依赖的声明相互一致。如果报告冲突，请先解决再继续；检查成功不等于对分析进行了科学验证。"
+          "speech_text": "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。"
         },
         {
           "visual": "05_doctor",
-          "narration": "运行spacr-doctor，除了通过项，也要阅读警告。此环境有一条可选CZI功能警告，并显示修复命令。录制时使用两个短横线的no gpu probe，因此会检测设备，但不测试GPU内存分配。跳过的检查不等于通过。",
+          "narration": "运行spacr-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。",
           "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-doctor，除了通过项，也要阅读警告。此环境有一条可选CZI功能警告，并显示修复命令。录制时使用两个短横线的no gpu probe，因此会检测设备，但不测试GPU内存分配。跳过的检查不等于通过。"
+          "speech_text": "运行斯佩克尔-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。"
         },
         {
           "visual": "10_launch_commands",
-          "narration": "从同一个已激活环境启动spacr。正常首次启动可能显示设置问题。本次有限验证明确使用两个短横线的no setup，以及为录制准备的配置，因此没有演示如何回答这些问题。",
+          "narration": "从已激活的环境启动spacr。首次启动时，按照设置提示选择您的偏好。",
           "hold_after": 0.7,
-          "speech_text": "从同一个已激活环境启动斯佩克尔。正常首次启动可能显示设置问题。本次有限验证明确使用两个短横线的no setup，以及为录制准备的配置，因此没有演示如何回答这些问题。"
+          "speech_text": "从已激活的环境启动斯佩克尔。首次启动时，按照设置提示选择您的偏好。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "这是从已安装wheel打开的真实Home窗口，包含六个核心模块以及Data、Tools和Assays分组。它在没有启动分析的情况下正常打开并关闭。关于导航、嵌套工具和模块教程，请继续学习Home课程。",
+          "narration": "Home打开后显示Core、Data、Tools和Assays类别。继续学习Home教程，查找模块、加载示例数据并打开流程概览。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "这是从已安装wheel打开的真实主页窗口，包含六个核心模块以及Data、Tools和Assays分组。它在没有启动分析的情况下正常打开并关闭。关于导航、嵌套工具和模块教程，请继续学习主页课程。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "主页打开后显示Core、Data、Tools和Assays类别。继续学习主页教程，查找模块、加载示例数据并打开流程概览。"
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "更新时先关闭spaCR，再激活打算修改的环境。升级软件包，重新运行pip check和spacr-doctor，并随分析记录更新后的版本。更新可能改变依赖和行为；不要悄悄更改正在支持进行中工作的环境。",
+          "narration": "要更新时，关闭spaCR并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "更新时先关闭斯佩克尔，再激活打算修改的环境。升级软件包，重新运行pip check和斯佩克尔-doctor，并随分析记录更新后的版本。更新可能改变依赖和行为；不要悄悄更改正在支持进行中工作的环境。"
+          "speech_text": "要更新时，关闭斯佩克尔并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "各平台安装程序",
+      "title": "使用桌面安装程序安装spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "选择官方桌面安装程序，理解加速器自动选择和可选隐私设置，并检查实际安装的Linux运行环境。",
+      "description": "下载适合您操作系统的安装程序，完成设置并打开spaCR。",
       "objectives": [
-        "选择与操作系统对应的官方安装程序。",
-        "区分自动加速与明确指定仅用CPU。",
-        "查看隐私选项、已安装版本和诊断警告。"
+        "下载并运行适合您操作系统的安装程序。",
+        "选择加速选项和首次启动偏好。",
+        "打开spaCR，并在设置出现问题时找到安装日志。"
       ],
-      "prerequisite": "本录像于2026年9月10日验证了通过校验和比对的spaCR 1.5.0.5公开Linux x86-64在线安装程序，使用Python 3.12.13、Qt 6.11.2和Torch 2.14.0+cu132。真实安装在这些验证画面录制前已经完成。安装使用新建的专用运行环境和启动器目录、已有系统图形库、--skip-system-deps及--no-launch，没有修改现有环境或系统依赖。四张参考卡是操作说明，不是Windows/macOS安装录像，也不是虚构的终端输出。Windows/macOS指导仅依据当前安装程序源代码核对。GUI录像使用专用深色配置、1.5倍字体、已关闭的导览、按需预加载以及--no-setup，但该参数不会跳过单独的隐私提示。通过真实Escape按键拒绝提示，所有可选项保持关闭，并读回专用配置确认。Doctor使用--no-gpu-probe；不宣称完成内存分配、速度、分析或其他平台验证。失败的录制尝试予以保留，不计作应用缺陷。",
+      "prerequisite": "下载适合您操作系统的官方安装程序，并为应用程序及其科学计算依赖项预留空间。",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "使用spaCR的官方GitHub发布页，选择与操作系统匹配的安装程序。在线安装程序会下载专用Python运行环境和科学计算依赖，不需要已有Conda环境。在这个Linux示例中，我们先将下载文件与发布校验和比对，再运行安装程序。",
+          "narration": "在GitHub上打开spaCR的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。",
           "hold_after": 0.7,
-          "speech_text": "使用斯佩克尔的官方GitHub发布页，选择与操作系统匹配的安装程序。在线安装程序会下载专用Python运行环境和科学计算依赖，不需要已有Conda环境。在这个Linux示例中，我们先将下载文件与发布校验和比对，再运行安装程序。"
+          "speech_text": "在GitHub上打开斯佩克尔的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。"
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "在Windows上选择在线安装可执行文件。当前安装程序源代码默认勾选自动加速；取消该可选组件的勾选即可仅使用CPU。这张卡说明选项，但不是Windows安装录像，也不是您电脑的兼容性测试。",
+          "narration": "在Windows上，运行安装程序并按照提示操作。保持选中自动加速，以使用在您电脑上检测到的受支持硬件；如果您需要，也可以选择仅使用CPU运行。",
           "hold_after": 0.7,
-          "speech_text": "在Windows上选择在线安装可执行文件。当前安装程序源代码默认勾选自动加速；取消该可选组件的勾选即可仅使用CPU。这张卡说明选项，但不是Windows安装录像，也不是您电脑的兼容性测试。"
+          "speech_text": "在Windows上，运行安装程序并按照提示操作。保持选中自动加速，以使用在您电脑上检测到的受支持硬件；如果您需要，也可以选择仅使用CPU运行。"
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "在macOS上选择适用于Intel和Apple silicon的通用在线安装包。如果运行环境缺失，应用启动器会启动当前用户的安装配置。在批准安全提示之前确认官方来源，并预留下载时间。这是经过源代码核对的指导，不是在macOS上实际执行的安装。",
+          "narration": "在macOS上，打开通用安装包并按照安装程序操作。从应用程序启动器启动spaCR，并等待首次运行的下载完成。阅读任何安全提示，并确认安装包来自官方发布。",
           "hold_after": 0.7,
-          "speech_text": "在macOS上选择适用于Intel和Apple silicon的通用在线安装包。如果运行环境缺失，应用启动器会启动当前用户的安装配置。在批准安全提示之前确认官方来源，并预留下载时间。这是经过源代码核对的指导，不是在macOS上实际执行的安装。"
+          "speech_text": "在macOS上，打开通用安装包并按照安装程序操作。从应用程序启动器启动斯佩克尔，并等待首次运行的下载完成。阅读任何安全提示，并确认安装包来自官方发布。"
         },
         {
           "visual": "11_linux_commands",
-          "narration": "在Linux上给验证后的下载文件添加执行权限，并从所在文件夹运行。现在默认自动选择加速器；如果需要CPU，请明确指定。我们的隔离运行使用已有系统库和专用路径，因此没有演示安装系统依赖。",
+          "narration": "在Linux上，先为下载的安装程序添加可执行权限，然后在终端中运行它。自动加速会选择受支持的后端。帮助中列出了用于仅CPU运行的横杠横杠 torch-backend cpu，以及适用于已安装Qt图形库的电脑的横杠横杠 skip-system-deps。",
           "hold_after": 0.7,
-          "speech_text": "在Linux上给验证后的下载文件添加执行权限，并从所在文件夹运行。现在默认自动选择加速器；如果需要CPU，请明确指定。我们的隔离运行使用已有系统库和专用路径，因此没有演示安装系统依赖。"
+          "speech_text": "在Linux上，先为下载的安装程序添加可执行权限，然后在终端中运行它。自动加速会选择受支持的后端。帮助中列出了用于仅CPU运行的横杠横杠 torch-backend cpu，以及适用于已安装Qt图形库的电脑的横杠横杠 skip-system-deps。"
         },
         {
           "visual": "02_installer_backend",
-          "narration": "读取真实安装配置，不要仅凭启动成功推断后端。这里请求的是auto，选中的后端是在NVIDIA硬件上运行的CUDA。安装的Torch构建使用CUDA十三点二。这只是确认了后端选择，不是GPU速度基准测试。",
+          "narration": "设置完成后，安装配置文件会记录所选的后端。当您想确认运行时使用的是CPU还是受支持的加速器时，请查看它。",
           "hold_after": 0.7,
-          "speech_text": "读取真实安装配置，不要仅凭启动成功推断后端。这里请求的是auto，选中的后端是在NVIDIA硬件上运行的CUDA。安装的Torch构建使用CUDA十三点二。这只是确认了后端选择，不是GPU速度基准测试。"
+          "speech_text": "设置完成后，安装配置文件会记录所选的后端。当您想确认运行时使用的是CPU还是受支持的加速器时，请查看它。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "检查安装包版本、Qt导入和包路径。这个专用运行环境包含spaCR一点五点零点五。文件来自安装结果，而不是可编辑的源码检出目录。成功导入不代表所有分析或可选文件格式均已验证。",
+          "narration": "检查已安装的spaCR版本。把它记在分析笔记中，尤其是在以后更新应用程序时。",
           "hold_after": 0.7,
-          "speech_text": "检查安装包版本、Qt导入和包路径。这个专用运行环境包含斯佩克尔一点五点零点五。文件来自安装结果，而不是可编辑的源码检出目录。成功导入不代表所有分析或可选文件格式均已验证。"
+          "speech_text": "检查已安装的斯佩克尔版本。把它记在分析笔记中，尤其是在以后更新应用程序时。"
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "真实首次启动会询问是否共享诊断信息、提交公开问题报告以及配置账号，这些都是可选项。报告会公开，请阅读说明。本录像用Escape拒绝对话框，与Skip, keep all off作用相同。没有连接账号，读回专用设置也确认共享及问题报告操作保持关闭。",
+          "narration": "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。",
           "hold_after": 0.7,
-          "speech_text": "真实首次启动会询问是否共享诊断信息、提交公开问题报告以及配置账号，这些都是可选项。报告会公开，请阅读说明。本录像用Escape拒绝对话框，与Skip, keep all off作用相同。没有连接账号，读回专用设置也确认共享及问题报告操作保持关闭。"
+          "speech_text": "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "完成选择后，已安装应用打开当前Home，其中有二十一个图块和六个核心模块。窗口也正常关闭。接着学习Home课程，了解嵌套工作流程及示例数据；仅打开Home不算分析测试。",
+          "narration": "Home打开后，继续学习Home教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "完成选择后，已安装应用打开当前主页，其中有二十一个图块和六个核心模块。窗口也正常关闭。接着学习主页课程，了解嵌套工作流程及示例数据；仅打开主页不算分析测试。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "主页打开后，继续学习主页教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。"
         },
         {
           "visual": "05_doctor",
-          "narration": "从已安装运行环境运行spacr-doctor，既看通过项，也看警告。这里确认了安装程序后端，但提示缺少可选CZI依赖。本次跳过了GPU内存分配、数据库和设置检查。跳过不等于通过；修改环境之前先评估建议的修复。",
+          "narration": "如果启动或某种文件格式出现问题，请从已安装的运行时运行spacr-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的spacr启动器，它启动的正是同一个运行时，因此这里两者都无需更改。",
           "hold_after": 0.7,
-          "speech_text": "从已安装运行环境运行斯佩克尔-doctor，既看通过项，也看警告。这里确认了安装程序后端，但提示缺少可选CZI依赖。本次跳过了GPU内存分配、数据库和设置检查。跳过不等于通过；修改环境之前先评估建议的修复。"
+          "speech_text": "如果启动或某种文件格式出现问题，请从已安装的运行时运行斯佩克尔-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的斯佩克尔启动器，它启动的正是同一个运行时，因此这里两者都无需更改。"
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "排查问题时，保留所选安装目录中的install点log和install-profile点json。共享日志前检查是否含有私人信息。记录每次分析使用的版本，有计划地更新。pip和Conda课程介绍基于独立环境的其他安装方式。",
+          "narration": "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和spaCR版本，以便更容易诊断问题。",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
             "03_pip_install"
           ],
           "hold_after": 0.7,
-          "speech_text": "排查问题时，保留所选安装目录中的install点log和install-profile点json。共享日志前检查是否含有私人信息。记录每次分析使用的版本，有计划地更新。pip和Conda课程介绍基于独立环境的其他安装方式。"
+          "speech_text": "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和斯佩克尔版本，以便更容易诊断问题。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
@@ -1982,13 +2141,13 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
           "hold_after": 0.7,
           "focus": [
             360,
             230,
-            3460,
-            1760
+            3480,
+            1900
           ]
         },
         {
@@ -9460,17 +9619,150 @@
       "id": "71_investigate_hit",
       "number": 71,
       "slug": "investigate_hit",
-      "title": "调查命中",
+      "title": "Investigate Hit：从Regression的基因追溯到测量的细胞",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "结果与质量控制",
-      "description": "本教程尚未上线。请先浏览其他教程。",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "即将推出",
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "从Hit List把一个基因发送到Investigate Hit，添加测量数据库、单细胞预测和向导比例，然后阅读孔水平的证据。",
+      "objectives": [
+        "在Hit List中打开一次Regression运行，检查q值，并把一个基因发送到Investigate Hit。",
+        "选择测量数据库、细胞预测、向导比例和分数列。",
+        "阅读证据、孔、向导和阈值选项卡，并找到保存的表格。"
+      ],
+      "prerequisite": "解压Investigate_Hit_real_screen_example.zip。其中所有内容都来自同一次真实筛选：在Regression测试数据上的Regression运行（使用Regression教程中的设置）、对应的单细胞CV预测，以及包含这些细胞真实形状、大小和强度测量值的测量数据库。为了让下载更小，数据库包含52个孔：所有带有基因225160向导的已分析孔，以及每个孔对应的三个来自同一块板、不含该向导的孔。在这次快速Regression运行中，没有基因满足q ≤ 0.05。请把这次调查当作实例演示，而不是已确认的命中。",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "从Home打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。"
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。"
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。",
+          "hold_after": 0.7,
+          "speech_text": "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。"
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。",
+          "hold_after": 0.7,
+          "speech_text": "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。"
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。"
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。",
+          "hold_after": 0.7,
+          "speech_text": "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。"
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。",
+          "hold_after": 0.7,
+          "speech_text": "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。"
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "在Measurements database旁点击Browse，选择示例中的measurements.db。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。",
+          "hold_after": 0.7,
+          "speech_text": "在Measurements database旁点击Browse，选择示例中的测量数据库文件。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。"
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。",
+          "hold_after": 0.7,
+          "speech_text": "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。"
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。",
+          "hold_after": 0.7,
+          "speech_text": "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。"
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。",
+          "hold_after": 0.7,
+          "speech_text": "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。"
+        },
+        {
+          "visual": "12_running",
+          "narration": "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。",
+          "hold_after": 0.7,
+          "speech_text": "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。"
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。",
+          "hold_after": 0.7,
+          "speech_text": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。"
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。",
+          "hold_after": 0.7,
+          "speech_text": "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。"
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。",
+          "hold_after": 0.7,
+          "speech_text": "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。"
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。",
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。"
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。",
+          "hold_after": 0.7,
+          "speech_text": "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。"
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",

@@ -1,0 +1,701 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "FT",
+      "source": "Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "7090700222ddcbc4b3821636ae3f290efdd28d22bfda92e3cb69a06002f3da90",
+      "translation": "स्वतंत्र apply/test-model उप-मॉड्यूल के लिए Cellpose flow_threshold, जो मास्क मॉड्यूल के प्रति-ऑब्जेक्ट <object>_flow_threshold का समकक्ष है। जिन मास्क के पुनर्गणित फ़्लो नेटवर्क के पूर्वानुमान से इससे अधिक असहमत हों, वे हटा दिए जाते हैं, इसलिए कम मान दांतेदार या असंभाव्य ऑब्जेक्ट हटाता है और असली भी खो देता है। सामान्य परास 0 से 3; 3 से ऊपर व्यावहारिक रूप से हर उम्मीदवार रखा जाता है। डिफ़ॉल्ट 0.4, Cellpose का अपना डिफ़ॉल्ट।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "auto_file_issues",
+      "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
+      "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62",
+      "translation": "विफल रन को सार्वजनिक spaCR GitHub रिपॉज़िटरी पर इश्यू के रूप में रिपोर्ट करें। रिपोर्ट में ट्रेसबैक, रन की सेटिंग्स और सॉफ़्टवेयर संस्करण होते हैं, और पथ, लॉगिन व होस्ट नाम तथा क्रेडेंशियल हटा दिए जाते हैं। इश्यू रिपोर्टिंग 'always' (डिफ़ॉल्ट) पर होने पर, GitHub में साइन इन होने पर यह हर त्रुटि के लिए एक बार स्वचालित रूप से दर्ज होती है; 'ask' पर यह पूर्वावलोकन में खुलती है और केवल “रिपोर्ट भेजें” दबाने पर भेजी जाती है। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "batch_covariate_column",
+      "source": "Metadata column(s) naming the biological effects ComBat must preserve, for example 'condition' or 'condition,timepoint'. ComBat estimates the batch effect from residuals after fitting these terms, so unlisted effects may be removed with the plate effect. Include every treatment effect that must remain in the corrected data. See spacr.batch_correction.correct_batch_effects. Default None.",
+      "source_sha256": "ef1da37a6df496997f04e8e080d89f814318b92e686117d56d8a1556051340c4",
+      "translation": "वे मेटाडेटा स्तंभ जो उन जैविक प्रभावों को नाम देते हैं जिन्हें ComBat को बनाए रखना है, जैसे 'condition' या 'condition,timepoint'। ComBat इन पदों को फ़िट करने के बाद अवशेषों से बैच प्रभाव का अनुमान लगाता है, इसलिए असूचीबद्ध प्रभाव प्लेट प्रभाव के साथ हट सकते हैं। हर वह उपचार प्रभाव शामिल करें जो सुधारे गए डेटा में रहना चाहिए। देखें spacr.batch_correction.correct_batch_effects। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_flow_threshold",
+      "source": "Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "1f20d8a299a118ec408e518911237c7bdc1ff3fda5f1739c413ec1ca763b9ebe",
+      "translation": "Cellpose flow_threshold: किसी उम्मीदवार मास्क के पुनर्गणित फ़्लो और नेटवर्क के अनुमानित फ़्लो के बीच अधिकतम अनुमत त्रुटि। इससे ऊपर के मास्क हटा दिए जाते हैं, इसलिए इसे घटाने पर दांतेदार या असंभाव्य कोशिकाएँ हटती हैं पर असली भी छूट जाती हैं; बढ़ाने पर अधिक बनी रहती हैं। उपयोगी परास लगभग 0-3; 3 से ऊपर व्यावहारिक रूप से हर उम्मीदवार रखा जाता है। डिफ़ॉल्ट 0.4, Cellpose का अपना डिफ़ॉल्ट।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1",
+      "translation": "कोशिका-विभाजन वेट। Cellpose 4 मानक 'cpsam' मॉडल देता है; वैकल्पिक रूप से, Cellpose प्रशिक्षित करें द्वारा बनाया गया CPSAM चेकपॉइंट दें, जो pretrained_model के रूप में लोड होता है। पुराने नाम ('cyto', 'cyto2', 'cyto3', 'nuclei') cpsam में बदल जाते हैं क्योंकि Cellpose 4 अब वे मॉडल नहीं देता -- जब तक segmentation_backend 'cellpose3' न हो, जो उस नाम का असली मॉडल चलाता है। केवल व्यास अनुमान को बदलता है (30/व्यास से स्केलिंग); v4.0.1+ में model_type और diam_mean उपयोग नहीं होते। डिफ़ॉल्ट 'cpsam'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic).",
+      "source_sha256": "155e5ea5a56262610e28e2bb6950f17b52cb1a0f464c5706fa8d26a297b453f7",
+      "translation": "छवि चैनल अक्ष: चैनल-पहले के लिए 0, चैनल-अंत के लिए -1, या मास्क आयामों से अनुमान लगाने के लिए खाली। अस्पष्ट छवियों के लिए स्पष्ट अक्ष आवश्यक है। प्रशिक्षण वैकल्पिक चैनलों वाले 2-D दृश्य क्षेत्रों का समर्थन करता है, Z स्टैक का नहीं। डिफ़ॉल्ट None (स्वचालित)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "class_column",
+      "source": "Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'. Replication starts with the predictions column instead.",
+      "source_sha256": "1878c80e34ee161e94613e66b9d9706e70342f9c392678a28f360f4f1fd5fa87",
+      "translation": "वर्ग-अनुपात विश्लेषण द्वारा उपयोग किया जाने वाला प्रति-ऑब्जेक्ट वर्ग लेबल वाला स्तंभ। अनुपस्थित मान संबंधित पंक्तियाँ हटाने के बजाय 0 से भरे जाते हैं; इसलिए गलत स्तंभ चुनने पर बिना त्रुटि के हर ऑब्जेक्ट को वर्ग शून्य मिल सकता है। group_by_class सक्षम होने पर यह मान condition में भी जोड़ा जाता है। डिफ़ॉल्ट 'test'। प्रतिकृति इसके बजाय predictions स्तंभ से शुरू होती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "drop_straight_tracks",
+      "source": "Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.",
+      "source_sha256": "340f2cc9181003122524eb1e7699f19fbdb078789ff8a08805e9b516ef88ea2e",
+      "translation": "सीधेपन की सीमा लागू करें। False डेटा बदले बिना बताता है कि कितने ट्रैक straightness_threshold से अधिक हैं; True उन ट्रैकों को वेग तालिका, प्रति वेल सारांश और प्लॉट से हटा देता है। जब स्टेज ड्रिफ़्ट या पहचान की अदला-बदली से अविश्वसनीय रूप से सीधे पथ बनें, तब इसे सक्षम करें। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "edge_thickness",
+      "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
+      "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df",
+      "translation": "रूपरेखा की चौड़ाई, निश्चित पिक्सेल संख्या के बजाय ऑब्जेक्ट आकार के अंश के रूप में, जिससे crop_size मानों में सापेक्ष चौड़ाई बनी रहती है। बड़े मान छोटे थंबनेल में सीमा की दृश्यता सुधारते हैं, पर अधिक आंतरिक पिक्सेल ढकते हैं। डिफ़ॉल्ट 0.1।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_count_column",
+      "source": "Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "2048d2bd7b04f936a1e688788436fc1381db73ce7cfe0619fa7ed9867297451f",
+      "translation": "प्रत्येक रिक्तिका पर वैकल्पिक मापा गया गणना स्तंभ। अऋणात्मक पूर्णांक गणनाएँ स्वीकार होती हैं; अनुपस्थित मान अज्ञात रहते हैं। लिंक की गई परजीवी तालिका का विकल्प। डिफ़ॉल्ट खाली। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_channels",
+      "source": "Zero-based intensity channels whose vacuole-to-host-reference ratios are reported. Each selected channel needs matching intensity columns in both compartments; its threshold is configured separately. Adding a channel adds a marker result without changing host infection denominators. Default [0]. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "48e2c0fcd376ba331bbcb09349d95b095634c2fe061cb78ac87f74d5c729bb03",
+      "translation": "शून्य-आधारित तीव्रता चैनल जिनके रिक्तिका-से-पोषक-संदर्भ अनुपात रिपोर्ट किए जाते हैं। प्रत्येक चुने गए चैनल के लिए दोनों कक्षों में मेल खाते तीव्रता स्तंभ चाहिए; उसका सीमा मान अलग से कॉन्फ़िगर होता है। चैनल जोड़ने से पोषक संक्रमण के हर बदले बिना एक मार्कर परिणाम जुड़ता है। डिफ़ॉल्ट [0]। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_thresholds",
+      "source": "Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "dea265f88dff2d6c022d5802d90da840462114714750cafc3159ffd4c92be1fa",
+      "translation": "चैनल-से-अनुपात कटऑफ़, जैसे {0: 2.0, 1: 1.5}; कटऑफ़ के बराबर या उससे अधिक अनुपात सकारात्मक होते हैं। कटऑफ़ को परीक्षण नियंत्रणों से अंशांकित करें। अनिर्दिष्ट चैनल अवर्गीकृत रहते हैं। डिफ़ॉल्ट {}। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_parent",
+      "source": "Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "e9f7b49ab5f207cfe85506734c3974968e668e666501d4d9ae867e37e0b5d0c2",
+      "translation": "चुनी गई परजीवी तालिका में मूल-रिक्तिका लेबल स्तंभ। पोषक कोशिका IDs रिक्तिका IDs का स्थान नहीं ले सकतीं। बेमेल परजीवी अलग से निर्यात किए जाते हैं। डिफ़ॉल्ट pathogen_id। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_table",
+      "source": "Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "708e43668eb7a6201f6e60982a836d9d5935ecbc26727d18950cfe4c8e27e758",
+      "translation": "वैकल्पिक तालिका जिसमें प्रति विभाजित परजीवी एक पंक्ति और एक स्पष्ट मूल-रिक्तिका स्तंभ हो। परजीवी गणना उपलब्ध न हो तो खाली छोड़ें। साथ में hp_count_column सेट न करें। डिफ़ॉल्ट खाली। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_prefix",
+      "source": "Prefix of reference-channel mean intensities. Missing or nonpositive reference values yield unknown ratios, never infinity or negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "0820ca9b01b2eb25f6c31bdfe9d21566d550cbe3dacb0c3547a00d9179b2b301",
+      "translation": "संदर्भ-चैनल की औसत तीव्रताओं का उपसर्ग। अनुपस्थित या अधनात्मक संदर्भ मान अज्ञात अनुपात देते हैं, कभी अनंत या नकारात्मक वर्गीकरण नहीं। डिफ़ॉल्ट cytoplasm। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_table",
+      "source": "Select the per-host compartment used for recruitment-ratio denominators. Its object_label must identify the host cell so each vacuole is compared with its own host reference. Missing or invalid reference intensities produce unknown marker calls rather than negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "b95adc4ed6d004858a47033502622c18611fda0823e7d01ef479da477597f925",
+      "translation": "रिक्रूटमेंट-अनुपात के हर के लिए उपयोग होने वाला प्रति-पोषक कक्ष चुनें। इसका object_label पोषक कोशिका की पहचान करे, ताकि प्रत्येक रिक्तिका की तुलना उसके अपने पोषक संदर्भ से हो। अनुपस्थित या अमान्य संदर्भ तीव्रताएँ नकारात्मक वर्गीकरण के बजाय अज्ञात मार्कर वर्गीकरण देती हैं। डिफ़ॉल्ट cytoplasm। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_prefix",
+      "source": "Select the measured intensity column family used as the numerator of each recruitment ratio, for example pathogen_channel_0_mean_intensity. Match the prefix in the selected vacuole table; changing it does not change masks or infer a different object type. Default pathogen. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "a2ea3695cf00cb10db3f3ad89096ed527d85a5b93f3ca9444f98f5f2795eb0f0",
+      "translation": "प्रत्येक रिक्रूटमेंट अनुपात के अंश के रूप में उपयोग होने वाला मापित तीव्रता स्तंभ-समूह चुनें, जैसे pathogen_channel_0_mean_intensity। चुनी गई रिक्तिका तालिका के उपसर्ग से मिलाएँ; इसे बदलने से मास्क नहीं बदलते और न ही कोई अलग ऑब्जेक्ट प्रकार माना जाता है। डिफ़ॉल्ट pathogen। API: spacr.host_pathogen.summarize_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_table",
+      "source": "Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.",
+      "source_sha256": "50e6735db450bb08a4d9b7c7a277a410ae66dc667a77f299275dab05365a2817",
+      "translation": "मापन तालिका जिसमें प्रति पूरी रिक्तिका एक ऑब्जेक्ट और उसकी पोषक कोशिका से cell_id लिंक हो। पूरी रिक्तिका के मास्क उपयोग करें, अलग-अलग परजीवी मास्क नहीं। डिफ़ॉल्ट pathogen। API: spacr.host_pathogen.analyze_host_pathogen।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_channels",
+      "source": "Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].",
+      "source_sha256": "c579a01ee68d3542c171c1b01a594de1031fbbe2245cc9b78840114734bdc52b",
+      "translation": "मास्क से पहले जाँचे जाने वाले अधिग्रहण-चैनल पहचानकर्ता। खाली का अर्थ है हर संग्रहीत कच्चा चैनल। v1 में ये शून्य-आधारित ऐरे चैनल हैं और v2 में मैप किए गए अधिग्रहण-चैनल पहचानकर्ता। सीमा-मान डिक्शनरी यही पहचानकर्ता उपयोग करती हैं। डिफ़ॉल्ट []।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_nonfinite",
+      "source": "Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.",
+      "source_sha256": "31b6c5aceb730de3abdd98ebfa971549eb01e8f77b8dc814c933f0bea0f16195",
+      "translation": "प्रति जाँचे गए चैनल में अनुमत NaN या अनंत पिक्सेल का अधिकतम अंश। इससे अधिक होने पर दृश्य क्षेत्र चिह्नित होता है; बहिष्करण केवल exclude मोड में होता है। सीमा 0-1; डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_saturation",
+      "source": "Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.",
+      "source_sha256": "0f688b2bbe5fa5ceffd31f2a342a9f58df9f3eec423a93405b11344926600932",
+      "translation": "प्रति चैनल अधिकतम अनुमत संतृप्त-पिक्सेल अंश, जैसे {2: 0.01}। मान 0 से 1 तक होते हैं। संतृप्ति अधिग्रहण स्तर या पूर्णांक dtype की ऊपरी सीमा का उपयोग करती है, कभी सबसे चमकीले देखे गए पिक्सेल का नहीं। खाली होने पर संतृप्ति बहिष्करण अक्षम रहता है। डिफ़ॉल्ट {}।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_min_focus",
+      "source": "Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.",
+      "source_sha256": "ddb3927e005e66effe8b514248b8bf8c01e82a8e6e764a1b0ecc9b3eb375922f",
+      "translation": "प्रति चैनल न्यूनतम स्वीकार्य कच्चा लाप्लासियन प्रसरण, जैसे {0: 25.0, 2: 10.0}। खाली होने पर फ़ोकस बहिष्करण अक्षम रहता है। उसी अधिग्रहण के प्रतिनिधि दृश्य क्षेत्रों से अंशांकित करें; इकाई तीव्रता का वर्ग है। वॉल्यूम के लिए सर्वश्रेष्ठ-फ़ोकस तल उपयोग होता है, ताकि केवल आसपास के धुंधले z तल उसे अस्वीकार न करें। डिफ़ॉल्ट {}।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_mode",
+      "source": "Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.",
+      "source_sha256": "4e3b656baa6ef995f480bc91ce4ba1d895a944b4ef9443fdd0478303faa0a454",
+      "translation": "विभाजन से पहले छवि जाँच। off सामान्य रन बनाए रखता है; report कुछ भी बाहर किए बिना मेट्रिक्स और चिह्न सहेजता है; exclude सहेजी गई नीति के अनुसार चिह्नित दृश्य क्षेत्रों को छोड़ देता है। कोई छवि हटाई नहीं जाती और बाहर किए गए दृश्य क्षेत्र शून्य-ऑब्जेक्ट परिणाम के रूप में रिपोर्ट नहीं होते। रिपोर्ट: qc/image_quality.json और .csv। डिफ़ॉल्ट off।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_saturation_level",
+      "source": "Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.",
+      "source_sha256": "62c64541c0fbee6c3a344bf0ae87d35d430bfd7fdd838c1fa159414873ac53cb",
+      "translation": "प्रति चैनल अधिग्रहण संतृप्ति स्तर, जैसे {0: 4095, 2: 65535}। uint16 में संग्रहीत 12-बिट डिटेक्टर के लिए 4095 सेट करें। अनुपस्थित पूर्णांक स्तर dtype की ऊपरी सीमा उपयोग करते हैं; संतृप्ति बहिष्करण सक्षम होने पर फ़्लोटिंग छवियों के लिए स्पष्ट स्तर आवश्यक है। डिफ़ॉल्ट {}।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training. Default blank.",
+      "source_sha256": "a2f9df08456a4cf904fc3067512e3d4134db60623b1ace6d556f46e1605cc404",
+      "translation": "पूर्णांक ऑब्जेक्ट-लेबल मास्क (पृष्ठभूमि 0) का वैकल्पिक अलग फ़ोल्डर। छवि फ़ोल्डर के भीतर के मास्क उपयोग करने के लिए खाली छोड़ें। छवि के मूल नामों से मिलाएँ, चाहें तो _masks प्रत्यय के साथ। अनुपस्थित या अस्पष्ट युग्म प्रशिक्षण रोक देते हैं। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size. Default None (automatic).",
+      "source_sha256": "0f3671c230794de5986a79a4f3dd10febee720ec20df25d860c323600542d8c2",
+      "translation": "RAM में लोड की जाने वाली युग्मित प्रशिक्षण छवियों की वैकल्पिक सीमा, फ़ाइल-नाम क्रम में। खाली या अधनात्मक मान हर युग्म का उपयोग करता है। इससे मिनीबैच आकार नहीं बदलता। डिफ़ॉल्ट None (स्वचालित)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_fwhm_um",
+      "source": "Gaussian full width at half maximum in micrometers: [Y, X] or [Z, Y, X]. This is an explicit approximation, not an inferred microscope PSF. All widths must be positive and finite.",
+      "source_sha256": "ee72b5378cc515a4440aad30dfd28d8682341bbe1698f08fbc41a54f50a5a44c",
+      "translation": "माइक्रोमीटर में गाउसियन अर्ध-अधिकतम पर पूर्ण चौड़ाई: [Y, X] या [Z, Y, X]। यह एक स्पष्ट सन्निकटन है, माइक्रोस्कोप का अनुमानित PSF नहीं। सभी चौड़ाइयाँ धनात्मक और परिमित होनी चाहिए।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_image_sampling_um",
+      "source": "Explicit image sampling in micrometers: [Y, X] for 2D or [Z, Y, X] for a volume. All values must be positive and finite. A volume's sampling must agree with Measure's voxel calibration or anisotropy. No physical sampling is guessed.",
+      "source_sha256": "ea618fb519309c0ffd3efd46b129900c4b864d1204973473f4eecd31f37dff8c",
+      "translation": "माइक्रोमीटर में स्पष्ट छवि सैंपलिंग: 2D के लिए [Y, X] या वॉल्यूम के लिए [Z, Y, X]। सभी मान धनात्मक और परिमित होने चाहिए। वॉल्यूम की सैंपलिंग मापन के वॉक्सेल अंशांकन या अनिसोट्रॉपी से मेल खानी चाहिए। किसी भौतिक सैंपलिंग का अनुमान नहीं लगाया जाता।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_kernel_sampling_um",
+      "source": "Measured kernel sampling in micrometers, in the same YX or ZYX order as the image. Must match image sampling exactly within numerical tolerance; no implicit resampling. Unused for a Gaussian approximation.",
+      "source_sha256": "583363c6fedcb7a910c33113cd69a28d96e7824993cfb71f6dfc8476b9afad8a",
+      "translation": "माइक्रोमीटर में मापी गई कर्नेल सैंपलिंग, छवि के समान YX या ZYX क्रम में। संख्यात्मक सहनशीलता के भीतर छवि सैंपलिंग से सटीक मेल खानी चाहिए; कोई अंतर्निहित रीसैंपलिंग नहीं। गाउसियन सन्निकटन के लिए अप्रयुक्त।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_operation",
+      "source": "With processed measurement intensities selected, convolve adds calibrated blur and deconvolve performs Richardson–Lucy restoration. Select original to keep normal Measure intensities without PSF processing. Stored images and exported crops are unchanged; the database records the intensity source and full PSF provenance. Configure a kernel appropriate to every selected intensity channel.",
+      "source_sha256": "790d0be1f226506a2d9b483da9025aab9c7e23403a54eff5b02d98a3b9ab1964",
+      "translation": "संसाधित मापन तीव्रताएँ चुनी होने पर convolve अंशांकित धुंधलापन जोड़ता है और deconvolve Richardson–Lucy पुनर्स्थापन करता है। PSF प्रसंस्करण के बिना सामान्य मापन तीव्रताएँ रखने के लिए original चुनें। संग्रहीत छवियाँ और निर्यात किए गए क्रॉप अपरिवर्तित रहते हैं; डेटाबेस तीव्रता स्रोत और पूरा PSF उद्गम दर्ज करता है। हर चुने गए तीव्रता चैनल के लिए उपयुक्त कर्नेल कॉन्फ़िगर करें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_path",
+      "source": "Measured PSF TIFF or NPY kernel, with odd spatial dimensions and finite nonnegative values. Use YX for a 2D field or ZYX for a volume. The center pixel is the optical origin; sampling must match the image. Captured once per run and sent to each worker, with exact kernel/file identity recorded.",
+      "source_sha256": "1bc362caea3ff61a56df226a423374ae1e2e79309b80796381d34c1c3904ab15",
+      "translation": "मापा गया PSF TIFF या NPY कर्नेल, विषम स्थानिक आयामों और परिमित अऋणात्मक मानों के साथ। 2D दृश्य क्षेत्र के लिए YX या वॉल्यूम के लिए ZYX उपयोग करें। केंद्र पिक्सेल प्रकाशीय मूल बिंदु है; सैंपलिंग छवि से मेल खानी चाहिए। प्रति रन एक बार पढ़ा जाकर हर वर्कर को भेजा जाता है, और कर्नेल/फ़ाइल की सटीक पहचान दर्ज होती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_source",
+      "source": "gaussian constructs an explicitly sampled Gaussian approximation from the supplied FWHM and image sampling. measured captures a calibrated TIFF or NPY kernel. The same kernel applies independently to every selected measurement intensity channel, so its calibration must suit all selected channels. Neither choice estimates microscope optics.",
+      "source_sha256": "e29df1f16e3f8c561c8ce36183f2c6d4f8ee86050e8cdcd992811189551bbd12",
+      "translation": "gaussian दिए गए FWHM और छवि सैंपलिंग से स्पष्ट रूप से सैंपल किया गया गाउसियन सन्निकटन बनाता है। measured एक अंशांकित TIFF या NPY कर्नेल पढ़ता है। वही कर्नेल हर चुने गए मापन तीव्रता चैनल पर स्वतंत्र रूप से लागू होता है, इसलिए उसका अंशांकन सभी चुने गए चैनलों के लिए उपयुक्त होना चाहिए। कोई भी विकल्प माइक्रोस्कोप प्रकाशिकी का अनुमान नहीं लगाता।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_train_masks",
+      "source": "Minimum labeled objects required per training image. Cellpose excludes fields below this count. Default 5. Lower it for deliberately sparse training fields.",
+      "source_sha256": "ed8880223f3e9c805703f6803f508be7c93cc9bda5f53cd1ddeae82dc39ac71c",
+      "translation": "प्रति प्रशिक्षण छवि आवश्यक न्यूनतम लेबल किए गए ऑब्जेक्ट। Cellpose इस संख्या से कम वाले दृश्य क्षेत्रों को बाहर रखता है। डिफ़ॉल्ट 5। जान-बूझकर विरल प्रशिक्षण दृश्य क्षेत्रों के लिए इसे घटाएँ।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "motility_analysis",
+      "source": "Run the automated motility assay once per plate, after all masks are merged: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
+      "source_sha256": "f5f1b5902485579ead4d5ddb0b22492440a18bd1284691abe36722062fec55ab",
+      "translation": "सभी मास्क मर्ज होने के बाद, प्रति प्लेट एक बार स्वचालित गतिशीलता परीक्षण चलाएँ: यह merged/*.npy से प्रति-ऑब्जेक्ट माप फिर से बनाता है, ट्रैक साफ़ करता है, प्रति-ट्रैक वेग और सीधापन गणना करता है, संक्रमण QC लागू करता है, और motility_plots के साथ वेल-स्तर की सारांश तालिका लिखता है। यह केवल तभी चलता है जब timelapse भी True हो, और यही गतिशीलता सेटिंग श्रेणियाँ दिखाता है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM. Default None (automatic).",
+      "source_sha256": "7cae0a66de40c80617cf9dbef7450b5dffdd744ce3490bfa4766871d0bec8636",
+      "translation": "प्रति प्रशिक्षण एपॉक चुनी जाने वाली छवियों की वैकल्पिक संख्या। खाली होने पर हर प्रशिक्षण छवि उपयोग होती है। यह नमूना चयन बदलता है, RAM में लोड की गई फ़ाइलों की संख्या नहीं। डिफ़ॉल्ट None (स्वचालित)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source. Default None (automatic).",
+      "source_sha256": "17f9c94623655bc4a14f4a07dab0ac9d4f3f2f6f6d4e06aded3da67a8e5b580c",
+      "translation": "प्रति मूल्यांकन एपॉक चुनी जाने वाली सत्यापन छवियों की वैकल्पिक संख्या। खाली होने पर सभी सत्यापन छवियाँ उपयोग होती हैं। इसके लिए सत्यापन छवि स्रोत आवश्यक है। डिफ़ॉल्ट None (स्वचालित)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nuclei_limit",
+      "source": "Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.",
+      "source_sha256": "441b564c6f3db7d1654eb4dff7f88d24c54c19f66b8055688b41f1f24bb9d960",
+      "translation": "प्रति कोशिका नाभिकों की ऊपरी सीमा, जो प्रति-ऑब्जेक्ट तालिकाएँ मर्ज होते समय लागू होती है। None फ़िल्टर अक्षम करता है, True केवल एक-नाभिक वाली कोशिकाएँ रखता है, और पूर्णांक N, N या उससे कम नाभिक वाली कोशिकाएँ रखता है। सीमा से ऊपर की कोशिकाएँ मर्ज की गई तालिका से पूरी तरह हटा दी जाती हैं। False न दें: इसे 0 माना जाता है और यह हर कोशिका हटा देता है, जिससे त्रुटि के बजाय खाली विश्लेषण बचता है। डिफ़ॉल्ट None। मर्ज किया गया वर्गीकारक True से और रिक्रूटमेंट विश्लेषण 1 से शुरू होता है, इसलिए दोनों आरंभ में केवल एक-नाभिक वाली कोशिकाएँ रखते हैं। प्रतिकृति 10 से शुरू होती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_flow_threshold",
+      "source": "Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "c21542dce208ebb2b4c0511d434405fc96c9cfc6a1c835810b8e851735f16e07",
+      "translation": "नाभिक मास्क के लिए Cellpose flow_threshold: किसी मास्क के पुनर्गणित फ़्लो और नेटवर्क के अनुमानित फ़्लो के बीच अधिकतम अनुमत त्रुटि। इसे घटाने पर अधिक अनियमित आकार के नाभिक हटते हैं, जिससे कम पर साफ़ ऑब्जेक्ट मिलते हैं; बढ़ाने पर Cellpose के लगभग सभी प्रस्ताव बने रहते हैं। सामान्य परास 0 से 3; 3 से ऊपर व्यावहारिक रूप से हर उम्मीदवार रखा जाता है। डिफ़ॉल्ट 0.4, Cellpose का अपना डिफ़ॉल्ट।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
+      "source_sha256": "288cd1bce7442ea139575cf1cfa904c0245ad41a4289d7c61081f012535b1224",
+      "translation": "नाभिक विभाजन के लिए उपयोग होने वाले वेट। मान्य मान 'cpsam' या Cellpose प्रशिक्षित करें द्वारा बनाए गए कस्टम CPSAM चेकपॉइंट का पथ हैं। 'nuclei' और 'nucleus' को 'cpsam' से मैप किया जाता है क्योंकि Cellpose 4 ने pre-SAM मॉडल हटा दिए -- जब तक segmentation_backend 'cellpose3' न हो, जो असली Cellpose 3 'nuclei' चलाता है। स्केल नियंत्रित करने के लिए nucleus_diameter कॉन्फ़िगर करें; जिन तीन पैरामीटरों से पहले मॉडल अलग होते थे, उनमें केवल व्यास अब भी प्रभावी है (eval 30/व्यास से रीस्केल करता है); model_type और diam_mean हटा दिए जाते हैं। डिफ़ॉल्ट 'cpsam'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "number_of_organelles",
+      "source": "How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.",
+      "source_sha256": "57d7edf6c82f6ea3046df54a7618d0162493b810c6aa7c1ade2b9e463ceeb216",
+      "translation": "इस रन में कितने कोशिकांग स्लॉट हैं, 0 से 26 तक। प्रत्येक स्लॉट एक स्वतंत्र ऑब्जेक्ट है जिसका अपना चैनल, अपना प्रकार प्रीसेट और हर पहचान सेटिंग की अपनी प्रति होती है, जो पैटर्न organelle(?:[b-z]|[a-z]{2})?_.* से मेल खाती है; संख्या बढ़ाने से एक और स्लॉट की सेटिंग्स बनती हैं और घटाने से नई संख्या से ऊपर के स्लॉट बिना हटाए छिप जाते हैं। छिपा स्लॉट अपने मान रखता है, सेटिंग्स फ़ाइल में लिखा जाता रहता है, और संख्या फिर बढ़ाने पर ठीक वैसा ही लौट आता है, इसलिए काम खोए बिना छोटी संख्या आज़माई जा सकती है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. Given a phenotype folder it also records where each phenotype field lands on the stitched well. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ.",
+      "source_sha256": "0088ccbc77f2ea1c7f609918336830ef4a067258728251546a50a4f8d0daca9c",
+      "translation": "ऑप्टिकल पूल्ड स्क्रीनिंग के सीक्वेंसिंग अधिग्रहण के हर वेल को टाइलों से तालिकाओं तक ले जाएँ: उसकी नाभिक टाइलें जोड़ें, पूरे वेल में उसके नाभिकों का विभाजन और क्रमांकन करें, फिर हर दृश्य क्षेत्र के रीड डिकोड करें और हर उस नाभिक को बारकोड दें जिसके रीड आपस में सहमत हों। फ़ीनोटाइप फ़ोल्डर देने पर यह यह भी दर्ज करता है कि हर फ़ीनोटाइप दृश्य क्षेत्र जोड़े गए वेल पर कहाँ पड़ता है। तालिकाएँ measurements.db में लिखी जाती हैं। रीड छवियों से डिकोड किए जाते हैं, FASTQ से नहीं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_base_channels",
+      "source": "Which channels carry the four bases, in the order G, T, A, C, separated by commas. These names are matched against the channel token in each tile's file name, so a run whose base channels are named differently is read by changing this rather than by renaming files. Exactly four are required: a shorter list decodes a shorter barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+      "source_sha256": "e642706d65b469a850f000aed84c98dc5b7e7e4578c7e0e7b7780f14f0f28bf5",
+      "translation": "कौन-से चैनल चार बेस वहन करते हैं, G, T, A, C क्रम में, अल्पविराम से अलग। ये नाम प्रत्येक टाइल के फ़ाइल-नाम में चैनल टोकन से मिलाए जाते हैं, इसलिए जिस रन के बेस चैनलों के नाम अलग हों, उसे फ़ाइलों का नाम बदलने के बजाय इसे बदलकर पढ़ा जाता है। ठीक चार आवश्यक हैं: छोटी सूची लाइब्रेरी से छोटा बारकोड डिकोड करती है। डिफ़ॉल्ट 'CY3,A594,CY5,CY7'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_footprint",
+      "source": "How far beyond a nucleus's boundary a read may lie and still be counted as that nucleus's read, in pixels. On the reference plate 10 pixels held 98 % of the detected spots and 3 held 67 %, and the wider setting assigned 28 % more objects a barcode at slightly higher purity, because the reads sit around the rim rather than inside. Too wide starts giving a read to a neighbour. Default 10.",
+      "source_sha256": "5a22332a20cb91e21c7cca30d20a5afb12b426838315e5601491dfca7643cc53",
+      "translation": "कोई रीड नाभिक की सीमा से कितनी दूर तक होकर भी उसी नाभिक का रीड गिना जाए, पिक्सेल में। संदर्भ प्लेट पर 10 पिक्सेल में 98 % पहचाने गए स्पॉट आए और 3 में 67 %, और चौड़ी सेटिंग ने थोड़ी अधिक शुद्धता के साथ 28 % अधिक ऑब्जेक्ट को बारकोड दिया, क्योंकि रीड भीतर के बजाय किनारे के आसपास होते हैं। बहुत चौड़ा होने पर रीड पड़ोसी को मिलने लगता है। डिफ़ॉल्ट 10।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "translation": "गाइड बारकोड की एक CSV, जिसमें उन्हें रखने वाले स्तंभ का नाम prefix, barcode या sequence हो। यह देने पर प्रत्येक नाभिक का पहचाना गया बारकोड उसके निकटतम गाइड से भी मिलाया जाता है, और रन बताता है कि कितने स्पॉट लाइब्रेरी से सटीक मेल खाते हैं -- यही एक संख्या बताती है कि डिकोड काम किया भी या नहीं। खाली होने पर भी बारकोड पहचाने जाते हैं, बस उनका स्कोर नहीं बन सकता। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_raster_overlap",
+      "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
+      "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
+      "translation": "माइक्रोस्कोप के रैस्टर पर पड़ोसी सीक्वेंसिंग टाइलें कितना ओवरलैप करती हैं, पिक्सेल में। यह अधिग्रहण की अपनी सेटिंग है, ट्यूनिंग का साधन नहीं: यह जोड़ने की प्रक्रिया को बताती है कि पड़ोसी को कहाँ खोजना है, और वास्तविक मान से काफ़ी अलग मान किनारे खो देता है और दृश्य क्षेत्रों को बिना स्थान के छोड़ देता है। डिफ़ॉल्ट 213, संदर्भ प्लेट की 1,480 पिक्सेल टाइलों पर मापा गया।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_read_threshold",
+      "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
+      "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
+      "translation": "किसी स्पॉट को रीड माने जाने के लिए उसे अपने आसपास से कितना अधिक चमकीला होना चाहिए। कम मान अधिक रीड और अधिक मलबा पकड़ता है, जो त्रुटि के रूप में नहीं बल्कि घटती लाइब्रेरी-मिलान दर के रूप में दिखता है; अधिक मान असली रीड खो देता है और नाभिकों के पास मतदान के लिए बहुत कम रीड बचते हैं। डिफ़ॉल्ट 315, इस प्लेट के लिए संदर्भ रन का अपना मान।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "translation": "बारकोड के पीछे का हर रीड ops_reads तालिका में लिखें: प्रति चक्र प्रति रीड एक पंक्ति, पहचाने गए बेस, उसके मार्जिन और उन चार तीव्रताओं के साथ जिनसे वह पहचाना गया। इसी से किसी संदिग्ध बारकोड को उसके पिक्सेल तक खोजा जाता है। यह डिफ़ॉल्ट रूप से बंद है क्योंकि यह बड़ा है -- संदर्भ प्लेट का एक पूरा वेल लगभग तीन करोड़ पंक्तियाँ है -- इसलिए इसे पूरी प्लेट के बजाय एक-दो वेल के लिए चालू करें। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_window_overlap",
+      "source": "How far the segmentation windows overlap each other, in pixels. A nucleus is only numbered once if at least one window saw all of it, so this has to exceed the largest nucleus; when it does not, the run reports the objects no window saw whole and says by how much. Raising it costs time, because more of the well is segmented twice. Default 96.",
+      "source_sha256": "1e1581eba24e7267258152e0476fc54bb84ab9ead261eebb0dada01a4bceb64e",
+      "translation": "विभाजन विंडो एक-दूसरे को कितना ओवरलैप करती हैं, पिक्सेल में। किसी नाभिक को केवल तभी एक बार क्रमांकित किया जाता है जब कम से कम एक विंडो ने उसे पूरा देखा हो, इसलिए यह सबसे बड़े नाभिक से अधिक होना चाहिए; ऐसा न होने पर रन उन ऑब्जेक्ट की रिपोर्ट देता है जिन्हें किसी विंडो ने पूरा नहीं देखा, और बताता है कि कितने से। इसे बढ़ाने में समय लगता है, क्योंकि वेल का अधिक भाग दो बार विभाजित होता है। डिफ़ॉल्ट 96।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_flow_threshold",
+      "source": "Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "0a3f78719e3890bbd4dec0e03a665a47c180d20c6278b1c8a57c4fc193d31ff6",
+      "translation": "रोगजनक मास्क के लिए Cellpose flow_threshold: किसी उम्मीदवार मास्क के पुनर्गणित फ़्लो नेटवर्क पूर्वानुमान से इससे अधिक असहमत हों तो वह हटा दिया जाता है। अधिक, कभी-कभी विकृत, परजीवी रखने के लिए इसे बढ़ाएँ; केवल साफ़, सुगठित ऑब्जेक्ट रखने के लिए घटाएँ। सामान्य परास 0.0-3.0; 3 से ऊपर व्यावहारिक रूप से हर उम्मीदवार रखा जाता है। डिफ़ॉल्ट 0.4, Cellpose का अपना डिफ़ॉल्ट।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_model_name",
+      "source": "Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "source_sha256": "edd77ffdd67ac22d1f2475ccff81df4243b85c717c39f4265bccef8968fe45f5",
+      "translation": "कौन-से वेट रोगजनकों का विभाजन करते हैं। 'cpsam' या आपके अपने Cellpose प्रशिक्षित करें चेकपॉइंट का पथ। बंडल किए गए toxo_pv_lumen / toxo_cyto चेकपॉइंट Cellpose-3 CPnet हैं, जिन्हें CPSAM लोड नहीं कर सकता, इसलिए वे 'cpsam' से मैप होकर रिपोर्ट किए जाते हैं; segmentation_backend 'cellpose3' होने पर Cellpose 3 नाम या चेकपॉइंट पथ जैसा लिखा है वैसा चलता है। पुरानी 'pathogen_model' कुंजी सेट होने पर अब भी इसे ओवरराइड करती है। जिन तीन पैरामीटरों से पहले मॉडल अलग होते थे, उनमें केवल व्यास अब भी प्रभावी है (eval 30/diameter से रीस्केल करता है); model_type और diam_mean 'not used in v4.0.1+' के रूप में लॉग होकर हटा दिए जाते हैं। डिफ़ॉल्ट 'cpsam'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source": "The folder holding the high-magnification phenotype acquisition of the same wells. Given one, the run aligns a few of its fields to the stitched sequencing well, fits the acquisition raster to those, and records where every phenotype field lands and which sequencing tile covers it. Empty skips that step and decodes the sequencing acquisition alone. Default None.",
+      "source_sha256": "b192dcf04f65557cdc8eac339b97f06fed7b0fc80bc962f04f13cee6a03244e4",
+      "translation": "उन्हीं वेल के उच्च-आवर्धन फ़ीनोटाइप अधिग्रहण वाला फ़ोल्डर। यह देने पर रन इसके कुछ दृश्य क्षेत्रों को जोड़े गए सीक्वेंसिंग वेल से संरेखित करता है, अधिग्रहण रैस्टर को उनसे फ़िट करता है, और दर्ज करता है कि हर फ़ीनोटाइप दृश्य क्षेत्र कहाँ पड़ता है और कौन-सी सीक्वेंसिंग टाइल उसे ढकती है। खाली होने पर यह चरण छूट जाता है और केवल सीक्वेंसिंग अधिग्रहण डिकोड होता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_estimate_growth",
+      "source": "Optional experimental plaque time/scale suggestions, saved separately from measurements. Uses the largest quarter of plaques and an assumed linear growth relation. Defaults off. The RH/HFF seven-day reference has about 40 hours held-out endpoint error and has not been validated across times or other conditions. Without a known scale or time, the reference duration is explicitly assumed.",
+      "source_sha256": "d8c7450e0f2d484b872a9406e2a2f520a875e67965f458729e10a1cc573168f5",
+      "translation": "वैकल्पिक प्रायोगिक प्लाक समय/स्केल सुझाव, जो मापों से अलग सहेजे जाते हैं। सबसे बड़े चौथाई प्लाक और एक मानी गई रैखिक वृद्धि संबंध का उपयोग करता है। डिफ़ॉल्ट रूप से बंद। RH/HFF सात-दिवसीय संदर्भ में लगभग 40 घंटे की होल्ड-आउट अंतिम-बिंदु त्रुटि है और इसे अन्य समयों या परिस्थितियों में मान्य नहीं किया गया है। ज्ञात स्केल या समय के बिना संदर्भ अवधि स्पष्ट रूप से मान ली जाती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_formation_hours",
+      "source": "Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+      "source_sha256": "2b3e6d7315e18921803be8fd5976f3e7c9d35711aee3315a12b1b0771c198f9a",
+      "translation": "प्लाक बनने में बीता समय घंटों में, प्रायोगिक मेटाडेटा के रूप में दर्ज। शून्य अनुमत है; खाली का अर्थ अज्ञात है। चित्र पूर्वावलोकन में प्रति वेल ओवरराइड संभव है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_hours",
+      "source": "Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
+      "source_sha256": "181f2afb0dbc3309ca3ad1eb3dbf7ada19cf391eda1a6c92991a94eac9009201",
+      "translation": "वृद्धि संदर्भ व्यास के अनुरूप धनात्मक निर्माण समय, घंटों में। डिफ़ॉल्ट 168 (सात दिन)। शून्य से होकर रैखिक व्यास वृद्धि मानी जाती है; यह फ़िट किया गया कालिक वृद्धि वक्र नहीं है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_um",
+      "source": "Reference median equivalent diameter in micrometers of the largest 25 percent of plaques. Default 893.8178699548309, derived from three independent RH/HFF vehicle-control experiments in Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Replace with a matched local reference when available.",
+      "source_sha256": "ea05d7b7a593bb270b172804e155feeb86e3f89734ced617ad7631801a65780e",
+      "translation": "सबसे बड़े 25 प्रतिशत प्लाक का माइक्रोमीटर में संदर्भ माध्यिका समतुल्य व्यास। डिफ़ॉल्ट 893.8178699548309, Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110 के तीन स्वतंत्र RH/HFF वाहक-नियंत्रण प्रयोगों से व्युत्पन्न। उपलब्ध हो तो मेल खाते स्थानीय संदर्भ से बदलें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_pixels_per_um",
+      "source": "Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
+      "source_sha256": "96e6048781ffaebde645f32909f3a21dfd266078b74d8abf686650ed6be9652f",
+      "translation": "विश्लेषित छवि में ज्ञात पिक्सेल प्रति माइक्रोमीटर। धनात्मक मान पहचाने गए रूलर को ओवरराइड करते हैं। स्वचालित स्केल-बार या वेल-व्यास अंशांकन के लिए खाली छोड़ें। चित्र पूर्वावलोकन में दर्ज प्रति वेल मान प्राथमिकता पाते हैं। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_iterations",
+      "source": "Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+      "source_sha256": "15995e9a85faa1c1ac0aca6504a0701fba97366ea4df0db30e1db28170c526d2",
+      "translation": "Richardson–Lucy पुनरावृत्तियाँ, 1–200; डिफ़ॉल्ट 20। अधिक मान शोर और आर्टिफ़ैक्ट बढ़ा सकते हैं। कन्वॉल्यूशन के लिए अप्रयुक्त। प्रसंस्करण पुनरावृत्तियों के बीच रद्द किया जा सकता है, सममित सीमाएँ उपयोग करता है और पूर्णांक स्रोत सीमा तक काटे बिना फ़्लोटिंग पॉइंट तीव्रताएँ रखता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_kernel_sampling_um",
+      "source": "Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
+      "source_sha256": "d7abfbd0b061ae3fb2b44eec9621b08bb4f8e1baac5ce81c01aaea0f42f9845d",
+      "translation": "डिफ़ॉल्ट None (सेट नहीं)। माइक्रोमीटर में मापी गई कर्नेल पिक्सेल दूरी [Y, X]। यह छवि सैंपलिंग से मेल खानी चाहिए; बेमेल कर्नेल चुपचाप रीसैंपल करने के बजाय अस्वीकार किए जाते हैं। गाउसियन सन्निकटन के लिए अप्रयुक्त।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_measurement_source",
+      "source": "original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
+      "source_sha256": "3a3d2176cc09548a6cd3cd0f980203cd67e0c4e3691212ab505b91177dc73def",
+      "translation": "original (डिफ़ॉल्ट) PSF प्रसंस्करण के बिना सामान्य मापन तीव्रताएँ मापता है, जिसमें उसका मानक रीस्केलिंग और पंजीकृत प्रदीप्ति/पूर्वप्रसंस्करण हुक शामिल हैं। इस विकल्प में संग्रहीत PSF पैरामीटर अनदेखे रहते हैं। processed उन चरणों के बाद और मात्रात्मक विशेषताओं से पहले अंशांकित PSF लागू करता है; convolve या deconvolve चुनें। स्रोत फ़ाइलें और निर्यात किए गए क्रॉप अपना मूल व्यवहार रखते हैं। intensity_rescale डेटाबेस तालिका विकल्प, कर्नेल पहचान, अंशांकन और एल्गोरिदम दर्ज करती है। असंगत मौजूदा मापों के लिए अलग प्रोजेक्ट/आउटपुट डेटाबेस आवश्यक है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_operation",
+      "source": "Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
+      "source_sha256": "7d1d52fddda865aaa4f3e46474bd76b8532a02809eec0ecbd834e9318c398339",
+      "translation": "प्रदीप्ति सुधार के बाद और सामान्यीकरण से पहले, हर चुने गए विभाजन तीव्रता चैनल का वैकल्पिक पॉइंट-स्प्रेड प्रसंस्करण। none बंद है (डिफ़ॉल्ट); convolve प्रकाशीय धुंधलापन का अनुकरण करता है; deconvolve Richardson–Lucy का उपयोग करता है। स्रोत छवियाँ और मापन तीव्रताएँ मूल रहती हैं। पूर्वप्रसंस्करण चालू होने पर यह सेटिंग बदलने से मास्क इनपुट फिर से बनते हैं; पूर्वप्रसंस्करण बंद होने पर सटीक पूर्ण मिलान आवश्यक है। यह 2D प्रक्षेपित दृश्य क्षेत्रों पर काम करता है, 3D प्रकाशीय पुनर्निर्माण पर नहीं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_path",
+      "source": "Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
+      "source_sha256": "c8ee98e07fbe20c88ed567862359351eecf41dedbee60cdf414b0a6f2287a967",
+      "translation": "डिफ़ॉल्ट None (सेट नहीं)। मापा गया 2D PSF TIFF/NPY। स्थानिक आयाम विषम होने चाहिए; मान परिमित, अऋणात्मक और शून्येतर। केंद्र पिक्सेल प्रकाशीय मूल बिंदु है। कर्नेल को योग एक होने तक सामान्यीकृत किया जाता है और प्रति प्रसंस्करण रन एक बार पढ़ा जाता है। इसकी सामग्री और फ़ाइल पहचान psf/segmentation_application.json में दर्ज होती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_source",
+      "source": "gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+      "source_sha256": "570fef418261c59faa9c0d34609d808343d69adafdbe4e47d82f07bac8e827cf",
+      "translation": "gaussian (डिफ़ॉल्ट) स्पष्ट FWHM और छवि पिक्सेल दूरी से सैंपल किया गया गाउसियन सन्निकटन बनाता है; यह माइक्रोस्कोप प्रकाशिकी का अनुमान नहीं लगाता। measured एक अंशांकित TIFF या NPY कर्नेल लोड करता है। एक ही कर्नेल हर चुने गए विभाजन चैनल पर स्वतंत्र रूप से लागू होता है; इसे केवल वहीं उपयोग करें जहाँ उसका अंशांकन हर चुने गए चैनल के लिए उपयुक्त हो।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "replication_method",
+      "source": "Readout for spacr.submodules.analyze_replication. direct_count counts individually segmented parasites per assigned vacuole. size_proxy delegates to the existing area-derived endodyogeny analysis, which aggregates pathogen area per host cell and assumes one vacuole per host for a vacuole interpretation; it does not count parasites or measure volume. deep_learning_coming_soon is reserved for the forthcoming whole-vacuole classification model and cannot run yet. Default direct_count.",
+      "source_sha256": "daede075628af91a4668a10c4520d5139f156ff5050939f25047a9b343a67790",
+      "translation": "spacr.submodules.analyze_replication का आउटपुट माप। direct_count प्रत्येक निर्दिष्ट रिक्तिका में अलग-अलग विभाजित परजीवियों को गिनता है। size_proxy मौजूदा क्षेत्रफल-आधारित एंडोडायोजेनी विश्लेषण को सौंपता है, जो प्रति पोषक कोशिका रोगजनक क्षेत्रफल एकत्र करता है और रिक्तिका व्याख्या के लिए प्रति पोषक एक रिक्तिका मानता है; यह परजीवी नहीं गिनता और न आयतन मापता है। deep_learning_coming_soon आने वाले पूरी-रिक्तिका वर्गीकरण मॉडल के लिए आरक्षित है और अभी नहीं चल सकता। डिफ़ॉल्ट direct_count।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "reuse_existing_measurements",
+      "source": "If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
+      "source_sha256": "fbbf8825498bec4058509211f8e38cdc27b25ae3f2d4d2eb133f885fc70df9a0",
+      "translation": "यदि measurements.db में db_table_name नाम की तालिका पहले से है, तो merged/*.npy से regionprops दोबारा निकालने के बजाय उसे लोड करें। केवल संक्रमण QC या प्लॉट दोबारा चलाने पर यह अधिकांश रनटाइम बचाता है, पर ट्रैक स्मूदिंग भी छोड़ देता है, इसलिए max_displacement या track_outlier_zscore में बदलाव केवल इसे False पर सेट करने पर प्रभावी होते हैं। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "route_errors_through_ai",
+      "source": "Send a failing run's traceback to the AI Console automatically and request an explanation. The traceback and the settings leave your machine when this is on; leave it off if your paths or filenames are themselves sensitive. Default True.",
+      "source_sha256": "08c2d5211c74b3254e6d9a57f666baeb2c701fca240723e1b87724cc61e7d6a3",
+      "translation": "विफल रन का ट्रेसबैक स्वचालित रूप से एआई कंसोल को भेजें और व्याख्या माँगें। यह चालू होने पर ट्रेसबैक और सेटिंग्स आपकी मशीन से बाहर जाती हैं; यदि आपके पथ या फ़ाइल-नाम स्वयं संवेदनशील हैं तो इसे बंद रखें। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_each",
+      "source": "Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.",
+      "source_sha256": "e291a7df3f7f40ff8779dbec7dfeac2d50c0841fc5a69ae960b1876e5ef60139",
+      "translation": "आवधिक चेकपॉइंट को बदलने के बजाय हर एपॉक के अलग चेकपॉइंट रखें। डिफ़ॉल्ट False। मध्यवर्ती मॉडलों की तुलना के लिए सक्षम करें; इसमें अतिरिक्त डिस्क स्थान लगता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_every",
+      "source": "Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.",
+      "source_sha256": "261834f7052527fb6c0758c1554da30a4246ae86cc94186c25eb56806a1be556",
+      "translation": "एपॉक में चेकपॉइंट अंतराल। डिफ़ॉल्ट 100। रन इस अंतराल से छोटा होने पर भी Cellpose अंतिम मॉडल हमेशा सहेजता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too. Default blank.",
+      "source_sha256": "4c34d9ea911146a161724263c3bea8dcc8724a7d105beb9edb73f1f9419bcc01",
+      "translation": "चेकपॉइंट आउटपुट फ़ोल्डर। Cellpose वेट अपने models सबफ़ोल्डर में लिखता है। <image source>/models/cellpose_model के लिए खाली छोड़ें। “प्रशिक्षित मॉडल उपयोग करें” भी यही स्थान पढ़ता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "scale_range",
+      "source": "Range of Cellpose's random training scale augmentation, from 0 to 2. Default 0.5. Cellpose also applies its native rotation, flip and crop augmentation; no eight-fold duplicate dataset is created.",
+      "source_sha256": "7936e2082ff9feb05ea95ed4150f16d133af90fb1746c1c4f7e1c9cc541116d6",
+      "translation": "Cellpose के यादृच्छिक प्रशिक्षण स्केल संवर्धन की सीमा, 0 से 2 तक। डिफ़ॉल्ट 0.5। Cellpose अपना मूल घूर्णन, फ़्लिप और क्रॉप संवर्धन भी लागू करता है; कोई आठ-गुना डुप्लिकेट डेटासेट नहीं बनता।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+      "source_sha256": "bf311c83ef2ff4f8a92accb1b6d01d1b7cc6dea6c3f9def8597317afab04ab3e",
+      "translation": "कौन-सा मॉडल कोशिकाओं, नाभिकों और रोगजनकों का विभाजन करता है; अलग-अलग मॉडलों के मास्क आपस में तुलनीय नहीं हैं। 'cellpose' (डिफ़ॉल्ट) हर ऑब्जेक्ट का मॉडल नाम चलाता है। 'cellpose3' किसी ऑब्जेक्ट के cyto3, cyto2, cyto या nuclei मॉडल नाम, या Cellpose 3 चेकपॉइंट के पथ के साथ Cellpose 3 चलाता है; अन्य नामों का अर्थ नाभिकों के लिए nuclei और अन्यथा cyto3 है। 'samcell' और 'dinocell' जीवित-कोशिका और लेबल-रहित छवियों के लिए 2-D मॉडल हैं जो केवल ऑब्जेक्ट का चैनल पढ़ते हैं। 'cellpose' को छोड़कर हर बैकएंड मॉडल संग्रह से अपने अलग वातावरण में इंस्टॉल होता है और z_stack तथा t_stack वाले रन अस्वीकार करता है। डिफ़ॉल्ट 'cellpose'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "straightness_threshold",
+      "source": "Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
+      "source_sha256": "efc1651d6361235dc8ca9d2c4ca0644038287e1e488172f06cae576bae7b125c",
+      "translation": "सीधेपन की कट-ऑफ़, जहाँ सीधापन = शुद्ध विस्थापन / कुल पथ लंबाई (0 = आरंभ पर लौटता है, 1 = पूरी तरह सीधा)। जब drop_straight_tracks True हो, तो इस मान के बराबर या उससे ऊपर के ट्रैक ड्रिफ़्ट या ट्रैकिंग आर्टिफ़ैक्ट मानकर हटा दिए जाते हैं, इसलिए इसे घटाने पर अधिक ट्रैक हटते हैं। संख्या हमेशा लॉग में दर्ज होती है। डिफ़ॉल्ट 0.95।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder. Default blank.",
+      "source_sha256": "2267cd466956b49de435571a452f67a9f834bb80feaa3562aad365e049c90612",
+      "translation": "वैकल्पिक सत्यापन लेबल-मास्क फ़ोल्डर। सत्यापन छवि फ़ोल्डर के भीतर masks सबफ़ोल्डर उपयोग करने के लिए खाली छोड़ें। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields. Default blank.",
+      "source_sha256": "51a5cf1e3f5b49e5bbc21a2e6e8720aa024cb979455bdb178a18ebae1c9b84a9",
+      "translation": "वैकल्पिक सत्यापन छवि फ़ोल्डर, प्रशिक्षण छवियों से अलग। सत्यापन लॉस के बिना प्रशिक्षण के लिए खाली छोड़ें। संबंधित दृश्य क्षेत्रों के बीच रिसाव से बचने के लिए वेल या प्रयोग के अनुसार विभाजित करें। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "track_outlier_zscore",
+      "source": "Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+      "source_sha256": "3d7840b2fb1de858799460a454d088e85f6a98d04d77b01aac262bdadac5c775",
+      "translation": "किसी ट्रैक के भीतर अदिश विशेषताओं (क्षेत्रफल, bbox क्षेत्रफल, समतुल्य व्यास, परिधि, ठोसता, औसत/अधिकतम/न्यूनतम तीव्रता) को स्मूद करते समय आउटलायर संवेदनशीलता। जो फ़्रेम अपने ट्रैक औसत से इतने से अधिक मानक विचलन दूर हो, और जिसके दोनों पड़ोसी उसके आधे के भीतर हों, उसे उनके औसत से बदल दिया जाता है। कम मान अधिक स्मूद करता है; कुछ भी हटाया नहीं जाता। डिफ़ॉल्ट 3.0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.batch_size",
+      "source": "Training minibatch size, not a dataset limit. Default 1 reduces GPU memory use for Cellpose-SAM. Raise it only when memory permits.",
+      "source_sha256": "1656fb46d5f0786dac81e9e7c0caa3f85ed9a761324aa5014105abec379ec9ba",
+      "translation": "प्रशिक्षण मिनीबैच आकार, डेटासेट सीमा नहीं। डिफ़ॉल्ट 1 Cellpose-SAM के लिए GPU मेमोरी उपयोग घटाता है। इसे केवल तभी बढ़ाएँ जब मेमोरी अनुमति दे।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks.",
+      "source_sha256": "52ff79122e0c4f3a095def96459324ad9d39d1b8447035a6f346f91076ea4cbc",
+      "translation": "छवि चैनल अक्ष: चैनल-पहले के लिए 0, चैनल-अंत के लिए -1, या मास्क आयामों से अनुमान लगाने के लिए खाली। अस्पष्ट छवियों के लिए स्पष्ट अक्ष आवश्यक है। प्रशिक्षण वैकल्पिक चैनलों वाले 2-D दृश्य क्षेत्रों का समर्थन करता है, Z स्टैक का नहीं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channels",
+      "source": "Zero-based image channels to train on (one to three), or leave blank to preserve all channels in images with at most three. Channels are never averaged. Larger images require an explicit selection.",
+      "source_sha256": "387f591ef0ab765d87cbdfa25fe1addd7315d9e924a1a8c1bee6cd147ff91413",
+      "translation": "प्रशिक्षण के लिए शून्य-आधारित छवि चैनल (एक से तीन), या अधिकतम तीन चैनल वाली छवियों में सभी चैनल रखने के लिए खाली छोड़ें। चैनलों का कभी औसत नहीं लिया जाता। बड़ी छवियों के लिए स्पष्ट चयन आवश्यक है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.learning_rate",
+      "source": "AdamW learning rate for Cellpose 4 fine-tuning. Default 0.00001 (1e-5), the Cellpose-SAM recommendation. Reduce it if loss becomes unstable.",
+      "source_sha256": "7c807b8fec4864e016684711500af4431d95ad5f67b8dea2fe678e6a72cd2fa4",
+      "translation": "Cellpose 4 फ़ाइन-ट्यूनिंग के लिए AdamW लर्निंग रेट। डिफ़ॉल्ट 0.00001 (1e-5), Cellpose-SAM की अनुशंसा। लॉस अस्थिर हो जाए तो इसे घटाएँ।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training.",
+      "source_sha256": "2c4de5b3fd73339163260b9b39e69c72381216414a509973e6ab878e92c957c5",
+      "translation": "पूर्णांक ऑब्जेक्ट-लेबल मास्क (पृष्ठभूमि 0) का वैकल्पिक अलग फ़ोल्डर। छवि फ़ोल्डर के भीतर के मास्क उपयोग करने के लिए खाली छोड़ें। छवि के मूल नामों से मिलाएँ, चाहें तो _masks प्रत्यय के साथ। अनुपस्थित या अस्पष्ट युग्म प्रशिक्षण रोक देते हैं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size.",
+      "source_sha256": "db08b150e9e52356ad2f890ac5e6e3435a23b3a9049cc7304b30baff1cc5ee3d",
+      "translation": "RAM में लोड की जाने वाली युग्मित प्रशिक्षण छवियों की वैकल्पिक सीमा, फ़ाइल-नाम क्रम में। खाली या अधनात्मक मान हर युग्म का उपयोग करता है। इससे मिनीबैच आकार नहीं बदलता।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.model_name",
+      "source": "Name for the newly trained checkpoint. The epoch count is appended. Use a distinct name for each experiment to preserve earlier runs.",
+      "source_sha256": "4e41df1e350191f5a1837f9531f00a6c9e1d6c7be63e5b6094ad9da2e3be91d3",
+      "translation": "नए प्रशिक्षित चेकपॉइंट का नाम। इसमें एपॉक संख्या जोड़ दी जाती है। पिछले रन सुरक्षित रखने के लिए हर प्रयोग का अलग नाम रखें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.n_epochs",
+      "source": "Training epochs. Default 100 follows Cellpose-SAM fine-tuning guidance. Monitor training and validation losses before extending a run.",
+      "source_sha256": "ae4c4df81e39ca2724175a8ec36beecfb42dbb15a2f440fdaa9b4c6ca49308a8",
+      "translation": "प्रशिक्षण एपॉक। डिफ़ॉल्ट 100 Cellpose-SAM फ़ाइन-ट्यूनिंग मार्गदर्शन का पालन करता है। रन बढ़ाने से पहले प्रशिक्षण और सत्यापन लॉस पर नज़र रखें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM.",
+      "source_sha256": "453177e6167402652cdbd2e7abbfa238d24bc86f30e2f5054c054d3888aa8aeb",
+      "translation": "प्रति प्रशिक्षण एपॉक चुनी जाने वाली छवियों की वैकल्पिक संख्या। खाली होने पर हर प्रशिक्षण छवि उपयोग होती है। यह नमूना चयन बदलता है, RAM में लोड की गई फ़ाइलों की संख्या नहीं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source.",
+      "source_sha256": "16e1646f814de87a47ea22e9eb81e12df3f3d733abe8bd530d8cfc6ea4676826",
+      "translation": "प्रति मूल्यांकन एपॉक चुनी जाने वाली सत्यापन छवियों की वैकल्पिक संख्या। खाली होने पर सभी सत्यापन छवियाँ उपयोग होती हैं। इसके लिए सत्यापन छवि स्रोत आवश्यक है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.normalize",
+      "source": "Apply Cellpose's per-channel percentile normalization once during training. Disable only for intentionally pre-normalized data. Default True.",
+      "source_sha256": "b6bbd94d503792b9bcd4268fe64a7e5d1a177c1dcec7af523203140e8a06bff6",
+      "translation": "प्रशिक्षण के दौरान Cellpose का प्रति-चैनल पर्सेंटाइल सामान्यीकरण एक बार लागू करें। केवल जान-बूझकर पहले से सामान्यीकृत डेटा के लिए अक्षम करें। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.percentiles",
+      "source": "Lower and upper intensity percentiles used when normalization is enabled. Default [1, 99], matching Cellpose. Native image geometry and separate channels are preserved.",
+      "source_sha256": "054c2cddb98c420a4d610c9393627c118b30a3dfa12880bb1fb3d6dd2dc94b5b",
+      "translation": "सामान्यीकरण सक्षम होने पर उपयोग होने वाले निचले और ऊपरी तीव्रता पर्सेंटाइल। डिफ़ॉल्ट [1, 99], Cellpose के अनुरूप। मूल छवि ज्यामिति और अलग-अलग चैनल सुरक्षित रहते हैं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too.",
+      "source_sha256": "8e4612fba7c09d871efdd3e8cf52fdd992b9698c9f8df8ef3618fbb92bb739b9",
+      "translation": "चेकपॉइंट आउटपुट फ़ोल्डर। Cellpose वेट अपने models सबफ़ोल्डर में लिखता है। <image source>/models/cellpose_model के लिए खाली छोड़ें। “प्रशिक्षित मॉडल उपयोग करें” भी यही स्थान पढ़ता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.src",
+      "source": "Folder containing training microscopy images. Masks default to the masks subfolder. Legacy project/train/images and project/train/masks layouts also remain supported.",
+      "source_sha256": "f8603d851f381facce6ddd52d26ebe897b2989dcba82175acba0d96b4cd72f7a",
+      "translation": "प्रशिक्षण माइक्रोस्कोपी छवियों वाला फ़ोल्डर। मास्क डिफ़ॉल्ट रूप से masks सबफ़ोल्डर से लिए जाते हैं। पुराने project/train/images और project/train/masks लेआउट भी समर्थित रहते हैं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder.",
+      "source_sha256": "40d49cb69393a999e378139af670630a75b6b48a100e1dd4350ee62f5a684aa9",
+      "translation": "वैकल्पिक सत्यापन लेबल-मास्क फ़ोल्डर। सत्यापन छवि फ़ोल्डर के भीतर masks सबफ़ोल्डर उपयोग करने के लिए खाली छोड़ें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields.",
+      "source_sha256": "ab03e850b280d62b1ba43fbb73d44fe7f4bf9bb78fec7119ccf58852046fb417",
+      "translation": "वैकल्पिक सत्यापन छवि फ़ोल्डर, प्रशिक्षण छवियों से अलग। सत्यापन लॉस के बिना प्रशिक्षण के लिए खाली छोड़ें। संबंधित दृश्य क्षेत्रों के बीच रिसाव से बचने के लिए वेल या प्रयोग के अनुसार विभाजित करें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.weight_decay",
+      "source": "AdamW weight decay. Default 0.1, as recommended for Cellpose-SAM fine-tuning.",
+      "source_sha256": "2f489484388f4b4c178b7db4879d555479e04797334021edd901a4067fb2a5ed",
+      "translation": "AdamW वेट डिके। डिफ़ॉल्ट 0.1, जैसा Cellpose-SAM फ़ाइन-ट्यूनिंग के लिए अनुशंसित है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_aggregation",
+      "source": "Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.",
+      "source_sha256": "97a29e510ba88a81f2eecdd005f4f595406b5afd30cfae75736c237bf8486fa1",
+      "translation": "परीक्षण-समय दृश्यों को probability_mean या majority_vote से संयोजित करें। मतदान में बराबरी होने पर उच्च औसत प्रायिकता, फिर निम्न वर्ग सूचकांक को प्राथमिकता मिलती है। pred औसत प्रायिकता रखता है; predicted_label और cv_predictions चुना गया लेबल रखते हैं। डिफ़ॉल्ट probability_mean।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_enabled",
+      "source": "Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.",
+      "source_sha256": "64c2a8c295c53141776bc2d92db7b00c6b8ebb24f67a83a77a55b127d43f626a",
+      "translation": "अनुमान के दौरान प्रत्येक फ़ीनोटाइप क्रॉप के चुने गए घुमाए या परावर्तित संस्करणों को स्कोर करें। इस श्रेणी में रूपांतरण चुनें; मूल दृश्य हमेशा शामिल होता है। मूल पूर्वानुमान, औसत प्रायिकताएँ, मानक विचलन, सहमति और समीक्षा चिह्न सहेजे जाते हैं। जब अभिविन्यास का जैविक अर्थ हो, तो अक्षम रखें। प्रशिक्षण संवर्धन नहीं बदलता। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_horizontal_flip",
+      "source": "With test-time augmentation enabled, include horizontal reflections of the selected rotations. Each distinct reflected view is classified before aggregation; equivalent orientations are evaluated once. Disable when horizontal direction has biological meaning in the assay. Default False.",
+      "source_sha256": "ceb57712d39ba20ec8c18a52be352881339b5284b6f40025f06c47f63d0b442e",
+      "translation": "परीक्षण-समय संवर्धन सक्षम होने पर चुने गए घूर्णनों के क्षैतिज परावर्तन शामिल करें। प्रत्येक अलग परावर्तित दृश्य का वर्गीकरण संयोजन से पहले होता है; समतुल्य अभिविन्यासों का मूल्यांकन एक बार होता है। जब परीक्षण में क्षैतिज दिशा का जैविक अर्थ हो, तो अक्षम करें। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_max_std",
+      "source": "Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.",
+      "source_sha256": "96913b03962a5bf4db05b6cf374796273ca6e9f2c60620d7675d46ab13f716dd",
+      "translation": "किसी ऑब्जेक्ट को तब चिह्नित करें जब अभिविन्यासों में उसकी धनात्मक-वर्ग प्रायिकता (द्विआधारी) या चुने गए वर्ग की प्रायिकता (बहुवर्गी) का जनसंख्या मानक विचलन इस मान से अधिक हो। सीमा 0-1; डिफ़ॉल्ट 0.15।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_min_agreement",
+      "source": "Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.",
+      "source_sha256": "2a6c2845ec9136291ad5355c977b5f75ee86bc79ffe7f5d9229c34c3255fa957",
+      "translation": "जब इस अंश से कम अभिविन्यास पूर्वानुमान चुने गए लेबल से सहमत हों, तो ऑब्जेक्ट को समीक्षा के लिए चिह्नित करें। सहमति अभिविन्यास की स्थिरता मापती है, अंशांकित विश्वास नहीं। सीमा 0-1; डिफ़ॉल्ट 0.75।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_rotations",
+      "source": "With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.",
+      "source_sha256": "68fe2bdc40f5a5420aad6a796360b266c81cf242ea4dbd7ba72684cc29018922",
+      "translation": "परीक्षण-समय संवर्धन सक्षम होने पर 90, 180 और 270 डिग्री के घूर्णन शामिल करें। इंटरपोलेशन के बिना सटीक पिक्सेल घूर्णन उपयोग होते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_vertical_flip",
+      "source": "With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False.",
+      "source_sha256": "38af2efefe83bfb5c8593c196d6fe6467d22fb6fc4f28bfcdc5c84c00edd6ad9",
+      "translation": "परीक्षण-समय संवर्धन सक्षम होने पर ऊर्ध्वाधर परावर्तन शामिल करें। समतुल्य अभिविन्यासों का मूल्यांकन एक बार होता है; सभी घूर्णन और दोनों फ़्लिप मिलकर आठ अलग दृश्य बनाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "x_lim",
+      "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
+      "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7",
+      "translation": "प्रतिगमन पाइपलाइन द्वारा बनाए गए Toxoplasma वोल्केनो प्लॉट के गुणांक (x) अक्ष पर दो-तत्व [min, max] सीमाएँ, जब annotation_source बंडल किया गया Toxoplasma एनोटेशन हो। शून्य के पास एकत्रित हिट्स पर ज़ूम करने के लिए इसे संकरा करें, बड़े प्रभाव वाले जीन प्लॉट पर रखने के लिए चौड़ा करें। इसे None छोड़ने पर [-0.5, 0.5] उपयोग होता है, स्वचालित स्केलिंग नहीं। डिफ़ॉल्ट None।"
+    }
+  ]
+}

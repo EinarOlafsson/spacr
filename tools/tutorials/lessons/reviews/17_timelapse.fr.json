@@ -1,37 +1,35 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic data, cached-mask comparison, explicit final Re-link and warning limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "fr",
-  "title": "Suivi temporel",
-  "description": "Utiliser le flux imbriqué dans Mask, exécuter huit images synthétiques et comparer les liens de masques dans Track preview.",
+  "title": "Timelapse",
+  "description": "Reliez des objets au fil d’une série temporelle, inspectez leurs trajectoires et préparez les images suivies pour la mesure.",
   "objectives": [
-    "Trouver Timelapse dans Mask et préserver le temps et les images originales.",
-    "Comparer les trajectoires initiales, fragmentées et restaurées sur les mêmes masques.",
-    "Distinguer indicateurs, lecture vidéo, inférence et mouvement biologique mesuré."
+    "Charger les images et masques d’exemple dans Track preview.",
+    "Régler le chevauchement et inspecter l’identité des objets d’une image à l’autre.",
+    "Configurer une exécution Mask sur une série temporelle et trouver ses sorties de suivi."
   ],
-  "prerequisite": "Dans un nouveau dossier, choisissez Help > Demos > Timelapse demo : huit instants synthétiques de 256 par 256 pixels, noyau au canal 0 et cellule au canal 1. Activez Plot et Keep original images pour conserver les seize TIFF. Le ZIP contient les plans cellulaires exacts de cette exécution, pas des données acquises ni une vérité terrain. Sélectionnez séparément image_sequences/field_A01 et label_sequences/field_A01 : canal 0, huit images, un champ. Le seuil 0.1 donne seize trajectoires complètes ; 1.0 en donne 128 d'une image. Après avoir rétabli 0.1, attendez puis cliquez sur Re-link : la saisie peut déclencher une valeur intermédiaire. Ne cliquez pas sur Propagate settings, qui ne transmet pas le seuil IoU. Les avertissements de seuil de flux, de relations et d'état des paramètres restent signalés. Aucune validation biologique ou vitesse physique. API : spacr.core.preprocess_generate_masks et spacr.timelapse. AI reste désactivé.",
+  "prerequisite": "Téléchargez et extrayez SYNTHETIC_timelapse_preview.zip. L’exemple pédagogique contient huit images de cellules et les images d’étiquettes correspondantes. Pour une exécution Mask complète sur vos propres données, préparez des images de microscopie ordonnées dans le temps et notez l’intervalle d’acquisition.",
   "scenes": [
-    "Ouvrez Mask et activez son interrupteur Time. Timelapse est désormais intégré à Mask, et non proposé comme une tuile séparée sur Home. Il ajoute les paramètres temporels et de suivi au flux de segmentation. Les mesures de motilité relèvent de Measure, une étape ultérieure.",
-    "Choisissez Help, Demos, puis Timelapse demo, et sélectionnez un nouveau dossier. Huit images synthétiques d'objets en déplacement sont créées et leurs paramètres sont chargés. Ce sont des images pédagogiques, pas une expérience biologique ni une preuve de précision de segmentation.",
-    "Vérifiez la source et les canaux renseignés. Cette démonstration place l'intensité nucléaire dans le canal zéro et l'intensité cellulaire dans le canal un, sans canal pathogène. Les noms de fichiers encodent séparément le temps, le champ et le canal. Ne remplacez pas une série temporelle par la plaque statique habituelle.",
-    "Frame limits définit une tranche indexée à partir de zéro : zéro à huit inclut les huit images, avec une borne finale exclue. Gardez ensemble les temps d'un même champ. Une fréquence de lecture ne fournit pas un intervalle d'acquisition manquant ; cette démonstration n'établit aucune vitesse physique.",
-    "Suivez les cellules avec le mode de recouvrement nommé iou. Il relie les masques par leur intersection divisée par leur union entre images consécutives. Les autres moteurs ont des hypothèses et dépendances facultatives différentes. Un déplacement n'est pas un seuil de recouvrement ; utilisez les paramètres réellement lus par le moteur choisi.",
-    "Activez Keep original images avant Run. Sinon, le nettoyage peut supprimer les dossiers d'images intermédiaires et originales. Cet enregistrement conserve les seize TIFF générés à l'identique et ne touche jamais aux anciens fichiers pédagogiques. Gardez toujours une sauvegarde séparée d'une expérience acquise.",
-    "Activez Plot et lancez ce petit exemple. Le traitement actuel regroupe les huit images, même si la taille de lot demandée est inférieure. Surveillez la console et les ressources : davantage d'images, une résolution supérieure et plus d'objets peuvent exiger beaucoup plus de mémoire.",
-    "L'exécution produit cinq figures et huit tableaux combinés. Dans cet affichage normalisé, les deux premiers plans représentent les intensités ; les deux derniers sont les étiquettes des cellules et des noyaux, pas des canaux d'acquisition supplémentaires. La table cellulaire enregistrée contient seize trajectoires de huit images chacune.",
-    "Lisez les avertissements, pas seulement Finished. Cette version signale des seuils de flux hérités, une table de relations indisponible et un avertissement d'état des paramètres. Nous avons vérifié séparément les masques et trajectoires enregistrés ; ce n'est ni une validation sans réserve de la version ni un remplacement de Measure.",
-    "Ouvrez Track preview. Pour reproduire l'exercice de liaison, téléchargez et extrayez l'archive synthétique proposée ci-dessous. Elle contient exactement les plans d'image et de masque cellulaires du lot enregistré. Charger ces masques permet de tester les liens sans exécuter un autre modèle de segmentation.",
-    "Choisissez le dossier de la séquence d'images du champ A zéro un. Ces images exportées contiennent uniquement le plan d'intensité cellulaire original : choisissez donc ici le canal zéro. Séparez les dossiers parents des images et des étiquettes ; réglez Frames previewed sur huit et Fields sur un.",
-    "Choisissez le dossier des étiquettes correspondant avec Masks. Ce sont des masques calculés, pas une vérité terrain. Laissez Keep only full-length tracks désactivé et ne cliquez pas sur Propagate settings. Les réglages du modèle ne créent pas de nouveaux masques lorsqu'une séquence existante est lue.",
-    "Lancez la prévisualisation avec un seuil de recouvrement de zéro virgule un. Elle indique seize trajectoires de huit images, sans trajectoire courte ici. Fragmentation et sauts sont des indicateurs calculés sans vérité terrain ; de faibles valeurs ne prouvent pas à elles seules que les identités sont biologiquement correctes.",
-    "Portez le seuil de recouvrement à un. Exiger un recouvrement exact fragmente cet exemple mobile en cent vingt-huit trajectoires d'une image. Images et masques restent identiques ; seuls les liens changent. Cette valeur volontairement excessive illustre la fragmentation, ce n'est pas un réglage conseillé.",
-    "Rétablissez zéro virgule un, attendez la fin du calcul en cours, puis cliquez sur Re-link. La saisie peut lancer un calcul sur une valeur intermédiaire ; confirmez explicitement le calcul final. Les seize trajectoires complètes reviennent. Ne cliquez pas sur Propagate settings : le seuil n'est pas transféré au formulaire du lot.",
-    "Déplacez le curseur jusqu'à l'image huit pour inspecter les objets reliés. La vitesse de lecture ne change que l'affichage, pas le temps d'acquisition. Poursuivez dans Measure et Motility avec un intervalle et une échelle validés. L'API et spaCR AI expliquent les paramètres, mais ne remplacent pas la vérification des images, trajectoires et avertissements."
+    "Depuis Home, ouvrez Mask et cliquez sur l’icône Timelapse en haut à droite pour activer le suivi. Timelapse relie les objets entre images consécutives. Nous allons d’abord essayer l’exemple lié dans Track preview, puis revoir les paramètres pour traiter votre propre séquence d’images.",
+    "Téléchargez et extrayez l’archive d’exemple ci-dessous, puis cliquez sur Track preview à droite de l’en-tête Actions. L’archive contient une séquence d’images et la séquence de masques correspondante, sur huit images. Gardez les deux dossiers ensemble pour pouvoir sélectionner les images et étiquettes qui se correspondent.",
+    "Choisissez image_sequences, puis field_A01, comme dossier d’images. Sélectionnez le canal zéro : chaque image d’exemple contient un seul canal d’intensité cellulaire. Réglez Frames previewed sur huit et Fields sur un.",
+    "Cliquez sur Masks et sélectionnez label_sequences, puis field_A01. Chaque étiquette identifie un objet dans l’image correspondante. Laissez d’abord Keep only full-length tracks désactivé afin d’inspecter les trajectoires qui commencent ou se terminent au cours de la séquence.",
+    "Réglez le seuil de chevauchement sur zéro virgule un et cliquez sur Run preview. Ce seuil détermine à quel point des masques voisins doivent se chevaucher pour être reliés. Inspectez les identités d’objets colorées et le résumé des longueurs de trajectoire. L’exemple produit seize trajectoires qui couvrent les huit images.",
+    "Ajustez le seuil de chevauchement si les objets se fragmentent en trajectoires courtes ou se relient aux mauvais voisins. Un seuil plus élevé exige davantage de chevauchement. Après l’avoir modifié, attendez la fin de l’aperçu et cliquez sur Re-link pour inspecter la valeur finale. Parcourez plusieurs images avant d’accepter le résultat.",
+    "Utilisez le curseur des images pour suivre le même objet tout au long de la séquence. Play modifie la vitesse de défilement des images. Notez à part l’intervalle d’acquisition réel pour les mesures de vitesse ultérieures.",
+    "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
+    "Choisissez l’objet à suivre et le mode de suivi. Le mode de chevauchement, iou, relie les objets à partir de leurs masques dans des images voisines. Inspectez d’abord une courte séquence et choisissez un mode adapté à la distance parcourue par vos objets entre deux images.",
+    "Activez Keep original images pour conserver les images d’entrée lors du nettoyage du pipeline. Réglez le modèle de segmentation et les canaux pour vos données, et vérifiez l’aperçu avant de traiter la séquence complète.",
+    "Activez Plot pour inspecter les figures générées, puis cliquez sur Run. Suivez la progression dans la console et attendez la fin. Commencez par une courte séquence afin de vérifier les masques et les identités des trajectoires avant de traiter une expérience plus grande.",
+    "Inspectez les plans d’intensité et d’étiquettes dans les figures de sortie. L’exécution enregistre les tableaux suivis dans merged et les tables de trajectoires dans tracks, dans le dossier du projet. Poursuivez avec Measure, puis Motility, pour calculer les caractéristiques des objets et leurs déplacements à partir de ces trajectoires."
   ]
 }

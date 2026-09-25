@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Candida: esplorare la guida dell’organismo",
+  "description": "Sfoglia la guida di Candida, esplora il diagramma del lievito e trova i flussi di lavoro generali di analisi delle immagini disponibili.",
+  "objectives": [
+    "Aprire la pagina da Home e trovarne i comandi principali.",
+    "Individuare input, azioni e output disponibili.",
+    "Scegliere la successiva analisi o risorsa disponibile."
+  ],
+  "prerequisite": "Apri Home in spaCR. La guida non richiede file di input. I riquadri dei saggi specifici per Candida mostrano per ora Coming soon.",
+  "scenes": [
+    "Da Home, scegli Candida. La sua guida tratta morfologia, filamentazione, biofilm e interazione del lievito con le cellule ospiti.",
+    "Leggi il pannello informativo con le descrizioni dei moduli accanto, e trascina il divisore per allargare il lato che stai leggendo.",
+    "Il diagramma del lievito in gemmazione funziona come nelle altre guide. Passa il puntatore su un componente per leggerne la descrizione, selezionane diversi per tenerli evidenziati; Clear components azzera la selezione.",
+    "I riquadri dei saggi specifici per Candida sono per ora contrassegnati come Coming soon, ma puoi comunque analizzare le tue immagini con gli strumenti generali. Torna a Home, segmentale in Mask e misurale in Measure, scegliendo canali e maschere adatti alla tua specie e al tuo esperimento.",
+    "Per dettagli su geni e proteine, i collegamenti a Candida Genome Database e UniProt si aprono nel browser. La guida non richiede file di input e non scrive output; quando sei pronto a elaborare immagini, segui il tutorial di un modulo eseguibile."
+  ]
+}

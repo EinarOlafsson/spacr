@@ -2,26 +2,17 @@
 MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
-Status:    OPEN, ~97%, filed 2026-09-16. ALL NINE POINTS ARE BUILT, REVIEWED
-           AND ON NIGHTLY; what is open is a translation pass and a look in
-           the real app, neither of which is code. Points 1-3 BUILT AND ON
-           NIGHTLY 2026-09-19, reviewed, with 208 tests green; point 3
-           installs into an environment of its own since item 423 (note
-           below). Points 4-6 (part B) BUILT, REVIEWED AND ON NIGHTLY
-           2026-09-19, 39 new tests green. Points 7-9 (part C) BUILT
-           2026-09-19, REVIEWED AND ON NIGHTLY 2026-09-20, 72 new tests
-           green; the review found point 9's Invert colliding with item
-           435, which landed meanwhile, and that is settled in the
-           2026-09-20 note at the end -- the switch is now "Invert for
-           detection" and has its own arithmetic, for a reason that is
-           measured there. Every new and changed user-facing string in all
-           three parts is English only and its nine-language rows are owed
-           to the consolidated translation pass, along with one stale
-           Help-search summary (notes below); no part of this item has been
-           looked at in the real app on a real display. Item 435's invert
-           half is DONE and on nightly; its ask for more Otsu options is
-           not this item's. See the five 2026-09-19 notes and the
-           2026-09-20 note at the end.
+Status:    OPEN, ~99%, filed 2026-09-16; re-read 2026-09-25. ALL NINE
+           POINTS ARE BUILT, REVIEWED AND ON NIGHTLY (parts A-C, 2026-09-19
+           and -20). The stale Help-search summary is fixed (65c0bef2b,
+           30bb9fac0). The translations are the translation lane's, under
+           future/411: de, es, fr and sv carry reviewed rows for this item's
+           strings; hi, is, ko, pt and zh_CN do not yet. An offscreen look at
+           1280, 1600 and 1920 px was taken 2026-09-25 and found ONE thing
+           that needs the maintainer: below ~1790 px of screen width the
+           Magnifier and Settings pair of point 2 is scrolled off the right
+           end of the tool row. That decision, and the maintainer's own look
+           on a real display, are what is left. See the 2026-09-25 note.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 
@@ -1079,3 +1070,72 @@ flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
 remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
 future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
+
+2026-09-25 -- RE-READ AGAINST NIGHTLY, AN OFFSCREEN LOOK, AND ONE QUESTION
+--------------------------------------------------------------------------------
+
+What the header still called open, point by point, against nightly e49d86073:
+
+  * THE STALE HELP-SEARCH SUMMARY (2026-09-19 note) IS FIXED, not by this
+    item: the English API manifest and the Help search index were
+    regenerated in 65c0bef2b (item 411) and 30bb9fac0. The row for
+    MakeMasksScreen.run_cellpose now reads "Segment the open field with the
+    chosen model; objects found."
+  * THE NINE-LANGUAGE ROWS are the translation lane's (future/411, Codex),
+    not code this item can write: spacr/qt/i18n_catalogs is theirs. Reviewed
+    runtime rows for this item's strings ("Invert for detection" and the
+    rest) are in docs/i18n/reviewed/runtime/{de,es,fr,sv}; Hindi,
+    Icelandic, Korean, Portuguese and Chinese have API rows only. That
+    remains open under 411, not here.
+  * THE LOOK. No session can look at the maintainer's display, so the look
+    taken here is the next best: the whole screen rendered offscreen at
+    1280x800, 1600x900 and 1920x1080 with a four-object 16-bit field and its
+    mask open, the readout pointed at the middle object. Script and
+    pictures in /tmp/spacr-419-scratch (scratch_419_look.py,
+    make_masks_{1280,1600,1920}.png); nothing of it is committed.
+
+WHAT THE LOOK CONFIRMS. Point 1: the readout sits in the image's top-left
+corner and reads "x 128, y 128 intensity 1781 | Object 2 area 1941 px mean
+intensity 1799.28". Point 2: the settings are left of the image with the
+splitter gap between them, and the masthead carries only the name and the
+instruction under it. Point 4: the Shortcuts card is right of the Mask /
+Cell probability / Flows tabs and lists the chords, Ctrl+left and
+Ctrl+right among them.
+
+WHAT THE LOOK FOUND, measured, and NOT changed because it is a layout
+choice:
+
+    window width    tool row needs    row viewport    Magnifier + Settings
+    1280 px         1753 px           1248 px         off the right end
+    1600 px         1753 px           1568 px         Magnifier cut, Settings off
+    1920 px         1753 px           1888 px         visible
+
+The row scrolls rather than force the window wide, deliberately
+(tests/qt/test_make_masks_toolbar.py::test_the_row_cannot_force_the_window_
+wide), and point 2's pair is the LAST thing in it (add_toolbar_action keeps
+it there). So on anything narrower than about 1790 px -- a 1600 px window,
+or a 1920 px screen with spaCR's side navigation open -- the Settings toggle
+the maintainer asked to have "directly to the right of the magnifier
+button" cannot be seen without scrolling the row. The pair is still
+adjacent, which is all the tests hold.
+
+QUESTION FOR THE MAINTAINER. Which of these do you want?
+  (a) Pin the Magnifier + Settings pair outside the scrolling row, at its
+      right end, so it is always visible and only the tools scroll;
+  (b) move the pair to the LEFT end of the row, above the settings pane it
+      hides, so it is the first thing visible;
+  (c) make the row's buttons icon-only below some width (the text moves to
+      the tooltip) so the whole row fits;
+  (d) leave it: the row scrolls and that is acceptable.
+(a) and (b) each change a pinned invariant in test_make_masks_toolbar.py
+(one row, the pair second-to-last or the first tool first), which is why
+this was not done without asking.
+
+MEASURED, one capped offscreen CPU process: the 419 files
+test_mask_engine_splits_filters_and_inverts, qt/test_make_masks_reads_out_
+lays_out_and_installs, qt/test_make_masks_shortcuts_otsu_and_object_edits,
+qt/test_make_masks_filters_splits_and_inverts and qt/test_make_masks_toolbar,
+with 446's test file: 162 passed.
+
+WHAT IS LEFT: the answer to the question above, and the maintainer's own
+look on a real display. The translations are tracked under future/411.

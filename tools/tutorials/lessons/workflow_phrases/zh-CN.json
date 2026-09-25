@@ -1,12 +1,13 @@
 {
   "schema": 1,
   "language": "zh-CN",
-  "workflow_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
+  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
     "pipeline_followup": "2026-09-23: seven new or expanded phrases checked against pipeline input routes and annotation behavior; no native-speaker sign-off.",
-    "host_pathogen_followup": "2026-09-23: whole-vacuole identity, uninfected-host denominator, optional explicit parasite counts, control-calibrated ratios and unknown states reviewed against implementation; no native-speaker sign-off."
+    "host_pathogen_followup": "2026-09-23: whole-vacuole identity, uninfected-host denominator, optional explicit parasite counts, control-calibrated ratios and unknown states reviewed against implementation; no native-speaker sign-off.",
+    "narration_2026_09_25": "107 phrases added for the rewritten 78-81 stories and generated handoffs; AI technical review (Claude Opus 5.5), no native-speaker signoff."
   },
   "records": [
     {
@@ -1228,6 +1229,541 @@
       "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
       "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
       "translation": "测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。"
+    },
+    {
+      "source": "spaCR screens",
+      "source_sha256": "1709a0fdd58514c0c116c09229be2ee7c0f285a74cfa7bf36eff48f9d685b78a",
+      "translation": "spaCR screens"
+    },
+    {
+      "source": "the run queue",
+      "source_sha256": "2c98be8de7c83ff0ea02e619d52beb7b336533adbf96686e3d89480f9a034dc5",
+      "translation": "运行队列"
+    },
+    {
+      "source": "the label masks",
+      "source_sha256": "acf55963d0bfb61030c0e3624d6b6fd837e797a929ee8adea25cf4ebdf930b84",
+      "translation": "标签掩膜"
+    },
+    {
+      "source": "the object crops",
+      "source_sha256": "f918bbd08a858a7c0ff853bc65d662a537dba68015494095db5abf7ac627000f",
+      "translation": "对象裁剪图像"
+    },
+    {
+      "source": "{artifacts} from",
+      "source_sha256": "afaa233e21c0606ded300ef66d7c13352bf466143ce5c1a0bff8f48909a62a37",
+      "translation": "{artifacts}"
+    },
+    {
+      "source": "the assay results",
+      "source_sha256": "92ce5e1dd9373c897110178229262331698112d3ce640a95990bafc7094317d6",
+      "translation": "检测结果"
+    },
+    {
+      "source": "the object counts",
+      "source_sha256": "20c5cf216dc0df6690e9696782112eead95d8f1dab0bf9bdee7a4d88defb647a",
+      "translation": "对象计数"
+    },
+    {
+      "source": "the AnnData export",
+      "source_sha256": "dd4e470cccafacd1661bf7885b64523853e2c1aea0dbd3e024ee0ce32c271ad5",
+      "translation": "AnnData 导出"
+    },
+    {
+      "source": "the reusable gates",
+      "source_sha256": "6e4af060a80dfe5f65bc78b054a479e38876905e2231e8f0b6cef79f5d60aa88",
+      "translation": "可重复使用的门控"
+    },
+    {
+      "source": "{items} and {last}",
+      "source_sha256": "69faa4f0e0f2439b86179d6e9554642dad1b209fbfed0eabc9216db12cff879d",
+      "translation": "{items} 和 {last}"
+    },
+    {
+      "source": "{items}, and {last}",
+      "source_sha256": "233abe6fe1f1373843adf917c956883e1ca47d5c30685944bef135b525393251",
+      "translation": "{items} 以及 {last}"
+    },
+    {
+      "source": "the image embeddings",
+      "source_sha256": "48c5e84cbac1939288ebfb4895fbd1ea643080e0455fc67929caf9c27de9046c",
+      "translation": "图像嵌入"
+    },
+    {
+      "source": "the measured objects",
+      "source_sha256": "d19842300522956cce87e64779f653cb9156a654965c07e8f7214141904f25a9",
+      "translation": "已测量的对象"
+    },
+    {
+      "source": "the sequencing reads",
+      "source_sha256": "b20093fe76e1a7cbe00575e4ab792a99e9d012d14caa4a635ef7221e7e4f498a",
+      "translation": "测序读段"
+    },
+    {
+      "source": "the microscope images",
+      "source_sha256": "7ec0cd5f60e8857e0ab1a8e779a6ec92c3ce19134a7648bdb8374a200f597695",
+      "translation": "显微图像"
+    },
+    {
+      "source": "the shareable reports",
+      "source_sha256": "14edc7cd3d247b0da1008d1745d0284f9b80a0624cd5bd78bab30306ee53b84b",
+      "translation": "可共享的报告"
+    },
+    {
+      "source": "{name} reads {items}.",
+      "source_sha256": "ef38ded487508a359bf5bd3d591a81a4b929bae2b21323c6edda3f7aa60b413d",
+      "translation": "{name} 读取 {items}。"
+    },
+    {
+      "source": "{peer} uses them too.",
+      "source_sha256": "231d800f52cd85dc7df6e61046faae1d15003a3303c1d4ed4cb6bc08c6a1271d",
+      "translation": "{peer} 也会用到它们。"
+    },
+    {
+      "source": "They also feed {peer}.",
+      "source_sha256": "1b41cf81efd822bc12cd21fd5f115dfd5071e7d722733064a4bc3b33f08f95b7",
+      "translation": "它们也会提供给 {peer}。"
+    },
+    {
+      "source": "the experimental layout",
+      "source_sha256": "a2e3106a86c9e033efc63484698fc21ee06ab55b7708b8ed512b5d5d4d8681ec",
+      "translation": "实验布局"
+    },
+    {
+      "source": "the feature definitions",
+      "source_sha256": "4015e65f9e47cfbb71bfd4c75b2710852d24cabad338c32eddf86d09094eb653",
+      "translation": "特征定义"
+    },
+    {
+      "source": "the run/model comparison",
+      "source_sha256": "e13ad9b64e8f823c04bda0edd02a7336907420aae3e10842f51da88f69a4de46",
+      "translation": "运行与模型比较"
+    },
+    {
+      "source": "the training annotations",
+      "source_sha256": "0fea00423f4ef1845e7f1e38f4ee43929d9df4fc8191895479d622d97c69483e",
+      "translation": "训练注释"
+    },
+    {
+      "source": "Look for {artifact} here:",
+      "source_sha256": "81bc5dbe23cc7493aa9bf7453d1f81a40ef9b93e7f5ddcf3090da28ba9e90b0f",
+      "translation": "{artifact} 在这里："
+    },
+    {
+      "source": "the external measurements",
+      "source_sha256": "e392225eda9e661cb82dbd8793f9d149f9451b09bb55d3f3976eea892dc6a342",
+      "translation": "外部测量数据"
+    },
+    {
+      "source": "the guide counts per well",
+      "source_sha256": "2296e542829f16819d0c7f0c5d47e711d981a3764699f05e9d3918560e5ff2a3",
+      "translation": "每孔向导计数"
+    },
+    {
+      "source": "the image attribution maps",
+      "source_sha256": "52c0158ffc1988177c538ff5131738f644580b3408692d1e99658819f336b032",
+      "translation": "图像归因图"
+    },
+    {
+      "source": "the images and label masks",
+      "source_sha256": "b219f3a2c39f71c0bf290b80d1a1666381a3a3e858cc4bd88ded114883c010a1",
+      "translation": "图像和标签掩膜"
+    },
+    {
+      "source": "the curated training fields",
+      "source_sha256": "d07837498c8563ef7670665a690577bd0951520f5515a607a3ea14372eb294c4",
+      "translation": "整理好的训练视野"
+    },
+    {
+      "source": "the projection and clusters",
+      "source_sha256": "ba34cb4a9aa442be745a5baaa87a70706cc3662aed36bdbb9ecf0266af34ce60",
+      "translation": "投影和聚类"
+    },
+    {
+      "source": "the quality-control results",
+      "source_sha256": "a83899a480a696c40563b326d448eb5acce54aa60f3e6c89f43344a8e1c71a9c",
+      "translation": "质量控制结果"
+    },
+    {
+      "source": "the segmentation checkpoint",
+      "source_sha256": "26023675228430360b54f847071804ef4d8a66f0aaadbef6c63a79383fdac6c0",
+      "translation": "分割检查点"
+    },
+    {
+      "source": "You'll find {artifact} here:",
+      "source_sha256": "1026db6f12a4a6d125239e31ac014f2acfe38f959b44444ebf7d0e52ecb70dec",
+      "translation": "您可以在这里找到 {artifact}："
+    },
+    {
+      "source": "the trained image classifier",
+      "source_sha256": "c35984568b0a393b72c462473963a902fe4becac3dd20e1df715c43c29f386a3",
+      "translation": "训练好的图像分类器"
+    },
+    {
+      "source": "the figures and table exports",
+      "source_sha256": "96a17963c9e9ffe94b7193702f871bbe528f65fd6533700402354f8ea0e5c26b",
+      "translation": "图和导出的表格"
+    },
+    {
+      "source": "the fitted feature classifier",
+      "source_sha256": "f6f67d27b0e7c64bcccd1a9069072eb5848ee13bd8251bb03d90a8cb3e248678",
+      "translation": "拟合好的特征分类器"
+    },
+    {
+      "source": "the run history and artifacts",
+      "source_sha256": "bc84b8e21d6d57e05da18ee7f94d4e27f0415bd95fb30843c96445d55498522e",
+      "translation": "运行历史及其产物"
+    },
+    {
+      "source": "the bundled organism reference",
+      "source_sha256": "0e0d892e31dc03a963882d6e5d2f0a3a88ae29d27614ea1783303591eb0f0405",
+      "translation": "内置的生物参考资料"
+    },
+    {
+      "source": "the direct Cellpose TIFF masks",
+      "source_sha256": "931c5e2db7b87e1dd22e6043980e294e6dcfaed721c2cbe040f236afe74ef7fc",
+      "translation": "Cellpose 直接生成的 TIFF 掩膜"
+    },
+    {
+      "source": "the linked time-series objects",
+      "source_sha256": "98971227d3e9f62d58e9af373bcd5fce29b90d28898000ce81a185bf6de26f7a",
+      "translation": "关联好的时间序列对象"
+    },
+    {
+      "source": "{peer} can supply {artifacts}.",
+      "source_sha256": "5ce3d3a3f2ce4437a8f7b9655154f31a0d96c7c1c877d56fd83341a4b0158ac7",
+      "translation": "{peer} 可以提供 {artifacts}。"
+    },
+    {
+      "source": "the optical barcode assignments",
+      "source_sha256": "5687b2fc831be5228614cc902a7c72f1f0472a410f305176b755c8a108f1146d",
+      "translation": "光学条形码分配"
+    },
+    {
+      "source": "the regression results and hits",
+      "source_sha256": "9d18bd9a4f1d4118117338bb3155d9b79fdd50dfd553bce1430b223ed30a998f",
+      "translation": "回归结果和命中"
+    },
+    {
+      "source": "{peer} can supply them as well.",
+      "source_sha256": "319632d4bfe1cbfe76fd6636a2f57c9a1066aaca09f3c1cfda313ba339b42475",
+      "translation": "它们也可以来自 {peer}。"
+    },
+    {
+      "source": "the classifier evaluation bundle",
+      "source_sha256": "67fd10357abf5afcefba3d9f452364c3147881c4301fde24ba28183b3758ccc0",
+      "translation": "分类器评估包"
+    },
+    {
+      "source": "the object classification scores",
+      "source_sha256": "98d8fb50fc3e8132f40d8bc9c8e6835166d238d41c99f09aedcb2de55230d985",
+      "translation": "对象分类分数"
+    },
+    {
+      "source": "{peer} is another place they go.",
+      "source_sha256": "1a93cba0a3d339bae3bcb9fac52a075b5835f61b3c9096409864744933e4af1e",
+      "translation": "它们也可以送往 {peer}。"
+    },
+    {
+      "source": "{peer} picks up {artifacts} next.",
+      "source_sha256": "3074d4df9eda0e0e8be758fd4708af05f0fdb4ae24fd92269584e428c506ddcc",
+      "translation": "接下来由 {peer} 接收 {artifacts}。"
+    },
+    {
+      "source": "{peer} reads {artifacts} as well.",
+      "source_sha256": "b4cb57dcab90646d69e7ea6d94c323f41bb1034186f7a77e028de4b825def10b",
+      "translation": "{peer} 也会读取 {artifacts}。"
+    },
+    {
+      "source": "the aligned mosaic and coordinates",
+      "source_sha256": "4b06daacaf005dc61a1c7f78de346b60fcdf7e1e3a093fe8939378e31a3c54ea",
+      "translation": "对齐后的拼接图及坐标"
+    },
+    {
+      "source": "the area-derived size-proxy results",
+      "source_sha256": "e51b5c8b765f92bf6a5aaec1de68fe467d896e654616071ad7208c9372e94a8a",
+      "translation": "基于面积的大小替代指标结果"
+    },
+    {
+      "source": "From those, {name} produces {items}.",
+      "source_sha256": "77aeb5bf832ffdab1dadd000e331caa11a6b062022d6788e9d2ea6795a181382",
+      "translation": "{name} 据此生成 {items}。"
+    },
+    {
+      "source": "the screen design and power estimates",
+      "source_sha256": "a751d0f285d12b289ca0e06a06c5d8d8ae5bf446cde8ad32c39e85f1ec3c2792",
+      "translation": "筛选设计和检验效能估计"
+    },
+    {
+      "source": "Sequencing modules and how they relate",
+      "source_sha256": "4e75c2b76afeb08a59df4f8d0ba0e9f6088c392b5133f85ddfeafb4abe4a2043",
+      "translation": "测序模块及其相互关系"
+    },
+    {
+      "source": "the organism guide and assay selection",
+      "source_sha256": "892ca6ddf9a52afab78858eb5a298477ac10d46b3f2bf2e9c6e52025822110fd",
+      "translation": "生物指南和检测选择"
+    },
+    {
+      "source": "{artifacts_from} {peer} work here too.",
+      "source_sha256": "83dabc3d9d51674d8bef4b404bea03c4ac9f02ae057612160153fe9a69768e54",
+      "translation": "来自 {peer} 的 {artifacts_from} 在这里同样适用。"
+    },
+    {
+      "source": "the pooled-screen simulation assumptions",
+      "source_sha256": "ef7d675a5d3084a7cbbaef10c1b1e20b5d6dcb602b5c00df81d3634856cee90c",
+      "translation": "混池筛选模拟的假设"
+    },
+    {
+      "source": "the synthetic screen simulation summaries",
+      "source_sha256": "e853ca549ed76db6c9b535c1eb2ca7caafe3f60e223b96f6e68cc860f7d20fa8",
+      "translation": "合成筛选模拟摘要"
+    },
+    {
+      "source": "the host-cell-aggregated compartment areas",
+      "source_sha256": "cf896d73d962a4bde359424041cbc4f9db09b3ce80e636f5dc4f894cb65d415e",
+      "translation": "按宿主细胞汇总的区室面积"
+    },
+    {
+      "source": "You can also take {artifacts} on to {peer}.",
+      "source_sha256": "e831632ab06476c248ac02b27e0463289ba1c446c23cf66f0d493b31f338ff41",
+      "translation": "您也可以把 {artifacts} 交给 {peer}。"
+    },
+    {
+      "source": "The columns to keep an eye on are {columns}.",
+      "source_sha256": "5cc9d48bb9c0754a43d2eded6f953342cd39392d56b3ebde8f92a949a5534657",
+      "translation": "需要留意的列是 {columns}。"
+    },
+    {
+      "source": "the TIFF fields for direct Cellpose inference",
+      "source_sha256": "a63b1ce2d7d195ffc484a904f6d96215ce901050d3a2da0d97110e61caf7fde0",
+      "translation": "用于 Cellpose 直接推断的 TIFF 视野"
+    },
+    {
+      "source": "If you start in {peer}, it provides {artifacts}.",
+      "source_sha256": "a5f4f271096b5379be6f6d53b6c53f76fa7182c6e01a39271c79d91a3d492fc1",
+      "translation": "如果您从 {peer} 开始，它会提供 {artifacts}。"
+    },
+    {
+      "source": "Depending on the route, the tables that matter are {tables}.",
+      "source_sha256": "73edd4987cc1803e199b07f73a1a4b82291bc3d74d57f1bcc902b7293ce5ef1a",
+      "translation": "根据所走的路径，重要的表是 {tables}。"
+    },
+    {
+      "source": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
+      "source_sha256": "287f0ce05974bbf2d3e0fcbbcafa9d56e2a31129ed89d7797ffa66ba011b03c9",
+      "translation": "从 Home 出发，跟随一次基于图像的混池筛选，经过图像测量、表型分类和条形码计数，一直到回归分析。"
+    },
+    {
+      "source": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
+      "source_sha256": "7b73600857ae9eac64e768c170f632d9c061005b21a8e2c61e5e485a870eb2ad",
+      "translation": "安装 spaCR 并打开 Home。选择工作流程的起始数据，然后按照链接的模块课程了解控件和示例数据。"
+    },
+    {
+      "source": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
+      "source_sha256": "d1144840374924e7e75ad8ed21042c8db9eac7f0bf3ccd551c361472cb938f0b",
+      "translation": "把测序和光学条形码工作流程与表型分数、回归、实验规划、检验效能估计、剂量反应分析和运行比较联系起来。"
+    },
+    {
+      "source": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
+      "source_sha256": "1a176ab3c0d9b877d5d351493995d68529cd6121e83ffb464e04bab131421cb4",
+      "translation": "有些分析需要先把图块拼接成一张图。从 Home 打开 Align & Stitch，检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图。对于 OPS，还要保留原始的循环和位点标识。"
+    },
+    {
+      "source": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
+      "source_sha256": "82e7c9ea3d3a685f076ec33b2f96e68847e3317040f8693be7852e17fd2cce3a",
+      "translation": "Replication Assay 同样位于 Home 的 Toxoplasma 之下，它统计每个液泡中的寄生虫数量，并在不同条件之间比较这些分布。它读取来自 Measure 的对象，但需要明确的寄生虫与液泡对应关系；仅凭宿主标识无法确定一个液泡。"
+    },
+    {
+      "source": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
+      "source_sha256": "bf00adbec38a52959e82be1ce7e46e9794f86f9428b659e3bbb7080e7f438fe6",
+      "translation": "Recruitment 考察有多少标记物聚集在寄生虫处。从 Home 打开 Toxoplasma，然后选择 Recruitment。它读取来自 Measure 的区室强度，其中宿主和病原体的标识相互匹配，并计算保留每个孔和每个条件的募集比值。"
+    },
+    {
+      "source": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
+      "source_sha256": "2cf161d3bf12c8cf08e91ecabb8ad5c24ca6acd037c0d59b53c6b74fa1b73164",
+      "translation": "在 Measure 之后的任何时候，都可以从 Home 打开 QC 检查您的工作。它读取已保存的分割、单位、泄漏和板效应检查结果，内嵌的查看器让您可以看得更仔细。缺失的检查并不等于通过的检查。QC 会把结果连同可导出的图和表一起保存。"
+    },
+    {
+      "source": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
+      "source_sha256": "07167b783fa0ae762969fbb95481f190b24eb970e4777e98c6464ab12a801d08",
+      "translation": "要区分只是附着的寄生虫和已经进入的寄生虫，请从 Home 打开 Toxoplasma 并选择 Invasion Assay。它依靠来自 Measure 的双色差异染色测量数据以及染色基线对照，并在保留每个孔和每个条件的前提下保存检测结果。"
+    },
+    {
+      "source": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
+      "source_sha256": "a824a04f298016d44055093abb3411ca415446c598f37e6573e019e2de894b4d",
+      "translation": "当您知道下一项任务时，就直接跳到对应章节，打开链接的模块课程了解其控件和示例数据。把每个输出和生成它的设置放在一起。当您在自己的分析中串联各个步骤时，模块页面和 Python API 描述的是相同的文件、表格和标识符。"
+    },
+    {
+      "source": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
+      "source_sha256": "fcbd2c714c776e292493c06db223b6de0588af774fe329b909870c8776283ddc",
+      "translation": "一旦有了不止一次分析，就从 Home 打开 Run Compare。它读取您保存的运行记录和 Regression 结果，把它们的设置、计数和命中列表并排显示。如果两次运行之间输入数据发生了变化，这些差异就不是受控的模型比较，阅读时请记住这一点。"
+    },
+    {
+      "source": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
+      "source_sha256": "a12cefbbcb9fb7707fed3c87538aadf923c210341e60628790ee77381257d63d",
+      "translation": "Barcode QC 位于 Map Barcodes 之中，所以请从 Home 打开 Map Barcodes，然后在其中选择它。它读取您刚生成的向导计数，并显示比对深度、覆盖度、条形码冲突和位置效应。它会把 QC 结果连同可导出的图和表一起保存，方便您在继续之前决定要过滤哪些向导。"
+    },
+    {
+      "source": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
+      "source_sha256": "75ebed73e7cb5060246101a521d4d9276b502737fb6962da28ea8c98d47ccec5",
+      "translation": "Dose–Response 回答的是多少，而不是哪个向导，所以完全不需要测序。从 Home 打开它，带上您测得的响应以及来自 Experiment Design 的剂量和条件标识。设置剂量列和响应列、对照和单位，然后拟合曲线。它会把检测结果连同可导出的图和表一起保存。"
+    },
+    {
+      "source": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
+      "source_sha256": "368bc59b9ac36adc061e348bcf7fa6b7850634229799c8d4ccdd5de7817707be",
+      "translation": "可以把这节课看作一张地图，标明每个文件去往哪里。每一章是一个模块：如何打开它，它读取什么、写出什么，以及接下来由哪个模块接收这些输出。从您手头的文件或您需要的结果出发，沿着交接关系往下走。在数据流转的整个过程中，请保留对象、板和孔的标识符。"
+    },
+    {
+      "source": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well. Keep barcode references and plate layouts with your count tables, and for an optical screen, join the decoded objects to their phenotypes and aggregate them before Regression. The linked module lessons show the settings and outputs for each step.",
+      "source_sha256": "0d75fe5f303a158d2b1641e78e59d112c0a51c24777909875f716c1cbea086aa",
+      "translation": "所以，筛选的条形码这一侧总是以同样的方式结束：身份信息通过板和孔与表型连接起来。请把条形码参考和板布局与计数表放在一起；对于光学筛选，先把解码后的对象与其表型连接并汇总，再交给 Regression。链接的模块课程展示了每一步的设置和输出。"
+    },
+    {
+      "source": "So a pooled screen runs as two streams that meet in Regression. Before you open it, check that the plate and well identifiers match across your scores, guide counts and plate layout, and keep the annotation column, classifier settings and barcode references with the run. The linked module lessons walk through each step, or choose the pooled-screen walkthrough on Home.",
+      "source_sha256": "c14f80b63e5e53fe6c1139b8c053e129945e1a59a82ededadb50fd6f3715dfd1",
+      "translation": "所以，混池筛选是两条在 Regression 中汇合的数据流。打开它之前，请检查分数、向导计数和板布局中的板和孔标识符是否一致，并把注释列、分类器设置和条形码参考与这次运行一起保存。链接的模块课程会逐步讲解，您也可以在 Home 中选择混池筛选的演示。"
+    },
+    {
+      "source": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
+      "source_sha256": "2c0d7903f782ec7e590990e95d24d4a2fc455fc5d1807856ccba09844943be4c",
+      "translation": "所以，图像路线几乎总是从 Mask 到 Measure，然后根据您的问题分叉。要训练自己的分割模型，请在 Make Masks 中准备图像与掩膜对，在 Cellpose Workbench 中训练，再把保存的模型在 Mask 中打开。如果手头已有兼容的输出，也可以从后面的步骤开始。无论走到哪里，都要为每个结果保留通道标识、单位和对象键。"
+    },
+    {
+      "source": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
+      "source_sha256": "4e1a8ce2204e4ac1aa562e07db573b3e1220209a76ce76dbc98539f52e101c0a",
+      "translation": "原始显微图像从 Mask 开始。从 Home 打开它，选择通道和分割模型，并在运行前检查预览。Mask 把每个视野写成一个合并数组，其中图像通道和整数标签平面放在一起，接下来由 Measure 读取的正是这个合并数组。Mask 还会保留一个小型计数数据库，但那只是计数，不是特征表。"
+    },
+    {
+      "source": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
+      "source_sha256": "bf6069eb0912c20a3bc48d93254215e8598edfc30e74755469e832ebcae15f87",
+      "translation": "现在回到实验开始之前。从 Home 打开 Power / Design，根据您选择的效应大小和变异程度，估计需要多少采样才能看到效应。预实验测量可以支持这些假设，但并非必需。Experiment Design 的布局会用于这些估计，而估计结果也可能让您回头修改设计。"
+    },
+    {
+      "source": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
+      "source_sha256": "b86361798acfed79b3c2fd5ed184696964a478a4974fe14502cef8bcb00b7d2a",
+      "translation": "接下来是 Toxoplasma 检测。从 Home 打开 Toxoplasma，选择 Plaque Assay。这项检测跳过 Measure：它读取噬斑图像或您已有的掩膜，并运行配置好的噬斑模型。只要是带有对应源图像的噬斑掩膜，Make Masks 生成的掩膜也可以在这里使用；细胞掩膜不是噬斑标签。它会保存噬斑结果和掩膜，噬斑示例课程展示了完整的运行过程。"
+    },
+    {
+      "source": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
+      "source_sha256": "3c413dfd5550bf3ff592cf43fb7236e9f0817725acd171085f21338500c60590",
+      "translation": "当图像走一条路时，测序读段走的是另一条路。从 Home 打开 Map Barcodes，提供您的 FASTQ 文件以及编码筛选信息的条形码参考，它就会统计每个孔中出现了哪些向导。在信任这些结果之前，请检查比对计数和条形码 QC。它写出的 unique_combinations.csv 就是向导计数表，Regression 会逐孔把它与您的表型分数配对。"
+    },
+    {
+      "source": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
+      "source_sha256": "476e217b4106216ac4b3f8faa4e18b7ed96da0a1ba69847b4c4688a41c663a9f",
+      "translation": "Embeddings 根据模型看到的内容来描述对象，而不是依靠人工挑选的特征。从 Home 打开它，选择一个模型和一种通道策略，它会把 Measure 生成的对象裁剪图像编码为每个对象一个特征向量。请把对象标识、编码器和通道策略与这些特征一起记录下来，因为 Image UMAP 需要对象 ID 相匹配的特征表，而并不是每条路径都会替您保存它。"
+    },
+    {
+      "source": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
+      "source_sha256": "f31b0e3feab908ac6377c33cc40fdfabb8a55667d4d9411c80296d29c67c110f",
+      "translation": "一切从您的显微图像开始。从 Home 打开 Mask，选择通道和一个分割模型，并在运行前检查预览。Mask 在每个视野中找出对象，并把每个视野保存为一个合并数组，也就是把图像通道与其标签掩膜叠放在一起。接下来由 Measure 打开的正是这些合并数组。Mask 留下的小型计数数据库只是计数，还不是特征表。"
+    },
+    {
+      "source": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
+      "source_sha256": "21b54f753865f9296518cfdaa37c59e8ba1bb733323eaa6d099f64a8cd405384",
+      "translation": "混池筛选的故事要讲两遍，一遍用图像，一遍用测序读段，最后由 spaCR 把两者合在一起。在图像这一侧，Mask 和 Measure 把显微视野变成已测量的细胞，Annotate 和 Classify 再把这些细胞变成表型分数。在测序这一侧，Map Barcodes 把读段变成向导计数。Regression 按板和孔把两者连接起来。请从您的结果开始的地方进入。"
+    },
+    {
+      "source": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
+      "source_sha256": "58f9a55bd3dc1cf0f1d93b20c17a8fd64cf9e32260bce7843b545cbad513eed3",
+      "translation": "spaCR 中的图像分析跟随您的图像，从像素一直走到答案。原始图像从 Mask 开始，由它找出对象。如果想手动修正掩膜，请使用 Make Masks，或者导入已有的掩膜。然后 Measure 把图像和掩膜变成数字，需要的话也生成裁剪图像。从那里起，您可以选择方向：分类、图像探索、门控或某项检测。当分析需要统一的坐标系时，请先拼接图块。"
+    },
+    {
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+      "translation": "分类器在学习之前需要示例。从 Home 打开 Annotate，它会显示 Measure 保存或流式提供的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。"
+    },
+    {
+      "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
+      "source_sha256": "8e52f400e22abea6044720c14d7da981af621c37bc3c43d5152350440c2a89d8",
+      "translation": "测序是混池筛选得知哪个向导位于哪个孔或哪个细胞的方式，spaCR 可以用两种方式读取它。测序仪产生的读段进入 Map Barcodes。逐个循环成像得到的条形码进入 OPS，它位于 Mask 之中。无论哪种方式，条形码标识最终都会在 Regression 中与您的表型并列。围绕这一核心的是规划工具：采集之前使用 Experiment Design 和 Power，得到结果后使用 Dose–Response 和 Run Compare。"
+    },
+    {
+      "source": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+      "source_sha256": "43e7f79521b57714babc0a6106a7d3214699486774cd08c6ba80d3a102560a3a",
+      "translation": "在采集任何数据之前，从 Home 打开 Experiment Design 规划板的布局。结合您的检验效能估计，输入条件、对照、重复和板的约束，然后导出实验布局。这份布局会被用在很多地方。Power / Design 用它设定采样假设；之后在实验完成采集和测量后，Dose–Response 会使用其中的剂量和条件标识，所以请始终保持它们不变。"
+    },
+    {
+      "source": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+      "source_sha256": "542f2a25d6bc5b5c1784cdf8b4feffb26dc8b6d6ca0310c5acda1b17be2bad48",
+      "translation": "从测序读段开始。从 Home 打开 Map Barcodes，提供单端或双端的 FASTQ 文件，以及编码您实验信息的条形码参考表。Map Barcodes 把每条读段与其条形码匹配，统计每个孔中的向导，并在运行文件夹中保存 unique_combinations.csv 和 annotated_reads.h5。在信任这些计数之前，请在 Barcode QC 中打开它们。检查通过后，它们就是 Regression 按相同的板和孔键与表型分数配对的向导计数。"
+    },
+    {
+      "source": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
+      "source_sha256": "0fe87f6232115c552ae38b05b6dffd909331a2dddd88316265912061359cc9a0",
+      "translation": "光学筛选走的是另一条路。从 Home 打开 Mask，然后选择 OPS。OPS 不使用读段，而是获取每个测序循环的图像，把它们与表型图像对齐，并为每个细胞核解码出一个条形码。结果保存在 OPS 的 measurements.db 中，包含几何、表型对齐、细胞核和条形码等表。不过，这个数据库并不是 FASTQ 计数表。要在 Regression 中使用它，请先把解码得到的标识与表型数据连接并汇总，使每个对象或孔同时带有两类信息。"
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
+      "translation": "有时掩膜需要人工修正。从 Home 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请用 FEATURES 把每张图像与其掩膜配对并写出已测量的项目，这些掩膜正是这样进入 Measure 的；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。"
+    },
+    {
+      "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+      "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
+      "translation": "接下来，从 Home 打开 Measure，指向同一个项目，并正确设置图像和掩膜的通道索引。Measure 读取每个合并数组，把图像和标签平面放在一起处理，并把每个细胞、细胞核或寄生虫写成 measurements.db 中的一行。打开裁剪保存后，它还会在每个对象周围切出一张小 PNG，并在 png_list 中建立索引。故事从这里开始分岔。Annotate 显示这些裁剪图像，方便您为示例加标签；Classify 则从裁剪图像或测量特征中学习，所以请保持对象标识稳定。"
+    },
+    {
+      "source": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
+      "source_sha256": "aa480763b8fdc0f37ce7ec8d49f9ebc31d85c45748724d74ac0402ea2a74b700",
+      "translation": "有了测量数据，Annotate 就是用示例进行教学的地方。从 Home 打开它，它会显示 Measure 保存的、或从项目中流式提供的对象裁剪图像。为有代表性的对象加标签；每个标签都会进入 png_list 表中的一个注释列，并与该对象的标识关联。您不必从零开始：Gate Editor 中保存的门控可以提出候选标签供您审阅。每个问题使用单独的一列，把训练对象和评估对象分开，接下来 Classify 训练使用的就是这一列。"
+    },
+    {
+      "source": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
+      "source_sha256": "737abb7d17017d52677b164ee2921618dfd73d528f25398c56017f43af68cd19",
+      "translation": "第二个是用 Cellpose 直接生成掩膜，即 spacr.spacr_cellpose.identify_masks_finetune，同样没有 Home 磁贴或菜单项。尽管名字如此，它执行的是推断而不是训练：它把标准或自定义的 Cellpose 模型应用到一个文件夹中的 TIFF 视野上。请先检查归一化、通道、缩放和模型设置，并开启保存，因为只有在 save 开启时才会写出掩膜。您得到的是标签 TIFF，而不是可以直接用于 Measure 的项目。要继续，请在 Measure 之前通过 External Masks 导入图像与掩膜对，或者把它们整理成训练数据。"
+    },
+    {
+      "source": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
+      "source_sha256": "428d8fa2854a627bbcf473c3d6f9dd8cf450ce167739de0e12d565d2924ee6a2",
+      "translation": "从 Home 打开 Classify，您的标签在这里变成分数。Classify 有两类方法，由您的数据决定用哪一类。Computer Vision 直接从对象裁剪图像中学习，Tabular Machine Learning 则从测量得到的特征列中学习。无论哪一类，它都使用您在 Annotate 中创建的标签进行训练，在您预留的对象上自我检验，并保存训练好的模型、一个评估包和分数，保存为 CSV 文件，合并后也写入 png_list。选择您要检验的 CV 或 ML 分数列，保持板和孔标识完整，并把它带入 Regression。"
+    },
+    {
+      "source": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
+      "source_sha256": "210a36c0bde8db5336b0d643fbec120141412a965e4a96144c185984dcaac5d7",
+      "translation": "Gate Editor 让您按规则而不是凭肉眼选择对象。从 Home 打开它，在真实的列上绘制阈值门控或多边形门控：可以是 Measure 测得的特征及其真实单位，也可以是 Image UMAP 投影的坐标。保存门控后，就可以把它再次应用到任何兼容的对象上。在您检查所选对象并选定二分类或多分类标签之后，它的 Annotate 按钮会把显示的门控写入一个注释列。保存的门控也可以在 Annotate 中提出候选标签。随后在 Classify 中选择同一列和同一对象群体，并把验证对象与训练标签分开。"
+    },
+    {
+      "source": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
+      "source_sha256": "4eab84e3490d34e089a06f4585d7e32e383ccf6f078c9bdd1b0aa99b56b17ff8",
+      "translation": "Host–Pathogen Analysis 从两个方面观察感染。从 Home 打开 Toxoplasma，然后选择它。它读取来自 Measure 的测量数据，其中包括完整的液泡、宿主参考区室以及未感染的宿主细胞，后者构成感染的分母。选择标记物通道，并设置经对照校准的比值阈值。如果您分割了单个寄生虫，它可以根据明确的关联或测得的计数列统计每个液泡中的寄生虫。随后您会得到液泡、宿主和孔的表格、标记物联合状态、复制分布，以及无法匹配的寄生虫关联。未知的测量值保持未知，仅凭宿主标识永远不能确定一个液泡。"
+    },
+    {
+      "source": "This is where the two halves of the screen meet. Open Regression from Home and give it both: the phenotype scores from Classify and the guide counts from Map Barcodes. Regression matches them on plate and well, so those keys have to agree in both files. Choose the response column and your controls, run the fit, and open the diagnostics before you believe any hit. If your barcodes were read optically with OPS instead, join and aggregate the decoded objects to your phenotype and guide data first; OPS does not hand over a ready-made count table. Regression can also model a directly measured response. It writes a results folder of coefficients, hit tables, settings and diagnostic figures.",
+      "source_sha256": "fc8e6fcfdc0df40b5b50e7f4523908220e4bdf8cb5110209bf067763baaa0423",
+      "translation": "筛选的两半在这里汇合。从 Home 打开 Regression，把两样都交给它：来自 Classify 的表型分数和来自 Map Barcodes 的向导计数。Regression 按板和孔匹配它们，所以这些键在两个文件中必须一致。选择响应列和对照，运行拟合，并在相信任何命中之前打开诊断结果。如果您的条形码是用 OPS 以光学方式读取的，请先把解码后的对象与表型和向导数据连接并汇总；OPS 不会直接提供现成的计数表。Regression 也可以对直接测量的响应建模。它会写出一个结果文件夹，包含系数、命中表、设置和诊断图。"
+    },
+    {
+      "source": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
+      "source_sha256": "b292be611385980d0e0b646738bf79a2b59d336afbf057dcd0d4768083908501",
+      "translation": "无论您用哪种方式测序，条形码都会在 Regression 中与表型汇合。从 Home 打开它。对于混池筛选，它接收来自 Classify 的表型分数和来自 Map Barcodes 的向导计数。对于光学筛选，它接收您自己连接并汇总之后的已解码 OPS 对象；这并不是直接的文件交接。它也可以对直接测量的响应建模。在任何情况下，各输入之间的板和孔标识符都必须一致。选择响应和对照，运行拟合，并在把任何结果称为命中之前阅读诊断。它写出的结果文件夹包含系数、命中表、设置和图，当您想把这次运行与另一次对比时，Run Compare 打开的就是这个文件夹。"
+    },
+    {
+      "source": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
+      "source_sha256": "029f3c5ca1ff41f4a21df2b7ad6963449a8e3b9f5d4abb213f991ab3b98eb1f1",
+      "translation": "这张地图中有两个工具只能在 Python 中使用。第一个是内出芽大小替代指标，即 spacr.submodules.analyze_endodyogeny；它没有 Home 磁贴或菜单项。它从您的 Measure 项目中读取测得的区室面积，按条件加标签，并把面积的一点五次方分箱为 log2 尺度的大小倍增。默认情况下，它按宿主细胞而不是按液泡汇总病原体面积，因此同一细胞中的多个液泡会被合并。所以它是基于面积的大小替代指标，而不是测得的体积或寄生虫数量；要统计每个液泡中的寄生虫，请使用 Replication Assay。调用之前请设置区室、面积过滤、校准、条件和分组，并在读取分箱结果之前检查汇总方式和面积单位。仅有 Mask 的计数数据库是不够的。"
+    },
+    {
+      "source": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database.",
+      "source_sha256": "e203b3a2ba9acc4c9ad007b1d25fbfc439ba1bf3515bddd82c69c7c1f6e2285e",
+      "translation": "还有一个规划工具只能在 Python 中使用：混池筛选模拟扫描，即 spacr.sim.run_multiple_simulations，同样没有 Home 磁贴或菜单项。您向它提供一个包含各项假设的设置字典，例如筛选规模、占有率、分类器准确率和测序情况。它会展开所有组合，在进程池中逐一模拟，并把合成的摘要行追加到 simulations.db；调用本身返回 None。请保持参数网格较小，并在运行前明确设置 max_workers。得到的是用于规划的依据，而不是数据，不能在 Regression 中代替测量值或条形码计数。阅读摘要，记录您的假设，并手动把它们带到 Power / Design 或 Experiment Design 中，因为这两个工具都不会导入模拟数据库。"
+    },
+    {
+      "source": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
+      "source_sha256": "cca3dcdff190d4a0d55abf37829e7babe9e9d5abe3314cbfafe105748b3713ae",
+      "translation": "Image UMAP 用于在加标签之前先观察。从 Home 打开它，它会把 Measure 测得的特征，或对象 ID 相匹配的 Embeddings 编码器特征，投影到一张相似对象彼此靠近的地图上。打开有代表性的裁剪图像，看看某个区域里到底有什么。聚类只是候选分组，并不是经过验证的表型。当某个区域确实看起来有意义时，用套索圈出它，检查圈中的内容，并把选择写入对应测量数据库中的一个注释列。然后 Classify 就可以用这一列进行训练。如果您更愿意用对应的坐标列和特征列来定义选择，也可以把投影交给 Gate Editor。并不是每条界面路径都会替您保存编码器特征，而且图上的一个形状本身并不能确立生物学表型。"
+    },
+    {
+      "source": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
+      "source_sha256": "124d161d8f5715bdcbe4c44bf52b5a6521e970ea0b3099a68fe0929059722c8b",
+      "translation": "从 Home 打开 Classify，把标签变成预测。它有两类方法，由您的数据决定用哪一类。Computer Vision 从 Measure 保存或流式提供的对象裁剪图像中学习；Tabular Machine Learning 从测量得到的特征列中学习。标签可以来自三个地方。最常见的是来自 Annotate。Gate Editor 可以把审阅过的门控选择写入注释列，Image UMAP 也可以对审阅过的套索选择做同样的事；无论哪种情况，都请在这里选择同一列和同一对象群体。嵌入聚类不是真实参考，所以请检查裁剪图像、验证标签，并让验证对象远离训练。随后 Classify 会保存分数、训练好的模型，以及一个包含预留数据预测结果的评估包。在筛选中，请选择您要使用的 CV 或 ML 分数列，并在保持板和孔标识完整的情况下把它带入 Regression。"
+    },
+    {
+      "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
+      "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
+      "translation": "Measure 是整张地图的中心。从 Home 打开它，指向 Mask 构建的项目，并正确设置图像和掩膜的通道索引；在 Make Masks 中配对的掩膜也会来到这里。Measure 把图像和标签平面放在一起读取，并把每个细胞、细胞核或寄生虫写成 measurements.db 中的一行。如果想为每个对象得到一张 PNG，请开启裁剪保存；如果改为流式提供裁剪图像，请把数据库与其源项目放在一起。几乎其他所有内容都从这些行开始。Annotate 和 Classify 使用测量数据和裁剪图像来学习表型。Image UMAP 对它们进行投影，方便您寻找分组；Embeddings 用模型对裁剪图像进行编码，并记录编码器和通道策略。Gate Editor 在真实测得的特征及其真实单位上设置阈值，QC 则显示哪些检查存在、哪些缺失。Toxoplasma 检测也从这里开始：Recruitment 需要合适的区室强度，Invasion Assay 需要带基线对照的双色染色测量，Replication Assay 需要明确的寄生虫与液泡关联。Host–Pathogen Analysis 需要完整液泡掩膜和宿主参考强度，并保留未感染的细胞。内出芽大小替代指标则在您检查过按宿主细胞的汇总方式和面积单位之后，从 Python 读取已测量的项目；仅有 Mask 的计数数据库是不够的。"
     }
   ],
   "retired_records": [

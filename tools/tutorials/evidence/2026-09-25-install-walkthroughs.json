@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "date": "2026-09-25",
+  "scope": "Fresh real install walkthroughs for lessons 02-04; English af_heart media staged, not published",
+  "recorder": "tools/tutorials/capture_terminal_install.py",
+  "render_recipe": "$W/render_install_walkthroughs.sh",
+  "method": "Real interactive bash in gnome-terminal on a private 4K Xvfb display; bubblewrap private home at /home/user and neutral account name; commands typed into the shell; programs' own output. Installations deleted after capture.",
+  "lessons": {
+    "02_conda_install": {
+      "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/conda_walkthrough_1508",
+      "installed_identity": {
+        "version": "1.5.0.8",
+        "package": "/home/user/miniforge3/envs/spacr-conda/lib/python3.12/site-packages/spacr/__init__.py",
+        "prefix": "/home/user/miniforge3/envs/spacr-conda",
+        "python": "3.12.14"
+      },
+      "phases": [
+        "gpu",
+        "gpu_attempt1",
+        "install",
+        "recreate",
+        "relaunch",
+        "update"
+      ],
+      "installation_deleted": true,
+      "frames": {
+        "02_conda_environment": "047db9e212b720136444b10c7d44f3761a4be0e217d52c197c855d89fbbc3533",
+        "08_activate_conda": "b1a914b2521cd63ebf3246254bc168d6cbb4f1b5e3816228a5bed6693e37e727",
+        "09_install_conda": "f6cae239363bf0d976ba6c8f69a5eb02dde05c2d5d620a4dd80cce716a147765",
+        "03_installed_versions": "8ed670f9a07e50c75b64cceafd6fe4b80cab3baaa635734bec76be6c40d6b2dc",
+        "07_create_conda": "2af979c1a0ce280b82da7ad321bca625daf4eebb7609b6f0549de58a85560910",
+        "07_create_conda_command": "ce3f40146bca690b4c490c5ec6dd5d8ac1419951c20b33dc6f6a348cbd3ec21c",
+        "05_doctor": "42c94135602b6a9a5eb7f026715689397c8172091ef6ab989f569ff192bde163",
+        "10_current_release_choice": "4ce970f5633687b135fa30e3dacb0696b57b6a297c4d9113ce82538b27111470",
+        "06_installed_home": "c22c76823fce8bba459dc914ee73ed523ecdd583ad2d17c39943097ef487adad"
+      },
+      "generated_cards": [],
+      "lesson_sha256": "0bf3ba3054eec44fc23cf4dc0346f6dc89e98a24f3d105f38209e2b4a9189c1c",
+      "master_sha256": "33195755ef8666770a3ee035187e6acb5361fd3dfc2f4653286674b8ad166c6d",
+      "audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+      "web_sha256": "b04da43a42458f6c844f158bd6a942386d864c427eb8caa5bc44663fef8406fd",
+      "web_dimensions": [
+        2560,
+        1440
+      ],
+      "web_accepted": true,
+      "sentence_cue_browser_passed": true,
+      "web_browser_passed": true,
+      "note": "conda-forge serves 1.5.0.8 (1.5.1.0 feedstock build fails: tensorboard-2.20.patch no longer applies). The lesson shows 1.5.0.8 as installed; its doctor reports missing vispy and the lesson follows the doctor fix. Home uses the Dark choice set with spacr.qt.preferences.set_theme (1.5.0.8 follows the light system theme otherwise)."
+    },
+    "03_pip_install": {
+      "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/pip_walkthrough_1510",
+      "installed_identity": {
+        "version": "1.5.1.0",
+        "package": "/home/user/spacr-project/.venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "prefix": "/home/user/spacr-project/.venv",
+        "python": "3.12.14"
+      },
+      "phases": [
+        "gpu",
+        "install",
+        "reinstall"
+      ],
+      "installation_deleted": true,
+      "frames": {
+        "01_python_version": "18dde1ac5f47520321df85649c9f275a4ea4d85c903455182f9d726dc2d41ff3",
+        "07_create_environment": "5c2d092567ec32bfab3ba0c81eb25ae71d0987307b018d34086534b2d2da1922",
+        "08_activate_environment": "87504b4afb5c3f19edcb38b56c9039c3917321b02ef94a661728f0ac445acff0",
+        "02_pip_environment": "575267ece072c1d3cbb84ee793f9f5d55ebc08dbfb4a8b9676fbe631b770073d",
+        "03_installed_versions": "455e061590f3f8817df4226b1417f5fc1f62d49fc098365847d46808c2db5756",
+        "04_dependency_check": "085ec43142b85f3d47c37425f8a78eda1456a1d16f4d2b7a430d3c854397b642",
+        "11_update_intentionally": "8797c307b5c38de318d8976bad5b77dbb7728cd17227878686f0ed0748077ed7",
+        "05_doctor": "8d370ecc37d1a71fd0c6107228399e1bd599465a835b7a00b01c25302ee6bc29",
+        "10_launch_commands": "cb6db0b0e73896c1e5bbd573733d056e6b3c6a0be4529cd5d33504d83def46a6",
+        "06_installed_home": "f3112b3ae0ef78bb2470c9dce828c2af4df54bf0312e023586d9f60d36b90631",
+        "09_install_package": "3400d06f018d1b0639e365238c72186dae1b4bf79442d0c8974c7453856b958b"
+      },
+      "generated_cards": [],
+      "lesson_sha256": "8f77255e96692b2c9c8c15302294934d5df8fe369d6e4143f317cc5952b0cb14",
+      "master_sha256": "53b5403a6c7c0ef29d983d80f14cfc0a394834cc7a9d213e57b790ccfc110bc0",
+      "audio_sha256": "be137840f23c6680d6a7ac0bd743a97bc8f785f783a75c32a342403105ca5be8",
+      "web_sha256": "0b5f6d32b1e9d12bdb66a431e0f2972e6a0814dac9029cbcca8587a1538eaf2c",
+      "web_dimensions": [
+        2560,
+        1440
+      ],
+      "web_accepted": true,
+      "sentence_cue_browser_passed": true,
+      "web_browser_passed": true
+    },
+    "04_platform_installers": {
+      "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510",
+      "installed_identity": {
+        "version": "1.5.1.0",
+        "package": "/home/user/.local/share/spacr/venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "prefix": "/home/user/.local/share/spacr/venv",
+        "python": "3.12.13"
+      },
+      "phases": [
+        "install",
+        "relist",
+        "resume"
+      ],
+      "installation_deleted": true,
+      "frames": {
+        "07_privacy_keep_off": "1755f0c51563ddfc065dcfe02f087224fa67efe261c9ad14c3beabc673ac56f5",
+        "06_installed_home": "90e4cd4be9e351339bfe27817c0636ac5caef44e0576dd72a676e59af920ff11",
+        "02_installer_backend": "db7a12c7c5e18fed3190cb5a1b24401d2d0570c44160e26612e1d4f09d86c78d",
+        "03_installed_versions": "416e77ff8975e8e6ce1e124f1980b18bb0f5a154d42181211e448f538f2ecf04",
+        "05_doctor": "a41e3ade59c3978763520bbfbb3949de01e95a2aa28dba3af44e2eacf8c5998b",
+        "12_logs_and_versions": "bb77192ebff56fa43f91509a529c728fc9f7cc6e6844377b6fe9ec426a60effa",
+        "11_linux_commands": "77242abd8ce3c0916a788ec28e03cc6317a701f3012f63c906b56bb94f95bc4e",
+        "08_official_release": "445899c2bf1d133fe6ac5dee92046d39d6c303e980e03f1421ed96fe54df4955",
+        "09_windows_guidance": "445135bf70d7f6c7c9c5e19cb3fae09272c27086a62b192ba8cfe17aefe800ef",
+        "10_macos_guidance": "9f67648c417f3c96c127b44fa72576abcd953414305a9c8baa7a44043e2a9f55"
+      },
+      "generated_cards": [
+        "09_windows_guidance",
+        "10_macos_guidance"
+      ],
+      "lesson_sha256": "43d94e720ec5c52bd41b6e2f45f88f60b331c88bfcf19e0925d08f5f2896c7b3",
+      "master_sha256": "bec54ca09a00a9d8240b0538170887cc9a0c50179594cfaada8dc473f12e4078",
+      "audio_sha256": "5e233179a9754423b4db9a69ed848aadd768217af24a47b429ba03f4314a1f40",
+      "web_sha256": "03521fe8b8c533331691683a75e0800d7789958458279717127d777f900157df",
+      "web_dimensions": [
+        2560,
+        1440
+      ],
+      "web_accepted": true,
+      "sentence_cue_browser_passed": true,
+      "web_browser_passed": true,
+      "note": "Linux online installer run with --torch-backend cpu --skip-system-deps; Windows and macOS remain labelled reference cards; release page captured live (installation_release_1510)."
+    }
+  },
+  "app_findings": [
+    "conda-forge 1.5.1.0 PR #5 linux_64 build fails applying tensorboard-2.20.patch",
+    "conda-forge spacr 1.5.0.8 does not depend on vispy; spacr-doctor FAILs core imports",
+    "spacr-doctor PATH check FAILs for the desktop installer launcher ~/.local/bin/spacr (a shell script that runs the same venv)",
+    "spacr-doctor gpu check FAILs when the user deliberately chose --torch-backend cpu",
+    "conda install spacr into an existing python=3.12 env: solver >20 min and >5 GB RSS (conda 26.7.2); creating python+spacr together solves in ~25 s",
+    "CPython 3.12.14 venv activate shows the prompt as ((.venv) ) (upstream venv script)"
+  ],
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "release-candidate-append-iij8lm0r",
+    "commit": "006b95c49dde2403ad7674aa4b3f2501351416ec",
+    "tag": "tutorials-install71-20260925-iij8lm0r",
+    "readback_files": 519,
+    "web_copy_hosted_on_media_revision": true,
+    "narration_voices": {
+      "02_conda_install": [
+        [
+          "en",
+          "af_heart"
+        ],
+        [
+          "es",
+          "ef_dora"
+        ],
+        [
+          "es",
+          "em_alex"
+        ],
+        [
+          "es",
+          "em_santa"
+        ],
+        [
+          "fr",
+          "ff_siwis"
+        ],
+        [
+          "hi",
+          "hf_alpha"
+        ],
+        [
+          "hi",
+          "hf_beta"
+        ],
+        [
+          "hi",
+          "hm_omega"
+        ],
+        [
+          "hi",
+          "hm_psi"
+        ],
+        [
+          "it",
+          "if_sara"
+        ],
+        [
+          "it",
+          "im_nicola"
+        ],
+        [
+          "ja",
+          "jf_alpha"
+        ],
+        [
+          "ja",
+          "jf_gongitsune"
+        ],
+        [
+          "ja",
+          "jf_nezumi"
+        ],
+        [
+          "ja",
+          "jf_tebukuro"
+        ],
+        [
+          "ja",
+          "jm_kumo"
+        ],
+        [
+          "pt-BR",
+          "pf_dora"
+        ],
+        [
+          "pt-BR",
+          "pm_alex"
+        ],
+        [
+          "pt-BR",
+          "pm_santa"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaobei"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoni"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoxiao"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoyi"
+        ],
+        [
+          "zh-CN",
+          "zm_yunjian"
+        ],
+        [
+          "zh-CN",
+          "zm_yunxi"
+        ],
+        [
+          "zh-CN",
+          "zm_yunxia"
+        ],
+        [
+          "zh-CN",
+          "zm_yunyang"
+        ]
+      ],
+      "03_pip_install": [
+        [
+          "en",
+          "af_heart"
+        ],
+        [
+          "es",
+          "ef_dora"
+        ],
+        [
+          "es",
+          "em_alex"
+        ],
+        [
+          "es",
+          "em_santa"
+        ],
+        [
+          "fr",
+          "ff_siwis"
+        ],
+        [
+          "hi",
+          "hf_alpha"
+        ],
+        [
+          "hi",
+          "hf_beta"
+        ],
+        [
+          "hi",
+          "hm_omega"
+        ],
+        [
+          "hi",
+          "hm_psi"
+        ],
+        [
+          "it",
+          "if_sara"
+        ],
+        [
+          "it",
+          "im_nicola"
+        ],
+        [
+          "ja",
+          "jf_alpha"
+        ],
+        [
+          "ja",
+          "jf_gongitsune"
+        ],
+        [
+          "ja",
+          "jf_nezumi"
+        ],
+        [
+          "ja",
+          "jf_tebukuro"
+        ],
+        [
+          "ja",
+          "jm_kumo"
+        ],
+        [
+          "pt-BR",
+          "pf_dora"
+        ],
+        [
+          "pt-BR",
+          "pm_alex"
+        ],
+        [
+          "pt-BR",
+          "pm_santa"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaobei"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoni"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoxiao"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoyi"
+        ],
+        [
+          "zh-CN",
+          "zm_yunjian"
+        ],
+        [
+          "zh-CN",
+          "zm_yunxi"
+        ],
+        [
+          "zh-CN",
+          "zm_yunxia"
+        ],
+        [
+          "zh-CN",
+          "zm_yunyang"
+        ]
+      ],
+      "04_platform_installers": [
+        [
+          "en",
+          "af_heart"
+        ],
+        [
+          "es",
+          "ef_dora"
+        ],
+        [
+          "es",
+          "em_alex"
+        ],
+        [
+          "es",
+          "em_santa"
+        ],
+        [
+          "fr",
+          "ff_siwis"
+        ],
+        [
+          "hi",
+          "hf_alpha"
+        ],
+        [
+          "hi",
+          "hf_beta"
+        ],
+        [
+          "hi",
+          "hm_omega"
+        ],
+        [
+          "hi",
+          "hm_psi"
+        ],
+        [
+          "it",
+          "if_sara"
+        ],
+        [
+          "it",
+          "im_nicola"
+        ],
+        [
+          "ja",
+          "jf_alpha"
+        ],
+        [
+          "ja",
+          "jf_gongitsune"
+        ],
+        [
+          "ja",
+          "jf_nezumi"
+        ],
+        [
+          "ja",
+          "jf_tebukuro"
+        ],
+        [
+          "ja",
+          "jm_kumo"
+        ],
+        [
+          "pt-BR",
+          "pf_dora"
+        ],
+        [
+          "pt-BR",
+          "pm_alex"
+        ],
+        [
+          "pt-BR",
+          "pm_santa"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaobei"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoni"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoxiao"
+        ],
+        [
+          "zh-CN",
+          "zf_xiaoyi"
+        ],
+        [
+          "zh-CN",
+          "zm_yunjian"
+        ],
+        [
+          "zh-CN",
+          "zm_yunxi"
+        ],
+        [
+          "zh-CN",
+          "zm_yunxia"
+        ],
+        [
+          "zh-CN",
+          "zm_yunyang"
+        ]
+      ],
+      "71_investigate_hit": [
+        [
+          "en",
+          "af_heart"
+        ]
+      ]
+    },
+    "all_ready_local_and_hosted_playback": true
+  }
+}

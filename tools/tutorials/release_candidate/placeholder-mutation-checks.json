@@ -12,7 +12,8 @@
   ],
   "baseline_before_and_after_passed": true,
   "source_files_modified": false,
-  "tested_placeholder": "71_investigate_hit",
+  "tested_placeholder": "85_host_pathogen",
+  "placeholder_source": "in-memory probe; the candidate has no unavailable lesson",
   "passed": true,
   "published": false
 }

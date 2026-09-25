@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Plasmodium: utforska organismguiden",
+  "description": "Bläddra i Plasmodium-guiden, utforska celldiagrammet och hitta tillgängliga allmänna arbetsflöden för bildanalys.",
+  "objectives": [
+    "Öppna sidan från Home och hitta dess viktigaste kontroller.",
+    "Identifiera tillgängliga indata, åtgärder och utdata.",
+    "Välja nästa tillgängliga analys eller referens."
+  ],
+  "prerequisite": "Öppna Home i spaCR. Guiden behöver inga indatafiler. Plasmodium-specifika analysrutor visar för närvarande Coming soon.",
+  "scenes": [
+    "Plasmodium har en egen guide. Från Home väljer du Plasmodium för att bläddra bland organismen, dess cellkompartiment och de analyser som planeras för den.",
+    "Informationspanelen berättar parasitens historia i avsnitt, från blodstadiet och leverstadiet till motilitet. Dra i avdelaren för att få mer utrymme bredvid modulrutorna.",
+    "I diagrammet över apikomplexa håller du pekaren över ett kompartiment för att läsa vad det är. Markera flera för att framhäva dem tillsammans, och Clear components återställer vyn.",
+    "Analysrutorna är fortfarande märkta Coming soon och går inte att öppna ännu, men beskrivningarna visar vad var och en ska mäta. För att analysera Plasmodium-bilder i dag går du tillbaka till Home och öppnar Mask eller Measure med dina egna bilder och lämpliga kanalinställningar.",
+    "För fördjupning öppnar länkarna till PlasmoDB och UniProt resurser om organismen i webbläsaren. Inget här kräver en datamängd eller Run, och guiden skriver inga filer."
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "source_commit": "e49d860734620936f75e62fc32e21737cf85962c",
+  "workflow": 36185423043,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "e49d860734620936f75e62fc32e21737cf85962c",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 625639922,
+    "media_files": 98
+  },
+  "media_revision": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+  "cache_key": "hosted-20260925-31kkmyz_",
+  "refreshed_lessons": [
+    "17_timelapse",
+    "76_ops"
+  ],
+  "hosted_web_lessons": [
+    "17_timelapse",
+    "76_ops",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "hosted_web_bytes": {
+    "17_timelapse": 7308424,
+    "76_ops": 7226218,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "d7210347ecc9bcfb5d6b1d09308b82e98d7fda45bfc92dd31f391823ea43159e",
+  "catalog_matches_source": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "80909cbd48897bb96bf39f49324b2029fb4d54eaefa2fb281184a7ffb16ad27c"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/07_mask/video/07_mask_silent.mp4",
+      "width": 3840,
+      "time": 29.121637,
+      "expected": 29.37826661554863,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "17_timelapse",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c/17_timelapse/web/17_timelapse_silent.mp4",
+      "width": 2560,
+      "time": 31.551807,
+      "expected": 31.71436278510944,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "76_ops",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c/76_ops/web/76_ops_silent.mp4",
+      "width": 2560,
+      "time": 32.542959,
+      "expected": 32.613302507739576,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "79_module_inputs_outputs",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c/79_module_inputs_outputs/web/79_module_inputs_outputs_silent.mp4",
+      "width": 1920,
+      "time": 22.924457,
+      "expected": 23.090026194128935,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c/33_plate_viewer/video/33_plate_viewer_silent.mp4",
+      "width": 3840,
+      "time": 115.334649,
+      "expected": 115.33333211259348,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "17_timelapse",
+      "requested_quality": "4k",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c/17_timelapse/video/17_timelapse_silent.mp4",
+      "width": 3840,
+      "time": 31.565049,
+      "expected": 31.790895581478555,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "requested_quality": "4k",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cddb2b8429f209dcc7613f550d9f8b7cfb80850c/33_plate_viewer/video/33_plate_viewer_silent.mp4",
+      "width": 3840,
+      "time": 32.26777,
+      "expected": 32.54051956874417,
+      "error": null
+    }
+  ],
+  "passed": true,
+  "note": "Superseded for 17 and 76 by the item 520 re-render once its candidate deploys."
+}

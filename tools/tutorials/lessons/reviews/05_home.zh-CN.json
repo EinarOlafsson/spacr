@@ -1,20 +1,34 @@
 {
-  "lesson": "05_home", "language": "zh-CN",
-  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
-  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Preserve English GUI names and correct screening, cropped images and parent-module terminology.", "Correct hover to pointer hover, not click; CV remains computer vision, not a résumé.", "Retain the measured-feature classification route and all nine scene meanings."]},
-  "title": "Home 页面与导航",
-  "description": "了解 Core 的六个步骤和 Home 当前的分类，并在所属的主模块中找到相关工具。",
-  "objectives": ["了解从图像到回归分析结果的 Core 工作流程。", "找到 Data、Tools 和 Assays，避免把已整合的功能误认为缺失的模块。", "区分可下载的真实数据与生成的演示数据，并找到对应的专题教程。"],
-  "prerequisite": "安装 spaCR 并打开桌面应用。录制使用深色主题和放大的界面文字。",
+  "lesson": "05_home",
+  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Home界面与导航",
+  "description": "从Home打开模块，找到相关工具和示例数据，然后选择要遵循的流程。",
+  "objectives": [
+    "为图像、测量数据或测序读段选择起始模块。",
+    "找到相关工具和特定生物的检测。",
+    "加载示例、查找帮助并打开流程概览。"
+  ],
+  "prerequisite": "安装spaCR并打开桌面应用程序。",
   "scenes": [
-    "Home 将 spaCR 分为 Core、Data、Tools 和 Assays。这些分类对应不同的工作流程。相关工具也可能位于某个主模块内部，因此 Home 上的按钮并不代表全部功能。",
-    "Core 按筛选实验的分析流程排列：Mask、Measure、Annotate、Classify、Map Barcodes 和 Regression。请从适合现有输入数据的步骤开始。如果已经有兼容的测量数据或裁剪图像，就不必重新进行分割。",
-    "Data 集合了 Import、Run Compare、Experiment Design、Power and Design、Dose Response 和质量控制。Import 也是 Import Images、Format Converter 和 External Masks 的入口。要找到这些功能，请先打开所属的主模块。",
-    "Tools 包含 Make Masks、Align and Stitch、Image UMAP、Gate Editor 和 Graph Builder。每个模块都集合了相关操作。例如，Make Masks 提供模型训练和比较，Graph Builder 提供 Plate Viewer 和 Small Multiples。",
-    "Assays 包含 Plaque Assay、Recruitment、Invasion Assay 和 Replication Assay。请选择符合实验内容和所需输入数据的工作流程。模块的成熟度颜色与它所属的分类无关；在依赖实验性功能之前，请先阅读工具提示。",
-    "Classify 是一个模块。通过 Classifier family 设置，可以选择基于图像的计算机视觉，或基于测量特征的机器学习。原有的计算机视觉和机器学习教程仍然分别讲解这两条路线，并不代表 Home 上有两个独立的模块按钮。",
-    "Classify 顶部的图标可打开 Classifier Evaluation、Explain CV Model、Activation、Training Runs 和 Feature Explorer。将鼠标指针停在图标上，即可查看名称和说明。准备检查训练好的模型或其结果时，请打开链接中的相应专题教程。",
-    "Core 教程使用 Load test data 提供的真实数据集。下载后会填入相关输入和兼容的设置。Help 中生成的演示数据是另一种选择。在 Mask 中，Time 和 3D 开关显示时序及三维数据的工作流程；Live 打开预览。",
-    "使用 Help 可返回操作引导和教程。把当前模块的教程与应用并排打开，按照教程检查数据、设置和输出。下一课将介绍如何通过 Python API 和命令行使用同样的工作流程。"
+    "Home是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的Home即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。",
+    "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
+    "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。",
+    "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开Cellpose Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image UMAP、Gate Editor和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。",
+    "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。",
+    "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。",
+    "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。",
+    "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开3D。",
+    "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。",
+    "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
+    "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
   ]
 }

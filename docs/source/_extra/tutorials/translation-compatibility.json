@@ -80,6 +80,240 @@
       "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
+      "lesson": "02_conda_install",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "05_home",
       "language": "da",
       "status": "english_fallback",
@@ -5148,6 +5382,84 @@
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "72_volcano_explorer",

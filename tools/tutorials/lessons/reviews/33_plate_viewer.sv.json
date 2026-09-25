@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Plate Viewer: granska brunnar och exportera en värmekartetabell",
+  "description": "Läs in exempelmätningarna, jämför egenskaper och antal per brunn, granska enskilda brunnar och exportera den filtrerade tabellen.",
+  "objectives": [
+    "Öppna Plate Viewer från Graph Builder och läsa in exempelmätningar.",
+    "Välja en egenskap, en aggregering och ett minsta antal objekt.",
+    "Granska brunnsdetaljer och exportera det aktuella brunnsrutnätet."
+  ],
+  "prerequisite": "Använd Load test data i Plate Viewer för det nedladdningsbara exemplet, eller öppna measurements.db från ditt uppmätta projekt. Exemplet innehåller 2 341 celler i fyra brunnar; använd mätningar som täcker hela din platta när du bedömer rumsliga mönster.",
+  "scenes": [
+    "Från Home öppnar du Graph Builder under Data och väljer sedan Plate Viewer. Använd det för att sammanfatta objektmätningar per brunn och granska hur de fördelar sig över en platta.",
+    "Klicka på Load test data för att öppna det nedladdningsbara exemplet. För egna data väljer du en mätdatabas eller dess körningsmapp och klickar på Open. Exemplet innehåller fyra uppmätta brunnar.",
+    "Välj cell som Table, cell_area som Measurement och plate1 som Plate. Ställ Per well på mean för att visa den genomsnittliga cellarean. Medianen minskar inverkan av ovanligt stora eller små objekt.",
+    "Välj en färgskala. Det robusta intervallet använder 2:a till 98:e percentilen, så att en extrem brunn inte trycker ihop färgerna för de andra.",
+    "Klicka på Render och jämför de färgade brunnarna. Läs rapporten om kanteffekter bredvid värmekartan och kontrollera plattans layout och den uppmätta täckningen. Använd mätningar över hela plattan när du bedömer kant-, rad- eller kolumnmönster.",
+    "Klicka på en uppmätt brunn för att se dess identifierare, antal objekt och det visade värdet. Använd identifierarna för att hitta samma brunn i dina bilder eller exporterade resultat.",
+    "Ställ Per well på count för att jämföra antal objekt. Vyn hjälper dig att hitta brunnar med färre segmenterade objekt innan du tolkar skillnader i egenskaper.",
+    "Höj Min objects per well för att utesluta brunnar med för få objekt för din jämförelse. Vid 601 återstår två av exemplets fyra brunnar. Uteslutna brunnar visas tomma i stället för som mätvärdet noll.",
+    "Klicka på Export well grid CSV, välj ett filnamn och spara. CSV-filen innehåller de brunnar som det aktuella filtret behåller, med identifierare, antal, visade värden och rumsliga anteckningar.",
+    "Spara den exporterade tabellen tillsammans med mät- och aggregeringsinställningarna. Sänk minimiantalet för att visa uteslutna brunnar igen, eller välj en annan mätning för nästa jämförelse."
+  ]
+}

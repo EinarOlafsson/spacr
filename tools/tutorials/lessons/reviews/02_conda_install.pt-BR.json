@@ -1,29 +1,32 @@
 {
   "lesson": "02_conda_install",
-  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "english_sha256": "bd6c60f01901809050a21eef5511d84dba6220200285260e3aec4a1faab042ed",
   "review": {
-    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "pt-BR",
-  "title": "Instalação com Conda",
-  "description": "Instale o pacote oficial do conda-forge em um ambiente separado, verifique a versão real do canal e reconheça diferenças em relação aos tutoriais atuais dos módulos.",
+  "title": "Instalar o spaCR com Conda",
+  "description": "Crie um ambiente Conda, instale o spaCR a partir do conda-forge e abra o aplicativo.",
   "objectives": [
     "Criar e ativar um ambiente Conda dedicado.",
-    "Verificar o pacote do canal, Qt e os resultados de diagnóstico.",
-    "Escolher pip ou o instalador de desktop mais recente quando o canal ainda tiver a interface antiga."
+    "Instalar o spaCR a partir do conda-forge.",
+    "Abrir o spaCR e atualizar o mesmo ambiente quando necessário."
   ],
-  "prerequisite": "Um gerenciador compatível com Conda deve estar instalado. A gravação verifica spaCR 1.5.0.4 do conda-forge no Linux com Python 3.12.14 e Qt 6.11.2, em 10 de setembro de 2026. A instalação limpa usou um prefixo privado novo, apenas conda-forge e a versão do canal fixada; os cartões ilustram o procedimento correspondente com um ambiente nomeado, sem simular saídas de instalação. A GUI real mantém Home (63), não o layout aninhado do PyPI/instalador 1.5.0.5. O spacr-doctor passou no pequeno teste de alocação CUDA, mas avisou sobre suporte opcional a CZI; isso não mede velocidade nem valida todas as análises ou formatos. A captura usa um perfil escuro privado com escala de fonte 1.5, tour já dispensado e pré-carregamento padrão, sem a opção --no-setup não suportada. Outras plataformas não foram testadas. As narrações dos arquivos de produção e publicados diferem; não se declara reutilização de áudio idêntico.",
+  "prerequisite": "Instale o Conda ou o Miniforge e abra um terminal em que o comando conda esteja disponível.",
   "scenes": [
-    "Use um ambiente Conda dedicado para o spaCR e confira qual versão o canal realmente oferece. Nesta gravação, conda-forge instala um ponto cinco ponto zero ponto quatro. PyPI e o instalador de desktop já oferecem um ponto cinco ponto zero ponto cinco; essas versões não são intercambiáveis.",
-    "Abra um shell preparado para Conda e crie um ambiente novo com Python três ponto doze. O cartão usa o nome spacr-conda. Se ele já existir, escolha outro nome ainda não usado e mantenha esse ambiente separado das análises em andamento.",
-    "Ative o ambiente e imprima sys ponto prefix para confirmar a qual ambiente o Python pertence. A verificação real usa um prefixo privado mais longo, em vez do nome curto do exemplo. O prompt do terminal, sozinho, não prova que você usa o interpretador correto.",
-    "Instale o pacote especificando conda-forge e use conda list spacr para conferir a versão e o canal. A instalação verificada usou apenas conda-forge e fixou a versão do canal. Ela terminou antes das imagens de verificação; os cartões são instruções, não saídas inventadas de terminal.",
-    "Confira as versões do spaCR e do Qt e a localização do pacote no ambiente instalado. Aqui o pacote é um ponto cinco ponto zero ponto quatro e o Qt é importado corretamente. Isso identifica o pacote ativo, mas não valida todo fluxo científico ou formato opcional.",
-    "Execute spacr-doctor e leia os avisos também. Aqui o pequeno teste de alocação GPU passa, mas falta uma dependência do suporte opcional a CZI. Testes ignorados não são aprovados. A correção sugerida diz respeito a esse recurso; avalie as mudanças no ambiente antes de aplicá-la, especialmente ao misturar gerenciadores de pacotes.",
-    "O pacote Conda instalado abre e fecha normalmente, mas esta é a Home antiga, com sessenta e três blocos. Ela não tem o novo layout de módulos aninhados. Não presuma que uma instalação bem-sucedida significa que todas as telas correspondem aos tutoriais de uma versão mais recente.",
-    "Para a interface aninhada dos tutoriais atualizados, siga a aula atual de pip ou Platform installers em um ambiente separado. Se precisar do canal Conda, acompanhe sua versão real e confira novamente as atualizações. Preserve a versão usada em uma análise em andamento."
+    "Abra um terminal com o Conda habilitado. Você vai criar um ambiente para o spaCR, instalar o pacote do conda-forge e abrir o aplicativo a partir desse ambiente.",
+    "Crie um ambiente chamado spacr-conda com Python três ponto doze e o spaCR do conda-forge, usando o comando exibido. Escolha outro nome se você já usa esse nome para outro ambiente.",
+    "O Conda resolve o ambiente e lista o plano de pacotes. Revise-o, digite a letra y para aceitar e aguarde o download e a instalação terminarem.",
+    "Ative o spacr-conda. Execute o comando Python exibido para ver o caminho do ambiente e confira se é o ambiente que você acabou de criar.",
+    "Execute conda list spacr para ver a versão instalada e confirmar que ela vem do conda-forge. Instalar o Python e o spaCR em um único comando permite que o Conda resolva todos os pacotes juntos, o que é muito mais rápido do que adicionar o spaCR a um ambiente existente.",
+    "Confira a versão instalada do spaCR e o local do pacote. Guarde essa versão com suas anotações de análise para poder voltar ao mesmo ambiente depois.",
+    "Execute o spacr-doctor para verificar a instalação. Aqui ele informa que falta o vispy, uma dependência principal, e mostra o comando que o instala. Execute esse comando e depois execute o spacr-doctor novamente. Siga as outras etapas sugeridas apenas para os formatos de arquivo ou recursos de que você precisa.",
+    "Digite spacr para abrir o aplicativo. Conclua as escolhas da primeira inicialização e continue com o tutorial de Home para encontrar os módulos e seus dados de exemplo.",
+    "Para atualizar depois, feche o spaCR, ative este ambiente e atualize o pacote do conda-forge. Quando o conda-forge não tem uma versão mais nova, o Conda informa que todos os pacotes solicitados já estão instalados. Depois, confira a versão instalada; as lições de pip e do instalador mostram as outras formas de instalação."
   ]
 }

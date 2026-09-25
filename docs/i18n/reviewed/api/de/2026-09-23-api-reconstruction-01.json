@@ -1832,10 +1832,11 @@
     },
     {
       "context": "the content widget.",
-      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#12",
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#13",
       "source": "the content widget.",
       "source_sha256": "06a293bddf96f151f446aa8626d937bc12c817d5d73f66d0ca35acb697a3d65c",
-      "translation": "das Inhalts-Widget."
+      "translation": "das Inhalts-Widget.",
+      "rebound_from": "spacr.qt.widgets.collapsible_splitter.FoldSection#12"
     },
     {
       "context": "the detected microplate sample positions.",

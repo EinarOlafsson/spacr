@@ -1,0 +1,1611 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled' 是历史上随包提供的蚀斑模型。保留它是为了能够重现旧的运行；在文献图像上它会漏掉约三分之一的蚀斑。toxoplasma_plaque_v2 是当前模型。"
+    },
+    {
+      "table": "ui",
+      "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
+      "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
+      "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
+      "translation": "一个 .pt 或 .pth 文件，其中的模型接受一个通道并返回一个通道的 logits。耗时：需要加载文件并运行网络，在 CPU 上每个框需数秒，每个视野需数分钟。"
+    },
+    {
+      "table": "ui",
+      "key": "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
+      "source": "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
+      "source_sha256": "8b35f0dcfec09c9bcdcf099b0a734c48750291dd9ca2fbe89723a061a84f82b1",
+      "translation": "DOI、PMID 或 PMC ID 会连同其图注从 Europe PMC 获取；PDF 则逐页读取。图版会放入新文件夹，图注保存在 legends.csv 中，预览随即切换到该文件夹。"
+    },
+    {
+      "table": "ui",
+      "key": "A generic budding-yeast cell from SwissBioPics. Hover for a UniProt location description and check several compartments to keep them highlighted. This is a cell schematic, not a Candida species identification or a depiction of every yeast, pseudohyphal and hyphal form.",
+      "source": "A generic budding-yeast cell from SwissBioPics. Hover for a UniProt location description and check several compartments to keep them highlighted. This is a cell schematic, not a Candida species identification or a depiction of every yeast, pseudohyphal and hyphal form.",
+      "source_sha256": "475fac0541ac25e66b7c598b168e50b642143c9a5bb2d9d251603fa5be0171c1",
+      "translation": "来自 SwissBioPics 的通用出芽酵母细胞。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。这是细胞示意图，并非念珠菌物种鉴定，也不代表所有酵母、假菌丝和菌丝形态。"
+    },
+    {
+      "table": "ui",
+      "key": "A growing bud is an asexual reproductive structure, as in yeast or a hydra, that consists of an outgrowth capable of developing into a new individual.",
+      "source": "A growing bud is an asexual reproductive structure, as in yeast or a hydra, that consists of an outgrowth capable of developing into a new individual.",
+      "source_sha256": "203afa6a0410015be528e35ce8e3a885ef992a75f8995173344b3f0a535ca31b",
+      "translation": "生长中的芽是一种无性生殖结构，如酵母或水螅中的芽，由能够发育成新个体的突起构成。"
+    },
+    {
+      "table": "ui",
+      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source_sha256": "c090c47c506dae6de2c1805553b5a319be3d942bcad5b0a36793c316bf4789a7",
+      "translation": "一个共用的顶复门寄生虫细胞示意图，采用 Starplast 中也使用的 SwissBioPics 图稿。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。寄生虫形态和细胞器组织因物种和生命周期阶段而异；这并非血期重建。弓形虫的 hyperLOPIT 定位不会迁移到疟原虫上。"
+    },
+    {
+      "table": "ui",
+      "key": "A suggestion run is going; judge its suggestions when it has finished.",
+      "source": "A suggestion run is going; judge its suggestions when it has finished.",
+      "source_sha256": "b4066ee79304cdf3128bb3caa69b69ea212cb8a16666e9b04312050fe2300067",
+      "translation": "建议运行正在进行；请在其完成后再判定建议。"
+    },
+    {
+      "table": "ui",
+      "key": "A template is this module's settings under a name you chose. Save one when a plate is set up the way you want it; apply it next time instead of retyping.",
+      "source": "A template is this module's settings under a name you chose. Save one when a plate is set up the way you want it; apply it next time instead of retyping.",
+      "source_sha256": "618f7f8a5b0918ff977313cc4b6337576019ad75e01050e8fae4aba93c179c0d",
+      "translation": "模板就是以您选定的名称保存的本模块设置。当孔板设置符合您的需要时保存一个；下次直接应用，无需重新输入。"
+    },
+    {
+      "table": "ui",
+      "key": "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
+      "source": "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
+      "source_sha256": "0339730f143445b4f4f8ce4f10e566a3577b5291e8a26b1955ae92cf33596bbc",
+      "translation": "加回图像的高通副本，使边缘更陡峭，帮助阈值落在边界上而不是光晕中。强度过大会在每个对象周围产生亮边，并在外侧形成暗沟。"
+    },
+    {
+      "table": "ui",
+      "key": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source_sha256": "c374731b1b2c4eec70eb888649b01ba12d6b48523762ee67263e16d45f3af320",
+      "translation": "本页全部八个疟原虫模块均处于计划阶段。其描述定义的是预期读出，而非可用的分析流程。PlasmoDB 和 UniProt 提供基因组和蛋白质背景，用于选择标记和解释结果。顶复门寄生虫示意图有助于讨论与弓形虫共有的区室，但并不能证明某个蛋白在两种生物中定位相同。"
+    },
+    {
+      "table": "ui",
+      "key": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source_sha256": "f3daa1382843e31a232a9ecc036eba4b9ae12183a86a6f0b22dfe2fd6285368b",
+      "translation": "“抗真菌药物反应”是一个拟议的浓度–反应工作流程，用于分析真菌生长和形态。将其与“形态”或“生物膜”结合，有助于描述处理过程中哪些图像特征发生了变化。全部八个念珠菌模块目前均处于计划阶段，其图块标记为“即将推出”。Candida Genome Database 和 UniProt 提供基因和蛋白质注释，以支持标记选择和结果解释。"
+    },
+    {
+      "table": "ui",
+      "key": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
+      "source": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
+      "source_sha256": "4f7d1ccf5c5c273c5cdd3b5fcf4f86d3cf79768b7ea378ac035863195d35f42e",
+      "translation": "作用于检测器找到的结果，而不是图像。开运算会擦除比半径更细的部分，从而断开由桥接相连的两个对象；闭运算会填充比半径更细的部分，从而连接断成几段的同一个对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Candida yeasts can live on the skin and mucosal surfaces. Some species cause superficial or invasive candidiasis. Candida albicans can form budding yeasts, germ tubes and hyphae; these forms are not shared by every Candida species. Imaging can quantify morphology, biofilm growth and interactions with host cells.",
+      "source": "Candida yeasts can live on the skin and mucosal surfaces. Some species cause superficial or invasive candidiasis. Candida albicans can form budding yeasts, germ tubes and hyphae; these forms are not shared by every Candida species. Imaging can quantify morphology, biofilm growth and interactions with host cells.",
+      "source_sha256": "24ab59d5f5fefb45667da9ee7132d2df81e797cff75e277fd64a5203881d47cd",
+      "translation": "念珠菌属酵母可生活在皮肤和黏膜表面。部分物种会引起浅表或侵袭性念珠菌病。白念珠菌（Candida albicans）可形成出芽酵母、芽管和菌丝；并非所有念珠菌物种都具有这些形态。成像可以定量形态、生物膜生长以及与宿主细胞的相互作用。"
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose 3 restoration finished in {seconds} s.",
+      "source": "Cellpose 3 restoration finished in {seconds} s.",
+      "source_sha256": "f928b7f4f5b86aeac6a3c212f9b01cc759ef0806d776678e64e9781a3921b9ab",
+      "translation": "Cellpose 3 图像复原已完成，用时 {seconds} s。"
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose 3 restoration is running on the whole field…",
+      "source": "Cellpose 3 restoration is running on the whole field…",
+      "source_sha256": "858445f033705820cf0d8207dccee51cb4cb06f9d1f023312121a5bf32a18823",
+      "translation": "Cellpose 3 图像复原正在整个视野上运行…"
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose 3 with Diameter 0 first estimates the object size and rescales the whole field to it. On a 1994 x 1994 Toxoplasma field on the CPU that took 153 s and guessed 16 px for vacuoles of 44 px; with Diameter 44 it took 12 s. Set Diameter to the objects' size in pixels to skip the estimate.",
+      "source": "Cellpose 3 with Diameter 0 first estimates the object size and rescales the whole field to it. On a 1994 x 1994 Toxoplasma field on the CPU that took 153 s and guessed 16 px for vacuoles of 44 px; with Diameter 44 it took 12 s. Set Diameter to the objects' size in pixels to skip the estimate.",
+      "source_sha256": "193934dedcea4d163f8b79cdac49948ff05f54d2d83d0df37375bc6cda42ec1f",
+      "translation": "Diameter 为 0 时，Cellpose 3 会先估计对象大小，并据此重缩放整个视野。在 CPU 上处理一个 1994 x 1994 的弓形虫视野时，这花了 153 s，并把 44 px 的空泡估计为 16 px；而将 Diameter 设为 44 时只用了 12 s。将 Diameter 设为对象的像素大小即可跳过估计。"
+    },
+    {
+      "table": "ui",
+      "key": "Changes re-propose the conditions at once from the text already read. The second reading needs a new Run preview.",
+      "source": "Changes re-propose the conditions at once from the text already read. The second reading needs a new Run preview.",
+      "source_sha256": "e3f60caf58127d3b3665351b20550755b92755040523277415980233146a10c1",
+      "translation": "更改会立即根据已读取的文本重新提出条件。第二次读取需要重新运行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "Channel {channel}: ratio {ratio}, {state}.",
+      "source": "Channel {channel}: ratio {ratio}, {state}.",
+      "source_sha256": "8bc2cf5d1ecc4deb9c2ac4173360ad669161e751bdb158689aa5c4754a7fa536",
+      "translation": "通道 {channel}：比值 {ratio}，{state}。"
+    },
+    {
+      "table": "ui",
+      "key": "Checking the installed Starplast version and PyPI…",
+      "source": "Checking the installed Starplast version and PyPI…",
+      "source_sha256": "48a0895ff04ff436502899a7660a0a6db27e5817120aeabb4e6c7c8cead566a9",
+      "translation": "正在检查已安装的 Starplast 版本和 PyPI…"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measured field. Counts and infection fractions refer only to this field.",
+      "source": "Choose a measured field. Counts and infection fractions refer only to this field.",
+      "source_sha256": "e8219f64a6db3ac866b1daa655bdb6adb602de40a77780ff1b6676bf387cfc6f",
+      "translation": "选择一个已测量视野。计数和感染比例仅针对此视野。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measured project in the source setting first.",
+      "source": "Choose a measured project in the source setting first.",
+      "source_sha256": "7e9b0968d294896a849ccd47d24d36a32f903bd6316eb54c208964e611751df4",
+      "translation": "请先在来源设置中选择一个已测量的项目。"
+    },
+    {
+      "table": "ui",
+      "key": "Click a well on the figure or a row in the table.",
+      "source": "Click a well on the figure or a row in the table.",
+      "source_sha256": "834b51840ae2426f3d278cfec39d3e40066c333a5e35a1a738bbf489a73e9462",
+      "translation": "点击图版上的孔或表格中的一行。"
+    },
+    {
+      "table": "ui",
+      "key": "Close this window. A measurement already running is stopped.",
+      "source": "Close this window. A measurement already running is stopped.",
+      "source_sha256": "056d13b9f4d7bdb5b487fbf39a1dab4e8c122bf216a4978704bdf094fc034a45",
+      "translation": "关闭此窗口。正在运行的测量将被停止。"
+    },
+    {
+      "table": "ui",
+      "key": "Conditions proposed again with the new text settings.",
+      "source": "Conditions proposed again with the new text settings.",
+      "source_sha256": "bb4daa9b799d8439a89e614ec12bb0aba7f569c95d14531798eeda490017be2b",
+      "translation": "已按新的文本设置重新提出条件。"
+    },
+    {
+      "table": "ui",
+      "key": "Confirm annotations is on: the run measures ONLY the images ticked OK below and saved with Save annotations. Every other image is left out.",
+      "source": "Confirm annotations is on: the run measures ONLY the images ticked OK below and saved with Save annotations. Every other image is left out.",
+      "source_sha256": "8fff31178a07d5528a442d39b5204b4d221d9679eda0f0bdfed3f2a8c33c25e2",
+      "translation": "“确认标注”已开启：运行只测量下方勾选为 OK 并通过“保存标注”保存的图像。其他图像都将被排除。"
+    },
+    {
+      "table": "ui",
+      "key": "Confirm every suggestion on this page you have not judged yet. Undoable with U.",
+      "source": "Confirm every suggestion on this page you have not judged yet. Undoable with U.",
+      "source_sha256": "9d843e85bacbd5ce2e25ec5aaadbe3196bcb7f205e5c973670e9b72173ceaa9f",
+      "translation": "确认本页所有尚未判定的建议。可按 U 撤销。"
+    },
+    {
+      "table": "ui",
+      "key": "Cut an object with two centres in two, at the ridge between them, on the distance to the background. It is the Otsu category's own split offered to every other method. The Otsu mode is not affected by this box and keeps using its own: applying both would join what Otsu had just separated and cut it again.",
+      "source": "Cut an object with two centres in two, at the ridge between them, on the distance to the background. It is the Otsu category's own split offered to every other method. The Otsu mode is not affected by this box and keeps using its own: applying both would join what Otsu had just separated and cut it again.",
+      "source_sha256": "669c789a02614f85ef84871f5d12468bbb596ee197c145d6a02f13d1ce01a0db",
+      "translation": "在两个中心之间的脊线处，按到背景的距离将具有两个中心的对象切成两个。这是 Otsu 类别自带的拆分，现提供给所有其他方法。Otsu 模式不受此框影响，仍使用自己的拆分：同时应用两者会把 Otsu 刚分开的对象重新连接后再切一次。"
+    },
+    {
+      "table": "ui",
+      "key": "Detector inference sizes, comma separated. Each size is asked and the boxes are merged.",
+      "source": "Detector inference sizes, comma separated. Each size is asked and the boxes are merged.",
+      "source_sha256": "ccec41d74767cb4f684669a800cf16d1487d41031a7314cf9a29a6013f73a045",
+      "translation": "检测器推理尺寸，以逗号分隔。每个尺寸分别检测，然后合并各框。"
+    },
+    {
+      "table": "ui",
+      "key": "Display plane changed; Run preview to read it.",
+      "source": "Display plane changed; Run preview to read it.",
+      "source_sha256": "40127a0d0270aa6520147c2fa87bfa55ee41f81cdfa243bb12212034d30d666e",
+      "translation": "显示平面已更改；运行预览以读取。"
+    },
+    {
+      "table": "ui",
+      "key": "Double-click to enter a value for this well. Clear it to use the settings or detected ruler.",
+      "source": "Double-click to enter a value for this well. Clear it to use the settings or detected ruler.",
+      "source_sha256": "ddce5102e6335594c198916c741ec76f1622a8d61b48eedd26955c5c357dac7b",
+      "translation": "双击为此孔输入值。清空后将使用设置或检测到的标尺。"
+    },
+    {
+      "table": "ui",
+      "key": "Download about 390 MB from a published optical pooled screen: two sequencing fields of one well, all eleven cycles, and the guide library. The source, output folder, library and plate are filled in, so Run is the next action. There are no phenotype images, so the phenotype step is skipped. Cached afterwards.",
+      "source": "Download about 390 MB from a published optical pooled screen: two sequencing fields of one well, all eleven cycles, and the guide library. The source, output folder, library and plate are filled in, so Run is the next action. There are no phenotype images, so the phenotype step is skipped. Cached afterwards.",
+      "source_sha256": "2920fb228e9e251d2323fdb653a317fdcb0cdbc7c357d7d1d7172c5853660c2c",
+      "translation": "从已发表的光学混池筛选中下载约 390 MB：一个孔的两个测序视野、全部十一个循环以及引导 RNA 文库。来源、输出文件夹、文库和孔板都会被填好，因此下一步就是运行。由于没有表型图像，表型步骤将被跳过。之后会缓存。"
+    },
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of real THP-1 RNF213 microscopy: two fields with host and vacuole masks, 164 measured hosts and 97 vacuoles. Automatic masks were reconciled by Measure; they are not manual ground truth. RNF213 recruitment uses channel 1. Individual-parasite counts are unavailable, so replication remains unknown. Settings are filled in; choose Live or Run. Cached after the first download.",
+      "source": "Download about {size} MB of real THP-1 RNF213 microscopy: two fields with host and vacuole masks, 164 measured hosts and 97 vacuoles. Automatic masks were reconciled by Measure; they are not manual ground truth. RNF213 recruitment uses channel 1. Individual-parasite counts are unavailable, so replication remains unknown. Settings are filled in; choose Live or Run. Cached after the first download.",
+      "source_sha256": "aeb9b0f0b5d78a83297364441af49999b43656bc57e4b7ee072ebdef6b5e8b8c",
+      "translation": "下载约 {size} MB 的真实 THP-1 RNF213 显微图像：两个带有宿主和空泡掩膜的视野，包含 164 个已测量宿主和 97 个空泡。自动掩膜已由 Measure 调和；它们不是人工标注的真值。RNF213 募集使用通道 1。没有单个寄生虫计数，因此复制情况仍未知。设置已填好；请选择“实时”或“运行”。首次下载后会缓存。"
+    },
+    {
+      "table": "ui",
+      "key": "Download nine overlapping tiles from a published optical pooled screen (about 200 MB) and fill in the tile folder, grid, order and overlap, so Plan can be pressed straight away. Cached after the first download.",
+      "source": "Download nine overlapping tiles from a published optical pooled screen (about 200 MB) and fill in the tile folder, grid, order and overlap, so Plan can be pressed straight away. Cached after the first download.",
+      "source_sha256": "5901c3daf0639ea126ecdd9cd1acc94533d4b26b676e4fd89d8d33ff93f7986f",
+      "translation": "从已发表的光学混池筛选中下载九个相互重叠的图块（约 200 MB），并填入图块文件夹、网格、顺序和重叠，以便直接按“计划”。首次下载后会缓存。"
+    },
+    {
+      "table": "ui",
+      "key": "Drag a line on the image to measure it in image pixels, and in microns when the pixel size is known: Pixels per µm in the settings' Scale & Time, or a well's own value in the Wells table. Right-click with Ruler selected to clear the line. Turn Ruler off to pan or to pick a well.",
+      "source": "Drag a line on the image to measure it in image pixels, and in microns when the pixel size is known: Pixels per µm in the settings' Scale & Time, or a well's own value in the Wells table. Right-click with Ruler selected to clear the line. Turn Ruler off to pan or to pick a well.",
+      "source_sha256": "b7abb7c33cb703a1d5b350a38e33f4dc7e0976dc891a17a9a80c4469fb07dc3a",
+      "translation": "在图像上拖出一条线，以图像像素测量其长度；若已知像素尺寸，还会以微米显示：来自设置“比例与时间”中的“每 µm 的像素数”，或“孔”表中该孔自己的值。选中“标尺”时右键单击可清除该线。关闭“标尺”即可平移或选择孔。"
+    },
+    {
+      "table": "ui",
+      "key": "Drop a folder of images anywhere on this window or type a path into the Source field below. Use Load test data when available, or open Pipeline overviews on Home to choose a walkthrough.",
+      "source": "Drop a folder of images anywhere on this window or type a path into the Source field below. Use Load test data when available, or open Pipeline overviews on Home to choose a walkthrough.",
+      "source_sha256": "f1e9cb52705ac84cbef59af48a0a5e308458f59ae3f6bfc078e480c1970a5aa8",
+      "translation": "将图像文件夹拖放到此窗口的任意位置，或在下方的“来源”字段中输入路径。可用时请使用“加载测试数据”，或在主页打开“流程概览”选择一个导览。"
+    },
+    {
+      "table": "ui",
+      "key": "Enter a finite positive scale, or a nonnegative formation time in hours. Clear the cell to restore its default.",
+      "source": "Enter a finite positive scale, or a nonnegative formation time in hours. Clear the cell to restore its default.",
+      "source_sha256": "31aee6a54ceaece6c14a4784978fb115ae32e2f0aac5ffe577919ee0cff88bd8",
+      "translation": "请输入有限的正比例，或以小时为单位的非负形成时间。清空该表格项可恢复其默认值。"
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source_sha256": "b4a8acea49fc2990a3ba506c91ffd1d86f8049dd25e2fb8e4774c09b37444de8",
+      "translation": "“上皮侵入”计划用于区分胞外真菌与被上皮细胞内化的真菌。“吞噬作用”将测量吞噬细胞的摄取。两者都需要一种区分接触与内化的方法，例如适当的差异标记或空间信息。请将宿主细胞群体和真菌形态与摄取读出一并报告。"
+    },
+    {
+      "table": "ui",
+      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
+      "translation": "在每个图块内而非整个视野上均衡直方图，并限制任一水平可被拉伸的程度。它能凸显暗角中的对象，又不会使明亮的中心过曝。它也会放大空图块中的噪声，限幅值正是为此而设。"
+    },
+    {
+      "table": "ui",
+      "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",
+      "translation": "使用 Starplast 的弓形虫 hyperLOPIT 标签探索顶复门寄生虫细胞。悬停可查看定位描述，勾选多个区室可使其保持高亮，或使用“清除选择”将其重置。多个类别共用同一形状；致密颗粒使用通用的胞质颗粒形状。核糖体、蛋白酶体、顶端类别和混合内膜囊泡在此没有对应的形状。示意图显示的是区室名称，而非蛋白质测量值。"
+    },
+    {
+      "table": "ui",
+      "key": "Fetch a paper's figures and legends by DOI, PMID, PMC id or PDF into a new folder, and preview them.",
+      "source": "Fetch a paper's figures and legends by DOI, PMID, PMC id or PDF into a new folder, and preview them.",
+      "source_sha256": "a593d94a95009b101a5556f3aede187bf776c07d478bfdf0349e25adccd37995",
+      "translation": "通过 DOI、PMID、PMC ID 或 PDF 将论文的图和图注获取到新文件夹中，并进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "Figure mode: a folder of published figures. The run finds the plaque images in each figure, reads the text around them to name each condition, and segments the plaques.",
+      "source": "Figure mode: a folder of published figures. The run finds the plaque images in each figure, reads the text around them to name each condition, and segments the plaques.",
+      "source_sha256": "ca8883b49b24e9d1841ef68366f00a489bcd6cfb717415a974796a55b794024f",
+      "translation": "图版模式：一个包含已发表图版的文件夹。运行会在每个图版中查找蚀斑图像，读取周围的文字为每个条件命名，并分割蚀斑。"
+    },
+    {
+      "table": "ui",
+      "key": "Filamentation is planned to quantify the frequency and extent of filament growth. Germ tube formation will focus on early outgrowth from individual cells, and Morphology will distinguish yeast, pseudohyphal and hyphal forms where those categories apply. These related modules address different points in a morphological transition. Use species-appropriate reference images and record the growth conditions when comparing their results.",
+      "source": "Filamentation is planned to quantify the frequency and extent of filament growth. Germ tube formation will focus on early outgrowth from individual cells, and Morphology will distinguish yeast, pseudohyphal and hyphal forms where those categories apply. These related modules address different points in a morphological transition. Use species-appropriate reference images and record the growth conditions when comparing their results.",
+      "source_sha256": "c0d0799870cfcd44454a19ebefa479bbcb18446c52269e975e996441b19b6979",
+      "translation": "“丝状生长”计划定量丝状生长的频率和程度。“芽管形成”将关注单个细胞的早期突起，而“形态”将在适用时区分酵母、假菌丝和菌丝形态。这些相关模块针对形态转变中的不同阶段。比较其结果时，请使用适合该物种的参考图像，并记录生长条件。"
+    },
+    {
+      "table": "ui",
+      "key": "Find the plaques in every well found on this figure, one after another. Cancel stops after the well in progress.",
+      "source": "Find the plaques in every well found on this figure, one after another. Cancel stops after the well in progress.",
+      "source_sha256": "a88b9147659e2eefd8629e82e0aba4635bfff2c02458d33b4e33ba2a5f64cb91",
+      "translation": "依次在此图版上找到的每个孔中查找蚀斑。取消会在当前孔完成后停止。"
+    },
+    {
+      "table": "ui",
+      "key": "Find the plaques in the highlighted well with the plaque settings.",
+      "source": "Find the plaques in the highlighted well with the plaque settings.",
+      "source_sha256": "66b57f9728fcbfe35ac78b40f1e4df77f85d472293ebb8688473a18f8a60e468",
+      "translation": "使用蚀斑设置在高亮的孔中查找蚀斑。"
+    },
+    {
+      "table": "ui",
+      "key": "Finish or stop the active analyses before updating spaCR.",
+      "source": "Finish or stop the active analyses before updating spaCR.",
+      "source_sha256": "6f52966404dcf63b89a08b074f3bce1f3c356f2b7a7256165343c56486eeb3b3",
+      "translation": "更新 spaCR 前，请先完成或停止正在进行的分析。"
+    },
+    {
+      "table": "ui",
+      "key": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
+      "source": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
+      "source_sha256": "69b290e0d6c71dfe9ff67646482b0d6e03a1b609d9408b638511995918e232c8",
+      "translation": "一次性展平整个区域的直方图，使每个亮度区间的像素数相同。这是对比度步骤中最强、也最不尊重原始数据的一种：以背景为主的视野，其背景会被拉伸到半个范围。"
+    },
+    {
+      "table": "ui",
+      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source_sha256": "ebfb1c9811c74671d5842f0a8f7a663cdad6815e6a0622cb58809571a838e266",
+      "translation": "“配子体成熟度”是一个拟议的工作流程，用于在有合适标记和参考标注时分析与发育阶段和性别相关的图像特征。“药物反应成像”将把生长和形态与浓度联系起来。请与这些测量一起记录物种、起始阶段和暴露时长：否则阶段组成的变化可能被误认为寄生虫数量的变化。"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur applied before the centres are found, in pixels. It is what makes ONE object have ONE centre: a raw object has a dozen maxima in its own noise. About a third of the object radius is a starting point. This is NOT the Image enhancement card's denoise, which has already run by now; leave that one off unless the field is genuinely noisy, or the two blurs compound.",
+      "source": "Gaussian blur applied before the centres are found, in pixels. It is what makes ONE object have ONE centre: a raw object has a dozen maxima in its own noise. About a third of the object radius is a starting point. This is NOT the Image enhancement card's denoise, which has already run by now; leave that one off unless the field is genuinely noisy, or the two blurs compound.",
+      "source_sha256": "06eb9ebba669a76c1a3bcfb308f187362aecaf47a9575ba60f9f95b23847a003",
+      "translation": "在查找中心之前应用的高斯模糊（像素）。正是它使一个对象只有一个中心：原始对象在其自身噪声中会有十几个极大值。起始值可取对象半径的约三分之一。这不是“图像增强”卡片中的去噪，那一步此时已经运行过了；除非视野确实噪声很大，否则请保持其关闭，以免两次模糊叠加。"
+    },
+    {
+      "table": "ui",
+      "key": "Grow a watershed from each blob centre instead of stamping a disk whose radius comes from that blob's own scale. Turn it off when single spots are being fragmented.",
+      "source": "Grow a watershed from each blob centre instead of stamping a disk whose radius comes from that blob's own scale. Turn it off when single spots are being fragmented.",
+      "source_sha256": "88ed8dedec53a8f4bd3263f294ecc4024d869e110a711dbbc4ae7c3b32459bcc",
+      "translation": "从每个斑点中心生长分水岭，而不是盖印一个半径由该斑点自身尺度决定的圆盘。若单个斑点被切碎，请将其关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Heavy: {steps}. A whole-image run shows progress and can be cancelled.",
+      "source": "Heavy: {steps}. A whole-image run shows progress and can be cancelled.",
+      "source_sha256": "16cd5be6d425518f67894f7529082c45f092a0ca366ca0c9a6add516ce377629",
+      "translation": "耗时步骤：{steps}。整图运行会显示进度，并且可以取消。"
+    },
+    {
+      "table": "ui",
+      "key": "Hold {key} and scroll to zoom; drag the image to pan.",
+      "source": "Hold {key} and scroll to zoom; drag the image to pan.",
+      "source_sha256": "814139d31c784795809101a78c304d2922fbb1f2bd790c231dc7bae6bc780e17",
+      "translation": "按住 {key} 并滚动以缩放；拖动图像以平移。"
+    },
+    {
+      "table": "ui",
+      "key": "Holes inside an object smaller than this are filled, so an object dimmer in the middle than at its rim does not come back as a ring. 0 leaves every hole where it is.",
+      "source": "Holes inside an object smaller than this are filled, so an object dimmer in the middle than at its rim does not come back as a ring. 0 leaves every hole where it is.",
+      "source_sha256": "42bbdb7a4414a353f00cf9829baf4a5e974ad3e4d9c4067b37ff182fa4e05130",
+      "translation": "对象内部小于此值的孔洞会被填充，这样中间比边缘暗的对象就不会变成一个环。0 表示保留所有孔洞。"
+    },
+    {
+      "table": "ui",
+      "key": "Hover a button to see which microscope format and file naming it tests. The first press downloads every variant at once, about 285 MB; later presses open from the cache. Nothing is written into a project until you press Import.",
+      "source": "Hover a button to see which microscope format and file naming it tests. The first press downloads every variant at once, about 285 MB; later presses open from the cache. Nothing is written into a project until you press Import.",
+      "source_sha256": "ac8f14928476e5f81fc53edfce161070a7089b7f4ce2f5b58bb6e137ab52a694",
+      "translation": "将鼠标悬停在按钮上，可查看其测试的显微镜格式和文件命名方式。第一次按下会一次性下载所有变体，约 285 MB；之后再按会从缓存打开。在您按下“导入”之前，不会向任何项目写入内容。"
+    },
+    {
+      "table": "ui",
+      "key": "How bright a maximum has to be to count as a centre. Read as a percentile of the blurred image by default, so one setting suits any exposure: 90 means the top tenth of the pixels. This and the distance together decide HOW MANY objects there will be, and the status line says how many centres were found.",
+      "source": "How bright a maximum has to be to count as a centre. Read as a percentile of the blurred image by default, so one setting suits any exposure: 90 means the top tenth of the pixels. This and the distance together decide HOW MANY objects there will be, and the status line says how many centres were found.",
+      "source_sha256": "5551ca5fe0443a79b0ab4f4b9d5c6161453f5a9d8e9c30c14e321af30f5b463c",
+      "translation": "极大值需要多亮才算作中心。默认按模糊图像的百分位读取，因此同一设置适用于任何曝光：90 表示最亮的十分之一像素。此值与距离共同决定对象的数量，状态栏会显示找到了多少个中心。"
+    },
+    {
+      "table": "ui",
+      "key": "How many scales are evaluated between the two sigmas. More resolves a wider spread of spot sizes and costs one filter pass each; 3 to 5 is enough when the spots are all one size.",
+      "source": "How many scales are evaluated between the two sigmas. More resolves a wider spread of spot sizes and costs one filter pass each; 3 to 5 is enough when the spots are all one size.",
+      "source_sha256": "0e48b1771d6e219e96ddce5fedef5d2b05fd2ec1d4502683b787b1b3f3343564",
+      "translation": "在两个 sigma 之间评估的尺度数。越多可分辨的斑点尺寸范围越广，每个尺度多一次滤波；若斑点大小都相同，3 到 5 就足够了。"
+    },
+    {
+      "table": "ui",
+      "key": "How much contrast a tile may be given, 0 to 1. Higher is more contrast and more amplified noise in tiles that hold only background.",
+      "source": "How much contrast a tile may be given, 0 to 1. Higher is more contrast and more amplified noise in tiles that hold only background.",
+      "source_sha256": "10e6fef8648b33ee761b72f2ef9d41502ae507bca950ecb28e57edb52d02699f",
+      "translation": "一个图块可获得的对比度，0 到 1。数值越高，对比度越高，仅含背景的图块中噪声放大也越多。"
+    },
+    {
+      "table": "ui",
+      "key": "How much of the mask is added back. 1 is a normal sharpen; above 2 the halos start to become objects of their own.",
+      "source": "How much of the mask is added back. 1 is a normal sharpen; above 2 the halos start to become objects of their own.",
+      "source_sha256": "9a982ae188adf5aea2c3fe3f7eabcca00598495eb56c3bd42605c31b03fb85c9",
+      "translation": "加回多少蒙版。1 为常规锐化；超过 2 时，光晕会开始变成独立的对象。"
+    },
+    {
+      "table": "ui",
+      "key": "How much smoothing: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the noise it measures.",
+      "source": "How much smoothing: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the noise it measures.",
+      "source_sha256": "877e6b6c22442b7eecf81378407b3d34164459f0400b02f2f6b2cec13fa03cb8",
+      "translation": "平滑程度：高斯滤波的 sigma（像素）、中值滤波和双边滤波的圆盘半径，或非局部均值以所测噪声倍数表示的截断值。"
+    },
+    {
+      "table": "ui",
+      "key": "How the filter's response becomes a foreground. Otsu takes one level for the whole region; Adaptive uses the block size and offset above and keeps faint filaments in dim corners, at the cost of background elsewhere.",
+      "source": "How the filter's response becomes a foreground. Otsu takes one level for the whole region; Adaptive uses the block size and offset above and keeps faint filaments in dim corners, at the cost of background elsewhere.",
+      "source_sha256": "81d19907e3f8b56bf41513627d72b09bf9dca2ac8f2b988e2e746596dd968f9f",
+      "translation": "滤波器响应如何转换为前景。Otsu 为整个区域取一个阈值水平；自适应使用上面的块大小和偏移量，可保留暗角中的暗淡丝状结构，但代价是其他位置会混入背景。"
+    },
+    {
+      "table": "ui",
+      "key": "ImageJ TIFF stack, three channels per file, named like E01/field009.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source": "ImageJ TIFF stack, three channels per file, named like E01/field009.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source_sha256": "d64eeb17a5adfcc3f3826efc2f554667233cc572f025a67acc2b211c8a9e86a0",
+      "translation": "ImageJ TIFF 堆栈，每个文件三个通道，命名类似 E01/field009.tif。命名方式：auto。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n通道从文件内部读取。"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "在 Mask 中，选择时间序列的图像文件夹。启用 Timelapse，然后配置时间元数据和跟踪设置。"
+    },
+    {
+      "table": "ui",
+      "key": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
+      "source": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
+      "source_sha256": "7ed2bb7ea88c6fb425a176ad59d85cdbee427d2060ffcb6af3dcd952bf2ecb1e",
+      "translation": "将蚀斑图版读取器（YOLO 和 RapidOCR）安装到 ~/.spacr/backends 下的独立环境中；spaCR 自身的包不会被更改。"
+    },
+    {
+      "table": "ui",
+      "key": "Judge them one at a time: click or press Y to confirm a suggestion, right-click or press N to reject it.",
+      "source": "Judge them one at a time: click or press Y to confirm a suggestion, right-click or press N to reject it.",
+      "source_sha256": "3aa6b31bbb38aa074acc77129d76e7f50439d1f49e809055e33d75b43f1a8a02",
+      "translation": "逐个判定：单击或按 Y 确认建议，右键单击或按 N 拒绝建议。"
+    },
+    {
+      "table": "ui",
+      "key": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source_sha256": "283550e02f8c5608b7f1e9510902dc4c8737514c63c807853fe6332ef8bed217",
+      "translation": "在 Measure 中保留未感染的细胞。提供完整空泡掩膜、宿主参考强度以及可选的明确寄生虫–空泡关联；仅凭宿主身份不能定义空泡。"
+    },
+    {
+      "table": "ui",
+      "key": "Label the centre line of the network instead of the filled filaments, so a measured area tracks network LENGTH rather than filament thickness. Leave it off to measure filament mass.",
+      "source": "Label the centre line of the network instead of the filled filaments, so a measured area tracks network LENGTH rather than filament thickness. Leave it off to measure filament mass.",
+      "source_sha256": "af8a18ebce8fe92254914bba3cdf4bbee4a21e0b8c37c17892c1cefe587ea604",
+      "translation": "标记网络的中心线而非填充的丝状结构，使测得的面积反映网络长度而非丝状结构的粗细。若要测量丝状结构的总量，请保持关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Lay this session's masks and the field over one another, with an opacity and a stacking order for each, in a third panel. The last {count} masks are kept.",
+      "source": "Lay this session's masks and the field over one another, with an opacity and a stacking order for each, in a third panel. The last {count} masks are kept.",
+      "source_sha256": "4971d9a015d7695cb6ff7f5424c098535afdeed419a3bc525e59762ffaba93e7",
+      "translation": "在第三个面板中将本次会话的掩膜与视野相互叠加，每个都可设置不透明度和堆叠顺序。保留最近 {count} 个掩膜。"
+    },
+    {
+      "table": "ui",
+      "key": "Leave out maxima within one minimum distance of the frame. An object the edge cuts has its centre in the wrong place, so what grows from it is the wrong shape.",
+      "source": "Leave out maxima within one minimum distance of the frame. An object the edge cuts has its centre in the wrong place, so what grows from it is the wrong shape.",
+      "source_sha256": "667f6a21e49f54defa839e980722f246b4ab53ce11816c55121fc4222302c8b4",
+      "translation": "排除距边框不到一个最小距离的极大值。被边缘截断的对象其中心位置有误，因此从中生长出的形状也是错误的。"
+    },
+    {
+      "table": "ui",
+      "key": "Leica LIF (public samples), named like A01/FRAP.lif. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes LIF, so these are public sample files by Sean Warren and Michael Goelzer, CC BY 4.0: time series, a z-stack and a tile scan. They have no masks, so they go through the Format Converter.",
+      "source": "Leica LIF (public samples), named like A01/FRAP.lif. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes LIF, so these are public sample files by Sean Warren and Michael Goelzer, CC BY 4.0: time series, a z-stack and a tile scan. They have no masks, so they go through the Format Converter.",
+      "source_sha256": "a2d14ccfb2aa62e37b5bec4d9fbf60a86358d1d582186c21cd4ec7d81a1add5d",
+      "translation": "Leica LIF（公开样本），命名类似 A01/FRAP.lif。命名方式：auto。填充 Format Converter：仅图像，然后进行预览。\n\n没有开源库能写入 LIF，因此这些是 Sean Warren 和 Michael Goelzer 提供的公开样本文件，采用 CC BY 4.0 许可：时间序列、z 堆栈和拼接扫描。它们没有掩膜，因此需通过 Format Converter 处理。"
+    },
+    {
+      "table": "ui",
+      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source_sha256": "ae13b680adfb10492d7bda64d4b0f36ce4765cf0b32bd763df25fb690455fac1",
+      "translation": "“肝期生长”计划测量肝细胞内寄生虫的数量和大小。“子孢子运动性”将关注滑行轨迹或痕迹，而“细胞穿越”将研究寄生虫路径上的宿主细胞损伤。穿越、有效侵入和随后的生长是不同的结果：它们的图像标记、观察时间和分母需要分别定义。"
+    },
+    {
+      "table": "ui",
+      "key": "Load a measured project, then Run preview.",
+      "source": "Load a measured project, then Run preview.",
+      "source_sha256": "213f69afe66895cb64445fc3ccc41eedabd90e202dcc03fa048bfdce3dc19ad3",
+      "translation": "请加载已测量的项目，然后运行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "Load the selected Cellpose 3 restoration weights on the GPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source": "Load the selected Cellpose 3 restoration weights on the GPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source_sha256": "983b1140c41fea019628c18673f36a595bc5e11eacd2efe86c4186ff22ffecc3",
+      "translation": "在 GPU 上加载所选的 Cellpose 3 图像复原权重。首次使用可能会下载权重。捕获的包版本、检查点哈希和直径会随所应用的增强一起记录。"
+    },
+    {
+      "table": "ui",
+      "key": "Mean detected box width and height; verify that the box contains the complete well.",
+      "source": "Mean detected box width and height; verify that the box contains the complete well.",
+      "source_sha256": "b2a5b6123512b88e6fc89e243ed2740fc2b8c894e4a004b3c57fae68f2449ddb",
+      "translation": "检测到的框的平均宽度和高度；请确认框包含完整的孔。"
+    },
+    {
+      "table": "ui",
+      "key": "Merged mask plane: Auto uses recorded plane metadata; -1 hides this mask. Choose a plane explicitly for older projects.",
+      "source": "Merged mask plane: Auto uses recorded plane metadata; -1 hides this mask. Choose a plane explicitly for older projects.",
+      "source_sha256": "c2809cbf7f1316ba1a38d1a8c5b461db6dcbce362936fe169e7cdb53fff6c1ab",
+      "translation": "合并掩膜层：“自动”使用记录的层元数据；-1 隐藏此掩膜。对于较旧的项目，请明确选择一层。"
+    },
+    {
+      "table": "ui",
+      "key": "Montage loading cancelled; the current disk operation may finish.",
+      "source": "Montage loading cancelled; the current disk operation may finish.",
+      "source_sha256": "191df9b0b8c069e590ee37a70f7e36a55021e7f2062a69b80cec73b1dc1d241c",
+      "translation": "拼图加载已取消；当前的磁盘操作可能仍会完成。"
+    },
+    {
+      "table": "ui",
+      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
+      "translation": "为此模板命名 — 起一个能说出口的名字，例如“Toxo PVM, 40×”："
+    },
+    {
+      "table": "ui",
+      "key": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
+      "source": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
+      "source_sha256": "d3fd70e009fd1196bf8807e28b5a7b052460b663476a23cdcc5c19a9675146c1",
+      "translation": "Nikon ND2（公开样本），命名类似 A01/WellA01_ChannelBF_Seq0001.nd2。命名方式：auto。填充 Format Converter：仅图像，然后进行预览。\n\n没有开源库能写入 ND2，因此这是 Maxime Woringer 提供的公开样本文件，采用 CC BY 4.0 许可：一个明场平面，按 NIS-Elements JOBS 对孔板采集的命名方式重命名。它没有掩膜，因此需通过 Format Converter 处理。"
+    },
+    {
+      "table": "ui",
+      "key": "No cell probability map: {objects} came from a method that does not make one. Only Cellpose does.",
+      "source": "No cell probability map: {objects} came from a method that does not make one. Only Cellpose does.",
+      "source_sha256": "9ac662e5e5c016318825d86a0f26cb44d34e95a5e0c51a93a3a481b1d60c4d6c",
+      "translation": "没有细胞概率图：{objects} 所用的方法不会生成概率图。只有 Cellpose 会生成。"
+    },
+    {
+      "table": "ui",
+      "key": "No templates yet for this module. Set the settings up the way you want them, then use “Save current settings…”.",
+      "source": "No templates yet for this module. Set the settings up the way you want them, then use “Save current settings…”.",
+      "source_sha256": "c22001e6cbf9732ca51ff28d155a3028143c6d72071dd95c8dca855bfb704d0d",
+      "translation": "此模块还没有模板。请按需要调整设置，然后使用“保存当前设置…”。"
+    },
+    {
+      "table": "ui",
+      "key": "No two centres closer together than this, so one object cannot become two. About one object radius. Raise it when objects are being split, lower it when two touching objects come back as one.",
+      "source": "No two centres closer together than this, so one object cannot become two. About one object radius. Raise it when objects are being split, lower it when two touching objects come back as one.",
+      "source_sha256": "0748a5dfd7ee63bf4b0acdcc661876aafc617f007277a60e3bbf58057a833578",
+      "translation": "任何两个中心的距离都不小于此值，因此一个对象不会变成两个。约为一个对象的半径。对象被拆分时调高，两个相接触的对象被合为一个时调低。"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to save: run the preview on a figure first.",
+      "source": "Nothing to save: run the preview on a figure first.",
+      "source_sha256": "0eafa724eb2a081bc14d15cae7ce17c680b719462ffb51539a6f9357c7918c0a",
+      "translation": "没有可保存的内容：请先对图版运行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "OME-TIFF, one plane per file, named like slide--S00/chamber--U00--V04/field--X08--Y00/image--L00--S00--U00--V04--J20--E00--O00--X08--Y00--T00--Z00--C00.ome.tif. Naming: leica_matrix_screener. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe Matrix Screener names a field by its X/Y position, not a number, so fields are numbered in order.",
+      "source": "OME-TIFF, one plane per file, named like slide--S00/chamber--U00--V04/field--X08--Y00/image--L00--S00--U00--V04--J20--E00--O00--X08--Y00--T00--Z00--C00.ome.tif. Naming: leica_matrix_screener. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe Matrix Screener names a field by its X/Y position, not a number, so fields are numbered in order.",
+      "source_sha256": "0d67485373e19f3edabc383c80d0d50aa1259c39ba8d52a6e30d9074ad5af2b5",
+      "translation": "OME-TIFF，每个文件一个平面，命名类似 slide--S00/chamber--U00--V04/field--X08--Y00/image--L00--S00--U00--V04--J20--E00--O00--X08--Y00--T00--Z00--C00.ome.tif。命名方式：leica_matrix_screener。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\nMatrix Screener 按 X/Y 位置而非编号命名视野，因此视野按顺序编号。"
+    },
+    {
+      "table": "ui",
+      "key": "OME-TIFF, three channels per file, named like E01/field009.ome.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source": "OME-TIFF, three channels per file, named like E01/field009.ome.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source_sha256": "2e292ba7355b5651f357eac8fa1ffba09b00e2bfc95661155c52df944d4f1969",
+      "translation": "OME-TIFF，每个文件三个通道，命名类似 E01/field009.ome.tif。命名方式：auto。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n通道从文件内部读取。"
+    },
+    {
+      "table": "ui",
+      "key": "Off by default, so the volume stays wherever a spin leaves it. On, every spin ends square-on to the nearest face.",
+      "source": "Off by default, so the volume stays wherever a spin leaves it. On, every spin ends square-on to the nearest face.",
+      "source_sha256": "8ecb14fb8720526f5e07fa93616541e76e997014cf18abb8c2afa9f5c92c73e8",
+      "translation": "默认关闭，因此体数据会停在旋转结束时的位置。开启后，每次旋转结束时都会正对最近的面。"
+    },
+    {
+      "table": "ui",
+      "key": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
+      "source": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
+      "source_sha256": "4f436b775efc5f19fa3f9d156204b22867db2541b0e5c60134a67dda255020a4",
+      "translation": "默认开启。某个版本内置的发布说明止于其前一个版本，因此开启后，spaCR 会在主页绘制完成后，每天一次在后台线程中从 GitHub 读取公开的发布列表，并在“新闻”顶部显示更新的内容。不会发送任何数据，也不会登录。关闭时只显示此版本内置的说明。"
+    },
+    {
+      "table": "ui",
+      "key": "On the CPU a whole field takes tens of seconds and the magnifier box about a second.",
+      "source": "On the CPU a whole field takes tens of seconds and the magnifier box about a second.",
+      "source_sha256": "7cff3030d58533a61b689cadca4478e11e4b3fe6f21751d5d8ddb7568b057041",
+      "translation": "在 CPU 上，整个视野需要数十秒，放大镜框约需一秒。"
+    },
+    {
+      "table": "ui",
+      "key": "On: the number above is a percentile of this image. Off: it is an absolute intensity, which is what to use when the same setting must mean the same thing across fields of different exposure.",
+      "source": "On: the number above is a percentile of this image. Off: it is an absolute intensity, which is what to use when the same setting must mean the same thing across fields of different exposure.",
+      "source_sha256": "f15f7a70684e6a1911bbcc6746acf5bb849149fd6143862809bfa9a05b2ec303",
+      "translation": "开启：上面的数字是该图像的百分位。关闭：它是绝对强度，当同一设置必须在不同曝光的视野之间表示相同含义时应使用此项。"
+    },
+    {
+      "table": "ui",
+      "key": "Only pieces holding a pixel above this survive at all, and they then grow outward down to the weak level. Read as a percentile below 1.0, as an absolute intensity above it.",
+      "source": "Only pieces holding a pixel above this survive at all, and they then grow outward down to the weak level. Read as a percentile below 1.0, as an absolute intensity above it.",
+      "source_sha256": "3ba3da240630eaee371e7ebdf5fd375b5a48017b505f6a62ca58e4ac6bee0812",
+      "translation": "只有含有高于此值像素的片段才会保留，然后它们向外生长直到弱水平。低于 1.0 时视为百分位，高于 1.0 时视为绝对强度。"
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "在 Annotate 中打开一个裁剪图项目。“加载测试数据”提供了示例。选择标注列并标记有代表性的对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
+      "source": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
+      "source_sha256": "0d906f1d1ba73882206ff7639f594549513c7be78bf3eed1b97dd65e7d02c044",
+      "translation": "请先打开带有设置面板的模块 — 模板是某一个模块设置的集合。"
+    },
+    {
+      "table": "ui",
+      "key": "Optional steps applied to what the detector reads, in one fixed order. The image on disk is never changed.",
+      "source": "Optional steps applied to what the detector reads, in one fixed order. The image on disk is never changed.",
+      "source_sha256": "777b110466de72b37f94ea4053415cc860d38653aca88527de958e55afefe8e5",
+      "translation": "对检测器读取的图像按固定顺序应用的可选步骤。磁盘上的图像不会被更改。"
+    },
+    {
+      "table": "ui",
+      "key": "Page {page} of {pages} · crops {first}–{last} of {total}",
+      "source": "Page {page} of {pages} · crops {first}–{last} of {total}",
+      "source_sha256": "13a84834690ff1ee7da1857dbf306138a3e096b3524b6260ea3bf6b2795a5003",
+      "translation": "第 {page}/{pages} 页 · 裁剪图 {first}–{last}，共 {total}"
+    },
+    {
+      "table": "ui",
+      "key": "Paste the figure legend, or annotate by hand",
+      "source": "Paste the figure legend, or annotate by hand",
+      "source_sha256": "46f99bbe7054352d0a4f1db11d9375a37c89e37d8685bcacf09820e66cc19b36",
+      "translation": "粘贴图注，或手动注释"
+    },
+    {
+      "table": "ui",
+      "key": "Pixels above this are kept only where they connect to a seed above the strong level. Under 1.0 it is read as a fraction and becomes that percentile of the region (0.2 is the 20th); 1.0 and above is an absolute intensity.",
+      "source": "Pixels above this are kept only where they connect to a seed above the strong level. Under 1.0 it is read as a fraction and becomes that percentile of the region (0.2 is the 20th); 1.0 and above is an absolute intensity.",
+      "source_sha256": "3dff937aeba7cf080ee6081d57585fe1f0c999384e5982568daf8a98322243bd",
+      "translation": "高于此值的像素仅在与高于强水平的种子相连时才会保留。低于 1.0 时视为比例，并转换为该区域相应的百分位（0.2 即第 20 百分位）；1.0 及以上视为绝对强度。"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque mode reads cropped plaque images; Figure mode reads published figures. The settings below and the live preview follow this switch.",
+      "source": "Plaque mode reads cropped plaque images; Figure mode reads published figures. The settings below and the live preview follow this switch.",
+      "source_sha256": "15cf8f30c81c3131a9feafad9cab3450065d6ef8f20f0febd8d86d207018afea",
+      "translation": "蚀斑模式读取裁剪好的蚀斑图像；图版模式读取已发表的图。下方的设置和实时预览会随此开关切换。"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque mode: a folder of cropped plaque images. Every image is segmented, and the run writes a table of per-image values and a table of per-plaque values.",
+      "source": "Plaque mode: a folder of cropped plaque images. Every image is segmented, and the run writes a table of per-image values and a table of per-plaque values.",
+      "source_sha256": "4417f98df4e545236d71569673ec788be0a4041b92f1483d5301f1190f8d056d",
+      "translation": "蚀斑模式：一个包含裁剪好的蚀斑图像的文件夹。每张图像都会被分割，运行会写出一张逐图像值表和一张逐蚀斑值表。"
+    },
+    {
+      "table": "ui",
+      "key": "Plasmodium parasites cause malaria. Their life cycle includes mosquito and vertebrate hosts, with liver and blood stages in humans. Microscopy distinguishes parasite forms in infected red blood cells. Image-based studies can measure infection frequency, stage progression, motility and responses to compounds.",
+      "source": "Plasmodium parasites cause malaria. Their life cycle includes mosquito and vertebrate hosts, with liver and blood stages in humans. Microscopy distinguishes parasite forms in infected red blood cells. Image-based studies can measure infection frequency, stage progression, motility and responses to compounds.",
+      "source_sha256": "f76d2b4ceb6fa9cddf64019fa4d1ee46d3ab0c5ea23da25c9029da33d6c23c49",
+      "translation": "疟原虫会引起疟疾。其生命周期包括蚊子和脊椎动物宿主，在人体内有肝期和血期。显微镜可区分受感染红细胞中的各种寄生虫形态。基于图像的研究可以测量感染频率、阶段进展、运动性以及对化合物的反应。"
+    },
+    {
+      "table": "ui",
+      "key": "Pseudo wells from condition/folder column",
+      "source": "Pseudo wells from condition/folder column",
+      "source_sha256": "8f0e6280c16f48abbfb9b139dac5ae2bbbfec0c4c8fb3b44d2d951a9956636ad",
+      "translation": "根据条件/文件夹列生成伪孔"
+    },
+    {
+      "table": "ui",
+      "key": "Reading crops for montage {number} of {total}…",
+      "source": "Reading crops for montage {number} of {total}…",
+      "source_sha256": "efef070e3d81706158fb0371a31b9bbb5b716eab42406d3d33fa7de332f7a3c7",
+      "translation": "正在读取拼图 {number}/{total} 的裁剪图…"
+    },
+    {
+      "table": "ui",
+      "key": "Reading database {number} of {total}: {name}",
+      "source": "Reading database {number} of {total}: {name}",
+      "source_sha256": "ede72e9f8b3b13a52e8e578e995dd5be54386d0c88a0aebe0e4bbef19c208293",
+      "translation": "正在读取数据库 {number}/{total}：{name}"
+    },
+    {
+      "table": "ui",
+      "key": "Reject every suggestion on this page you have not judged yet. Undoable with U.",
+      "source": "Reject every suggestion on this page you have not judged yet. Undoable with U.",
+      "source_sha256": "2c865b362d15ffd1bb49b7fac6641d7d42ecd9b3d12035b426b41e971e205c5c",
+      "translation": "拒绝本页所有尚未判定的建议。可按 U 撤销。"
+    },
+    {
+      "table": "ui",
+      "key": "Replication Assay counts parasites per vacuole, providing a readout of intracellular growth at the sampled time. Plaque Assay measures cleared areas across a host-cell monolayer and therefore integrates multiple rounds of infection and growth. A smaller plaque can reflect more than one defect: compare the plaque result with invasion and replication measurements before assigning it to a particular step.",
+      "source": "Replication Assay counts parasites per vacuole, providing a readout of intracellular growth at the sampled time. Plaque Assay measures cleared areas across a host-cell monolayer and therefore integrates multiple rounds of infection and growth. A smaller plaque can reflect more than one defect: compare the plaque result with invasion and replication measurements before assigning it to a particular step.",
+      "source_sha256": "372d09712e3836fe8a682381f2c90bbee0391dfe4238d19f13ba38fe30179171",
+      "translation": "Replication Assay 统计每个空泡中的寄生虫数，提供采样时间点胞内生长的读出。Plaque Assay 测量宿主细胞单层上的清除区域，因此整合了多轮感染和生长。较小的蚀斑可能反映不止一种缺陷：在将其归因于某一特定步骤之前，请将蚀斑结果与侵入和复制测量进行比较。"
+    },
+    {
+      "table": "ui",
+      "key": "Resolving crop paths for database {number} of {total} ({rows} objects)…",
+      "source": "Resolving crop paths for database {number} of {total} ({rows} objects)…",
+      "source_sha256": "6a890d3d1f06a0c4c325f46781fa793fc78cad0ed7871dfaa2d9565748401856",
+      "translation": "正在解析数据库 {number}/{total} 的裁剪图路径（{rows} 个对象）…"
+    },
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "将指针在按钮、字段或列标题上停留两秒，会显示一个说明其用途的小标签。指针停留期间标签保持显示，指针移开一秒后消失。取消勾选后，spaCR 中任何位置都不会出现工具提示。"
+    },
+    {
+      "table": "ui",
+      "key": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
+      "source": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
+      "source_sha256": "85f568bd32906370d0fa5772855a856fa6f854b9d10c87557110b6ad54cbc950",
+      "translation": "图像复原已就绪：{model} 在 {device} 上运行；测量保留原始强度。"
+    },
+    {
+      "table": "ui",
+      "key": "Right canvas: outline overlay · label masks · Cellpose flows · cell probability",
+      "source": "Right canvas: outline overlay · label masks · Cellpose flows · cell probability",
+      "source_sha256": "be4dd6040cabb705a5e9b501b45a7652576cd448ba15f1c2e5ebf53417d0955a",
+      "translation": "右侧画布：轮廓叠加 · 标签掩膜 · Cellpose 流场 · 细胞概率"
+    },
+    {
+      "table": "ui",
+      "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+      "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+      "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
+      "translation": "在整幅图像上运行“检测方法”下所选的 CPU 方法，并标记其找到的内容，同时遵守上面的最小面积。该方法读取的所有内容都属于该类别：阈值水平的算法、校正、平滑、哪一侧为对象、填充孔洞、拆分相接触的一对对象，以及丢弃被边框截断的部分。若选择了 Cellpose 或某个后端，此按钮会退回使用 Otsu，因为它们有自己的“对象检测”按钮。"
+    },
+    {
+      "table": "ui",
+      "key": "Save the picture as it is drawn here, at its full size: the outlines and well boxes keep the line weights and colours chosen for them.",
+      "source": "Save the picture as it is drawn here, at its full size: the outlines and well boxes keep the line weights and colours chosen for them.",
+      "source_sha256": "d8489aa62282116687b69c66325d52dfc8c825f10f3f314fcdd372b50bec94e8",
+      "translation": "按此处绘制的样子以完整尺寸保存图片：轮廓和孔框保留为其选定的线宽和颜色。"
+    },
+    {
+      "table": "ui",
+      "key": "Scale this preview's controls, text and pictures, from 10 % to 200 %, without changing the rest of spaCR. It applies straight away and is remembered for this preview. Double-click the percentage to go back to 100 %; Ctrl+Alt+0 resets every scale.",
+      "source": "Scale this preview's controls, text and pictures, from 10 % to 200 %, without changing the rest of spaCR. It applies straight away and is remembered for this preview. Double-click the percentage to go back to 100 %; Ctrl+Alt+0 resets every scale.",
+      "source_sha256": "8d47675d325064379990f28ec86b719f071b85cb423ee0c523a7afff946653ac",
+      "translation": "将此预览的控件、文字和图片按 10 % 到 200 % 缩放，不影响 spaCR 的其他部分。更改立即生效，并会为此预览记住。双击百分比可恢复为 100 %；Ctrl+Alt+0 重置所有缩放。"
+    },
+    {
+      "table": "ui",
+      "key": "Scroll to zoom, drag to pan. Both pictures move together.",
+      "source": "Scroll to zoom, drag to pan. Both pictures move together.",
+      "source_sha256": "056301de5846be94a09cedc21b6cbad9202853f2de06c3b62398620e4395a195",
+      "translation": "滚动以缩放，拖动以平移。两张图片同步移动。"
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "选择一个包含合并图像和掩膜的项目。“加载测试数据”提供了示例。测量前请检查图像通道和标签通道。"
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "选择您的 FASTQ 文件和匹配的条形码参考。“加载测试数据”提供了示例。映射前请检查列、行和引导 RNA 参考。"
+    },
+    {
+      "table": "ui",
+      "key": "Show newer releases than this build in Home's News panel",
+      "source": "Show newer releases than this build in Home's News panel",
+      "source_sha256": "42110f9ec3498b62bd3f4477d67f3c4adb06398147c6b6015748dfdf51eab127",
+      "translation": "在主页的“新闻”面板中显示比此版本更新的发布"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the enhanced image the detector reads.",
+      "source": "Showing the enhanced image the detector reads.",
+      "source_sha256": "b77925ef9eb90e2ab8c5739a09e1c9cdbd0da0516fddddd2b08fe2afe001add6",
+      "translation": "显示检测器读取的增强图像。"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the first 50 measured fields; choose a narrower source for other fields.",
+      "source": "Showing the first 50 measured fields; choose a narrower source for other fields.",
+      "source_sha256": "06bb7aaf5428f5af981a6374bbe41665de694475147594de32434c77deb84d00",
+      "translation": "显示前 50 个已测量视野；如需其他视野，请选择范围更窄的来源。"
+    },
+    {
+      "table": "ui",
+      "key": "Smooth the noise before the contrast step amplifies it. Gaussian is a blur and softens edges with the noise; Median removes speckle and keeps edges; Bilateral and Non-local means keep edges better still and are much slower. HEAVY: non-local means is minutes on a whole 2,000 px field, and seconds on a magnifier box.",
+      "source": "Smooth the noise before the contrast step amplifies it. Gaussian is a blur and softens edges with the noise; Median removes speckle and keeps edges; Bilateral and Non-local means keep edges better still and are much slower. HEAVY: non-local means is minutes on a whole 2,000 px field, and seconds on a magnifier box.",
+      "source_sha256": "6ffa933ec8b3ad14e5f1dd788b1a2955ad26446b460536bbe643cc0ca4b472f6",
+      "translation": "在对比度步骤放大噪声之前先平滑噪声。高斯是一种模糊，会连同噪声一起柔化边缘；中值去除斑点噪声并保留边缘；双边和非局部均值保留边缘的效果更好，但速度慢得多。耗时：非局部均值在整个 2,000 px 视野上需要数分钟，在放大镜框上需要数秒。"
+    },
+    {
+      "table": "ui",
+      "key": "Spin about {axis} only: a drag turns the volume about that measurement's axis and leaves it where it is on screen.",
+      "source": "Spin about {axis} only: a drag turns the volume about that measurement's axis and leaves it where it is on screen.",
+      "source_sha256": "038fc5eae4ccd903146954f46304dd7d82b50df3b495da9405ceda7c937d6829",
+      "translation": "仅绕 {axis} 旋转：拖动会使体数据绕该测量的轴旋转，并保持其在界面上的位置不变。"
+    },
+    {
+      "table": "ui",
+      "key": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
+      "translation": "已安装 Starplast {installed}。PyPI 上有 {latest} 版本可用。打开前是否通过 pip 升级？"
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "从一个图像项目开始。可在 Mask 中使用“加载测试数据”获取示例，或选择您的图像文件夹。运行前请检查通道分配。"
+    },
+    {
+      "table": "ui",
+      "key": "Stop this montage and queued selections after the current read finishes.",
+      "source": "Stop this montage and queued selections after the current read finishes.",
+      "source_sha256": "3864a8c7159432852cd9b7ceb65e734357dff8ece7c85ea8d42432691f02ed91",
+      "translation": "在当前读取完成后停止此拼图及排队中的选择。"
+    },
+    {
+      "table": "ui",
+      "key": "Subtract the slowly varying background before anything else. Rolling ball fits a surface of the radius below and takes it away, which is what flattens uneven illumination; Top-hat keeps only what is brighter than its surroundings within that radius and is much faster. Set the radius comfortably LARGER than the largest object: a radius under the object size eats the objects with the background. The background is ESTIMATED on a smaller copy, at the scale below, because a background is by definition what varies slowly across the field and so is the one thing that survives being looked at smaller.",
+      "source": "Subtract the slowly varying background before anything else. Rolling ball fits a surface of the radius below and takes it away, which is what flattens uneven illumination; Top-hat keeps only what is brighter than its surroundings within that radius and is much faster. Set the radius comfortably LARGER than the largest object: a radius under the object size eats the objects with the background. The background is ESTIMATED on a smaller copy, at the scale below, because a background is by definition what varies slowly across the field and so is the one thing that survives being looked at smaller.",
+      "source_sha256": "8072ce2dd3ccd3237578483c16315414c45a3f17b669c4a98e64b60a98ba44df",
+      "translation": "在其他所有步骤之前减去缓慢变化的背景。滚球法按下方半径拟合一个曲面并将其减去，这正是校平不均匀光照的方式；顶帽变换只保留在该半径范围内比周围更亮的部分，速度快得多。请将半径设得明显大于最大的对象：半径小于对象尺寸时，对象会连同背景一起被减掉。背景是在按下方比例缩小的副本上估计的，因为背景按定义就是在视野中缓慢变化的部分，也正是缩小后仍能保留的唯一内容。"
+    },
+    {
+      "table": "ui",
+      "key": "Suggested crops wear a ? badge. Click one or press Y to confirm it; right-click or press N to reject it; U undoes.",
+      "source": "Suggested crops wear a ? badge. Click one or press Y to confirm it; right-click or press N to reject it; U undoes.",
+      "source_sha256": "1e61ef713334fdded4798f9aa4d34f7f1474d20032903f5cbafaba2ec671aeb1",
+      "translation": "建议的裁剪图带有 ? 标记。单击或按 Y 确认；右键单击或按 N 拒绝；按 U 撤销。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field split near half and half. The level is the mean intensity, which is as crude as it sounds and is here as a baseline to judge the others against.",
+      "source": "Suits a field split near half and half. The level is the mean intensity, which is as crude as it sounds and is here as a baseline to judge the others against.",
+      "source_sha256": "b2d1e0995ca8ba85d92f66435a9c33a8584cfd864f0b7e82340b93ead604ab74",
+      "translation": "适用于前景与背景约各占一半的视野。阈值水平为平均强度，这正如听起来那样粗略，在此仅作为评判其他方法的基准。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field whose objects are a small, bright minority -- Li minimises the cross entropy between the field and its thresholded self rather than assuming two equal populations, so it holds up where Otsu drifts into the background.",
+      "source": "Suits a field whose objects are a small, bright minority -- Li minimises the cross entropy between the field and its thresholded self rather than assuming two equal populations, so it holds up where Otsu drifts into the background.",
+      "source_sha256": "65705185f14ec3ddc7bf79350d2c82ac508c78e01940f86bee1d8527bd4a3ec0",
+      "translation": "适用于对象只占少数且明亮的视野 -- Li 最小化视野与其阈值化结果之间的交叉熵，而不是假设两个群体大小相等，因此在 Otsu 偏向背景的情况下仍能保持稳定。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with ONE dominant peak and a shoulder -- mostly background with faint objects on it. The level is geometric: the point on the histogram furthest from the line between the peak and the far end.",
+      "source": "Suits a field with ONE dominant peak and a shoulder -- mostly background with faint objects on it. The level is geometric: the point on the histogram furthest from the line between the peak and the far end.",
+      "source_sha256": "d634a2894f735c83da58d62139a32736fd10ec3161cd23a41b98e6d8490f324b",
+      "translation": "适用于只有一个主峰和一个肩部的视野 -- 大部分是背景，上面有暗淡的对象。阈值水平由几何方式确定：直方图上距峰顶与远端连线最远的点。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with THREE or more populations -- background, a dim halo and bright objects -- where one level between all of them is a compromise that fits none. Set the class count and which class is the foreground.",
+      "source": "Suits a field with THREE or more populations -- background, a dim halo and bright objects -- where one level between all of them is a compromise that fits none. Set the class count and which class is the foreground.",
+      "source_sha256": "e428624a771706422ed4e9a77a8622fe1f41b390c7781ffd35bb430c52ed1d3c",
+      "translation": "适用于有三个或更多群体的视野 -- 背景、暗淡光晕和明亮对象 -- 此时在它们之间取单一阈值水平只是一种对谁都不合适的折中。请设置类别数以及哪一类为前景。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with a long bright tail and little else; Yen maximises an entropy criterion and tends to cut higher than Otsu, keeping only the confident pixels.",
+      "source": "Suits a field with a long bright tail and little else; Yen maximises an entropy criterion and tends to cut higher than Otsu, keeping only the confident pixels.",
+      "source_sha256": "9e629744cdd02b8c6fd5a1115c831d38ff52844d80b077145f112be1269f52e0",
+      "translation": "适用于有长亮尾而其他内容很少的视野；Yen 最大化熵准则，切分点往往高于 Otsu，只保留可信的像素。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with two clear populations -- objects and background, with a valley between them in the histogram. It is the right first try and the wrong one for a field that is mostly background, where Li or Triangle cut better.",
+      "source": "Suits a field with two clear populations -- objects and background, with a valley between them in the histogram. It is the right first try and the wrong one for a field that is mostly background, where Li or Triangle cut better.",
+      "source_sha256": "4e20c248b6d31a950b95231d889150ca0cca62e606e076b2339e7f6f266643bf",
+      "translation": "适用于有两个明显群体的视野 -- 对象和背景，在直方图中二者之间有谷底。它是正确的首选，但不适合大部分是背景的视野，此时 Li 或 Triangle 的切分效果更好。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits a histogram with two clear humps and a real valley between them; the level is the bottom of the valley. It refuses a histogram it cannot smooth into two humps, and says so rather than guessing.",
+      "source": "Suits a histogram with two clear humps and a real valley between them; the level is the bottom of the valley. It refuses a histogram it cannot smooth into two humps, and says so rather than guessing.",
+      "source_sha256": "19382cf0e6f5187ddabf193c65a4c9807d953c0b9c5d22ca9cc3a731b6ba30e0",
+      "translation": "适用于有两个明显峰且之间有真正谷底的直方图；阈值水平位于谷底。若直方图无法平滑成两个峰，它会拒绝处理并明确说明，而不是猜测。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits cells and nuclei of the kind Cellpose was trained on, and is the only method here that knows what an object looks like rather than only how bright it is. It is slow without a GPU.",
+      "source": "Suits cells and nuclei of the kind Cellpose was trained on, and is the only method here that knows what an object looks like rather than only how bright it is. It is slow without a GPU.",
+      "source_sha256": "475dcb06505e12d220661571d87db14a30f42f0a9be8b7bf99d3a802cf01f4eb",
+      "translation": "适用于与 Cellpose 训练数据同类的细胞和细胞核，也是这里唯一知道对象外观、而不仅是亮度的方法。没有 GPU 时速度较慢。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits much what Otsu suits and is the classic Ridler-Calvard iteration: the level settles where it is the mean of the two means either side of it. A reasonable second opinion when Otsu looks wrong.",
+      "source": "Suits much what Otsu suits and is the classic Ridler-Calvard iteration: the level settles where it is the mean of the two means either side of it. A reasonable second opinion when Otsu looks wrong.",
+      "source_sha256": "81633ad262bb73acb3f7ededfb04e04adb8d975345d976af315c6dfee8ea71d8",
+      "translation": "适用场景与 Otsu 大致相同，是经典的 Ridler-Calvard 迭代：阈值水平最终稳定在其两侧两个均值的平均值处。当 Otsu 结果看起来不对时，可作为合理的第二参考。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits small round spots and puncta and hollow rings with a dark middle.",
+      "source": "Suits small round spots and puncta and hollow rings with a dark middle.",
+      "source_sha256": "742fccad190a6cee397a5835d8f9efc1fb639b4feeab1e44b2c2a7567a9b7963",
+      "translation": "适用于小圆点、点状结构以及中间暗的空心环。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits small round spots and puncta, filaments, tubules and networks, solid blobby objects and hollow rings with a dark middle.",
+      "source": "Suits small round spots and puncta, filaments, tubules and networks, solid blobby objects and hollow rings with a dark middle.",
+      "source_sha256": "b5d419029dc7f01ff46fa49a6dfe880ea4bc211d67f6fb6bc371351196713ca9",
+      "translation": "适用于小圆点和点状结构、丝状、管状和网络结构、实心团块状对象，以及中间暗的空心环。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits touching round objects with a bright centre -- nuclei, vacuoles, colonies. Each centre becomes one object, and two that touch come apart at the ridge between them rather than at a level.",
+      "source": "Suits touching round objects with a bright centre -- nuclei, vacuoles, colonies. Each centre becomes one object, and two that touch come apart at the ridge between them rather than at a level.",
+      "source_sha256": "6cb7767f2e36ec8693dd47e9648bdf6fa804faa3402939128df101b5ead623ff",
+      "translation": "适用于中心明亮、相互接触的圆形对象 -- 细胞核、空泡、菌落。每个中心成为一个对象，相接触的两个对象在它们之间的脊线处分开，而不是在某个强度水平处分开。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E - 01(fld 9 wv DAPI - DAPI).tif. Naming: incell. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are named by filter, so their order is the order of the names.",
+      "source": "TIFF, named like E - 01(fld 9 wv DAPI - DAPI).tif. Naming: incell. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are named by filter, so their order is the order of the names.",
+      "source_sha256": "ab0a2724d1eeaffd6107da7f4b5271898c462d9f3d1d8dca5aa1aaa421e2420b",
+      "translation": "TIFF，命名类似 E - 01(fld 9 wv DAPI - DAPI).tif。命名方式：incell。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n通道按滤光片命名，因此其顺序即名称的顺序。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/Pos008_t000_z00_ch00.tif. Naming: leica_lasx_series_time. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01/Pos008_t000_z00_ch00.tif. Naming: leica_lasx_series_time. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "70d69a88eaee771ac0f5a32b9a75859af62221503511266aa1db6ac6e0b9f93f",
+      "translation": "TIFF，命名类似 E01/Pos008_t000_z00_ch00.tif。命名方式：leica_lasx_series_time。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/Series009_z00_ch00.tif. Naming: leica_lasx_series. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nA series export carries no well, so the well comes from the folder.",
+      "source": "TIFF, named like E01/Series009_z00_ch00.tif. Naming: leica_lasx_series. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nA series export carries no well, so the well comes from the folder.",
+      "source_sha256": "32195c62e87ae8f31381119ac9db2d70162f870bec75ef7173beb484fab1d7c5",
+      "translation": "TIFF，命名类似 E01/Series009_z00_ch00.tif。命名方式：leica_lasx_series。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n系列导出不含孔信息，因此孔取自文件夹。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/fov09_ch1.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nNo convention: the well is the folder and the channel is the ch token. Fields are numbered in order, because a folder layout states no field numbers to keep.",
+      "source": "TIFF, named like E01/fov09_ch1.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nNo convention: the well is the folder and the channel is the ch token. Fields are numbered in order, because a folder layout states no field numbers to keep.",
+      "source_sha256": "2cdea6ecad794dae8123ed2a117e4b510f6604a63180d75529f5fd6b5420454c",
+      "translation": "TIFF，命名类似 E01/fov09_ch1.tif。命名方式：auto。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n无命名约定：孔即文件夹，通道即 ch 标记。视野按顺序编号，因为文件夹布局中没有可保留的视野编号。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/img_channel000_position008_time000000000_z000.tif. Naming: micromanager_mda. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01/img_channel000_position008_time000000000_z000.tif. Naming: micromanager_mda. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "b807f58b7fda7430c7d6bcae3a6d5249295c423faacea75d1e2f3678743fde48",
+      "translation": "TIFF，命名类似 E01/img_channel000_position008_time000000000_z000.tif。命名方式：micromanager_mda。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/plate1_S00001_T00009_C00001.tiff. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01/plate1_S00001_T00009_C00001.tiff. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "979f39ef12f764b4797cb55965bb8a8ad891031c62fae5c4b61c6a70faca0031",
+      "translation": "TIFF，命名类似 E01/plate1_S00001_T00009_C00001.tiff。命名方式：zeiss_zen_split_tiles。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01xy09c1.tif. Naming: nikon_nis_xy. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01xy09c1.tif. Naming: nikon_nis_xy. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "2550cfe3d6abfcba07e065e850b3c19f54a5fa401f14adeb7a79a097a137ad3a",
+      "translation": "TIFF，命名类似 E01xy09c1.tif。命名方式：nikon_nis_xy。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E1_01_1_9_DAPI_001.tif. Naming: cytation. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E1_01_1_9_DAPI_001.tif. Naming: cytation. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "ff71663a41c6b388118bf3087fac4eaf9d15d343d032e9969a8a34fb89322ea4",
+      "translation": "TIFF，命名类似 E1_01_1_9_DAPI_001.tif。命名方式：cytation。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like Images/r05c01f09p01-ch1sk1fk1fl1.tiff. Naming: opera_phenix. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nHarmony writes row and column numbers, never a well name: r05c01 is E01.",
+      "source": "TIFF, named like Images/r05c01f09p01-ch1sk1fk1fl1.tiff. Naming: opera_phenix. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nHarmony writes row and column numbers, never a well name: r05c01 is E01.",
+      "source_sha256": "8c54a1e797a8378f9ee51069e2900a039401cdac500014fc9a3e73512a475ef4",
+      "translation": "TIFF，命名类似 Images/r05c01f09p01-ch1sk1fk1fl1.tiff。命名方式：opera_phenix。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\nHarmony 只写入行号和列号，从不写入孔名：r05c01 即 E01。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like TimePoint_1/plate1_E01_s9_w1<GUID>.TIF. Naming: imagexpress. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like TimePoint_1/plate1_E01_s9_w1<GUID>.TIF. Naming: imagexpress. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "cb72130b51b04d2f5ee7684150ca324911691ba65fc47eaa69eb434bbd36d930",
+      "translation": "TIFF，命名类似 TimePoint_1/plate1_E01_s9_w1<GUID>.TIF。命名方式：imagexpress。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like W0097F0009T0001Z000C1.tif. Naming: cq1. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe CQ1 writes a well INDEX over 24 columns: W0097 is E01.",
+      "source": "TIFF, named like W0097F0009T0001Z000C1.tif. Naming: cq1. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe CQ1 writes a well INDEX over 24 columns: W0097 is E01.",
+      "source_sha256": "4ab2962e3061964d89960218f2bc2ae65bb486a1b6b29752f7b5994fd381e4bf",
+      "translation": "TIFF，命名类似 W0097F0009T0001Z000C1.tif。命名方式：cq1。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\nCQ1 按 24 列写入孔的序号：W0097 即 E01。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like WellE01_ChannelDAPI_Seq0009.tif. Naming: nikon_jobs. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like WellE01_ChannelDAPI_Seq0009.tif. Naming: nikon_jobs. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "c208ac0e58cc0340a8a323bec26f529d8cff8d2382c6453acf0a483da7376b8e",
+      "translation": "TIFF，命名类似 WellE01_ChannelDAPI_Seq0009.tif。命名方式：nikon_jobs。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like data/E1--W00097--P00009--Z00000--T00000--DAPI.tif. Naming: scanr. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like data/E1--W00097--P00009--Z00000--T00000--DAPI.tif. Naming: scanr. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "442aae7f49a87703e5c2182b17c243baaa341ddd88ea8c78c448ed783e7ddd62",
+      "translation": "TIFF，命名类似 data/E1--W00097--P00009--Z00000--T00000--DAPI.tif。命名方式：scanr。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like plate1_E01_T0001F009L01A01Z01C01.tif. Naming: cellvoyager. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like plate1_E01_T0001F009L01A01Z01C01.tif. Naming: cellvoyager. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "3cb521e9f24f324fa9343c786302cb1a6b047c5605f511927afb76bb111efd02",
+      "translation": "TIFF，命名类似 plate1_E01_T0001F009L01A01Z01C01.tif。命名方式：cellvoyager。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like plate1_E01f08d0.TIF. Naming: arrayscan. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nFields and dyes count from zero: f08d0 is field 9, channel 1.",
+      "source": "TIFF, named like plate1_E01f08d0.TIF. Naming: arrayscan. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nFields and dyes count from zero: f08d0 is field 9, channel 1.",
+      "source_sha256": "b4364bc236806d4a762de70e581b5c76eced4870719998a30d78fbea2b4b3def",
+      "translation": "TIFF，命名类似 plate1_E01f08d0.TIF。命名方式：arrayscan。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n视野和染料从零开始计数：f08d0 为视野 9、通道 1。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like plate1i3t001E01f08d0.TIF. Naming: arrayscan_kinetic. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like plate1i3t001E01f08d0.TIF. Naming: arrayscan_kinetic. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "d8b3c87967831d183dc539dc53baf9ee07ad067f5266e67a4dee3e19000d0280",
+      "translation": "TIFF，命名类似 plate1i3t001E01f08d0.TIF。命名方式：arrayscan_kinetic。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like scan_R_p1_z1_0_E01f09d0.tif. Naming: evos. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like scan_R_p1_z1_0_E01f09d0.tif. Naming: evos. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "b7e895f87f1aed2954574280d0a85c17f0cbfd927be77213a8e8d4b92cf9d8b5",
+      "translation": "TIFF，命名类似 scan_R_p1_z1_0_E01f09d0.tif。命名方式：evos。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like toxo-plate1__E01__site09__DAPI.tif. Naming: custom with the pattern (?P<plateID>[^_]+)__(?P<wellID>[A-Z]\\d{2})__site(?P<fieldID>\\d+)__(?P<chanID>[A-Za-z0-9]+). Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like toxo-plate1__E01__site09__DAPI.tif. Naming: custom with the pattern (?P<plateID>[^_]+)__(?P<wellID>[A-Z]\\d{2})__site(?P<fieldID>\\d+)__(?P<chanID>[A-Za-z0-9]+). Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "fbad4a5ebe2ed30a12233c22eac36873a526516d22aa21e7e615a8f8f67ad17a",
+      "translation": "TIFF，命名类似 toxo-plate1__E01__site09__DAPI.tif。命名方式：custom，模式为 (?P<plateID>[^_]+)__(?P<wellID>[A-Z]\\d{2})__site(?P<fieldID>\\d+)__(?P<chanID>[A-Za-z0-9]+)。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。"
+    },
+    {
+      "table": "ui",
+      "key": "Template format {version} is newer than this spaCR understands (it reads up to {supported}).",
+      "source": "Template format {version} is newer than this spaCR understands (it reads up to {supported}).",
+      "source_sha256": "99593bdd296cb59743a8c08f4965b4bb8eec0850491ced26a8b16e7470daca39",
+      "translation": "模板格式 {version} 比此版本 spaCR 所能识别的更新（最多可读取 {supported}）。"
+    },
+    {
+      "table": "ui",
+      "key": "That outline encloses nothing: drag around the objects to keep.",
+      "source": "That outline encloses nothing: drag around the objects to keep.",
+      "source_sha256": "ccdff9ceb617385593286f756c3c7f40f9962819ac58bb4d67299a701a3910db",
+      "translation": "该轮廓未圈住任何内容：请拖动圈住要保留的对象。"
+    },
+    {
+      "table": "ui",
+      "key": "That template is for the {module} module.",
+      "source": "That template is for the {module} module.",
+      "source_sha256": "7799c7a402047b8a98679b068f19c85dc598038b97c61dfcb44ce788ff493ee3",
+      "translation": "该模板属于 {module} 模块。"
+    },
+    {
+      "table": "ui",
+      "key": "The Cellpose checkpoint that segments the plaques: a model zoo key, 'bundled' (the historical packaged model), or a path.",
+      "source": "The Cellpose checkpoint that segments the plaques: a model zoo key, 'bundled' (the historical packaged model), or a path.",
+      "source_sha256": "b9b81cdf61bd582e5d30a2ea62e8951398f8160ac60fdf77df78c6f1720d8bda",
+      "translation": "用于分割蚀斑的 Cellpose 检查点：模型库键、'bundled'（历史上随包提供的模型）或路径。"
+    },
+    {
+      "table": "ui",
+      "key": "The Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the Golgi exists as many copies of discrete stacks dispersed throughout the cytoplasm. The Golgi is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the plasma membrane and compartments of the endocytic pathway. The Golgi apparatus receives the entire output of de novo synthesized polypeptides from the ER, and functions to posttranslationally process and sort them within vesicles destined to their proper final destination (e.g. plasma membrane, endosomes, lysosomes).",
+      "source": "The Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the Golgi exists as many copies of discrete stacks dispersed throughout the cytoplasm. The Golgi is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the plasma membrane and compartments of the endocytic pathway. The Golgi apparatus receives the entire output of de novo synthesized polypeptides from the ER, and functions to posttranslationally process and sort them within vesicles destined to their proper final destination (e.g. plasma membrane, endosomes, lysosomes).",
+      "source_sha256": "3e662333077bbbd2edf52fa0660cc59ac2311e1c944125f7893b286eeb4f304b",
+      "translation": "高尔基体是由一系列扁平的膜囊和类似的囊泡组成的结构，这些膜通常彼此紧密贴合形成堆叠。在哺乳动物细胞中，高尔基体位于核旁，常位于中心粒周围。这些堆叠通过小管横向连接，形成核周带状结构，即 'Golgi ribbon'（高尔基带）。在植物和低等动物细胞中，高尔基体以许多分散在细胞质中的独立堆叠形式存在。高尔基体是一种极性结构：在大多数高等真核细胞中，其顺面与朝向内质网的管状网状膜网络（即顺面高尔基网络，CGN）相连，中间为盘状扁平膜囊区域，反面则与另一管状网状膜网络（即反面高尔基网络，TGN）相连，朝向质膜和内吞途径的各区室。高尔基体接收来自内质网的全部新合成多肽，并对其进行翻译后加工，将其分选到运往各自最终目的地（例如质膜、内体、溶酶体）的囊泡中。"
+    },
+    {
+      "table": "ui",
+      "key": "The apicoplast is a plastid found in some apicocomplexan parasites which is a non-photosynthetic plastid relict. Apicoplasts do not contain thylakoids; it is not yet clear if they contain internal membranes.",
+      "source": "The apicoplast is a plastid found in some apicocomplexan parasites which is a non-photosynthetic plastid relict. Apicoplasts do not contain thylakoids; it is not yet clear if they contain internal membranes.",
+      "source_sha256": "b418233635b337ed504e9b42447b7c5647ed4b971c213ff586016243216a375e",
+      "translation": "顶质体是在部分顶复门寄生虫中发现的一种质体，是非光合作用的质体残余。顶质体不含类囊体；目前尚不清楚其是否含有内膜。"
+    },
+    {
+      "table": "ui",
+      "key": "The ball's or the top-hat disk's radius, in pixels. Larger than the largest object and smaller than the scale the illumination itself varies on.",
+      "source": "The ball's or the top-hat disk's radius, in pixels. Larger than the largest object and smaller than the scale the illumination itself varies on.",
+      "source_sha256": "6caf6289c74356ef9328c18af69a39095ea9b4cc7917843380cfb4556061d3b2",
+      "translation": "滚球或顶帽圆盘的半径（像素）。应大于最大的对象，并小于光照本身变化的尺度。"
+    },
+    {
+      "table": "ui",
+      "key": "The blob response a spot has to reach to be kept. Lower it to find fainter spots and more noise. DoG reads this one too: it has no threshold of its own.",
+      "source": "The blob response a spot has to reach to be kept. Lower it to find fainter spots and more noise. DoG reads this one too: it has no threshold of its own.",
+      "source_sha256": "31e329e61a9389de306ee71b8951da61ded631d6f5ef9ae888622ef9564a886d",
+      "translation": "斑点必须达到的斑点响应值才会被保留。调低可找到更暗的斑点，但噪声也更多。DoG 也读取此值：它没有自己的阈值。"
+    },
+    {
+      "table": "ui",
+      "key": "The blur the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "source": "The blur the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "source_sha256": "5cf8548059451b1438878d1a070874cf2cd2f74f1b5b3e1238842c134ca83b52",
+      "translation": "构建蒙版所用的模糊半径（像素）：约等于要锐化的边缘尺度。"
+    },
+    {
+      "table": "ui",
+      "key": "The bud neck is a constriction between the mother and the daughter cell (bud) in an organism that reproduces by budding. This structure comprises the septin ring, an hourglass-shaped collar around the mother-bud neck, which splits into two rings flanking the division plane at cytokinesis and that acts as a diffusion barrier to maintain polarity factors in the bud and as a scaffold to recruit actomyosin contractile ring components.",
+      "source": "The bud neck is a constriction between the mother and the daughter cell (bud) in an organism that reproduces by budding. This structure comprises the septin ring, an hourglass-shaped collar around the mother-bud neck, which splits into two rings flanking the division plane at cytokinesis and that acts as a diffusion barrier to maintain polarity factors in the bud and as a scaffold to recruit actomyosin contractile ring components.",
+      "source_sha256": "a875c8381bfc9e1dbd642538eb979c5adac7a35f180a463457781764d208e279",
+      "translation": "芽颈是以出芽方式繁殖的生物中母细胞与子细胞（芽）之间的缢缩部位。该结构包括隔膜蛋白环，即环绕母细胞–芽颈部的沙漏形套环，它在胞质分裂时分裂成位于分裂面两侧的两个环，既作为扩散屏障将极性因子维持在芽中，又作为支架募集肌动球蛋白收缩环组分。"
+    },
+    {
+      "table": "ui",
+      "key": "The cell membrane is the selectively permeable membrane which separates the cytoplasm from its surroundings. Known as the cell inner membrane in prokaryotes with 2 membranes.",
+      "source": "The cell membrane is the selectively permeable membrane which separates the cytoplasm from its surroundings. Known as the cell inner membrane in prokaryotes with 2 membranes.",
+      "source_sha256": "5706adbcf52abc28d190b303ee76ba7df5ae0f5dacad437f1b08e68fc1d9c9c0",
+      "translation": "细胞膜是将细胞质与其周围环境隔开的选择性透过膜。在具有两层膜的原核生物中称为细胞内膜。"
+    },
+    {
+      "table": "ui",
+      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source_sha256": "ebb593b82afa1a40521a11f6e0d27f24059ad63ef3a0aff1c5cffefb33ed1e10",
+      "translation": "区室图将成像表型与 Starplast 中使用的亚细胞术语联系起来。ToxoDB 提供基因和基因组背景，UniProt 提供蛋白质注释。hyperLOPIT 图谱为弓形虫蛋白提供实验定位证据；此处高亮的细胞器只是这些术语的指引，而不是对所选基因的预测，也不能证明表型的成因。"
+    },
+    {
+      "table": "ui",
+      "key": "The complex and rigid layer surrounding the cell. Cell walls are found in bacteria, archaea, fungi, plants, and algae. The cell wall envelopes the inner or plasma membrane in all bacteria and is surrounded by the outer membrane in bacteria with 2 membranes (Gram-negative). Bacterial cell walls contain peptidoglycan while those of archaea are not made of peptidoglycan, but some archaea may contain pseudopeptidoglycan, which is composed of N-acetyltalosaminuronic acid, instead of N-acetyl muramic acid in peptidoglycan. The plant cell wall is made of fibrils of cellulose embedded in a matrix of several other kinds of polymers such as pectin and lignin. Algal cell walls are usually composed of cellulose, glycoproteins, sporopollenin, calcium and various polysaccharides such as manosyl, xylanes, alginic acid. Diatom cell walls (or frustules) contain silica. The cell wall plays a role in cell shape, cell stability and development, and protection against environmental dangers.",
+      "source": "The complex and rigid layer surrounding the cell. Cell walls are found in bacteria, archaea, fungi, plants, and algae. The cell wall envelopes the inner or plasma membrane in all bacteria and is surrounded by the outer membrane in bacteria with 2 membranes (Gram-negative). Bacterial cell walls contain peptidoglycan while those of archaea are not made of peptidoglycan, but some archaea may contain pseudopeptidoglycan, which is composed of N-acetyltalosaminuronic acid, instead of N-acetyl muramic acid in peptidoglycan. The plant cell wall is made of fibrils of cellulose embedded in a matrix of several other kinds of polymers such as pectin and lignin. Algal cell walls are usually composed of cellulose, glycoproteins, sporopollenin, calcium and various polysaccharides such as manosyl, xylanes, alginic acid. Diatom cell walls (or frustules) contain silica. The cell wall plays a role in cell shape, cell stability and development, and protection against environmental dangers.",
+      "source_sha256": "4bb205dcdef3f135fb3ac7d994c4c262392e07bfa09d939151db4a121784fac5",
+      "translation": "包围细胞的复杂而坚硬的层。细胞壁见于细菌、古菌、真菌、植物和藻类。在所有细菌中，细胞壁包裹着内膜或质膜，而在具有两层膜的细菌（革兰氏阴性菌）中，它被外膜包围。细菌细胞壁含有肽聚糖，而古菌的细胞壁并非由肽聚糖构成，但部分古菌可能含有假肽聚糖，其由 N-乙酰塔罗糖胺糖醛酸而非肽聚糖中的 N-乙酰胞壁酸构成。植物细胞壁由包埋在果胶和木质素等多种其他聚合物基质中的纤维素原纤维构成。藻类细胞壁通常由纤维素、糖蛋白、孢粉素、钙以及甘露糖基、木聚糖、海藻酸等多种多糖构成。硅藻的细胞壁（或硅质壳）含有二氧化硅。细胞壁在细胞形状、细胞稳定性和发育以及抵御环境危害方面发挥作用。"
+    },
+    {
+      "table": "ui",
+      "key": "The cytoskeleton is a dynamic three-dimensional filamentous structure in the cytoplasm. Its roles include maintenance of cell shape, cell movement (in eukaryotes), cytokinesis, and the organization of organelles or organelle-like structures within the cell. The cytoskeleton includes microfilaments (actin-like proteins), microtubules (tubulin-like proteins), the intermediate filaments (mostly in eukaryotes) and the MinD-ParA proteins, which appear to be unique to prokaryotes.",
+      "source": "The cytoskeleton is a dynamic three-dimensional filamentous structure in the cytoplasm. Its roles include maintenance of cell shape, cell movement (in eukaryotes), cytokinesis, and the organization of organelles or organelle-like structures within the cell. The cytoskeleton includes microfilaments (actin-like proteins), microtubules (tubulin-like proteins), the intermediate filaments (mostly in eukaryotes) and the MinD-ParA proteins, which appear to be unique to prokaryotes.",
+      "source_sha256": "8e42563cd84dd1069e27dac11d938ed339b9f9b21d4a9e931a849f5a6bc11b8b",
+      "translation": "细胞骨架是细胞质中动态的三维丝状结构。其作用包括维持细胞形状、细胞运动（真核生物中）、胞质分裂，以及组织细胞内的细胞器或类细胞器结构。细胞骨架包括微丝（肌动蛋白样蛋白）、微管（微管蛋白样蛋白）、中间丝（主要见于真核生物）以及似乎为原核生物所特有的 MinD-ParA 蛋白。"
+    },
+    {
+      "table": "ui",
+      "key": "The disk the detection is closed and opened with after it is thresholded. Raise it to smooth ragged outlines, lower it to keep fine detail. The Adaptive mode also pre-smooths with half of it; the network methods close with half of it.",
+      "source": "The disk the detection is closed and opened with after it is thresholded. Raise it to smooth ragged outlines, lower it to keep fine detail. The Adaptive mode also pre-smooths with half of it; the network methods close with half of it.",
+      "source_sha256": "f035045f389700bf0cedd087b3a97a6271bb5e0232279d8910150c3c618b10e3",
+      "translation": "阈值化后对检测结果做闭运算和开运算所用的圆盘。调高可平滑参差不齐的轮廓，调低可保留细节。自适应模式还会先用其一半进行预平滑；网络方法则用其一半做闭运算。"
+    },
+    {
+      "table": "ui",
+      "key": "The disk the opening or closing uses, in pixels. It is a length: a bridge narrower than twice this is broken, a gap narrower than twice this is filled.",
+      "source": "The disk the opening or closing uses, in pixels. It is a length: a bridge narrower than twice this is broken, a gap narrower than twice this is filled.",
+      "source_sha256": "79b2d611b1086b10bcf5bb90c6c0c9fb1909fd34a74566ba67ee09107b4e00d4",
+      "translation": "开运算或闭运算使用的圆盘半径（像素）。它是一个长度：窄于其两倍的桥接会被断开，窄于其两倍的缝隙会被填充。"
+    },
+    {
+      "table": "ui",
+      "key": "The endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic cell, especially those responsible for the production of hormones and other secretory products. The membrane is a continuation of the outer nuclear membrane, it encloses the cytosol cisternal spaces (or internal lumen), which are continuous with the nuclear periplasmic space. The ER sustains many general functions, including protein synthesis, protein modification, protein folding, insertion of membrane proteins, sequestration of calcium, production of phospholipids and steroids and transport of proteins destined for membranes and secretion.",
+      "source": "The endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic cell, especially those responsible for the production of hormones and other secretory products. The membrane is a continuation of the outer nuclear membrane, it encloses the cytosol cisternal spaces (or internal lumen), which are continuous with the nuclear periplasmic space. The ER sustains many general functions, including protein synthesis, protein modification, protein folding, insertion of membrane proteins, sequestration of calcium, production of phospholipids and steroids and transport of proteins destined for membranes and secretion.",
+      "source_sha256": "42a2a41db912172638d66a238a18c6d2765f185254cc5a19b77d600f494d8749",
+      "translation": "内质网（ER）是由膜小管、囊泡和扁平膜囊（囊状结构）构成的广泛网络，遍布整个真核细胞，在负责产生激素和其他分泌产物的细胞中尤为发达。其膜与核外膜相连续，包围着与核周隙相连续的胞质池间隙（或内腔）。内质网承担许多一般功能，包括蛋白质合成、蛋白质修饰、蛋白质折叠、膜蛋白插入、钙的储存、磷脂和类固醇的生成，以及运输以膜和分泌为目的地的蛋白质。"
+    },
+    {
+      "table": "ui",
+      "key": "The exponent the intensities are raised to on 0..1. Below 1 lifts the dim end, so faint objects rise out of the background; above 1 pushes it down and leaves only the bright ones. 1.00 is off.",
+      "source": "The exponent the intensities are raised to on 0..1. Below 1 lifts the dim end, so faint objects rise out of the background; above 1 pushes it down and leaves only the bright ones. 1.00 is off.",
+      "source_sha256": "06d31bce86f08f89ec7bcc36cfe426d217835f49cbc3758eadea3295328192a1",
+      "translation": "在 0..1 范围内对强度取幂的指数。小于 1 会提升暗端，使暗淡的对象从背景中凸显；大于 1 会压低暗端，只留下明亮的对象。1.00 表示关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "The inner membrane complex, found in apicocomplexan parasites, is composed of flattened membrane cisternae closely associated to the cell membrane. Together, the cell membrane and the IMC form a triple lipid bilayer called the pellicle (or cell wall).",
+      "source": "The inner membrane complex, found in apicocomplexan parasites, is composed of flattened membrane cisternae closely associated to the cell membrane. Together, the cell membrane and the IMC form a triple lipid bilayer called the pellicle (or cell wall).",
+      "source_sha256": "a466c2233ba23afe3d051f2f0f87a9f8aaa1547c84a4b73ff808c915ccf3fa19",
+      "translation": "内膜复合体见于顶复门寄生虫，由与细胞膜紧密相连的扁平膜囊构成。细胞膜与 IMC 共同构成一个称为表膜（或细胞壁）的三层脂双层。"
+    },
+    {
+      "table": "ui",
+      "key": "The larger of the two Gaussians, in pixels. Scales step up from the low sigma by a factor of 1.6 until this bound, so a wider gap covers more spot sizes and costs more passes.",
+      "source": "The larger of the two Gaussians, in pixels. Scales step up from the low sigma by a factor of 1.6 until this bound, so a wider gap covers more spot sizes and costs more passes.",
+      "source_sha256": "ca024dc5776911502c335841cab79f46c0c878e6f21a353812f316c517838284",
+      "translation": "两个高斯中较大的一个（像素）。尺度从低 sigma 开始按 1.6 倍逐级增大直到此上限，因此差距越大，覆盖的斑点尺寸越多，所需的计算遍数也越多。"
+    },
+    {
+      "table": "ui",
+      "key": "The largest scale searched, in pixels. Raise it to catch large puncta; the filter runs once per scale, so it costs time.",
+      "source": "The largest scale searched, in pixels. Raise it to catch large puncta; the filter runs once per scale, so it costs time.",
+      "source_sha256": "559ee91dd83a46fb4cec5c2ad07ea914bedec6fb03635423fdaf7da0464c5076",
+      "translation": "搜索的最大尺度（像素）。调高可捕获较大的点状结构；滤波器每个尺度运行一次，因此会耗费时间。"
+    },
+    {
+      "table": "ui",
+      "key": "The line weight of the boxes drawn around the wells the detector found in a figure, in image pixels. Automatic picks a width from the figure's size: 2 px, and one more for every 400 px of its longer side. The highlighted well's box is drawn twice as wide. Remembered between sessions.",
+      "source": "The line weight of the boxes drawn around the wells the detector found in a figure, in image pixels. Automatic picks a width from the figure's size: 2 px, and one more for every 400 px of its longer side. The highlighted well's box is drawn twice as wide. Remembered between sessions.",
+      "source_sha256": "b3354191473c67b31cef9bd609a55e214decc7ff1d35c0d48964c83f6a67171d",
+      "translation": "检测器在图版中找到的孔周围所画框的线宽（图像像素）。“自动”根据图版尺寸选择宽度：2 px，且较长边每 400 px 再加 1。高亮孔的框以两倍宽度绘制。会在会话之间记住。"
+    },
+    {
+      "table": "ui",
+      "key": "The line weight of the well boxes is set there too.",
+      "source": "The line weight of the well boxes is set there too.",
+      "source_sha256": "8f1859d6b6b84dd5d38cbe3f0427f14ec54959fbf684266710559806738d591f",
+      "translation": "孔框的线宽也在那里设置。"
+    },
+    {
+      "table": "ui",
+      "key": "The membrane surrounding a mitochondrion. This term is used when it is not known if the protein is found in or associated with the inner or outer mitochondrial membrane.",
+      "source": "The membrane surrounding a mitochondrion. This term is used when it is not known if the protein is found in or associated with the inner or outer mitochondrial membrane.",
+      "source_sha256": "b7f9a22f5e667431cbb71d3afa5e1c1ae1e3d1a30f5f5b1bf853bce072411d09",
+      "translation": "包围线粒体的膜。当不清楚蛋白质位于线粒体内膜还是外膜、或与之相关联时使用此术语。"
+    },
+    {
+      "table": "ui",
+      "key": "The microneme is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Micronemes are the smallest, they are involved in the early stages of invasion.",
+      "source": "The microneme is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Micronemes are the smallest, they are involved in the early stages of invasion.",
+      "source_sha256": "e1bb87c762b432b4adc084303309c0e53df97223179cb17071b6c3e68b49fb58",
+      "translation": "微线体是顶复门寄生虫的一种细胞器。顶复门寄生虫因其独特的一组形态各异的分泌细胞器（称为顶端复合体）而得名 - 微线体、棒状体和致密颗粒 - 它们的依次分泌是侵入宿主细胞所必需的。微线体是其中最小的，参与侵入的早期阶段。"
+    },
+    {
+      "table": "ui",
+      "key": "The mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, eukaryotes. Each mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. Mitochondria are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP. The size and coding capacity of the mitochondrial DNA varies considerably in different organisms, and encodes rRNAs, tRNAs and essential mitochondrial proteins.",
+      "source": "The mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, eukaryotes. Each mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. Mitochondria are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP. The size and coding capacity of the mitochondrial DNA varies considerably in different organisms, and encodes rRNAs, tRNAs and essential mitochondrial proteins.",
+      "source_sha256": "cdc568a428864e4e9bb50305e36c6d2856d01ee924c222f58ad7c77297c86172",
+      "translation": "线粒体是一种半自主、可自我复制的细胞器，存在于大多数（但并非全部）真核生物所有细胞的细胞质中。每个线粒体由双层界膜包围。内膜高度内陷，其突起称为嵴。线粒体是氧化磷酸化反应的场所，这些反应产生 ATP。线粒体 DNA 的大小和编码能力在不同生物中差异很大，它编码 rRNA、tRNA 和必需的线粒体蛋白。"
+    },
+    {
+      "table": "ui",
+      "key": "The nucleolus is a non-membrane bound nuclear compartment found in eukaryotic cells which is the site of ribosome biogenesis. The interphase nucleolus is organized around the tandemly repeated genes for preribosomal RNA (rRNA). It is composed of at least 2 sub-compartments: the dense fibrillar component (DFC, also called pars fibrosa) and the granular component (GC or pars granulosa). The DFC contains newly synthesized preribosomal RNA and a collection of proteins; the GC is made up of nearly completed preribosomal particles destined for the cytoplasm. In most metazoans, but generally not in lower eukaryotes, a third component, the fibrillar center (FC), can be seen. Plant and animal nuclei can contain more than one nucleolus.",
+      "source": "The nucleolus is a non-membrane bound nuclear compartment found in eukaryotic cells which is the site of ribosome biogenesis. The interphase nucleolus is organized around the tandemly repeated genes for preribosomal RNA (rRNA). It is composed of at least 2 sub-compartments: the dense fibrillar component (DFC, also called pars fibrosa) and the granular component (GC or pars granulosa). The DFC contains newly synthesized preribosomal RNA and a collection of proteins; the GC is made up of nearly completed preribosomal particles destined for the cytoplasm. In most metazoans, but generally not in lower eukaryotes, a third component, the fibrillar center (FC), can be seen. Plant and animal nuclei can contain more than one nucleolus.",
+      "source_sha256": "36235a9feb79a30bb944b0726cb9c082582847917a49b5c7a8e73e30a2e0ba77",
+      "translation": "核仁是真核细胞中无膜包被的核内区室，是核糖体生物发生的场所。间期核仁围绕前核糖体 RNA（rRNA）的串联重复基因组织而成。它至少由 2 个亚区室组成：致密纤维组分（DFC，也称纤维部）和颗粒组分（GC，或颗粒部）。DFC 含有新合成的前核糖体 RNA 和一组蛋白质；GC 由即将完成、将运往细胞质的前核糖体颗粒构成。在大多数后生动物中（但在低等真核生物中通常没有），还可见第三种组分，即纤维中心（FC）。植物和动物的细胞核可含有不止一个核仁。"
+    },
+    {
+      "table": "ui",
+      "key": "The nucleus is the most obvious organelle in any eukaryotic cell. It is a membrane-bound organelle surrounded by double membranes which contains most of the cell's genetic material. It communicates with the surrounding cytosol via numerous nuclear pores.",
+      "source": "The nucleus is the most obvious organelle in any eukaryotic cell. It is a membrane-bound organelle surrounded by double membranes which contains most of the cell's genetic material. It communicates with the surrounding cytosol via numerous nuclear pores.",
+      "source_sha256": "9ca1f1e5da086d63d20ae99bacb6f1a450ffe6fcdf472e855d9ab18fc89fcf8e",
+      "translation": "细胞核是任何真核细胞中最显著的细胞器。它是由双层膜包围的膜结合细胞器，含有细胞的大部分遗传物质，并通过众多核孔与周围的细胞质基质交流。"
+    },
+    {
+      "table": "ui",
+      "key": "The number the rule above reads: a fraction from 0 to 1 for the per-centre rule, an intensity for the absolute one, a percentile from 0 to 100 for the third. Not read when a threshold algorithm provides the level.",
+      "source": "The number the rule above reads: a fraction from 0 to 1 for the per-centre rule, an intensity for the absolute one, a percentile from 0 to 100 for the third. Not read when a threshold algorithm provides the level.",
+      "source_sha256": "ff9544cb849cac428396de70637ec11d859ca13dd315e9caa0078bdef2fbb5b6",
+      "translation": "上面的规则所读取的数字：按中心规则时为 0 到 1 的比例，按绝对规则时为强度，第三种规则为 0 到 100 的百分位。当由阈值算法提供水平时不读取此值。"
+    },
+    {
+      "table": "ui",
+      "key": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source_sha256": "3db2af90e552d9f1ff09084d9fcc2467ba0a8907b230de616dd7257c8a266014",
+      "translation": "计划中的“逸出”模块将关注空泡破裂和寄生虫逸出；“滑行运动”将定量胞外痕迹和运动。“缓殖子转化”将研究阶段标记和包囊壁读出，而“宿主细胞损伤”将描述单层的损失。这些是拟议的工作流程，因此其图块标记为“即将推出”。固定图像、时间序列和阶段特异性标记回答的是不同问题，应根据预期读出进行选择。"
+    },
+    {
+      "table": "ui",
+      "key": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
+      "source": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
+      "source_sha256": "6e0c370bb9d95162771a35b59788beb7866ce81eb66ce6a73d44196cc8ff72d3",
+      "translation": "预览的设置，分为两个选项卡：图版（查找蚀斑孔并读取图版）和蚀斑检测（蚀斑模型及其阈值）。"
+    },
+    {
+      "table": "ui",
+      "key": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source_sha256": "77f3167fe2cb6f5c77b1e1b654a69b6404b54a6ad078b463adfa86b873a8e483",
+      "translation": "拟议的“黏附”模块将统计与宿主细胞表面相关联的真菌细胞。“生物膜”将关注群体生长，包括覆盖面积，以及在采集含深度信息时的厚度。单个二维视野可以描述表面覆盖率，但仅凭它无法确定生物膜厚度。请根据终点选择单平面或体成像。"
+    },
+    {
+      "table": "ui",
+      "key": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source_sha256": "1ed3b2e9fa86adf509f980a162693fab21484b44ddb9780c3f59e54f573546e6",
+      "translation": "拟议的“寄生虫血症”模块将统计受感染红细胞占全部红细胞的比例。“血期分期”将区分环状体、滋养体和裂殖体，以便将阶段组成的变化与感染频率一并考察。“裂殖子侵入”将关注进入红细胞的过程。这些读出结合起来，有助于区分新感染细胞减少与已在细胞内的寄生虫发育改变。"
+    },
+    {
+      "table": "ui",
+      "key": "The rhoptry is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Rhoptries are twin, membrane-bound, pear-shaped organelles that secrete proteins through their elongated necks at the apical tip of the parasite.",
+      "source": "The rhoptry is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Rhoptries are twin, membrane-bound, pear-shaped organelles that secrete proteins through their elongated necks at the apical tip of the parasite.",
+      "source_sha256": "662de8ae1c0d39e9016f937712b1d42ca107d52cb62b62211714dd4ed94109e8",
+      "translation": "棒状体是顶复门寄生虫的一种细胞器。顶复门寄生虫因其独特的一组形态各异的分泌细胞器（称为顶端复合体）而得名 - 微线体、棒状体和致密颗粒 - 它们的依次分泌是侵入宿主细胞所必需的。棒状体是成对的、有膜包被的梨形细胞器，通过位于寄生虫顶端的细长颈部分泌蛋白质。"
+    },
+    {
+      "table": "ui",
+      "key": "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
+      "source": "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
+      "source_sha256": "31e20632fba33f8380f0e1307c255e4abb932fcffd6e417b093c9478fbf38ade",
+      "translation": "滤波器查找的尺度（像素），以逗号分隔；每个值应约为丝状结构的半宽。对于粗束可添加较大的值，同时保留较小的值用于细小管状结构。运行时间随列表增长。"
+    },
+    {
+      "table": "ui",
+      "key": "The second reading changed: press Run preview to read the figure again.",
+      "source": "The second reading changed: press Run preview to read the figure again.",
+      "source_sha256": "c17d7841420e80fccc25797c2cd9889470defa3ee50768fd34a4532194b90364",
+      "translation": "第二次读取已更改：请按“运行预览”重新读取图版。"
+    },
+    {
+      "table": "ui",
+      "key": "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
+      "source": "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
+      "source_sha256": "e06f724c273503648709fcf95234306da12f793623dd1f460cbb1ff28ba65565",
+      "translation": "单个图块的边长（像素）。应明显大于一个对象，并小于光照变化的尺度；图块只有一个对象大小时，会让对象与自身做均衡。"
+    },
+    {
+      "table": "ui",
+      "key": "The smaller of the two Gaussians, in pixels: the finest detail kept. Raise it to suppress noise.",
+      "source": "The smaller of the two Gaussians, in pixels: the finest detail kept. Raise it to suppress noise.",
+      "source_sha256": "1abe289bd9357b6a5452cd00d4a7d1e633b00c6579d6e6acb27f28a8a11d3986",
+      "translation": "两个高斯中较小的一个（像素）：保留的最细细节。调高可抑制噪声。"
+    },
+    {
+      "table": "ui",
+      "key": "The smallest scale searched, in pixels; a blob's radius is about sigma times the square root of two, so 1 finds roughly 1.4 px puncta. Raise it to ignore single-pixel noise.",
+      "source": "The smallest scale searched, in pixels; a blob's radius is about sigma times the square root of two, so 1 finds roughly 1.4 px puncta. Raise it to ignore single-pixel noise.",
+      "source_sha256": "55c667806ec54d3b62021bb4c796a28d0ebd4a988cd5604b2945e58df5571ef6",
+      "translation": "搜索的最小尺度（像素）；斑点半径约为 sigma 乘以根号二，因此 1 大约能找到 1.4 px 的点状结构。调高可忽略单像素噪声。"
+    },
+    {
+      "table": "ui",
+      "key": "The square the local threshold is measured in, centred on each pixel; the engine forces it odd. A few times the object diameter is the starting point: too small and the middle of a large object becomes its own background, too large and it is a whole-field threshold again.",
+      "source": "The square the local threshold is measured in, centred on each pixel; the engine forces it odd. A few times the object diameter is the starting point: too small and the middle of a large object becomes its own background, too large and it is a whole-field threshold again.",
+      "source_sha256": "ac09d5e48a5633b5e0b28d02385c5bfc0d607a530bf124c2d10478c93b5172d8",
+      "translation": "测量局部阈值所用的正方形，以每个像素为中心；引擎会强制其为奇数。起始值可取对象直径的几倍：太小时，大对象的中间会成为它自己的背景；太大时，又变回了整个视野的阈值。"
+    },
+    {
+      "table": "ui",
+      "key": "The table shows the first 500 vacuoles; field totals include every measured vacuole.",
+      "source": "The table shows the first 500 vacuoles; field totals include every measured vacuole.",
+      "source_sha256": "b5873115d7a0ca6c28a3fb8833fdff4da2d5a40b0a9665d54f0cb26b442f2040",
+      "translation": "表格显示前 500 个空泡；视野总计包含所有已测量的空泡。"
+    },
+    {
+      "table": "ui",
+      "key": "The update check could not finish. Opening the installed version.\n\n{error}",
+      "source": "The update check could not finish. Opening the installed version.\n\n{error}",
+      "source_sha256": "c2d7ebc0604c999957ae81912b90b3fe1359a165c44d3c4a12cf7f24d3b83e9f",
+      "translation": "更新检查未能完成。将打开已安装的版本。\n\n{error}"
+    },
+    {
+      "table": "ui",
+      "key": "The update is installed, but the current settings could not be saved for restart. Keep this window open until you have saved your work, then restart spaCR.",
+      "source": "The update is installed, but the current settings could not be saved for restart. Keep this window open until you have saved your work, then restart spaCR.",
+      "source_sha256": "ada9dc0bbf2dfcbf4ba2cbf7ba772784cf8944db1c3e065c9adc1b7149ae6ab4",
+      "translation": "更新已安装，但无法为重启保存当前设置。请保持此窗口打开，直到保存好您的工作，然后重启 spaCR。"
+    },
+    {
+      "table": "ui",
+      "key": "The update is installed. Restart was deferred while work finishes shutting down; restart spaCR after it stops.",
+      "source": "The update is installed. Restart was deferred while work finishes shutting down; restart spaCR after it stops.",
+      "source_sha256": "fcf717a4512601f0bf659c42c5ce7740d68c14bd60a55350071cf51fb15820c4",
+      "translation": "更新已安装。由于工作仍在关闭中，重启已推迟；请在其停止后重启 spaCR。"
+    },
+    {
+      "table": "ui",
+      "key": "The vacuole is a generally large fluid-filled membrane-bound compartment in the cytoplasm. The precise form and function of vacuoles may vary between phyla. Plant vacuoles are among the best characterized. They differ in terms of their lumenal contents and processing enzymes, as well as on the basis of the type of integral proteins in their membranes (tonoplast intrinsic proteins, TIPs). Examples include the lytic vacuole, the storage vacuole and the lutoid. One important function of plant vacuoles is the maintenance of hydrostatic pressure. Other eukaryotes employ vacuoles for a variety of purposes, including storage (as in the yeast lysosome/vacuole), secretion and phagocytosis. In Protozoa, contractile vacuoles can be used to discharge water from the cytoplasm to the external environment.",
+      "source": "The vacuole is a generally large fluid-filled membrane-bound compartment in the cytoplasm. The precise form and function of vacuoles may vary between phyla. Plant vacuoles are among the best characterized. They differ in terms of their lumenal contents and processing enzymes, as well as on the basis of the type of integral proteins in their membranes (tonoplast intrinsic proteins, TIPs). Examples include the lytic vacuole, the storage vacuole and the lutoid. One important function of plant vacuoles is the maintenance of hydrostatic pressure. Other eukaryotes employ vacuoles for a variety of purposes, including storage (as in the yeast lysosome/vacuole), secretion and phagocytosis. In Protozoa, contractile vacuoles can be used to discharge water from the cytoplasm to the external environment.",
+      "source_sha256": "ecd87a574eb09afc34e14e28313f0c6f2c1be77f5bf9f54577026385ddcade65",
+      "translation": "液泡是细胞质中通常较大、充满液体的膜包被区室。液泡的确切形态和功能可能因门类而异。植物液泡是研究得最透彻的液泡之一。它们在腔内容物和加工酶方面存在差异，其膜中整合蛋白的类型（液泡膜内在蛋白，TIPs）也不同。例子包括溶酶液泡、储藏液泡和乳管小体。植物液泡的一项重要功能是维持静水压。其他真核生物将液泡用于多种目的，包括储存（如酵母的溶酶体/液泡）、分泌和吞噬。在原生动物中，伸缩泡可用于将水从细胞质排出到外部环境。"
+    },
+    {
+      "table": "ui",
+      "key": "The width of each plaque outline, in image pixels. It is drawn on the image itself, so it keeps its share of the picture at any zoom and in a saved picture. Remembered between sessions.",
+      "source": "The width of each plaque outline, in image pixels. It is drawn on the image itself, so it keeps its share of the picture at any zoom and in a saved picture. Remembered between sessions.",
+      "source_sha256": "41f7c75c237b7e1a35bdfed7a60b2f686ee40f7ba91e015d87250c268c915504",
+      "translation": "每条蚀斑轮廓的宽度（图像像素）。它绘制在图像本身上，因此在任何缩放级别以及保存的图片中都保持相同比例。会在会话之间记住。"
+    },
+    {
+      "table": "ui",
+      "key": "The {names} masks need fresh QC; their old cards are excluded from current findings.",
+      "source": "The {names} masks need fresh QC; their old cards are excluded from current findings.",
+      "source_sha256": "11c42569516b2290df4ac27d21b5f992e5017033c30772d0c237a41d3e10495e",
+      "translation": "{names} 掩膜需要重新进行 QC；其旧卡片已从当前结果中排除。"
+    },
+    {
+      "table": "ui",
+      "key": "This crop is not a suggestion; a number key labels it.",
+      "source": "This crop is not a suggestion; a number key labels it.",
+      "source_sha256": "6a0f535c6a191552c2807236c031912fc8e3fb8543f2eb34e1db2f8d8405edb8",
+      "translation": "此裁剪图不是建议项；按数字键为其添加标签。"
+    },
+    {
+      "table": "ui",
+      "key": "This field: {hosts} hosts, {infected} infected, {vacuoles} vacuoles, {orphans} orphan parasites. The host denominator includes measured uninfected cells; this is not a whole-plate rate.",
+      "source": "This field: {hosts} hosts, {infected} infected, {vacuoles} vacuoles, {orphans} orphan parasites. The host denominator includes measured uninfected cells; this is not a whole-plate rate.",
+      "source_sha256": "cc2937246b306243642d5a6dd28e43ad1e8822395dbcc65284f5929b07bd1fde",
+      "translation": "此视野：{hosts} 个宿主、{infected} 个已感染、{vacuoles} 个空泡、{orphans} 个孤立寄生虫。宿主分母包括已测量的未感染细胞；这不是整块孔板的比率。"
+    },
+    {
+      "table": "ui",
+      "key": "This page: {suggested} suggested · {confirmed} confirmed · {rejected} rejected · {left} left. Whole column: {tleft} left to judge · {tconfirmed} confirmed · {trejected} rejected.",
+      "source": "This page: {suggested} suggested · {confirmed} confirmed · {rejected} rejected · {left} left. Whole column: {tleft} left to judge · {tconfirmed} confirmed · {trejected} rejected.",
+      "source_sha256": "a9ea00a33e3af334faad692063d0225ea1ecfcc85c5225c4aef63eeac63fc867",
+      "translation": "本页：{suggested} 个建议 · {confirmed} 个已确认 · {rejected} 个已拒绝 · {left} 个剩余。整列：{tleft} 个待判定 · {tconfirmed} 个已确认 · {trejected} 个已拒绝。"
+    },
+    {
+      "table": "ui",
+      "key": "This spaCR runs from the source checkout at {path}. Update that checkout with git pull to receive source changes. No package upgrade was performed.",
+      "source": "This spaCR runs from the source checkout at {path}. Update that checkout with git pull to receive source changes. No package upgrade was performed.",
+      "source_sha256": "6d28131b180f1280c0264901ef525a4a49e388053792395f2a34219ea7d758fb",
+      "translation": "此 spaCR 从位于 {path} 的源代码检出运行。请用 git pull 更新该检出以获取源代码更改。未执行任何包升级。"
+    },
+    {
+      "table": "ui",
+      "key": "This template is for the {source} module, not {target}.",
+      "source": "This template is for the {source} module, not {target}.",
+      "source_sha256": "78861e57609ff9dd2a26eaea6368e5d3cf50a30a8910a7c2f03d7ea2845a2f1c",
+      "translation": "此模板属于 {source} 模块，而不是 {target}。"
+    },
+    {
+      "table": "ui",
+      "key": "This template was saved with spaCR {made}; you are running {now}. Settings that changed meaning or name in between are applied as written.",
+      "source": "This template was saved with spaCR {made}; you are running {now}. Settings that changed meaning or name in between are applied as written.",
+      "source_sha256": "4e662dd8dd35be3ab960cc7e118deceff082810fc157d3c6a2594a53c0933eb2",
+      "translation": "此模板由 spaCR {made} 保存；您正在运行 {now}。两者之间含义或名称发生变化的设置将按原样应用。"
+    },
+    {
+      "table": "ui",
+      "key": "Through the view — an outline drawn on the 3D view at any angle, extended straight through the volume",
+      "source": "Through the view — an outline drawn on the 3D view at any angle, extended straight through the volume",
+      "source_sha256": "b6c4206698f63f90c0769b5d4aabca4af422b53113b50f2d82144f9690fffb5b",
+      "translation": "穿过视图 — 在任意角度的三维视图上绘制轮廓，并沿视线方向贯穿整个体数据"
+    },
+    {
+      "table": "ui",
+      "key": "Tick the masks and images to lay over one another. The top row is drawn on top; the arrows move a row up or down the stack.",
+      "source": "Tick the masks and images to lay over one another. The top row is drawn on top; the arrows move a row up or down the stack.",
+      "source_sha256": "e173285b6cdee643da4d8ba163c28914aae32dbd43fb89d06014ec2c7cd56aeb",
+      "translation": "勾选要相互叠加的掩膜和图像。最上面的行绘制在最上层；箭头可在堆叠中上移或下移一行。"
+    },
+    {
+      "table": "ui",
+      "key": "Toxoplasma gondii is an intracellular protozoan parasite that causes toxoplasmosis in humans and other warm-blooded animals. Its rapidly growing tachyzoites and persistent tissue cysts represent different stages of infection. Imaging can follow entry into host cells, replication within vacuoles, and damage to a cell monolayer.",
+      "source": "Toxoplasma gondii is an intracellular protozoan parasite that causes toxoplasmosis in humans and other warm-blooded animals. Its rapidly growing tachyzoites and persistent tissue cysts represent different stages of infection. Imaging can follow entry into host cells, replication within vacuoles, and damage to a cell monolayer.",
+      "source_sha256": "9e77a47c2a0f2418d8480640f12fb3e406527c0dfccf9cacefebea0fa29d8b6c",
+      "translation": "刚地弓形虫（Toxoplasma gondii）是一种细胞内原生动物寄生虫，可在人类和其他温血动物中引起弓形虫病。其快速增殖的速殖子和持续存在的组织包囊代表感染的不同阶段。成像可以追踪其进入宿主细胞、在空泡内复制以及对细胞单层的破坏。"
+    },
+    {
+      "table": "ui",
+      "key": "Turn the volume freely: drag sideways and up and down at once, and it stays wherever you let go.",
+      "source": "Turn the volume freely: drag sideways and up and down at once, and it stays wherever you let go.",
+      "source_sha256": "8ac3074fdd099c8971f32e8aad94363672db27186e887bf2d5060968d8cde80c",
+      "translation": "自由旋转体数据：同时横向和上下拖动，松开后它就停在该位置。"
+    },
+    {
+      "table": "ui",
+      "key": "Unknown measurements are not negative calls.",
+      "source": "Unknown measurements are not negative calls.",
+      "source_sha256": "f6dd316006dfd74afd91171432d774184627f8d1d4ed43ff8625696f5f802b4a",
+      "translation": "未知测量值不是阴性判定。"
+    },
+    {
+      "table": "ui",
+      "key": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source_sha256": "e457bc3cf0b529f5fc157c1fadd1fa1a6e14824255bbd1aad7ab0fd2fb6b4473",
+      "translation": "在位于 {path} 的独立环境中通过 pip 从 PyPI 升级 Starplast。升级前请关闭所有正在运行的 Starplast 窗口。Starplast 处于 alpha 阶段；下载量和磁盘占用取决于具体版本。spaCR 的包不会被更改。"
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "在模块中使用“加载测试数据”加载其示例项目。主页的流程导览说明了从何处开始，以及各模块之间如何传递数据。"
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "使用 Measure 导出对象裁剪图。选择包含合并图像和掩膜的项目，然后启用裁剪图保存并选择对象类型。"
+    },
+    {
+      "table": "ui",
+      "key": "Vacuole {vacuole}; host {host}; parasites {count}.",
+      "source": "Vacuole {vacuole}; host {host}; parasites {count}.",
+      "source_sha256": "4d27a759351e8f38dff7c281aaf80d12e182c8a5a9e4ff4e1d5d1b935a5f1f37",
+      "translation": "空泡 {vacuole}；宿主 {host}；寄生虫 {count}。"
+    },
+    {
+      "table": "ui",
+      "key": "What fraction of full size the background is measured at. The surface is then scaled back up and subtracted from the full-size image, so only the ESTIMATE is smaller. On one 1,994 px field a rolling ball at radius 50 takes 14.5 s at 1.00 and about 1 s at 0.50. 1.00 is scikit-image's own answer exactly, for when you want it and will wait; lower it further on a very large field, and raise it if the surface is missing illumination that changes over a short distance.",
+      "source": "What fraction of full size the background is measured at. The surface is then scaled back up and subtracted from the full-size image, so only the ESTIMATE is smaller. On one 1,994 px field a rolling ball at radius 50 takes 14.5 s at 1.00 and about 1 s at 0.50. 1.00 is scikit-image's own answer exactly, for when you want it and will wait; lower it further on a very large field, and raise it if the surface is missing illumination that changes over a short distance.",
+      "source_sha256": "be2ff2263247ec9473244e140893b58a165469d123a890e76c1ff0dc86b7907b",
+      "translation": "在全尺寸的多大比例下测量背景。随后将背景曲面放大回原尺寸，并从全尺寸图像中减去，因此只有“估计”是在较小尺寸上进行的。在一个 1,994 px 的视野上，半径为 50 的滚球法在 1.00 时需要 14.5 s，在 0.50 时约需 1 s。1.00 与 scikit-image 自身的结果完全一致，适合您需要该结果并愿意等待的情况；对于非常大的视野可进一步调低，若曲面遗漏了在短距离内变化的光照，则调高。"
+    },
+    {
+      "table": "ui",
+      "key": "When on, the run measures only the images ticked OK and saved here.",
+      "source": "When on, the run measures only the images ticked OK and saved here.",
+      "source_sha256": "dc732981bcf105141b1988c8ba432928470c4869207a218b341fb16f90eba45c",
+      "translation": "开启后，运行只测量在此处勾选为 OK 并已保存的图像。"
+    },
+    {
+      "table": "ui",
+      "key": "Where the network's output is cut. Lower it to recover faint branches along with false positives; raise it to keep only confident pixels, which tends to break weak connections.",
+      "source": "Where the network's output is cut. Lower it to recover faint branches along with false positives; raise it to keep only confident pixels, which tends to break weak connections.",
+      "source_sha256": "fb085af6ec751dccfa540ab4ca098b46357de61ed667f170157b4c8a90f9593d",
+      "translation": "网络输出的截断位置。调低可找回较暗的分支，但会带来假阳性；调高则只保留可信的像素，这往往会断开较弱的连接。"
+    },
+    {
+      "table": "ui",
+      "key": "Which global threshold provides the floor, when the rule above is a threshold algorithm's level. The same algorithms the Method box offers on their own.",
+      "source": "Which global threshold provides the floor, when the rule above is a threshold algorithm's level. The same algorithms the Method box offers on their own.",
+      "source_sha256": "d15089516a16771ab05c9a70486354cc6b17d5dd59d2d553df2ff3cde34b8a0f",
+      "translation": "当上面的规则为阈值算法给出的水平时，由哪个全局阈值提供下限。与“方法”框单独提供的算法相同。"
+    },
+    {
+      "table": "ui",
+      "key": "Which vesselness filter measures how tube-like each pixel's neighbourhood is. Frangi is the usual choice; Sato responds more to bright tubes, Meijering to thin neurite-like ones.",
+      "source": "Which vesselness filter measures how tube-like each pixel's neighbourhood is. Frangi is the usual choice; Sato responds more to bright tubes, Meijering to thin neurite-like ones.",
+      "source_sha256": "878fa3debab7d72047fb840b80db07cf5baa7e44565d954d5440d8047e25464e",
+      "translation": "用哪种血管性滤波器衡量每个像素邻域的管状程度。Frangi 是常用选择；Sato 对亮管状结构响应更强，Meijering 对细的神经突样结构响应更强。"
+    },
+    {
+      "table": "ui",
+      "key": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
+      "source": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
+      "source_sha256": "d8229a4be8729ffabea08e0fcef6064cffc85a7787d02f745473556d886e6738",
+      "translation": "将条件和 OK 勾选写入来源文件夹中的 figure_annotations.csv。图版模式的运行会读取该文件。"
+    },
+    {
+      "table": "ui",
+      "key": "Write the values tuned here into the settings the run reads.",
+      "source": "Write the values tuned here into the settings the run reads.",
+      "source_sha256": "60dcec1d9ed96dec5eded21f0d0fa694f5b248762915868a6695ff690d4d4c81",
+      "translation": "将此处调整的值写入运行时读取的设置。"
+    },
+    {
+      "table": "ui",
+      "key": "Zeiss CZI, one plane per file, named like E01/plate1_S00001_T00009_C00001.czi. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nWritten with pylibCZIrw, each file carrying its channel name in the CZI metadata. The scene index is not a well name, so the well comes from the folder.",
+      "source": "Zeiss CZI, one plane per file, named like E01/plate1_S00001_T00009_C00001.czi. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nWritten with pylibCZIrw, each file carrying its channel name in the CZI metadata. The scene index is not a well name, so the well comes from the folder.",
+      "source_sha256": "4e4db4f46e7b4882f42afa2303fef3f430e2dce3f04180c0c17eace2491ae377",
+      "translation": "Zeiss CZI，每个文件一个平面，命名类似 E01/plate1_S00001_T00009_C00001.czi。命名方式：zeiss_zen_split_tiles。填充“导入”界面：图像、细胞/细胞核/病原体掩膜和测量表，然后进行预览。\n\n使用 pylibCZIrw 写入，每个文件在 CZI 元数据中带有其通道名。场景索引不是孔名，因此孔取自文件夹。"
+    },
+    {
+      "table": "ui",
+      "key": "comma-separated regular expressions, e.g. ^\\d+$, μm",
+      "source": "comma-separated regular expressions, e.g. ^\\d+$, μm",
+      "source_sha256": "52f6e89ffff3a5d4bfc05adb6e160d729964f22141e7a80f7b60c0d32abacc9e",
+      "translation": "逗号分隔的正则表达式，例如 ^\\d+$, μm"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR settings template (*.json);;All files (*)",
+      "source": "spaCR settings template (*.json);;All files (*)",
+      "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
+      "translation": "spaCR 设置模板 (*.json);;所有文件 (*)"
+    },
+    {
+      "table": "ui",
+      "key": "{count} setting(s) in this template are not in this module any more and will be ignored: {shown}{more}.",
+      "source": "{count} setting(s) in this template are not in this module any more and will be ignored: {shown}{more}.",
+      "source_sha256": "402e38ac9f3dee45163550d8e1b2479d5970fc04cf520599bdd79fb13004eaaf",
+      "translation": "此模板中有 {count} 项设置已不在此模块中，将被忽略：{shown}{more}。"
+    },
+    {
+      "table": "ui",
+      "key": "{done} Every suggestion on this page is judged; Enter loads the next page.",
+      "source": "{done} Every suggestion on this page is judged; Enter loads the next page.",
+      "source_sha256": "569fc0133b3dbc13db66ef4215fc30b8c81dbfaa40025fe2da48082a7fa64406",
+      "translation": "{done} 本页所有建议均已判定；按 Enter 加载下一页。"
+    },
+    {
+      "table": "ui",
+      "key": "{method} ({how}){inverted}{centres} found {n} object(s) — {combine}d into the mask",
+      "source": "{method} ({how}){inverted}{centres} found {n} object(s) — {combine}d into the mask",
+      "source_sha256": "6e783e9dbdb6ce5b8a7ddd499be86f2cac69598fab952b7263e1368600192596",
+      "translation": "{method}（{how}）{inverted}{centres} 找到 {n} 个对象 — 已{combine}到掩膜中"
+    },
+    {
+      "table": "ui",
+      "key": "{method}{centres} found no objects — the mask is unchanged. Lower the minimum area, or try the other side.",
+      "source": "{method}{centres} found no objects — the mask is unchanged. Lower the minimum area, or try the other side.",
+      "source_sha256": "39ca382368fab2a84a8c766b04a7bb0b8c6c9952e91a6b53f578dc207f44f79a",
+      "translation": "{method}{centres} 未找到对象 — 掩膜保持不变。请降低最小面积，或尝试另一侧。"
+    },
+    {
+      "table": "ui",
+      "key": "{module} needs the Python package {package}, which is not installed here.",
+      "source": "{module} needs the Python package {package}, which is not installed here.",
+      "source_sha256": "8999b6e232faac97d0c1fcba95e2cabdbb81deb06eb1e40b741461784d0a640a",
+      "translation": "{module} 需要 Python 包 {package}，但此处未安装。"
+    },
+    {
+      "table": "ui",
+      "key": "{n} rejected suggestions were handed to this round's fit: a rejection is an example of the other class.",
+      "source": "{n} rejected suggestions were handed to this round's fit: a rejection is an example of the other class.",
+      "source_sha256": "ef4d4bf1ff8d454c6b31ff1f643c6083993b403085e624ed6da84ffe17776018",
+      "translation": "{n} 条被拒绝的建议已交给本轮拟合：一次拒绝就是另一类别的一个样本。"
+    }
+  ]
+}

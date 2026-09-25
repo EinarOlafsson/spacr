@@ -1,19 +1,35 @@
 {
-  "lesson": "76_ops", "language": "is", "english_sha256": "4b52abe939abc1c32a7649c513ce93adb3d4eeabeb9e9bf32e6e65a2a869c385",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "OPS: núverandi viðmót og samstilling fjögurra myndflísa",
-  "description": "Finndu OPS undir Mask og skoðaðu sannreynt dæmi um samstillingu og samsetningu fjögurra raunverulegra myndflísa. Þetta er ekki full vinnsla á plötu, frumuskipting eða afkóðun.",
-  "objectives": ["Finna innfelldu OPS-síðuna og skilja takmarkanir dæmisins.", "Samstilla fjórar samliggjandi myndflísar án þess að breyta upprunalegum hnitum.", "Skoða skörun, þekju og vistaðar upplýsingar um uppruna."],
-  "prerequisite": "Upptakan notar Python-skilin ops_layout, ops_stitch og ops_compose úr spaCR 1.5.0.7 nightly á örgjörva. Run í viðmótinu notar aðra eldri vinnsluvél sem er ekki keyrð hér. Einkagögn á NAS: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, staðir 0, 1, 10 og 11. Heimilaðan aðgang þarf; þetta er ekki opinbert prófunarniðurhal og veitir ekki endurdreifingarleyfi. Hver uint16-TIFF skrá hefur fimm plön með 1480 × 1480 mynddílum; DAPI er á plani núll. Upprunalegu skipulagi 333 staða er haldið. Ekki yfirfæra skipulag, skörun eða viðmið á aðra myndatöku án mælinga. Veldu nýja úttaksmöppu utan frumgagnanna. Heill brunnur, frumuskipting, samstilling milli lota, afkóðun og líffræðileg greining eru ekki sýnd.",
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "OPS: frá raðgreiningarmyndum til strikamerkja frumna",
+  "description": "Hlaðu inn prófunargögnum OPS, veldu mynd- og afkóðunarstillingar, keyrðu greininguna og finndu úthlutun strikamerkja í úttaksgagnagrunninum.",
+  "objectives": [
+    "Opna OPS innan Mask og hlaða inn dæmamyndum þess og strikamerkjasafni.",
+    "Velja inntaks- og úttaksmöppur og skilja helstu stillingar fyrir hliðrun og afkóðun.",
+    "Keyra OPS og skoða úthlutun strikamerkja til kjarna í úttaksgagnagrunninum."
+  ],
+  "prerequisite": "Opnaðu spaCR. Notaðu Load test data innan OPS fyrir dæmamyndir af raðgreiningu og safn leiðsagnar-RNA. Fyrir eigin tilraun útbýrðu TIFF-skrár raðgreiningarlotna með skráarheitum myndatökunnar og samsvarandi CSV-skrá með strikamerkjasafninu.",
   "scenes": [
-    "Ljósmyndamiðuð hópskimun byrjar á myndum af aðliggjandi sjónsviðum úr endurteknum myndatökulotum. Opnaðu Mask í spaCR til að finna innfelldu OPS-síðuna. Þessi kennslustund sýnir staðsetningu hennar og lítið, sannreynt dæmi um samstillingu mynda.",
-    "Notaðu OPS-rofann í aðgerðalínu Mask. Hann opnar sérstaka síðu innan aðaleiningarinnar. OPS er ekki annar hnappur á Home og ekki Map Barcodes-vinnuferlið fyrir skrár með raðgreiningarlestrum.",
-    "Núverandi OPS-síða hefur stillingar fyrir inntak, samsetningu mynda, myndmósaík, samstillingu og gæðaeftirlit. Run-hnappurinn notar aðra eldri vinnsluvél. Við ræsum hana ekki og fullyrðum ekki að allt skimunarferlið hafi verið sannreynt. Næstu skref nota rúmfræðiskilin beint.",
-    "Þetta örgjörvadæmi samstillir og sameinar fjórar raunverulegar myndflísar úr fyrirliggjandi myndatöku. Það afmarkar ekki frumur, afkóðar ekki strikamerki og vinnur ekki heila plötu. Frumgögnin fylgja ekki sem prófunarniðurhal; nákvæm endurtekning krefst heimilaðs aðgangs að skránum.",
-    "Veldu staði núll, einn, tíu og ellefu úr fyrstu myndatökulotunni. Hver frumskrá hefur fimm plön; plan núll inniheldur kjarnalitun. Haltu upprunalegu skipulagi þrjú hundruð þrjátíu og þriggja staða og númerum þeirra. Fjórar valdar flísar skilgreina ekki nýjan brunn með aðeins fjórum flísum.",
-    "Hjálparforritið kallar á stitch_well, athugar allar fjórar skaranir milli nágranna og kallar síðan á compose_window. Allar fjórar flísarnar eru staðsettar. Samsetti hlutinn er tvö þúsund sjö hundruð fimmtíu og sex mynddílar á kant. Í þessari myndatöku lokast rúmfræðilykkjan með skekkju innan fjórðungs mynddíls; það er ekki almenn nákvæmnisábyrgð.",
-    "Ekki treysta aðeins á staðsetningu. Berðu saman raunverulega skarandi mynddíla óháð samstillingareinkunninni. Hér er fylgnin eftir samstillingu mun sterkari en þegar öðrum hvorum ásnum er vísvitandi hliðrað um sautján mynddíla. Slík röng hliðrun sem viðmið hjálpar að finna trúverðuga en ranga staðsetningu.",
-    "Skoðaðu myndina og þekjukortið sem voru raunverulega vistuð. Vinstri ramminn sýnir samsettu kjarnamyndina; sá hægri telur flísarnar sem leggja til gögn. Núll þekja merkir að mynddíla vantar úr upptökunni, ekki líffræðilegan bakgrunn. Hér eru sameinaðir rúmfræðilegir nágrannar á einu plani, aldrei ólíkar raðgreiningarlotur.",
-    "Geymdu fylkið, þekjuna, staðsetningar, gátsummur frumskráa og keyrsluskýrsluna saman. Forritið opnar niðurstöður aftur og staðfestir að allar fjórar frumskrárnar séu óbreyttar. Þetta er endurtakanlegt rúmfræðilegt athugunarskref. Full kennsla í ljósmyndamiðaðri skimun krefst enn sérstakrar sannprófunar á síðari stigum."
+    "Frá Home opnarðu Mask og kveikir svo á OPS. Þessi síða tekur við myndum úr raðgreiningarlotum og úthlutar afkóðuðum strikamerkjum til kjarna.",
+    "Smelltu á Load test data. Dæmið inniheldur tvær myndstöður yfir ellefu raðgreiningarlotur og samsvarandi strikamerkjasafn. Þegar innhleðslu lýkur fyllir spaCR út reitina fyrir inntak, safn, plötu og úttak.",
+    "Í OPS input athugarðu möppuna með raðgreiningarmyndunum og CSV-skrá strikamerkjasafnsins. Veldu áfangastað fyrir niðurstöðurnar. Dæmið skrifar í möppuna ops_output inni í niðurhalaða verkefninu.",
+    "Hafðu möppuna fyrir svipgerðarmyndir tóma í þessu dæmi. Þegar þú ert með samsvarandi svipgerðarmyndatöku velurðu möppu hennar hér til að skrá hvernig sjónsvið hennar falla að raðgreiningarmyndunum.",
+    "Undir OPS alignment velurðu líkan fyrir aðgreiningu kjarna. Diameter setur væntanlega stærð kjarna í dílum. Raster overlap lýsir skörun milli aðliggjandi myndreita; notaðu gildið úr þinni myndatöku. Haltu stillingum dæmisins í þessari fyrstu keyrslu.",
+    "Window overlap ræður því hversu mikið aðliggjandi aðgreiningargluggar deila. Það ætti að vera stærra en stærsti kjarninn svo hlutir við gluggajaðra geti verið teknir með heilir. Hærra gildi lengir vinnslutímann.",
+    "Undir OPS decoding stillirðu basarásirnar fjórar í röðinni G, T, A, C. Dæmið notar CY3, A594, CY5 og CY7. Fyrir eigin myndir lætur þú þessi heiti passa við rásaheitin í TIFF-skráarheitunum.",
+    "Read threshold ræður því hversu bjartur blettur þarf að vera til að teljast lestur. Hærra gildi velur sterkari bletti; lægra gildi tekur með daufari bletti og meiri bakgrunn. Footprint ræður því hve langt utan kjarna lestur má liggja og samt leggja til strikamerkis hans.",
+    "Kveiktu á Store reads ef þú vilt skoða einstaka lestra síðar. Þá er vistuð aukatafla og meira diskpláss notað. Hafðu slökkt á því fyrir netta fyrstu keyrslu.",
+    "Athugaðu OPS performance og ýttu svo á Run. GPU virkjar hröðun þar sem hún er í boði. Workers ræður hve mörg sjónsvið eru afkóðuð í einu; lækkaðu það ef minni er takmarkað. Fylgstu með framvindu í Console.",
+    "Þegar Console sýnir Finished opnarðu Help, síðan Database Browser, og velur measurements.db í valinni úttaksmöppu. Við hliðina hefur hver brunnur möppu, hér A1, með OPS-skýrslu hans ásamt samantekt afkóðunar og viðvörunum ef einhverjar eru.",
+    "Taflan ops_barcodes gefur hverjum kjarna strikamerki hans, stuðning lestra og samsvarandi leiðsagnar-RNA; ops_objects geymir sömu kjarnaauðkenni ásamt hnitum þeirra í myndinni. Þessi auðkenni eru brúin yfir í restina af skimuninni: tengdu strikamerkin við svipgerðarmælingarnar í gegnum þau og safnaðu svo saman fyrir Regression. Geymdu gagnagrunninn, skýrslurnar og stillingarnar saman."
   ]
 }

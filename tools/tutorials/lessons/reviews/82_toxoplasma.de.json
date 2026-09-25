@@ -1,0 +1,30 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Toxoplasma: die Seite erkunden und einen Assay wählen",
+  "description": "Öffnen Sie die Organismusseite, erkunden Sie das Zelldiagramm und wählen Sie einen verfügbaren Assay.",
+  "objectives": [
+    "Die Seite über Home öffnen und ihre wichtigsten Bedienelemente finden.",
+    "Die verfügbaren Eingaben, Aktionen und Ausgaben erkennen.",
+    "Die nächste verfügbare Analyse oder Referenz wählen."
+  ],
+  "prerequisite": "Öffnen Sie Home in spaCR. Der Organismusleitfaden braucht keine Eingabedateien. Jeder Assay hat eigene Eingaben und eine verlinkte Anleitung.",
+  "scenes": [
+    "Jedes Toxoplasma-Experiment kann auf einer einzigen Seite beginnen. Wählen Sie auf Home Toxoplasma: Organismusleitfaden, Zelldiagramm und verfügbare Assays stehen nebeneinander und lassen sich erkunden, bevor Sie Bilder laden.",
+    "Beginnen Sie mit der Einführung im Informationsbereich. Jeder Bereich scrollt für sich, und durch Ziehen des Trenners geben Sie dem Leitfaden oder den Assay-Kacheln mehr Platz.",
+    "Das Diagramm ist zum Erkunden da. Fahren Sie mit der Maus über einen Zellbestandteil, und seine Beschreibung erscheint. Wählen Sie mehrere aus, damit sie hervorgehoben bleiben; Clear components setzt das Bild zurück.",
+    "Wählen Sie die Kachel, die zu Ihrer Frage passt. Plaque Assay zählt Plaques und misst ihre Flächen; Invasion Assay fragt, wie viele Parasiten eingedrungen sind. Recruitment misst, wie viel Marker sich an der Vakuole sammelt, Replication Assay, wie viele Parasiten jede Vakuole enthält, und Host–Pathogen verknüpft Vakuolen mit ihren Wirtszellen. Jeder hat seine eigene Lektion.",
+    "Folgen wir einem davon. Klicken Sie auf Host–Pathogen, und sein Analysebildschirm öffnet sich. Load test data lädt das mitgelieferte Mikroskopiebeispiel, und von dort führt Sie das Host–Pathogen-Tutorial durch Einstellungen, Vorschau und Run.",
+    "Zurück auf der Toxoplasma-Seite öffnet Starplast eine Wissenskarte in einer eigenen Anwendung; beim ersten Mal bietet es Installationsschritte an. Die Referenzlinks öffnen dagegen Ressourcen zum Organismus in Ihrem Browser.",
+    "Der Leitfaden schreibt keine Analysedateien; die eigentliche Arbeit findet also anderswo statt. Wenn Ihre Bilder noch segmentiert oder gemessen werden müssen, kehren Sie zuerst zu Home zurück; sobald Bilder oder Tabellen bereit sind, übernehmen die Assay-Seiten."
+  ]
+}
