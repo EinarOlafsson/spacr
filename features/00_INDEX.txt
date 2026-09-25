@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-488 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
+489 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -601,3 +601,4 @@ NEW FEATURES
   516  MEASURED DIAMETERS COME OUT IN THE WRONG ORDER: CELL 7.2, NUCLEUS 91.3, PATHOGEN 10.9
   517  DROP FILES AS WELL AS FOLDERS IN MAKE MASKS AND PLAQUE ASSAY
   518  PLAQUE ASSAY: THE FIGURE READER REINSTALLS IN PLACE, AND THE MODE FOLLOWS WHAT WAS DROPPED
+  519  THE PLAQUE SIZE SLIDER HANDLE IS A CIRCLE

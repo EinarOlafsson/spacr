@@ -137,7 +137,10 @@ def to_rgb8(image) -> Optional[np.ndarray]:
 
 
 def to_qpixmap(rgb) -> QPixmap:
-    """A ``QPixmap`` of ``rgb``; a null one when there is nothing to draw."""
+    """A ``QPixmap`` of ``rgb``; a null one when there is nothing to draw.
+
+    :param rgb: anything :func:`to_rgb8` accepts.
+    """
     picture = to_rgb8(rgb)
     if picture is None:
         return QPixmap()
@@ -148,7 +151,11 @@ def to_qpixmap(rgb) -> QPixmap:
 
 
 def boundary_of(labels: np.ndarray) -> np.ndarray:
-    """The 4-connected boundary of a label image, as a bool array."""
+    """The 4-connected boundary of a label image, as a bool array.
+
+    :param labels: ``H x W`` label image; a pixel is on the boundary when a
+        4-neighbour has a different label.
+    """
     edge = np.zeros(labels.shape, dtype=bool)
     edge[1:, :] |= labels[1:, :] != labels[:-1, :]
     edge[:-1, :] |= labels[:-1, :] != labels[1:, :]
@@ -176,6 +183,8 @@ def label_palette(count: int, seed: int = 0) -> np.ndarray:
     Deterministic for a given ``seed``, so the same object keeps its colour
     from one redraw to the next.
 
+    :param count: how many colours; zero or less gives none.
+    :param seed: shifts the start of the sequence.
     :returns: ``count x 3`` ``uint8``.
     """
     out = np.zeros((max(0, int(count)), 3), dtype=np.uint8)
@@ -308,7 +317,11 @@ def render_cellprob(cellprob) -> Optional[np.ndarray]:
 
 
 def picture_name_of(view: str) -> str:
-    """The file name a saved picture of ``view`` is offered under."""
+    """The file name a saved picture of ``view`` is offered under.
+
+    :param view: one of :data:`VIEWS`; lower-cased with spaces as
+        underscores, and ``picture`` when empty.
+    """
     return str(view or "picture").lower().replace(" ", "_")
 
 
@@ -341,7 +354,10 @@ class PictureCanvas(ZoomableImageView):
         return self._picture_name
 
     def set_picture_name(self, name: str) -> None:
-        """Name what the canvas shows, for the save dialog."""
+        """Name what the canvas shows, for the save dialog.
+
+        :param name: the suggested file name; empty means ``picture``.
+        """
         self._picture_name = str(name or "picture")
 
 

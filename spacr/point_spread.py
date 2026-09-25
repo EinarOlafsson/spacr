@@ -387,7 +387,14 @@ def apply_psf(image, kernel, *, operation, image_sampling_um,
 
 
 class Objective(NamedTuple):
-    """One microscope objective: nominal magnification, numerical aperture and immersion."""
+    """One microscope objective: nominal magnification, numerical aperture and immersion.
+
+    :param name: the row's label, e.g. ``'40x/1.30 oil'``.
+    :param magnification: nominal magnification.
+    :param numerical_aperture: the objective's NA.
+    :param immersion: ``air``, ``water`` or ``oil`` (a key of
+        :data:`IMMERSION_INDEX`).
+    """
 
     name: str
     magnification: float
@@ -403,6 +410,10 @@ class OpticalValue(NamedTuple):
     ``file_name``, ``image`` (the file's own dimensions), ``chosen`` (supplied
     by the caller), ``objective`` (the objective table), ``default`` or
     ``calculated``. ``detail`` names the file, table row or formula.
+
+    :param value: the quantity itself.
+    :param source: where it came from, one of the words above.
+    :param detail: the file, table row or formula; empty when there is none.
     """
 
     value: object

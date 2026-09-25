@@ -20,13 +20,13 @@
   "scenes": [
     {
       "visual": "02_timelapse_fold",
-      "narration": "From Home, open Mask and turn on Time. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+      "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
       "hold_after": 0.7,
       "focus": [
-        3535,
-        1905,
-        280,
-        85
+        3708,
+        33,
+        126,
+        116
       ],
       "related_lessons": [
         "07_mask",
@@ -38,10 +38,10 @@
       "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
       "hold_after": 0.7,
       "focus": [
-        1440,
-        755,
-        2370,
-        1150
+        360,
+        230,
+        3460,
+        1760
       ]
     },
     {
@@ -59,10 +59,10 @@
       "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
       "hold_after": 0.7,
       "focus": [
-        1440,
-        755,
-        2370,
-        800
+        379,
+        307,
+        3432,
+        958
       ]
     },
     {
@@ -70,10 +70,10 @@
       "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
       "hold_after": 0.7,
       "focus": [
-        1440,
-        755,
-        2370,
-        1150
+        379,
+        307,
+        3432,
+        958
       ]
     },
     {
@@ -81,10 +81,10 @@
       "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
       "hold_after": 0.7,
       "focus": [
-        1440,
-        1250,
-        2370,
-        320
+        379,
+        860,
+        3432,
+        1100
       ],
       "related_lessons": [
         "08_measure",
@@ -94,13 +94,13 @@
     },
     {
       "visual": "05_setting_timelapse_frame_limits",
-      "narration": "For a full run on your own images, set Source and the intensity channels in Mask. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+      "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
       "hold_after": 0.7,
       "focus": [
-        235,
-        1225,
-        1185,
-        300
+        340,
+        230,
+        1160,
+        1900
       ]
     },
     {
@@ -108,10 +108,10 @@
       "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
       "hold_after": 0.7,
       "focus": [
-        235,
-        1500,
-        1185,
-        490
+        340,
+        1480,
+        1160,
+        640
       ]
     },
     {
@@ -119,10 +119,10 @@
       "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
       "hold_after": 0.7,
       "focus": [
-        235,
-        1140,
-        1185,
-        300
+        340,
+        1260,
+        1160,
+        160
       ]
     },
     {
@@ -130,10 +130,10 @@
       "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
       "hold_after": 0.7,
       "focus": [
-        235,
-        1070,
-        1185,
-        230
+        340,
+        1100,
+        1160,
+        140
       ]
     },
     {
@@ -141,10 +141,10 @@
       "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
       "hold_after": 0.7,
       "focus": [
-        1440,
-        140,
-        2370,
-        355
+        366,
+        171,
+        3458,
+        1797
       ]
     }
   ]

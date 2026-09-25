@@ -45,7 +45,7 @@ For each requested object channel, on each sampled field:
    that are absurd (equivalent diameter below ``min_object_diameter``, or area
    above ``max_object_fraction`` of the field). Sizes are equivalent
    diameters, ``2 * sqrt(area / pi)``.
-3b. **Drop specks, then take the median.** A textured or punctate stain
+4. **Drop specks, then take the median.** A textured or punctate stain
    (a mitochondrial cell stain, a parasite marker) thresholds into a few
    whole objects plus hundreds of 4-10 px specks, and a plain median counts
    every speck as an object: on spaCR's own test plate that put the cell at
@@ -57,7 +57,7 @@ For each requested object channel, on each sampled field:
    is dropped, and the characteristic size is the median of what remains.
    Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the
    stained area or more are a second population, not specks, and stay.
-4. **Cross-check by distance transform.** Step 3 has one dominant failure
+5. **Cross-check by distance transform.** Step 3 has one dominant failure
    mode: a confluent monolayer fuses into a single component, that component
    touches the border and is dropped, and the estimate is then computed from
    whatever debris survived — biased **low**, and silently. So the Euclidean

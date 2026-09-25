@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_method": "Numeric re-measurement only: the checkout size and its date change; wording is the reviewed 2026-09-24 translation. Native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source_sha256": "532d05298d46b2636fd88859d93b603d52329b70dddcce2957eb3aa0189c58f2",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1934 MB checkout (measured 2026-09-25), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "En la medición del 2026-09-15, el clon completo descargó 5,8 GB. Añadir ``--filter=blob:none`` al clon superficial no redujo su descarga medida. Los archivos versionados de nightly ocupan 1934 MB en la copia de trabajo (medidos el 2026-09-25), sin el historial de Git. El tamaño y el tiempo de descarga varían según la rama."
+    }
+  ]
+}

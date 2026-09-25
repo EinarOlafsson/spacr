@@ -189,7 +189,7 @@ class TestEveryModuleThatHasThem:
             f"{app_key} has a console with no fold; two panels that fold and "
             f"one that does not is worse than none folding")
         _click(screen._console_header)
-        assert screen._console.isHidden()
+        assert not screen._console.isVisibleTo(screen)
         # AND THE AI BOX WITH IT. The maintainer asked for "the colapsing of
         # the console and AI box ... by clicking on the Console text" -- one
         # name, both boxes, because the chat row is the console panel's own
@@ -201,7 +201,7 @@ class TestEveryModuleThatHasThem:
         assert screen._console.isAncestorOf(screen._console._chat_row)
         assert not screen._console._chat_row.isVisibleTo(screen)
         _click(screen._console_header)
-        assert not screen._console.isHidden()
+        assert screen._console.isVisibleTo(screen)
 
     @pytest.mark.parametrize("app_key", ["mask", "regression"])
     def test_the_system_card_folds_on_each(self, app, app_key):

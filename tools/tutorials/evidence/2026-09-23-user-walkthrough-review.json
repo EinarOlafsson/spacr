@@ -231,7 +231,7 @@
     },
     {
       "lesson": "04_platform_installers",
-      "english_sha256": "822df4ec164b2722f1fd63969ca0b5e97ae4daee1982587c0aae88bf548af8ef",
+      "english_sha256": "147f79a79b8516b8e5be04425967630fc128c880a595362640e07088e537ca0d",
       "scene_count": 10,
       "source_revised": true,
       "newly_authored": false,
@@ -278,7 +278,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -557,7 +557,7 @@
     },
     {
       "lesson": "17_timelapse",
-      "english_sha256": "7dfcbd1b67b1763a639b950eb034224b23d4a57d8e94683aed87313d350b264c",
+      "english_sha256": "a0f1cb83e9d50282cf63fbccfa9af8c250b876621bae84f1b7482b0d5e6146af",
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
@@ -2142,7 +2142,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2203,7 +2203,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2252,7 +2252,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2291,7 +2291,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {

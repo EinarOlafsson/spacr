@@ -142,6 +142,11 @@ class _TooltipFilter(QObject):
 
     def __init__(self, show_delay_ms: int = SHOW_DELAY_MS,
                  linger_ms: int = LINGER_MS) -> None:
+        """Set the two timings; the filter is idle until installed.
+
+        :param show_delay_ms: how long the pointer rests before the tip shows.
+        :param linger_ms: how long a shown tip stays after the pointer leaves.
+        """
         super().__init__()
         self.show_delay_ms = int(show_delay_ms)
         self.linger_ms = int(linger_ms)
@@ -158,6 +163,12 @@ class _TooltipFilter(QObject):
         self._hide_timer.timeout.connect(self._hide_if_the_pointer_left)
 
     def eventFilter(self, obj, event) -> bool:               # noqa: N802
+        """Take over tooltip events; leaving, clicks and keys hide the tip.
+
+        :param obj: the object the event was sent to.
+        :param event: the event; only ``ToolTip`` is ever consumed.
+        :returns: ``True`` when the event was handled here.
+        """
         try:
             kind = event.type()
         except Exception:                                    # noqa: BLE001
@@ -175,6 +186,12 @@ class _TooltipFilter(QObject):
         return False
 
     def _on_tooltip(self, obj, event) -> bool:
+        """Start (or keep) the show timer for the hovered widget's tip.
+
+        :param obj: the object the ``ToolTip`` event was sent to.
+        :param event: the ``ToolTip`` event; its global position is kept.
+        :returns: ``True`` when the event is consumed.
+        """
         if self._replaying:
             return False
         if not tooltips_enabled():
@@ -324,6 +341,7 @@ class _TooltipFilter(QObject):
         return kind == Qt.WindowType.ToolTip
 
     def _hide_text(self) -> None:
+        """Hide the tip on screen, if any, and note that none is showing."""
         try:
             QToolTip.hideText()
         except Exception:                                    # noqa: BLE001

@@ -4802,35 +4802,58 @@ QLabel#HintBar {{
 QSlider {{
     background: transparent;
 }}
+/* ONE SIZE FOR THE HANDLE, SO IT STAYS A CIRCLE. Reported as "the size
+   slider in the plaque modual has a square on the slider, this should be a
+   circle". The handle's length was its own width (16px) and its thickness
+   was the groove's 4px plus two -6px margins, three numbers the GUI scale
+   rounds one by one: at 75 % that is 12 by 3 + 4 + 4 = 11, and Qt drops
+   every corner of a box whose radii (6 + 6) add up to more than its side,
+   so the circle became a square on every slider. The groove is now as
+   tall as the handle, the track a 4px band painted across its middle, the
+   handle has no margin, and the slider is at least that tall; length and
+   thickness are then the same rounded 16px at any scale, and radii round
+   down (gui_scale._scaled_px) so 8px never outgrows half of it. */
+QSlider:horizontal {{
+    min-height: 16px;
+}}
+QSlider:vertical {{
+    min-width: 16px;
+}}
 QSlider::groove:horizontal {{
-    height: 4px;
-    background: {P["border"]};
-    border-radius: 2px;
+    height: 16px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 transparent, stop:0.37 transparent,
+        stop:0.38 {P["border"]}, stop:0.62 {P["border"]},
+        stop:0.63 transparent, stop:1 transparent);
 }}
 QSlider::sub-page:horizontal {{
-    background: {P["accent_lo"]};
-    border-radius: 2px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 transparent, stop:0.37 transparent,
+        stop:0.38 {P["accent_lo"]}, stop:0.62 {P["accent_lo"]},
+        stop:0.63 transparent, stop:1 transparent);
 }}
 QSlider::handle:horizontal {{
     background: {P["accent"]};
     width: 16px;
     height: 16px;
-    margin: -6px 0;
+    margin: 0;
     border-radius: 8px;
 }}
 QSlider::handle:horizontal:hover {{
     background: {P["accent_hi"]};
 }}
 QSlider::groove:vertical {{
-    width: 4px;
-    background: {P["border"]};
-    border-radius: 2px;
+    width: 16px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 transparent, stop:0.37 transparent,
+        stop:0.38 {P["border"]}, stop:0.62 {P["border"]},
+        stop:0.63 transparent, stop:1 transparent);
 }}
 QSlider::handle:vertical {{
     background: {P["accent"]};
     width: 16px;
     height: 16px;
-    margin: 0 -6px;
+    margin: 0;
     border-radius: 8px;
 }}
 QSlider::handle:vertical:hover {{
