@@ -504,6 +504,14 @@ class _StdoutBlock(QPlainTextEdit):
     ``QPlainTextEdit`` gives us selectable plain text while also exposing
     ``QTextBlockFormat``—the reliable Qt API for real line spacing.  QSS
     does not implement CSS ``line-height`` for a ``QLabel``.
+
+    The viewport never fills its own background (item 515). A scroll area's
+    viewport fills with ``QPalette.Base`` by default and only the stylesheet
+    turns that off; a polish nested in another stylesheet style's call lets
+    the unpolish through (item 408), the fill comes back in the window
+    colour, and the console text sat on black until the module was left and
+    reopened. Switched off before any sheet sees it, there is nothing for an
+    unpolish to restore.
     """
 
     LINE_HEIGHT_PERCENT = 145
@@ -527,6 +535,7 @@ class _StdoutBlock(QPlainTextEdit):
         text from the HEAD so a long run cannot grow without bound.
         """
         super().__init__(parent)
+        self.viewport().setAutoFillBackground(False)
         self.setObjectName("ConsoleStdoutBlockError"
                             if error else "ConsoleStdoutBlock")
         self.setReadOnly(True)
@@ -1081,6 +1090,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._scroll.setObjectName("ConsoleScroll")
         self._scroll.setWidgetResizable(True)
         self._scroll.setFrameShape(QScrollArea.NoFrame)
+        self._scroll.viewport().setAutoFillBackground(False)
         self._scroll.viewport().setStyleSheet("background: transparent;")
         self._scroll.setStyleSheet("background: transparent;")
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)

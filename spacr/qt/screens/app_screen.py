@@ -6694,21 +6694,23 @@ class AppScreen(QWidget):
         self._console_wrap = console_wrap
         console_col = QVBoxLayout(console_wrap)
         console_col.setContentsMargins(0, 0, 0, 0)
-        console_col.setSpacing(4)
-        console_header = QLabel("Console")
-        console_header.setObjectName("CardTitle")
-        console_col.addWidget(console_header)
+        console_col.setSpacing(0)
+        console_card = Card(title="Console")
+        self._console_card = console_card
+        console_col.addWidget(console_card)
+        console_header = console_card.title_label
         self._console_header = console_header
         self._console = ConsolePanel(active_app_label=app_title,
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
-        console_col.addWidget(self._console, 1)
+        console_card.body_layout.addWidget(self._console, 1)
         from ..widgets.foldable import make_foldable
 
         self._console_folder = make_foldable(
-            console_header, self._console, name="Console",
+            console_header, console_card.body, name="Console",
             on_change=self._console_folded,
             persist_key=f"{self.app_key}/Console")
+        console_card.follow_fold(self._console_folder)
 
         self._live_preview = self._live_preview_card = None
         self._measure_preview = self._measure_preview_card = None
@@ -6887,6 +6889,8 @@ class AppScreen(QWidget):
         actions_heading.setObjectName("CardTitle")
         self._actions_heading = actions_heading
         self._actions_heading_row = QHBoxLayout()
+        self._actions_heading_row.setContentsMargins(
+            SPACING["md"] + 1, 0, 0, 0)
         self._actions_heading_row.addWidget(actions_heading)
         self._actions_heading_row.addStretch(1)
         section_col.addLayout(self._actions_heading_row)
