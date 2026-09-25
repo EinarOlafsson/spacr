@@ -55,13 +55,22 @@ def _s() -> QSettings:
 
 
 def get_last_source(app_key: str) -> str:
-    """Return the last folder used for a given app, or '' if unknown."""
+    """Return the last folder used for a given app, or '' if unknown.
+
+    :param app_key: the app key; the value is stored under
+        ``recent/<app_key>/`` in the Qt settings.
+    """
     v = _s().value(f"recent/{app_key}/last")
     return str(v) if v else ""
 
 
 def set_last_source(app_key: str, path: str) -> None:
-    """Remember ``path`` as the most-recent source folder for ``app_key``."""
+    """Remember ``path`` as the most-recent source folder for ``app_key``.
+
+    :param app_key: the app key; the value is stored under
+        ``recent/<app_key>/`` in the Qt settings.
+    :param path: the folder to remember; an empty path is ignored.
+    """
     if not path:
         return
     settings = _s()
@@ -69,7 +78,11 @@ def set_last_source(app_key: str, path: str) -> None:
 
 
 def get_recent_sources(app_key: str, limit: int = 8) -> List[str]:
-    """Return the recent-source list (most-recent first)."""
+    """Return the recent-source list (most-recent first).
+
+    :param app_key: the app key; the value is stored under
+        ``recent/<app_key>/`` in the Qt settings.
+    """
     v = _s().value(f"recent/{app_key}/list")
     if isinstance(v, str):
         items = [p for p in v.split("\n") if p]
@@ -81,7 +94,13 @@ def get_recent_sources(app_key: str, limit: int = 8) -> List[str]:
 
 
 def push_recent_source(app_key: str, path: str, limit: int = 8) -> None:
-    """Insert `path` at the head of the recent list and de-duplicate."""
+    """Insert `path` at the head of the recent list and de-duplicate.
+
+    :param app_key: the app key; the value is stored under
+        ``recent/<app_key>/`` in the Qt settings.
+    :param path: the folder to put first; an empty path is ignored. It also
+        becomes the last source.
+    """
     if not path:
         return
     items = [p for p in get_recent_sources(app_key, limit=limit + 1) if p != path]

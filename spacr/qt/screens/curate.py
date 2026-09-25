@@ -168,7 +168,11 @@ class CurateScreen(QWidget):
         return panel
 
     def attach_brush(self, layer, *, artifact: str = "") -> BrushPanel:
-        """Put a brush panel over ``layer``. The seam a test goes through."""
+        """Put a brush panel over ``layer``. The seam a test goes through.
+
+        :param layer: the labels layer the new :class:`BrushPanel` edits; any
+            previous brush panel is stopped and removed first.
+        """
         if self.brush is not None:
             self.brush.stop_painting()
             self.brush.setParent(None)
