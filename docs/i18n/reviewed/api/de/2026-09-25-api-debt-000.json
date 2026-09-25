@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decision 2026-09-25: API documentation debt written and technically reviewed by AI against the English docstring block and its model context. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#0",
+      "source": "Install the application-wide tooltip filter. Idempotent.",
+      "source_sha256": "37cd103a757b68df3b8333cfd8dba473ebcf712efda96513fa9e95a2dcc6a108",
+      "context": "Install the application-wide tooltip filter. Idempotent.",
+      "translation": "Installiert den anwendungsweiten Tooltip-Filter. Idempotent."
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#1",
+      "source": "the QApplication; defaults to the running instance.",
+      "source_sha256": "a3393d9d64731c60abd540ae37ad9cecf0930943d98a5c68ccabafb24faa2027",
+      "context": "the QApplication; defaults to the running instance.",
+      "translation": "die QApplication; standardmäßig die laufende Instanz."
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#2",
+      "source": "``True`` if a filter was installed by this call.",
+      "source_sha256": "8c27290a2cb17c912a3ebf2f0a3d8bd8e10292555be5fc0a4d1545affd5291cc",
+      "context": "``True`` if a filter was installed by this call.",
+      "translation": "``True``, wenn dieser Aufruf einen Filter installiert hat."
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.uninstall_tooltip_policy#0",
+      "source": "Remove the filter. ``True`` if there was one.",
+      "source_sha256": "82a9b1d95e8e3853a196ee5dec5508deaa42169b20b0c060c4690d9c52272fe4",
+      "context": "Remove the filter. ``True`` if there was one.",
+      "translation": "Entfernt den Filter. ``True``, wenn einer vorhanden war."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.mask#1",
+      "source": "the measurements to test; it must carry every column the chain reads.",
+      "source_sha256": "51da20405f06620d1b72995fb1a5d3fd60706169373507bbcacf3d10feb56b1f",
+      "context": "the measurements to test; it must carry every column the chain reads.",
+      "translation": "die zu prüfenden Messwerte; sie müssen jede Spalte enthalten, die die Kette liest."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.mask#2",
+      "source": "the gate whose chain is applied.",
+      "source_sha256": "39865ad7143ceeff37c78617d57ff0ebc34eb3acd2d4d7a7ee7164933a309e8f",
+      "context": "the data-selection boundary whose chain is applied.",
+      "translation": "das Gate, dessen Kette angewendet wird."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#0",
+      "source": "Open (or raise) the overlay settings, applied live.",
+      "source_sha256": "6d5851b55bbd0a0bb31519586be76a4945120b6d0d46739a8b9dc7d30f39a953",
+      "context": "Open (or raise) the overlay settings, applied live.",
+      "translation": "Öffnet die Overlay-Einstellungen oder holt sie in den Vordergrund; Änderungen wirken sofort."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#1",
+      "source": "Non-modal, because what it answers is how the picture beside it looks.",
+      "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
+      "context": "Non-modal, because what it answers is how the picture beside it looks.",
+      "translation": "Nicht modal, denn der Dialog beantwortet die Frage, wie das Bild daneben aussieht."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.scale_qss#0",
+      "source": "Scale the pixel sizes in a style sheet by ``factor``.",
+      "source_sha256": "3650a28b1ea4685d4ec0a2b5fcdd580784f991c0d632c181f0c0f2b3746753c5",
+      "context": "Scale the pixel sizes in a style sheet by ``factor``.",
+      "translation": "Skaliert die Pixelgrößen in einem Stylesheet um ``factor``."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.scale_qss#2",
+      "source": "the scale; 1.0 returns ``text`` unchanged (unless ``sizes_only``).",
+      "source_sha256": "68e5a4c7f5df6ff31e30e79c62dcda1fb74b712e4ff7ac5e5b2772985d60fca2",
+      "context": "the scale; 1.0 returns ``text`` unchanged (unless ``sizes_only``).",
+      "translation": "der Skalierungsfaktor; bei 1.0 wird ``text`` unverändert zurückgegeben (außer mit ``sizes_only``)."
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.SortableTableItem.setData#2",
+      "source": "the Qt item data role; only ``DisplayRole`` and ``EditRole`` refresh the sort key, which then comes from :data:`SORT_KEY_ROLE` when set and from the text otherwise.",
+      "source_sha256": "5fb3fe140184f7bb85761e2f4406c47a9cb44169a40c0cc0d60eec479d6c128f",
+      "context": "the Qt item data role; only ``DisplayRole`` and ``EditRole`` refresh the sort key, which then comes from :data:`SORT_KEY_ROLE` when set and from the text otherwise.",
+      "translation": "die Datenrolle des Qt-Elements; nur ``DisplayRole`` und ``EditRole`` aktualisieren den Sortierschlüssel, der dann aus :data:`SORT_KEY_ROLE` stammt, sofern gesetzt, und andernfalls aus dem Text."
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.SortableTableItem.setData#3",
+      "source": "the data stored for ``role``.",
+      "source_sha256": "f4742e6c85fa0688c178769b9fe92e05292893e7e893a7178bac0991a0b14f5d",
+      "context": "the data stored for ``role``.",
+      "translation": "die für ``role`` gespeicherten Daten."
+    }
+  ]
+}
