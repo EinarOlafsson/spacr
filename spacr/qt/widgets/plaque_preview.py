@@ -1300,9 +1300,12 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
     :param image: the figure, ``H x W x 3``.
     :param region: the well's box.
     :param settings: the module's settings.
-    :param segment: ``fn(crop) -> labels``; the plaque model when None.
-    :returns: ``{'labels', 'rows', 'count', 'mean_area', 'note'}``, or
-        ``{'error', 'entry'}``.
+    :param segment: ``fn(crop) -> labels`` or ``fn(crop) -> (labels,
+        flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs`
+        gives it; the plaque model, with its flows, when None.
+    :returns: ``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count',
+        'mean_area', 'note'}``, or ``{'error', 'entry'}``. ``flow_rgb`` and
+        ``cellprob`` are None when the segmenter gave no flows.
     """
     crop = np.ascontiguousarray(image[region.y0:region.y1,
                                       region.x0:region.x1])
@@ -1316,14 +1319,21 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
         except Exception as exc:
             return {"error": _explain_model_failure(model_path, exc)}
 
-        def segment(c: np.ndarray) -> np.ndarray:
-            """The plaque label mask of one well crop."""
-            return segment_plaque_image(model, c, settings)
+        def segment(c: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
+            """The plaque label mask of one well crop, with its flows."""
+            return segment_plaque_image(model, c, settings, return_flows=True)
 
-    labels = _match_shape(segment(crop), crop.shape[:2])
+    segmented = segment(crop)
+    flows: Dict[str, Any] = {}
+    if isinstance(segmented, tuple):
+        segmented, flows = segmented[0], dict(segmented[1] or {})
+    labels = _match_shape(segmented, crop.shape[:2])
     rows = plaque_rows(labels)
     areas = [row["area_px"] for row in rows]
-    return {"labels": labels, "rows": rows, "count": len(rows),
+    return {"labels": labels,
+            "flow_rgb": _match_image(flows.get("flow_rgb"), crop.shape[:2]),
+            "cellprob": _match_image(flows.get("cellprob"), crop.shape[:2]),
+            "rows": rows, "count": len(rows),
             "mean_area": float(np.mean(areas)) if areas else 0.0,
             "note": note}
 
@@ -2860,9 +2870,6 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if dialog is not None:
             dialog.show_mode(mode)
         self._tabs.setVisible(figure)
-        self._view_selector.setVisible(not figure)
-        if figure:
-            self._views.set_view(OVERLAY)
         self._plaque_result = None
         self._well_side.setVisible(figure)
         self._well_btn.setVisible(figure)
@@ -3723,6 +3730,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if "overlay" not in result:
             result["overlay"] = np.array(result["image"], copy=True)
         self._figure = result
+        self._show_figure_views()
         self._caption = result["review_caption"]
         self._annotations = result["annotations"]
         self._automatic_scales = result["automatic_scales"]
@@ -4185,6 +4193,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._model_note.setText(result["note"])
         self._wells[index] = result
         self._repaint_overlay()
+        self._show_figure_views()
         self._fill_table()
         self._fill_plaque_table()
         if self._selected is None or self._selected == index:
@@ -4193,6 +4202,40 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._redraw_boxes()
         self.preview_ready.emit({"well": index, **result})
         self._next_well(token)
+
+    def _show_figure_views(self) -> None:
+        """Hand the segmented wells to the masks, flows and cell probability
+        views, each well at its place on the figure.
+
+        A well not segmented yet stays black on masks and flows and at the
+        bottom of the probability scale. Before any well is segmented, and
+        for a view the segmenter gave nothing for, the views say so.
+        """
+        result = self._figure
+        if result is None or not self._wells:
+            self._views.set_arrays(
+                image=None if result is None else result["image"])
+            return
+        shape = result["image"].shape[:2]
+        labels = np.zeros(shape, dtype=np.int32)
+        flows: Optional[np.ndarray] = None
+        cellprob: Optional[np.ndarray] = None
+        for index, well in sorted(self._wells.items()):
+            region = result["regions"][index]
+            window = (slice(region.y0, region.y1), slice(region.x0, region.x1))
+            mask = np.asarray(well["labels"])
+            found = mask > 0
+            labels[window][found] = mask[found] + labels.max()
+            if well.get("flow_rgb") is not None:
+                if flows is None:
+                    flows = np.zeros(shape + (3,), dtype=np.uint8)
+                flows[window] = well["flow_rgb"]
+            if well.get("cellprob") is not None:
+                if cellprob is None:
+                    cellprob = np.full(shape, -30.0, dtype=np.float32)
+                cellprob[window] = well["cellprob"]
+        self._views.set_arrays(image=result["image"], labels=labels,
+                               flows=flows, cellprob=cellprob)
 
     def _repaint_overlay(self) -> None:
         """The figure with the outlines of every segmented well."""
