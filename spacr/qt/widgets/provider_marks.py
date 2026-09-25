@@ -58,6 +58,9 @@ def claude_path(box: QRectF) -> QPainterPath:
     makes it carry. Drawn as tapered points -- narrow at the tip, all the
     area at the centre -- it measured a third of the ink of the knot beside
     it, and the lightest of three logos in a row reads as the disabled one.
+
+    :param box: the rectangle to draw in; the mark is centred in it and sized
+        to its shorter side.
     """
     path = QPainterPath()
     centre = box.center()
@@ -81,7 +84,11 @@ def claude_path(box: QRectF) -> QPainterPath:
 
 
 def gpt_path(box: QRectF) -> QPainterPath:
-    """A six-fold knot: six lobes on a common ring, drawn as one outline."""
+    """A six-fold knot: six lobes on a common ring, drawn as one outline.
+
+    :param box: the rectangle to draw in; the mark is centred in it and sized
+        to its shorter side.
+    """
     path = QPainterPath()
     centre = box.center()
     radius = min(box.width(), box.height()) / 2.0
@@ -96,7 +103,11 @@ def gpt_path(box: QRectF) -> QPainterPath:
 
 
 def gemini_path(box: QRectF) -> QPainterPath:
-    """A four-pointed spark: a diamond with concave sides."""
+    """A four-pointed spark: a diamond with concave sides.
+
+    :param box: the rectangle to draw in; the mark is centred in it and sized
+        to its shorter side.
+    """
     path = QPainterPath()
     centre = box.center()
     reach = min(box.width(), box.height()) / 2.0
@@ -272,6 +283,9 @@ def github_path(box: QRectF) -> QPainterPath:
 
     Uniform scale on the larger of the two ratios and centred, so the cat
     keeps its proportions in a box of any shape.
+
+    :param box: the rectangle to fit the mark into; an empty box returns the
+        mark unscaled.
     """
     global _GITHUB_PATH
     if _GITHUB_PATH is None:
@@ -298,7 +312,12 @@ MARKS = {
 
 
 def mark_for(code: str, box: QRectF) -> Optional[QPainterPath]:
-    """The path for ``code`` inside ``box``, or None for an unknown one."""
+    """The path for ``code`` inside ``box``, or None for an unknown one.
+
+    :param code: provider code: ``"claude"``, ``"gpt"``, ``"gemini"`` or
+        ``"github"``.
+    :param box: the rectangle the mark is drawn in.
+    """
     draw = MARKS.get(str(code or ""))
     return draw(box) if draw is not None else None
 
@@ -381,7 +400,11 @@ class ProviderMark(QWidget):
         return self._chosen
 
     def set_chosen(self, chosen: bool) -> None:
-        """Select or deselect, and repaint."""
+        """Select or deselect, and repaint.
+
+        :param chosen: truthy to select; the widget repaints only when the
+            state changes.
+        """
         chosen = bool(chosen)
         if chosen != self._chosen:
             self._chosen = chosen

@@ -300,7 +300,12 @@ class FlatSpinBox(_FlatStyleMixin, QSpinBox):
 
 
 def channel_labels(n_channels: int, include_all: bool = True) -> List[str]:
-    """Return the entries a channel dropdown shows for ``n_channels``."""
+    """Return the entries a channel dropdown shows for ``n_channels``.
+
+    :param n_channels: number of channels; ``Ch 0`` up to ``Ch n-1`` are
+        listed (a negative count lists none).
+    :param include_all: put :data:`ALL_CHANNELS` first.
+    """
     labels = [ALL_CHANNELS] if include_all else []
     labels += [f"Ch {i}" for i in range(max(0, int(n_channels)))]
     return labels
@@ -333,6 +338,9 @@ def selected_channel(combo: QComboBox) -> Optional[int]:
 
     ``None`` means :data:`ALL_CHANNELS` (or an empty dropdown) — show the
     source exactly as it is stored.
+
+    :param combo: a channel dropdown filled from :func:`channel_labels`; a
+        ``Ch <n>`` entry gives ``n``, anything else ``None``.
     """
     text = combo.currentText().strip()
     if not text or text == ALL_CHANNELS:
@@ -349,6 +357,10 @@ def channel_view(image, channel: Optional[int]):
 
     Out-of-range indices and 2-D images fall through untouched — a stale
     selection must never raise while the user is loading a new field.
+
+    :param image: an array of shape (H, W, C), or anything else (returned
+        as is); ``None`` is returned unchanged.
+    :param channel: index into the last axis, or ``None`` for all channels.
     """
     if image is None or channel is None:
         return image
@@ -440,6 +452,15 @@ class ImageSet:
     Built from **file names alone**. Nothing here has been opened or decoded —
     :attr:`channels` maps a channel ID to a file name, and it is up to the
     panel to decide which single file it wants to read.
+
+    :param key: ``(plateID, wellID, fieldID)`` as the acquisition regex
+        reports them, or ``("", "", <file name>)`` for a name it does not
+        understand.
+    :param directory: folder the files live in.
+    :param channels: ``{channel ID: file name}``, one representative file per
+        channel.
+    :param planes: ``{channel ID: [file name, ...]}``, every plane in
+        acquisition order.
     """
 
     #: ``(plateID, wellID, fieldID)`` as the acquisition regex reports them.
@@ -674,6 +695,11 @@ def sample_seed(directory, total: int, max_sets: int, nonce: int = 0) -> int:
     fields, or "the sample I looked at" is not a thing anyone can hand over.
     Two unrelated folders sharing a name draw the same *positions*, which
     selects different sets because their contents differ.
+
+    :param directory: the folder being sampled; only its name is used.
+    :param total: number of image sets in it.
+    :param max_sets: the sample cap.
+    :param nonce: a counter that changes the seed for a re-draw.
     """
     name = Path(os.fspath(directory)).name or str(directory)
     material = f"{name}|{int(total)}|{int(max_sets)}|{int(nonce)}"
@@ -691,6 +717,11 @@ def sample_image_sets(sets: Sequence, max_sets: int, seed: int) -> List:
     still reads front to back.
 
     ``max_sets`` of zero or less means "no cap".
+
+    :param sets: the entries to draw from, in display order.
+    :param max_sets: the most entries to return.
+    :param seed: seed for :class:`random.Random`, so the same seed draws the
+        same positions.
     """
     items = list(sets)
     cap = int(max_sets)
@@ -761,6 +792,13 @@ class ImageSetSampler:
         meant that confirming a different regex re-used the grouping built
         with the old one, so the fix appeared to do nothing until the user
         opened a different folder.
+
+        :param directory: folder to enumerate.
+        :param suffixes: lower-case suffixes that count as a source, as
+            :func:`enumerate_image_sets` takes them.
+        :param metadata_type: naming dialect, see :func:`spacr.utils._get_regex`.
+        :param custom_regex: pattern body when ``metadata_type='custom'``.
+        :param force: re-scan even when the cache key matches.
         """
         key = self._key_for(directory, metadata_type, custom_regex)
         if not force and key == self._cache_key:
@@ -781,6 +819,12 @@ class ImageSetSampler:
         array rather than a group of per-channel files. ``lister`` is only
         called when the folder is not the cached one, which is what keeps
         stepping through fields free.
+
+        :param directory: the folder the listing belongs to; its string form
+            is the cache key.
+        :param lister: a no-argument callable returning the source paths,
+            each wrapped by :func:`sets_from_paths`.
+        :param force: call ``lister`` even when the folder is cached.
         """
         key = str(directory)
         if not force and key == self._cache_key:
@@ -802,6 +846,13 @@ class ImageSetSampler:
         The dialect the caller grouped with belongs in the cache key, or the
         very next :meth:`enumerate` — the panels run one on every load — misses
         and re-scans the whole plate on the GUI thread.
+
+        :param directory: the folder the enumeration is of; it becomes the
+            cached folder.
+        :param sets: the image sets enumerated from it.
+        :param channels: the channel IDs found across the folder.
+        :param metadata_type: naming dialect the sets were grouped with.
+        :param custom_regex: pattern body when ``metadata_type='custom'``.
         """
         self._directory = str(directory)
         self._cache_key = self._key_for(directory, metadata_type, custom_regex)
@@ -850,7 +901,11 @@ class ImageSetSampler:
                            self.max_sets, self._nonce)
 
     def set_max(self, max_sets: int) -> bool:
-        """Change the cap. Returns True when it actually changed."""
+        """Change the cap. Returns True when it actually changed.
+
+        :param max_sets: the new cap, converted with ``int``; zero or less
+            means no cap. A change clears the pin.
+        """
         value = int(max_sets)
         if value == self.max_sets:
             return False
@@ -872,6 +927,9 @@ class ImageSetSampler:
         the entry list does not shift under them while they browse. Redrawing
         the sample — the only thing that is allowed to change the list —
         clears it.
+
+        :param item: the set to pin; ``None`` or a set not in the current
+            enumeration leaves the pin unchanged.
         """
         if item is not None and item in self._sets:
             self._pinned = item
@@ -896,6 +954,9 @@ class ImageSetSampler:
         on every image load, and a linear scan of a 24 576-set plate put ~10 ms
         back onto each change of field — most of what the sampling had just
         taken off.
+
+        :param path: a file path (``str`` or path-like) or ``None``; only its
+            file name is looked up among the sets' channel files.
         """
         if path is None:
             return None
@@ -910,6 +971,8 @@ class ImageSetSampler:
         ``shown`` can exceed the cap by one when :meth:`sample` had to keep a
         loaded field that the draw missed; that extra entry is called out
         rather than quietly inflating the reported sample size.
+
+        :param shown: how many sets the dropdown lists.
         """
         if not self.total or shown >= self.total:
             return f"showing all {self.total} image sets"
@@ -928,6 +991,9 @@ def sets_from_paths(paths: Sequence[Path]) -> List[ImageSet]:
     or stacked arrays — one source already is one field of view, so there is
     nothing to group. They still want the cap and the reproducible draw, so
     they feed their own listing through here and share the sampler.
+
+    :param paths: the sources (folders or files, ``str`` or path-like); each
+        becomes a set keyed ``("", "", <name>)`` in its parent folder.
     """
     out: List[ImageSet] = []
     for path in paths:
@@ -946,6 +1012,14 @@ def apply_sample_to_combo(combo: QComboBox, box: Optional[QSpinBox],
     refills the dropdown. Touches no file: the sampler must already have been
     enumerated.
 
+    :param combo: the sets dropdown to refill.
+    :param box: the cap spin box, or ``None`` to leave the sampler's cap as
+        it is.
+    :param sampler: an already-enumerated :class:`ImageSetSampler`.
+    :param current_path: the file loaded now (or ``None``); its set is kept
+        in the sample and selected.
+    :param tooltip: text placed before the sample sentence in the dropdown's
+        tooltip.
     :returns: the sentence stating what fraction of the folder is on show.
     """
     if box is not None:
@@ -967,6 +1041,10 @@ def configure_max_sets_box(box: QSpinBox, total: int) -> int:
     The maximum is clamped to the total so it can never read ``50 of 12`` —
     a cap above what exists is not a real cap.
 
+    :param box: the cap spin box; its suffix, maximum and enabled state are
+        set with signals blocked, and it is enabled only for more than one
+        set.
+    :param total: number of image sets in the folder; negative counts as 0.
     :returns: the cap the box now holds, which the clamp may have lowered.
         Callers must feed it back to the sampler, or a folder small enough to
         clamp would leave the box saying 12 while the dropdown showed 50.
