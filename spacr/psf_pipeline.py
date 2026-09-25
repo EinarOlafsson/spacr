@@ -211,6 +211,9 @@ def chain_problems(settings):
 
     Read by the preflight so a run refuses before any field is touched, and
     by :func:`prepare_chain`, which raises on the first.
+
+    :param settings: the run's settings; absent ``enhance_*`` keys are off.
+    :returns: a list of ``(setting, message)`` pairs, empty when all is well.
     """
     from .qt.detect_chain import BACKGROUND_METHODS, DENOISE_METHODS
 
@@ -297,6 +300,9 @@ def processing_requested(settings):
 
     A requested chain that cannot be built counts as requested: the run
     then refuses with the reason rather than reusing inputs made without it.
+
+    :param settings: the run's ``psf_*`` and ``enhance_*`` settings.
+    :returns: True when either is switched on or cannot be read.
     """
     if settings.get('psf_operation', 'none') != 'none':
         return True

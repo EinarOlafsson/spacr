@@ -818,7 +818,11 @@ SETTINGS_FIELDS: Tuple[str, ...] = (
 
 
 def setting_name(field: str) -> str:
-    """The Mask setting that carries the chain field ``field``."""
+    """The Mask setting that carries a chain field.
+
+    :param field: a :class:`Chain` field name from :data:`SETTINGS_FIELDS`.
+    :returns: ``enhance_<field>``.
+    """
     return SETTINGS_PREFIX + field
 
 
