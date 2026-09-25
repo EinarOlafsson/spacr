@@ -131,6 +131,31 @@ _CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
 #: and it is what the model zoo writes when a Cellpose 3 row is chosen.
 _CELLPOSE3_PREFIX = "cellpose3:"
 
+#: Cellpose 4 with Meta's DINOv3 backbone, which runs Cellpose-DINO
+#: checkpoints (bioimage.io's CellposeDINO ViT-L and ViT-B, item 525). It is
+#: not a ``segmentation_backend`` value: an object chooses it through its
+#: model setting, ``cellpose_dino:<checkpoint path>``, the way
+#: ``cellpose3:`` chooses Cellpose 3, and every other object stays on
+#: spaCR's own Cellpose-SAM.
+_CELLPOSE_DINO = "cellpose_dino"
+
+#: What an object's model setting starts with when it names a Cellpose-DINO
+#: checkpoint; what the model zoo writes when a Cellpose-DINO row is chosen.
+_CELLPOSE_DINO_PREFIX = "cellpose_dino:"
+
+#: The DINOv3 commit the Cellpose-DINO backend installs. DINOv3 is not on
+#: PyPI (https://pypi.org/pypi/dinov3/json answered 404 on 2026-09-25);
+#: Cellpose itself says to install it from GitHub. The archive of one pinned
+#: commit is what pip installs, so the install needs no git and builds the
+#: same package every time. It was facebookresearch/dinov3's main on
+#: 2026-09-25.
+_DINOV3_COMMIT = "6876159a11b4df116f30f667f8c9888617df0751"
+
+#: The pip requirement for that commit.
+_DINOV3_REQUIREMENT = (
+    "dinov3 @ https://github.com/facebookresearch/dinov3/archive/"
+    f"{_DINOV3_COMMIT}.zip")
+
 _RESTORATION_MODELS = tuple(
     f"{operation}_{structure}"
     for operation in ("denoise", "deblur", "oneclick")
@@ -313,6 +338,44 @@ _SPECS = {
             "Methods 2025 (doi:10.1038/s41592-025-02595-5). The project's "
             "README publishes no results table. spaCR has not scored this "
             "backend on its own data.")),
+    _CELLPOSE_DINO: _BackendSpec(
+        name=_CELLPOSE_DINO, label="Cellpose-DINO", module="cellpose",
+        probe=("cellpose.models", "cellpose.vit", "dinov3.hub.backbones"),
+        distribution="cellpose",
+        requirements=("cellpose==4.2.1.1", _DINOV3_REQUIREMENT),
+        torch=("torch", "torchvision"), python=((3, 11), (3, 14)),
+        licence="BSD-3-Clause (Cellpose) / DINOv3 License (dinov3)",
+        licence_note=(
+            "Cellpose 4.2.1.1 is BSD-3-Clause (Copyright 2025 Howard Hughes "
+            "Medical Institute). DINOv3 is NOT open source: its code and "
+            "weights are Meta's DINO Materials under the DINOv3 License "
+            "(github.com/facebookresearch/dinov3, LICENSE.md, 19 August "
+            "2025), which binds whoever uses them, so installing this "
+            "backend and running a Cellpose-DINO model is agreeing to it. "
+            "It allows use, copying and modification; it requires that "
+            "anything passed on carries the licence, that a publication "
+            "using the results acknowledges DINOv3, and it forbids "
+            "military, weapons, nuclear and espionage uses and anyone under "
+            "trade sanctions. Cellpose-DINO checkpoints are DINOv3 fine-"
+            "tuned by the Cellpose authors, so the same terms reach them "
+            "whatever licence their page names. spaCR ships none of it: "
+            "dinov3 is fetched from Meta's GitHub at commit "
+            f"{_DINOV3_COMMIT[:12]}, and each checkpoint from the page it "
+            "is listed on."),
+        homepage="https://github.com/facebookresearch/dinov3", size_gb=3.0,
+        blurb=(
+            "Cellpose 4 with Meta's DINOv3 backbone, which runs the "
+            "Cellpose-DINO models (ViT-L and ViT-B) listed from "
+            "bioimage.io. It runs in an environment of its own, so "
+            "spaCR's own Cellpose is untouched; its masks, flows and cell "
+            "probability come back in Cellpose-SAM's shapes."),
+        published=(
+            "Published results: none for the DINO backbone yet; Cellpose-SAM "
+            "is Pachitariu, Rariden and Stringer, bioRxiv 2025 (doi:10.1101/"
+            "2025.04.28.651001), and DINOv3 is Simeoni et al., "
+            "arXiv:2508.10104. spaCR has not scored this backend on a "
+            "benchmark of its own data; one Toxoplasma PV field is measured "
+            "in item 525.")),
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
@@ -517,12 +580,13 @@ def _spec(name):
 
     A backend that does not segment -- the plaque figure reader, SpotNet --
     is not a ``segmentation_backend`` value, so it is found by its own name
-    before the segmentation names are checked.
+    before the segmentation names are checked. So is Cellpose-DINO, which
+    segments but is chosen through an object's model setting.
 
     :raises ValueError: for Cellpose 4 or a name spaCR has no backend for.
     """
     asked = str(name).strip().lower()
-    if asked in _SPECS and not _SPECS[asked].segments:
+    if asked in _SPECS:
         return _SPECS[asked]
     backend = _backend_name(name)
     if backend not in _SPECS:
@@ -623,6 +687,66 @@ def _cellpose3_is_chosen(settings):
         return True
     return any(_cellpose3_choice(value) is not None
                for key, value in settings.items()
+               if str(key).endswith("_model_name")
+               or key == "pathogen_model")
+
+
+def _cellpose_dino_choice(model_name):
+    """The checkpoint a model setting names with ``cellpose_dino:``.
+
+    :param model_name: an object's model setting, e.g.
+        ``'cellpose_dino:/models/cellposedino_vit_b'``.
+    :returns: what follows the prefix, ``''`` when nothing does, or None
+        for a setting that does not name a Cellpose-DINO checkpoint.
+    """
+    text = str(model_name or "").strip()
+    if text[:len(_CELLPOSE_DINO_PREFIX)].lower() != _CELLPOSE_DINO_PREFIX:
+        return None
+    return text[len(_CELLPOSE_DINO_PREFIX):].strip()
+
+
+def _cellpose_dino_value(path):
+    """The model setting that runs a Cellpose-DINO checkpoint.
+
+    :param path: the checkpoint's path, or a value that already carries the
+        prefix.
+    :returns: ``'cellpose_dino:<path>'``.
+    """
+    chosen = _cellpose_dino_choice(path)
+    return _CELLPOSE_DINO_PREFIX + (chosen if chosen is not None
+                                    else str(path or "").strip())
+
+
+def _cellpose_dino_model(model_name):
+    """The checkpoint file a ``cellpose_dino:`` model setting names.
+
+    Cellpose 4 handed a path that is not there logs a warning and runs
+    cpsam_v2 in its place, so a missing file is refused here instead.
+
+    :param model_name: the setting, with or without the prefix.
+    :returns: the checkpoint's absolute path.
+    :raises FileNotFoundError: when no file is there, or none is named.
+    """
+    chosen = _cellpose_dino_choice(model_name)
+    name = chosen if chosen is not None else str(model_name or "").strip()
+    path = os.path.expanduser(name)
+    if not name or not os.path.isfile(path):
+        raise FileNotFoundError(
+            f"no Cellpose-DINO checkpoint at {name!r}: the file is not "
+            f"there. Download a Cellpose-DINO model from the model zoo and "
+            f"press Use this model, which writes "
+            f"{_CELLPOSE_DINO_PREFIX}<its path>.")
+    return os.path.abspath(path)
+
+
+def _cellpose_dino_is_chosen(settings):
+    """Whether a run's settings send any object to Cellpose-DINO.
+
+    :param settings: a settings mapping.
+    :returns: a bool.
+    """
+    return any(_cellpose_dino_choice(value) is not None
+               for key, value in (settings or {}).items()
                if str(key).endswith("_model_name")
                or key == "pathogen_model")
 
@@ -1141,7 +1265,7 @@ def _worker_env(name, env):
     home disk, and who has moved it -- is the one person it would miss.
     """
     environ = _clean_env(env)
-    if name == _CELLPOSE3:
+    if name in (_CELLPOSE3, _CELLPOSE_DINO):
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
     elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
@@ -2717,6 +2841,89 @@ class _Cellpose3Adapter:
         return taken
 
 
+class _CellposeDinoAdapter:
+    """Cellpose 4 with DINOv3, inside its own environment, answering the
+    ``eval`` spaCR's Cellpose-SAM path calls.
+
+    The checkpoint is built exactly as Cellpose 4 builds any checkpoint --
+    ``CellposeModel(pretrained_model=<path>)``, which reads the backbone
+    from the weights (``encoder.cls_token`` means DINO, the width says ViT-L
+    or ViT-B) -- and ``eval`` gets the same keywords the Cellpose-SAM path
+    passes in spaCR, so the masks, flows and cell probability come back in
+    the shapes that path already handles and nothing downstream changes.
+
+    :param model: a Cellpose-DINO checkpoint's path.
+    :param device: a torch device name.
+    :param models_module: ``cellpose.models``, or a stand-in for tests.
+    :raises FileNotFoundError: for a path that names no file.
+    :raises ValueError: for a checkpoint that is not a DINO one; Cellpose-SAM
+        runs in spaCR itself.
+    """
+
+    name = _CELLPOSE_DINO
+
+    def __init__(self, model, device="cpu", models_module=None):
+        """Load the checkpoint, in float32 unless the device is CUDA."""
+        import torch
+
+        if models_module is None:
+            from cellpose import models as models_module
+        if not model or not os.path.isfile(model):
+            raise FileNotFoundError(
+                f"no Cellpose-DINO checkpoint at {model!r}; Cellpose 4 "
+                f"would have run cpsam_v2 in its place without a word.")
+        self.model = model
+        self.ignored = set()
+        self.translated = set()
+        where = torch.device(device)
+        self._model = models_module.CellposeModel(
+            gpu=where.type != "cpu", pretrained_model=model, device=where,
+            use_bfloat16=where.type == "cuda")
+        backbone = str(getattr(self._model, "backbone", "") or "")
+        if not backbone.startswith("dino"):
+            raise ValueError(
+                f"{os.path.basename(model)} is a {backbone or 'non-DINO'} "
+                f"Cellpose checkpoint, not a Cellpose-DINO one. Put its path "
+                f"in the model setting without {_CELLPOSE_DINO_PREFIX} and "
+                f"spaCR's own Cellpose runs it.")
+
+    def eval(self, x, **params):
+        """Segment each image as spaCR's Cellpose-SAM path would.
+
+        :param x: a list of ``(H, W)`` or ``(H, W, C)`` images.
+        :param params: Cellpose 4 ``eval`` keywords. Those this Cellpose's
+            ``eval`` does not take are named in :attr:`ignored`.
+        :returns: ``(masks, flows, None)``: one label image per image, and
+            per image Cellpose's ``[RGB flow, dP, cell probability, None]``.
+        """
+        images = [np.asarray(image) for image in x]
+        taken = self._accepted({k: v for k, v in params.items()
+                                if v is not None})
+        output = self._model.eval(images, **taken)
+        masks, flows = output[0], output[1]
+        masks = [_as_label_image(mask) for mask in masks]
+        per_image = []
+        for index in range(len(masks)):
+            entry = flows[index] if index < len(flows) else ()
+            parts = [None if part is None else np.asarray(part)
+                     for part in list(entry)[:3]]
+            per_image.append(parts + [None] * (4 - len(parts)))
+        return masks, per_image, None
+
+    def _accepted(self, extra):
+        """The keywords ``CellposeModel.eval`` takes, of those asked for."""
+        try:
+            parameters = inspect.signature(self._model.eval).parameters
+        except (TypeError, ValueError):
+            return dict(extra)
+        if any(p.kind is inspect.Parameter.VAR_KEYWORD
+               for p in parameters.values()):
+            return dict(extra)
+        taken = {k: v for k, v in extra.items() if k in parameters}
+        self.ignored.update(set(extra) - set(taken))
+        return taken
+
+
 #: Backend name -> in-process class. Tests replace entries with stubs.
 _BACKEND_CLASSES = {_DINOCELL: _DinoCellBackend, _SAMCELL: _SamCellBackend}
 
@@ -2766,6 +2973,8 @@ def _worker_adapter(name, model, device, options):
     """The object a worker segments with."""
     if name == _CELLPOSE3:
         return _Cellpose3Adapter(model or "cyto3", device)
+    if name == _CELLPOSE_DINO:
+        return _CellposeDinoAdapter(model, device)
     return _BACKEND_CLASSES[name](device=device, **options)
 
 
@@ -3188,9 +3397,18 @@ def _load_backend(name, *, device=None, z_plan=None, t_plan=None,
     :param root: the backends folder.
     :param options: passed to the backend (``weights_path``, ``variant``).
     :returns: an object with Cellpose's ``eval``.
+    A ``cellpose_dino`` name, or a model setting reading
+    ``cellpose_dino:<path>``, builds the Cellpose-DINO backend on that
+    checkpoint; it runs only in its own environment.
+
     :raises ValueError: for Cellpose, an unknown name, or a 3-D/4-D run.
     :raises ImportError: when the backend is not installed.
+    :raises FileNotFoundError: for a Cellpose-DINO checkpoint not there.
     """
+    if (str(name or "").strip().lower() == _CELLPOSE_DINO
+            or _cellpose_dino_choice(model_name) is not None):
+        return _load_cellpose_dino(model_name, device=device, z_plan=z_plan,
+                                   t_plan=t_plan, root=root)
     backend = _backend_name(name)
     if backend == _CELLPOSE:
         raise ValueError(
@@ -3215,6 +3433,28 @@ def _load_backend(name, *, device=None, z_plan=None, t_plan=None,
     note = getattr(model, "note", "")
     print(f"Segmentation backend: {backend}"
           + (f" -- {note}." if note else "."))
+    return model
+
+
+def _load_cellpose_dino(model_name, *, device=None, z_plan=None, t_plan=None,
+                        root=None, worker_for=None):
+    """The Cellpose-DINO backend on one checkpoint, as a model with ``eval``.
+
+    :param model_name: ``cellpose_dino:<path>`` or the bare path.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :raises ValueError: for a z_stack or t_stack run.
+    :raises FileNotFoundError: when the checkpoint is not there.
+    :raises ImportError: when the backend is not installed.
+    """
+    if z_plan is not None or t_plan is not None:
+        raise ValueError(
+            "Cellpose-DINO segments single 2-D planes, and this run has "
+            "z_stack or t_stack on. Turn them off, or segment this object "
+            "with a Cellpose-SAM model.")
+    checkpoint = _cellpose_dino_model(model_name)
+    model = _RemoteBackend(_CELLPOSE_DINO, model=checkpoint, device=device,
+                           root=root, worker_for=worker_for)
+    print(f"Segmentation backend: {_CELLPOSE_DINO} -- {model.note}.")
     return model
 
 

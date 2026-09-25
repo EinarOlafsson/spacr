@@ -4338,10 +4338,12 @@ class AppScreen(QWidget):
         cyto, nuclei and any bioimage.io Cellpose 3 checkpoint are real
         choices there. ``plaque_model`` and ``custom_model`` are not: those
         screens load the checkpoint with spaCR's own Cellpose 4, in spaCR's
-        own process, and a Cellpose 3 name would fail there.
+        own process, and a Cellpose 3 name would fail there. The same holds
+        for ``cellpose_dino`` (item 525): a Cellpose-DINO checkpoint runs in
+        its own backend, which Mask generation's model fields reach.
         """
-        return (("cellpose", "cellpose3") if str(key).endswith("_model_name")
-                else ("cellpose",))
+        return (("cellpose", "cellpose3", "cellpose_dino")
+                if str(key).endswith("_model_name") else ("cellpose",))
 
     def _choose_a_model_for(self, field, key: str = "") -> None:
         """Open the picker and write the chosen path into ``field``.

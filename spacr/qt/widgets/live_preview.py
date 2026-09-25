@@ -908,6 +908,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     chain = prepare_chain(req.preprocess_settings, plan)
     _check_preview_cancel(req)
     model = None
+    route = None
     processed = {}
     req.provenance = {
         'processing': plan.provenance() if plan else {'operation': 'none'},
@@ -928,13 +929,8 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         'cellprob_threshold': float(req.cellprob),
     }
 
-    out: Dict[str, np.ndarray] = {}
-    flows_out: Dict[str, np.ndarray] = {}
-    for obj in req.object_types:
-        _check_preview_cancel(req)
-        ch_idx = int(req.channels.get(obj, 0))
-        ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
-        req.provenance['channels'][obj] = ch_idx
+    def _prepared(ch_idx: int) -> np.ndarray:
+        """One channel's plane after the PSF or enhancement chain, once."""
         if ch_idx not in processed:
             plane = _select_channel(req.image, ch_idx)
             if chain is not None:
@@ -943,7 +939,16 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             else:
                 processed[ch_idx] = (plan.apply(plane[..., None], cancel=req.cancel)[..., 0]
                                      if plan else plane)
-        image_2d = processed[ch_idx].copy()
+        return processed[ch_idx]
+
+    out: Dict[str, np.ndarray] = {}
+    flows_out: Dict[str, np.ndarray] = {}
+    for obj in req.object_types:
+        _check_preview_cancel(req)
+        ch_idx = int(req.channels.get(obj, 0))
+        ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
+        req.provenance['channels'][obj] = ch_idx
+        image_2d = _prepared(ch_idx).copy()
 
         if req.preprocess_settings.get(f"remove_background_{obj}"):
             bg = float(req.preprocess_settings.get(
@@ -964,6 +969,18 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             continue
 
         _check_preview_cancel(req)
+        if route is None:
+            from ...object import _prefixed_model_route
+            route = _prefixed_model_route(req.model) or ()
+        if route:
+            masks_of = _backend_preview_pass(req, obj, image_2d, route,
+                                             _prepared)
+            out[obj], flow_rgb, probability = masks_of
+            if flow_rgb is not None:
+                flows_out[obj] = flow_rgb
+            if probability is not None:
+                req.cellprob_maps[obj] = probability
+            continue
         if model is None:
             model = preview_cellpose_model(req.model)
         _check_preview_cancel(req)
@@ -994,6 +1011,57 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         out[obj] = mask
     _check_preview_cancel(req)
     return out, flows_out
+
+
+def _backend_preview_pass(req: PreviewRequest, obj: str,
+                          image_2d: np.ndarray, route: Tuple[str, Any],
+                          prepared):
+    """Segment one object with a model whose setting names its backend.
+
+    A ``cellpose3:...`` model is segmented by the run's own function,
+    :func:`spacr.object._cellpose3_masks`, in the Cellpose 3 backend's
+    environment -- so the preview answers with what the run would, and its
+    Cellpose 3 settings and ``[cyto, nucleus]`` input apply here as well.
+    The preview's diameter and thresholds stand in for the object's own.
+
+    :param req: the pass; its ``model`` names the backend and model.
+    :param obj: the object being segmented.
+    :param image_2d: the object's own plane, prepared as for Cellpose-SAM.
+    :param route: ``(backend, masks function)`` from
+        :func:`spacr.object._prefixed_model_route`.
+    :param prepared: a channel index's plane, prepared the way
+        ``image_2d`` was; a cell is given its nucleus plane from it when the
+        request has a nucleus channel.
+    :returns: ``(mask, RGB flow or None, cell probability or None)``.
+    """
+    from ... import _segmentation_backends
+
+    backend, masks_of = route
+    settings = dict(req.preprocess_settings)
+    settings[f"{obj}_diameter"] = float(req.diameter) or None
+    settings[f"{obj}_flow_threshold"] = float(req.flow_threshold)
+    settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
+    image = image_2d
+    nucleus = req.channels.get("nucleus")
+    if (obj == "cell" and nucleus is not None and req.image.ndim == 3
+            and req.image.shape[-1] > 1):
+        index = int(nucleus) % req.image.shape[-1]
+        image = np.stack([image_2d, prepared(index)], axis=-1)
+    model = _segmentation_backends._load_backend(
+        backend, model_name=req.model, object_type=obj)
+    _check_preview_cancel(req)
+    masks, flows, probabilities = masks_of(
+        model, [image], settings, obj, min_size=15,
+        default_diameter=float(req.diameter) or 30.0, probabilities=True)
+    mask = np.asarray(masks[0]).astype(np.int32)
+    flow_rgb = flows[0] if flows else None
+    probability = probabilities[0] if probabilities else None
+    if probability is not None:
+        probability = np.asarray(probability, dtype=np.float32)
+        if probability.ndim != 2:
+            probability = None
+    return (mask, None if flow_rgb is None else np.asarray(flow_rgb),
+            probability)
 
 
 def _cellprob_of(result) -> Optional[np.ndarray]:
@@ -1422,9 +1490,11 @@ _FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
 def _is_a_real_model_name(value: str) -> bool:
     """Whether ``value`` names a model spaCR can actually load.
 
-    Two things qualify and nothing else: a retired pre-SAM spelling, which
+    Three things qualify and nothing else: a retired pre-SAM spelling, which
     Cellpose still resolves to cpsam and which a settings file written years
-    ago may hold; and a checkpoint that exists on disk.
+    ago may hold; a checkpoint that exists on disk; and a ``cellpose3:``
+    value naming a Cellpose 3 model or a checkpoint on disk, which the pass
+    segments in the Cellpose 3 backend (item 503).
 
     A name that is neither is a typo, and putting it in the combo would let
     the preview run against a model that does not exist.
@@ -1433,8 +1503,16 @@ def _is_a_real_model_name(value: str) -> bool:
     if not name:
         return False
     try:
-        import os
+        from ..._segmentation_backends import (_CELLPOSE3_MODELS,
+                                               _cellpose3_choice)
 
+        chosen = _cellpose3_choice(name)
+        if chosen is not None:
+            return (chosen in _CELLPOSE3_MODELS or not chosen
+                    or os.path.isfile(os.path.expanduser(chosen)))
+    except Exception:
+        pass
+    try:
         if os.path.isfile(name):
             return True
     except Exception:                                        # noqa: BLE001
@@ -1613,12 +1691,21 @@ def _checkpoint_is_missing(model_name: Any) -> bool:
     this panel was fixed for wearing a different hat.
 
     The test is the run's own, so the two cannot come to disagree about what
-    counts as a path: a separator in it, or a checkpoint suffix.
+    counts as a path: a separator in it, or a checkpoint suffix. A
+    ``cellpose3:`` value is tested on what follows the prefix.
 
     :param model_name: the model name or path the user picked.
     :returns: True when it names a file that is not there.
     """
     text = str(model_name or "").strip()
+    try:
+        from ..._segmentation_backends import _cellpose3_choice
+
+        chosen = _cellpose3_choice(text)
+    except Exception:
+        chosen = None
+    if chosen is not None:
+        text = os.path.expanduser(chosen)
     if not text or os.path.isfile(text):
         return False
     return os.sep in text or text.endswith((".pth", ".pt"))
@@ -3319,11 +3406,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         ``kinds`` is a rule rather than a parameter -- the zoo also carries
         the YOLO well detector, and CellposeModel cannot load it, so offering
-        it here would produce a preview that fails on selection.
+        it here would produce a preview that fails on selection. A
+        ``cellpose3`` row comes back as ``cellpose3:<name or path>`` and the
+        pass segments it in the Cellpose 3 backend, as the run would.
         """
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=("cellpose",))
+        path = choose_model(self, kinds=("cellpose", "cellpose3"))
         if not path:
             return
         index = self._model_box.findText(str(path))

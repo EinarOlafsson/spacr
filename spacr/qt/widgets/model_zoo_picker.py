@@ -1665,7 +1665,8 @@ class ModelZooPicker(QDialog):
         local = self._local_path(entry) if entry and not refused else None
         installs = entry is not None and not refused and _needs_install(entry)
         backend_row = getattr(entry, "kind", "") == "backend"
-        self.use_button.setEnabled(bool(local) and not backend_row)
+        self.use_button.setEnabled(bool(local) and not backend_row
+                                   and not installs)
         self.download_button.setText("Install" if installs else "Download")
         self.download_button.setEnabled(
             bool(entry) and not local and not backend_row and not refused
@@ -1728,6 +1729,8 @@ class ModelZooPicker(QDialog):
                      + _html.escape(tr(refused)) + "</b></p>")
         elif getattr(entry, "kind", "") == "cellpose3":
             html += _cellpose3_card(entry)
+        elif getattr(entry, "kind", "") == "cellpose_dino":
+            html += _cellpose_dino_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
             html += f'<p><a href="{url}">{url}</a></p>'
@@ -1878,7 +1881,9 @@ class ModelZooPicker(QDialog):
         to hand back. A Cellpose 3 model or checkpoint is handed back as
         ``cellpose3:<name or path>`` (item 503): that is what sends the object
         to the Cellpose 3 backend, where a bare ``cyto3`` would be read as a
-        retired Cellpose name and run as cpsam.
+        retired Cellpose name and run as cpsam. A Cellpose-DINO checkpoint is
+        handed back as ``cellpose_dino:<path>`` (item 525), which sends the
+        object to the Cellpose-DINO backend.
         """
         entry = self.selected_entry()
         local = (self._local_path(entry)
@@ -1889,6 +1894,10 @@ class ModelZooPicker(QDialog):
             from ..._segmentation_backends import _cellpose3_value
 
             local = _cellpose3_value(local)
+        elif getattr(entry, "kind", "") == "cellpose_dino":
+            from ..._segmentation_backends import _cellpose_dino_value
+
+            local = _cellpose_dino_value(local)
         self._chosen_path = local
         self.model_chosen.emit(local)
         self.accept()
@@ -1975,6 +1984,8 @@ def _status_text(entry, local) -> str:
         return tr("spaCR cannot run this")
     if kind == "cellpose3" and source == "stock" and not local:
         return "needs the Cellpose 3 backend"
+    if kind == "cellpose_dino" and not _cellpose_dino_ready():
+        return tr("needs the Cellpose-DINO backend")
     return "on this machine" if local else "not downloaded"
 
 
@@ -2000,6 +2011,11 @@ def _where_a_backend_is_chosen(entry) -> str:
     except Exception:                                        # noqa: BLE001
         spec = None
     installed = str(getattr(entry, "source", "")) == "installed"
+    if backend == "cellpose_dino":
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then download a Cellpose-DINO model from the bioimage.io "
+            "heading and press Use this model on it.", name=name)
     if spec is not None and not spec.segments:
         return i18n.tr(
             "{name} is not a segmentation model, so no model field takes it. "
@@ -2028,14 +2044,18 @@ def _cannot_run(entry) -> str:
 def _needs_install(entry) -> bool:
     """Whether choosing this row should offer a backend install first.
 
-    True for a backend that is not installed, and for a Cellpose 3 model of
-    the backend's own while the backend is not installed. A bioimage.io
-    Cellpose 3 checkpoint downloads like any other model; the card says what
-    it needs to run.
+    True for a backend that is not installed, for a Cellpose 3 model of
+    the backend's own while the backend is not installed, and for a
+    Cellpose-DINO model while the Cellpose-DINO backend is not (item 525):
+    nothing spaCR has can run one without it. A bioimage.io Cellpose 3
+    checkpoint downloads like any other model; the card says what it needs
+    to run.
     """
     kind = getattr(entry, "kind", "")
     if kind == "backend":
         return getattr(entry, "source", "") not in ("installed", "installing")
+    if kind == "cellpose_dino":
+        return not _cellpose_dino_ready()
     return (kind == "cellpose3" and getattr(entry, "source", "") == "stock"
             and not getattr(entry, "path", ""))
 
@@ -2096,6 +2116,42 @@ def _cellpose3_card(entry) -> str:
     licence = getattr(entry, "licence", "")
     if licence:
         out += f"<p>Licence: {_html.escape(licence)}</p>"
+    return out
+
+
+def _cellpose_dino_ready() -> bool:
+    """Whether the Cellpose-DINO backend can segment now.
+
+    A backend being installed counts as not ready: its row keeps saying what
+    it needs until the install has finished.
+    """
+    state = _disk_state("cellpose_dino")
+    return bool(state is not None and state.ready)
+
+
+def _cellpose_dino_card(entry) -> str:
+    """A Cellpose-DINO model's card: whether its backend is here, and the
+    DINOv3 licence that reaches the weights whatever their page says."""
+    import html as _html
+
+    from ..._segmentation_backends import _CELLPOSE_DINO, _SPECS
+
+    ready = _cellpose_dino_ready()
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the Cellpose-DINO backend, which is installed. "
+           "Download it, then Use this model writes cellpose_dino:<its "
+           "path> into the object's model setting, which runs that object "
+           "through Cellpose-DINO with its usual Mask generation settings.")
+        if ready else
+        tr("Needs the Cellpose-DINO backend, Cellpose 4 with DINOv3 in an "
+           "environment of its own, which is not installed — press Install "
+           "to install it.")) + "</i></p>")
+    licence = getattr(entry, "licence", "")
+    if licence:
+        out += "<p>" + _html.escape(
+            tr("Licence: {licence}", licence=licence)) + "</p>"
+    out += "<p>" + _html.escape(tr(_SPECS[_CELLPOSE_DINO].licence_note)) \
+        + "</p>"
     return out
 
 

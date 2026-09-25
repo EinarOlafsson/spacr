@@ -148,7 +148,7 @@ def test_make_masks_offers_cellpose3_rows_and_lists_what_comes_back(
     host = types.SimpleNamespace(_cp_model=combo,
                                  _fill_zoo_models=lambda: None)
     chosen = mm.MakeMasksScreen._choose_cellpose_model_from_zoo(host)
-    assert asked == [("cellpose", "cellpose3")]
+    assert asked == [("cellpose", "cellpose3", "cellpose_dino")]
     assert chosen == "cellpose3:/models/cellpose_cyto3.pth"
     assert combo.currentData() == chosen
     assert combo.currentText() == "Cellpose 3 · cellpose_cyto3.pth"

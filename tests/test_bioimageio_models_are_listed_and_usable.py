@@ -12,7 +12,8 @@ nine Cellpose models in 277 items, of which
   stand-in, its code downloading the real checkpoint from GitHub at run
   time;
 * two Cellpose-SAM models, one byte-for-byte ``cpsam_v2``;
-* two Cellpose-DINO models, which Cellpose 4 builds only with ``dinov3``.
+* two Cellpose-DINO models, which Cellpose 4 builds only with ``dinov3``,
+  so they run through the Cellpose-DINO backend (item 525).
 
 What is pinned:
 
@@ -104,7 +105,6 @@ def _sandboxed(tmp_path, monkeypatch):
     """Own home, so no real cache counts, and no backend environments."""
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     monkeypatch.setenv(SB._ROOT_ENV, str(tmp_path / "backends"))
-    monkeypatch.setattr(zoo, "_dinov3_available", lambda: False)
     return tmp_path
 
 
@@ -205,19 +205,20 @@ def test_the_packages_own_run_settings_are_reported_not_used(tmp_path):
         "model.")
 
 
-def test_a_dino_model_says_it_cannot_run_without_dinov3(tmp_path, monkeypatch):
+def test_a_dino_model_runs_through_the_cellpose_dino_backend(tmp_path):
+    """Item 525 replaced 504's refusal: a Cellpose-DINO row downloads, and
+    its backend -- Cellpose 4 with dinov3, in an environment of its own --
+    runs it."""
     _cache(tmp_path)
     key = "bioimageio_cellposedino_vit_l_2d_microscopy_instance_segmenter"
     dino = _rows()[key]
-    why = zoo._bioimageio_cannot_run(dino)
-    assert why.startswith(zoo._CANNOT_RUN)
-    assert "dinov3" in why and dino.uri == ""
-    assert dino.notes[1] == "bioimage.io model famous-sheep"
-    monkeypatch.setattr(zoo, "_dinov3_available", lambda: True)
-    ready = _rows()[key]
-    assert zoo._bioimageio_cannot_run(ready) == ""
-    assert ready.uri == ("https://huggingface.co/mouseland/cellpose-sam/"
-                         "resolve/main/cpdino")
+    assert zoo._bioimageio_cannot_run(dino) == ""
+    assert dino.kind == "cellpose_dino"
+    assert dino.uri == ("https://huggingface.co/mouseland/cellpose-sam/"
+                        "resolve/main/cpdino")
+    assert dino.notes[0] == ("bioimage.io model famous-sheep; "
+                             + zoo._CELLPOSE_DINO_USE)
+    assert zoo._backend_for(dino) == "cellpose_dino"
 
 
 def test_a_network_that_is_no_cellpose_says_so(tmp_path):
@@ -287,8 +288,9 @@ def test_a_refresh_fetches_the_collection_and_measures_the_weights(
         FILES.format("famous-fish", "cyto3.pth"),
         FILES.format("thoughtful-chipmunk", "cellpose_model"),
         FILES.format("happy-elephant", "model_weights.pth"),
-        FILES.format("idealistic-eagle", "cpsam")]), (
-        "only rows that could be downloaded are measured")
+        FILES.format("idealistic-eagle", "cpsam"),
+        "https://huggingface.co/mouseland/cellpose-sam/resolve/main/cpdino",
+    ]), "only rows that could be downloaded are measured"
     assert "stand-in" in zoo._bioimageio_cannot_run(
         rows["bioimageio_oc1_project_11_cellpose"])
     asked.clear()
@@ -305,7 +307,8 @@ def test_the_catalogue_carries_the_rows_without_the_network(tmp_path,
     listed = [e for e in zoo.catalogue(remote=True, block=False,
                                        include_plugins=False)
               if e.source == "bioimage.io"]
-    assert {e.kind for e in listed} == {"cellpose", "cellpose3"}
+    assert {e.kind for e in listed} == {"cellpose", "cellpose3",
+                                        "cellpose_dino"}
     assert len(listed) == 6
 
 
