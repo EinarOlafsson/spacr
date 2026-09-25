@@ -1,7 +1,7 @@
 THE EMBEDDING ICON'S LINES ARE THINNER
 
-Status: OPEN, filed 2026-09-25. Not started.
-Owner: unassigned.
+Status: DONE, 2026-09-25.
+Owner: agent (worktree agent-aa528cb41ed225335).
 
 REQUEST (the maintainer, 2026-09-25, verbatim)
     "the lines on the embedding icon are to thick."
@@ -16,3 +16,39 @@ DONE WHEN
 A side-by-side render of the embedding icon next to two neighbouring module
 icons, at the sizes Home and the menu use, shows matching line weights
 (measured stroke width in pixels within 1 px of the neighbours).
+
+2026-09-25 -- DONE
+    Cause: embeddings.png was Font Awesome's fa5s.vector-square rendered
+    solid to 1024 px (chosen_icons.json said "qtawesome:fa5s.vector-square"),
+    not drawn in the house style, so its frame was a slab, not a line.
+
+    Measured (1024 master: median of 2 x distance transform on the
+    skeleton; rendered: median anti-aliased run width of the alpha of
+    _icon_for_app(key).pixmap(s, s), offscreen, at 48 px = Home tile
+    TILE_ICON_PX, 20 px = dock ICON_PX, 16 px = small menu size).
+    Neighbours are its Data-section tile neighbours on Home, foreign and
+    run_compare, plus experiment_design.
+
+                        1024     48 px    20 px    16 px
+      embeddings before 112.0    10.59     3.58     2.42
+      embeddings after   22.0     1.04     0.44     0.35
+      foreign            22.0     1.05     0.44     0.35
+      run_compare        21.5     1.16     0.53     0.51
+      experiment_design  22.0     1.03     1.02     1.48
+
+    After: within 0.15 px of both tile neighbours at every size (bar: 1 px).
+
+    How: same picture (a frame with a handle on each corner), drawn in
+    outline at W_MAIN (22 on 1024) by a new embeddings_01 candidate in
+    tools/icon_generators/group_results_qc.py (the generator that already
+    draws its Data-section neighbours experiment_design/power/qc_dashboard).
+    Regenerated with
+      QT_QPA_PLATFORM=offscreen python tools/icon_generators/group_results_qc.py OUTDIR
+    and OUTDIR/embeddings/embeddings_01.png copied over
+    spacr/resources/icons/embeddings.png (1024x1024 RGBA, transparent
+    ground, white ink, 11.2 % alpha coverage). chosen_icons.json row now
+    records candidate embeddings/embeddings_01.png and the new sha256.
+    Before/after side-by-sides at 48 and 20 px were looked at; the new
+    icon reads at the same weight as foreign and run_compare.
+    tests/qt/test_home_v2.py (163) and the packaging icon-manifest check
+    pass.
