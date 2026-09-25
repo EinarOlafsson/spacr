@@ -317,9 +317,6 @@ Command-line entry points
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
 
-Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
-to ``~/.spacr/logs/spacr.log``.
-
 ``spacr-run --list`` lists modules with headless command-line entry points.
 GUI-only annotation, curation, comparison and exploration modules are omitted.
 
@@ -486,8 +483,8 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Every module spaCR ships, in the order the home screen lists them: the six
-pipeline modules first, then everything else. Select a tile to open that
+Every module with a Home tile, in Home's order: the six pipeline modules
+first, then the rest. Select a tile to open that
 module's API page.
 
 See the `feature guide <docs/source/features.rst>`_ for each tool.
@@ -496,7 +493,7 @@ Other resources
 ~~~~~~~~~~~~~~~
 
 - `Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_
-  — 73 guided workflows from installation through hit investigation.
+  — guided workflows from installation through hit investigation.
 - `Python API quickstart <docs/source/python_api.rst>`_ — run and validate
   pipelines from scripts, notebooks or a cluster.
 - `Feature guide <docs/source/features.rst>`_ — capabilities, maturity and
@@ -658,9 +655,8 @@ on different splits and the SD is how far they moved apart. One split can be
 lucky: this model's literature figure is 0.834 on a single 19-well split and
 0.806 across all three.
 
-Models are hosted on their author's own Hugging Face account, so contributing
-one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s
-``publish_model`` performs the upload and prints the catalogue row to add.
+Models are hosted on each author's own Hugging Face account;
+``spacr.model_zoo.publish_model`` uploads one and prints the catalogue row to add.
 
 
 Diagnosing performance
@@ -674,8 +670,8 @@ Saves to ``~/.spacr/reports`` and prints the path. ``--quick`` skips the
 longer benchmarks; ``--out PATH`` sets the location.
 
 Reads no project data. Times imports, numeric libraries, window
-construction and animation. Reports processor-architecture emulation (an
-x86_64 Python build on Apple Silicon) and NumPy's BLAS implementation.
+construction and animation, and reports x86_64 emulation on Apple Silicon
+and NumPy's BLAS.
 
 Command-line reference
 ----------------------
@@ -691,9 +687,6 @@ Launching the application
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` skips the modal setup screen, which would otherwise block
-an unattended job.
 
 ``spacr-qt`` and ``spacr-nightly`` are aliases of ``spacr``.
 
@@ -729,9 +722,6 @@ No Qt, no display — for clusters, servers and CI.
 
 ``validate`` reads the same settings the run would and reports what is
 missing, contradictory or pointing at nothing.
-
-``spacr-run --list`` shows only modules with a headless entry point;
-annotation, curation and exploration are interactive and omitted.
 
 Inspecting a run afterwards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
