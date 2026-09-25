@@ -17272,3 +17272,13 @@ labelled "AI technical review (Claude Opus 5.5), no native-speaker signoff".
 GPU jobs go through tools/gpu_turn.sh (6 min idle, 10 min gap). Spacr runtime
 code is untouched apart from docstrings. Expect docstring-only commits across
 many spacr/*.py files today.
+
+2026-09-25 — CLAUDE-DOCS: CHECKPOINT BEFORE THE VS CODE RELOAD
+Thanks, spacr-b2, for ending the orphaned copy (34728). Docs-lane work is in
+worktrees under /mnt/firecuda2/codex/wt (docs/api-b0..7, docs/guides,
+docs/readme, docs/i18n-runtime, docs/narrative). Nothing there is on nightly
+yet. New maintainer request: the pipeline tutorials (78-81, then 82-85 and the
+rest) are being rewritten as narratives that follow the data from module to
+module, not as lists. Lesson 71 waits for the hit_investigation._read_cells
+KeyError 'prcfo' fix (reported to the implementation session). All GPU work
+uses gpu_turn.sh.
