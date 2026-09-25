@@ -1,0 +1,34 @@
+THE CONSOLE AND ACTIONS HEADINGS SIT IN THEIR BOXES, LIKE LIVE PREVIEW AND SYSTEM
+
+Status: OPEN, filed 2026-09-25. Not started.
+Owner: unassigned. Related: 471 (folds), 110 (console heading), 452.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the live preview dropdown text button in the opened widget, and the same
+    in system look great! but the same text for the console and the actions
+    are outside of a container so they look miss aligned when collapsed. so
+    please change this so the the console text is in the console box and if
+    collapsed behaives like the spstem one does and has the same font size
+    and osssitioning style as the system, also the actions should have the
+    text slightly to the right so it is alligned with the other text. also
+    sometimes randomly i still get a black background for the text in the
+    console, i have to go out of the modual and in again for it to
+    dissapear, not important but if you can easily remove this then please
+    do."
+
+WHAT TO BUILD
+  1. The Console heading sits INSIDE the console box, exactly as the Live
+     preview and System headings sit inside theirs: same font size, same
+     position, and when collapsed it folds the way System does.
+  2. The Actions heading moves slightly right so its text lines up with the
+     other headings' text.
+  3. If cheap: find why the console text sometimes paints on a black
+     background until the module is left and re-entered (a stale palette or
+     stylesheet after a theme/backdrop repaint is the likely cause), and fix
+     it.
+
+DONE WHEN
+Screenshots of a module screen with the console open and collapsed show the
+Console and Actions headings aligned with Live preview and System, measured
+in pixels (same left text edge and font size), and the black-background
+case is fixed or its cause recorded here.
