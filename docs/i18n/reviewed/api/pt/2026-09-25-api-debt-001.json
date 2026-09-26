@@ -4731,6 +4731,78 @@
       "context": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
       "translation": "quando linhas de medição existentes usam outra identidade de PSF, ou não é possível provar que usam as intensidades processadas solicitadas.",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#0",
+      "source": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.",
+      "source_sha256": "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
+      "context": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.",
+      "translation": "Preparação e proveniência opcionais de PSF e da cadeia de realce para as entradas de segmentação.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#1",
+      "source": "Kernels are captured once per run. Only private intensity arrays are processed; raw stacks and mask labels are never rewritten by this module. V1 reuse checks both the requested kernel/settings and the exact completed archive bytes.",
+      "source_sha256": "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25",
+      "context": "Kernels are captured once per processing session. Only private intensity arrays are processed; raw stacks and mask labels are never rewritten by this module. V1 reuse checks both the requested kernel/settings and the exact completed archive bytes.",
+      "translation": "Os kernels são capturados uma vez por execução. Apenas arrays privados de intensidade são processados; pilhas brutas e rótulos de máscara nunca são reescritos por este módulo. A reutilização V1 verifica tanto o kernel/as configurações solicitados quanto os bytes exatos dos arquivos compactados concluídos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#2",
+      "source": "THE ENHANCEMENT CHAIN TRAVELS THE SAME ROUTE. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` keys and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a run is byte for byte what it was before the chain existed.",
+      "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
+      "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
+      "translation": "A CADEIA DE REALCE SEGUE O MESMO CAMINHO. A cadeia do Make Masks (:mod:`spacr.qt.detect_chain`) é gravada em um arquivo de configurações como as chaves ``enhance_*`` e lida de volta aqui por :func:`prepare_chain`, com as configurações ``psf_*`` incorporadas como a etapa PSF da cadeia, para que a execução de uma placa aplique exatamente as etapas que um curador ajustou, na própria ordem da cadeia: fundo, PSF, redução de ruído, contraste, nitidez. A sessão a aplica em cada canal selecionado, na etapa em que a PSF já era executada -- após a correção de iluminação e antes da normalização --, e sua proveniência vai para o mesmo registro ``psf/segmentation_application.json``, de modo que uma cadeia alterada é recusada na retomada, assim como um kernel alterado. Sem nenhuma etapa da cadeia ativada, uma execução é, byte a byte, o que era antes de a cadeia existir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#0",
+      "source": "Immutable calibrated processing configuration, safe to pass to workers.",
+      "source_sha256": "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
+      "context": "Immutable calibrated processing configuration, safe to pass to workers.",
+      "translation": "Configuração de processamento calibrada e imutável, segura para passar aos workers.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#1",
+      "source": "``convolve`` or ``deconvolve``.",
+      "source_sha256": "b8aa4b7698950309145d07853b7084b514dfd12fe5b6d994d2067d145a90b2a3",
+      "context": "``convolve`` or ``deconvolve``.",
+      "translation": "``convolve`` ou ``deconvolve``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#2",
+      "source": "captured immutable measured or Gaussian kernel.",
+      "source_sha256": "653611cbf7185649817283e8ce659cfff84987353e3d638b0b33fcacd1fdd69c",
+      "context": "captured immutable measured or Gaussian kernel.",
+      "translation": "kernel medido ou gaussiano capturado e imutável.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#3",
+      "source": "image spacing in spatial array order, in micrometers.",
+      "source_sha256": "f69becc2911ddbbc24cdc5d8d8ad2502bf8f4b30b9133666acf325b78e6c9744",
+      "context": "image spacing in spatial array order, in micrometers.",
+      "translation": "espaçamento da imagem na ordem espacial do array, em micrômetros.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#4",
+      "source": "Richardson–Lucy iterations; unused for convolution.",
+      "source_sha256": "007f63926151f8a923ae38dd26103f2b85ac7991ce9ae936609dd5bd72465f80",
+      "context": "Richardson–Lucy iterations; unused for convolution.",
+      "translation": "iterações de Richardson–Lucy; não usado para convolução.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.apply#0",
+      "source": "Process one spatial image with an explicit last channel axis.",
+      "source_sha256": "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
+      "context": "Process one spatial image with an explicit last image data channel axis.",
+      "translation": "Processa uma imagem espacial com um último eixo de canais explícito.",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }
