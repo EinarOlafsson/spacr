@@ -1,0 +1,344 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.column_info#2",
+      "source": "name of the table or view; it is quoted as an identifier.",
+      "source_sha256": "c8a34685ab267be39e86d88a666676052c735d14925a9587ac31b2f6435d1cf5",
+      "context": "name of the table or view; it is quoted as an identifier.",
+      "translation": "테이블 또는 뷰의 이름이며, 식별자로 인용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.count_non_null#2",
+      "source": "name of the table or view to scan; quoted as an identifier.",
+      "source_sha256": "de97c79ea1471dd11f15e30497561f423effedac673366be4683999161684882",
+      "context": "name of the table or view to scan; quoted as an identifier.",
+      "translation": "스캔할 테이블 또는 뷰의 이름이며, 식별자로 인용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.count_non_null#3",
+      "source": "name of the column whose non-NULL values are counted; quoted as an identifier.",
+      "source_sha256": "3fb72fa18c9d978ce03f7aca8e50419ca19c22d7fffc458aa6f439c01209ebac",
+      "context": "name of the column whose non-NULL values are counted; quoted as an identifier.",
+      "translation": "NULL 이 아닌 값을 셀 열의 이름이며, 식별자로 인용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.chip_editor#2",
+      "source": "the widget to test, or None; line edits and combo boxes always yield None.",
+      "source_sha256": "5af838e7c65fac82c2c1be2942bd587ab6e4af306ce4dae3e4e348355ab2fe43",
+      "context": "the widget to test, or None; line edits and combo boxes always yield None.",
+      "translation": "검사할 위젯 또는 None 입니다. 한 줄 편집기와 콤보 상자는 항상 None 을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.field_is_list#1",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None.",
+      "source_sha256": "7ec07cc94c07f9a0ee9ec84ab50c42f9a50687c2ad6b8f568f7d53e6c407850d",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None.",
+      "translation": "설정 필드입니다: ``QLineEdit``, ``QComboBox``, 칩 목록 편집기, 또는 None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.field_text#1",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Any other widget reads as an empty string.",
+      "source_sha256": "48d854e9d870b013718f4c73c72d8e62378eea6daa1bb261405c4b258fff2854",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Any other widget reads as an empty string.",
+      "translation": "설정 필드입니다: ``QLineEdit``, ``QComboBox``, 칩 목록 편집기, 또는 None. 그 밖의 위젯은 빈 문자열로 읽힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.field_values#1",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Text is split on commas, and a bracketed ``[...]`` list has its quotes stripped.",
+      "source_sha256": "8ac485df0c284872e80bdf2a6fb47f9ba5b5f85d361d39ff372af1abbc90c3e6",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Text is split on commas, and a bracketed ``[...]`` list has its quotes stripped.",
+      "translation": "설정 필드입니다: ``QLineEdit``, ``QComboBox``, 칩 목록 편집기, 또는 None. 텍스트는 쉼표로 나뉘며, 대괄호로 된 ``[...]`` 목록은 따옴표가 제거됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.read_table#2",
+      "source": "open schema reader for the database; None returns the empty payload.",
+      "source_sha256": "f30ee8fb0fe1d4ec70f9765fd84b970be38c5117267eced0dcd13a9a265f1eec",
+      "context": "open schema reader for the database; None returns the empty payload.",
+      "translation": "데이터베이스에 대해 열린 스키마 판독기입니다. None 이면 빈 페이로드를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.read_table#3",
+      "source": "table name to read; None or an empty name returns the empty payload.",
+      "source_sha256": "3e8fd3475ffc9c0aecb53b95c15b998c4d56b5fd17e696704dd3e6dbfcb3846e",
+      "context": "table name to read; None or an empty name returns the empty payload.",
+      "translation": "읽을 테이블 이름입니다. None 이나 빈 이름이면 빈 페이로드를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.set_field_values#2",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. None returns False.",
+      "source_sha256": "a5b6c7271c5ac39cd8dd940c1967b6034a8c613fc1a6de2b51b216698296661a",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. None returns False.",
+      "translation": "설정 필드입니다: ``QLineEdit``, ``QComboBox``, 칩 목록 편집기, 또는 None. None 이면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.set_field_values#3",
+      "source": "column names to write; blank entries are dropped, and an empty result returns False.",
+      "source_sha256": "1e186fb1148daaff3b3412d6b4d156f39b12c3eaf0c62f8404411718d2fe6a48",
+      "context": "column names to write; blank entries are dropped, and an empty result returns False.",
+      "translation": "기록할 열 이름입니다. 빈 항목은 제외되며, 결과가 비어 있으면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel#7",
+      "source": "False keeps the application-wide log out of this panel, for a screen whose console carries only its own messages (Make Masks); the log still reaches the file and the shell's console.",
+      "source_sha256": "9a07c78d2b4919423993e32be9930846b70dea4c0a8d7a453a889883ea3b7c94",
+      "context": "False keeps the application-wide log out of this panel, for a screen whose console carries only its own messages (Make Masks); the log still reaches the file and the shell's console.",
+      "translation": "False 이면 애플리케이션 전체 로그를 이 패널에 넣지 않습니다. 콘솔이 자체 메시지만 담는 화면(Make Masks)을 위한 것이며, 로그는 여전히 파일과 셸 콘솔로 갑니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel#8",
+      "source": "False hides the chat row, for a console that only reports.",
+      "source_sha256": "eb3f137af0fa6ffa5fb1b7ca46f09792871d5df76d2ade577a4b234cfc188808",
+      "context": "False hides the chat row, for a console that only reports.",
+      "translation": "False 이면 채팅 행을 숨깁니다. 보고만 하는 콘솔을 위한 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.ai_explanation_of#3",
+      "source": "the traceback the report is about; compared, whitespace-stripped, with the traceback the AI last explained.",
+      "source_sha256": "1916576e3c0d70139a0098bd65f2ae23a7ede9cd2ebd302c7e502b8d35368373",
+      "context": "the traceback the report is about; compared, whitespace-stripped, with the traceback the AI last explained.",
+      "translation": "보고서의 대상인 트레이스백입니다. 앞뒤 공백을 제거하여 AI 가 마지막으로 설명한 트레이스백과 비교합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_notice#2",
+      "source": "the notice's untranslated English template; empty does nothing. It is translated on the GUI thread and filled with the keyword values.",
+      "source_sha256": "b2b8055c8bd7dd1077758c65abaf4ee47b3c9046fc1325d73780bf30da0550bc",
+      "context": "the notice's untranslated English template; empty does nothing. It is translated on the main GUI execution path and filled with the keyword values.",
+      "translation": "알림의 번역되지 않은 영어 템플릿입니다. 비어 있으면 아무것도 하지 않습니다. GUI 실행 경로에서 번역되고 키워드 값으로 채워집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_stdout#3",
+      "source": "the pipeline output to append; empty does nothing.",
+      "source_sha256": "20c246a9f70d6e7621774d47c2199c72418d8aa0deead51359edd3ee09d62b75",
+      "context": "the workflow output to append; empty does nothing.",
+      "translation": "추가할 워크플로 출력입니다. 비어 있으면 아무것도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#5",
+      "source": "the heading text.",
+      "source_sha256": "29c428dd52fb74b1a8ec928af31b2968c0fe638c84ea9b946df444b16b4fb3d0",
+      "context": "the heading text.",
+      "translation": "제목 텍스트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#6",
+      "source": "colour for the heading, or ``None`` for the theme's.",
+      "source_sha256": "794cbc0bacf0d6e0f596256f1fc443735c53e368650ba3261afb6caa6aa10faf",
+      "context": "colour for the heading, or ``None`` for the theme's.",
+      "translation": "제목의 색이며, 테마 색을 쓰려면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#7",
+      "source": "a widget pinned to the right of the heading, such as a working indicator.",
+      "source_sha256": "372e3af4eb82ce42e3a6799b0cca10214177dbadfe94cb2d2664bfd6597002b6",
+      "context": "a widget pinned to the right of the heading, such as a working indicator.",
+      "translation": "작업 중 표시기처럼 제목 오른쪽에 고정되는 위젯입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#8",
+      "source": "the bar that was drawn, or ``None`` when the one already showing says the same thing and was kept. The caller needs the widget to be able to take an empty heading down again -- see :meth:`_take_down_the_waiting_heading`.",
+      "source_sha256": "2d9de70df8ab9555d17b5152521a131e036d3800584b91af04afd9c5a2d42689",
+      "context": "the bar that was drawn, or ``None`` when the one already showing says the same thing and was kept. The caller needs the widget to be able to take an empty heading down again -- see :meth:`_take_down_the_waiting_heading`.",
+      "translation": "그려진 막대이며, 이미 표시된 막대가 같은 내용을 말해 유지되었으면 ``None`` 입니다. 호출자는 빈 제목을 다시 내리려면 이 위젯이 필요합니다 -- :meth:`_take_down_the_waiting_heading` 을 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.closeEvent#1",
+      "source": "the close event, passed to the base class after :meth:`shutdown` drains the AI thread.",
+      "source_sha256": "67783e968eb2eacf0a6f8371b54f3242fb6e963363116fa90557bfe7441cdc74",
+      "context": "the close event, passed to the base class after :meth:`shutdown` drains the AI thread.",
+      "translation": "닫기 이벤트이며, :meth:`shutdown` 이 AI 스레드를 비운 뒤 기본 클래스로 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.collapse_section#1",
+      "source": "the topic bar (section heading) whose section is meant.",
+      "source_sha256": "475d73f6880fbf32464ad093eba284154d891679a7b7715f392050a73a723c39",
+      "context": "the topic bar (section heading) whose section is meant.",
+      "translation": "대상 섹션의 주제 막대(섹션 제목)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.section_body#2",
+      "source": "the topic bar (section heading) whose section is meant. A bar not in the console gives an empty list.",
+      "source_sha256": "1d3271015059143cebae16e5063c79db26461bbe78411c6833a74e3e6bc9c4a5",
+      "context": "the topic bar (section heading) whose section is meant. A bar not in the console gives an empty list.",
+      "translation": "대상 섹션의 주제 막대(섹션 제목)입니다. 콘솔에 없는 막대이면 빈 목록을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.section_text#1",
+      "source": "the topic bar (section heading) whose section is meant. A bar not in the console gives ``\"\"``.",
+      "source_sha256": "c33cf6e7bc272c86bbaa9d074d9720c0fbbfcb4b8e5456963888726980f08949",
+      "context": "the topic bar (section heading) whose section is meant. A bar not in the console gives ``\"\"``.",
+      "translation": "대상 섹션의 주제 막대(섹션 제목)입니다. 콘솔에 없는 막대이면 ``\"\"`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_active_app#1",
+      "source": "the text shown in the next automatic topic divider.",
+      "source_sha256": "0c0e01a902e5edac6fafdb92da19ef71acd631f15532c7fa65e597003807239a",
+      "context": "the text shown in the next automatic topic divider.",
+      "translation": "다음 자동 주제 구분선에 표시할 텍스트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_ai_active#1",
+      "source": "whether Enter in the input goes to the AI; converted to bool.",
+      "source_sha256": "79ddcd4ed317256852b9e7d8ac9cd53ce9e34a9af68f9c1fcb66ec9fa0c7d2fb",
+      "context": "whether Enter in the input goes to the AI; converted to bool.",
+      "translation": "입력창에서 Enter 를 누르면 AI 로 보낼지 여부이며, bool 로 변환됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_ai_provider#1",
+      "source": "the provider's name, or None to unset it.",
+      "source_sha256": "27e2d7d8d9b36c931880ec5924be488c4a5c1592c4532a0636b5538e835e1c1c",
+      "context": "the provider's name, or None to unset it.",
+      "translation": "제공자의 이름이며, 해제하려면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_console_font_pt#1",
+      "source": "the font size in points, converted to int.",
+      "source_sha256": "623c0c2c5003b08dbf6dd34065e02653c70701ba0af4060b5c7d96e43001f49a",
+      "context": "the font size in points, converted to int.",
+      "translation": "포인트 단위의 글꼴 크기이며, int 로 변환됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ai_color_for_provider#1",
+      "source": "the provider's name, matched case-insensitively by substring (``claude``, ``gpt``, ``gemini`` and the like); None or unknown gives the default colour.",
+      "source_sha256": "b716e79449061792294472ae621bef12eee94a86b3a4e2f69dc5ac392cf85a6b",
+      "context": "the provider's name, matched case-insensitively by substring (``claude``, ``gpt``, ``gemini`` and the like); None or unknown gives the default colour.",
+      "translation": "제공자의 이름이며, 대소문자 구분 없이 부분 문자열로 비교합니다(``claude``, ``gpt``, ``gemini`` 등). None 이나 알 수 없는 이름은 기본 색을 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.set_split_state#2",
+      "source": "the screen the state belongs to; stripped, and a blank key stores nothing.",
+      "source_sha256": "f9620829117cc07447a5ddf480d26a7149d5d864e31f987e2598c14d4fd5c31b",
+      "context": "the screen the state belongs to; stripped, and a blank key stores nothing.",
+      "translation": "상태가 속한 화면입니다. 앞뒤 공백을 제거하며, 빈 키이면 아무것도 저장하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.set_split_state#3",
+      "source": "the ``QSplitter.saveState()`` bytes, stored as a ``QByteArray``.",
+      "source_sha256": "a1715fbf2b70f882a474dd00a8883cf0f78013a33c303d1b0f873fcb7b9bc591",
+      "context": "the ``QSplitter.saveState()`` bytes, stored as a ``QByteArray``.",
+      "translation": "``QSplitter.saveState()`` 바이트이며, ``QByteArray`` 로 저장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartResult#18",
+      "source": "the column the plotted value was read from.",
+      "source_sha256": "9fafb0b74e4cc5850a23b369c0911ed610cbd70afc776d283bf0b8f0dffb8964",
+      "context": "the column the plotted value was read from.",
+      "translation": "플롯한 값을 읽은 열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartResult#19",
+      "source": "the column that identifies each plate.",
+      "source_sha256": "b9c156001e0b2959509b8e512cac2ac05071760f69494d619a01bd128fd8902a",
+      "context": "the column that identifies each laboratory microplate.",
+      "translation": "각 플레이트를 식별하는 열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartResult.rules_at#2",
+      "source": "the point's position in run order; outside ``0 .. len(self) - 1`` raises :class:`ControlChartError`.",
+      "source_sha256": "c692e91752eeed5dc6141c787b6ff30f11a711abe34236c18c28d029a2e05ee7",
+      "context": "the point's position in run order; outside ``0 .. len(self) - 1`` raises :class:`ControlChartError`.",
+      "translation": "처리 세션 순서에서 점의 위치입니다. ``0 .. len(self) - 1`` 밖이면 :class:`ControlChartError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.from_dict#2",
+      "source": "a mapping as written by :meth:`to_dict`; unknown keys are ignored and missing ones take their defaults.",
+      "source_sha256": "ea08490d03762ab1ae5d9942437eb672365dc2687b00e686eecacb8016496ec8",
+      "context": "a mapping as written by :meth:`to_dict`; unknown structured-data names are ignored and missing ones take their defaults.",
+      "translation": ":meth:`to_dict` 가 기록한 매핑입니다. 알 수 없는 키는 무시하고, 없는 키는 기본값을 씁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.from_json#1",
+      "source": "a JSON string as written by :meth:`to_json`.",
+      "source_sha256": "084d1cf9d3f485c16271c143ed28f21e2325b0290f61424b5751d8a11d6afee3",
+      "context": "a JSON string as written by :meth:`to_json`.",
+      "translation": ":meth:`to_json` 이 기록한 JSON 문자열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_control#1",
+      "source": "the column holding the control labels, or None.",
+      "source_sha256": "d8af9f3f22a173d51278f75f181c8b1145696bdc28722a0f3694ad9b4a6b7be2",
+      "context": "the column holding the control labels, or None.",
+      "translation": "대조군 레이블을 담은 열 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_control#2",
+      "source": "the labels in that column that mark control wells.",
+      "source_sha256": "495478527e25fa832383d82a62e8dfed7449b3ad269c0bdc514aec0f12ce05e0",
+      "context": "the labels in that column that mark control microplate sample positions.",
+      "translation": "그 열에서 대조군 시료 위치를 나타내는 레이블입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_estimator#1",
+      "source": "the sigma estimator name, e.g. ``'auto'``, ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` or ``'mad'``; stored without checking.",
+      "source_sha256": "219e3b713df754b4085d9902c8de4923cd3fb148bd081ce79b6fbca69fe6215a",
+      "context": "the sigma estimator name, e.g. ``'auto'``, ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` or ``'mad'``; stored without checking.",
+      "translation": "sigma 추정량 이름입니다(예: ``'auto'``, ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` 또는 ``'mad'``). 확인 없이 저장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_rules#1",
+      "source": "the rule numbers (1 to 8) to run.",
+      "source_sha256": "3be3fe301e41e510e525b8d8b2ed450ab440b63948aa1dc754fc2d22e771115a",
+      "context": "the rule numbers (1 to 8) to run.",
+      "translation": "실행할 규칙 번호(1 에서 8)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.c4#3",
+      "source": "the subgroup size, converted to int; must be at least 2.",
+      "source_sha256": "55d917f375dfcbd3f9765171bb7a9dd965288c84889c14ca5cdaa001a7bb1680",
+      "context": "the subgroup size, converted to int; must be at least 2.",
+      "translation": "하위 그룹 크기이며, int 로 변환됩니다. 최소 2 여야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.candidate_key_columns#2",
+      "source": "the per-well table whose columns are classified by :func:`spacr.qt.widgets.graph_spec.column_kinds`. Columns named like a plate, date, time, batch, run or order are added.",
+      "source_sha256": "9e9a4e5add7cdc580d57a171c65a52c6306a50cb04a2622f0ddf3f2570902d20",
+      "context": "the per-microplate sample position table whose columns are classified by :func:`spacr.qt.widgets.graph_spec.column_kinds`. Columns named like a laboratory microplate, date, time, batch, run or order are added.",
+      "translation": ":func:`spacr.qt.widgets.graph_spec.column_kinds` 로 열을 분류하는 시료 위치별 테이블입니다. 플레이트, 날짜, 시간, 배치, 처리 세션, 순서처럼 이름 붙은 열이 추가됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
