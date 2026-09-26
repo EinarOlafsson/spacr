@@ -476,7 +476,7 @@ class PreviewScaler(QObject):
                     self._scale_own_sheet(widget, own)
                 self._scale_geometry(widget, own)
                 layout = widget.layout()
-                if layout is not None:
+                if isinstance(layout, QLayout):
                     self._scale_layout(layout, own)
                 if widget is root:
                     continue
@@ -676,11 +676,10 @@ class PreviewScaler(QObject):
                     layout.setVerticalSpacing(wanted[1])
                 else:
                     layout.setSpacing(wanted[0])
-        for index in range(layout.count()):
-            item = layout.itemAt(index)
-            child = item.layout() if item is not None else None
-            if child is not None:
-                self._scale_layout(child, factor)
+        from ..gui_scale import _child_layouts
+
+        for child in _child_layouts(layout):
+            self._scale_layout(child, factor)
 
 
 def _qsize(pair):

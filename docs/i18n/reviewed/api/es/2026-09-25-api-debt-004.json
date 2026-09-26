@@ -298,7 +298,9 @@
       "source_sha256": "eddb96607ced804c33e56264d5e402ecae5303f79079c518665f05ef9f72b39a",
       "context": "``object_filters`` maps an object type (``cell``, ``nucleus``, ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so each object type is filtered on its own properties. A missing or empty setting is no filters. The legacy ``{object}_min_area`` family is migrated by :func:`legacy_filters` where it is read, not here.",
       "translation": "``object_filters`` asigna un tipo de objeto (``cell``, ``nucleus``, ``pathogen``, ``organelle`` o una ranura de orgánulo) a su lista de filtros, de modo que cada tipo de objeto se filtra por sus propias propiedades. Un ajuste ausente o vacío significa sin filtros. La familia heredada ``{object}_min_area`` la migra :func:`legacy_filters` allí donde se lee, no aquí.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.settings_filters#2",

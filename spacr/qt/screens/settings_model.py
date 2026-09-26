@@ -1059,7 +1059,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "surrogate_min_fidelity_improvement",
         )),
         ("Importance & diagnostics", (
-            "surrogate_n_repeats", "surrogate_shap_max_samples",
+            "surrogate_importance_methods", "surrogate_n_repeats",
+            "surrogate_shap_explainer", "surrogate_shap_max_samples",
             "surrogate_exclude", "surrogate_correlation_threshold",
         )),
         ("Output & runtime", ("dst", "verbose")),
@@ -1243,6 +1244,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "object_distance_intensity",
             "summarize_organelles_by",
         )),
+        ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2628,6 +2630,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "CONFLUENCY (ALPHA)":
+        "How much of each field is covered by cells, measured per field and "
+        "per well into measurements.db with a monolayer QC flag: from the "
+        "cell masks, from the texture of a brightfield or phase channel, or "
+        "from a fluorescent stain. Plaque and infection results from a thin "
+        "or torn monolayer can then be dropped or divided by the covered "
+        "fraction.",
     "MOTILITY (BETA)":
         "The beta motility assay run inline with the mask pipeline: whether "
         "it runs at all, and the per-object tracking parameters it uses. "
@@ -8907,9 +8916,9 @@ class SettingsWidgets:
     def spawn_organelle_slots(self, count) -> List[str]:
         """Build the controls a raised ``number_of_organelles`` asks for.
 
-        Instruction 356, case 2: raising the count used to rebuild the whole
-        screen, because a slot's controls do not exist until the count says
-        so. This builds ONLY the new slots' controls, on the panel already
+        A slot's controls do not exist until the count says so, and
+        rebuilding the whole screen to add them would discard what the user
+        had typed. This builds ONLY the new slots' controls, on the panel already
         on screen; every control that existed keeps its identity and
         whatever the user typed into it. The caller lays the new controls
         out.

@@ -2514,7 +2514,9 @@
       "source_sha256": "28aeefdb811ae70f189dee69d6e8fcf4688b426e67235601a9d0c5f3e567652b",
       "context": "The button is placed with the other actions, before the Magnifier and the settings toggle, so that pair stays together at the end of the row whatever is added after them.",
       "translation": "बटन अन्य क्रियाओं के साथ, Magnifier और सेटिंग्स टॉगल से पहले रखा जाता है, ताकि वह जोड़ी पंक्ति के अंत में साथ रहे, उनके बाद चाहे जो जोड़ा जाए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#0",
@@ -3050,7 +3052,9 @@
       "source_sha256": "da7ed3a577519a636daa1c049ec9a397e29f7f6452c19eb74bb9093e94f41618",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it.",
       "translation": "``cellpose3:<name or path>`` मॉडल -- मानक Cellpose 3 मॉडल या bioimage.io Cellpose 3 चेकपॉइंट -- बिल्कुल भी Cellpose 4 मॉडल नहीं है: Cellpose 4 ऐसा चेकपॉइंट लोड करके उससे निरर्थक सेगमेंटेशन करेगा। इसे :func:`_backend_model` द्वारा Cellpose 3 बैकएंड के अपने एनवायरनमेंट में लोड किया जाता है, जैसे Mask निर्माण इसे लोड करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.load_cellpose_model#4",
@@ -3722,7 +3726,9 @@
       "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
       "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
       "translation": "Home > Toxoplasma खोलें और Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay या Replication Assay चुनें। चुना गया मॉड्यूल अपने इनपुट चयनकर्ता, सेटिंग्स, पूर्वावलोकन और Run नियंत्रण देता है। उदाहरण उपलब्ध होने पर उसके Test data नियंत्रण का उपयोग करें। Plaque Assay छवियों से शुरू होता है; बाकी परख संबंधित मापन तालिकाओं और ऑब्जेक्ट संबंधों का उपयोग करती हैं। चलाने से पहले हर मॉड्यूल की इनपुट सहायता का पालन करें, फिर उसके चुने गए आउटपुट फ़ोल्डर में परिणाम खोलें। Starplast Toxoplasma ज्ञान मानचित्र देखने के लिए एक अलग एप्लिकेशन खोलता है; इसका पहला लॉन्च इंस्टॉलेशन की पेशकश करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#4",
@@ -3738,7 +3744,9 @@
       "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
       "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
       "translation": "रक्त-अवस्था, यकृत-अवस्था, गतिशीलता और यौगिक-प्रतिक्रिया विषयों को ब्राउज़ करने के लिए Home > Plasmodium खोलें। एपिकॉम्प्लेक्सन आरेख देखें और जीव-विशिष्ट जानकारी के लिए PlasmoDB या UniProt लिंक का अनुसरण करें। परख टाइलों पर अभी Coming soon लिखा है और वे अक्षम हैं; इस पेज पर कोई चलाने योग्य Plasmodium-विशिष्ट विश्लेषण नहीं है और यह कोई परिणाम नहीं लिखता। अभी छवियों के साथ काम करने के लिए, Home पर लौटें और अपने प्रयोग के लिए उपयुक्त छवियों, चैनलों और मास्क के साथ सामान्य सेगमेंटेशन और मापन मॉड्यूल का उपयोग करें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#6",
@@ -3754,7 +3762,9 @@
       "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
       "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
       "translation": "आकृति-विज्ञान, तंतु-निर्माण, बायोफ़िल्म और मेज़बान-कोशिका अंतःक्रिया विषयों को ब्राउज़ करने के लिए Home > Candida खोलें। budding-yeast आरेख देखें और जीन व प्रोटीन जानकारी के लिए Candida Genome Database या UniProt लिंक का अनुसरण करें। परख टाइलों पर अभी Coming soon लिखा है और वे अक्षम हैं; इस पेज को किसी डेटा की आवश्यकता नहीं और यह कोई विश्लेषण फ़ाइल नहीं लिखता। उपलब्ध छवि कार्यप्रवाह के लिए, Home पर लौटें और सामान्य सेगमेंटेशन और मापन मॉड्यूल चुनें, अपनी प्रजाति और प्रयोगात्मक रीडआउट के अनुरूप मास्क और इमेजिंग चैनल चुनते हुए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep.sweepable#2",

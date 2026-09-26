@@ -588,7 +588,14 @@ def stream_masks_from_stack(
     scratch = Path(npz_dir) if npz_dir else stacks[0].path.parent / "_scratch"
     scratch.mkdir(parents=True, exist_ok=True)
 
-    from .object import _prefixed_model_route
+    try:
+        from .object import _prefixed_model_route
+    except ImportError as e:
+        raise RuntimeError(
+            "cellpose is required for v2 mask streaming: spacr.object, "
+            f"which routes a model setting to its backend, could not be "
+            f"imported ({e})"
+        ) from e
     route = _prefixed_model_route(model_name, postprocess_settings)
     if route is not None:
         from . import _segmentation_backends

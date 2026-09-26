@@ -13,7 +13,9 @@
       "label": "spacr.qt.organisms#1",
       "source": "The assay keys are existing pipeline identifiers. A proposal has no route, so the organism pages cannot accidentally run an unimplemented analysis. Artwork provenance, licences and checksums ship in organism_sources.json.",
       "source_sha256": "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f",
-      "translation": "분석 키는 기존 파이프라인의 식별자입니다. 제안에는 탐색 경로가 없으므로 생물 페이지에서 아직 구현되지 않은 분석을 실수로 실행할 수 없습니다. 그림의 출처, 라이선스 및 체크섬은 organism_sources.json 파일에 포함됩니다."
+      "translation": "분석 키는 기존 파이프라인의 식별자입니다. 제안에는 탐색 경로가 없으므로 생물 페이지에서 아직 구현되지 않은 분석을 실수로 실행할 수 없습니다. 그림의 출처, 라이선스 및 체크섬은 organism_sources.json 파일에 포함됩니다.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.",

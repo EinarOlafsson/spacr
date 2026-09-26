@@ -241,7 +241,7 @@
       "source": "Toxoplasma",
       "source_sha256": "3ff5936a6dc0cecc6db54a2188e880f2e27a3e40bb4462514d23ef2293825b1d",
       "context": "Toxoplasma",
-      "translation": "Toxoplasma gondii",
+      "translation": "Toxoplasma",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -250,15 +250,17 @@
       "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
       "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
       "translation": "Abra Inicio > Toxoplasma y elija Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay o Replication Assay. El módulo seleccionado ofrece sus selectores de entrada, ajustes, vista previa y controles Run. Use su control Test data cuando haya un ejemplo disponible. Plaque Assay parte de imágenes; los demás ensayos usan las tablas de mediciones y relaciones entre objetos correspondientes. Siga la ayuda de entrada de cada módulo antes de ejecutarlo y después abra los resultados en la carpeta de salida que haya seleccionado. Starplast abre una aplicación aparte para explorar el mapa de conocimiento de Toxoplasma; su primer arranque ofrece instalarla.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#4",
       "source": "Plasmodium",
       "source_sha256": "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
       "context": "Plasmodium",
-      "translation": "Plasmodio",
-      "review_basis": "MT draft kept after AI review"
+      "translation": "Plasmodium",
+      "review_basis": "MT draft edited in AI review"
     },
     {
       "label": "spacr.qt.screens.organism_screen#5",
@@ -266,15 +268,17 @@
       "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
       "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
       "translation": "Abra Inicio > Plasmodium para examinar temas de estadio sanguíneo, estadio hepático, motilidad y respuesta a compuestos. Explore el diagrama de apicomplejo y siga los enlaces a PlasmoDB o UniProt para obtener información específica del organismo. Las teselas de ensayos indican por ahora Coming soon y están desactivadas; esta página no tiene ningún análisis específico de Plasmodium ejecutable y no escribe resultados. Para trabajar con imágenes ahora, vuelva a Inicio y use los módulos generales de segmentación y medición con imágenes, canales y máscaras adecuados para su experimento.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#6",
       "source": "Candida",
       "source_sha256": "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
       "context": "Candida",
-      "translation": "Cándida",
-      "review_basis": "MT draft kept after AI review"
+      "translation": "Candida",
+      "review_basis": "MT draft edited in AI review"
     },
     {
       "label": "spacr.qt.screens.organism_screen#7",
@@ -282,7 +286,9 @@
       "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
       "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
       "translation": "Abra Inicio > Candida para examinar temas de morfología, filamentación, biopelícula e interacción con la célula huésped. Explore el diagrama de levadura en gemación y siga los enlaces a Candida Genome Database o UniProt para obtener información sobre genes y proteínas. Las teselas de ensayos indican por ahora Coming soon y están desactivadas; esta página no requiere datos ni escribe archivos de análisis. Para un flujo de trabajo de imágenes disponible, vuelva a Inicio y seleccione los módulos generales de segmentación y medición, eligiendo máscaras y canales de imagen adecuados para su especie y su lectura experimental.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep.sweepable#2",
@@ -1042,7 +1048,9 @@
       "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
       "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
       "translation": "ajustes de segmentación; se leen ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` y ``cellprob``, cada uno con un valor predeterminado.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",

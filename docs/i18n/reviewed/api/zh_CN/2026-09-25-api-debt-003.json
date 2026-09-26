@@ -1162,7 +1162,9 @@
       "source_sha256": "c5612469082f8c5f4d1c921458f8ba1f61dbef7958af69e2578f8e2bacd5553f",
       "context": "screen — the two operating systems whose own folders have spaces in them. A UNC path was not a path at all: nothing here started at ``\\\\``. What is left is the tail of the LAST component of an unquoted path, since only a separator can prove that a space is inside the path rather than after it; a quoted path is taken whole, and the title and every ``repr``-ed settings value are quoted.",
       "translation": "筛选实验名称——这两个操作系统自身的文件夹名称中都含有空格。UNC 路径则根本不被当作路径：这里没有任何规则从 ``\\\\`` 开始匹配。现在剩下的只是未加引号路径的最后一个组成部分的末尾，因为只有分隔符才能证明空格位于路径内部而不是路径之后；带引号的路径会被整体处理，而标题以及每个经过 ``repr`` 处理的设置值都带有引号。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#5",
@@ -4090,7 +4092,9 @@
       "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
       "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
       "translation": "分割设置；会读取 ``model``、``channel``、``normalise``、``lo_pct``、``hi_pct``、``diameter``、``flow_threshold`` 和 ``cellprob``，每项都有默认值。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",

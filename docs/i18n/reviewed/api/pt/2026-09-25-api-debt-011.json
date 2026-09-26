@@ -5,6 +5,198 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.crop_loader.plan_crops#0",
+      "source": "Answer ``query`` without reading a pixel.",
+      "source_sha256": "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+      "context": "Answer ``query`` without reading a pixel.",
+      "translation": "Responde a ``query`` sem ler nenhum pixel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.example_archives.example_set_folder#3",
+      "source": "as :func:`example_set` does.",
+      "source_sha256": "ff1b6b38baf10d0bfbde7e2e02e4b72f59e78de426583603cb88bcb449c22922",
+      "context": "as :func:`example_set` does.",
+      "translation": "tal como :func:`example_set` faz.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#6",
+      "source": "``bounding_box`` or ``object``; see :func:`spacr.crop_source.crop_object`.",
+      "source_sha256": "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
+      "context": "``bounding_box`` or ``object``; see :func:`spacr.crop_source.crop_object`.",
+      "translation": "``bounding_box`` ou ``object``; veja :func:`spacr.crop_source.crop_object`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.fetch_figures#4",
+      "source": "``fn(url, **kw) -> response``; defaults to requests.",
+      "source_sha256": "ce31e4ea2439908351921f75d27d35567edc44cdb6431c0c33af34b05b086058",
+      "context": "``fn(url, **kw) -> response``; defaults to requests.",
+      "translation": "``fn(url, **kw) -> response``; por padrão, usa requests.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.figures_from_pdf#6",
+      "source": "``fn(path) -> pdfplumber-like document``; defaults to :func:`pdfplumber.open`.",
+      "source_sha256": "ba738ba0e0c527729507f5f12e86e8b60631bed3018f3dc41d42400cc78585a4",
+      "context": "``fn(path) -> pdfplumber-like document``; defaults to :func:`pdfplumber.open`.",
+      "translation": "``fn(path) -> pdfplumber-like document``; por padrão, :func:`pdfplumber.open`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.main#1",
+      "source": "arguments; defaults to ``sys.argv[1:]``.",
+      "source_sha256": "19a7c594ce78b4a79d0f2018ac5dc7a01797d66d4a7ec453e7ad0c57dbcbfa5c",
+      "context": "arguments; defaults to ``sys.argv[1:]``.",
+      "translation": "argumentos; por padrão, ``sys.argv[1:]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.measure_figure_folder#3",
+      "source": "output folder; default ``<src>/plaque_figures``.",
+      "source_sha256": "3f98f947966df8d2e2ead6d74b9e64840ac30b73ed84601088bde5ba167716c4",
+      "context": "output folder; default ``<src>/plaque_figures``.",
+      "translation": "pasta de saída; padrão ``<src>/plaque_figures``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.measure_region#3",
+      "source": "``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` is None without a ruler.",
+      "source_sha256": "5324b789dbcb1ee0665abbfe04536b76d22662ac029cab343eeaec7ac8c5ca3a",
+      "context": "``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` is None without a ruler.",
+      "translation": "``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` é None sem uma régua.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.resolve_paper#3",
+      "source": "``fn(url, params=...) -> response``; defaults to requests.",
+      "source_sha256": "16fad6cbecc9164abfd0d6f9fc6c978899ee4545c96c75fbd5a446c316a2adf5",
+      "context": "``fn(url, params=...) -> response``; defaults to requests.",
+      "translation": "``fn(url, params=...) -> response``; por padrão, usa requests.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.apply#3",
+      "source": "float32 processed intensities without source mutation.",
+      "source_sha256": "2df3016acaaf11f6c40f4e2aeb6e9b475ec1c7627795e521a73fe06d157566bb",
+      "context": "float32 processed intensities without source mutation.",
+      "translation": "intensidades processadas em float32, sem alterar a imagem de origem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#5",
+      "source": "``False`` keeps without asking.",
+      "source_sha256": "493188a8d5bc3a48f6870c3fec474bbc03d39a489dd8de1ee2b0d2320ee313f8",
+      "context": "``False`` keeps without asking.",
+      "translation": "``False`` mantém a escala sem perguntar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#2",
+      "source": "``fn(repo, filename) -> local path``; defaults to :func:`huggingface_hub.hf_hub_download`.",
+      "source_sha256": "06b565b74c71ad59d4a06c2bfe2d1945df0cbafce5d90fdd74d26d78e1163a16",
+      "context": "``fn(repo, filename) -> local path``; defaults to :func:`huggingface_hub.hf_hub_download`.",
+      "translation": "``fn(repo, filename) -> local path``; por padrão, :func:`huggingface_hub.hf_hub_download`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#3",
+      "source": "``fn(repo, folder) -> [(path, size)]``; defaults to :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "source_sha256": "cd46649aeffaaa3f1e319276b2435d83b483832a460235923e988a37a4c54713",
+      "context": "``fn(repo, folder) -> [(path, size)]``; defaults to :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "translation": "``fn(repo, folder) -> [(path, size)]``; por padrão, :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#4",
+      "source": "further filter entries (see :func:`normalise_filters`).",
+      "source_sha256": "70b5e3d1b29957702ec73c3b92e8009d262c97f5845e9092dc3305b098dd7e86",
+      "context": "further filter entries (see :func:`normalise_filters`).",
+      "translation": "entradas de filtro adicionais (veja :func:`normalise_filters`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#4",
+      "source": "see :func:`load_the_test_data`.",
+      "source_sha256": "ec34573fd93bd06bf042ecc20f678aee5444aa7fcff3dcb08bc1b6ef265e836c",
+      "context": "see :func:`load_the_test_data`.",
+      "translation": "veja :func:`load_the_test_data`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.silence#2",
+      "source": "an all-zero moment.",
+      "source_sha256": "17a09a9567b3c7a2b864cfe0f1d75aa43e189614e9e94490857f21e57d2b4836",
+      "context": "an all-zero moment.",
+      "translation": "um momento com todos os valores em zero.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.load_template#2",
+      "source": "a template key, see :meth:`template_keys`.",
+      "source_sha256": "3b0f274020cb3488f3cdf77ed44564c6678507d2644efe46ececdcaa23b0b60d",
+      "context": "a template key, see :meth:`template_keys`.",
+      "translation": "uma chave de modelo; veja :meth:`template_keys`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.SoundEngine#4",
+      "source": "see :class:`_SoundPlayer`.",
+      "source_sha256": "757300643184fd26989945bea45f469a9961abc33a856d9ed13a79d026fd6585",
+      "context": "see :class:`_SoundPlayer`.",
+      "translation": "veja :class:`_SoundPlayer`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.SoundEngine#5",
+      "source": "see :class:`_SoundRenderer`.",
+      "source_sha256": "a764557580a0be86c7ab494cd23ddd535aaa82eeafbb2d54c8ea9f4353ff7f4e",
+      "context": "see :class:`_SoundRenderer`.",
+      "translation": "veja :class:`_SoundRenderer`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient#52",
+      "source": "1.072 -> see below",
+      "source_sha256": "170bdde39fa8b39b2d4e9b3b9350ccc9e31c4f7abe761854a86f280da0662ef5",
+      "context": "1.072 -> see below",
+      "translation": "1.072 -> veja abaixo",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.extents#0",
+      "source": "``{pane name: size to open at}`` for every registered pane.",
+      "source_sha256": "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90",
+      "context": "``{pane name: size to open at}`` for every registered pane.",
+      "translation": "``{pane name: size to open at}`` para cada painel registrado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.clamp#2",
+      "source": "inclusive lower bound.",
+      "source_sha256": "f48c9102e92a1fbd6eb7f5cf75e3cf20e2921c931b33066dd6fd5ae7ceb39249",
+      "context": "inclusive lower bound.",
+      "translation": "limite inferior, inclusivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.clamp#3",
+      "source": "inclusive upper bound.",
+      "source_sha256": "bad849cfa9800c9aba95ccb0115c587bd60f49ab08b2943fdd24af601bbcd52c",
+      "context": "inclusive upper bound.",
+      "translation": "limite superior, inclusivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#3",
+      "source": "parent widget; ownership only.",
+      "source_sha256": "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+      "context": "parent widget; ownership only.",
+      "translation": "widget pai; serve apenas para definir a propriedade do objeto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.problems#0",
       "source": "Everything stopping this table being measured, as sentences.",
       "source_sha256": "be4a570c4b69af9184c69eb8debf07f12884430c1379659978f52b4fbc63f4c1",
@@ -1858,6 +2050,22 @@
       "source_sha256": "5048da7b82c35edc622089a6ebb4dfbf18bcbeba3a41959566084b0eda6bdef0",
       "context": "per feature, the mean subtracted before the decomposition, aligned with ``features``.",
       "translation": "por feature, a média subtraída antes da decomposição, alinhada com ``features``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate#4",
+      "source": "naming dialect, see :func:`spacr.utils._get_regex`.",
+      "source_sha256": "0d40a886685b2ebf574bdd364802e86006abb76239a3b4392aeb4413f2aa3840",
+      "context": "naming dialect, see :func:`spacr.utils._get_regex`.",
+      "translation": "dialeto de nomenclatura; veja :func:`spacr.utils._get_regex`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.object_centroids#0",
+      "source": "``label -> (y, x, equivalent diameter)`` for every object.",
+      "source_sha256": "9884387c2ec92487fb0fa7d30a24c829aca348e556764007d11220e55e9ab88e",
+      "context": "``label -> (y, x, equivalent diameter)`` for every object.",
+      "translation": "``label -> (y, x, equivalent diameter)`` para cada objeto.",
       "review_basis": "written from the English (no current MT draft)"
     }
   ]

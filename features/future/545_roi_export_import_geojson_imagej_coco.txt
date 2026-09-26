@@ -1,6 +1,7 @@
 MASKS AND ROIS IN AND OUT: QUPATH GEOJSON, IMAGEJ ROISET, COCO
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Opening
+the files in the QuPath and Fiji GUIs themselves remains to be done by hand.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -24,3 +25,101 @@ DONE WHEN
     Round-trips spaCR -> GeoJSON/RoiSet/COCO -> spaCR reproduce the masks
     exactly (or within polygon rasterisation tolerance), and the files open
     in QuPath and Fiji.
+
+NOTE 2026-09-26 -- BUILT, AS AN ALPHA FEATURE
+
+What was built
+    API, in the existing spacr/mask_io.py (no new module):
+      masks_to_geojson / geojson_to_masks    QuPath GeoJSON
+      masks_to_roiset / roiset_to_masks      ImageJ RoiSet.zip (via roifile)
+      masks_to_coco / coco_to_masks          COCO JSON, polygons or RLE
+      coco_image_names, rle_encode, rle_decode, object_polygons
+      export_rois / import_rois / roi_format / roi_suffix   pick by file name
+    Masks go in as one 2-D label mask (object_type=...) or as
+    {object type: mask}; classes as {id: class} or {type: {id: class}}; the
+    class defaults to the object type. Import returns {object type: labels}
+    (uint16, uint32 past 65535) at the image's size, plus {type: {id: class}}
+    with with_classes=True. Ids are kept; a missing or duplicated id gets the
+    next free one.
+
+    Make Masks: a "ROIs..." button in the navigation row (beside "Contribute
+    images and masks...") with a menu: export this field / every field of
+    the folder or queue as GeoJSON, RoiSet or COCO; import a file into this
+    field (one undoable edit, saved with Save mask); import GeoJSON, RoiSets
+    or COCO for every field (matched by image stem, or COCO file_name; each
+    matched field's mask is written through mask_engine.save_mask, the field
+    on screen is replaced on the canvas instead). The object type is read
+    from a masks folder named <type>_masks / <type>_mask_stack, else
+    "object".
+
+How the round trip is exact (no tolerance)
+    Each object is traced on its own (touching objects stay separate) along
+    PIXEL EDGES, the convention QuPath and ImageJ both use (pixel (r, c) is
+    the square x in [c, c+1], y in [r, r+1]); rasterising back counts a pixel
+    when its centre is inside, and a pixel centre can never lie on such an
+    edge. So spaCR -> any format -> spaCR reproduces the masks bit for bit,
+    including holes, islands in holes, multi-part objects, objects meeting
+    themselves only at a corner, and ids up to 65535 -- verified on
+    hand-built awkward fields and on random 4- and 8-connected label noise.
+    Rings that would touch themselves at a corner are cut into a shell and a
+    hole touching it at a point, so every GeoJSON geometry is valid to
+    shapely/GEOS (and so JTS/QuPath). Holes: GeoJSON interior rings; ImageJ
+    composite (ShapeRoi) paths filled even-odd; COCO has no polygon hole, so
+    an object with a hole is written as RLE (rle=True writes all as RLE).
+
+    Stated tolerance: only a reader other than spaCR rasterising a COCO
+    POLYGON -- pycocotools annToMask -- is allowed to differ, and only on
+    boundary pixels (1-pixel tolerance). Measured difference: 0 pixels on
+    every object tried. RLE is byte-identical to pycocotools.mask.encode.
+
+Dependencies
+    roifile only for ImageJ, imported lazily; missing, it raises ImportError
+    naming "pip install roifile". shapely and pycocotools are NOT needed:
+    tracing, rasterising (skimage.draw) and the COCO RLE codec are in
+    mask_io. pycocotools and shapely are used by the tests when installed.
+
+Tests
+    tests/test_545_roi_export_import.py (API: exact round trips for all
+    three formats, random label fields, touching objects, QuPath keys
+    (Feature, UUID id, objectType, classification.name/color, name,
+    measurements), shapely validity, a QuPath-style export without spaCR
+    properties imports per class, RoiSet read by roifile (names, TRACED vs
+    composite, props), Fiji-style ROIs without properties, pycocotools
+    annToMask/encode, multi-image COCO, id collisions, empty masks, format
+    detection, the install message).
+    tests/qt/test_545_make_masks_exports_and_imports_rois.py (the menu, the
+    alpha gate, field round trip with undo, every-field export/import).
+    Both run offscreen with CUDA_VISIBLE_DEVICES=''; with pycocotools on
+    the path the pycocotools test runs, otherwise it skips.
+    2026-09-26, later: the RoiSet test compared roifile's own re-encoded
+    bytes, which differ between roifile releases (it failed in the main
+    checkout). It now compares what roifile reads back (names, types,
+    bounds, coordinates, props) and passes with roifile 2024.5.24 and
+    2026.7.30. roifile 2024.5.24 reads the props text short (the end of the
+    last line is cut); a RoiSet it writes is read in full by 2026.7.30, and
+    the import does not depend on the props because the "<type>-<id>" ROI
+    name carries the type and the id (round trips pass on both versions).
+
+Not done
+    The files were not opened in the QuPath or Fiji GUI on this machine;
+    the checks are the formats' readers (roifile, pycocotools, shapely) and
+    QuPath's documented GeoJSON keys. A "Save mask" after a multi-part
+    import splits a label lying in separated pieces, which is Make Masks'
+    own one-id-one-object rule, not the importer's.
+    The English API manifest (docs/source/_static/i18n/api/en.json) was NOT
+    regenerated (catalog/manifest files are not edited in this lane), so
+    tests/test_documentation_i18n.py::
+    test_documentation_api_catalog_inventory_and_hashes_are_current[en]
+    reports the new mask_io symbols as missing until the docs lane runs
+    tools/build_documentation_i18n.py. The symbol-count pins
+    (test_docstring_correctness, test_api_i18n_extractor/_frontend,
+    test_documentation_i18n) were moved by the eighteen new callables, and
+    the signature digest was proved by subtraction to move by them alone.
+
+ALPHA: widgets: MakeMasksRoisButton (MakeMasksScreen._btn_rois, the
+"ROIs..." button; hiding it hides its whole menu: export this field /
+every field as GeoJSON, RoiSet or COCO, import into this field, import for
+every field); no settings keys, choices, apps or models. Registered in
+spacr.settings.ALPHA_FEATURES under 545 (item 569's gate), applied when the
+button is built and live by the app when the preference changes. The API
+functions in spacr.mask_io are not gated (API, not GUI).

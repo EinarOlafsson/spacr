@@ -59,8 +59,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert len(catalog["lessons"]) == 85
     # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
-    # Investigate Hit, no longer held, adds its 18.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1098
+    # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11).
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1100
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
