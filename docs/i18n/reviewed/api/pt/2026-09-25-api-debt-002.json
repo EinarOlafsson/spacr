@@ -2667,6 +2667,2142 @@
       "context": "Make Masks' plain-threshold mode was Otsu and only Otsu. Otsu asks one question of a histogram -- where is the cut that separates it into two groups with the least variance inside each -- and it is a good question for a microscope field of view with two clear populations and a poor one for everything else. A microscope field of view that is mostly background, or whose objects are a thin bright tail, has been thresholded better by Li's minimum cross entropy or by the triangle method since before spaCR existed, and both are one call away in scikit-image.",
       "translation": "O modo de limiar simples do Make Masks era Otsu e só Otsu. O Otsu faz uma única pergunta a um histograma -- onde está o corte que o separa em dois grupos com a menor variância dentro de cada um --, e essa é uma boa pergunta para um campo com duas populações nítidas e uma pergunta ruim para todo o resto. Um campo que é quase todo fundo, ou cujos objetos são uma cauda fina e brilhante, é limiarizado melhor pela entropia cruzada mínima de Li ou pelo método do triângulo desde antes de o spaCR existir, e ambos estão a uma chamada de distância no scikit-image.",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#2",
+      "source": "So the threshold algorithms here are NAMES OF A LEVEL AND NOTHING ELSE. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
+      "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
+      "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
+      "translation": "Assim, os algoritmos de limiar aqui são NOMES DE UM NÍVEL E NADA MAIS. Cada um é uma linha em :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` ou :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, e tudo o que envolve o nível -- a suavização, a correção do limiar, o lado claro ou escuro, o preenchimento de buracos, a divisão por watershed, a regra de borda, a área mínima -- é o código pelo qual o Otsu já passava. Escolher Li em vez de Otsu muda a origem de um único número e nada mais, que é exatamente o que deve mudar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#3",
+      "source": "Maxima + propagate finds bright centres in a blurred image and uses them as markers for a watershed on inverted intensity. A per-seed intensity cut then trims each basin, or a common intensity mask limits the watershed. This can separate touching objects when they have distinct detected centres; it does not implement CellProfiler's distance/intensity propagation cost. The seed count is measured before hole filling and area filtering, so it can exceed the number of surviving labels. See :func:`spacr.qt.mask_engine.maxima_propagate_instances` for all four rules.",
+      "source_sha256": "825888e34c3da8a736e2a1cc34fc43d69468863110204c6ebb9b3fe4a74b1f68",
+      "context": "Maxima + propagate finds bright centres in a blurred image and uses them as markers for a watershed on inverted intensity. A per-seed intensity cut then trims each basin, or a common intensity mask limits the watershed. This can separate touching objects when they have distinct detected centres; it does not implement CellProfiler's distance/intensity propagation cost. The seed count is measured before hole filling and area filtering, so it can exceed the number of surviving labels. See :func:`spacr.qt.mask_engine.maxima_propagate_instances` for all four rules.",
+      "translation": "Maxima + propagate encontra centros brilhantes em uma imagem desfocada e os usa como marcadores para um watershed sobre a intensidade invertida. Em seguida, um corte de intensidade por semente apara cada bacia, ou uma máscara de intensidade comum limita o watershed. Isso pode separar objetos que se tocam quando eles têm centros detectados distintos; não implementa o custo de propagação por distância/intensidade do CellProfiler. A contagem de sementes é medida antes do preenchimento de buracos e da filtragem por área, então pode exceder o número de rótulos sobreviventes. Veja :func:`spacr.qt.mask_engine.maxima_propagate_instances` para as quatro regras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#4",
+      "source": "WHAT IS NOT HERE, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested crop. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
+      "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
+      "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
+      "translation": "O QUE NÃO ESTÁ AQUI, E POR QUÊ. A limiarização local por MÉDIA e local GAUSSIANA não é oferecida de novo: ela é o modo Adaptive threshold, que executa o ramo ``adaptive`` do mecanismo de organelas com um tamanho de bloco e um deslocamento. O OTSU local também não é oferecido de novo: ele é o interruptor \"Local threshold (uneven illumination)\" no modo Otsu simples, usado pela detecção na imagem inteira. Os outros limiares nomeados ignoram as configurações salvas de Otsu local e de contagem de classes; só o Multi-Otsu usa a contagem de classes e a faixa selecionadas nos dois escopos. O Otsu simples mantém seu pré-processamento legado da lupa, enquanto os outros limiares usam o mecanismo de imagem inteira no recorte solicitado. Niblack usa ``T = m - k*s``; Sauvola usa ``T = m*(1 + k*(s/R - 1))``, em que ``m`` e ``s`` são a média e o desvio padrão locais. O mecanismo fornece valores float32 sem reescalar sua faixa, então o ``R`` padrão do Sauvola no scikit-image é 1. Essas fórmulas são diferentes, e mudar a escala de intensidade pode mudar o resultado do Sauvola.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#0",
+      "source": "Everything the CPU modes read, as one hashable value.",
+      "source_sha256": "fbd1b57e408158db1604856372782d60eaebee43838b2bba36b566e82d34d146",
+      "context": "Everything the CPU modes read, as one hashable value.",
+      "translation": "Tudo o que os modos de CPU leem, como um único valor hashable.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#1",
+      "source": "One tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams` is one: it rides on the magnifier's request key, and a mode that falls back to another must still find its own settings in it.",
+      "source_sha256": "7c4015cf3b18c910d0e8e06482a68da43b6dcc8fb3403f14b0ab89d5b36551b8",
+      "context": "One tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams` is one: it rides on the magnifier's request structured-data name, and a mode that falls back to another must still find its own settings in it.",
+      "translation": "Uma única tupla pelo mesmo motivo que :class:`spacr.qt.organelle_modes.MethodParams` é uma só: ela vai junto na chave de solicitação da lupa, e um modo que recorre a outro ainda precisa encontrar nela suas próprias configurações.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#10",
+      "source": "which global threshold provides the floor under the ``threshold`` stop rule.",
+      "source_sha256": "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12",
+      "context": "which global threshold provides the floor under the ``threshold`` stop rule.",
+      "translation": "qual limiar global fornece o piso sob a regra de parada ``threshold``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#11",
+      "source": "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting.",
+      "source_sha256": "5b5c5ca8e52733f3975c7f6cc08badd55d59cddf47663ba3148844b4c7035f26",
+      "context": "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting.",
+      "translation": "watershed por ``intensity`` ou por ``distance`` para objetos secundários; a detecção de máximos ignora esta configuração.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#2",
+      "source": "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background.",
+      "source_sha256": "45d560208748d72ea7429bd0f301a277fa3300a89044d2b63c87756cbee1eb85",
+      "context": "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background.",
+      "translation": "peso adimensional de contraste local; padrão 0.2 para os dois modos. Niblack usa ``T = m - k*s``: aumentar k reduz o limiar, admitindo mais pixels claros e menos pixels escuros. Sauvola usa ``T = m*(1 + k*(s/R - 1))``. O mecanismo passa floats sem reescalar a faixa, o que dá o padrão ``R = 1`` do scikit-image. Sua resposta a k depende da média local m e do desvio s; um k positivo não garante a rejeição de um fundo plano.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#3",
+      "source": "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound.",
+      "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
+      "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
+      "translation": "o desfoque gaussiano aplicado antes de encontrar os máximos, em pixels. SEPARADO DA REDUÇÃO DE RUÍDO DA CADEIA DE REALCE DA IMAGEM, que já foi executada quando um detector vê a imagem: este existe porque o desfoque que faz um objeto ter um único centro costuma ser muito mais forte do que o desfoque através do qual alguém quer medir a BORDA do objeto, e a propagação mede a borda na mesma imagem desfocada. Deixe a redução de ruído da cadeia desligada, a menos que o campo seja realmente ruidoso, ou os dois desfoques se somam.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#4",
+      "source": "the smallest gap between two seeds, in pixels; about one object radius.",
+      "source_sha256": "967a42f4926266b77a09a1b16b5340d7ee81f282da9fc09730d77510862a145c",
+      "context": "the smallest gap between two seeds, in pixels; about one object radius.",
+      "translation": "a menor distância entre duas sementes, em pixels; cerca de um raio de objeto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#5",
+      "source": "how bright a maximum must be to be a seed.",
+      "source_sha256": "d4b9f30070980ea3ce6abb60557f3b0c3c9bac18ed586ec662314f8ab829851f",
+      "context": "how bright a maximum must be to be a seed.",
+      "translation": "quão brilhante um máximo precisa ser para ser uma semente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#6",
+      "source": "read the seed level as a percentile of the blurred image rather than as an absolute intensity.",
+      "source_sha256": "f257b5f597bdf4c4b933c5f23b7789a866f2b5a0c94bc0a3e731b9ae34b32e33",
+      "context": "read the seed level as a percentile of the blurred image rather than as an absolute intensity.",
+      "translation": "lê o nível da semente como um percentil da imagem desfocada, e não como uma intensidade absoluta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#7",
+      "source": "drop seeds near the edge.",
+      "source_sha256": "8adb561d6c68f95a6fd11ee8adfeaca27f902dbc7af473aaa0adc80242ec0933",
+      "context": "drop seeds near the edge.",
+      "translation": "descarta sementes perto da borda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#8",
+      "source": "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.",
+      "source_sha256": "d286e31d307a43bef4d7b3ee6749f6b264e4f57734b27e9774291a65030dcef1",
+      "context": "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.",
+      "translation": "uma chave de :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#9",
+      "source": "the fraction, intensity or percentile the stop rule reads.",
+      "source_sha256": "0585c2133c1a07f2f6964ff752c0d00cb07438abd78bdd7057134391c5e6323d",
+      "context": "the fraction, intensity or percentile the stop rule reads.",
+      "translation": "a fração, intensidade ou percentil que a regra de parada lê.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.engine_algorithm#0",
+      "source": "The name :mod:`spacr.qt.mask_engine` knows ``mode`` by.",
+      "source_sha256": "3e1eae45f98d8ad0726e1ee80196ef4245becea8d22d8f4578fefd7d8129b772",
+      "context": "The name :mod:`spacr.qt.mask_engine` knows ``mode`` by.",
+      "translation": "O nome pelo qual :mod:`spacr.qt.mask_engine` conhece ``mode``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.engine_algorithm#1",
+      "source": "Multi-Otsu is asked for by a class count rather than by name, so it maps back to ``otsu``; the engine's ``classes`` parameter is what makes it multi-level. Everything else is its own name.",
+      "source_sha256": "a43331146c2ebfdcef88ce35443595b9785371cfbc4f51f867187114df0e1340",
+      "context": "Multi-Otsu is asked for by a class count rather than by name, so it maps back to ``otsu``; the engine's ``classes`` parameter is what makes it multi-level. Everything else is its own name.",
+      "translation": "O Multi-Otsu é solicitado por uma contagem de classes, e não por nome, então ele é mapeado de volta para ``otsu``; o parâmetro ``classes`` do mecanismo é o que o torna multinível. Todos os outros usam o próprio nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.engine_algorithm#2",
+      "source": "the detector mode key to map to an engine algorithm.",
+      "source_sha256": "7778e21eaa66d3857902cc5c661a68c0005f05f7dc1117baea72e13a48ba7079",
+      "context": "the detector mode key to map to an engine algorithm.",
+      "translation": "a chave do modo de detector a mapear para um algoritmo do mecanismo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.guidance#0",
+      "source": "What ``mode`` suits, as one sentence a picker can show.",
+      "source_sha256": "ddf7010085aa92c7b6872792fadfb3dfa21d03ddec409082f0dd5626d8b9ec88",
+      "context": "What ``mode`` suits, as one sentence a picker can show.",
+      "translation": "Para o que ``mode`` serve, como uma frase que um seletor pode mostrar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.guidance#1",
+      "source": "the detector mode key, such as ``otsu`` or ``li``.",
+      "source_sha256": "49f72c308ec6c35aab077a12a3dc04b542b7980e278202970bb134ad7c85b52c",
+      "context": "the detector mode key, such as ``otsu`` or ``li``.",
+      "translation": "a chave do modo de detector, como ``otsu`` ou ``li``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.modes#0",
+      "source": "Every mode this module adds, in the box's order.",
+      "source_sha256": "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee",
+      "context": "Every mode this module adds, in the box's order.",
+      "translation": "Todos os modos que este módulo acrescenta, na ordem da caixa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#0",
+      "source": "Grow objects out of the local maxima of ``image``.",
+      "source_sha256": "c910a95b9bdd8de1b7a36b023e5ae9f14fcf6c3c4a1cbb387dcd32b8b83f0b90",
+      "context": "Grow objects out of the local maxima of ``image``.",
+      "translation": "Faz crescer objetos a partir dos máximos locais de ``image``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#1",
+      "source": "A thin wrapper on :func:`spacr.qt.mask_engine.maxima_propagate_instances`, so the screen has one place to turn its controls into that call's keywords.",
+      "source_sha256": "cdea70c8ddff7f69d67f8c6785bf57be477528104538221f761d5587b262a87d",
+      "context": "A thin wrapper on :func:`spacr.qt.mask_engine.maxima_propagate_instances`, so the application view has one place to turn its controls into that call's keywords.",
+      "translation": "Um invólucro fino sobre :func:`spacr.qt.mask_engine.maxima_propagate_instances`, para que a tela tenha um único lugar onde transformar seus controles nas palavras-chave dessa chamada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#2",
+      "source": "the 2-D field or region, already through the chain.",
+      "source_sha256": "e267dbda139293dc9d445c2f7e637f7c5d2d3153e60436ff06158cc8c3486253",
+      "context": "the 2-D field or region, already through the chain.",
+      "translation": "o campo ou a região 2-D, já passados pela cadeia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#3",
+      "source": "the settings as the panel holds them.",
+      "source_sha256": "6c19a3745f9cc82e43302c57f4be4b95ceb5709a47c04ef7dbbe51c1fd576cb8",
+      "context": "the settings as the panel holds them.",
+      "translation": "as configurações tal como o painel as mantém.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#4",
+      "source": "the smallest object to keep, in pixels.",
+      "source_sha256": "7b84ac670e29463bc8c8686feb80e01f05e951280f0f2c84e7a1fe6d14868ec5",
+      "context": "the smallest object to keep, in pixels.",
+      "translation": "o menor objeto a manter, em pixels.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#5",
+      "source": "close the holes inside each grown object.",
+      "source_sha256": "a3da86f2927526d8e83b5916ef19ba4c568471ffb30a6da45bed9576158ba530",
+      "context": "close the holes inside each grown object.",
+      "translation": "fecha os buracos dentro de cada objeto crescido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#0",
+      "source": "The parameters this mode actually read, for a mask's ledger entry.",
+      "source_sha256": "6f64fb7e98ebeb348e713ad431d9520cdceae2cf626c18b99899d03dc58efb44",
+      "context": "The parameters this mode actually read, for a mask's ledger entry.",
+      "translation": "Os parâmetros que este modo de fato leu, para a entrada de registro de uma máscara.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#1",
+      "source": "the selected detector mode key.",
+      "source_sha256": "e2b3a7f8afb3e4262d2e0d5118a961c46cc4f4f37721d172f7486f8547c5a527",
+      "context": "the selected detector mode key.",
+      "translation": "a chave do modo de detector selecionado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#2",
+      "source": "the CPU-mode settings carried by the detection request.",
+      "source_sha256": "e67bb95ca456966be8be567b6d9744ec6043b373b30e4c79f335f18283e89e17",
+      "context": "the CPU-mode settings carried by the detection request.",
+      "translation": "as configurações do modo de CPU transportadas pela solicitação de detecção.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#3",
+      "source": "``{field: value}``, JSON-safe; empty for a mode that reads none of them -- a global threshold reads only the Otsu category's own settings, which the entry already carries.",
+      "source_sha256": "7e7c95b3cedd164bd0395985d5e378f7337eff05230bfc0ff92818256a7a7c98",
+      "context": "``{field: value}``, JSON-safe; empty for a mode that reads none of them -- a global threshold reads only the Otsu category's own settings, which the entry already carries.",
+      "translation": "``{field: value}``, seguro para JSON; vazio para um modo que não lê nenhum deles -- um limiar global lê apenas as próprias configurações da categoria Otsu, que a entrada já traz.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#0",
+      "source": "Grow secondary labels from the existing primary-mask identities.",
+      "source_sha256": "adf87bec82eb800815c74984292dd5c552a3ac211577ad9a39c60503023cc55b",
+      "context": "Grow secondary labels from the existing primary-mask identities.",
+      "translation": "Faz crescer rótulos secundários a partir das identidades da máscara primária existente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#1",
+      "source": "prepared 2-D field or magnifier crop.",
+      "source_sha256": "cd0598712b7a59cef3707bb458d34bfdd600512138f6785ac1d9d0a3eda5b7f2",
+      "context": "prepared 2-D microscope field of view or magnifier extracted image region.",
+      "translation": "campo 2-D preparado ou recorte da lupa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#2",
+      "source": "matching integer primary labels; no seeds are detected.",
+      "source_sha256": "9bc51a9c87b18cdfe22306abc1cbeeda418792f885edf8a3885d24a6118b8de0",
+      "context": "matching integer primary labels; no seeds are detected.",
+      "translation": "rótulos primários inteiros correspondentes; nenhuma semente é detectada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#3",
+      "source": "shared growth settings; centre-finding settings are ignored.",
+      "source_sha256": "42085411df62ac35d7960ac43bee3bb21f574110b4f3754abb537ab82560233e",
+      "context": "shared growth settings; centre-finding settings are ignored.",
+      "translation": "configurações de crescimento compartilhadas; as configurações de busca de centros são ignoradas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#4",
+      "source": "minimum grown area, including the primary footprint.",
+      "source_sha256": "9f65d5fff853d9cb210465f8f8da2ea9859f5aa6a844f3e2b00bff22f7b23c69",
+      "context": "minimum grown area, including the primary footprint.",
+      "translation": "área mínima após o crescimento, incluindo a área ocupada pelo primário.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#5",
+      "source": "fill holes per label before the area filter.",
+      "source_sha256": "bce8408f365f1e0bf8cd5c2c7ad2db5dce5cb6c5c5877d1abeea1329e71d9cc9",
+      "context": "fill holes per label before the area filter.",
+      "translation": "preenche os buracos de cada rótulo antes do filtro de área.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#6",
+      "source": "mask_engine.SecondaryResult with exact IDs and relationship diagnostics.",
+      "source_sha256": "d46db1254a5f003d3c13cf38329f2107ea0e01c8f3ea691a68b87ca9bbb376d0",
+      "context": "mask_engine.SecondaryResult with exact IDs and relationship diagnostics.",
+      "translation": "mask_engine.SecondaryResult com IDs exatos e diagnósticos de relação.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.threshold_modes#0",
+      "source": "The modes that are a threshold algorithm, Multi-Otsu included.",
+      "source_sha256": "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb",
+      "context": "The modes that are a threshold algorithm, Multi-Otsu included.",
+      "translation": "Os modos que são um algoritmo de limiar, incluindo o Multi-Otsu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.drop_cache_budget_entry#1",
+      "source": "cache key of the entry to evict, an ``(abspath, mtime_ns, size, px)`` tuple; an unknown key is ignored and ``False`` is returned.",
+      "source_sha256": "0ced8e4f8e2918146fa1de35793688676938e46e9f2264f7a87eb203ece43d9d",
+      "context": "cache structured-data name of the entry to evict, an ``(abspath, mtime_ns, size, px)`` tuple; an unknown structured-data name is ignored and ``False`` is returned.",
+      "translation": "chave de cache da entrada a remover, uma tupla ``(abspath, mtime_ns, size, px)``; uma chave desconhecida é ignorada e ``False`` é retornado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.peek#2",
+      "source": "path of the crop image; an empty value returns ``None``.",
+      "source_sha256": "ccdbbf147d895762a947f66df4f83d150b15285132f44e66849937a5d40dd4ee",
+      "context": "path of the extracted image region image; an empty value returns ``None``.",
+      "translation": "caminho da imagem do recorte; um valor vazio retorna ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.pixmap#1",
+      "source": "path of the crop image to decode; an empty value returns ``None``.",
+      "source_sha256": "e2d4145afa475ef6f46cd6ed9d8539ff411252c4a26321d8648ec2639b2732a1",
+      "context": "path of the extracted image region image to decode; an empty value returns ``None``.",
+      "translation": "caminho da imagem do recorte a decodificar; um valor vazio retorna ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.prime#2",
+      "source": "path of the crop image to decode and cache, as for :meth:`pixmap`.",
+      "source_sha256": "8bff16b6be6d3ef981d2f6e6ea32738e4c324d2f787665b88a2985b64ee15076",
+      "context": "path of the extracted image region image to decode and cache, as for :meth:`pixmap`.",
+      "translation": "caminho da imagem do recorte a decodificar e guardar em cache, como em :meth:`pixmap`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.resolve_crop_path#2",
+      "source": "crop path as stored in ``png_list``; returned unchanged when it is empty or already exists as a file.",
+      "source_sha256": "e2d5f33ad649851dee388a53a2b7f2a2621dd8c9337e9c5c6be95448afb3df93",
+      "context": "extracted-image-region path as stored in ``png_list``; returned unchanged when it is empty or already exists as a file.",
+      "translation": "caminho do recorte como armazenado em ``png_list``; retornado sem alteração quando está vazio ou já existe como arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushPanel.closeEvent#1",
+      "source": "the close event, passed on to the base class after painting stops and the panel unsubscribes from the layer stack and the session.",
+      "source_sha256": "52e963f19e425080083ea99a28dc49c0ba1592e4aec314aa87237d47d46ace8d",
+      "context": "the close event, passed on to the base class after painting stops and the panel unsubscribes from the layer stack and the session.",
+      "translation": "o evento de fechamento, repassado à classe base depois que a pintura para e o painel cancela a inscrição na pilha de camadas e na sessão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.key#1",
+      "source": "the canvas that received the key press; not used.",
+      "source_sha256": "60d0ce8ab7c024833af9f5b52da7eada489612802b473088d884529f681ad208",
+      "context": "the canvas that received the key press; not used.",
+      "translation": "o canvas que recebeu o pressionamento de tecla; não é usado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.key#2",
+      "source": "the key event; Backspace or Delete undo, and its text ``[`` or ``]`` shrinks or grows the radius by a factor of 1.5 (never below 0.5).",
+      "source_sha256": "c17b17336d821f9665235972d6ba42f84910a2b47293a80542176b13e636e0f8",
+      "context": "the key event; Backspace or Delete undo, and its text ``[`` or ``]`` shrinks or grows the radius by a factor of 1.5 (never below 0.5).",
+      "translation": "o evento de tecla; Backspace ou Delete desfazem, e o texto ``[`` ou ``]`` diminui ou aumenta o raio por um fator de 1.5 (nunca abaixo de 0.5).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.move#2",
+      "source": "the canvas that received the motion; not used.",
+      "source_sha256": "f576b0bf3adee09c973fde38d9c8feae9e37cc9806c040d85765ae36b797c163",
+      "context": "the canvas that received the motion; not used.",
+      "translation": "o canvas que recebeu o movimento; não é usado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.move#3",
+      "source": "world coordinate under the pointer, where the next dab is laid.",
+      "source_sha256": "7b42688c733b7c5104fda452f1ea61ad81dc6940c50f12032473ec5b6b67e649",
+      "context": "world coordinate under the pointer, where the next dab is laid.",
+      "translation": "coordenada do mundo sob o ponteiro, onde a próxima pincelada é aplicada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.move#4",
+      "source": "the mouse move event; its held buttons are read, and nothing is painted unless the left or right button is down.",
+      "source_sha256": "1c055f4f5e0d54f1ff6b62ad08af8652237640f2e399ad763cd973958a98d353",
+      "context": "the mouse move event; its held buttons are read, and nothing is painted unless the left or right button is down.",
+      "translation": "o evento de movimento do mouse; seus botões pressionados são lidos, e nada é pintado a menos que o botão esquerdo ou o direito esteja pressionado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.press#1",
+      "source": "the canvas that received the press; not used.",
+      "source_sha256": "c216f4fcd4a9e0f666a8d63649f2390ec8602987a19e303bdbfead37839a25ce",
+      "context": "the canvas that received the press; not used.",
+      "translation": "o canvas que recebeu o clique; não é usado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.press#2",
+      "source": "world coordinate under the pointer, where the first dab is laid.",
+      "source_sha256": "222887cbfb011fa97325ff5f9a25801f3aa0e52a98ff1c28d9034be3bb920bd8",
+      "context": "world coordinate under the pointer, where the first dab is laid.",
+      "translation": "coordenada do mundo sob o ponteiro, onde a primeira pincelada é aplicada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.press#3",
+      "source": "the mouse press event; its button picks painting (left) or erasing (right), and any other button is ignored.",
+      "source_sha256": "ae28e594c0334ae65b600566e91feee16eb78bbec12e36333c05afd535f3274b",
+      "context": "the mouse press event; its button picks painting (left) or erasing (right), and any other button is ignored.",
+      "translation": "o evento de clique do mouse; seu botão escolhe pintar (esquerdo) ou apagar (direito), e qualquer outro botão é ignorado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.release#1",
+      "source": "the canvas that received the release; not used.",
+      "source_sha256": "edd06fbf08e60f2260531ce9f33fd7dbdf15c5e3229037c1c447a2601c6fe9da",
+      "context": "the canvas that received the release; not used.",
+      "translation": "o canvas que recebeu a liberação; não é usado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.release#2",
+      "source": "world coordinate under the pointer; not used.",
+      "source_sha256": "d67ebd803121a6b2b2e1b55786a965e72fc828c9a0db4311f1b4c00a14f62a6a",
+      "context": "world coordinate under the pointer; not used.",
+      "translation": "coordenada do mundo sob o ponteiro; não é usada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.release#3",
+      "source": "the mouse release event; not used.",
+      "source_sha256": "1af7d067b20083aa52a54383b417c88094411bb881223d1b8f82b1f8470642fb",
+      "context": "the mouse release event; not used.",
+      "translation": "o evento de liberação do mouse; não é usado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.TrackCurationPanel.load#2",
+      "source": "tracks CSV to read; its ``.curation.json`` ledger beside it is read back if present. A read or validation failure is shown in the status line and returns ``None``.",
+      "source_sha256": "76500062ec10a693d2aa7d28c57effa88e8c387121f68dea8e88ba82c1b2dad2",
+      "context": "tracks CSV to read; its ``.curation.json`` ledger beside it is read back if present. A read or validation failure is shown in the status line and returns ``None``.",
+      "translation": "CSV de trilhas a ler; seu registro ``.curation.json`` ao lado é lido de volta, se existir. Uma falha de leitura ou validação é mostrada na linha de status e retorna ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.curation_tool.TrackCurationPanel.set_tracks#1",
+      "source": "track table to curate; it must contain ``frame`` and ``track_id`` and is copied by :class:`spacr.curation.TrackCuration`.",
+      "source_sha256": "13aaf1c03017e1ede6c26f7727ccbbe2455f6b1486db721c3797eac6b459cb9f",
+      "context": "track table to curate; it must contain ``frame`` and ``track_id`` and is copied by :class:`spacr.curation.TrackCuration`.",
+      "translation": "tabela de trilhas a curar; ela deve conter ``frame`` e ``track_id`` e é copiada por :class:`spacr.curation.TrackCuration`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain#4",
+      "source": "Background subtraction precedes PSF processing, deep restoration and denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, restoration, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "source_sha256": "3004073872942b886eb0b0d00b2dbde8c19201a5b48dc5d593429eaf06373898",
+      "context": "Background subtraction precedes PSF processing, deep restoration and denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, restoration, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "translation": "A subtração de fundo precede o processamento PSF, a restauração profunda e a redução de ruído. A redução de ruído precede o contraste para evitar amplificar o ruído; o contraste precede a nitidez para evitar esticar seus halos. A morfologia precede a separação porque altera quais pixels estão conectados. :func:`prepare` executa fundo, PSF, restauração, redução de ruído, contraste e nitidez; :func:`finish` executa morfologia e separação depois do detector selecionado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain#6",
+      "source": "The contrast stage is itself a fixed sequence of curves through one trip to the unit interval, :data:`CONTRAST_ORDER`",
+      "source_sha256": "2efd8bbf5a1a9ae4fefcfd1c60325297d3ebbd64253dcf1d56db4a9c0cf18a72",
+      "context": "The contrast stage is itself a fixed sequence of curves through one trip to the unit interval, :data:`CONTRAST_ORDER`",
+      "translation": "A própria etapa de contraste é uma sequência fixa de curvas feita em uma única passagem pelo intervalo unitário, :data:`CONTRAST_ORDER`",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain#7",
+      "source": "The clip runs first so that a hot pixel cannot define the interval the curves are drawn on; the curves are monotone, so their order only changes the shape of the composite curve and never which pixel is brighter.",
+      "source_sha256": "59cab59d8b17f5c6fd627785a698593a7f40a9078ee879f8df9b5242d05d6c1c",
+      "context": "The clip runs first so that a hot pixel cannot define the interval the curves are drawn on; the curves are monotone, so their order only changes the shape of the composite curve and never which pixel is brighter.",
+      "translation": "O corte vem primeiro para que um pixel quente não possa definir o intervalo sobre o qual as curvas são traçadas; as curvas são monótonas, então a ordem delas só muda a forma da curva composta, e nunca qual pixel é mais claro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain#8",
+      "source": "THE SAME CHAIN REACHES MASK GENERATION. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` key per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask pipelines and the Mask Live preview apply to every selected segmentation channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate run's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
+      "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
+      "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
+      "translation": "A MESMA CADEIA CHEGA À GERAÇÃO DE MÁSCARAS. As etapas de imagem -- tudo o que vem antes de ``detect`` -- são gravadas como configurações do Mask por :func:`chain_settings`, uma chave ``enhance_<field>`` por entrada de :data:`SETTINGS_FIELDS`, e lidas de volta por :func:`spacr.psf_pipeline.prepare_chain`, que os pipelines V1 e V2 do Mask e a pré-visualização Mask Live aplicam a cada canal de segmentação selecionado, após a correção de iluminação e antes da normalização, na etapa em que a PSF já era executada. Morfologia e separação atuam sobre os rótulos de um detector e são próprias do Make Masks; os rótulos do Cellpose na execução de uma placa não são remodelados por elas. As configurações do Mask ``remove_background``, ``background`` e ``signal_to_noise`` são pisos de intensidade por canal aplicados depois pela normalização, e :func:`spacr.object._preprocess_batch` é a esfera rolante e o CLAHE próprios dos lotes de organelas; nenhum dos dois é configurado aqui.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#0",
+      "source": "One pre- and post-detection chain, as a value a request can carry.",
+      "source_sha256": "264f88b244ad0f3358e15f83e115cd158f78bba25f33b21e021ef93063233a37",
+      "context": "One pre- and post-detection chain, as a value a request can carry.",
+      "translation": "Uma cadeia de pré e pós-detecção, como um valor que uma solicitação pode carregar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#1",
+      "source": "An immutable tuple including any captured PSF kernel, so it is hashable and goes into the magnifier's request key: the same box under two different chains is two different questions and must not be answered from one cached result.",
+      "source_sha256": "2c33f9e7a66ed32201858ba3082e3c7ecfeb7a91cf55aec246e15316ba92a5ec",
+      "context": "An immutable tuple including any captured PSF kernel, so it is hashable and goes into the magnifier's request key: the same box under two different chains is two different questions and must not be answered from one cached result.",
+      "translation": "Uma tupla imutável que inclui qualquer kernel PSF capturado, para que seja hashable e entre na chave de solicitação da lupa: a mesma caixa sob duas cadeias diferentes são duas perguntas diferentes e não podem ser respondidas a partir de um único resultado em cache.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#10",
+      "source": "the side of one CLAHE tile, in pixels.",
+      "source_sha256": "89d121b52760d0ec4a20108d43753c07cd9dd6d7767e9f7c0a3cb6ad54bd419b",
+      "context": "the side of one CLAHE tile, in pixels.",
+      "translation": "o lado de um tile do CLAHE, em pixels.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#11",
+      "source": "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise.",
+      "source_sha256": "6e1cd226462538a354054da1a4adfdc97e6ce15f48ad67d766b2d742565f87dd",
+      "context": "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise.",
+      "translation": "o limite de corte do CLAHE, 0..1. Maior significa mais contraste e mais ruído amplificado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#12",
+      "source": "global histogram equalisation.",
+      "source_sha256": "c5738fe3372ef82a89c39be495725ef65ae569368653cff35573ba09cb2e0103",
+      "context": "global histogram equalisation.",
+      "translation": "equalização global de histograma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#13",
+      "source": "an unsharp mask.",
+      "source_sha256": "beb604d5a3a9d5d75987c8ebc2a702797967f1fc6cd2aa882b3c16028789e086",
+      "context": "an unsharp mask.",
+      "translation": "uma máscara de nitidez (unsharp mask).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#14",
+      "source": "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "source_sha256": "69fdf4382f355c44834915bf15910d5ebd9f5dd2947705de5496110694912be7",
+      "context": "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "translation": "o raio de desfoque a partir do qual a máscara é construída, em pixels: aproximadamente a escala das bordas a realçar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#15",
+      "source": "how much of the mask is added back.",
+      "source_sha256": "6308c394745f5ae94e3e66619b465c839640e51f78b535e2f6fb6e9945f04dbb",
+      "context": "how much of the mask is added back.",
+      "translation": "quanto da máscara é somado de volta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#16",
+      "source": "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order.",
+      "source_sha256": "6a37a1882422e9457f95e67a01a795bf608267ba17dd45ef0c53e26989fc0607",
+      "context": "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order.",
+      "translation": "um de :data:`MORPHOLOGY_OPS`, aplicado ao que foi detectado. ``open`` separa objetos unidos por uma ponte fina, ``close`` une objetos quebrados em pedaços, ``open_close`` faz as duas coisas nessa ordem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#17",
+      "source": "the disk radius, in pixels.",
+      "source_sha256": "cd1fd64c5bf6f5e76c52edbe39d3aa0fc3c60b11c6c506f85d2d979415f86ebc",
+      "context": "the disk radius, in pixels.",
+      "translation": "o raio do disco, em pixels.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#18",
+      "source": "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method.",
+      "source_sha256": "a3540c0286531774dd6d53541390eae48d16e3d80e8f8905ae93e29eba0eee42",
+      "context": "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method.",
+      "translation": "um watershed por transformada de distância sobre o que foi detectado, cortando em dois um objeto com dois centros. É o \"Split objects that touch\" do modo Otsu, oferecido a todos os outros métodos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#19",
+      "source": "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default.",
+      "source_sha256": "582d0aea6b500af4bf3dae4f1b296e5201be452cc821434c027c92039fa72870",
+      "context": "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default.",
+      "translation": "``none``, ``convolve`` ou ``deconvolve``. É executado após a subtração de fundo e antes da redução de ruído. Desligado por padrão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#2",
+      "source": "Every field's default is the step switched off, so :data:`NO_CHAIN` is \"detect the image as it is\" and an old session that knows nothing about this chain keeps behaving as it did.",
+      "source_sha256": "247b69142f5c228609738770f88a63d6c9b658786500cdc07ad3e142aabd30e9",
+      "context": "Every microscope field of view's default is the step switched off, so :data:`NO_CHAIN` is \"detect the image as it is\" and an old session that knows nothing about this chain keeps behaving as it did.",
+      "translation": "O padrão de cada campo é a etapa desligada, então :data:`NO_CHAIN` significa \"detectar a imagem como ela está\", e uma sessão antiga que não sabe nada desta cadeia continua se comportando como antes.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#20",
+      "source": "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection.",
+      "source_sha256": "0e8716155b6532f58c0ab4d28206675dccb02b862f5de4e425338f00e9aafad0",
+      "context": "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection.",
+      "translation": "kernel bidimensional calibrado e imutável. Obrigatório quando o processamento PSF está ativado; kernels ausentes/inválidos interrompem a detecção.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#21",
+      "source": "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed.",
+      "source_sha256": "e7eff7834d85b753d9d9e475a4d0298e3e67258808f287273de55f63b9c1bc13",
+      "context": "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed.",
+      "translation": "espaçamento dos pixels da imagem na ordem YX, em micrômetros. Deve corresponder ao kernel; nenhuma reamostragem implícita é feita.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#22",
+      "source": "Richardson–Lucy iterations, 1..200.",
+      "source_sha256": "6e8a4e94b179c0c84a8cd16d0f67d2a78454439b561176d3291da7990edc4529",
+      "context": "Richardson–Lucy iterations, 1..200.",
+      "translation": "iterações de Richardson–Lucy, 1..200.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#23",
+      "source": "actionable loading/validation error when no kernel is ready.",
+      "source_sha256": "80ab1df81b2e457c6e065fa6e0579a3d20795d3b6117225dd8fb2f9a7b6fbd02",
+      "context": "actionable loading/validation error when no kernel is ready.",
+      "translation": "erro de carregamento/validação acionável quando nenhum kernel está pronto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#24",
+      "source": "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker.",
+      "source_sha256": "04fdb610368ef19f051aec34259df3625fb24ccd8c952395ca31b3ea1832d2ea",
+      "context": "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker.",
+      "translation": "ativa a restauração isolada com Cellpose 3 depois da PSF e antes da redução de ruído clássica. Desligada por padrão. Execute a preparação em um worker.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#25",
+      "source": "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence.",
+      "source_sha256": "db7eb7861437c20eaf34bd2e44948972602a8c9e8096179c1b5a33ed3c1476c8",
+      "context": "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence.",
+      "translation": "identidade imutável do modelo carregado e diâmetro em pixels. A saída do modelo usa unidades normalizadas, não fluorescência calibrada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#26",
+      "source": "loading error shown instead of silently using unprocessed data when restoration was explicitly requested.",
+      "source_sha256": "62e8057429a3352e58c1a1ed018e999823f95b6f7fc6660709fbe472054d9c07",
+      "context": "loading error shown instead of silently using unprocessed data when restoration was explicitly requested.",
+      "translation": "erro de carregamento mostrado, em vez de usar silenciosamente dados não processados, quando a restauração foi solicitada explicitamente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#27",
+      "source": "clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched.",
+      "source_sha256": "34d93c323000d212ef45308489c0b1b4ea06705f28a78eef299c218417b1d4e4",
+      "context": "clip each image layer to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched.",
+      "translation": "corta cada plano em dois percentis de suas próprias intensidades antes das curvas de contraste, para que um pixel quente ou morto não possa definir o intervalo sobre o qual as curvas são traçadas. As intensidades mantêm suas unidades; nada é esticado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#28",
+      "source": "the lower percentile, 0..100.",
+      "source_sha256": "319fe2e56ebb10bb5a76952296df1ca7ca8ab50388d57446ff0c0a9b50d496cd",
+      "context": "the lower percentile, 0..100.",
+      "translation": "o percentil inferior, 0..100.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#29",
+      "source": "the upper percentile, 0..100, above the lower.",
+      "source_sha256": "8768404b72c8a060354a0a76aa54eaa9b8be299027c66e7790cc445faccf6771",
+      "context": "the upper percentile, 0..100, above the lower.",
+      "translation": "o percentil superior, 0..100, acima do inferior.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#3",
+      "source": "one of :data:`BACKGROUND_METHODS`.",
+      "source_sha256": "9fe10fb8de82d62d750a24229f1d1eb998374073f8749039340e8fd0bd298bc3",
+      "context": "one of :data:`BACKGROUND_METHODS`.",
+      "translation": "um de :data:`BACKGROUND_METHODS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#30",
+      "source": "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero.",
+      "source_sha256": "1c359c114bdc7a0113a8f06c8eaa40712fd48da02ebc950726ce0479b6fc7003",
+      "context": "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero.",
+      "translation": "uma transformação logarítmica em 0..1, ``log(1 + gain·x) / log(1 + gain)``: comprime a extremidade clara e eleva a fraca, com mais força perto de zero do que um gamma abaixo de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#31",
+      "source": "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity.",
+      "source_sha256": "d017d2392ac013b6fdea03eef73677408c201cd0ff4e6cc282193b25008a5b0b",
+      "context": "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity.",
+      "translation": "o fator pelo qual as intensidades no intervalo unitário são escaladas antes do logaritmo. Maior comprime mais; quando tende a zero, a curva tende à identidade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#32",
+      "source": "a square root on 0..1, the curve gamma 0.5 draws, offered by name.",
+      "source_sha256": "30fe4dd5ffe1fe015340b348a92038ba7824f94255176bd22bb261ae831d2442",
+      "context": "a square root on 0..1, the curve gamma 0.5 draws, offered by name.",
+      "translation": "uma raiz quadrada em 0..1, a curva que o gamma 0.5 traça, oferecida pelo nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#4",
+      "source": "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background.",
+      "source_sha256": "a7e6629de96d48105c1bf9460384bc8c3d3db4adf6365e5f9e4acfa15f02a32b",
+      "context": "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background.",
+      "translation": "o raio da esfera ou do disco do top-hat, em pixels. Defina-o com folga maior que o maior objeto: um raio abaixo do tamanho do objeto consome os objetos junto com o fundo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#5",
+      "source": "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly.",
+      "source_sha256": "f5e94d4344bb19092161759f54067acd8c166f71ad628ab7c3c01b86b7e55f01",
+      "context": "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly.",
+      "translation": "a fração do tamanho total em que o fundo é ESTIMADO, de 0.1 a 1.0. Veja :func:`background_surface` para o que isso traz e o que custa; 1.0 é exatamente a resposta do próprio scikit-image.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#6",
+      "source": "one of :data:`DENOISE_METHODS`.",
+      "source_sha256": "f26b92f3e9427ee9ccba7c58729790e7ab4655f599711cca69749f3d0d42ab51",
+      "context": "one of :data:`DENOISE_METHODS`.",
+      "translation": "um de :data:`DENOISE_METHODS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#7",
+      "source": "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise.",
+      "source_sha256": "057d5d2989d5948831ba1dfdc404ef118c6d402a7cd1125e4dd830114ba255ac",
+      "context": "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise.",
+      "translation": "o sigma da gaussiana em pixels, o raio do disco da mediana e do bilateral, ou o corte das médias não locais em múltiplos do ruído estimado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#8",
+      "source": "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off.",
+      "source_sha256": "21f80c67790e294845a53b1de63897e563e940f4e747c80693d7db30800571c9",
+      "context": "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off.",
+      "translation": "o expoente ao qual as intensidades são elevadas em 0..1. Abaixo de 1 eleva a extremidade fraca (objetos pálidos ficam visíveis), acima de 1 a rebaixa. 1.0 significa desligado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#9",
+      "source": "contrast-limited adaptive histogram equalisation.",
+      "source_sha256": "22e42ef441e05a10d9475d26fb0f6a04b1b40993ce59d8710acdf03c3068fdb7",
+      "context": "contrast-limited adaptive histogram equalisation.",
+      "translation": "equalização adaptativa de histograma com contraste limitado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#0",
+      "source": "The chain's image steps as the Mask settings that apply them.",
+      "source_sha256": "1b45ab50ab75e7fa1fdc6516329c95d7cb539e2600303cfe0bcbf23d55d3bd7d",
+      "context": "The chain's image steps as the Mask settings that apply them.",
+      "translation": "As etapas de imagem da cadeia, como as configurações do Mask que as aplicam.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#1",
+      "source": "One ``enhance_<field>`` per :data:`SETTINGS_FIELDS` entry, each cast to the plain type its default has, so the mapping is what a settings file holds and what :func:`spacr.psf_pipeline.prepare_chain` reads back into an equal chain. :data:`NO_CHAIN` gives the defaults, which is what a settings file that knows nothing about the chain means.",
+      "source_sha256": "a64ede9484d807433e171c89a941e69940d0a009910c2146d924e2a66ff759ee",
+      "context": "One ``enhance_<field>`` per :data:`SETTINGS_FIELDS` entry, each cast to the plain type its default has, so the mapping is what a settings file holds and what :func:`spacr.psf_pipeline.prepare_chain` reads back into an equal chain. :data:`NO_CHAIN` gives the defaults, which is what a settings file that knows nothing about the chain means.",
+      "translation": "Um ``enhance_<field>`` por entrada de :data:`SETTINGS_FIELDS`, cada um convertido para o tipo simples de seu padrão, de modo que o mapeamento é o que um arquivo de configurações contém e o que :func:`spacr.psf_pipeline.prepare_chain` lê de volta como uma cadeia igual. :data:`NO_CHAIN` resulta nos padrões, que é o que significa um arquivo de configurações que não sabe nada da cadeia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#2",
+      "source": "the chain to write out.",
+      "source_sha256": "f3eca690ff2c7375642dbe5ca7d32585818a5384c4d6c718da8ce55a3f776561",
+      "context": "the chain to write out.",
+      "translation": "a cadeia a gravar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#3",
+      "source": "setting name to plain value, in :data:`SETTINGS_FIELDS` order.",
+      "source_sha256": "0c19d56c5b8c752c1d72134ff163d6184926aaad2e5b374e87fb6ed73e78f4c4",
+      "context": "setting name to plain value, in :data:`SETTINGS_FIELDS` order.",
+      "translation": "nome de configuração para valor simples, na ordem de :data:`SETTINGS_FIELDS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#0",
+      "source": "The switched-on steps in one line, for a status line or a tooltip.",
+      "source_sha256": "1310cde820dd4c2f6276a378d7bdec574955265692a995d1120db95fac2436f9",
+      "context": "The switched-on steps in one line, for a status line or a tooltip.",
+      "translation": "As etapas ligadas em uma linha, para uma linha de status ou uma dica de ferramenta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#1",
+      "source": "the configured pre- and post-detection steps to inspect.",
+      "source_sha256": "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6",
+      "context": "the configured pre- and post-detection steps to inspect.",
+      "translation": "as etapas de pré e pós-detecção configuradas a inspecionar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#2",
+      "source": "whether to include the screen's initial percentile stretch before the steps in the chain.",
+      "source_sha256": "e65c15d1d9b70c33ce6935ffa8d99e28b960f61a91377e9b2c0b2534f16dc8a8",
+      "context": "whether to include the screen's initial percentile stretch before the steps in the chain.",
+      "translation": "se deve incluir o esticamento inicial por percentis da tela antes das etapas da cadeia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#3",
+      "source": "the steps separated by arrows, or an empty string when the chain does nothing.",
+      "source_sha256": "fa2adc5c3d5a21854d82cf67c9adbc5bf228e8441f84c59953308396f1dff1d9",
+      "context": "the steps separated by arrows, or an empty string when the chain does nothing.",
+      "translation": "as etapas separadas por setas, ou uma string vazia quando a cadeia não faz nada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#0",
+      "source": "What the detector labelled, opened or closed and then split.",
+      "source_sha256": "637d7e636fe6d5268cfcd52391253a0a58df9297d8c0590e175173ba4d892e2f",
+      "context": "What the detector labelled, opened or closed and then split.",
+      "translation": "O que o detector rotulou, aberto ou fechado e depois separado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#1",
+      "source": "Morphology and the split are both questions about WHICH PIXELS ARE ONE OBJECT, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
+      "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
+      "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
+      "translation": "Morfologia e separação são ambas perguntas sobre QUAIS PIXELS SÃO UM ÚNICO OBJETO, então ambas são feitas à detecção como um todo: os rótulos são lidos como primeiro plano, remodelados e rotulados de novo. Os ids, portanto, mudam, o que não custa nada aqui -- o Make Masks renumera todo objeto que cola em uma máscara (:func:`spacr.qt.mask_engine._paste_region_objects`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#2",
+      "source": "the detector's label image.",
+      "source_sha256": "661a37631b37fce4e8dab128d45481cb8f48d71bb7b27207d6d052ce941c282b",
+      "context": "the detector's label image.",
+      "translation": "a imagem de rótulos do detector.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#3",
+      "source": "what to do to it.",
+      "source_sha256": "58b93d8483397ff3b4c9a19b9a698634c12613f5a3a1685a742801eb2a1c9e11",
+      "context": "what to do to it.",
+      "translation": "o que fazer com ela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#4",
+      "source": "the image the detector read, used as the watershed's landscape where it is given.",
+      "source_sha256": "35e83f62514d84a0c2c633c99901e8ec782a590980f733b5de7fc4d305016781",
+      "context": "the image the detector read, used as the watershed's landscape where it is given.",
+      "translation": "a imagem que o detector leu, usada como relevo do watershed quando fornecida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#5",
+      "source": "``labels`` itself when neither step is switched on.",
+      "source_sha256": "26e5b6660eaf66f67c537489c9905469491f4708aaadc4816b96e46466b82f89",
+      "context": "``labels`` itself when neither step is switched on.",
+      "translation": "o próprio ``labels`` quando nenhuma das duas etapas está ligada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.heavy_steps#0",
+      "source": "The switched-on steps slow enough to warn about, in words.",
+      "source_sha256": "c199ef46944374ded9e80d47c23e76cedfe5aa97005e1d32b72feca877ec603e",
+      "context": "The switched-on steps slow enough to warn about, in words.",
+      "translation": "As etapas ligadas lentas o suficiente para merecer aviso, em palavras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.heavy_steps#2",
+      "source": "the names, in :data:`CHAIN_ORDER`; empty when nothing switched on is heavy.",
+      "source_sha256": "6095c005e582c5e1bb94b096ebfeba8e2a106b01c429163922c55aa5fcd590b9",
+      "context": "the names, in :data:`CHAIN_ORDER`; empty when nothing switched on is heavy.",
+      "translation": "os nomes, na ordem de :data:`CHAIN_ORDER`; vazio quando nada do que está ligado é pesado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.is_active#0",
+      "source": "Whether any step of the chain is switched on.",
+      "source_sha256": "f0abba164c99919060b9f2ddaa7e24f1b01ad5d1c4e99209a5f94069fbce415e",
+      "context": "Whether any step of the chain is switched on.",
+      "translation": "Se alguma etapa da cadeia está ligada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.post_active#0",
+      "source": "Whether :func:`finish` would change what the detector labelled.",
+      "source_sha256": "122c8baf0b948d230c1fdec2feaff0c5a30f72a053a0e692261e5e5eacc8adfc",
+      "context": "Whether :func:`finish` would change what the detector labelled.",
+      "translation": "Se :func:`finish` mudaria o que o detector rotulou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.pre_active#0",
+      "source": "Whether :func:`prepare` would change the image at all.",
+      "source_sha256": "014ce410a8dfc551da334b49ada7d04e3cdc096859eb860e6ef808cd4f790648",
+      "context": "Whether :func:`prepare` would change the image at all.",
+      "translation": "Se :func:`prepare` mudaria a imagem de alguma forma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.pre_active#1",
+      "source": "Asked before a copy is made: a chain with nothing switched on must hand the detector the very array it would have had, not a float copy of it.",
+      "source_sha256": "73d9edc6490613a0b4e7beb82f97caeacc0adabef7b1bb65837545d8a6ba1181",
+      "context": "Asked before a copy is made: a chain with nothing switched on must hand the detector the very array it would have had, not a float copy of it.",
+      "translation": "Perguntado antes de fazer uma cópia: uma cadeia sem nada ligado deve entregar ao detector exatamente o array que ele teria recebido, e não uma cópia em float dele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#0",
+      "source": "The image a detector is to read, with optional cooperative cancellation.",
+      "source_sha256": "569df97fb769e210c50e9f7de22a23ce9d21693887f832e1f33df49c22dd3642",
+      "context": "The image a detector is to read, with optional cooperative cancellation.",
+      "translation": "A imagem que um detector vai ler, com cancelamento cooperativo opcional.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#1",
+      "source": "Background, PSF, deep restoration, denoise, contrast, then sharpen -- :data:`CHAIN_ORDER`, whose docstring says why that order and not another. The percentile stretch is the screen's, applied to the whole field before ``image`` was cut from it.",
+      "source_sha256": "7d0cfd1adcab56d6e984c1a999338ba299a6c6a77ff7a7cd6b20fb2e57a201e8",
+      "context": "Background, PSF, deep restoration, denoise, contrast, then sharpen -- :data:`CHAIN_ORDER`, whose docstring says why that order and not another. The percentile stretch is the screen's, applied to the whole field before ``image`` was cut from it.",
+      "translation": "Fundo, PSF, restauração profunda, redução de ruído, contraste e depois nitidez -- :data:`CHAIN_ORDER`, cuja docstring explica por que essa ordem e não outra. O esticamento por percentis é o da tela, aplicado ao campo inteiro antes de ``image`` ser recortada dele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#2",
+      "source": "Legacy filter failures are logged and skipped unless ``strict`` is set. PSF/restoration failures and cancellation propagate so detection cannot silently use an unprocessed image when an explicitly calibrated operation was requested. This is reached from a mouse-move (the readout under the cursor) and from the magnifier, so an exception here is one per mouse event: a missing optional package filled the console with tracebacks once (PyWavelets, 2026-09-22) and made the screen unusable. The detector then reads the image as far as the chain got, and the log says which step was dropped. A plate run passes ``strict=True``: a mask made from an image a step was silently dropped from would be presented as the mask the settings asked for.",
+      "source_sha256": "37fdc255641082249ff7a9485efa68af91922cf5cd0e83eb5d56fadce234b1b9",
+      "context": "Legacy filter failures are logged and skipped unless ``strict`` is set. PSF/restoration failures and cancellation propagate so detection cannot silently use an unprocessed image when an explicitly calibrated operation was requested. This is reached from a mouse-move (the readout under the cursor) and from the magnifier, so an exception here is one per mouse event: a missing optional package filled the console with tracebacks once (PyWavelets, 2026-09-22) and made the screen unusable. The detector then reads the image as far as the chain got, and the log says which step was dropped. A plate run passes ``strict=True``: a mask made from an image a step was silently dropped from would be presented as the mask the settings asked for.",
+      "translation": "Falhas de filtros legados são registradas no log e ignoradas, a menos que ``strict`` esteja definido. Falhas de PSF/restauração e o cancelamento se propagam, para que a detecção não possa usar silenciosamente uma imagem não processada quando uma operação calibrada foi solicitada explicitamente. Isto é alcançado a partir de um movimento do mouse (a leitura sob o cursor) e da lupa, então uma exceção aqui significa uma por evento de mouse: um pacote opcional ausente já encheu o console de tracebacks (PyWavelets, 2026-09-22) e deixou a tela inutilizável. O detector então lê a imagem até onde a cadeia chegou, e o log diz qual etapa foi descartada. A execução de uma placa passa ``strict=True``: uma máscara feita a partir de uma imagem da qual uma etapa foi descartada silenciosamente seria apresentada como a máscara que as configurações pediram.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#3",
+      "source": "the field, or the magnifier's box region cut from it. Never modified.",
+      "source_sha256": "deea43efa4d59fa4f506620103fbf3a0bb8cf271219440f7e88769b1887ec90c",
+      "context": "the field, or the magnifier's box region cut from it. Never modified.",
+      "translation": "o campo, ou a região da caixa da lupa recortada dele. Nunca é modificado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#5",
+      "source": "callable or Event; checked between stages, inside PSF iterations and while awaiting restoration. Cancellation raises :class:`spacr.point_spread.ProcessingCancelled`.",
+      "source_sha256": "cd31c05c09354eba773023b6481ba77fb03c6f52e1299826fed80e930346a304",
+      "context": "callable or Event; checked between stages, inside PSF iterations and while awaiting restoration. Cancellation raises :class:`spacr.point_spread.ProcessingCancelled`.",
+      "translation": "callable ou Event; verificado entre etapas, dentro das iterações de PSF e durante a espera pela restauração. O cancelamento levanta :class:`spacr.point_spread.ProcessingCancelled`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#6",
+      "source": "raise a failing step's error instead of logging it and handing on the image as far as the chain got.",
+      "source_sha256": "1e463c0f2c619814243f108f7230aeddd1db20227273d8815436d00c7e1be222",
+      "context": "raise a failing step's error instead of logging it and handing on the image as far as the chain got.",
+      "translation": "levanta o erro de uma etapa que falhou, em vez de registrá-lo no log e repassar a imagem até onde a cadeia chegou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#7",
+      "source": "``image`` itself when nothing is switched on -- so a detector reading an untouched field reads the very array and not a float copy -- and otherwise a new float32 array of the same shape.",
+      "source_sha256": "3776c55de19a5437406c74c6c1bbb7412186af032e59be86f79ca53ee970a78e",
+      "context": "``image`` itself when nothing is switched on -- so a detector reading an untouched field reads the very array and not a float copy -- and otherwise a new float32 array of the same shape.",
+      "translation": "o próprio ``image`` quando nada está ligado -- assim, um detector que lê um campo intocado lê exatamente o mesmo array, e não uma cópia em float -- e, caso contrário, um novo array float32 com a mesma forma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#0",
+      "source": "The chain as it goes into a mask's ledger entry.",
+      "source_sha256": "cf11827fa66d421c7c448695b5d34728b05294974b903b37fc189d4ec1361fdc",
+      "context": "The chain as it goes into a mask's ledger entry.",
+      "translation": "A cadeia tal como entra na entrada de registro de uma máscara.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#1",
+      "source": "ONLY THE STEPS THAT RAN, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
+      "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
+      "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
+      "translation": "APENAS AS ETAPAS QUE FORAM EXECUTADAS, mais a ordem em que foram executadas, para que uma entrada diga o que foi feito em vez de listar catorze padrões em volta; uma cadeia sem nada ligado registra apenas o interruptor que estava desligado. A ordem é escrita porque é ela que torna a entrada suficiente para reproduzir a máscara: as mesmas etapas em outra ordem são outra máscara.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#2",
+      "source": "the chain the detection used.",
+      "source_sha256": "ccf9214a9eaa26aca8efe938977335b8f73328c781afbbef8c905ca8d06fec76",
+      "context": "the chain the detection used.",
+      "translation": "a cadeia que a detecção usou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#3",
+      "source": "whether the screen's \"detect on the normalized image\" was on -- the chain's first stage, which is the screen's and not this module's.",
+      "source_sha256": "98db5176de8628252445ef3bc2f30e134a6aebfd48d9699c678904c58c02209d",
+      "context": "whether the screen's \"detect on the normalized image\" was on -- the chain's first stage, which is the screen's and not this module's.",
+      "translation": "se o \"detect on the normalized image\" da tela estava ligado -- a primeira etapa da cadeia, que pertence à tela e não a este módulo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#4",
+      "source": "a JSON-safe dict, empty of steps when none ran.",
+      "source_sha256": "05d8e2a39429a1add01e96cad9344a3439b06042231479cacb1eb7ca27fc27c6",
+      "context": "a JSON-safe key-value mapping, empty of steps when none ran.",
+      "translation": "um dicionário seguro para JSON, sem etapas quando nenhuma foi executada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.setting_name#0",
+      "source": "The Mask setting that carries a chain field.",
+      "source_sha256": "4be7df789abda1b2ece481c38aa2fc8d871433fdb81dcd193f9465e3334eee5a",
+      "context": "The Mask setting that carries a chain microscope field of view.",
+      "translation": "A configuração do Mask que carrega um campo da cadeia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.setting_name#1",
+      "source": "a :class:`Chain` field name from :data:`SETTINGS_FIELDS`.",
+      "source_sha256": "4892e4534a66c604e8bdf41d0aed291c52e894c97ade23b930c808d51f813eb0",
+      "context": "a :class:`Chain` field name from :data:`SETTINGS_FIELDS`.",
+      "translation": "um nome de campo de :class:`Chain` presente em :data:`SETTINGS_FIELDS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#0",
+      "source": "The switched-on steps, in order, in the words a caption uses.",
+      "source_sha256": "1304864395f9ffb03c5fbe7ee21ed02d35d9c4a68531d491032751e2eb3ee43d",
+      "context": "The switched-on steps, in order, in the words a caption uses.",
+      "translation": "As etapas ligadas, em ordem, nas palavras que uma legenda usa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#1",
+      "source": "English, and each name is one row a caller can translate on its own -- the alternative, one row per combination of fifteen fields, is a catalog nobody can fill.",
+      "source_sha256": "c47a8a8da855312a854eef97a2414edeb724684e1b2b266b40525bd45319b27e",
+      "context": "English, and each name is one row a caller can translate on its own -- the alternative, one row per combination of fifteen fields, is a catalog nobody can fill.",
+      "translation": "Em inglês, e cada nome é uma linha que um chamador pode traduzir isoladamente -- a alternativa, uma linha por combinação de quinze campos, é um catálogo que ninguém consegue preencher.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#2",
+      "source": "the chain to describe.",
+      "source_sha256": "cd4bfa7e6f9439c4765b4349e451277995f769a7e3169c9cb9867ff5e636b9a9",
+      "context": "the chain to describe.",
+      "translation": "a cadeia a descrever.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#3",
+      "source": "whether the screen's stretch was on.",
+      "source_sha256": "a499c5a518689a5c7be476641054b261f3b1acda44d1764726380871f9552294",
+      "context": "whether the screen's stretch was on.",
+      "translation": "se o esticamento da tela estava ligado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#4",
+      "source": "the names, in :data:`CHAIN_ORDER`; empty when nothing ran.",
+      "source_sha256": "c1350123cb672898bf6a955147410f9420f804f391b6124e9b910f5921876625",
+      "context": "the names, in :data:`CHAIN_ORDER`; empty when nothing ran.",
+      "translation": "os nomes, na ordem de :data:`CHAIN_ORDER`; vazio quando nada foi executado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.content_floor#1",
+      "source": "the widget whose ``minimumSizeHint()`` is returned.",
+      "source_sha256": "26a425350316cf546ed228791214f249344a8f76180c54294625d985cde04658",
+      "context": "the widget whose ``minimumSizeHint()`` is returned.",
+      "translation": "o widget cujo ``minimumSizeHint()`` é retornado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.detach_all_dialogs#2",
+      "source": "the :class:`QApplication` that receives the event filter. ``None``, or the application already holding the filter, returns ``False`` without installing.",
+      "source_sha256": "cf69dcd1171708b2e9ba0b88e41bf4fc244467335b0540705a1e147bb871a5fb",
+      "context": "the :class:`QApplication` that receives the event filter. ``None``, or the application already holding the filter, returns ``False`` without installing.",
+      "translation": "a :class:`QApplication` que recebe o filtro de eventos. ``None``, ou a aplicação que já tem o filtro, retorna ``False`` sem instalar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.drop_the_explicit_floor#2",
+      "source": "the dialog whose explicit minimum size is reset to zero when one is set.",
+      "source_sha256": "368d184909a6f3194a6e9812edf20b1be68abf35ee6350df08cdc6881394d890",
+      "context": "the dialog whose explicit minimum size is reset to zero when one is set.",
+      "translation": "a caixa de diálogo cujo tamanho mínimo explícito é redefinido para zero quando houver um.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.fields_in#2",
+      "source": "the widget whose descendant widgets are searched for data-entry fields.",
+      "source_sha256": "9712cc8acc9e8851c539b8f1800061c1cd24d0a5a5e466960deec70cb97bcc92",
+      "context": "the widget whose descendant widgets are searched for data-entry fields.",
+      "translation": "o widget cujos widgets descendentes são examinados em busca de campos de entrada de dados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.give_it_a_size_grip#1",
+      "source": "the :class:`QDialog` whose size grip is enabled and made transparent.",
+      "source_sha256": "1f27cacce26e41bf9b3f07a6912286f68ad11a8c3923319e0ccb472da04b3708",
+      "context": "the :class:`QDialog` whose size grip is enabled and made transparent.",
+      "translation": "a :class:`QDialog` cuja alça de redimensionamento é ativada e tornada transparente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.is_stuck_at_its_contents#2",
+      "source": "the dialog to measure; its size hint (at least its explicit minimum) is compared with its layout's minimum size hint.",
+      "source_sha256": "ba78eb7950982ae6fbd35ddbbb678b0217f686787e96909f6b1051a2e8d64b5e",
+      "context": "the dialog to measure; its size hint (at least its explicit minimum) is compared with its layout's minimum size hint.",
+      "translation": "a caixa de diálogo a medir; sua dica de tamanho (no mínimo, seu mínimo explícito) é comparada com a dica de tamanho mínimo do seu layout.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.let_the_content_scroll#2",
+      "source": "the dialog whose existing layout is moved into a scroll area; it must already have a layout. It is flagged as scrolling afterwards.",
+      "source_sha256": "b2344b363765b0df51ca16f8d020fe29eb3f38322d264eaa61e46d3d4de7e7bc",
+      "context": "the dialog whose existing layout is moved into a scroll area; it must already have a layout. It is flagged as scrolling afterwards.",
+      "translation": "a caixa de diálogo cujo layout existente é movido para uma área de rolagem; ela já deve ter um layout. Depois disso, é marcada como rolável.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.make_the_window_resizable#2",
+      "source": "the widget to process; anything :func:`wants_resizing` rejects is left untouched and returns ``False``.",
+      "source_sha256": "f58059e59605be527659a0e6b1cfc5ec1c3f50fe2d407a689e020bc137cd1021",
+      "context": "the widget to process; anything :func:`wants_resizing` rejects is left untouched and returns ``False``.",
+      "translation": "o widget a processar; qualquer coisa que :func:`wants_resizing` rejeite fica intocada e retorna ``False``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.more_than_a_message#2",
+      "source": "the widget searched for data-entry fields and scroll areas.",
+      "source_sha256": "0163c7c3a75d422496e549b9c76729b92945c355ab7a210aea9c78e5afb33d2d",
+      "context": "the widget searched for data-entry fields and scroll areas.",
+      "translation": "o widget em que se procuram campos de entrada de dados e áreas de rolagem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.open_at_its_natural_size#2",
+      "source": "the dialog whose stored opening size, if any, is applied (never shrinking its current size) and then cleared.",
+      "source_sha256": "065f740cdcae9ae288f121b44f3579a166bee6c7afe9c4eafed5bda54a896694",
+      "context": "the dialog whose stored opening size, if any, is applied (never shrinking its current size) and then cleared.",
+      "translation": "a caixa de diálogo cujo tamanho de abertura armazenado, se houver, é aplicado (sem nunca reduzir o tamanho atual) e depois limpo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.wants_resizing#2",
+      "source": "the widget to judge. Only a :class:`QDialog` that is not one of Qt's own specialised dialogs, is not flagged exempt or already resizable, and has a non-empty layout can qualify.",
+      "source_sha256": "e2cc0717cdb0bad99ba3d09ffde7cf92ccc3673de8adde507d4da2b53f2d5d31",
+      "context": "the widget to judge. Only a :class:`QDialog` that is not one of Qt's own specialised dialogs, is not flagged exempt or already resizable, and has a non-empty layout can qualify.",
+      "translation": "o widget a avaliar. Só pode se qualificar uma :class:`QDialog` que não seja uma das caixas de diálogo especializadas do próprio Qt, que não esteja marcada como isenta nem já seja redimensionável, e que tenha um layout não vazio.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dialogs.window_floor#2",
+      "source": "the widget whose ``minimumSize()`` is returned.",
+      "source_sha256": "ed3d263628502bd33587777f146d94292e0816c1b9b7a031e7bbc1e648973c5d",
+      "context": "the widget whose ``minimumSize()`` is returned.",
+      "translation": "o widget cujo ``minimumSize()`` é retornado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply#1",
+      "source": "the dropped folder or file, already accepted by :meth:`can_accept` (or picked from its alternatives).",
+      "source_sha256": "f5e96918cb4ac806a7e08cb2f119f1c1c22ab484d47d0f8ce3f45ca2ab783e83",
+      "context": "the dropped folder or file, already accepted by :meth:`can_accept` (or picked from its alternatives).",
+      "translation": "a pasta ou o arquivo arrastado, já aceito por :meth:`can_accept` (ou escolhido entre suas alternativas).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply#2",
+      "source": "the app screen that received the drop; the handler writes the path into its settings form.",
+      "source_sha256": "e667772148f7a8c99a06f332664d8cfc74ab34bfac1a9f2fb81c245040a503a0",
+      "context": "the app application view that received the drop; the handler writes the path into its settings form.",
+      "translation": "a tela do app que recebeu o arraste; o manipulador grava o caminho em seu formulário de configurações.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#0",
+      "source": "Wire every accepted path of ONE drop in at once, in drop order.",
+      "source_sha256": "99cd49d27fa1fbdd7d0187b0385887631997419c99342877454e97754a0ca754",
+      "context": "Wire every accepted path of ONE drop in at once, in drop order.",
+      "translation": "Conecta de uma vez todos os caminhos aceitos de UM arraste, na ordem do arraste.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#1",
+      "source": "A handler whose screen builds one list out of a drop -- Make Masks' queue, Plaque Assay's selection -- overrides this, because :meth:`apply` called once per path cannot tell the second file of a drop from the first file of the next one. The default declines, and each path goes through :meth:`apply` as before.",
+      "source_sha256": "c24f4528e74b435d620adc0cdc4438624a948539b4935db82d14fbc45c81f03a",
+      "context": "A handler whose application view builds one list out of a drop -- Make Masks' work list, Plaque Assay's selection -- overrides this, because :meth:`apply` called once per path cannot tell the second file of a drop from the first file of the next one. The default declines, and each path goes through :meth:`apply` as before.",
+      "translation": "Um manipulador cuja tela monta uma única lista a partir de um arraste -- a fila do Make Masks, a seleção do Plaque Assay -- sobrescreve isto, porque :meth:`apply`, chamado uma vez por caminho, não consegue distinguir o segundo arquivo de um arraste do primeiro arquivo do próximo. O padrão recusa, e cada caminho passa por :meth:`apply` como antes.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#2",
+      "source": "the paths :meth:`can_accept` accepted, in drop order.",
+      "source_sha256": "4950b98f588ffa669911f3c96990152106e69fd3c16a9c07b04661530c2e50ed",
+      "context": "the paths :meth:`can_accept` accepted, in drop order.",
+      "translation": "os caminhos que :meth:`can_accept` aceitou, na ordem do arraste.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#3",
+      "source": "the screen to wire the drop into.",
+      "source_sha256": "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36",
+      "context": "the application view to wire the drop into.",
+      "translation": "a tela à qual conectar o arraste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#4",
+      "source": "True when the drop was handled here; False sends every path through :meth:`apply` instead.",
+      "source_sha256": "776a71742bc3e44ef5fc05b261089769ac253193808ae25656d98362af2d02fe",
+      "context": "True when the drop was handled here; False sends every path through :meth:`apply` instead.",
+      "translation": "True quando o arraste foi tratado aqui; False envia cada caminho por :meth:`apply`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.can_accept#1",
+      "source": "the dropped folder or file to test.",
+      "source_sha256": "b558a2b566af89b28166fd2e6d24a508692bda51fa49dc349978fbabcdaccd73",
+      "context": "the dropped folder or file to test.",
+      "translation": "a pasta ou o arquivo arrastado a testar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.error_message#1",
+      "source": "the dropped folder or file that was rejected; the default message names only its final component.",
+      "source_sha256": "65adf167d0722887ac7e75648ffff91137550ec71656245ab9822d8ce4c903e4",
+      "context": "the dropped folder or file that was rejected; the default message names only its final component.",
+      "translation": "a pasta ou o arquivo arrastado que foi rejeitado; a mensagem padrão nomeia apenas seu último componente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.suggest_alternatives#2",
+      "source": "the dropped folder or file that :meth:`can_accept` rejected; the default implementation ignores it.",
+      "source_sha256": "0eb6a8e54978159920611e729180fe1de64e329fc5b2e5081749512578b69e3a",
+      "context": "the dropped folder or file that :meth:`can_accept` rejected; the default implementation ignores it.",
+      "translation": "a pasta ou o arquivo arrastado que :meth:`can_accept` rejeitou; a implementação padrão o ignora.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.find_image_folders_nearby#2",
+      "source": "folder the user dropped; its siblings and, if it is a directory, its immediate child folders are searched.",
+      "source_sha256": "d229de5f08e851f37894e00d895a03873b52608bf63db8ebbb0dde77ab8eb75a",
+      "context": "folder the user dropped; its siblings and, if it is a directory, its immediate child folders are searched.",
+      "translation": "pasta que o usuário arrastou; suas pastas irmãs e, se for um diretório, suas subpastas imediatas são examinadas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.has_images_in#1",
+      "source": "folder to inspect; a path that is not a directory yields False.",
+      "source_sha256": "3e2e11034c9a8cf0d1715dfbfbf85907624d0c45e8c2167b0c50649802be299d",
+      "context": "folder to inspect; a path that is not a directory yields False.",
+      "translation": "pasta a inspecionar; um caminho que não seja um diretório resulta em False.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.sample_image_names#1",
+      "source": "folder whose top-level image files are listed in sorted order; a path that is not a directory yields an empty list.",
+      "source_sha256": "dc540cef0fc7fcc631952c7b8e3c967e36915a492926f1f28e6148cbc90a81d3",
+      "context": "folder whose top-level image files are listed in sorted order; a path that is not a directory yields an empty list.",
+      "translation": "pasta cujos arquivos de imagem de primeiro nível são listados em ordem; um caminho que não seja um diretório resulta em uma lista vazia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.suggest_alternatives_dialog#1",
+      "source": "widget that owns the modal dialog.",
+      "source_sha256": "3c359b5a7c15bf0dede299dd5841408594fd029b2546e804a12c25466c43c1d1",
+      "context": "widget that owns the modal dialog.",
+      "translation": "widget dono da caixa de diálogo modal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.suggest_alternatives_dialog#2",
+      "source": "the rejected path; its final component is named in the dialog's heading.",
+      "source_sha256": "e3e88cd4398fd46b545e3f5a22460e8908022c717283d2460249c74c2b9ab3dd",
+      "context": "the rejected path; its final component is named in the dialog's heading.",
+      "translation": "o caminho rejeitado; seu último componente é nomeado no título da caixa de diálogo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd.suggest_alternatives_dialog#3",
+      "source": "candidate paths listed for the user, the first one preselected; the chosen entry is returned.",
+      "source_sha256": "1501e4c990c396c53bd4a58bc0569a04c8f65053eb85b9b5f018241a87a9e1f9",
+      "context": "candidate paths listed for the user, the first one preselected; the chosen entry is returned.",
+      "translation": "caminhos candidatos listados para o usuário, com o primeiro pré-selecionado; a entrada escolhida é retornada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers#10",
+      "source": "image files and/or folders with images; one queue",
+      "source_sha256": "a1a6f6dfe062dc835876e6f6446e8fc0004b43fbc9f76f3407d11c785045765b",
+      "context": "image files and/or folders with images; one work list",
+      "translation": "arquivos de imagem e/ou pastas com imagens; uma fila",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers#18",
+      "source": "plaque images and/or folders of them; a PDF (Figure)",
+      "source_sha256": "545971cd50969490c2e68920950a2a6a1a4f44fdb6c6e29c6f2408fdfaca9890",
+      "context": "plaque images and/or folders of them; a PDF (Figure)",
+      "translation": "imagens de placas de lise e/ou pastas com elas; um PDF (Figure)",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler#0",
+      "source": "Accept one folder with images, for the Cellpose training screens.",
+      "source_sha256": "846e330e4b958ec81b9cb96129ab33cf6ad7e3440cd5de4954229c831884eb54",
+      "context": "Accept one folder with images, for the Cellpose training screens.",
+      "translation": "Aceita uma pasta com imagens, para as telas de treinamento do Cellpose.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler#1",
+      "source": "Their ``src`` is a folder the run lists, so a file is refused here even though Make Masks itself takes one.",
+      "source_sha256": "837c12b60afaf0d8e9573676f1098f5893ed1f22e68ea22c86db3952ca44f176",
+      "context": "Their ``src`` is a folder the processing session lists, so a file is refused here even though Make Masks itself takes one.",
+      "translation": "O ``src`` delas é uma pasta que a execução lista, então um arquivo é recusado aqui, mesmo que o próprio Make Masks aceite um.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.accepts_multiple#0",
+      "source": "One folder is one source.",
+      "source_sha256": "051c9934e85c015862b1a9228781897d1993984113f068deee526624c6765ac3",
+      "context": "One folder is one source.",
+      "translation": "Uma pasta é uma fonte.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.apply_all#0",
+      "source": "Decline: each folder is set as ``src`` by :meth:`apply`.",
+      "source_sha256": "2791438140efbee32cccf23afcc799cc93ba3e270481d1a73d8f23f3a69ae828",
+      "context": "Decline: each folder is set as ``src`` by :meth:`apply`.",
+      "translation": "Recusa: cada pasta é definida como ``src`` por :meth:`apply`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.apply_all#1",
+      "source": "the accepted folders.",
+      "source_sha256": "18db1aa1b129787b4245f4049f0a01c86480434a651596a537b3296ef885ca1b",
+      "context": "the accepted folders.",
+      "translation": "as pastas aceitas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept#0",
+      "source": "A folder with images in it.",
+      "source_sha256": "4bf58f2d7852f8b256f2a4f959e3c7476c5c0d4374cd4e611d04ec8fa916fd5b",
+      "context": "A folder with images in it.",
+      "translation": "Uma pasta com imagens dentro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept#1",
+      "source": "the dropped file or folder.",
+      "source_sha256": "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+      "context": "the dropped file or folder.",
+      "translation": "o arquivo ou a pasta arrastada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept#2",
+      "source": "True when this handler can use ``path`` as-is.",
+      "source_sha256": "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb",
+      "context": "True when this handler can use ``path`` as-is.",
+      "translation": "True quando este manipulador pode usar ``path`` como está.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.error_message#0",
+      "source": "The sentence the Cellpose screens have always shown.",
+      "source_sha256": "4a9abae213dbada7c88df390f695eba7fd6f434686d1549c56d882537621b19d",
+      "context": "The sentence the Cellpose application views have always shown.",
+      "translation": "A frase que as telas do Cellpose sempre mostraram.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.error_message#2",
+      "source": "the sentence shown when the drop is refused.",
+      "source_sha256": "346aa9851cfe20db209e3c6d9c1e62852e9deb9c87ff151738ac3e571695c95c",
+      "context": "the sentence shown when the drop is refused.",
+      "translation": "a frase mostrada quando o arraste é recusado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler#0",
+      "source": "Accept image files, folders of images, or both; one drop, one queue.",
+      "source_sha256": "d05d65ffbcc475eace3bd37c78ba96163f3986991dcfb226570684de8b3dfe2f",
+      "context": "Accept image files, folders of images, or both; one drop, one work list.",
+      "translation": "Aceita arquivos de imagem, pastas de imagens, ou ambos; um arraste, uma fila.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.accepts_multiple#0",
+      "source": "Several files and folders in one drop make one queue.",
+      "source_sha256": "69445c82f924de701cf21fe601f138d5b4298b78438a998852491010ff7db938",
+      "context": "Several files and folders in one drop make one work list.",
+      "translation": "Vários arquivos e pastas em um único arraste formam uma única fila.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply#0",
+      "source": "Open the one path; a screen without a queue gets it as ``src``.",
+      "source_sha256": "67212a11e5a081c5864c4e7234fa22849aa1cc3e6fd1c44c6eb3c87410c56d61",
+      "context": "Open the one path; an application view without a work list gets it as ``src``.",
+      "translation": "Abre o único caminho; uma tela sem fila o recebe como ``src``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all#0",
+      "source": "Hand the whole drop to Make Masks, which queues it in drop order.",
+      "source_sha256": "89986ae955148df80e0949b5c37753fe9c5da5a93c3865de0b99fb976fc9e030",
+      "context": "Hand the whole drop to Make Masks, which work lists it in drop order.",
+      "translation": "Entrega o arraste inteiro ao Make Masks, que o coloca na fila na ordem do arraste.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all#1",
+      "source": "the accepted files and folders, in drop order.",
+      "source_sha256": "127631d3956bd5d2935839adea8572d1c5d757586f4dca9d47246b5c77fd8308",
+      "context": "the accepted files and folders, in drop order.",
+      "translation": "os arquivos e pastas aceitos, na ordem do arraste.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all#3",
+      "source": "False for a screen that is not Make Masks, so each path goes through :meth:`apply` as a source folder instead.",
+      "source_sha256": "b7dc1a28c484e8629f299a5f14f09e5087388305552d67652797a67469426b51",
+      "context": "False for a screen that is not Make Masks, so each path goes through :meth:`apply` as a source folder instead.",
+      "translation": "False para uma tela que não seja o Make Masks, para que cada caminho passe por :meth:`apply` como pasta de origem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#0",
+      "source": "An image file Make Masks opens, or a folder with images in it.",
+      "source_sha256": "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
+      "context": "An image file Make Masks opens, or a folder with images in it.",
+      "translation": "Um arquivo de imagem que o Make Masks abre, ou uma pasta com imagens dentro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "Pairs are found later, not required here.",
+      "source_sha256": "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+      "context": "Pairs are found later, not required here.",
+      "translation": "Os pares são encontrados depois; não são exigidos aqui.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#0",
+      "source": "Plaque Assay's own drop policy and its own words.",
+      "source_sha256": "8419216522aa6de4de4d7de737f42afea88d6cee1aad26925d83d52568dca4c3",
+      "context": "Plaque Assay's own drop policy and its own words.",
+      "translation": "A política de arraste própria do Plaque Assay, com suas próprias palavras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#1",
+      "source": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
+      "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "translation": "Ele aceita imagens de placas de lise, pastas delas, as duas coisas misturadas e, no modo Figure, o PDF de um artigo. Antes deste manipulador, o Plaque Assay recebia a política do Make Masks, que recusava uma pasta que não conseguia usar com a frase do Make Masks.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
+      "source": "Several images and folders in one drop make one selection.",
+      "source_sha256": "064e46d4917fefc212157ff0285fdec17c5be5dafd19a97c830713b54183c193",
+      "context": "Several images and folders in one drop make one selection.",
+      "translation": "Várias imagens e pastas em um único arraste formam uma única seleção.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply#0",
+      "source": "Take one dropped path.",
+      "source_sha256": "b2fec9f8cda9085d03f5fef7833aaad523032d01b23302b569ccf94c44385f08",
+      "context": "Take one dropped path.",
+      "translation": "Recebe um caminho arrastado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply#2",
+      "source": "the Plaque Assay screen.",
+      "source_sha256": "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
+      "context": "the Plaque Assay screen.",
+      "translation": "a tela do Plaque Assay.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#0",
+      "source": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.",
+      "source_sha256": "ccb674b3f5313eef10af1ee2a51d6bb9916de3f70d0f9931edd1da8398f670d5",
+      "context": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.",
+      "translation": "Aponta o Plaque Assay para o arraste: PDFs para o modo Figure, imagens para src.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#1",
+      "source": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
+      "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "translation": "O modo acompanha o que foi arrastado (item 518): PDFs, ou uma pasta deles, arrastados no modo Plaque pedem para mudar para o modo Figure; imagens arrastadas no modo Figure pedem para mudar para o modo Plaque; PDFs e imagens juntos informam que PDFs são lidos no modo Figure e imagens no modo Plaque, e perguntam qual ler. Permanecer no modo Figure lê as imagens como figuras; permanecer no modo Plaque deixa os PDFs sem ler.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",
+      "source": "True; the drop is always handled here.",
+      "source_sha256": "1abb833f90714922fa3968fe30f8623d1fd099f4aa1cb52376626db7075255a4",
+      "context": "True; the drop is always handled here.",
+      "translation": "True; o arraste é sempre tratado aqui.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept#0",
+      "source": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
+      "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
+      "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
+      "translation": "Uma imagem de placa de lise, um PDF, ou uma pasta com imagens de placas de lise ou PDFs dentro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",
+      "source": "Say what Plaque Assay reads, in its own terms.",
+      "source_sha256": "89245df910bf3f693bd6479f55320650c80333389ffa59daf51133bfca6ae91c",
+      "context": "Say what Plaque Assay reads, in its own terms.",
+      "translation": "Diz o que o Plaque Assay lê, em seus próprios termos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.suggest_alternatives#0",
+      "source": "Nearby folders that hold plaque images.",
+      "source_sha256": "da80bad70c83a8071e53ba0bf6562cc09b1b9b4e4991e6cd3bff04e6fdb92df8",
+      "context": "Nearby folders that hold plaque images.",
+      "translation": "Pastas próximas que contêm imagens de placas de lise.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.suggest_alternatives#2",
+      "source": "sibling and child folders with plaque images in them.",
+      "source_sha256": "0b72dcf348de0bca178c6172ac1b168a61a05324a5ba90136d5e86d21b7ce058",
+      "context": "sibling and child folders with plaque images in them.",
+      "translation": "pastas irmãs e subpastas com imagens de placas de lise dentro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#0",
+      "source": "What a drop or a ``src`` holds for each Plaque Assay mode.",
+      "source_sha256": "265586eb2e6164081c0d47ffe0e8e2a5c4990fb48650755ed60cea30ce4b6a9b",
+      "context": "What a drop or a ``src`` holds for each Plaque Assay mode.",
+      "translation": "O que um arraste ou um ``src`` contém para cada modo do Plaque Assay.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#1",
+      "source": "Only the top level of a folder is read, as the plaque run reads it, and at most ``limit`` entries of each, so a huge folder on a slow share cannot hold the window for long.",
+      "source_sha256": "a529c004825db4bf61beda58e46cd820e34f5d35ba597fa8641149d3d32ef76f",
+      "context": "Only the top level of a folder is read, as the plaque run reads it, and at most ``limit`` entries of each, so a huge folder on a slow share cannot hold the window for long.",
+      "translation": "Apenas o primeiro nível de uma pasta é lido, como a execução de placas de lise o lê, e no máximo ``limit`` entradas de cada uma, para que uma pasta enorme em um compartilhamento lento não possa segurar a janela por muito tempo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#2",
+      "source": "dropped files and folders, or ``[src]``.",
+      "source_sha256": "f34783eb2c23011dbf9f801e00514f2cc148622efdbce4da18938f6127e7cb5d",
+      "context": "dropped files and folders, or ``[src]``.",
+      "translation": "arquivos e pastas arrastados, ou ``[src]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#3",
+      "source": "entries read per folder.",
+      "source_sha256": "eeb4c8057e335b764871e01b5ace23359e2b2c2d2bfe6978d9682dcd69eba4d0",
+      "context": "entries read per folder.",
+      "translation": "entradas lidas por pasta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#4",
+      "source": "``(pdfs, images, paper_folders)``. A paper folder -- one a paper was fetched into, holding its ``paper.json``, ``legends.csv`` or ``text_layer.json`` -- is Figure mode's input, and its figure images are not counted as plaque images.",
+      "source_sha256": "f9a3fc26e58350eb8c3a3391f90f20a2c453d1859a81a6e7508562e4feaa5bca",
+      "context": "``(pdfs, images, paper_folders)``. A paper folder -- one a paper was fetched into, holding its ``paper.json``, ``legends.csv`` or ``text_layer.json`` -- is Figure mode's input, and its figure images are not counted as plaque images.",
+      "translation": "``(pdfs, images, paper_folders)``. Uma pasta de artigo -- uma para a qual um artigo foi baixado, contendo seu ``paper.json``, ``legends.csv`` ou ``text_layer.json`` -- é a entrada do modo Figure, e as imagens de suas figuras não são contadas como imagens de placas de lise.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#0",
+      "source": "A folder that lists the dropped plaque images, without copying them.",
+      "source_sha256": "c789351d4dce23bd4b6aad8ff448daf23f0c259cc8a93d89ec9cc4de112cf441",
+      "context": "A folder that lists the dropped plaque images, without copying them.",
+      "translation": "Uma pasta que lista as imagens de placas de lise arrastadas, sem copiá-las.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#1",
+      "source": "A plaque run reads one folder and writes its masks beneath it, so a drop of loose files becomes a folder of links to them -- symbolic, else hard -- named ``plaque_selection_<time>`` beside the first image, or in the temporary folder when that one cannot be written. Two images with the same name from different folders keep both, the second under its folder's name.",
+      "source_sha256": "a5ed53b772792408f3987f6a52d1d03eaa9e80844d5ea8b96318f2b7418abdcf",
+      "context": "A plaque run reads one folder and writes its masks beneath it, so a drop of loose files becomes a folder of links to them -- symbolic, else hard -- named ``plaque_selection_<time>`` beside the first image, or in the temporary folder when that one cannot be written. Two images with the same name from different folders keep both, the second under its folder's name.",
+      "translation": "Uma execução de placas de lise lê uma pasta e grava suas máscaras abaixo dela, então um arraste de arquivos soltos se torna uma pasta de links para eles -- simbólicos ou, se não for possível, físicos --, chamada ``plaque_selection_<time>``, ao lado da primeira imagem, ou na pasta temporária quando essa não pode ser gravada. Duas imagens com o mesmo nome vindas de pastas diferentes são ambas mantidas, a segunda com o nome de sua pasta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#2",
+      "source": "the images, in drop order.",
+      "source_sha256": "06013bcac825c0df33102136c48948078e502ef092e5334d729c88fa99c29eb3",
+      "context": "the images, in drop order.",
+      "translation": "as imagens, na ordem do arraste.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#3",
+      "source": "the time part of the name; now when omitted.",
+      "source_sha256": "384d011cb323d41394420e67759bd4c8cc9f6558af51ac36a862c92f6f5505f4",
+      "context": "the time part of the name; now when omitted.",
+      "translation": "a parte de tempo do nome; o momento atual quando omitida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#5",
+      "source": "when an image can be neither linked nor listed.",
+      "source_sha256": "ff0a7d21b9d4b35f5a174182b2d520ec85084a6717fd7f8c9b7fc0158c28b386",
+      "context": "when an image can be neither linked nor listed.",
+      "translation": "quando uma imagem não pode ser vinculada nem listada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.first_run#1",
+      "source": "Fires the first time ``spacr`` boots (state stored in QSettings). A translucent full-window overlay dims the app; a numbered card walks the user through: sidebar → test data → home tiles → hint bar. The user can dismiss at any point via Skip / Esc; the \"seen\" flag is saved on skip OR after the last step so the tour never fires twice unless they hit \"Reset\" in Preferences.",
+      "source_sha256": "5dcc9e04e888b281fe03b869b878ca00f383f1ffb2fcaf00bf0322153e8de4a7",
+      "context": "Fires the first time ``spacr`` boots (state stored in QSettings). A translucent full-window overlay dims the app; a numbered card walks the user through: sidebar → test data → home tiles → hint bar. The user can dismiss at any point via Skip / Esc; the \"seen\" flag is saved on skip OR after the last step so the tour never fires twice unless they hit \"Reset\" in Preferences.",
+      "translation": "É disparado na primeira vez que o ``spacr`` inicia (estado armazenado no QSettings). Uma sobreposição translúcida em toda a janela escurece o aplicativo; um cartão numerado conduz o usuário por: barra lateral → dados de teste → blocos da tela inicial → barra de dicas. O usuário pode dispensá-lo a qualquer momento com Skip / Esc; o indicador \"seen\" é salvo ao pular OU após a última etapa, para que o tour nunca seja disparado duas vezes, a menos que o usuário clique em \"Reset\" nas Preferences.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#1",
+      "source": "path of the source image file, as a string.",
+      "source_sha256": "ccb65ed1bbdf9e4cacbef402ef5e0122ca4cae2573ff90dfcc2a203cba0d45a0",
+      "context": "path of the source image file, as a string.",
+      "translation": "caminho do arquivo de imagem de origem, como string.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#2",
+      "source": "canonical file name minted for it, ``<plate>_<well>_F<field>_C<channel>.tif``.",
+      "source_sha256": "4232febd155b13866870222b97043eca10d69e00152bb3692a6f9708f287bb33",
+      "context": "canonical file name minted for it, ``<plate>_<well>_F<field>_C<channel>.tif``.",
+      "translation": "nome de arquivo canônico gerado para ele, ``<plate>_<well>_F<field>_C<channel>.tif``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#3",
+      "source": "plate id used in the canonical name.",
+      "source_sha256": "6bcdb8270714a2264d201a7ed7ca12998c50be3f85b8deb40e743272eaa2ccaf",
+      "context": "plate id used in the canonical name.",
+      "translation": "id da placa usado no nome canônico.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#4",
+      "source": "well name such as ``A01``.",
+      "source_sha256": "f3b8cffbb71c6afcab9ada5aeae7beb3ff0ca9f331d58d888433dc993d48344f",
+      "context": "microplate sample position name such as ``A01``.",
+      "translation": "nome do poço, como ``A01``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#5",
+      "source": "field index within the well, starting at 1.",
+      "source_sha256": "0f80b3584eee40c4c6ec2af62eaf534befb9bf96591241f776a00a5c6ed6f218",
+      "context": "microscope field of view index within the microplate sample position, starting at 1.",
+      "translation": "índice do campo dentro do poço, a partir de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#6",
+      "source": "channel index, starting at 1.",
+      "source_sha256": "79e955fd2d927ced5eb9e68eea083df85dda38affe5de51a11b9d06f95083c0a",
+      "context": "channel index, starting at 1.",
+      "translation": "índice do canal, a partir de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.NameMapping#7",
+      "source": "time-point index written to the ``time`` column.",
+      "source_sha256": "0dab41fcd807ed183ac3174133071073b2a90faa71fcf8cb65991f07baa86747",
+      "context": "time-point index written to the ``time`` column.",
+      "translation": "índice do ponto de tempo gravado na coluna ``time``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.save_filename_map#2",
+      "source": "CSV file to write; missing parent folders are created and an existing file is overwritten.",
+      "source_sha256": "e94c8b4f295aeb230da03f426de823eccd13a413c051d2a495f748fcb9a3e72a",
+      "context": "CSV file to write; missing parent folders are created and an existing file is overwritten.",
+      "translation": "arquivo CSV a gravar; pastas pai ausentes são criadas e um arquivo existente é sobrescrito.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.folder_metadata.save_filename_map#3",
+      "source": "rows to write, one per :class:`NameMapping`, in the given order after a header row.",
+      "source_sha256": "457c1dcc87dc02b755385eca85762670bddc6a3ae2c0863b26463c33554d6c36",
+      "context": "rows to write, one per :class:`NameMapping`, in the given order after a header row.",
+      "translation": "linhas a gravar, uma por :class:`NameMapping`, na ordem dada, após uma linha de cabeçalho.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.fractal_defaults.clamp#1",
+      "source": "the number to clamp.",
+      "source_sha256": "9c5c1d53e9ffab8d2276f05f827e549408983c4674aebf8e38403c4409c35e0b",
+      "context": "the number to clamp.",
+      "translation": "o número a limitar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.fractal_defaults.clamp#2",
+      "source": "lower bound, returned when ``value`` is below it.",
+      "source_sha256": "7f49851bca8b5b8511a4ecbc8b103af0874826b33dccdcbf7ec5cb6df3450c77",
+      "context": "lower bound, returned when ``value`` is below it.",
+      "translation": "limite inferior, retornado quando ``value`` está abaixo dele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.fractal_defaults.clamp#3",
+      "source": "upper bound, returned when ``value`` is above it.",
+      "source_sha256": "40c6c589109918ab9ad9c43b6f6b3e8f0e46599300dc0a09f1e4d0ddf87d1921",
+      "context": "upper bound, returned when ``value`` is above it.",
+      "translation": "limite superior, retornado quando ``value`` está acima dele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gc_policy#5",
+      "source": "Explicit pipeline cleanup uses :func:`spacr._gc.collect`, which requests a full sweep on the next GUI timer tick. ``gc.disable()`` stops only automatic collection, so third-party code calling the standard-library ``gc.collect`` directly can still collect on a worker. :func:`spacr.qt.thread_guard` reports wrong-thread widget destruction if it recurs.",
+      "source_sha256": "0fcba2a7a34739cd3139f97d3faa7cf213eca7594db10bb28a41066e97376093",
+      "context": "Explicit workflow cleanup uses :func:`spacr._gc.collect`, which requests a full sweep on the next GUI timer tick. ``gc.disable()`` stops only automatic collection, so third-party code calling the standard-library ``gc.collect`` directly can still collect on a worker. :func:`spacr.qt.thread_guard` reports wrong-independent execution path widget destruction if it recurs.",
+      "translation": "A limpeza explícita do pipeline usa :func:`spacr._gc.collect`, que solicita uma varredura completa no próximo tique do timer da GUI. ``gc.disable()`` só interrompe a coleta automática, então código de terceiros que chame diretamente o ``gc.collect`` da biblioteca padrão ainda pode coletar em um worker. :func:`spacr.qt.thread_guard` informa a destruição de widgets na thread errada caso ela volte a ocorrer.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gc_policy.collect_once#2",
+      "source": "Explicit worker cleanup requests take precedence and collect all generations, even below their normal thresholds.",
+      "source_sha256": "58143bc0a5bbc5a9cbe397b1845e91824aa1146af7a3635e7c211d1fe40fa239",
+      "context": "Explicit worker cleanup requests take precedence and collect all generations, even below their normal thresholds.",
+      "translation": "Solicitações explícitas de limpeza vindas de workers têm precedência e coletam todas as gerações, mesmo abaixo de seus limiares normais.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#0",
+      "source": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
+      "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
+      "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
+      "translation": "A escala de toda a GUI, aplicada ao vivo: um único fator para todos os tamanhos que o spaCR define (471).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#1",
+      "source": "WHAT IT IS. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
+      "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
+      "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
+      "translation": "O QUE É. \"GUI scale\" nas Preferences (10 % a 200 %, padrão 100 %) escala os tamanhos de widgets, tamanhos fixos, margens, espaçamento, tamanhos das folhas de estilo (incluindo fontes e preenchimentos), ícones, tamanhos de divisores e o dpi das figuras -- e faz isso enquanto o spaCR está em execução, sem reiniciar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#10",
+      "source": "WHAT DOES NOT FOLLOW LIVE. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
+      "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
+      "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
+      "translation": "O QUE NÃO ACOMPANHA AO VIVO. Tamanhos que a escala não consegue ver porque não passam por um setter: texto e formas que um widget pinta ele mesmo em coordenadas de pixel fixas, pixmaps que um widget escala para um número que ele calculou, ``setFont`` com tamanho explícito, posições de ``move``/``setGeometry``, tamanhos de seções de cabeçalho, uma sobrescrita de ``sizeHint`` em Python que retorna uma constante, as métricas próprias do estilo Fusion que a folha do tema não redefine, e o texto dos eixos do pyqtgraph. Tamanhos calculados a partir de métricas de fonte já são escalados uma vez pela fonte e são escalados de novo pelo setter -- a única forma pela qual a camada pode encolher demais. O tamanho da própria janela principal é deixado como está, para que o espaço ganho vá para o conteúdo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#2",
+      "source": "HOW, WITHOUT TOUCHING 1,420 CALL SITES. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every screen, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
+      "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
+      "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
+      "translation": "COMO, SEM TOCAR EM 1,420 PONTOS DE CHAMADA. Contagem feita no nightly de 2026-09-22 nos 328 módulos sob ``spacr/qt``: cerca de 1,420 chamadas de geometria fixas no código em 181 arquivos (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) e 486 literais ``px`` em texto de folhas de estilo em 64 arquivos. Encaminhar cada um à mão é uma alteração em todas as telas, e todo tamanho acrescentado depois precisaria se lembrar disso. Em vez disso, :func:`install_scaling_layer` -- chamada uma vez a partir de :func:`spacr.qt.app.launch` antes que o primeiro widget exista -- substitui os próprios setters nas classes do Qt (os setters de tamanho de ``QWidget`` e ``setStyleSheet``, os setters de margem e espaçamento dos layouts, todo ``setIconSize``, ``QSplitter.setSizes``). Cada substituição",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#3",
+      "source": "remembers, on the object, the value the code asked for -- its size at 100 %;",
+      "source_sha256": "227029f188e778800dae208e2f645f8d0aaf586cff78641c7119921bc00b5e6c",
+      "context": "remembers, on the object, the value the code asked for -- its size at 100 %;",
+      "translation": "guarda, no objeto, o valor que o código pediu -- seu tamanho em 100 %;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#4",
+      "source": "passes the value times the current scale on to Qt;",
+      "source_sha256": "809136663f93d82aceb0b6dfacc4d2889c757ff2963565232757cd4a81d6898e",
+      "context": "passes the value times the current scale on to Qt;",
+      "translation": "repassa ao Qt o valor multiplicado pela escala atual;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#5",
+      "source": "and answers the matching getter with the remembered value, so code that reads a size back and sets it again (the theme compares its own sheet by digest, a splitter saves ``sizes()``) keeps working in 100 % units and never compounds.",
+      "source_sha256": "85c2e6b8f82f01e3c6020c16615dae1c39de30d1bc0009b3c47d89acc0941276",
+      "context": "and answers the matching getter with the remembered value, so code that reads a size back and sets it again (the theme compares its own sheet by digest, a splitter saves ``sizes()``) keeps working in 100 % units and never compounds.",
+      "translation": "e responde ao getter correspondente com o valor guardado, de modo que o código que lê um tamanho e o define de novo (o tema compara sua própria folha por digest, um divisor salva ``sizes()``) continua funcionando em unidades de 100 % e nunca acumula o fator.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#6",
+      "source": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on screen -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
+      "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
+      "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
+      "translation": "Uma mudança de escala (:func:`set_gui_scale_live`) percorre todos os widgets e layouts vivos, repõe cada valor guardado na nova escala e pede às janelas que refaçam o layout. Um widget construído depois é escalado ao ser construído. Os painéis de um divisor mantêm o espaço que têm na tela -- o que encolhe é o que está dentro deles --, e ``sizes()`` responde em unidades de 100 %, para que os tamanhos que a fatia B persiste sobrevivam a uma mudança de escala.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#7",
+      "source": "HOW IT COMPOSES WITH FONT SCALE. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on screen.",
+      "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
+      "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
+      "translation": "COMO SE COMBINA COM A ESCALA DE FONTE. A escala de fonte continua onde está: ela escreve os tamanhos de fonte na folha de estilo do tema. Essa folha passa pela substituição de ``setStyleSheet`` como qualquer outra, então um tamanho de fonte acaba sendo base x escala de fonte x escala da GUI. GUI a 50 % com fonte a 200 % dá widgets com metade do tamanho e texto do tamanho habitual na tela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#8",
+      "source": "A USER'S OWN ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
+      "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
+      "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
+      "translation": "O ``QT_SCALE_FACTOR`` DO PRÓPRIO USUÁRIO não é alterado e se multiplica por fora, como sempre aconteceu no Qt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale#9",
+      "source": "KEEP OR REVERT. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
+      "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
+      "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
+      "translation": "MANTER OU REVERTER. Toda mudança de escala da GUI ou de escala de fonte é aplicada imediatamente e depois pergunta \"Keep these settings?\" (:class:`KeepOrRevertDialog`), com contagem regressiva de 15 s; a contagem regressiva, o Esc e fechar a caixa de diálogo restauram os valores antigos. A caixa de diálogo está isenta da escala e define seu próprio tamanho de texto, então é legível tanto com GUI a 10 % quanto com fonte a 10 %. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) continua sendo o recurso de reserva.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.add_listener#0",
+      "source": "Call ``callback(scale)`` after every change of GUI scale.",
+      "source_sha256": "c0d8eac3ec6fbc8b9ee8a50ac5ce52785e3e7b219212bb69b562c01693e09acd",
+      "context": "Call ``callback(scale)`` after every change of GUI scale.",
+      "translation": "Chama ``callback(scale)`` após cada mudança de escala da GUI.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.add_listener#1",
+      "source": "Held weakly when it is a bound method, so a listener does not keep its widget alive.",
+      "source_sha256": "001fb42ac7c82247bffa00d2cde0e37f1efe948cace6ff26067d3a6dc5f28827",
+      "context": "Held weakly when it is a bound method, so a listener does not keep its widget alive.",
+      "translation": "Mantido por referência fraca quando é um método vinculado, para que um ouvinte não mantenha seu widget vivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.add_listener#2",
+      "source": "called with the new scale.",
+      "source_sha256": "9d6d6db9cb361a1dc19a5094edc7a2207002be5fa6a9aaa51955703544ba54bb",
+      "context": "called with the new scale.",
+      "translation": "chamado com a nova escala.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#0",
+      "source": "Draw a matplotlib canvas at base dpi x GUI scale x its preview scale.",
+      "source_sha256": "34975bd6c24da9c96299bcec1a1e5fcfd4a62c0f705ea6ed2ca3708319814e2f",
+      "context": "Draw a matplotlib canvas at base dpi x GUI scale x its preview scale.",
+      "translation": "Desenha um canvas matplotlib com dpi base x escala da GUI x sua escala de pré-visualização.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#1",
+      "source": "A figure draws in points, so its dpi is what makes a 9 pt label take more or fewer pixels; scaling the dpi scales every label, dot and line while the widget keeps the size its layout gives it.",
+      "source_sha256": "bc45dc96ef6feb955f8f2e2fa31e020dd2d8713fd442cfa166f7ace1e576275b",
+      "context": "A figure draws in points, so its dpi is what makes a 9 pt label take more or fewer pixels; scaling the dpi scales every label, dot and line while the widget keeps the size its layout gives it.",
+      "translation": "Uma figura desenha em pontos, então é o dpi dela que faz um rótulo de 9 pt ocupar mais ou menos pixels; escalar o dpi escala cada rótulo, ponto e linha, enquanto o widget mantém o tamanho que seu layout lhe dá.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#3",
+      "source": "the GUI scale; the current one by default.",
+      "source_sha256": "53362d908ab5b9b1fb5781acb3f33fde3feff64ab02739ea05eca3c3bd03f5cd",
+      "context": "the GUI scale; the current one by default.",
+      "translation": "a escala da GUI; por padrão, a atual.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#4",
+      "source": "``True`` if the canvas's dpi was set.",
+      "source_sha256": "6e3d086b544aa867d23964af1279c9891788e0a9a78ee01959e8f6fe0e0c5970",
+      "context": "``True`` if the canvas's dpi was set.",
+      "translation": "``True`` se o dpi do canvas foi definido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_saved_gui_scale#0",
+      "source": "Start at the saved GUI scale; called once the application exists.",
+      "source_sha256": "e34adeefe6ff77b24b8cc56f37089190472682377b0e5916243fa2e8b98a7c9a",
+      "context": "Start at the saved GUI scale; called once the application exists.",
+      "translation": "Começa na escala da GUI salva; chamada assim que a aplicação existe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_saved_gui_scale#1",
+      "source": "the scale in force.",
+      "source_sha256": "6bd9a2d814ca8b1ae83c303cf731a5e7502677b81c67716b03f472ac391abfef",
+      "context": "the scale in force.",
+      "translation": "a escala em vigor.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#0",
+      "source": "Apply a new GUI and/or font scale now, then ask whether to keep it.",
+      "source_sha256": "21804ecc2bd28b8d646518969e52e8c9a5e7bc954b657ab7435fa53d95f4e8f4",
+      "context": "Apply a new GUI and/or font scale now, then ask whether to keep it.",
+      "translation": "Aplica agora uma nova escala da GUI e/ou de fonte e depois pergunta se deve mantê-la.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#1",
+      "source": "The question is shown without blocking (``open``, not ``exec``): the rest of spaCR keeps running under it, and the countdown reverts by itself if nobody answers.",
+      "source_sha256": "8a689cc1fbbb7c8331126448b5d9e4fcdf36c3180efb93b7905251308674ebae",
+      "context": "The question is shown without blocking (``open``, not ``exec``): the rest of spaCR keeps running under it, and the countdown reverts by itself if nobody answers.",
+      "translation": "A pergunta é mostrada sem bloquear (``open``, não ``exec``): o resto do spaCR continua funcionando por baixo dela, e a contagem regressiva reverte sozinha se ninguém responder.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#10",
+      "source": "the question dialog, or ``None`` when nothing was asked.",
+      "source_sha256": "725c75df566e4820569573a430fdcbcd0feadb08281a55346d20b792ccf8931c",
+      "context": "the question dialog, or ``None`` when nothing was asked.",
+      "translation": "a caixa de diálogo da pergunta, ou ``None`` quando nada foi perguntado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#2",
+      "source": "the window the question is centred on.",
+      "source_sha256": "eafa054e60eb92c9ac29e1bb88d6e6c190f67ffe858ffdec90467f33f108289e",
+      "context": "the window the question is centred on.",
+      "translation": "a janela sobre a qual a pergunta é centralizada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#3",
+      "source": "the new GUI scale; unchanged when ``None``.",
+      "source_sha256": "377167a423bc039f10a1a4a76486ac195920f1c35219aeea4bb6a6d97551d194",
+      "context": "the new GUI scale; unchanged when ``None``.",
+      "translation": "a nova escala da GUI; inalterada quando ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#4",
+      "source": "the new font scale; unchanged when ``None``.",
+      "source_sha256": "30de1ad70b3ae395e102c01116719268b78bb58d4c3375cf124d7bf345f22fcc",
+      "context": "the new font scale; unchanged when ``None``.",
+      "translation": "a nova escala de fonte; inalterada quando ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#6",
+      "source": "the countdown before it reverts by itself.",
+      "source_sha256": "8bb6f9ae282ef763fcca48f197801b33861400f9d123dd0a529eae00f6c7e545",
+      "context": "the countdown before it reverts by itself.",
+      "translation": "a contagem regressiva antes de reverter sozinha.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#7",
+      "source": "``(gui, font)`` to revert to when the caller has already applied and saved the new values (the Z + wheel gesture); nothing is applied again then.",
+      "source_sha256": "5f0286a628992751f5727b7b3aa43fc6c3dabf174eb7621b43dcf8c27a754d8f",
+      "context": "``(gui, font)`` to revert to when the caller has already applied and saved the new values (the Z + wheel gesture); nothing is applied again then.",
+      "translation": "``(gui, font)`` para os quais reverter quando o chamador já aplicou e salvou os novos valores (o gesto Z + roda); nesse caso, nada é aplicado de novo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#8",
+      "source": "ask only when there is a window to centre the question on. ``False`` asks anyway, which is what a test does.",
+      "source_sha256": "2c91bee6c339e8bc34a0d9544274406969c7fff333a56af9a588574b07e3455f",
+      "context": "ask only when there is a window to centre the question on. ``False`` asks anyway, which is what a test does.",
+      "translation": "pergunta apenas quando há uma janela sobre a qual centralizar a pergunta. ``False`` pergunta mesmo assim, que é o que um teste faz.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#9",
+      "source": "called with ``True`` when kept, ``False`` when reverted.",
+      "source_sha256": "a66a5eb4e4ac8e6625986c9dfc19ebfe4b1ca9b9d2ad91545081ed79f13793a2",
+      "context": "called with ``True`` when kept, ``False`` when reverted.",
+      "translation": "chamado com ``True`` quando mantido, ``False`` quando revertido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.current_scale#0",
+      "source": "The GUI scale in force now (1.0 = 100 %).",
+      "source_sha256": "08510d88321d39211476b557bdb25a29e93806a20b6c7c34b680ff8246501962",
+      "context": "The GUI scale in force now (1.0 = 100 %).",
+      "translation": "A escala da GUI em vigor agora (1.0 = 100 %).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.follow_canvas#0",
+      "source": "Draw a new matplotlib canvas at the current GUI scale.",
+      "source_sha256": "e606a7a562e36b10153236ab3442f0d6b4c7d2e334ba6ca509a5a124faf18f3e",
+      "context": "Draw a new matplotlib canvas at the current GUI scale.",
+      "translation": "Desenha um canvas matplotlib novo na escala atual da GUI.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.follow_canvas#1",
+      "source": "a ``FigureCanvasQTAgg`` just built.",
+      "source_sha256": "5d84de9db3a5983965496e8489bf3c6fe82078c5c3602155b2ffb0e7b5285f1c",
+      "context": "a ``FigureCanvasQTAgg`` just built.",
+      "translation": "um ``FigureCanvasQTAgg`` recém-construído.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.follow_canvas#2",
+      "source": "``True`` if its dpi was set.",
+      "source_sha256": "60d3145b4002fd2bde4aed7b29ade24d2e5734dcb78cd3d48c03a35ff46eb9c9",
+      "context": "``True`` if its dpi was set.",
+      "translation": "``True`` se o dpi dele foi definido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.install_scaling_layer#0",
+      "source": "Put the scaling layer on the Qt classes. Idempotent.",
+      "source_sha256": "235e4c722116b349c6bfe05bb235e9b1031c1dc0cd3608d5c628810553a3990d",
+      "context": "Put the scaling layer on the Qt classes. Idempotent.",
+      "translation": "Coloca a camada de escala nas classes do Qt. Idempotente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.install_scaling_layer#1",
+      "source": "Called from :func:`spacr.qt.app.launch` before the first widget, so every size spaCR sets is remembered at 100 %. At 100 % every replacement hands Qt exactly the value it was given, which is why a default session draws the pixels it drew before the layer existed.",
+      "source_sha256": "e1d059a24ad0e1644cbf4ffac67e04b7970ce8a5a4339759b10acf62dc0e045e",
+      "context": "Called from :func:`spacr.qt.app.launch` before the first widget, so every size spaCR sets is remembered at 100 %. At 100 % every replacement hands Qt exactly the value it was given, which is why a default session draws the pixels it drew before the layer existed.",
+      "translation": "Chamada a partir de :func:`spacr.qt.app.launch` antes do primeiro widget, para que todo tamanho que o spaCR define seja guardado em 100 %. Em 100 %, cada substituição entrega ao Qt exatamente o valor que recebeu, e é por isso que uma sessão padrão desenha os mesmos pixels que desenhava antes de a camada existir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.install_scaling_layer#2",
+      "source": "``True`` the first time, ``False`` if it was already in place.",
+      "source_sha256": "322fe5d5afaaa37406da846c25fd6187c147a404333266026748c4c3f526a4e7",
+      "context": "``True`` the first time, ``False`` if it was already in place.",
+      "translation": "``True`` na primeira vez, ``False`` se ela já estava instalada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.installed#0",
+      "source": "Whether :func:`install_scaling_layer` has run in this process.",
+      "source_sha256": "e5fdf9dbe236e39c151c82755c490c2a378a2e469c3f5b4abee2f3b401d0a9ec",
+      "context": "Whether :func:`install_scaling_layer` has run in this process.",
+      "translation": "Se :func:`install_scaling_layer` já foi executada neste processo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#0",
+      "source": "A new :class:`KeepOrRevertDialog` (see :func:`_dialog_classes`).",
+      "source_sha256": "6d4d49723df86259e0efd8a4d1a2b017134b8b815cf77cd1b34c86455bae5a15",
+      "context": "A new :class:`KeepOrRevertDialog` (see :func:`_dialog_classes`).",
+      "translation": "Um novo :class:`KeepOrRevertDialog` (veja :func:`_dialog_classes`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#1",
+      "source": "the window it is centred on.",
+      "source_sha256": "e6e9d2a97e07d1f010d7aeca762ad5eec593be91972012d4ba1a24fce3e53532",
+      "context": "the window it is centred on.",
+      "translation": "a janela sobre a qual ela é centralizada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#2",
+      "source": "how long before it reverts by itself.",
+      "source_sha256": "dfdb1236b9305ed495b79aff733331d3c8fbd087f951ae1461e8325694095ccd",
+      "context": "how long before it reverts by itself.",
+      "translation": "quanto tempo até reverter sozinha.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#3",
+      "source": "the line naming what changed.",
+      "source_sha256": "31a03e4ea92bcae4096a9b9d4a342d00f213571508e3c06fb4d3407e7add5398",
+      "context": "the line naming what changed.",
+      "translation": "a linha que nomeia o que mudou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons#0",
+      "source": "Keep matplotlib's toolbar icons full size below a device ratio of 1.",
+      "source_sha256": "86c6d8858d6c6526b60d9d5495f7cedacd816413a0d15c785c4c922407d402f2",
+      "context": "Keep matplotlib's toolbar icons full size below a device ratio of 1.",
+      "translation": "Mantém os ícones da barra de ferramentas do matplotlib em tamanho normal com uma razão de dispositivo abaixo de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons#1",
+      "source": "Matplotlib's toolbar icon engine multiplies the size Qt asks for by the device pixel ratio, and Qt has already done so; above 1 the two cancel, below 1 (a user's ``QT_SCALE_FACTOR`` under 1) they compound. Measured offscreen at a ratio of 0.5: the icons drew 3 px tall instead of 11. Holding the engine's ratio at 1 or more draws them 11 px tall and changes nothing at a ratio of 1 or 2. Idempotent.",
+      "source_sha256": "b0bc37950be6c1d7fbb417e3f4b3db6d04bedf809bb37eebf0dac27c87108af9",
+      "context": "Matplotlib's toolbar icon engine multiplies the size Qt asks for by the device pixel ratio, and Qt has already done so; above 1 the two cancel, below 1 (a user's ``QT_SCALE_FACTOR`` under 1) they compound. Measured offscreen at a ratio of 0.5: the icons drew 3 px tall instead of 11. Holding the engine's ratio at 1 or more draws them 11 px tall and changes nothing at a ratio of 1 or 2. Idempotent.",
+      "translation": "O mecanismo de ícones da barra de ferramentas do Matplotlib multiplica o tamanho que o Qt pede pela razão de pixels do dispositivo, e o Qt já fez isso; acima de 1, os dois se cancelam, abaixo de 1 (um ``QT_SCALE_FACTOR`` do usuário menor que 1), eles se acumulam. Medido fora da tela com razão 0.5: os ícones eram desenhados com 3 px de altura em vez de 11. Manter a razão do mecanismo em 1 ou mais os desenha com 11 px de altura e não muda nada com razão 1 ou 2. Idempotente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons#2",
+      "source": "``True`` if the mend is in place.",
+      "source_sha256": "eb27d3da71f4563b40df38c7ee9d4eb2d7e23930601ac1ca52189b52a76544b6",
+      "context": "``True`` if the mend is in place.",
+      "translation": "``True`` se a correção está aplicada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.refresh_the_windows#0",
+      "source": "Rebuild what a style sheet cannot reach: icons, tiles, window chrome.",
+      "source_sha256": "2d35c434b914c2f4c621715dacc22c34087a620f78b19d06beed562415d38a3a",
+      "context": "Rebuild what a style sheet cannot reach: icons, tiles, window chrome.",
+      "translation": "Reconstrói o que uma folha de estilo não alcança: ícones, blocos, moldura da janela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.refresh_the_windows#1",
+      "source": "The same step the Z + wheel gesture ends with. ``MainWindow.refresh_theme`` repaints the marks in the window corner and the Home tiles, which paint their own pixmaps at a size they compute -- and a pixmap is not a size the scaling layer ever sees.",
+      "source_sha256": "5ce6d0bf829af3a24832824d4816594ca84c67562afacbc035466131be2e9c63",
+      "context": "The same step the Z + wheel gesture ends with. ``MainWindow.refresh_theme`` repaints the marks in the window corner and the Home tiles, which paint their own pixmaps at a size they compute -- and a pixmap is not a size the scaling layer ever sees.",
+      "translation": "A mesma etapa com que o gesto Z + roda termina. ``MainWindow.refresh_theme`` repinta as marcas no canto da janela e os blocos da tela Home, que pintam seus próprios pixmaps em um tamanho que eles calculam -- e um pixmap não é um tamanho que a camada de escala chegue a ver.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.refresh_the_windows#2",
+      "source": "how many windows rebuilt.",
+      "source_sha256": "3d5a0d34105aceef0fdacd462394c13084a2940c422dd356c43e992bc185997f",
+      "context": "how many windows rebuilt.",
+      "translation": "quantas janelas foram reconstruídas.",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }

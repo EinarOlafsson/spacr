@@ -1,0 +1,456 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.gui_scale.reset_every_scale#0",
+      "source": "Put GUI scale, font scale and every preview scale back to 100 %, now.",
+      "source_sha256": "6c27587902b47746fa537ed5d61592d0197a4342781c2d90807c6a32dc6e2506",
+      "context": "Put GUI scale, font scale and every preview scale back to 100 %, now.",
+      "translation": "Volta agora a escala da GUI, a escala de fonte e toda escala de pré-visualização para 100 %.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.reset_every_scale#1",
+      "source": "The backup way out of a scale too small to read: ``Ctrl+Alt+0``. It needs no reading and no answer.",
+      "source_sha256": "cdeccfbe4cab749db8559121f189bedff2b0472f400c3ac60a70e1e884a7b754",
+      "context": "The backup way out of a scale too small to read: ``Ctrl+Alt+0``. It needs no reading and no answer.",
+      "translation": "A saída de reserva de uma escala pequena demais para ler: ``Ctrl+Alt+0``. Não exige leitura nem resposta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.reset_every_scale#2",
+      "source": "unused; kept so a shortcut can pass its window.",
+      "source_sha256": "b0adccda3d8cb3f26956c31193eafbccf0401376f8c0e516da1153068821f2d8",
+      "context": "unused; kept so a shortcut can pass its window.",
+      "translation": "não usado; mantido para que um atalho possa passar sua janela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_int#0",
+      "source": "``value`` at ``factor``, keeping 0, negatives and Qt's maximum as they are.",
+      "source_sha256": "3633f6d48ad0c058767024be9f6ee779fde65fcb6a16cf9e1f24cd1606e0b627",
+      "context": "``value`` at ``factor``, keeping 0, negatives and Qt's maximum as they are.",
+      "translation": "``value`` em ``factor``, mantendo 0, os negativos e o máximo do Qt como estão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_int#1",
+      "source": "a size in 100 % pixels.",
+      "source_sha256": "c23a21d5a6ab894bf4c90395d69f7f1d9b095cb6fd7ae36d74900e7b1dea338a",
+      "context": "a size in 100 % pixels.",
+      "translation": "um tamanho em pixels a 100 %.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_int#2",
+      "source": "the scale; the current one by default.",
+      "source_sha256": "fca91ff0a77003a9c08f128ba3a52898cc98ffa00bdaf6db72ab5d98dfd0d655",
+      "context": "the scale; the current one by default.",
+      "translation": "a escala; por padrão, a atual.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_qss_text#0",
+      "source": "Scale the sizes in a style sheet, leaving every other byte as it was.",
+      "source_sha256": "c6ddef6c0aa1dc0067778abccef892850c627c2dbbff0128d49014163e8e265b",
+      "context": "Scale the sizes in a style sheet, leaving every other byte as it was.",
+      "translation": "Escala os tamanhos em uma folha de estilo, deixando todos os outros bytes como estavam.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_qss_text#1",
+      "source": "Only the values of size properties (font sizes, paddings, margins, min/max sizes, widths, heights, spacing, radii) change; selectors, colours, borders and ``url(...)`` data are untouched.",
+      "source_sha256": "bbaec48619efc3f0227c0637c20ecd6f5282c8bf17dd75daea5d44209bac2409",
+      "context": "Only the values of size properties (font sizes, paddings, margins, min/max sizes, widths, heights, spacing, radii) change; selectors, colours, borders and ``url(...)`` data are untouched.",
+      "translation": "Só mudam os valores das propriedades de tamanho (tamanhos de fonte, preenchimentos, margens, tamanhos mín./máx., larguras, alturas, espaçamento, raios); seletores, cores, bordas e dados ``url(...)`` não são alterados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_qss_text#2",
+      "source": "the style sheet.",
+      "source_sha256": "d938d34c454a02a7157bad3f6315e9e5481e0ff80aff6f28c95ecc8ec40bede2",
+      "context": "the style sheet.",
+      "translation": "a folha de estilo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#0",
+      "source": "Draw spaCR at ``scale`` now: every live widget, and every one built later.",
+      "source_sha256": "c6c772779e9627fa38598fa13817ea707aea2a32ddd8f051037be68396256761",
+      "context": "Draw spaCR at ``scale`` now: every live widget, and every one built later.",
+      "translation": "Desenha o spaCR em ``scale`` agora: todos os widgets vivos e todos os que forem construídos depois.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#1",
+      "source": "Does not save the preference; see :func:`spacr.qt.preferences.set_gui_scale`.",
+      "source_sha256": "5a19d068c9d172410f2ddbca044245516fc3ac3ec8cbf5de4d274a0adb3ec389",
+      "context": "Does not save the preference; see :func:`spacr.qt.preferences.set_gui_scale`.",
+      "translation": "Não salva a preferência; veja :func:`spacr.qt.preferences.set_gui_scale`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#2",
+      "source": "the factor, 1.0 = 100 %; clamped to 10-200 %.",
+      "source_sha256": "ec856302466ddb5328108ef68f55d577e4235bf0c0eb062af3d63979e5c6b5f5",
+      "context": "the factor, 1.0 = 100 %; clamped to 10-200 %.",
+      "translation": "o fator, 1.0 = 100 %; limitado a 10-200 %.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#3",
+      "source": "the scale applied.",
+      "source_sha256": "fbf60c0a2350b791a7ec19bb29665f5ebb447b9e07b22daacdca0e9ce81c6768",
+      "context": "the scale applied.",
+      "translation": "a escala aplicada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_api_index#0",
+      "source": "What the Help search field matches on. Generated -- do not edit.",
+      "source_sha256": "ff11b31e0ccc5f3288a643e29c53870bc9c5faa0870a0860b7926424f0d47d79",
+      "context": "What the Help search field matches on. Generated -- do not edit.",
+      "translation": "Aquilo com que o campo de busca da Ajuda faz a correspondência. Gerado -- não edite.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_api_index#1",
+      "source": "Written by ``tools/build_help_search_index.py`` from the API manifest, the setting consumer map and the source of the preferences dialog. See ``docs/notes/spacr/qt/help_api_index.md`` for why none of it is typed by hand.",
+      "source_sha256": "4e4a4ea01adc24fc9284b97dcb8e0b2220343b30c03188b1eee51e066a1390c2",
+      "context": "Written by ``tools/build_help_search_index.py`` from the API manifest, the setting consumer map and the source of the preferences dialog. See ``docs/notes/spacr/qt/help_api_index.md`` for why none of it is typed by hand.",
+      "translation": "Gravado por ``tools/build_help_search_index.py`` a partir do manifesto da API, do mapa de consumidores de configurações e do código-fonte da caixa de diálogo de preferências. Veja ``docs/notes/spacr/qt/help_api_index.md`` para saber por que nada disso é digitado à mão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#0",
+      "source": "Everything in spaCR that is addressable by name, and how to rank it.",
+      "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
+      "context": "Everything in spaCR that is addressable by name, and how to rank it.",
+      "translation": "Tudo no spaCR que pode ser endereçado pelo nome, e como classificá-lo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#1",
+      "source": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
+      "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
+      "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
+      "translation": "O campo de busca ao lado do menu Ajuda só é tão bom quanto isto: um usuário que sabe como uma coisa se CHAMA deve chegar até ela sem saber qual módulo é dono dela nem sob qual título recolhido ela foi arquivada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#10",
+      "source": "ADDING A KIND IS REGISTERING A PROVIDER, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
+      "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
+      "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
+      "translation": "ACRESCENTAR UM TIPO É REGISTRAR UM PROVEDOR, e não editar um switch. Um provedor é ``() -> Iterable[HelpEntry]``; :func:`register_provider` acrescenta um e :func:`build_index` chama cada um deles atrás de sua própria proteção, então um provedor que levanta exceção custa apenas as próprias linhas e nada mais. O que um resultado FAZ quando é aberto é registrado da mesma forma, em :mod:`spacr.qt.help_search`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#11",
+      "source": "IMPORTING THIS COSTS NOTHING; BUILDING THE INDEX COSTS A SECOND. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the GUI thread -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
+      "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
+      "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
+      "translation": "IMPORTAR ISTO NÃO CUSTA NADA; CONSTRUIR O ÍNDICE CUSTA UM SEGUNDO. Cada registro é importado dentro do provedor que o lê, então o próprio módulo não carrega nem o Qt nem ``spacr.settings``. A construção mediu 1.1 s e 13,000 linhas nesta árvore, o que é demais para a thread da GUI -- :mod:`spacr.qt.help_search` executa :func:`build_index` em um worker, e este módulo continua testável sem display.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#2",
+      "source": "THE INDEX IS NEVER A HAND LIST. Every row here is derived from something that already decides the answer:",
+      "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
+      "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
+      "translation": "O ÍNDICE NUNCA É UMA LISTA FEITA À MÃO. Cada linha aqui é derivada de algo que já decide a resposta:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#3",
+      "source": "kind",
+      "source_sha256": "0b27c158feb36ab18a10ff687909ec730ece6280581dd407e2672359be7725dd",
+      "context": "kind",
+      "translation": "tipo",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#4",
+      "source": "where the rows come from",
+      "source_sha256": "ae856f5397ddc1eadcc133c6b5be28a071618c807119cd5be91680e8ea451a25",
+      "context": "where the rows come from",
+      "translation": "de onde vêm as linhas",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#5",
+      "source": ":data:`spacr.qt.app.APPS`, the live app registry",
+      "source_sha256": "38c089372d9b635f0578e8d42969b171c02752f4f0fc1820eb4b0bf0bd433bc9",
+      "context": ":data:`spacr.qt.app.APPS`, the live app registry",
+      "translation": ":data:`spacr.qt.app.APPS`, o registro de apps ao vivo",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#6",
+      "source": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` and :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "source_sha256": "4224be5ec808175fe7cb890b5673844999be3a7736b54139eef0f47c822c184e",
+      "context": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` and :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "translation": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` e :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#7",
+      "source": "``API_ENTRIES`` in :mod:`spacr.qt.help_api_index`, generated from the published API manifest",
+      "source_sha256": "35ab93bede425cb2b63b9709aae01400b7b2057e5fc5892293e6334b6aea19c7",
+      "context": "``API_ENTRIES`` in :mod:`spacr.qt.help_api_index`, generated from the published API manifest",
+      "translation": "``API_ENTRIES`` em :mod:`spacr.qt.help_api_index`, gerado a partir do manifesto publicado da API",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#8",
+      "source": "``PREFERENCE_ENTRIES``, walked out of the source of the preferences dialog",
+      "source_sha256": "3cb1d5ccd785dcfd79ba65df3df337eb43fcbd7421087b76d51f99f76ff19a7c",
+      "context": "``PREFERENCE_ENTRIES``, walked out of the source of the preferences dialog",
+      "translation": "``PREFERENCE_ENTRIES``, extraído percorrendo o código-fonte da caixa de diálogo de preferências",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#9",
+      "source": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
+      "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
+      "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
+      "translation": "Uma configuração que não pode ser encontrada passa então a ser um fato sobre um gerador, e não sobre alguém ter lembrado ou não de acrescentar uma linha, que é todo o argumento da instrução.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#0",
+      "source": "One addressable thing, and what it takes to get back to it.",
+      "source_sha256": "759ac46b75cb1c60a51607e85a59ccb4aefbb1e184ba57bb9fc4e2787992eb97",
+      "context": "One addressable thing, and what it takes to get back to it.",
+      "translation": "Uma coisa endereçável, e o que é preciso para voltar até ela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#1",
+      "source": "which provider produced it; also which opener knows what to do with it. One of :data:`KIND_ORDER`, or a kind a caller registered.",
+      "source_sha256": "6a115a79c3b0875314bb1f5dc33c81c4d8c9971891ffde265b29385e32e7704e",
+      "context": "which provider produced it; also which opener knows what to do with it. One of :data:`KIND_ORDER`, or a kind a caller registered.",
+      "translation": "qual provedor a produziu; também qual abridor sabe o que fazer com ela. Um de :data:`KIND_ORDER`, ou um tipo que um chamador registrou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#10",
+      "source": "WHY A TEMPLATE AND NOT THE FINISHED STRING. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
+      "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
+      "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
+      "translation": "POR QUE UM MODELO E NÃO A STRING PRONTA. ``subtitle`` e ``description`` são aquilo com que a busca FAZ A CORRESPONDÊNCIA, então permanecem em inglês: a consulta e o texto pesquisado precisam estar em um mesmo idioma, e o índice é construído uma vez por sessão, enquanto o idioma da interface pode mudar depois. O que o usuário LÊ é renderizado a partir do modelo no momento em que uma linha é desenhada, por :func:`rendered_subtitle` e :func:`rendered_description` com :func:`spacr.qt.i18n.tr` passado como argumento -- assim, uma mudança de idioma é percebida na próxima tecla, e este módulo continua sem importar Qt nem catálogo algum. \"API reference\" é o subtítulo de dez mil das linhas; uma string pronta em inglês aqui seria uma lista de resultados inteiramente em inglês para todo leitor que não trabalha em inglês.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#2",
+      "source": "the identifier a user would type -- a setting key, a module name, a dotted API symbol, a preference label.",
+      "source_sha256": "be70bea1793d009d9eafd2998fb66b371783370ff8c6c2b727c7d1e08b29e30f",
+      "context": "the identifier a user would type -- a setting name, a module name, a dotted API symbol, a preference label.",
+      "translation": "o identificador que um usuário digitaria -- uma chave de configuração, um nome de módulo, um símbolo pontuado da API, um rótulo de preferência.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#3",
+      "source": "where it lives. \"in Mask ▸ Cell Segmentation\" for a setting, \"Preferences ▸ Animation\" for a preference.",
+      "source_sha256": "eeed2c452f509826fe965d09843c51bc899b61908809fb8bb8a493469dae1f57",
+      "context": "where it lives. \"in Mask ▸ Cell Segmentation\" for a setting, \"Preferences ▸ Animation\" for a preference.",
+      "translation": "onde ela fica. \"in Mask ▸ Cell Segmentation\" para uma configuração, \"Preferences ▸ Animation\" para uma preferência.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#4",
+      "source": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
+      "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
+      "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
+      "translation": "o que ela faz, na linguagem em que o usuário pensa. É usada na correspondência, e é isso que faz \"touching\" encontrar ``merge_edge_pathogen_cells``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#5",
+      "source": "what the opener needs and nothing more -- an app key, a setting key, a dotted symbol, a tab object name.",
+      "source_sha256": "9b5a861c1dd35584b38a0c84f9cc9c5fd776489d96ebdcfc87247c9eeade1c97",
+      "context": "what the opener needs and nothing more -- an app structured-data name, a setting name, a dotted symbol, a tab object name.",
+      "translation": "o que o abridor precisa e nada mais -- uma chave de app, uma chave de configuração, um símbolo pontuado, o nome de objeto de uma aba.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#6",
+      "source": "the English TEMPLATE ``subtitle`` was rendered from, when the words in it are this module's own rather than a name taken from a registry. ``\"\"`` when there is nothing to translate.",
+      "source_sha256": "3f8e544c6d351b5e05d2deed805b140e61f3c7fd6a39f6df4ae6e32acaf4e8c1",
+      "context": "the English TEMPLATE ``subtitle`` was rendered from, when the words in it are this module's own rather than a name taken from a registry. ``\"\"`` when there is nothing to translate.",
+      "translation": "o MODELO em inglês a partir do qual ``subtitle`` foi renderizado, quando as palavras nele são deste módulo e não um nome tirado de um registro. ``\"\"`` quando não há nada a traduzir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#7",
+      "source": "what to substitute into that template, as ``(name, value)`` pairs -- a tuple, because the entry is frozen and hashable and a dict would be neither.",
+      "source_sha256": "ca90e22808a5044737febce94b1eca26396781ff5a8bbc1e4d76565c08001467",
+      "context": "what to substitute into that template, as ``(name, value)`` pairs -- a tuple, because the entry is frozen and hashable and a key-value mapping would be neither.",
+      "translation": "o que substituir nesse modelo, como pares ``(name, value)`` -- uma tupla, porque a entrada é congelada e hashable, e um dicionário não seria nenhuma das duas coisas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#8",
+      "source": "the same for :attr:`description`.",
+      "source_sha256": "f9d4674cd23796923997e1a89df2df94d74862c282f003582e524ae5a9c324b6",
+      "context": "the same for :attr:`description`.",
+      "translation": "o mesmo para :attr:`description`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry.haystack#0",
+      "source": "Title, subtitle and description, lowercased, for matching.",
+      "source_sha256": "fd57e2bbf9c5c195bcabcc0fceff7a4e6ab670dc339a4fc9e0045611c82b644f",
+      "context": "Title, subtitle and description, lowercased, for matching.",
+      "translation": "Título, subtítulo e descrição, em minúsculas, para a correspondência.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.api_entries#0",
+      "source": "One entry per public API symbol, saying which settings it reads.",
+      "source_sha256": "15b1fc358d58d369c2b5f4fd9ddede899f7a83c77a9c7f485b1fa7635b53b82f",
+      "context": "One entry per public API symbol, saying which settings it reads.",
+      "translation": "Uma entrada por símbolo público da API, dizendo quais configurações ele lê.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.api_entries#1",
+      "source": "The settings half is what makes an API row findable by the name of a setting: searching ``cell_diameter`` offers the setting's own row in each module that exposes it AND the entry of each function that takes it, which is what a setting query returns.",
+      "source_sha256": "fde9322fa857edc2b97093addb36642e897400b932491248a2d68fd2b6331b62",
+      "context": "The settings half is what makes an API row findable by the name of a setting: searching ``cell_diameter`` offers the setting's own row in each module that exposes it AND the entry of each function that takes it, which is what a setting query returns.",
+      "translation": "A metade das configurações é o que torna uma linha da API encontrável pelo nome de uma configuração: buscar ``cell_diameter`` oferece a linha da própria configuração em cada módulo que a expõe E a entrada de cada função que a recebe, que é o que uma consulta por configuração retorna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.api_entries#2",
+      "source": "``kind=\"api\"`` entries carrying ``{\"symbol\": dotted name}``, and ``\"reads\"`` when the symbol consumes settings.",
+      "source_sha256": "9c9ee12bfa593404caca5bcee59f22a74fbef3c11898513ccbefef2b7175f357",
+      "context": "``kind=\"api\"`` entries carrying ``{\"symbol\": dotted name}``, and ``\"reads\"`` when the symbol consumes settings.",
+      "translation": "entradas ``kind=\"api\"`` com ``{\"symbol\": dotted name}``, e ``\"reads\"`` quando o símbolo consome configurações.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#0",
+      "source": "Run every provider and collect what they know.",
+      "source_sha256": "6c37e169387580d64a400c2a02f5deef37ba3189d5012667d33a0ddf3742be47",
+      "context": "Run every provider and collect what they know.",
+      "translation": "Executa todos os provedores e coleta o que eles sabem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#1",
+      "source": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
+      "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
+      "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
+      "translation": "Cada provedor tem sua própria proteção: um campo de busca que perde suas configurações porque o manifesto da API não pôde ser lido é pior do que um que silenciosamente oferece menos tipos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#2",
+      "source": "providers to run; all of them when ``None``.",
+      "source_sha256": "d27e252a1b710bf1a3ab2731278be3b8ecdf7e0d775c85378a45bf89b7970beb",
+      "context": "providers to run; all of them when ``None``.",
+      "translation": "provedores a executar; todos quando ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#3",
+      "source": "every entry, in provider order.",
+      "source_sha256": "8b3a1fbb744fa3663147a125b239b1faa96efb0748fe7e0ee923d5b2bf1efc53",
+      "context": "every entry, in provider order.",
+      "translation": "todas as entradas, na ordem dos provedores.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.module_entries#0",
+      "source": "One entry per module in the live registry.",
+      "source_sha256": "79e9285b3736281f00ac4eff0641b7a2d5551db92c0d44427a00124c0669e43a",
+      "context": "One entry per module in the live registry.",
+      "translation": "Uma entrada por módulo no registro ao vivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.module_entries#1",
+      "source": "``kind=\"module\"`` entries carrying ``{\"app\": key}``.",
+      "source_sha256": "c1a3924950a9c0f767db0f70ab165bb8c9acd677010cf4ba51b1fb7fa7dc1e8b",
+      "context": "``kind=\"module\"`` entries carrying ``{\"app\": key}``.",
+      "translation": "entradas ``kind=\"module\"`` com ``{\"app\": key}``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.preference_entries#0",
+      "source": "One entry per labelled row of the preferences dialog.",
+      "source_sha256": "a8e32220f1ebda0595ae95520f2dc9a632a7572766ff3bd262e707c8a39ebeb2",
+      "context": "One entry per labelled row of the preferences dialog.",
+      "translation": "Uma entrada por linha rotulada da caixa de diálogo de preferências.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.preference_entries#1",
+      "source": "``kind=\"preference\"`` entries carrying ``{\"tab\", \"label\"}``, where ``tab`` is the page's object name.",
+      "source_sha256": "b0fec461a714f0117b4c5490bc187feebcee44b4fa9aabe46e266cc152f82872",
+      "context": "``kind=\"preference\"`` entries carrying ``{\"tab\", \"label\"}``, where ``tab`` is the page's object name.",
+      "translation": "entradas ``kind=\"preference\"`` com ``{\"tab\", \"label\"}``, em que ``tab`` é o nome de objeto da página.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.provider_names#0",
+      "source": "The registered providers, in registration order.",
+      "source_sha256": "24855a0eb4899b22f5fcd93812797358651c644e7febdb355bce3ecb49f37efd",
+      "context": "The registered providers, in registration order.",
+      "translation": "Os provedores registrados, na ordem de registro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.register_provider#0",
+      "source": "Add or replace a source of entries.",
+      "source_sha256": "130b9a5c6fbb5628fe63d8335d5c68c22ebfe0c753e9aafb910a1e9b12bc264f",
+      "context": "Add or replace a source of entries.",
+      "translation": "Acrescenta ou substitui uma fonte de entradas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.register_provider#1",
+      "source": "the provider's name; registering the same name twice replaces the first, which is what lets a test swap a cheap provider in for an expensive one.",
+      "source_sha256": "1489c84b2336a2ee56323535c9a843911a72f54a9c58d7400550a708e73d7c2a",
+      "context": "the provider's name; registering the same name twice replaces the first, which is what lets a test swap a cheap provider in for an expensive one.",
+      "translation": "o nome do provedor; registrar o mesmo nome duas vezes substitui o primeiro, e é isso que permite a um teste trocar um provedor caro por um barato.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#0",
+      "source": "An entry's description in the reader's language.",
+      "source_sha256": "0458bb7a319163fdf93366b185f481df594472fbf59376ce3ba1d0d033f4344a",
+      "context": "An entry's description in the reader's language.",
+      "translation": "A descrição de uma entrada no idioma do leitor.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#1",
+      "source": "An API summary inside it is a docstring and stays as it was written; what this translates is the sentence spaCR wraps around it.",
+      "source_sha256": "4c5bbe78cf38a9bdb2e050cd90ab7d36db51933559ac44c2d490584c3f1709fb",
+      "context": "An API summary inside it is a docstring and stays as it was written; what this translates is the sentence spaCR wraps around it.",
+      "translation": "Um resumo da API dentro dela é uma docstring e permanece como foi escrito; o que isto traduz é a frase que o spaCR coloca em volta dele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#2",
+      "source": "the result.",
+      "source_sha256": "5145de6665d84ff79c9c4c17f2a5a2c73dab78ab1f32df5f8e906cbb845b2a62",
+      "context": "the result.",
+      "translation": "o resultado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#3",
+      "source": ":func:`spacr.qt.i18n.tr`, or ``None`` for English.",
+      "source_sha256": "03aa78bdf848d2e58068672e299e99dab81a01638569c51c17536dfd56eeaea8",
+      "context": ":func:`spacr.qt.i18n.tr`, or ``None`` for English.",
+      "translation": ":func:`spacr.qt.i18n.tr`, ou ``None`` para inglês.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
