@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-503 in features/new, 23 in features/future. NEITHER LIST BLOCKS A RELEASE.
+503 in features/new, 39 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -111,6 +111,54 @@ FUTURE FEATURES
 
   534  MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
        534_map_barcodes_reads_visium_and_xenium_and_maps_them_to_cells.txt
+
+  535  CELL-CYCLE PHASE CLASSIFICATION: A TORCH, AN XGBOOST AND A MEASUREMENTS VERSION
+       535_cell_cycle_phase_classification_three_ways.txt
+
+  536  SCRATCH / WOUND-CLOSURE ASSAY
+       536_scratch_wound_closure_assay.txt
+
+  537  LINEAGE TREES FROM TRACKS
+       537_lineage_trees_from_tracks.txt
+
+  538  SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
+       538_spectral_unmixing_and_bleed_through_correction.txt
+
+  539  PHOTOBLEACHING CORRECTION FOR EVERY TIMELAPSE
+       539_photobleaching_correction_for_every_timelapse.txt
+
+  540  LIVE/DEAD VIABILITY AND HOST CYTOTOXICITY INDEX
+       540_live_dead_viability_and_cytotoxicity.txt
+
+  541  CONFLUENCY IN MEASURE, FOR ANY CHANNEL
+       541_confluency_in_measure.txt
+
+  542  COLONY / CFU COUNTING
+       542_colony_cfu_counting.txt
+
+  543  IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
+       543_import_vendor_flat_field_profiles.txt
+
+  544  BLIND-SCORING MODE
+       544_blind_scoring_mode.txt
+
+  545  MASKS AND ROIS IN AND OUT: QUPATH GEOJSON, IMAGEJ ROISET, COCO
+       545_roi_export_import_geojson_imagej_coco.txt
+
+  546  RUN CELLPROFILER .cppipe PIPELINES AS A spaCR STEP
+       546_run_cellprofiler_pipelines_as_a_step.txt
+
+  547  IMAGE-BASED PROFILING: NORMALISE, SELECT, CONSENSUS, mAP
+       547_image_based_profiling.txt
+
+  548  WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
+       548_watch_a_folder_and_analyse_incoming_images.txt
+
+  549  SMART MICROSCOPY: SEND HITS BACK FOR RE-IMAGING
+       549_smart_microscopy_feedback.txt
+
+  550  LOAD AND SAVE DATA ON CLOUD STORAGE (S3 AND OTHERS)
+       550_cloud_storage_access.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

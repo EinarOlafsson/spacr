@@ -1,0 +1,26 @@
+MASKS AND ROIS IN AND OUT: QUPATH GEOJSON, IMAGEJ ROISET, COCO
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/importing-label-masks-as-qupath-annotations-with-specific-class-reflecting-the-label/86823
+
+WHAT TO BUILD
+    Export spaCR label masks (with object class and id) as QuPath GeoJSON,
+    ImageJ RoiSet.zip and COCO JSON, and import each back into label masks,
+    so curation and training data move between spaCR, QuPath, Fiji and other
+    DL tools.
+
+DONE WHEN
+    Round-trips spaCR -> GeoJSON/RoiSet/COCO -> spaCR reproduce the masks
+    exactly (or within polygon rasterisation tolerance), and the files open
+    in QuPath and Fiji.
