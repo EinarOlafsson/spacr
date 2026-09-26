@@ -1,24 +1,37 @@
 {
-  "lesson": "67_experiment_design", "language": "nb", "english_sha256": "fff27aa35c1e4dd012aae5f4240143f8a33cb0e1125da2dc7959d7d4688d9ed2",
-  "review": {"kind": "Editorial caption translation checked against English and the actual planning/export workflow", "native_speaker_signoff": false},
-  "title": "Experiment Design: en reproduserbar plateplan og nøyaktig eksport",
-  "description": "Rediger en planlagt platefordeling med de faktiske kontrollene, undersøk kapasitets- og replikatadvarsler, gjenskap tilfeldige tildelinger og eksporter det nøyaktige brønnkartet.",
-  "objectives": ["Planlegg betingelser og kontrollroller før bildeopptak.", "Vis advarsler og utbedringer uten å forveksle layoutkontroll med biologisk validering.", "Gjenskap samme tilfeldige layout og skill mellom valgte brønner og tildelte betingelser.", "Eksporter og behold den nøyaktige brønntabellen når rad- eller kolonneinnstillinger ikke kan uttrykke forsøksplanen."],
-  "prerequisite": "Dette planleggingsmodulet krever verken innsamlede bilder eller et nedlastet datasett. Opptaket bruker appens faktiske utkast med seks negative kontrollbrønner, seks positive kontrollbrønner og tolv behandlingsbrønner, kalt tutorial_plan. Antallene viser brukergrensesnittet; de er ikke en styrkeberegning eller et målt forsøksresultat.",
+  "lesson": "67_experiment_design",
+  "english_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Experiment Design: planlegg en plate og eksporter brønnkartet",
+  "description": "Angi betingelser og replikater, velg et oppsett, gå gjennom advarsler og eksporter tilordninger for opptak og analyse.",
+  "objectives": [
+    "Angi betingelser, antall replikater og kontrollroller.",
+    "Velge plateformat, kantregel og et reproduserbart tilfeldig oppsett.",
+    "Eksportere de nøyaktige brønntilordningene for senere kobling til målinger."
+  ],
+  "prerequisite": "Forbered navn på betingelser, kontrollroller og planlagt antall brønner før opptaket. Eksemplet ber om seks brønner med negativ kontroll, seks med positiv kontroll og tolv behandlingsbrønner; velg replikering for ditt eget eksperiment. Hold plateidentifikatoren konsekvent med senere bilder og målinger.",
   "scenes": [
-    "Åpne Experiment Design i kategorien Data på Home før bildeopptak. Modulet lager et forslag til platefordeling, ikke målte biologiske resultater. Våre navn negative, positive og treatment er foreløpige etiketter; velg meningsfulle navn og kontroller til ditt forsøk.",
-    "Gi platen et navn slik at identifikatoren senere samsvarer med bilder og målinger. Er en tabellkolonne smal, dobbeltklikker du på kanten av overskriften for å tilpasse bredden til innholdet. Se Condition, Replicates og Role i sammenheng. Eksemplets seks, seks og tolv brønner demonstrerer grensesnittet, ikke en begrunnet utvalgsstørrelse.",
-    "Et format med seks brønner gir kapasitetsfeil når planen krever tjuefire. Kartet fjerner ikke overflødige replikater i det skjulte. Les meldingen og endre format eller forsøksplan; et tomt kart er ikke en gyldig tildeling.",
-    "Tilbake på nittiseks brønner gjenopprettes alle tjuefire tildelingene. Platekartet følger den gjeldende tabellen. Add condition og Remove selected håndterer betingelsesrader; de firkantede brønnene nedenfor er en egen markeringsflate, ikke disse tabellradene.",
-    "Velg en replikatcelle og trykk F2 for å redigere. Én negativ kontrollbrønn gir en advarsel; seks fjerner den igjen. Mange celler i samme brønn erstatter ikke uavhengige eksperimentelle replikater.",
-    "Block-layout samler betingelser og advarer om sammenblanding av posisjons- og betingelseseffekter. Les dette som en oppfordring til å vurdere planen, ikke som automatiske biologiske konklusjoner. Optisk belysningskorreksjon retter verken fordampnings- eller temperatureffekter; forsøksplassering og skyggevariasjon i bilder er ulike problemer.",
-    "Velg random-layout, leave edge empty og seed førtito. Uten den ytre ringen har denne nittiseksbrønnsplaten seksti brukbare brønner; planen tildeler tjuefire. Tomme kantbrønner koster kapasitet og garanterer ikke at alle romlige effekter forsvinner.",
-    "Seed førtitre endrer de faktiske tildelingene, men beholder ønsket antall for hver betingelse. Randomisering reduserer systematisk plasseringsskjevhet, men hvert tilfeldig oppsett trenger fortsatt vurdering. Ikke velg seed for å favorisere et ønsket resultat.",
-    "Førtito gjenoppretter nøyaktig samme kobling mellom brønner og betingelser. Registrer seed sammen med plateformat, kantregel og betingelsestabell. Seed alene definerer ikke planen dersom de andre inndataene endres.",
-    "Dra fra B02 til C04 for å velge seks brønner. Markeringsrammen endres, men betingelsene gjør ikke det: Bevegelsen velger brønner og tildeler ingen behandling. Kontroller betingelsestabellen og det viste kartet når du endrer en tildeling.",
-    "Bruk Export plate map og velg en egen mappe. Den faktiske eksporten skriver plate_map.csv, plate_map.json og plate_map_settings.json. Behold alle tre sammen; å velge en destinasjon er ikke det samme som å utføre det planlagte forsøket.",
-    "CSV-filen har én rad per tildelt brønn: her tjuefire, med nøyaktig de viste betingelsene og rollene. Den kobles til målinger ved hjelp av plateID, rowID og columnID samlet. JSON-filen lagrer seed, plan og kontrollfunn, og beholder også advarslene.",
-    "Dette tilfeldige oppsettet kan ikke uttrykkes med rad- eller kolonnebaserte behandlingsinnstillinger. Innstillingsfilen angir uttrykkelig expressible som false; den er ikke en fullstendig analysekonfigurasjon. Bruk den nøyaktige eksporterte brønntabellen og en eksplisitt kobling i stedet for å tilnærme blandede brønner med etiketter for hele rader.",
-    "Python-grensesnittet ligger i spacr.qt.widgets.plate_layout: Condition og PlateDesign beskriver planen; assign_wells, check_design og write_design fordeler, undersøker og lagrer den. Layoutkontroll dokumenterer verken statistisk styrke eller biologisk gyldighet. Vurder planen før bildeopptak og behold det nøyaktige kartet til videre analyse."
+    "Fra Home åpner du Data og velger Experiment Design. Begynn med å angi betingelsene og kontrollene som skal plasseres på platen.",
+    "Gi platen navnet på identifikatoren du skal bruke under opptaket. Gå gjennom Condition, Replicates og Role i tabellen. Dobbeltklikk på en kolonnegrense for å gjøre kolonnen bredere ved behov.",
+    "Velg et plateformat med nok brønner til de ønskede replikatene. Hvis du velger seks brønner for denne planen med 24 brønner, vises en kapasitetsfeil. Endre formatet eller de ønskede antallene for å fortsette.",
+    "Velg 96 brønner for å gjenopprette oppsettet. Bruk Add condition og Remove selected til å redigere betingelsesradene, og kontroller deretter det oppdaterte platekartet.",
+    "For å redigere et antall replikater merker du cellen og trykker F2. Én enkelt brønn med negativ kontroll gir en advarsel. Velg uavhengig eksperimentell replikering som passer analysen din.",
+    "Velg Block layout for å samle betingelsene. Les posisjonsadvarslene og undersøk kartet for mulig sammenblanding av betingelse og posisjon.",
+    "Velg Random layout, aktiver Leave edge empty og sett Seed til 42. Denne platen med 96 brønner har 60 indre brønner tilgjengelig, og eksempelplanen tilordner 24 av dem.",
+    "Endre Seed til 43 for å lage en annen plassering med samme antall per betingelse. Se hvor kontroller og behandlinger havner på platen.",
+    "Sett Seed tilbake til 42 for å få tilbake den forrige plasseringen. Lagre frøet sammen med format, kantregel og betingelsestabell.",
+    "Dra over brønnene B02 til C04 for å merke dem. Dette merker brønner for gjennomgang; bruk betingelsestabellen og oppsettkontrollene for å endre tilordninger.",
+    "Klikk på Export plate map og velg en mappe. Hold plate_map.csv, plate_map.json og plate_map_settings.json samlet.",
+    "Åpne CSV-filen for å se én rad per tilordnet brønn. Koble den til senere målinger med plateID, rowID og columnID sammen. JSON-filen beholder designet og advarslene.",
+    "For dette tilfeldige oppsettet oppgir innstillingsfilen expressible som false. Bruk det nøyaktige brønnkartet i CSV-filen for betingelsesetiketter: behandlingsinnstillinger for hele rader eller kolonner kan ikke beskrive disse blandede tilordningene.",
+    "Gå gjennom det endelige kartet før opptaket og ta vare på det sammen med eksperimentet. I Python bruker du Condition og PlateDesign, etterfulgt av assign_wells, check_design og write_design fra spacr.qt.widgets.plate_layout."
   ]
 }

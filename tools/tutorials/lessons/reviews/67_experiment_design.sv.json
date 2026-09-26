@@ -1,24 +1,37 @@
 {
-  "lesson": "67_experiment_design", "language": "sv", "english_sha256": "fff27aa35c1e4dd012aae5f4240143f8a33cb0e1125da2dc7959d7d4688d9ed2",
-  "review": {"kind": "Editorial caption translation checked against English and the actual planning/export workflow", "native_speaker_signoff": false},
-  "title": "Experiment Design: en reproducerbar plattplan och exakt export",
-  "description": "Redigera en planerad plattlayout med de faktiska reglagen, granska varningar om kapacitet och replikat, återskapa slumpmässiga tilldelningar och exportera den exakta brunnskartan.",
-  "objectives": ["Planera betingelser och kontrollroller före bildinsamling.", "Visa varningar och återställning utan att likställa layoutkontroll med biologisk validering.", "Återskapa samma slumpmässiga layout och skilj valda brunnar från tilldelade betingelser.", "Exportera och behåll den exakta brunnstabellen när rad- eller kolumninställningar inte kan beskriva försöksplanen."],
-  "prerequisite": "Planeringsmodulen kräver varken insamlade bilder eller en hämtad datamängd. Inspelningen använder appens faktiska utkast med sex negativa kontrollbrunnar, sex positiva kontrollbrunnar och tolv behandlingsbrunnar, med namnet tutorial_plan. Antalen visar gränssnittet; de är inte en styrkeberäkning eller ett uppmätt försöksresultat.",
+  "lesson": "67_experiment_design",
+  "english_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Experiment Design: planera en platta och exportera dess brunnskarta",
+  "description": "Ange betingelser och replikat, välj en layout, granska varningar och exportera tilldelningar för avbildning och analys.",
+  "objectives": [
+    "Ange betingelser, antal replikat och kontrollroller.",
+    "Välja plattformat, kantregel och reproducerbar slumpmässig layout.",
+    "Exportera de exakta brunnstilldelningarna för senare koppling till mätningar."
+  ],
+  "prerequisite": "Förbered namn på betingelser, kontrollroller och planerat antal brunnar före avbildningen. Exemplet begär sex brunnar med negativ kontroll, sex med positiv kontroll och tolv behandlingsbrunnar; välj replikering för ditt eget experiment. Håll plattans identifierare konsekvent med senare bilder och mätningar.",
   "scenes": [
-    "Öppna Experiment Design i kategorin Data på Home före bildinsamling. Modulen skapar ett förslag till plattlayout, inte uppmätta biologiska resultat. Våra namn negative, positive och treatment är preliminära etiketter; välj meningsfulla namn och kontroller för ditt försök.",
-    "Namnge plattan så att dess identifierare senare stämmer med bilder och mätningar. Om en tabellkolumn är smal dubbelklickar du på rubrikens gräns för att anpassa bredden till innehållet. Granska Condition, Replicates och Role tillsammans. Exemplets sex, sex och tolv brunnar visar gränssnittet, inte en motiverad stickprovsstorlek.",
-    "Ett format med sex brunnar ger ett kapacitetsfel när planen kräver tjugofyra. Kartan tar inte bort överflödiga replikat utan besked. Läs meddelandet och ändra format eller försöksplan; en tom karta är inte en giltig tilldelning.",
-    "Tillbaka på nittiosex brunnar återställs alla tjugofyra tilldelningarna. Plattkartan följer den aktuella tabellen. Add condition och Remove selected hanterar betingelserader; de fyrkantiga brunnarna nedanför är en separat markeringsyta, inte dessa tabellrader.",
-    "Välj en replikatcell och tryck F2 för att redigera. En enda negativ kontrollbrunn ger en varning; sex tar bort den igen. Många celler i samma brunn ersätter inte oberoende experimentella replikat.",
-    "Block-layout placerar betingelser tillsammans och varnar för sammanblandning av positions- och betingelseeffekter. Se det som en uppmaning att granska planen, inte som automatiska biologiska slutsatser. Optisk belysningskorrigering rättar varken avdunstnings- eller temperatureffekter; försöksplacering och skuggvariation i bilder är olika problem.",
-    "Välj random-layout, leave edge empty och seed fyrtiotvå. Utan ytterkanten har denna nittiosexbrunnsplatta sextio användbara brunnar; planen tilldelar tjugofyra. Tomma kantbrunnar kostar kapacitet och garanterar inte att alla rumsliga effekter försvinner.",
-    "Seed fyrtiotre ändrar de faktiska tilldelningarna men behåller önskat antal för varje betingelse. Randomisering minskar systematisk placeringsbias, men varje slumpmässig layout behöver ändå granskas. Välj inte ett seed för att gynna ett önskat resultat.",
-    "Fyrtiotvå återställer exakt samma koppling mellan brunnar och betingelser. Dokumentera seed tillsammans med plattformat, kantregel och betingelsetabell. Seed ensamt definierar inte planen om de andra indata ändras.",
-    "Dra från B02 till C04 för att välja sex brunnar. Markeringsramen ändras men inte betingelserna: Gesten väljer brunnar och tilldelar ingen behandling. Kontrollera betingelsetabellen och den visade kartan när en tilldelning ändras.",
-    "Använd Export plate map och välj en särskild mapp. Den faktiska exporten skriver plate_map.csv, plate_map.json och plate_map_settings.json. Behåll alla tre tillsammans; att välja ett mål är inte detsamma som att utföra det planerade försöket.",
-    "CSV-filen har en rad per tilldelad brunn: här tjugofyra, med exakt de visade betingelserna och rollerna. Den kopplas till mätningar med plateID, rowID och columnID tillsammans. JSON-filen sparar seed, plan och kontrollfynd och bevarar även varningarna.",
-    "Den här slumpmässiga layouten kan inte uttryckas med rad- eller kolumnbaserade behandlingsinställningar. Inställningsfilen anger uttryckligen expressible som false; den är inte en fullständig analyskonfiguration. Använd den exakta exporterade brunnstabellen och en uttrycklig koppling i stället för att approximera blandade brunnar med etiketter för hela rader.",
-    "Python-gränssnittet finns i spacr.qt.widgets.plate_layout: Condition och PlateDesign beskriver planen; assign_wells, check_design och write_design fördelar, granskar och sparar den. Layoutkontroll visar varken statistisk styrka eller biologisk giltighet. Granska planen före bildinsamling och behåll den exakta kartan för fortsatt analys."
+    "Från Home öppnar du Data och väljer Experiment Design. Börja med att ange de betingelser och kontroller som ska placeras på plattan.",
+    "Namnge plattan med den identifierare du använder vid avbildningen. Granska Condition, Replicates och Role i tabellen. Dubbelklicka på en kolumngräns för att göra kolumnen bredare vid behov.",
+    "Välj ett plattformat med tillräckligt många brunnar för de begärda replikaten. Om du väljer sex brunnar för den här planen med 24 brunnar visas ett kapacitetsfel. Ändra formatet eller de begärda antalen för att fortsätta.",
+    "Välj 96 brunnar för att återställa layouten. Använd Add condition och Remove selected för att redigera betingelseraderna och kontrollera sedan den uppdaterade plattkartan.",
+    "För att redigera ett antal replikat markerar du cellen och trycker på F2. En enda brunn med negativ kontroll ger en varning. Välj oberoende experimentell replikering som passar din analys.",
+    "Välj Block layout för att samla betingelserna. Läs positionsvarningarna och granska kartan efter möjlig sammanblandning mellan betingelse och position.",
+    "Välj Random layout, aktivera Leave edge empty och sätt Seed till 42. Den här plattan med 96 brunnar har 60 inre brunnar tillgängliga, varav exempelplanen tilldelar 24.",
+    "Ändra Seed till 43 för att skapa en annan placering med samma antal per betingelse. Granska var kontroller och behandlingar hamnar på plattan.",
+    "Sätt tillbaka Seed till 42 för att återfå den tidigare placeringen. Spara fröet tillsammans med format, kantregel och betingelsetabell.",
+    "Dra över brunnarna B02 till C04 för att markera dem. Det markerar brunnar för granskning; använd betingelsetabellen och layoutkontrollerna för att ändra tilldelningar.",
+    "Klicka på Export plate map och välj en mapp. Håll plate_map.csv, plate_map.json och plate_map_settings.json samlade.",
+    "Öppna CSV-filen för att se en rad per tilldelad brunn. Koppla den till senare mätningar med plateID, rowID och columnID tillsammans. JSON-filen behåller designen och dess varningar.",
+    "För den här slumpmässiga layouten anger inställningsfilen expressible som false. Använd den exakta brunnskartan i CSV-filen för betingelseetiketter: behandlingsinställningar för hela rader eller kolumner kan inte beskriva dessa blandade tilldelningar.",
+    "Granska den slutliga kartan före avbildningen och spara den med experimentet. I Python använder du Condition och PlateDesign, följt av assign_wells, check_design och write_design från spacr.qt.widgets.plate_layout."
   ]
 }
