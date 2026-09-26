@@ -312,6 +312,93 @@ class TestCtrlWheelSizesTheColumnText:
         assert column.scale() == 1.0
 
 
+class TestTheSettingsColumnGivesWay:
+    """The Settings column narrows past its search strip's one-line width.
+
+    Measured before the change: the strip needed 375 px on one line (box,
+    Modified, Essentials, Recipes), so the right column could only grow to
+    795 px at 1440 x 900 and 721 px at 1366 x 768.
+    """
+
+    @pytest.fixture(params=[(1440, 900), (1366, 768)])
+    def window(self, request, qtbot, qt_theme_applied, prefs_file):
+        from spacr.qt.app import MainWindow
+
+        prefs_file.set_dock_mode("locked")
+        prefs_file.set_dock_width(0)
+        win = MainWindow(initial_app="mask")
+        qtbot.addWidget(win)
+        win.resize(*request.param)
+        win.show()
+        qtbot.waitExposed(win)
+        _pump(20)
+        yield win
+
+    @staticmethod
+    def _bar(win):
+        from spacr.qt.settings_search import SettingsSearchBar
+
+        bars = [b for b in win.findChildren(SettingsSearchBar) if b.isVisible()]
+        assert len(bars) == 1
+        return bars[0]
+
+    @staticmethod
+    def _parts(bar):
+        return [w for w in [bar._input, bar._count] + bar._controls
+                if w.isVisible()]
+
+    @staticmethod
+    def _y(bar, widget):
+        return widget.mapTo(bar, QPoint(0, 0)).y()
+
+    def _no_overlap(self, bar):
+        from PySide6.QtCore import QRect
+
+        rects = [QRect(w.mapTo(bar, QPoint(0, 0)), w.size())
+                 for w in self._parts(bar)]
+        for rect in rects:
+            assert bar.rect().contains(rect), (rect, bar.rect())
+        for i, one in enumerate(rects):
+            for other in rects[i + 1:]:
+                assert not one.intersects(other), (one, other)
+
+    def test_the_right_column_can_take_the_width(self, window):
+        bar = self._bar(window)
+        screen = bar._screen
+        body = screen._body_splitter
+        pane = body.widget(0)
+        assert bar._compact == (bar.width() < bar._one_line_width())
+        self._no_overlap(bar)
+        assert bar.minimumSizeHint().width() < 200
+        assert pane.minimumSizeHint().width() < 200
+        total = sum(body.sizes())
+        body.setSizes([pane.minimumSizeHint().width(),
+                       total - pane.minimumSizeHint().width()])
+        _pump(20)
+        assert body.sizes()[0] > 0, "the column collapsed instead of narrowing"
+        assert screen._runtime_wrap.width() >= total - 200
+        assert screen._runtime_wrap.width() > {1440: 795, 1366: 721}[
+            window.width()] + 100
+        assert bar._compact
+        assert bar._input.y() < min(self._y(bar, w) for w in bar._controls)
+        self._no_overlap(bar)
+
+        body.setSizes([total // 2, total - total // 2])
+        _pump(20)
+        assert not bar._compact
+        line = bar._input.geometry()
+        assert all(line.top() <= self._y(bar, w) + w.height() // 2
+                   <= line.bottom() for w in bar._controls)
+        assert all(w.x() > bar._input.x() for w in bar._controls)
+        self._no_overlap(bar)
+
+    def test_a_long_placeholder_does_not_hold_the_box_open(self, window):
+        bar = self._bar(window)
+        bar._input.setPlaceholderText("Search every setting " * 8)
+        assert bar._input.minimumSizeHint().width() <= 60
+        assert bar.minimumSizeHint().width() < 200
+
+
 def test_the_font_sheet_scales_sizes_and_nothing_else():
     from spacr.qt.live_zoom import font_size_rules, scaled_font_sheet
 
