@@ -28141,12 +28141,16 @@
     },
     "spacr.model_zoo.bioimageio_entries": {
       "source_blocks_sha256": [
-        "12294613eedc9f398efc6df7689b7ac0febf65077df8621a5ec5e6e8c9b7506f",
-        "4013aee4bc4714b7c42237d83f5082e4521344916b8c62616362dcbb3c51d25d",
-        "087bb2cae59e0d5cd10e3a3d5f849470e3dd46edc263206dda0b8cb828b33c8c"
+        "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
+        "5512c0857eebb4920d977c9ac7f780bec6c86ae21a4a735c571e8b3397e2189e",
+        "e64c97c9f820cc0e082b915628fd57745f8f4c2762d267301976001ca2d11507",
+        "c52e22ab1bbcac6ad22f94ec2574844c5dced32dbe04d1b01f57dc84ca61444b",
+        "ad50dca06055bfc8e0d41c5b9f1df4ef5a0fdee4114d02821dd8ff7db0eab28f",
+        "cc4ca3efe1d33fd2ba80ce3273fe7e0fb639e37f0d7bb312c7fd9e8039afbfa4",
+        "41f60abad1c8eeb69f037f50a679e580ebcd044eff7749c7e09987e92f61f71f"
       ],
-      "source_sha256": "8ac6823a2bd46e4edef31d7c4ca4259c98b50b9c011d6ffd9338582272ba1efb",
-      "text": "Cellpose models published on bioimage.io, or an empty list.\n\nTwo kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's\nown Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io\npage. A Cellpose 3-format checkpoint is a ``cellpose3`` row that\ndownloads the weights file itself, checked against the SHA-256 the\nmanifest publishes, for the Cellpose 3 backend to run.\n\nBest effort and never raises: no network, a slow mirror or a changed\nschema all mean \"no extra rows\", never a zoo that fails to open. The\nresponse is cached so opening the dialog repeatedly is not repeatedly a\nnetwork call."
+      "source_sha256": "226d960f79f3d6c4a36800c317289d0ae57603b370e7394e5e313f85cd03acc8",
+      "text": "Every Cellpose model bioimage.io publishes, as zoo rows.\n\nRead from bioimage.io's own collection, so the category cannot go stale\nthe way a typed list would. Three kinds of row:\n\n* a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4\n  loads: a ``cellpose`` row that downloads its weights;\n* a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its\n  weights for the Cellpose 3 backend, which runs it as it runs cyto3;\n* one of either that spaCR cannot run, which says why in its first note\n  (:func:`_bioimageio_cannot_run`) and offers nothing to download.\n\nEach weights file is checked against the SHA-256 its manifest publishes,\nand carries the licence the uploader chose and what it was trained on.\n\nBest effort and never raises: no network, a slow mirror or a changed\nschema all mean fewer rows, never a zoo that fails to open. With\n``allow_network`` the collection is refreshed once it is a day old, and\nthe weights files are measured, so a stand-in file is refused before\nanyone downloads it."
     },
     "spacr.model_zoo.catalogue": {
       "source_blocks_sha256": [
@@ -33875,6 +33879,17 @@
       "source_sha256": "03b92dd53ed10d0a4b2b0773bdb9a02416fecbf6273b6b360ad12d77ee7260aa",
       "text": "One paper, however it was named.\n\n:param key: the identifier rows are filed under: the DOI when there is\n    one, else the PMC id, else the PDF's sha256.\n:param source: ``'europepmc'``, ``'pdf'`` or ``'folder'``.\n:param doi_from: where the DOI was read: ``'europepmc'``, ``'pdf\n    metadata'`` or ``'pdf text'``; None when there is no DOI."
     },
+    "spacr.plaque_papers.ReaderNeedsInstall": {
+      "source_blocks_sha256": [
+        "89fd591d171eceb74fa5dd9143d3a6b02ecf18fcd391debed0bd997896350818",
+        "e9ff59a619aaf56368f17e36a85317c5c38e787ea795b80921507e0c26c75c7c",
+        "ae35c73e9c4fd0ad9acaeb49a5eae340266d93419bfeab87919a1093d9ceca23",
+        "a576a09ecdd3fc7470a6e5d1a1949a570eb1d364f29b943ac9517695c7d84cf4",
+        "423a5f1143df16c9df1c98c332ee855ffa1c7430716d4131714c3b95fad962c3"
+      ],
+      "source_sha256": "7918086ef65d25a7f8d3d283c266469a1bd08b1925dc0d864e75d8dd38935761",
+      "text": "The figure reader must be installed, or installed again, first.\n\nAn :class:`ImportError`, so every caller that already reported a missing\nreader still does; Plaque Assay catches this one to offer the install\nin place (item 518).\n\n:param message: what is missing and why.\n:param reinstall: True when the reader is installed but was built\n    before a package it now needs was pinned.\nKeep whether this is a first install or a reinstall."
+    },
     "spacr.plaque_papers.Region": {
       "source_blocks_sha256": [
         "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
@@ -34277,6 +34292,16 @@
       ],
       "source_sha256": "7c22532ed316259ad08c3d728b1694f20bd8fd2c79295b2d55ce3ca19a737b38",
       "text": "The figure reader's own environment when it is installed, else None.\n\n:returns: the environment folder."
+    },
+    "spacr.plaque_papers.reader_problem": {
+      "source_blocks_sha256": [
+        "2c4b0219d390309fcded6871329c3e98035da1ce867e1a08af764764816ea129",
+        "31f0075234126fcdc79cbc45323b123729e47de0f9950eaf6ed00137df114368",
+        "cd481ea40c1b4dda6319058902472e896f1bab609598140d60995c603c6aa331",
+        "c01ec82abea84806af5b2fc6ba4c6e7b7965aabd2196247d90587ea1939336ca"
+      ],
+      "source_sha256": "5a50cd0c448eaad8102d68e85e95e2e1062c1b9a2a1f9c224885f66c93442970",
+      "text": "Whether Figure mode can read now, and what to do when it cannot.\n\nRead from disk only -- spaCR's own packages and the reader's install\nrecord (:func:`spacr._segmentation_backends._stale_requirements`) -- so\nit is cheap enough for the GUI thread.\n\n:param pdf: the question is about reading a PDF, which needs\n    pdfplumber; otherwise the detector and OCR.\n:returns: ``('', '')`` when ready; ``('install', why)`` when the reader\n    is not installed; ``('reinstall', why)`` when it is installed\n    without a package spaCR now pins for it."
     },
     "spacr.plaque_papers.reread_around": {
       "source_blocks_sha256": [
@@ -43376,21 +43401,22 @@
     "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all": {
       "source_blocks_sha256": [
         "ccb674b3f5313eef10af1ee2a51d6bb9916de3f70d0f9931edd1da8398f670d5",
+        "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
         "127631d3956bd5d2935839adea8572d1c5d757586f4dca9d47246b5c77fd8308",
         "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
         "1abb833f90714922fa3968fe30f8623d1fd099f4aa1cb52376626db7075255a4"
       ],
-      "source_sha256": "1c4bd9eeb5843854dd1d0b861ca0515f5c772333464511785294581625c17255",
-      "text": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.\n\n:param paths: the accepted files and folders, in drop order.\n:param screen: the Plaque Assay screen.\n:returns: True; the drop is always handled here."
+      "source_sha256": "b21780843772a5ef31c481b123f9555633937324c5f1eff3be80d1b3fdc52141",
+      "text": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.\n\nThe mode follows what was dropped (item 518): PDFs, or a folder of\nthem, dropped in Plaque mode ask to switch to Figure mode; images\ndropped in Figure mode ask to switch to Plaque mode; PDFs and images\ntogether say that PDFs are read in Figure mode and images in Plaque\nmode, and ask which to read. Staying in Figure mode reads the images\nas figures; staying in Plaque mode leaves the PDFs unread.\n\n:param paths: the accepted files and folders, in drop order.\n:param screen: the Plaque Assay screen.\n:returns: True; the drop is always handled here."
     },
     "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "1755e470c709d498930ef7ca0595faae4e69212742724930ca6fe079d1159db3",
+        "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "9daaac73000713b6d8f2d8293750a7eb0a9a2fbab2442b9414980c8e81897f68",
-      "text": "A plaque image, a PDF, or a folder with plaque images in it.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+      "source_sha256": "30882e42db1662ec9cd15f5cfb9c1983d6fb58417a8cabc43099fd3e2cc1f1dc",
+      "text": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
     },
     "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message": {
       "source_blocks_sha256": [
@@ -43854,6 +43880,17 @@
       ],
       "source_sha256": "15c6f8d736e81c6e93cece19043d5eae23b563d12e1116f4c3001736c10994a6",
       "text": "Return a fresh DropHandler for ``app_key``.\n\nFalls back to :class:`SourceDropHandler` so every conventional AppScreen\ncan at least receive its source folder.\n\n:param app_key: registered built-in or plugin application key whose drop\n    policy is requested."
+    },
+    "spacr.qt.dnd_handlers.plaque_inputs": {
+      "source_blocks_sha256": [
+        "265586eb2e6164081c0d47ffe0e8e2a5c4990fb48650755ed60cea30ce4b6a9b",
+        "a529c004825db4bf61beda58e46cd820e34f5d35ba597fa8641149d3d32ef76f",
+        "f34783eb2c23011dbf9f801e00514f2cc148622efdbce4da18938f6127e7cb5d",
+        "eeb4c8057e335b764871e01b5ace23359e2b2c2d2bfe6978d9682dcd69eba4d0",
+        "f9a3fc26e58350eb8c3a3391f90f20a2c453d1859a81a6e7508562e4feaa5bca"
+      ],
+      "source_sha256": "08cdbd2f685447b66ab3849ceadbf2a5d0db70ed484b45b3de106130bd68d08d",
+      "text": "What a drop or a ``src`` holds for each Plaque Assay mode.\n\nOnly the top level of a folder is read, as the plaque run reads it, and\nat most ``limit`` entries of each, so a huge folder on a slow share\ncannot hold the window for long.\n\n:param paths: dropped files and folders, or ``[src]``.\n:param limit: entries read per folder.\n:returns: ``(pdfs, images, paper_folders)``. A paper folder -- one a\n    paper was fetched into, holding its ``paper.json``, ``legends.csv``\n    or ``text_layer.json`` -- is Figure mode's input, and its figure\n    images are not counted as plaque images."
     },
     "spacr.qt.dnd_handlers.plaque_selection_folder": {
       "source_blocks_sha256": [
@@ -59207,10 +59244,11 @@
         "32db21e6177bed66b6c6b741978b341aae338fab2e969357ddfb3cdb73f72f33",
         "c6919646eb3e2edc5d84dcfff5b7537e34780d0679f66e6aa7de55442a02f049",
         "6b1a211cb51b8406a9c152b8c176aa55090c304da8936035532eb6e73b3f3a40",
-        "9eda8129bc71baeb747534c4526886f9d7a756cf1f1cb52d8016bc99c1eb5a80"
+        "da7ed3a577519a636daa1c049ec9a397e29f7f6452c19eb74bb9093e94f41618",
+        "64592ccecc4a9e5944180e42c7cee6ac347fe2dda4c4cb64f7b77ad637dd0f0d"
       ],
-      "source_sha256": "ed37aa55308fa1901a1360d37a45f5127db8f70d9c41183377357932c559a8e7",
-      "text": "Load a Cellpose model through spaCR's own resolver.\n\n:func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline\nitself calls: it maps every pre-SAM name onto ``cpsam``, keeps a\nfine-tuned checkpoint path as itself, and raises rather than quietly\nsubstituting stock weights for a checkpoint that is not there. Going\naround it with a second, simpler call would give this screen a\ndifferent answer from the run it is meant to be correcting.\n\nON A CPU THE WEIGHTS ARE LOADED IN FLOAT32. Cellpose-SAM loads them in\nbfloat16 by default, and a processor without native bfloat16\narithmetic runs every tile through a slow emulation of it: measured on\nan AMD Ryzen 9 5950X, one 256 px tile took 162-197 s in bfloat16 and\n31-46 s in float32, alternating, under the same load. A whole field is a hundred such tiles, so this is\nthe difference between most of an hour and most of a day. On a GPU\nnothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides\nthere, as it does for the pipeline.\n\n:param model_name: a Cellpose model name or the path of a fine-tuned\n    checkpoint, resolved by\n    :func:`spacr.utils._resolve_cellpose_pretrained`."
+      "source_sha256": "32bf3abcffb9fc54e6a76e2ae5701cd5dfd41ac3bb562c99b6f8b9549e780d62",
+      "text": "Load a Cellpose model through spaCR's own resolver.\n\n:func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline\nitself calls: it maps every pre-SAM name onto ``cpsam``, keeps a\nfine-tuned checkpoint path as itself, and raises rather than quietly\nsubstituting stock weights for a checkpoint that is not there. Going\naround it with a second, simpler call would give this screen a\ndifferent answer from the run it is meant to be correcting.\n\nON A CPU THE WEIGHTS ARE LOADED IN FLOAT32. Cellpose-SAM loads them in\nbfloat16 by default, and a processor without native bfloat16\narithmetic runs every tile through a slow emulation of it: measured on\nan AMD Ryzen 9 5950X, one 256 px tile took 162-197 s in bfloat16 and\n31-46 s in float32, alternating, under the same load. A whole field is a hundred such tiles, so this is\nthe difference between most of an hour and most of a day. On a GPU\nnothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides\nthere, as it does for the pipeline.\n\nA ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a\nbioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:\nCellpose 4 would load such a checkpoint and segment nonsense with it. It\nis loaded by :func:`_backend_model`, in the Cellpose 3 backend's own\nenvironment, as Mask generation loads it.\n\n:param model_name: a Cellpose model name, the path of a fine-tuned\n    checkpoint, resolved by\n    :func:`spacr.utils._resolve_cellpose_pretrained`, or\n    ``cellpose3:<name or path>``."
     },
     "spacr.qt.screens.make_masks.stretch_to_uint8": {
       "source_blocks_sha256": [
@@ -70406,6 +70444,15 @@
       ],
       "source_sha256": "469ea2946a5f21b95d4d782af772016256fcdb6d4471e39d50ec625a7047f4cf",
       "text": "Put ``widget`` at the right-hand end of the title row.\n\nThe title row is built on first use, so a card nobody adds an action\nto keeps its original layout exactly.\n\n:param widget: the control to add, e.g. a Refresh button."
+    },
+    "spacr.qt.widgets.card.Card.follow_fold": {
+      "source_blocks_sha256": [
+        "1e74ff7cd596a4b3acf00609ed7b5ff33755b4696a8a994835423fe0d6249ab1",
+        "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
+        "373da990fb11b9c9307b2c6bfb75acf74507f19a818434789b6f98acc835fbc8"
+      ],
+      "source_sha256": "443b837904406f125ad807a2b26fd9385769dc23d1da6975871e696b0fe0ea83",
+      "text": "Let the card shrink to its heading while ``folder`` is shut.\n\nThe body is laid out with a stretch, and a layout counts that stretch\neven while the body is hidden, so a folded card still asked for room\nand shared it evenly with the stretch that locks a folded heading to\nthe bottom of its pane (item 515): the folded Console came out half\nthe pane tall. Folded, the body gives its stretch up; opened, it takes\nit back.\n\n:param folder: the :class:`~spacr.qt.widgets.foldable.Folder` that\n    folds :attr:`body`."
     },
     "spacr.qt.widgets.cell_montage_view": {
       "source_blocks_sha256": [
@@ -89394,14 +89441,18 @@
         "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
         "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
         "7e497fb4a045681bcad0a2c40a3f6fe64d3734559befc759922b4bb7bd1fed0d",
-        "91db06efd5012709a6042252b4643cf288c4ddfae00ac21fa6afb0a3635e6d4e",
+        "06f76c2871d7276b76b0fd66b292bc993652967480ab4c5189adbc67394ece5c",
         "4748e5681b75f8096bd2b854f4c28f0a7b9e3eaa2498cccf7460a2016afeb6a7",
         "a303f21de2d25d8bcb3241ceeb7f1114b217ae23699962d0e98ebc1143a84e64",
+        "8054ed9d398f84daab6408594ba11a1b03259e10eec6cf57ef5cdcbdfcda489c",
+        "3c7f63bb04ca00246d6aef443d705bdface19dcc3cbbf38096630615a010a3f4",
         "610563a430fc675b42d9c6ea62808d59f690a579b0bdc13da97d3a3502b9c922",
-        "29a9c10c333db340eabe01506b0bcece502ae36e1d793d4a3bd4fdd2d864b41a"
+        "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
+        "4d965f83a69236a3d60c8c66352ad7279f1bfc764d773b28727d3369e0af3ae3",
+        "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688"
       ],
-      "source_sha256": "f1cf2308193c294e9000b1c89874f16ccf8b8cac5eada47d6cb399f00221899c",
-      "text": "Install, or uninstall, one segmentation backend, with progress and\nCancel.\n\nWHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an\nenvironment of its own under ``~/.spacr/backends``; spaCR's own\nenvironment is never touched, so nothing here can stop spaCR starting.\nThe dialog says where it goes, what it downloads, how large it is and\nunder what licence before Install is pressed.\n\nTHE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for\nminutes -- runs on a worker thread; the dialog shows which step it is on\nand pip's latest line, and Cancel stops pip and everything it started\nand removes the half-built environment. A failure shows the failing\ncommand's own output, verbatim.\n\n:param name: the backend, e.g. ``'cellpose3'``.\n:param parent: the widget that opened it.\n:param uninstall: remove the backend's environment instead.\n:param job: ``job(progress=..., cancel=...)``; the real install or\n    uninstall when None. Tests pass their own.\n:ivar error: the last failure's message, verbatim; empty until one.\n\nTHE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,\n:attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`\ntell the widget that opened the dialog what the install is doing, so a\nbutton can say \"installing\" while it runs and a console can say why it\nfailed after the dialog has gone.\nDescribe the backend and wait for the button."
+      "source_sha256": "7b6b926a10e7333c48c030945d0bb575d890011014e1aa30eb8bfe0313cc425d",
+      "text": "Install, or uninstall, one segmentation backend, with progress and\nCancel.\n\nWHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an\nenvironment of its own under ``~/.spacr/backends``; spaCR's own\nenvironment is never touched, so nothing here can stop spaCR starting.\nThe dialog says where it goes, what it downloads, how large it is and\nunder what licence before Install is pressed.\n\nTHE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for\nminutes -- runs on a worker thread; the dialog shows which step it is on\nand pip's latest line, and Cancel stops pip and everything it started\nand removes the half-built environment. A failure shows the failing\ncommand's own output, verbatim.\n\n:param name: the backend, e.g. ``'cellpose3'``.\n:param parent: the widget that opened it; the dialog's parent is its\n    window.\n:param uninstall: remove the backend's environment instead.\n:param job: ``job(progress=..., cancel=...)``; the real install or\n    uninstall when None. Tests pass their own.\n:param reinstall: build an installed backend's environment again\n    (item 518), for a backend installed before a package it now needs\n    was pinned; the dialog says so and its button says Reinstall.\n:param why: a sentence saying why the install is offered, shown first\n    in the description.\n:ivar error: the last failure's message, verbatim; empty until one.\n\nTHE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,\n:attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`\ntell the widget that opened the dialog what the install is doing, so a\nbutton can say \"installing\" while it runs and a console can say why it\nfailed after the dialog has gone.\n\nIT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog\ninherits the style sheet of every widget above it, and Plaque Assay asks\nfrom its preview, whose own scale slider re-states the application sheet\nat that preview's scale: at 150 % Install and Cancel were 59 px tall,\nnot the 40 px of every other button. Parented to ``parent.window()`` it\nis themed like every other dialog and still centred on, and modal to,\nthe window that opened it.\n\nTHE BAR SITS ON THE BUTTONS. The progress line is the last thing above\nthe buttons and the status keeps four lines' room while a job runs, so\nthe bar does not move as the status line grows and shrinks.\nDescribe the backend and wait for the button."
     },
     "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent": {
       "source_blocks_sha256": [
@@ -89568,13 +89619,15 @@
     "spacr.qt.widgets.model_zoo_picker.install_backend": {
       "source_blocks_sha256": [
         "c80fa0850e0c1c69dd12c8963797c46d68e1caab1963b71ea01a9985012f37d0",
-        "b02090fcb29bafc590fc16ce667fb66e5a8ce364c53419f8ae7f7ea3807c9c30",
+        "77e80fddd9ed686e50b67e90c1a86331642c0ec5aa08bfa2bd7ab70f909eb957",
         "53dd6abf43806dcb502818a378d52e78e2a3ae85b34aa79088bf1b6818325047",
         "876455caf5c20c793116c46d93f7fabc2522d16609921e1d3422016e41089fc9",
-        "cddce71f8363725e16f2af9d25eb3d93d9219524a3fd46e8c9175b82b3890c11"
+        "cddce71f8363725e16f2af9d25eb3d93d9219524a3fd46e8c9175b82b3890c11",
+        "ba4fe9d0fd56b23ff22c22769cc3813c0ad0d55c44e55772e75f18476fedab2a",
+        "50fee25f0e2ba94de24506de84e96d707e8123183d9ab7fe150c544e22a8aa76"
       ],
-      "source_sha256": "c02ab4a03137ebca7a43b78b5f434c460249fd18c3eb804fcf29e42071d013ec",
-      "text": "Open the install dialog for one backend. True when it is ready after.\n\nShared by the Model Zoo screen, the Model Zoo button and the Make Masks\nMode box, so the three places that can start an install say the same\nthing about it and run the same install.\n\n:param parent: the widget asking.\n:param name: the backend.\n:param watch: ``watch(dialog)``, called before the dialog opens, so the\n    caller can connect to its ``job_*`` signals and follow the install."
+      "source_sha256": "e6a1ef56b7ace11e009112a335336881890a26d98957a305aa1a08f84a1c9a1f",
+      "text": "Open the install dialog for one backend. True when it is ready after.\n\nShared by the Model Zoo screen, the Model Zoo button, the Make Masks\nMode box and Plaque Assay's Figure mode, so the places that can start an\ninstall say the same thing about it and run the same install.\n\n:param parent: the widget asking.\n:param name: the backend.\n:param watch: ``watch(dialog)``, called before the dialog opens, so the\n    caller can connect to its ``job_*`` signals and follow the install.\n:param reinstall: build an installed backend again (item 518).\n:param why: a sentence saying why it is offered, shown in the dialog."
     },
     "spacr.qt.widgets.model_zoo_picker.install_backend_package": {
       "source_blocks_sha256": [
@@ -92417,10 +92470,12 @@
         "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
         "bbb01a3e098c1de136bfa7b7626121b0b93a956e7a37831ed8b9a36a8de2fcb6",
         "54202c046300849c4ed1fe8ef212d0a711ce820ec84b6c4be8a291e4fb6a31b7",
-        "c6f1bde2fa0273604fd26567bc06009fe46ca4d753cc3d533b7160ff05b8f075"
+        "f1dd6565cdbb5e81e806c194a888c1018991ac8dff62ab4ffd6c0747de551248",
+        "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
+        "d8cb4e587e3c7eaabf123b5eee21ea2065959e8d39d351350b4ba106e80a0754"
       ],
-      "source_sha256": "11acacd6e2adf103bc49b24f2e0739bfe498cb95475c5f7a0005fda107442ea9",
-      "text": "Fetch a paper's figures into ``parent/<paper>``, off the GUI thread.\n\nThe figure legends are gathered automatically:\n:func:`spacr.plaque_papers.fetch_paper_to_folder` writes the figures\nand ``legends.csv``, which this panel already reads. When it is done\nthe form's ``src`` is pointed at the new folder, so the figures load\nthe way any folder does.\n\n:param reference: a DOI, PMID, PMC id or PDF path.\n:param parent: the folder the paper's folder is made in.\n:param fetch: replaces ``fetch_paper_to_folder`` (tests).\n:returns: True when the fetch was started."
+      "source_sha256": "669c79962b70eaac08a3afc630fa1cbb9ab7e5978d5cf757c4debbc6231ecb66",
+      "text": "Fetch a paper's figures into ``parent/<paper>``, off the GUI thread.\n\nThe figure legends are gathered automatically:\n:func:`spacr.plaque_papers.fetch_paper_to_folder` writes the figures\nand ``legends.csv``, which this panel already reads. When it is done\nthe form's ``src`` is pointed at the new folder, so the figures load\nthe way any folder does.\n\n:param reference: a DOI, PMID, PMC id or PDF path.\n:param parent: the folder the paper's folder is made in.\n:param fetch: replaces ``fetch_paper_to_folder`` (tests).\n:param offer_install: offer the reader's install when it is needed;\n    False for the fetch that follows an install, so one offer is made\n    per PDF however the install ends.\n:returns: True when the fetch was started, or when a PDF that needs\n    the figure reader was answered with its install (item 518).\n\nA PDF on disk is read by the figure reader, so when the reader is not\ninstalled, or was installed before it read PDFs, the install is\noffered here first and the PDF read once it is ready. A reader that\nsays so only while reading gets the same offer when the fetch comes\nback (:meth:`_on_paper_fetched`)."
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.find_plaques_in_all_wells": {
       "source_blocks_sha256": [
@@ -92695,6 +92750,14 @@
       "source_sha256": "47b3e32fb4452610c67ac2fb43d2e2fe48fc268cad6806decef78808c69494b4",
       "text": "Propose a condition per image, with any saved review applied.\n\n:param result: a :func:`figure_pass` result.\n:param caption: the figure's legend, ``''`` when unknown.\n:param src: the figure folder, where ``figure_annotations.csv`` lives.\n:param confirm: ``confirm_annotations``. When on, an image nobody has\n    approved starts unticked; when off it starts ticked, because the run\n    measures it.\n:param options: a :class:`spacr.plaque_papers.TextOptions` -- the Text\n    detection settings; the defaults when None.\n:returns: :class:`spacr.plaque_papers.Annotation` per region."
     },
+    "spacr.qt.widgets.plaque_preview.ask_input_mode": {
+      "source_blocks_sha256": [
+        "a333916f93c8577832c46e64f1d6fdd434558d46aa2883f239ec9de23b89e269",
+        "0c3dccadca6c5082fad4312321d9963d4b28c8220676fa7ffde2fc64deeab40a"
+      ],
+      "source_sha256": "ae649b00f07a8625d55d8c0660a90ccbb04cb3a7c0e4d145c840e92b7ea362f5",
+      "text": "Ask :func:`input_mode_box`'s question and return the answer.\n\n:returns: the mode to read the input in, or None to leave it unread.\n    Closing a switch question keeps the mode it is in; closing the\n    PDFs-or-images question reads neither."
+    },
     "spacr.qt.widgets.plaque_preview.box_thickness_for": {
       "source_blocks_sha256": [
         "cf678cd3c31624f1d08adbffc6f7e6d2a441d34a1ba2d2b335523b2f7980c2e4",
@@ -92726,6 +92789,26 @@
       ],
       "source_sha256": "f50c6ad5b83c89643aeb326cc65d6d6ff29f73cbff01102fe44c238dc5624e33",
       "text": "Build the Plaque Assay ``Live preview`` card and panel, unplaced.\n\n:param host: the screen.\n:returns: ``(panel, card)``."
+    },
+    "spacr.qt.widgets.plaque_preview.check_the_src": {
+      "source_blocks_sha256": [
+        "7d03d84056492aade8fb2981a74c743d6559b7fffb36ecbb5fa80893c8a8c3b0",
+        "40374c0333bcf5d0c12d6cd6f4418a7e2cf844bd649a11bd9829ee9554176695",
+        "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
+        "69528d3f8ef31ac7a64df7d043a0781d204dd56868781a95d3a3f9ba39647ade",
+        "d0ef81411da5b8e0e322f087661dbfda9f0f844bb881ae3616393f13bb3346b3"
+      ],
+      "source_sha256": "86bedbf123a53fc5b83caf6edff0cc4b9fb4f87913472653e28f0d26d353627c",
+      "text": "Ask about the mode for a new ``src`` when it holds the other mode's input.\n\nAsked once per source and mode, and only while the screen is on\nscreen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode\n-- already, or after the answer switched to it -- has its first PDF\nread the way a dropped one is, so the preview and the run get the\npaper's figure folder rather than a PDF they cannot open.\n\n:param screen: the Plaque Assay screen.\n:param source: ``src`` as the form holds it.\n:returns: the question asked, or ``''``."
+    },
+    "spacr.qt.widgets.plaque_preview.choose_plaque_mode": {
+      "source_blocks_sha256": [
+        "4f4b8ad2700e9965c9bf8679b290631a162dd33be32c2330e1a63f4a12c2db08",
+        "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
+        "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d"
+      ],
+      "source_sha256": "07ec10479a378eb68d2f634a7a30b9de9ce2729a2efc8973d2f4130cc4ad0643",
+      "text": "Put Plaque Assay in ``mode`` the way its switch does.\n\n:param screen: the Plaque Assay screen.\n:param mode: ``'plaque'`` or ``'figure'``."
     },
     "spacr.qt.widgets.plaque_preview.detect_figure": {
       "source_blocks_sha256": [
@@ -92763,6 +92846,20 @@
       "source_sha256": "39496e64eb7bde4fbad4ef586e549cbb6713c1167cb6edea8534f5dd902841c3",
       "text": "Figure mode on one figure: find, read and segment, as the run does.\n\nThe annotation itself is left to :func:`annotate_figure`, which is cheap\nand is repeated whenever a legend is pasted.\n\n:param path: the figure.\n:param settings: the module's settings.\n:param detect: passed to :func:`spacr.plaque_papers.find_plaque_regions`;\n    the zoo detector when None.\n:param read_text: ``fn(path) -> [Word]``; RapidOCR, followed by the\n    enlarged second reading, when None.\n:param segment: ``fn(crop) -> labels``; the run's plaque model when None.\n:returns: ``{'path', 'overlay', 'regions', 'words', 'counts',\n    'mean_areas', 'note'}``, or ``{'error', 'entry'}``."
     },
+    "spacr.qt.widgets.plaque_preview.follow_the_input": {
+      "source_blocks_sha256": [
+        "6bf559670bd5d90add5cb8e2affd4a05f218a199ec89aa73a64e851c534a3576",
+        "469bd3a077106200205654c567d6cf022d2adcd925ba60c24846dcafb7454288",
+        "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
+        "427052316020bfab80bd934296a044981538c642b51ad409058fdda2572dd3a7",
+        "67a27aee460d30e5f223ff2679390b1181a632302fac0649010bf9bc04a83ede",
+        "f1ea76da99aa117400e0886db0bbccd1bfd10526eed6d304990e89dcca3e1c16",
+        "e20f97c4521db17c0a4cd19a93e4e9fa36fb52edead39ccd8f3a5276beb4d88a",
+        "a0fd0e12802723c22a524b890fa0657a0ac3f52b3146c2f95b8b63d061899bbe"
+      ],
+      "source_sha256": "bf69bab7f3016a5f333979f7992f1c3886e47babdf1822905984b5b8185b2560",
+      "text": "Ask about the mode when the input is for the other one, and switch.\n\nUsed for a drop (:class:`spacr.qt.dnd_handlers.PlaqueDropHandler`) and\nfor a new ``src`` (:func:`_follow_the_src`).\n\n:param screen: the Plaque Assay screen.\n:param pdfs: PDFs found.\n:param images: plaque images found.\n:param figures: paper folders found.\n:param name: what was dropped or found, as the person knows it.\n:returns: the mode the input is to be read in, now current, or None to\n    leave it unread."
+    },
     "spacr.qt.widgets.plaque_preview.images_in": {
       "source_blocks_sha256": [
         "a2588dc8c3176d8b88dde8731bbe0b16dfff9077ef9722c9fba564c26ca62489",
@@ -92771,6 +92868,34 @@
       ],
       "source_sha256": "926b357e96d036a3baea154fe12e5b1ee00d7cb4b598bc016666a3c81f17cc1f",
       "text": "The images directly inside ``src``, as the run lists them.\n\n:param src: a folder, or one image file.\n:returns: image paths sorted by name; empty when there are none."
+    },
+    "spacr.qt.widgets.plaque_preview.input_mode_box": {
+      "source_blocks_sha256": [
+        "0224186997914aefad0cf332228beed2c145696c08c11403b98374420b7f6b79",
+        "2eb3540db5ea497e33b01fa43d7508d6982d11fa9d8fbd963de3e50cf4947505",
+        "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804",
+        "355aa38f5b8333348cb4c38e942bb0b334ec3da1f61d6d92d408f9d48e17655a",
+        "e20f97c4521db17c0a4cd19a93e4e9fa36fb52edead39ccd8f3a5276beb4d88a",
+        "73f921610f73bf9eb55ebd54b46c8ceec9767a0c98098fdd1a0991baff48ad14",
+        "80f3d11355f20bc696872f4aae9f38b9dd1d8968fb3d041c42ab6527399fabde",
+        "dc1c370b733888b44a5b68d54224d9cd6c593cc3fd1444b78a672bdc3c18f756",
+        "b3511584d1915bea9f88bb3770ecdfc2e171a60a1d520579819faf08eb053344"
+      ],
+      "source_sha256": "0a2aad22ffd7ae306e524c3fff67240289386e726c98a128f828d476ed6f7d17",
+      "text": "The dialog that asks :func:`input_mode_question`'s question.\n\nA :class:`QMessageBox`, so it wears the same glass card as every other\ndialog spaCR opens. Each answer button carries the mode it chooses in\nits ``plaque_mode`` property; Cancel carries ``''``.\n\n:param parent: the screen.\n:param question: :data:`TO_FIGURE`, :data:`TO_PLAQUE` or :data:`MIXED`.\n:param name: what was dropped or found, as the person knows it.\n:param mode: the mode Plaque Assay is in.\n:param pdfs: how many PDFs or paper folders were found.\n:param images: how many images were found.\n:returns: the dialog, not yet shown."
+    },
+    "spacr.qt.widgets.plaque_preview.input_mode_question": {
+      "source_blocks_sha256": [
+        "0db55d825940d44f9c6c5e22b670d5cd7a6b20defeab92c193b28f6b6bd62624",
+        "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
+        "427052316020bfab80bd934296a044981538c642b51ad409058fdda2572dd3a7",
+        "e02d202f0342b2cfba3967412f01dfae0b9e67ac30a9af34b52da6611d12db8a",
+        "4b32f0c8eaf4a27a6c8c262a191f77b71e9a15074bf3116d91857727f2dd760e",
+        "73f921610f73bf9eb55ebd54b46c8ceec9767a0c98098fdd1a0991baff48ad14",
+        "f193674832a24a6e5e656a09d846b566f768b0e12f3811133a9d5a4e9f9ad7b5"
+      ],
+      "source_sha256": "3560233a6a4170a2d9e374a228dfb714fadf5c3daa28843c3ddab6108a00baa9",
+      "text": "Which question, if any, what was found asks about the mode.\n\nItem 518: PDFs are read in Figure mode and plaque images in Plaque mode,\nso input for the other mode asks to switch, and input for both asks\nwhich to read.\n\n:param pdfs: PDFs found.\n:param images: images found outside a figure folder.\n:param figures: folders a paper was fetched into (they hold its\n    ``paper.json``, ``legends.csv`` or ``text_layer.json``).\n:param mode: the mode Plaque Assay is in.\n:returns: :data:`TO_FIGURE`, :data:`TO_PLAQUE`, :data:`MIXED`, or ``''``\n    when the input fits the mode."
     },
     "spacr.qt.widgets.plaque_preview.install_plaque_mode": {
       "source_blocks_sha256": [
@@ -92940,6 +93065,16 @@
       "source_sha256": "6c361a1daf921b1e88a27a7b5d9f0f4fc01d72460cd0f1346dc47ee4c3468097",
       "text": "Which box a point on the figure falls in.\n\n:param regions: the detected wells.\n:param x: figure column.\n:param y: figure row.\n:returns: the index of the smallest box holding the point, or None."
     },
+    "spacr.qt.widgets.plaque_preview.remember_the_input": {
+      "source_blocks_sha256": [
+        "9e67a42870a27c23b5d78e0b9d4fb609fd7164d234744e08a5c87ca6dd6431f4",
+        "aa2193edb9ff971fe66a5be45efa9a774fb3f5666738580e8ed2dbe0e5ab2468",
+        "5959ffe06ec326f8c6d4eb964f8e01570385dc76b53ca607bda82446f3dc53fe",
+        "5dd840818ce313903d58636dfc00eabfcbc922744bd7c8c4a387cf10341723b7"
+      ],
+      "source_sha256": "07a505e7683762b47402a82ecc066f0023818b5a2448c768f5bb5f3adc401954",
+      "text": "Note that ``source`` was settled for ``mode``, so writing it into\n``src`` does not ask again.\n\n:param screen: the Plaque Assay screen.\n:param source: the folder or file.\n:param mode: the mode it was settled for; the current one when None."
+    },
     "spacr.qt.widgets.plaque_preview.render_objects": {
       "source_blocks_sha256": [
         "adcff4729c90db09961ce996ec508c0803a8841653f9d44d69f8c61f82532ef0",
@@ -92990,11 +93125,11 @@
         "de399e3c680160a59f770499912ff97729a27b0580b3ecef923566e39cf07c47",
         "7f5b1720eed11bcdd9a71ad2ec8eb42311c4f628422ee8bfc889cf91cd3994a2",
         "317a5bf2f6d2a4a5ac54a3d1d7df2619e8c344836414177224c42e3cee8b03fc",
-        "f4401e95428c65cc96939aa1cae85a3c86640938c83ac50d5bd0be6236d712df",
-        "4cbdb1d45f993ac21d86675535130bd5ec46ae61f852c12ee29bda80bfa2a225"
+        "f877590d4a010a977e5493fe2b359dbbc412254185df27d89d076ba60519f50d",
+        "8cc30ed632e804abcf9bd5cc19aabf60240c119222f30a80a068ed797bbcfc21"
       ],
-      "source_sha256": "08dd5a8337cc6cfe8a70e734cea1fb4acaefe0b68e901439e8150c243a2997b2",
-      "text": "Find the plaques in one detected well of a figure.\n\nRuns on a worker thread; touches no widget. The model and its thresholds\nare the Plaque settings, through the same\n:func:`spacr.plaque.segment_plaque_image` Plaque mode uses.\n\n:param image: the figure, ``H x W x 3``.\n:param region: the well's box.\n:param settings: the module's settings.\n:param segment: ``fn(crop) -> labels``; the plaque model when None.\n:returns: ``{'labels', 'rows', 'count', 'mean_area', 'note'}``, or\n    ``{'error', 'entry'}``."
+      "source_sha256": "d3021dbbeb206ff82678c6f0edcfdddf1146541045b6b3d8aee905d57303156a",
+      "text": "Find the plaques in one detected well of a figure.\n\nRuns on a worker thread; touches no widget. The model and its thresholds\nare the Plaque settings, through the same\n:func:`spacr.plaque.segment_plaque_image` Plaque mode uses.\n\n:param image: the figure, ``H x W x 3``.\n:param region: the well's box.\n:param settings: the module's settings.\n:param segment: ``fn(crop) -> labels`` or ``fn(crop) -> (labels,\n    flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs`\n    gives it; the plaque model, with its flows, when None.\n:returns: ``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count',\n    'mean_area', 'note'}``, or ``{'error', 'entry'}``. ``flow_rgb`` and\n    ``cellprob`` are None when the segmenter gave no flows."
     },
     "spacr.qt.widgets.plaque_preview.session_style": {
       "source_blocks_sha256": [
@@ -94209,10 +94344,11 @@
         "9da3fa8e95a8b790538695d77053dd2e37cdfc9eaa485fb888ac227f05362907",
         "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
         "0a345bc3529dcf336309c0cc6de81d3f9b7913e581f5a22427b705d51713cb6e",
+        "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
         "803bbf383bc6feadca770f52b1307e48647a5e8226e7c759bb478beb8077b1df"
       ],
-      "source_sha256": "3c62223e744678abae33ba6c271932603570ca21a8fd86540a00808be382d63e",
-      "text": "One scale slider per live preview, scaling that preview alone (item 471).\n\nThe whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and\napplies everywhere. A preview wants its own: a Mask preview on a laptop\nmay need to shrink its controls to give the images room, while the settings\nbeside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse,\nMotility and the image-UMAP views -- installs the same control through\n:func:`install_preview_scale`, so there is one implementation of it.\n\nWHAT IT SCALES, LIVE, WITHOUT A RESTART. Everything inside the preview that\nspaCR sized in pixels:\n\n* style-sheet sizes -- font sizes, paddings, margins, minimum and maximum\n  widths and heights, radii -- both the ones the preview inherits from the\n  application sheet and the ones its widgets set on themselves. Border\n  widths are left alone, so a 1 px rule stays a rule;\n* minimum, maximum and fixed widget sizes set in code;\n* layout margins and spacing;\n* button icon sizes;\n* and, through :meth:`PreviewScaler.add_hook`, what only the panel knows\n  how to redraw: Measure's crop thumbnails, a matplotlib figure's dots and\n  labels (:func:`scale_figure_canvas`).\n\nEach value's own base is remembered on the widget, so scaling is always\nfrom the size the code asked for and never compounds. A size the code sets\nagain later becomes the new base. At 100 % nothing is touched at all -- no\nsheet, no size, no property -- so a preview at its default scale is the\npreview it was before this module existed.\n\nThe slider itself is exempt: at 10 % the thing that brings the preview back\nmust still be there to grab, and double-clicking its value returns to 100 %.\n``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).\n\nEach preview remembers its own scale, under ``prefs/preview_scale/<name>``."
+      "source_sha256": "1438d452ba211c0278319b5e81ae30e3f290f791c97c6da8e0bfa5614a434b2f",
+      "text": "One scale slider per live preview, scaling that preview alone (item 471).\n\nThe whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and\napplies everywhere. A preview wants its own: a Mask preview on a laptop\nmay need to shrink its controls to give the images room, while the settings\nbeside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse,\nMotility and the image-UMAP views -- installs the same control through\n:func:`install_preview_scale`, so there is one implementation of it.\n\nWHAT IT SCALES, LIVE, WITHOUT A RESTART. Everything inside the preview that\nspaCR sized in pixels:\n\n* style-sheet sizes -- font sizes, paddings, margins, minimum and maximum\n  widths and heights, radii -- both the ones the preview inherits from the\n  application sheet and the ones its widgets set on themselves. Border\n  widths are left alone, so a 1 px rule stays a rule;\n* minimum, maximum and fixed widget sizes set in code;\n* layout margins and spacing;\n* button icon sizes;\n* and, through :meth:`PreviewScaler.add_hook`, what only the panel knows\n  how to redraw: Measure's crop thumbnails, a matplotlib figure's dots and\n  labels (:func:`scale_figure_canvas`).\n\nEach value's own base is remembered on the widget, so scaling is always\nfrom the size the code asked for and never compounds. A size the code sets\nagain later becomes the new base. At 100 % nothing is touched at all -- no\nsheet, no size, no property -- so a preview at its default scale is the\npreview it was before this module existed.\n\nThe slider itself is exempt: at 10 % the thing that brings the preview back\nmust still be there to grab, and double-clicking its value returns to 100 %.\n``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).\n\nA WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW (item 522). A dialog\nparented to the panel is a window of its own, yet Qt cascades the panel's\nscaled sheet into it, and the walk found it among the panel's children: at\n150 % a settings dialog's buttons were 59 px tall, not the 40 px of every\nother dialog. Such a window and everything in it are kept at 100 %, and the\nwindow's own sheet re-states, at 100 %, the sizes it would otherwise inherit\nscaled -- set as it is polished, so before it is first laid out.\n\nEach preview remembers its own scale, under ``prefs/preview_scale/<name>``."
     },
     "spacr.qt.widgets.preview_scale.PreviewScaleControl": {
       "source_blocks_sha256": [

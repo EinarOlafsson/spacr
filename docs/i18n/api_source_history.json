@@ -8205,6 +8205,15 @@
       "source_sha256": "8aa7307d21ad6bec65eafd26340dba35cb8b5c1c3e06064fbed15967c7c839f6",
       "text": "A closed region on a two-parameter scatter.\n\nThe shape a real population needs: cell clouds are not rectangles, and\napproximating one with a bounding box is how the corner debris gets counted\nas cells."
     },
+    "8ac6823a2bd46e4edef31d7c4ca4259c98b50b9c011d6ffd9338582272ba1efb": {
+      "source_blocks_sha256": [
+        "12294613eedc9f398efc6df7689b7ac0febf65077df8621a5ec5e6e8c9b7506f",
+        "4013aee4bc4714b7c42237d83f5082e4521344916b8c62616362dcbb3c51d25d",
+        "087bb2cae59e0d5cd10e3a3d5f849470e3dd46edc263206dda0b8cb828b33c8c"
+      ],
+      "source_sha256": "8ac6823a2bd46e4edef31d7c4ca4259c98b50b9c011d6ffd9338582272ba1efb",
+      "text": "Cellpose models published on bioimage.io, or an empty list.\n\nTwo kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's\nown Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io\npage. A Cellpose 3-format checkpoint is a ``cellpose3`` row that\ndownloads the weights file itself, checked against the SHA-256 the\nmanifest publishes, for the Cellpose 3 backend to run.\n\nBest effort and never raises: no network, a slow mirror or a changed\nschema all mean \"no extra rows\", never a zoo that fails to open. The\nresponse is cached so opening the dialog repeatedly is not repeatedly a\nnetwork call."
+    },
     "8accbfdb3409cec88df744b0a726f785f6685ba0e94127ba7bdb6032065e85a2": {
       "source_blocks_sha256": [
         "8accbfdb3409cec88df744b0a726f785f6685ba0e94127ba7bdb6032065e85a2"
