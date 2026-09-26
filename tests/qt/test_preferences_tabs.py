@@ -321,12 +321,32 @@ def _tabs_with_their_page(dialog) -> set:
 
 def test_the_first_show_carries_only_the_open_tabs_page(dialog, qtbot):
     """The other pages are why the show took 400-550 ms under load."""
+    from PySide6.QtWidgets import QDialog
+
     speed = dialog.findChild(QSlider, "AmbientSpeed")
     _open(dialog, qtbot)
     assert _tabs_with_their_page(dialog) == {"General"}
-    assert dialog.findChild(QSlider, "AmbientSpeed") is None
+    assert QDialog.findChild(dialog, QSlider, "AmbientSpeed") is None
     assert not dialog.isAncestorOf(speed)
     assert speed.value() > 0, "the waiting control is gone, not waiting"
+
+
+def test_a_control_asked_for_by_name_brings_its_page_back(dialog, qtbot):
+    """What finds a control by name -- item 569's switch, a test -- finds
+    it in the window, whichever tabs have been chosen."""
+    _open(dialog, qtbot)
+    switch = dialog.findChild(QWidget, "ShowAlphaFeatures")
+    assert switch is not None
+    assert dialog.isAncestorOf(switch)
+    assert _tabs_with_their_page(dialog) == {"General", "Modules"}
+    assert _tabs(dialog).currentIndex() == 0
+
+
+def test_a_walk_of_the_dialog_sees_every_page(dialog, qtbot):
+    _open(dialog, qtbot)
+    names = {w.objectName() for w in dialog.findChildren(QWidget)}
+    assert set(CONTROLS) <= names
+    assert _tabs_with_their_page(dialog) == set(EXPECTED_TABS)
 
 
 def test_choosing_a_tab_brings_its_page_back(dialog, qtbot):

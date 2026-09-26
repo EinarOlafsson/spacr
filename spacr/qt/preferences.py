@@ -5509,6 +5509,15 @@ def _preferences_window_class():
         build as it always was, and Save, Reset and Cancel read and write
         those same controls whether their page is in the window or waiting,
         so a page nobody opened saves exactly what it was built with.
+
+        AND PYTHON STILL SEES THE WHOLE DIALOG. ``findChild`` finds a
+        control on a waiting page and brings that page back, and
+        ``findChildren`` brings every page back before it walks, so code
+        that finds a control by its object name (item 569's switch) or walks
+        the dialog sees what it saw before -- except during the first show,
+        when the walks are the sheet's, the glass's and the resize filter's
+        and not bringing the pages back is the point. Qt's own C++ searches
+        see only the window, which is what they style.
         """
 
         def __init__(self, parent=None):
@@ -5519,15 +5528,15 @@ def _preferences_window_class():
             super().__init__(parent)
             self._page_tabs = None
             self._pages_wait_for_the_show = False
+            self._window_only = 0
             self._pages_away = {}
 
         def _show_only_the_open_page_at_first(self, tabs) -> None:
             """Have the first show style only the page of the current tab.
 
             Called once the build is finished. The pages stay where they
-            are until the show, so everything that looks at the built
-            dialog -- the navigation that picks the tab to open on, the
-            tests -- finds each control on its tab.
+            are until the show, so the navigation that picks the tab to
+            open on finds each control on its tab.
 
             :param tabs: the dialog's ``QTabWidget``; every page is a scroll
                 area holding the page.
@@ -5548,10 +5557,56 @@ def _preferences_window_class():
 
             :param visible: as for ``QWidget.setVisible``.
             """
-            if visible and self._pages_wait_for_the_show:
-                self._pages_wait_for_the_show = False
-                self._send_the_unseen_pages_away()
-            super().setVisible(visible)
+            if not (visible and self._pages_wait_for_the_show):
+                super().setVisible(visible)
+                return
+            self._pages_wait_for_the_show = False
+            self._send_the_unseen_pages_away()
+            self._window_only += 1
+            try:
+                super().setVisible(visible)
+            finally:
+                self._window_only -= 1
+
+        def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
+            """``QObject.findChild``, finding a control whose page is waiting.
+
+            A control asked for by name is the dialog's wherever its page
+            is, so what the builder, Save and a test find by name does not
+            depend on which tabs have been chosen. The page it is on comes
+            back into its tab, hidden unless its tab is current, as it was
+            before pages waited: a caller that goes on to click or read the
+            geometry of what it found is holding a widget in the window.
+
+            :returns: the first match, or ``None``.
+            """
+            found = super().findChild(*args, **kwargs)
+            if found is not None or self._window_only:
+                return found
+            for index, page in list(self._pages_away.items()):
+                found = page.findChild(*args, **kwargs)
+                if found is not None:
+                    self._bring_the_page_back(index)
+                    return found
+            return None
+
+        def findChildren(self, *args, **kwargs):  # noqa: N802 - Qt naming
+            """``QObject.findChildren`` over every page, waiting or not.
+
+            A walk of the dialog from Python -- a test's, or code that
+            looks at every control -- sees the dialog it saw before pages
+            waited, so every waiting page comes back first. Not during the
+            first show: the window sheet, the glass and the resize filter
+            walk the dialog then, and bringing the pages back for them is
+            the cost the waiting exists to save. Nor while a page is coming
+            back, whose glass asks the dialog for its card.
+
+            :returns: every match.
+            """
+            if not self._window_only:
+                for index in list(self._pages_away):
+                    self._bring_the_page_back(index)
+            return super().findChildren(*args, **kwargs)
 
         def _send_the_unseen_pages_away(self) -> int:
             """Take every page but the current tab's out of the window.
@@ -5595,11 +5650,15 @@ def _preferences_window_class():
             except (RuntimeError, TypeError):
                 pass
             page._spacr_detached_from = None
-            holder = scroll.takeWidget()
-            scroll.setWidget(page)
-            if holder is not None:
-                holder.deleteLater()
-            _what_a_page_missed_while_away(self, page)
+            self._window_only += 1
+            try:
+                holder = scroll.takeWidget()
+                scroll.setWidget(page)
+                if holder is not None:
+                    holder.deleteLater()
+                _what_a_page_missed_while_away(self, page)
+            finally:
+                self._window_only -= 1
             return True
 
     _PREFERENCES_WINDOW_CLASS = _PreferencesWindow
