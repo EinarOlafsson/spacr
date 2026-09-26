@@ -4603,6 +4603,206 @@
       "context": "PSF settings plus ``psf_measurement_source``: ``original`` (default; standard Measure intensities without PSF) or ``processed``. Processed requires convolution/deconvolution and explicit YX or ZYX sampling. Original retains stored PSF parameters without applying them.",
       "translation": "ajustes de PSF más ``psf_measurement_source``: ``original`` (predeterminado; intensidades estándar de Measure sin PSF) o ``processed``. Processed requiere convolución/deconvolución y un muestreo YX o ZYX explícito. Original conserva los parámetros de PSF almacenados sin aplicarlos.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#2",
+      "source": "immutable PSFPlan or None. The caller's settings are unchanged.",
+      "source_sha256": "14bba570e8023b33456ed6c207891fc476a8793b86cc3917aeb69a3af6fd5344",
+      "context": "immutable PSFPlan or None. The caller's settings are unchanged.",
+      "translation": "PSFPlan inmutable o None. Los ajustes de quien llama no cambian.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#3",
+      "source": "for an invalid source, disabled processing when requested, or invalid calibrated kernel settings.",
+      "source_sha256": "eb4bda556360c7610a298ee7216bb71e19452f25589ed05fa34da2a43f947cd2",
+      "context": "for an invalid source, disabled processing when requested, or invalid calibrated kernel settings.",
+      "translation": "para una fuente no válida, un procesamiento desactivado cuando se solicita, o ajustes no válidos del kernel calibrado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#0",
+      "source": "Refuse to mix incompatible intensity sources even when resume is off.",
+      "source_sha256": "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
+      "context": "Refuse to mix incompatible intensity sources even when resume is off.",
+      "translation": "Se niega a mezclar fuentes de intensidad incompatibles incluso cuando la reanudación está desactivada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#1",
+      "source": "current run settings, before its database snapshot is saved.",
+      "source_sha256": "a1335b87f8f104165b7a0c5916f7a2554d0474f73ac0d2ac3784a5078d38ac92",
+      "context": "current processing-session settings, before its database snapshot is saved.",
+      "translation": "ajustes de la ejecución actual, antes de guardar su instantánea en la base de datos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#2",
+      "source": "measurement database; absence means a new project.",
+      "source_sha256": "d988ebc6184ffafee2ca265ffefb02276a08e79b4b4d59f66324ccf1f8db9a9e",
+      "context": "measurement database; absence means a new project.",
+      "translation": "base de datos de mediciones; su ausencia significa un proyecto nuevo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#3",
+      "source": "captured plan for this run.",
+      "source_sha256": "712e9fae80b9712a6327aeff258c1044b4a256ec279171e21af621151883ed8a",
+      "context": "captured plan for this run.",
+      "translation": "plan capturado para esta ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#4",
+      "source": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
+      "source_sha256": "3d90e9593f4b403295109241dc9ed376a223bdc8cc874458554d87112bf3b125",
+      "context": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
+      "translation": "cuando las filas de medición existentes usan otra identidad de PSF o no puede demostrarse que usen las intensidades procesadas solicitadas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline#0",
+      "source": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.",
+      "source_sha256": "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
+      "context": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.",
+      "translation": "Preparación y procedencia opcionales (opt-in) de PSF y de la cadena de mejora para las entradas de segmentación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline#1",
+      "source": "Kernels are captured once per run. Only private intensity arrays are processed; raw stacks and mask labels are never rewritten by this module. V1 reuse checks both the requested kernel/settings and the exact completed archive bytes.",
+      "source_sha256": "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25",
+      "context": "Kernels are captured once per processing session. Only private intensity arrays are processed; raw stacks and mask labels are never rewritten by this module. V1 reuse checks both the requested kernel/settings and the exact completed archive bytes.",
+      "translation": "Los kernels se capturan una vez por ejecución. Solo se procesan matrices de intensidad privadas; este módulo nunca reescribe las pilas sin procesar ni las etiquetas de máscara. La reutilización de V1 comprueba tanto el kernel/los ajustes solicitados como los bytes exactos de los archivos comprimidos completados.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline#2",
+      "source": "THE ENHANCEMENT CHAIN TRAVELS THE SAME ROUTE. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` keys and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a run is byte for byte what it was before the chain existed.",
+      "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
+      "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
+      "translation": "LA CADENA DE MEJORA SIGUE LA MISMA RUTA. La cadena de Make Masks (:mod:`spacr.qt.detect_chain`) se escribe en un archivo de ajustes como las claves ``enhance_*`` y aquí la vuelve a leer :func:`prepare_chain`, con los ajustes ``psf_*`` incorporados como la etapa de PSF de la cadena, de modo que una ejecución de placa aplica exactamente los pasos que ajustó un curador, en el orden propio de la cadena: fondo, PSF, eliminación de ruido, contraste, enfoque. La sesión la aplica por canal seleccionado en la etapa en la que ya se ejecutaba la PSF -- después de la corrección de iluminación y antes de la normalización -- y su procedencia va al mismo registro ``psf/segmentation_application.json``, de modo que una cadena cambiada se rechaza al reanudar igual que un kernel cambiado. Sin ningún paso de la cadena activado, una ejecución es byte a byte lo que era antes de que existiera la cadena.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#0",
+      "source": "Immutable calibrated processing configuration, safe to pass to workers.",
+      "source_sha256": "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
+      "context": "Immutable calibrated processing configuration, safe to pass to workers.",
+      "translation": "Configuración de procesamiento calibrada e inmutable, segura para pasarla a los procesos de trabajo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#1",
+      "source": "``convolve`` or ``deconvolve``.",
+      "source_sha256": "b8aa4b7698950309145d07853b7084b514dfd12fe5b6d994d2067d145a90b2a3",
+      "context": "``convolve`` or ``deconvolve``.",
+      "translation": "``convolve`` o ``deconvolve``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#2",
+      "source": "captured immutable measured or Gaussian kernel.",
+      "source_sha256": "653611cbf7185649817283e8ce659cfff84987353e3d638b0b33fcacd1fdd69c",
+      "context": "captured immutable measured or Gaussian kernel.",
+      "translation": "kernel medido o gaussiano capturado e inmutable.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#3",
+      "source": "image spacing in spatial array order, in micrometers.",
+      "source_sha256": "f69becc2911ddbbc24cdc5d8d8ad2502bf8f4b30b9133666acf325b78e6c9744",
+      "context": "image spacing in spatial array order, in micrometers.",
+      "translation": "espaciado de la imagen en orden de matriz espacial, en micrómetros.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan#4",
+      "source": "Richardson–Lucy iterations; unused for convolution.",
+      "source_sha256": "007f63926151f8a923ae38dd26103f2b85ac7991ce9ae936609dd5bd72465f80",
+      "context": "Richardson–Lucy iterations; unused for convolution.",
+      "translation": "iteraciones de Richardson–Lucy; no se usan para la convolución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.apply#0",
+      "source": "Process one spatial image with an explicit last channel axis.",
+      "source_sha256": "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
+      "context": "Process one spatial image with an explicit last image data channel axis.",
+      "translation": "Procesa una imagen espacial con un último eje de canales explícito.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.apply#1",
+      "source": "YXC or ZYXC intensity array, never a merged label stack.",
+      "source_sha256": "4ab8a6d54da8592a7ee8542caf64064ef6a86f73a34506cf6c6dc0966b84edae",
+      "context": "YXC or ZYXC intensity array, never a merged label stack.",
+      "translation": "matriz de intensidades YXC o ZYXC, nunca una pila de etiquetas fusionada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.apply#2",
+      "source": "optional process-safe event shared with a parent worker.",
+      "source_sha256": "68475793678642468153fef54c5092692b3fca2aba3f2e257a6081f1d9c315f2",
+      "context": "optional process-safe event shared with a parent worker.",
+      "translation": "evento opcional seguro entre procesos compartido con un proceso de trabajo padre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.apply#3",
+      "source": "float32 processed intensities without source mutation.",
+      "source_sha256": "2df3016acaaf11f6c40f4e2aeb6e9b475ec1c7627795e521a73fe06d157566bb",
+      "context": "float32 processed intensities without source mutation.",
+      "translation": "intensidades procesadas en float32 sin modificar el origen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.PSFPlan.provenance#0",
+      "source": "Return JSON-safe identity of every scientifically relevant setting.",
+      "source_sha256": "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b",
+      "context": "Return JSON-safe identity of every scientifically relevant setting.",
+      "translation": "Devuelve una identidad segura para JSON de cada ajuste científicamente relevante.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.apply_chain#0",
+      "source": "Run ``chain`` over every channel of one YXC field, strictly.",
+      "source_sha256": "78bd44a4e983becfd25a2add09d6bb239e3a8bf7971e9b508bf7a65b74ebe9ca",
+      "context": "Run ``chain`` over every channel of one YXC microscope field of view, strictly.",
+      "translation": "Ejecuta ``chain`` sobre cada canal de un campo YXC, de forma estricta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.apply_chain#1",
+      "source": "YXC intensity array, never a merged label stack.",
+      "source_sha256": "5071e581a72ce035fa3a2543305694182557183ef6467758c1595a3d55cd681c",
+      "context": "YXC intensity array, never a merged label stack.",
+      "translation": "matriz de intensidades YXC, nunca una pila de etiquetas fusionada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.apply_chain#2",
+      "source": "a :class:`spacr.qt.detect_chain.Chain` from :func:`prepare_chain`.",
+      "source_sha256": "68c45ac53ef037fca8b8cbb3349a8b573cbf4a96e50c9f74fbee1e58673fec50",
+      "context": "a :class:`spacr.qt.detect_chain.Chain` from :func:`prepare_chain`.",
+      "translation": "una :class:`spacr.qt.detect_chain.Chain` de :func:`prepare_chain`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.apply_chain#3",
+      "source": "optional process-safe event shared with a parent worker; cancellation raises :class:`spacr.cancellation.PipelineCancelled` between stages and inside PSF iterations, as the PSF path does.",
+      "source_sha256": "de924caf0af9f7da4d1731f29babbff7a5f87c6b9fb71a29d5ab6aafea22785f",
+      "context": "optional process-safe event shared with a parent worker; cancellation raises :class:`spacr.cancellation.PipelineCancelled` between stages and inside PSF iterations, as the PSF path does.",
+      "translation": "evento opcional seguro entre procesos compartido con un proceso de trabajo padre; la cancelación genera :class:`spacr.cancellation.PipelineCancelled` entre etapas y dentro de las iteraciones de PSF, como hace la ruta de PSF.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_pipeline.apply_chain#4",
+      "source": "float32 processed intensities, the source untouched.",
+      "source_sha256": "cd776050e5497459cc9ba5b4353cf5acee3d871b71375d67653122641bb6bf60",
+      "context": "float32 processed intensities, the source untouched.",
+      "translation": "intensidades procesadas en float32, sin tocar el origen.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
