@@ -3052,136 +3052,176 @@
       "series": 3,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
-      "title": "Train Cellpose：検証済みの画像ペアと明示的なAPI手順",
-      "description": "Cellpose Workbench内のTrainを見つけ、現在の入力元インポートの不具合を確認し、ダウンロード可能な六組の細胞画像とマスクで実際の二エポック学習を行います。",
+      "section": "Tools",
+      "title": "Cellposeのモデルを学習させる",
+      "description": "画像とマスクの組を用意し、Cellpose Workbenchでセグメンテーションのモデルを微調整して、保存したチェックポイントを適用します。",
       "objectives": [
-        "独立したHomeタイルではなくMake Masks内のTrainとApplyを見つける。",
-        "対応するファイル名を確認し、既存ラベルと確認済み正解を区別する。",
-        "部分的インポートを認識し、API手順と不具合のあるGUIを区別する。",
-        "実際の入力、ウォームアップ率、変更された重み、検証済みパスを確認する。",
-        "学習損失、テスト用の空欄値、重みの読み込みを独立した精度評価と区別する。"
+        "Make Masksで、画像と対応する物体ラベルのマスクを確認する。",
+        "学習用フォルダー、出発点のモデル、学習の予定、出力先を選ぶ。",
+        "学習を実行し、チェックポイントを見つけて、別の画像に適用する。"
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "リンク先の六組のデータ、録画時のスクリプト、元データ一覧を使用します。実際の視野から細胞強度チャネル1と細胞マスク平面4をそのまま切り出し、平面6は病原体です。既存ラベルや境界で切れた物体は独立確認済みの正解ではありません。Trainは数値を取り込んでもsrcを落としmodel_name=new_modelのままなのでGUI学習は開始しません。明示的なspacr.submodules.train_cellpose呼び出しでは新しい出力先、二エポック、ミニバッチ1、learning_rate=1e-5、weight_decay=1e-5、target_size=512を使い、spaCRの追加拡張は無効です。normalize=FalseはspaCRのパーセンタイル処理だけを無効にし、最大値によるスケーリングやCellpose内部正規化は残ります。Cellpose内部の回転・サイズ変更と256画素パッチも残ります。開始時シード19、内部乱数処理は継続します。録画環境RTX 3090のCUDA上限65%、RAMガード100GiBはこのワークステーション専用です。3,145,728個の画像・ラベル値と十二表示配列を確認し、六組すべてが学習に残りました。実際の学習率0と1.1111111111111112e-6で、347個中345個の学習可能なパラメーターテンソルが変化しました。損失は1.496740683913231から1.5215517828861873へ上昇しました。テストデータなしで、テスト損失のゼロは予約欄です。実ファイルはmodels/cellpose_model/models以下にありweights_only=Trueで読みました。一般的なログは二つ目のmodelsを省きます。読み込みは推論や精度検証ではありません。実際の図は外部ビューアーに表示しGUIへ挿入しません。元データ、失敗映像、以前のGUI保留を保持します。AI送信、サービス回答、科学的承認、公開はありません。",
+      "prerequisite": "リンク先の例をダウンロードして展開します。マスク付きの学習用画像六枚と、Apply用の別の画像三枚が入っています。または、自分の画像と対応する整数ラベルのマスクを用意し、学習の前にMake Masksで確認します。",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Make Masksを開き、その中のCellpose Workbenchへ進みます。TrainとApplyは内部タブで、別々のHomeタイルではありません。今回は現在の導線、設定インポートの問題、明示的なPython回避手順を示します。学習前のマスク確認と編集は、リンク先のMake Masksで扱います。",
+          "visual": "home_make_masks",
+          "narration": "HomeからToolsを開き、Make Masksを選びます。そのツールバーからCellpose Workbenchを開くと、Trainタブが表示されます。画像とその物体ラベルのマスクから学習させ、保存したモデルをApplyで使います。",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ],
+          "speech_text": "ホームからToolsを開き、Make Masksを選びます。そのツールバーからセルポーズ Workbenchを開くと、Trainタブが表示されます。画像とその物体ラベルのマスクから学習させ、保存したモデルをApplyで使います。"
+        },
+        {
+          "visual": "train_source",
+          "narration": "リンク先の例を展開します。trainingフォルダーには六枚の画像とmasksサブフォルダーがあり、applyフォルダーには後で使う別の画像が三枚あります。Image source folderの横のフォルダーボタンをクリックし、trainingを選びます。masksサブフォルダーを使うにはMask source folderを空のままにし、別の場所のマスクを使うならそのフォルダーを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "リンク先の例を展開します。trainingフォルダーには六枚の画像とmasksサブフォルダーがあり、applyフォルダーには後で使う別の画像が三枚あります。Image source folderの横のフォルダーボタンをクリックし、trainingを選びます。masksサブフォルダーを使うにはMask source folderを空のままにし、別の場所のマスクを使うならそのフォルダーを選びます。"
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "各画像には、高さと幅が同じマスクが一つ必要です。ゼロは背景で、各物体には固有の正の番号が付きます。学習の前に、学習用フォルダーをMake Masksで開いてラベルを確認し、修正します。この画像には、ラベル付きの細胞が九十五個あります。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "speech_text": "各画像には、高さと幅が同じマスクが一つ必要です。ゼロは背景で、各物体には固有の正の番号が付きます。学習の前に、学習用フォルダーをMake Masksで開いてラベルを確認し、修正します。この画像には、ラベル付きの細胞が九十五個あります。"
+        },
+        {
+          "visual": "train_channels",
+          "narration": "この例はグレースケールなので、Channelsは空のままにします。多チャンネルの画像では、ゼロから数えるチャンネル番号を最大三つまで追加します。たとえば一つ目と三つ目のチャンネルならゼロと二です。Channel axisは、自動検出でチャンネルの次元が見つからないときだけ設定します。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ],
+          "speech_text": "この例はグレースケールなので、Channelsは空のままにします。多チャンネルの画像では、ゼロから数えるチャンネル番号を最大三つまで追加します。たとえば一つ目と三つ目のチャンネルならゼロと二です。Channel axisは、自動検出でチャンネルの次元が見つからないときだけ設定します。"
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Cellpose-SAMから始めるにはBase modelをcpsamのままにし、以前のモデルの学習を続けるにはチェックポイントのパスを入力します。Model nameを入力します。ここではtutorial cellsです。元のフォルダーの中に保存するにはCheckpoint folderを空のままにし、別の場所にするならフォルダーを選びます。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ],
+          "speech_text": "セルポーズ-SAMから始めるにはBase modelをcpsamのままにし、以前のモデルの学習を続けるにはチェックポイントのパスを入力します。Model nameを入力します。ここではtutorial cellsです。元のフォルダーの中に保存するにはCheckpoint folderを空のままにし、別の場所にするならフォルダーを選びます。"
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "N epochsとBatch sizeを設定します。この短い実行では、十エポック、バッチサイズ一を使います。エポックを増やすと学習の更新回数が増え、バッチを大きくするとメモリを多く使います。最初は、表示された学習率のままにします。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ],
+          "speech_text": "N epochsとBatch sizeを設定します。この短い実行では、十エポック、バッチサイズ一を使います。エポックを増やすと学習の更新回数が増え、バッチを大きくするとメモリを多く使います。最初は、表示された学習率のままにします。"
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "Normalizeはオンのままにし、最初は一パーセンタイルと九十九パーセンタイルを使います。これらは各チャンネルで使う強度の範囲を決めます。Scale rangeは学習中の画像の大きさを変化させ、Min train masksはラベル付きの物体が少ない画像を飛ばします。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ],
+          "speech_text": "Normalizeはオンのままにし、最初は一パーセンタイルと九十九パーセンタイルを使います。これらは各チャンネルで使う強度の範囲を決めます。Scale rangeは学習中の画像の大きさを変化させ、Min train masksはラベル付きの物体が少ない画像を飛ばします。"
+        },
+        {
+          "visual": "train_validation",
+          "narration": "検証の損失を見るには、別のValidation image folderと、そのValidation mask folderを選びます。そこに学習用の画像を使い回してはいけません。この例のように、別のラベル付きの組がないときは、両方とも空のままにします。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ],
+          "speech_text": "検証の損失を見るには、別のValidation image folderと、そのValidation mask folderを選びます。そこに学習用の画像を使い回してはいけません。この例のように、別のラベル付きの組がないときは、両方とも空のままにします。"
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "フォルダー、モデル名、出力先を確認してから、Runを押します。Figuresパネルには学習用の画像がマスクの上に並び、コンソールで進み具合がわかります。このGPUでは、六枚の画像で十エポックの学習が一分かからずに終わりました。",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ],
+          "speech_text": "フォルダー、モデル名、出力先を確認してから、Runを押します。Figuresパネルには学習用の画像がマスクの上に並び、コンソールで進み具合がわかります。このGPUでは、六枚の画像で十エポックの学習が一分かからずに終わりました。"
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "学習が終わると、コンソールにチェックポイントのパスが表示されます。既定の場所では、元のフォルダーの中のmodels、cellpose model、modelsにあります。ファイル名は、モデル名にアーキテクチャーとエポック数を加えたものです。学習の設定と一緒に保管します。",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ],
+          "speech_text": "学習が終わると、コンソールにチェックポイントのパスが表示されます。既定の場所では、元のフォルダーの中のmodels、セルポーズ model、modelsにあります。ファイル名は、モデル名にアーキテクチャーとエポック数を加えたものです。学習の設定と一緒に保管します。"
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Applyタブを開きます。Custom modelは、学習させたチェックポイントを指しています。Sourceを例のapplyフォルダーにします。その画像は、学習に使っていないウェルから撮ったものです。Channelsをゼロ、Percentilesを二と九十九にします。接している細胞が分かれたままになるようFill inをオフにし、SaveとVerboseをオンにします。",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Make Masksを開き、その中のセルポーズ Workbenchへ進みます。TrainとApplyは内部タブで、別々のホームタイルではありません。今回は現在の導線、設定インポートの問題、明示的なPython回避手順を示します。学習前のマスク確認と編集は、リンク先のMake Masksで扱います。"
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "Trainでは開始モデルと学習スケジュールを確認します。初期のエポック数や学習率を推奨値としてコピーしないでください。対応する画像とインスタンスマスク、入力フォルダー、出力名が必要です。フォームが表示されているだけでは、条件を満たしたとは限りません。",
-          "hold_after": 0.7,
-          "speech_text": "Trainでは開始モデルと学習スケジュールを確認します。初期のエポック数や学習率を推奨値としてコピーしないでください。対応する画像とインスタンスマスク、入力フォルダー、出力名が必要です。フォームが表示されているだけでは、条件を満たしたとは限りません。"
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "実際のImport settingsダイアログで限定的な例のCSVを開きます。取り込むと二エポック、ミニバッチ一、小さな学習率が表示されます。しかし必須の入力元は失われ、指定したモデル名はnew modelのままです。これは部分的なインポートなので、Runを押さないでください。",
-          "hold_after": 0.7,
-          "speech_text": "実際のImport settingsダイアログで限定的な例のCSVを開きます。取り込むと二エポック、ミニバッチ一、小さな学習率が表示されます。しかし必須の入力元は失われ、指定したモデル名はnew modelのままです。これは部分的なインポートなので、Runを押さないでください。"
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "この後のPython手順はGUIの不具合とは別です。隠れた入力元をこっそり設定したり、フォームを修復したりしません。リンク先の例を新しいフォルダーで使用します。スクリプトは既存の出力先を拒否し、元のペアを保存し、実際のAPI実装と入力を記録します。",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "この後のPython手順はGUIの不具合とは別です。隠れた入力元をこっそり設定したり、フォームを修復したりしません。リンク先の例を新しいフォルダーで使用します。スクリプトは既存の出力先を拒否し、元のペアを保存し、実際のAPI実装と入力を記録します。"
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "ファイル名が対応する、五百十二画素四方の実画像とマスクが六組あります。元の設定では細胞強度はチャネル一、細胞マスクは平面四で、平面六は病原体です。既存ラベルは独立確認済みの正解ではありません。本番の学習に使う前に境界や切れた物体を確認してください。",
           "focus": [
-            190,
-            80,
-            3450,
-            900
+            366,
+            607,
+            1165,
+            1156
           ],
-          "hold_after": 0.7,
-          "speech_text": "ファイル名が対応する、五百十二画素四方の実画像とマスクが六組あります。元の設定では細胞強度はチャネル一、細胞マスクは平面四で、平面六は病原体です。既存ラベルは独立確認済みの正解ではありません。本番の学習に使う前に境界や切れた物体を確認してください。"
+          "speech_text": "Applyタブを開きます。Custom modelは、学習させたチェックポイントを指しています。Sourceを例のapplyフォルダーにします。その画像は、学習に使っていないウェルから撮ったものです。Channelsをゼロ、Percentilesを二と九十九にします。接している細胞が分かれたままになるようFill inをオフにし、SaveとVerboseをオンにします。"
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "これはAPI実行が保存した実際の六組の図を外部ビューアーで開いたものです。spaCRに挿入した図ではありません。上の画像と真下のマスクが対応します。全入力画素値と十二の表示配列を元ペアと照合しました。対応を検証したのであって、注釈品質の保証ではありません。",
+          "visual": "apply_preview",
+          "narration": "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされ、ここでは細胞が七十六個見つかります。フォルダー全体を処理する前に、ここで設定を調整します。",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
+            390,
+            520,
+            3410,
+            1240
           ],
-          "hold_after": 0.7,
-          "speech_text": "これはAPI実行が保存した実際の六組の図を外部ビューアーで開いたものです。スペーカーに挿入した図ではありません。上の画像と真下のマスクが対応します。全入力画素値と十二の表示配列を元ペアと照合しました。対応を検証したのであって、注釈品質の保証ではありません。"
+          "speech_text": "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされ、ここでは細胞が七十六個見つかります。フォルダー全体を処理する前に、ここで設定を調整します。"
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "スクリプトにデータ入力元と新しい出力先を渡します。この限定的なCUDA例は六組すべて、二エポック、ミニバッチ一を使用します。入力対象は五百十二画素ですが、Cellposeは内部で二百五十六画素パッチを学習します。spaCRの追加拡張を切っても、Cellpose内部の正規化、回転、サイズ変更は残ります。",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
+          "visual": "apply_result",
+          "narration": "Runを押します。Applyは、画像ごとに一つのマスクを、それらの画像の横のmasksサブフォルダーに書き出します。Verboseでは、各結果が図として表示されます。ここでは、三つのマスクに七十六個、四十八個、五十五個の細胞があります。モデルを実験全体に使う前に、そのマスクを別にラベル付けした視野と比べます。",
           "hold_after": 0.7,
-          "speech_text": "スクリプトにデータ入力元と新しい出力先を渡します。この限定的なCUDA例は六組すべて、二エポック、ミニバッチ一を使用します。入力対象は五百十二画素ですが、セルポーズは内部で二百五十六画素パッチを学習します。スペーカーの追加拡張を切っても、セルポーズ内部の正規化、回転、サイズ変更は残ります。"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "最初のウォームアップエポックは学習率ゼロです。二つ目は小さな正の値なので重みを更新できます。保存チェックポイントを初期の学習可能な重みと比較し、三百四十七個中三百四十五個のテンソルが変化しました。直径設定だけの変更では合格しません。それでも重みの変化だけで良いモデルとは言えません。",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "最初のウォームアップエポックは学習率ゼロです。二つ目は小さな正の値なので重みを更新できます。保存チェックポイントを初期の学習可能な重みと比較し、三百四十七個中三百四十五個のテンソルが変化しました。直径設定だけの変更では合格しません。それでも重みの変化だけで良いモデルとは言えません。"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "学習損失は約一点四九七から一点五二二へ少し上昇しました。テストセットは渡していません。テスト損失欄のゼロは予約値で、完璧な成績ではありません。これは短い動作例であり、収束、分割改善、未使用データでの精度を示しません。独立評価は学習と分けてください。",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "学習損失は約一点四九七から一点五二二へ少し上昇しました。テストセットは渡していません。テスト損失欄のゼロは予約値で、完璧な成績ではありません。これは短い動作例であり、収束、分割改善、未使用データでの精度を示しません。独立評価は学習と分けてください。"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "チェックポイントには検証ファイルに記載されたパスを使います。一般的なログが省いた二つ目のmodelsディレクトリーが含まれます。重み、設定、元データ一覧、検証記録を一緒に保存します。テンソルを安全に読めても推論結果ではありません。ダウンロードにはペアとスクリプトがあり、認証済みモデルはありません。",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "チェックポイントには検証ファイルに記載されたパスを使います。一般的なログが省いた二つ目のmodelsディレクトリーが含まれます。重み、設定、元データ一覧、検証記録を一緒に保存します。テンソルを安全に読めても推論結果ではありません。ダウンロードにはペアとスクリプトがあり、認証済みモデルはありません。"
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Applyには独立した入力フォルダー、カスタムモデル欄、ライブプレビューがあります。タブを開くだけで外部チェックポイントが選択されたり推論が走ったりはしません。リンク先の説明を読み、独立画像で評価してください。任意機能spaCR AIも未使用です。質問や回答で実際の証拠の確認を代用してはいけません。",
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Applyには独立した入力フォルダー、カスタムモデル欄、ライブプレビューがあります。タブを開くだけで外部チェックポイントが選択されたり推論が走ったりはしません。リンク先の説明を読み、独立画像で評価してください。任意機能スペーカー AIも未使用です。質問や回答で実際の証拠の確認を代用してはいけません。"
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ],
+          "speech_text": "Runを押します。Applyは、画像ごとに一つのマスクを、それらの画像の横のmasksサブフォルダーに書き出します。Verboseでは、各結果が図として表示されます。ここでは、三つのマスクに七十六個、四十八個、五十五個の細胞があります。モデルを実験全体に使う前に、そのマスクを別にラベル付けした視野と比べます。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7610,22 +7650,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination：補正モデルを推定して確認する",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "画像チャネルを選び、照明の場を推定し、その品質管理の図を確認して、保存したモデルを再利用します。",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "代表的な視野と強度チャネルを選ぶ。",
+        "照明モデルを推定して確認する。",
+        "モデルをMaskやMeasureで再利用する。"
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "取得グループごとの代表的な視野を含む、結合画像のフォルダーを使います。この例では、Measureでダウンロードしたプレートの例の十六視野を使います。保存されたどの面が強度で、どの面がラベルかを把握しておきます。",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "Measureを開き、続いてIlluminationを開いて、画像の明るさのむらを補正するモデルを推定します。",
           "focus": [
             3625,
             65,
@@ -7635,11 +7675,12 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Measureを開き、続いてIlluminationを開いて、画像の明るさのむらを補正するモデルを推定します。"
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "Sourceに、画像の配列を含むmergedフォルダーを設定します。取得データの代表的な視野を使います。この例では、一枚のプレートの十六視野を使います。",
           "focus": [
             363,
             375,
@@ -7650,121 +7691,132 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Sourceに、画像の配列を含むmergedフォルダーを設定します。取得データの代表的な視野を使います。この例では、一枚のプレートの十六視野を使います。"
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "Channelsに、補正したい保存済みの強度の面を設定します。この例ではチャネルゼロを使います。チャネルの対応を確認し、ラベルマスクの面は除きます。",
           "focus": [
             374,
             475,
             850,
             65
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Channelsに、補正したい保存済みの強度の面を設定します。この例ではチャネルゼロを使います。チャネルの対応を確認し、ラベルマスクの面は除きます。"
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "場を推定する前に、Illumination correctionをオンにします。オフのままだと、Runは補正モデルを作らずに終わります。",
           "focus": [
             1518,
             405,
             2280,
             260
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "場を推定する前に、Illumination correctionをオンにします。オフのままだと、Runは補正モデルを作らずに終わります。"
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "推定方法とその設定を選びます。多項式の例では次数を四にし、新しい場を推定するためIllumination modelは空のままにします。結果に、照明ではなく細胞に由来する構造が入っていないか確認します。",
           "focus": [
             363,
             550,
             1140,
             300
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "推定方法とその設定を選びます。多項式の例では次数を四にし、新しい場を推定するためIllumination modelは空のままにします。結果に、照明ではなく細胞に由来する構造が入っていないか確認します。"
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "取得グループごとに別々に当てはめるには、Illumination per plateをオンにします。Maximum fieldsは代表的なサンプル数にします。この例では、利用できる十六視野すべてを含めます。",
           "focus": [
             363,
             858,
             1140,
             160
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "取得グループごとに別々に当てはめるには、Illumination per plateをオンにします。Maximum fieldsは代表的なサンプル数にします。この例では、利用できる十六視野すべてを含めます。"
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "カメラのキャリブレーションがあれば、それに基づいてIllumination darkを設定します。これは生のカウントに加わるオフセットで、この例ではゼロです。",
           "focus": [
             374,
             775,
             1110,
             61
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "カメラのキャリブレーションがあれば、それに基づいてIllumination darkを設定します。これは生のカウントに加わるオフセットで、この例ではゼロです。"
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "Illumination QCをオンにし、モデルが欠けている場合の方針を選びます。errorを選ぶと、プレートの補正が欠けているときに処理が止まるので、問題を解決できます。",
           "focus": [
             363,
             1020,
             1140,
             150
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Illumination QCをオンにし、モデルが欠けている場合の方針を選びます。errorを選ぶと、プレートの補正が欠けているときに処理が止まるので、問題を解決できます。"
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "Runを押し、コンソールで保存されたモデルのパスを読みます。この手順ではモデルを推定するだけです。補正を適用するには、後の解析でモデルを有効にします。",
           "focus": [
             1518,
             405,
             2280,
             485
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Runを押し、コンソールで保存されたモデルのパスを読みます。この手順ではモデルを推定するだけです。補正を適用するには、後の解析でモデルを有効にします。"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "illuminationフォルダーに保存された、照明の品質管理のPNGを開きます。Figuresパネルに表示されない場合は、画像ビューアーを使います。",
           "focus": [
             200,
             100,
             3440,
             1920
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "illuminationフォルダーに保存された、照明の品質管理のPNGを開きます。Figuresパネルに表示されない場合は、画像ビューアーを使います。"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "推定された照明の場を確認し、明るさがなめらかに変化しているか、細胞の形をした不要な構造がないかを見ます。補正では、ダークのオフセットを引いてから、この平均が一の場で割ります。",
           "focus": [
             400,
             680,
             790,
             825
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "推定された照明の場を確認し、明るさがなめらかに変化しているか、細胞の形をした不要な構造がないかを見ます。補正では、ダークのオフセットを引いてから、この平均が一の場で割ります。"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "補正前と補正後の放射方向のプロファイルを比べます。当てはめに使った画像以外でも補正がうまく働くかを、別の視野を使って評価します。",
           "focus": [
             1270,
             680,
             1080,
             840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "補正前と補正後の放射方向のプロファイルを比べます。当てはめに使った画像以外でも補正がうまく働くかを、別の視野を使って評価します。"
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "モデルを再利用するには、そのパスを設定し、目的のMaskまたはMeasureの流れで補正を有効にします。チャネル、プレートの識別情報、設定はモデルと一緒に保管し、同じ強度を二回補正しないようにします。",
           "focus": [
             363,
             370,
@@ -7775,12 +7827,53 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "モデルを再利用するには、そのパスを設定し、目的のMaskまたはMeasureの流れで補正を有効にします。チャネル、プレートの識別情報、設定はモデルと一緒に保管し、同じ強度を二回補正しないようにします。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7791,128 +7884,181 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager：使用量を確認し、整理してアーカイブする",
+      "description": "プロジェクトの保存領域を確認し、整理の計画をプレビューして、プロジェクトをアーカイブ先に移動します。",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "プロジェクトのディスク使用量を確認する。",
+        "整理の計画を確認して適用する。",
+        "アーカイブしたプロジェクトを移動して再スキャンする。"
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "完了したspaCRのプロジェクトを使い、整理の前に独立したバックアップを取っておきます。この例では、External Masksで作ったプロジェクトのコピーを使います。",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "Helpを開き、続いてData managerを開きます。完了したプロジェクトを選び、保存領域を確認して、整理やアーカイブを計画します。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Helpを開き、続いてData managerを開きます。完了したプロジェクトを選び、保存領域を確認して、整理やアーカイブを計画します。"
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "Choose projectをクリックし、プロジェクトのルートを選びます。Usageで、ファイル、ディスク容量、登録された成果物を確認します。",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3400,
             570
-          ]
+          ],
+          "speech_text": "Choose projectをクリックし、プロジェクトのルートを選びます。Usageで、ファイル、ディスク容量、登録された成果物を確認します。"
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "Pruneを開き、対象にする成果物の種類を選びます。測定データベースやモデルの重みを残したい場合はチェックを外したままにして、Show what can be deletedをクリックします。",
           "hold_after": 0.7,
           "focus": [
             345,
             245,
             3470,
             230
-          ]
+          ],
+          "speech_text": "Pruneを開き、対象にする成果物の種類を選びます。測定データベースやモデルの重みを残したい場合はチェックを外したままにして、Show what can be deletedをクリックします。"
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "提案されたファイル、節約できる容量、復元の情報を確認します。この例では、物体の切り出し画像のフォルダーが選ばれます。削除したものを作り直せるよう、必要な入力と設定は残しておきます。",
           "hold_after": 0.7,
           "focus": [
             345,
             320,
             3450,
             160
-          ]
+          ],
+          "speech_text": "提案されたファイル、節約できる容量、復元の情報を確認します。この例では、物体の切り出し画像のフォルダーが選ばれます。削除したものを作り直せるよう、必要な入力と設定は残しておきます。"
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
-          "hold_after": 0.7
+          "narration": "Deleteをクリックすると、最終的なファイルの一覧が表示されます。削除は元に戻せないので、計画を承認する前にパスとバックアップを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "Deleteをクリックすると、最終的なファイルの一覧が表示されます。削除は元に戻せないので、計画を承認する前にパスとバックアップを確認します。"
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
-          "hold_after": 0.7
+          "narration": "ファイルを残したい場合や選択を見直したい場合は、Cancelを使います。一覧を承認すると、最終的なDeleteの操作が有効になります。",
+          "hold_after": 0.7,
+          "speech_text": "ファイルを残したい場合や選択を見直したい場合は、Cancelを使います。一覧を承認すると、最終的なDeleteの操作が有効になります。"
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "計画が正しければ、Deleteを確定します。結果で、削除されたファイルの数と回復した容量を確認します。",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             2500,
             240
-          ]
+          ],
+          "speech_text": "計画が正しければ、Deleteを確定します。結果で、削除されたファイルの数と回復した容量を確認します。"
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "更新されたUsageのスキャン結果を確認します。削除した成果物は、記録された作成手順とともに欠落として一覧に残ることがあります。必要になったら、該当するモジュールで作り直します。",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             580
-          ]
+          ],
+          "speech_text": "更新されたUsageのスキャン結果を確認します。削除した成果物は、記録された作成手順とともに欠落として一覧に残ることがあります。必要になったら、該当するモジュールで作り直します。"
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
-          "hold_after": 0.7
+          "narration": "Archiveを開き、元のプロジェクトの外にある空の出力先を選びます。Show what would moveをクリックし、両方のパスを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "Archiveを開き、元のプロジェクトの外にある空の出力先を選びます。Show what would moveをクリックし、両方のパスを確認します。"
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
-          "hold_after": 0.7
+          "narration": "Moveをクリックして、確認の内容を見ます。Archiveはプロジェクトを移動するので、必要な別のバックアップは先に取っておきます。",
+          "hold_after": 0.7,
+          "speech_text": "Moveをクリックして、確認の内容を見ます。Archiveはプロジェクトを移動するので、必要な別のバックアップは先に取っておきます。"
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
-          "hold_after": 0.7
+          "narration": "Yesで確定して、プロジェクトを移動します。移動先のマニフェストと、元の場所に残るアーカイブのログは保管しておきます。",
+          "hold_after": 0.7,
+          "speech_text": "Yesで確定して、プロジェクトを移動します。移動先のマニフェストと、元の場所に残るアーカイブのログは保管しておきます。"
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "移動先をプロジェクトとして選び、もう一度スキャンします。移動したファイルを確認し、古い場所を指したままの外部の参照を更新します。",
           "hold_after": 0.7,
           "focus": [
             345,
             80,
             3470,
             670
-          ]
+          ],
+          "speech_text": "移動先をプロジェクトとして選び、もう一度スキャンします。移動したファイルを確認し、古い場所を指したままの外部の参照を更新します。"
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "測定の表を確認するにはDatabase Browserを、プロジェクトの要約を作るにはReportを、保存領域の管理にはData Managerを使います。アーカイブの記録は、プロジェクトの文書と一緒に保管します。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "29_report"
-          ]
+          ],
+          "speech_text": "測定の表を確認するにはDatabase Browserを、プロジェクトの要約を作るにはReportを、保存領域の管理にはData Managerを使います。アーカイブの記録は、プロジェクトの文書と一緒に保管します。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7923,49 +8069,52 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser：プロジェクトを探して確認する",
+      "description": "プロジェクトのフォルダーを検索し、記録された段階を確認して、次に開くツールを見極めます。",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "検索のルートと深さを使ってプロジェクトを見つける。",
+        "成果物と記録された段階を確認する。",
+        "次に使う適切なツールを選ぶ。"
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "spaCRのプロジェクトを含むフォルダーを選びます。練習には、完了したExternal MasksとFormat Converterの例を使えます。",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "Helpを開き、続いてProject browserを開いて、プロジェクトのフォルダーを探し、記録された出力を確認します。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "37_batch"
-          ]
+          ],
+          "speech_text": "Helpを開き、続いてProject browserを開いて、プロジェクトのフォルダーを探し、記録された出力を確認します。"
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "Add folderをクリックし、検索のルートを選びます。深さがゼロならそのフォルダーだけを調べます。プロジェクトがサブフォルダーにある場合は、深さを上げます。",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             360
-          ]
+          ],
+          "speech_text": "Add folderをクリックし、検索のルートを選びます。深さがゼロならそのフォルダーだけを調べます。プロジェクトがサブフォルダーにある場合は、深さを上げます。"
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "Depthを一にしてScanをクリックすると、ルートのすぐ下にあるフォルダーも含まれます。見つかったプロジェクトの行を確認します。",
           "hold_after": 0.7,
           "focus": [
             345,
             180,
             3450,
             660
-          ]
+          ],
+          "speech_text": "Depthを一にしてScanをクリックすると、ルートのすぐ下にあるフォルダーも含まれます。見つかったプロジェクトの行を確認します。"
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "StateとStageを、ディスク上で見つかったファイルと合わせて読みます。成果物の登録がないフォルダーは、変換済みの画像を含んでいてもunknownと表示されることがあります。",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7976,33 +8125,36 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "StateとStageを、ディスク上で見つかったファイルと合わせて読みます。成果物の登録がないフォルダーは、変換済みの画像を含んでいてもunknownと表示されることがあります。"
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "ほかのプロジェクトも含めるには、検索のルートを追加します。行を選ぶと、その内容を確認できます。再スキャン後に詳細が空白の場合は、別の行を選んでから戻ります。",
           "hold_after": 0.7,
           "focus": [
             345,
             225,
             3450,
             260
-          ]
+          ],
+          "speech_text": "ほかのプロジェクトも含めるには、検索のルートを追加します。行を選ぶと、その内容を確認できます。再スキャン後に詳細が空白の場合は、別の行を選んでから戻ります。"
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "区切り線をドラッグして、詳細の表示を広げます。登録された成果物、登録されていないファイル、最終実行のタイムスタンプの出どころを確認します。",
           "hold_after": 0.7,
           "focus": [
             2020,
             300,
             1790,
             260
-          ]
+          ],
+          "speech_text": "区切り線をドラッグして、詳細の表示を広げます。登録された成果物、登録されていないファイル、最終実行のタイムスタンプの出どころを確認します。"
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "Stagesを開いて、想定される出力のうちどれがあるかを確認します。What could run nextを使って適切な処理の流れを選び、そのモジュールに必要な入力を確認します。",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -8012,50 +8164,95 @@
           ],
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Stagesを開いて、想定される出力のうちどれがあるかを確認します。What could run nextを使って適切な処理の流れを選び、そのモジュールに必要な入力を確認します。"
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "Sizeなどの列見出しをクリックすると、プロジェクトが並べ替えられます。もう一度クリックすると、順序が逆になります。",
           "hold_after": 0.7,
           "focus": [
             345,
             300,
             1680,
             170
-          ]
+          ],
+          "speech_text": "Sizeなどの列見出しをクリックすると、プロジェクトが並べ替えられます。もう一度クリックすると、順序が逆になります。"
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "検索を狭めたり広げたりしたいときは、Depthを調整して再スキャンします。直接選んだプロジェクトは、深さゼロでも見つかります。",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3450,
             340
-          ]
+          ],
+          "speech_text": "検索を狭めたり広げたりしたいときは、Depthを調整して再スキャンします。直接選んだプロジェクトは、深さゼロでも見つかります。"
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
-          "hold_after": 0.7
+          "narration": "ルートを選んでRemoveをクリックすると、そこでの検索をやめます。検索場所が一覧から消えるだけで、ファイルはディスクに残ります。",
+          "hold_after": 0.7,
+          "speech_text": "ルートを選んでRemoveをクリックすると、そこでの検索をやめます。検索場所が一覧から消えるだけで、ファイルはディスクに残ります。"
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "ジョブの記録はRun Historyで、測定値はDatabase Browserで、整理とアーカイブはData Managerで確認します。解析を続けるには、該当するモジュールのチュートリアルを使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "34_database",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "ジョブの記録はRun Historyで、測定値はDatabase Browserで、整理とアーカイブはData Managerで確認します。解析を続けるには、該当するモジュールのチュートリアルを使います。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8063,25 +8260,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge：ラベルマスクを編集して戻す",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "napariで画像とマスクを開き、ラベルを編集して、修正したマスクをspaCRに保存し直します。",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "対応する画像とラベルのファイルを開く。",
+        "napariで変更を加え、取り消す。",
+        "保存したマスクを戻して確認する。"
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "オプションのnapariの依存関係をインストールし、合成データの例を新しいフォルダーに展開します。手を付けないバックアップを残しておきます。Take the mask backは、選んだ作業用のマスクを上書きします。保存した編集の回と回の間では、ビューアーを閉じて開き直します。",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "Make Masksを開き、続いてNapari Bridgeを開きます。強度画像を参照しながら、既存のラベルマスクを編集するのに使います。マスクの手を付けないバックアップを残しておきます。",
           "focus": [
             460,
             235,
@@ -8091,70 +8288,78 @@
           "related_lessons": [
             "14_make_masks"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Make Masksを開き、続いてNapari Bridgeを開きます。強度画像を参照しながら、既存のラベルマスクを編集するのに使います。マスクの手を付けないバックアップを残しておきます。"
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "合成データの例をダウンロードして展開します。Maskにmask ドット tifを、Imageにimage ドット tifを選び、Open in napariを押します。",
           "focus": [
             460,
             365,
             3350,
             370
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "合成データの例をダウンロードして展開します。Maskにmask ドット tifを、Imageにimage ドット tifを選び、Open in napariを押します。"
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
-          "hold_after": 0.7
+          "narration": "napariで、マスクのLabelsレイヤーを選びます。ラベルゼロは背景で、各物体のラベルには表示用の色があります。編集はラベルのレイヤーで行います。",
+          "hold_after": 0.7,
+          "speech_text": "napariで、マスクのLabelsレイヤーを選びます。ラベルゼロは背景で、各物体のラベルには表示用の色があります。編集はラベルのレイヤーで行います。"
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "spaCRに戻り、Take the mask backを使って、ビューアーの現在のラベルを取り込みます。変更していない場合は、マスクが変わっていないことが状態に表示されます。",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "スペーカーに戻り、Take the mask backを使って、ビューアーの現在のラベルを取り込みます。変更していない場合は、マスクが変わっていないことが状態に表示されます。"
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
-          "hold_after": 0.7
+          "narration": "練習として、ラベル十八を選び、Fillを選んで、ラベル二の物体をクリックします。取り込む前に、変わったラベルを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "練習として、ラベル十八を選び、Fillを選んで、ラベル二の物体をクリックします。取り込む前に、変わったラベルを確認します。"
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
-          "hold_after": 0.7
+          "narration": "Undoで、ビューアーでの最後の編集を元に戻します。変更を残す準備ができたら、もう一度Fillを行います。",
+          "hold_after": 0.7,
+          "speech_text": "Undoで、ビューアーでの最後の編集を元に戻します。変更を残す準備ができたら、もう一度Fillを行います。"
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "spaCRでTake the mask backをクリックします。変更されたピクセル数を確認し、保存されたマスクと、その修正履歴の付属ファイルを確認します。",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "スペーカーでTake the mask backをクリックします。変更されたピクセル数を確認し、保存されたマスクと、その修正履歴の付属ファイルを確認します。"
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "次の編集の回の前に、Close viewerをクリックしてマスクを開き直します。これで、保存したマスクがその後の修正の出発点になります。",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "次の編集の回の前に、Close viewerをクリックしてマスクを開き直します。これで、保存したマスクがその後の修正の出発点になります。"
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "次の編集の後、マスクを戻して、もう一度結果を確認します。終わったらビューアーを閉じ、修正履歴を残し、変わったラベルの影響を受ける測定をやり直します。",
           "focus": [
             460,
             445,
@@ -8165,12 +8370,53 @@
             "08_measure",
             "06_api"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "次の編集の後、マスクを戻して、もう一度結果を確認します。終わったらビューアーを閉じ、修正履歴を残し、変わったラベルの影響を受ける測定をやり直します。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8178,86 +8424,137 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC：リードの深さを確認してカットオフを選ぶ",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "マッピング済みのカウントを読み込み、ウェルとガイドのカバレッジを確認して、存在量のしきい値を比べます。",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "カウントの入力と品質管理の設定を選ぶ。",
+        "カバレッジと位置の影響を確認する。",
+        "しきい値を比べ、得られた表とプロットを保管する。"
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "Regressionのチュートリアルでダウンロードした例のスクリーニングデータのplate_1_unique_combinations.csvか、自分のマッピング済みのカウント表を使います。新しい出力フォルダーを選びます。マッピングされなかったリードや想定したライブラリーに依存するチェックが必要な場合は、マッピングの品質管理ファイルとバーコードの参照ファイルを用意します。",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "Map Barcodesを開き、続いてBarcode QCを開きます。マッピング済みのカウント表から始めます。練習用には、リンク先のRegressionの例に一つ用意されています。",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Map Barcodesを開き、続いてBarcode QCを開きます。マッピング済みのカウント表から始めます。練習用には、リンク先のRegressionの例に一つ用意されています。"
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
-          "hold_after": 0.7
+          "narration": "Count dataにカウント表を設定し、新しい出力先を選びます。この例には、三百八十四ウェルにわたるマッピング済みのリードがあります。",
+          "hold_after": 0.7,
+          "speech_text": "Count dataにカウント表を設定し、新しい出力先を選びます。この例には、三百八十四ウェルにわたるマッピング済みのリードがあります。"
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
-          "hold_after": 0.7
+          "narration": "実験デザインに基づいてTarget gRNAs per wellを設定し、カットオフを求めるための要約の方法を選びます。この例では五とmedianを使います。",
+          "hold_after": 0.7,
+          "speech_text": "実験デザインに基づいてTarget gRNAs per wellを設定し、カットオフを求めるための要約の方法を選びます。この例では五とmedianを使います。"
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
-          "hold_after": 0.7
+          "narration": "Starved read fractionを設定して、プレートの中央値に比べてリードの少ないウェルに印を付けます。この例ではゼロ点一を使います。除外する前に、印が付いたウェルを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "Starved read fractionを設定して、プレートの中央値に比べてリードの少ないウェルに印を付けます。この例ではゼロ点一を使います。除外する前に、印が付いたウェルを確認します。"
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
-          "hold_after": 0.7
+          "narration": "PlotとSaveをオンにしてRunを押します。対応するチェックが必要なら、マッピングの品質管理や参照の入力を加えます。カウント表だけでは、観測されたマッピング済みのリードしかわかりません。",
+          "hold_after": 0.7,
+          "speech_text": "PlotとSaveをオンにしてRunを押します。対応するチェックが必要なら、マッピングの品質管理や参照の入力を加えます。カウント表だけでは、観測されたマッピング済みのリードしかわかりません。"
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
-          "hold_after": 0.7
+          "narration": "完了のログと、保存された出力パスを読みます。結果を使う前に、エラーを選んだ入力と照らし合わせて調べます。",
+          "hold_after": 0.7,
+          "speech_text": "完了のログと、保存された出力パスを読みます。結果を使う前に、エラーを選んだ入力と照らし合わせて調べます。"
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
-          "hold_after": 0.7
+          "narration": "出力フォルダーから、barcode QC ドット PNGとthreshold sweep ドット PNGを開きます。Figuresパネルが空の場合は、画像ビューアーを使います。",
+          "hold_after": 0.7,
+          "speech_text": "出力フォルダーから、barcode QC ドット PNGとthreshold sweep ドット PNGを開きます。Figuresパネルが空の場合は、画像ビューアーを使います。"
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
-          "hold_after": 0.7
+          "narration": "リードの深さ、行と列の影響、ガイドの出現状況を確認します。想定したガイドがまったく見つからないものを特定したいときは、参照ライブラリーと比べます。",
+          "hold_after": 0.7,
+          "speech_text": "リードの深さ、行と列の影響、ガイドの出現状況を確認します。想定したガイドがまったく見つからないものを特定したいときは、参照ライブラリーと比べます。"
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
-          "hold_after": 0.7
+          "narration": "しきい値のスイープを確認します。この例では、各ウェルのリードのおよそ一点二一パーセントをカットオフにすると、ガイド数の中央値が五になり、マッピング済みのリードのおよそ五十八パーセントが残ります。",
+          "hold_after": 0.7,
+          "speech_text": "しきい値のスイープを確認します。この例では、各ウェルのリードのおよそ一点二一パーセントをカットオフにすると、ガイド数の中央値が五になり、マッピング済みのリードのおよそ五十八パーセントが残ります。"
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
-          "hold_after": 0.7
+          "narration": "カットオフを変えたときの、残るリード、残るウェル、ガイドの目標を上回るウェルを比べます。実験デザインに合ったカットオフを選びます。ガイドの目標を満たしても、単一のガイドに帰属できるとは限りません。",
+          "hold_after": 0.7,
+          "speech_text": "カットオフを変えたときの、残るリード、残るウェル、ガイドの目標を上回るウェルを比べます。実験デザインに合ったカットオフを選びます。ガイドの目標を満たしても、単一のガイドに帰属できるとは限りません。"
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "推奨値、スイープの表、プロット、設定は、元のカウントと一緒に保管します。選んだカットオフはその後の解析で一貫して使い、選んだ理由を記録しておきます。",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "推奨値、スイープの表、プロット、設定は、元のカウントと一緒に保管します。選んだカットオフはその後の解析で一貫して使い、選んだ理由を記録しておきます。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8265,7 +8562,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List：候補を絞り込んで短いリストを書き出す",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -8273,80 +8570,131 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "Regressionの結果を読み込み、q値、ガイド数、一致度で絞り込んで、選んだ候補を書き出します。",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "付属の補助スクリプトで、例のRegressionの結果を開く。",
+        "候補を絞り込み、その効果とガイドの一致度を読む。",
+        "選んだ行をCSV、Markdown、HTMLで書き出す。"
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCRの環境を有効にします。現在のRegressionのHitsのショートカットではパネルが表示されないので、代わりにpython hit_list_companion.pyを実行し、Browseで展開した結果フォルダーを選びます。補助スクリプトはInvestigateとは連携しません。裏付けとなるウェル数には、results_gene.csvのwells_with_geneを使います。書き出されたn_obs=0は実際の裏付けではありません。この例には、q <= 0.05を満たす遺伝子はありません。",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "HomeからRegressionを開き、Hitsを選びます。パネルが表示されないままの場合は、このレッスンに付属の補助スクリプトでHit Listを開きます。",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "ホームからRegressionを開き、Hitsを選びます。パネルが表示されないままの場合は、このレッスンに付属の補助スクリプトでHit Listを開きます。"
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
-          "hold_after": 0.7
+          "narration": "リンク先の例を展開し、spaCRの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "リンク先の例を展開し、スペーカーの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
-          "hold_after": 0.7
+          "narration": "この例では三百二十五の遺伝子が読み込まれます。列を広げて、効果、P、q、ガイドの一致度を読みます。効果は標準化した周辺効果です。裏付けとなるウェル数は、results_gene.csvのwells_with_geneで確認します。書き出された観測数ゼロは、裏付けが利用できないことを示します。",
+          "hold_after": 0.7,
+          "speech_text": "この例では三百二十五の遺伝子が読み込まれます。列を広げて、効果、P、q、ガイドの一致度を読みます。効果は標準化した周辺効果です。裏付けとなるウェル数は、results_gene.csvのwells_with_geneで確認します。書き出された観測数ゼロは、裏付けが利用できないことを示します。"
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
-          "hold_after": 0.7
+          "narration": "Max qをゼロ点ゼロ五にします。この例ではこれを満たす遺伝子がないので、表は空になります。すべての候補を見るには、Max qを一に戻します。",
+          "hold_after": 0.7,
+          "speech_text": "Max qをゼロ点ゼロ五にします。この例ではこれを満たす遺伝子がないので、表は空になります。すべての候補を見るには、Max qを一に戻します。"
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
-          "hold_after": 0.7
+          "narration": "Minimum guidesを二にします。検定されたガイドの行が二つ以上ある、百十七の遺伝子が残ります。このフィルターでは元のq値はそのままです。",
+          "hold_after": 0.7,
+          "speech_text": "Minimum guidesを二にします。検定されたガイドの行が二つ以上ある、百十七の遺伝子が残ります。このフィルターでは元のq値はそのままです。"
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
-          "hold_after": 0.7
+          "narration": "Minimum agreementを一にします。検定されたガイドがすべて遺伝子の効果と同じ符号をもつ、五十七の候補が残ります。一致度はqと合わせて読みます。これらの候補も、有意性のしきい値は満たしていません。",
+          "hold_after": 0.7,
+          "speech_text": "Minimum agreementを一にします。検定されたガイドがすべて遺伝子の効果と同じ符号をもつ、五十七の候補が残ります。一致度はqと合わせて読みます。これらの候補も、有意性のしきい値は満たしていません。"
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
-          "hold_after": 0.7
+          "narration": "Hide controlsをオンにすると、この表示から対照の行が除かれ、候補は五十六になります。後で書き出すときにその行を含めるには、もう一度オフにします。",
+          "hold_after": 0.7,
+          "speech_text": "Hide controlsをオンにすると、この表示から対照の行が除かれ、候補は五十六になります。後で書き出すときにその行を含めるには、もう一度オフにします。"
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
-          "hold_after": 0.7
+          "narration": "ほかのフィルターを消し、Direction upを選び、Minimum absolute effectをゼロ点一にします。十六行が残ります。自分の解析に合ったしきい値を選び、次の手順の前にこれらの設定を元に戻します。",
+          "hold_after": 0.7,
+          "speech_text": "ほかのフィルターを消し、Direction upを選び、Minimum absolute effectをゼロ点一にします。十六行が残ります。自分の解析に合ったしきい値を選び、次の手順の前にこれらの設定を元に戻します。"
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
-          "hold_after": 0.7
+          "narration": "Searchに識別子を入力すると、その行が見つかります。一致しない検索では表が空になります。Searchを消すと、現在の絞り込み結果に戻ります。",
+          "hold_after": 0.7,
+          "speech_text": "Searchに識別子を入力すると、その行が見つかります。一致しない検索では表が空になります。Searchを消すと、現在の絞り込み結果に戻ります。"
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
-          "hold_after": 0.7
+          "narration": "書き出しには、ガイド二つ、完全な一致、対照を含む、検索は空、と設定します。選ばれた五十七行を、CSV、Markdown、HTMLのいずれかで書き出します。CSVでは数値の細かさが保たれます。フィルターの選択はファイルと一緒に保存します。",
+          "hold_after": 0.7,
+          "speech_text": "書き出しには、ガイド二つ、完全な一致、対照を含む、検索は空、と設定します。選ばれた五十七行を、CSV、Markdown、HTMLのいずれかで書き出します。CSVでは数値の細かさが保たれます。フィルターの選択はファイルと一緒に保存します。"
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "フィルターを消すと、三百二十五の遺伝子すべてに戻ります。短いリストの書き出しは、元の結果とは分けて保管します。Pythonでは、build_hit_listを使い、次にfilterと、CSV、Markdown、HTMLの書き出し関数を使います。各形式の行数の上限を確認してください。",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "フィルターを消すと、三百二十五の遺伝子すべてに戻ります。短いリストの書き出しは、元の結果とは分けて保管します。Pythonでは、build_hit_listを使い、次にfilterと、CSV、Markdown、HTMLの書き出し関数を使います。各形式の行数の上限を確認してください。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8354,95 +8702,103 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results：実行レポートの下書きを作って書き出す",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "完了した実行を選び、レポートを作成し、記録された設定と結果を確認して、Markdownで書き出します。",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "プロジェクト、実行ジャーナル、対応する結果フォルダーを選ぶ。",
+        "ダイジェストを作成し、Methods、Results、Caveatsのタブを確認する。",
+        "レポートの文章をコピーするか、実行ダイジェスト付きのMarkdownを書き出す。"
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "先にRegressionの例を完了します。そのプロジェクトのフォルダー、実行ジャーナル、guide_permutationの結果は一緒にしておきます。生成された文章をレポートに使う前に、推定された設定、解析のバージョン、統計的なしきい値を確認します。",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "HomeからRegressionを開き、続いてMethods and Resultsを開きます。完了した解析からレポートの下書きを作るのに使います。このチュートリアルは、Regressionの例で保存した実行の続きです。",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "ホームからRegressionを開き、続いてMethods and Resultsを開きます。完了した解析からレポートの下書きを作るのに使います。このチュートリアルは、Regressionの例で保存した実行の続きです。"
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "プロジェクトのフォルダー、実行ジャーナル、対応する回帰の結果フォルダーを選びます。この回帰の例では、Classifierは空のままにします。選んだファイルがすべて、説明したい実行のものであることを確認します。",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "プロジェクトのフォルダー、実行ジャーナル、対応する回帰の結果フォルダーを選びます。この回帰の例では、Classifierは空のままにします。選んだファイルがすべて、説明したい実行のものであることを確認します。"
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
-          "hold_after": 0.7
+          "narration": "Build digestをクリックし、MethodsとResultsのタブを読みます。解析のバージョンを、保存された実行環境と照らし合わせます。書き出し側のバージョンは、解析を行ったバージョンと異なることがあります。",
+          "hold_after": 0.7,
+          "speech_text": "Build digestをクリックし、MethodsとResultsのタブを読みます。解析のバージョンを、保存された実行環境と照らし合わせます。書き出し側のバージョンは、解析を行ったバージョンと異なることがあります。"
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "Caveatsを読み、シードの項目を名前で保存された設定と比べます。並べ替えのシードと全体のシードは、別々の乱数生成器を指します。記録されていない過去のシードは、レポートを編集するときも不明のままにします。",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Caveatsを読み、シードの項目を名前で保存された設定と比べます。並べ替えのシードと全体のシードは、別々の乱数生成器を指します。記録されていない過去のシードは、レポートを編集するときも不明のままにします。"
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "Run digestを開いて、構造化された設定と元の記録を確認します。それらを文章と比べ、下書きを共有する前に、欠けているレポートや推定された既定値についての警告を確認します。",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Run digestを開いて、構造化された設定と元の記録を確認します。それらを文章と比べ、下書きを共有する前に、欠けているレポートや推定された既定値についての警告を確認します。"
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "Resultsでは、効果量と補正後のq値を合わせて確認します。この例では、q値のしきい値ゼロ点ゼロ五を下回る遺伝子はありません。見出しでこれらの行をhitsと呼んでいる場合は、編集するときに順位付けされた候補として説明します。",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Resultsでは、効果量と補正後のq値を合わせて確認します。この例では、q値のしきい値ゼロ点ゼロ五を下回る遺伝子はありません。見出しでこれらの行をhitsと呼んでいる場合は、編集するときに順位付けされた候補として説明します。"
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
-          "hold_after": 0.7
+          "narration": "Copy sectionsをクリックすると、表示されているMethodsとResultsがコピーされます。コピーした文章を元の記録と照らし合わせます。構造化された実行ダイジェストも必要な場合は、Export Markdownを使います。",
+          "hold_after": 0.7,
+          "speech_text": "Copy sectionsをクリックすると、表示されているMethodsとResultsがコピーされます。コピーした文章を元の記録と照らし合わせます。構造化された実行ダイジェストも必要な場合は、Export Markdownを使います。"
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "Export Markdownをクリックし、新しいファイル名を選びます。ファイルには、レポートの二つのセクションと、付録としての実行ダイジェストが含まれます。元の下書きは残し、確認した修正版は別に保存します。",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Export Markdownをクリックし、新しいファイル名を選びます。ファイルには、レポートの二つのセクションと、付録としての実行ダイジェストが含まれます。元の下書きは残し、確認した修正版は別に保存します。"
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AIは任意の機能で、ダイジェストを設定したプロバイダーに送ります。この機能を使う前に内容を確認し、生成された文章は保存された解析と照らし合わせます。Pythonからbuild_digest、render_methods、render_resultsを使うこともできます。",
           "focus": [
             355,
             560,
@@ -8453,12 +8809,53 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Draft with AIは任意の機能で、ダイジェストを設定したプロバイダーに送ります。この機能を使う前に内容を確認し、生成された文章は保存された解析と照らし合わせます。Pythonからbuild_digest、render_methods、render_resultsを使うこともできます。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8466,24 +8863,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare：保存した実行を比べる",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "保存された二つの実行を選び、設定と数の違いを確認して、利用できる結果の比較を確かめます。",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "基準となる実行と比較する実行を選ぶ。",
+        "設定と数の違いを確認する。",
+        "利用できる結果の比較を見つける。"
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "リンク先のスナップショットをダウンロードして展開します。付属のREADMEに従い、spaCRの環境で新しい出力先フォルダーを指定してprepare_run_compare_download.pyを実行します。自分で比較する場合は、各実行の出力が上書きされる前に保存しておきます。",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "HomeのDataカテゴリーからRun Compareを開き、二つの実行について記録された出力を確認します。",
           "focus_modules": [
             "run_compare"
           ],
@@ -8491,54 +8888,60 @@
             "08_measure",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "ホームのDataカテゴリーからRun Compareを開き、二つの実行について記録された出力を確認します。"
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
-          "hold_after": 0.7
+          "narration": "スナップショットの例をダウンロードして展開します。READMEに従い、新しい出力先フォルダーを指定して準備用のスクリプトを実行します。",
+          "hold_after": 0.7,
+          "speech_text": "スナップショットの例をダウンロードして展開します。READMEに従い、新しい出力先フォルダーを指定して準備用のスクリプトを実行します。"
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
-          "hold_after": 0.7
+          "narration": "Browseをクリックし、準備した比較用フォルダーを選びます。自分で比較するときのために、元のプロジェクトとその実行のスナップショットは使える状態にしておきます。",
+          "hold_after": 0.7,
+          "speech_text": "Browseをクリックし、準備した比較用フォルダーを選びます。自分で比較するときのために、元のプロジェクトとその実行のスナップショットは使える状態にしておきます。"
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "基準となる実行をA、比較する実行をBとして選び、Compareをクリックします。それぞれのモジュール名と記録されたバージョンを確認します。",
           "focus": [
             350,
             235,
             3450,
             190
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "基準となる実行をA、比較する実行をBとして選び、Compareをクリックします。それぞれのモジュール名と記録されたバージョンを確認します。"
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "Show unchanged settingsをオンにすると、一致する値も表示されます。項目を展開して、各実行で使われた設定を確認します。",
           "focus": [
             350,
             360,
             2300,
             1400
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Show unchanged settingsをオンにすると、一致する値も表示されます。項目を展開して、各実行で使われた設定を確認します。"
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "Countsを開いて、物体の合計数を比べます。DeltaはBからAを引いた値です。この例では数が一致しています。違いの理由を知りたいときは、該当する画像と測定値を確認します。",
           "focus": [
             350,
             425,
             1250,
             720
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Countsを開いて、物体の合計数を比べます。DeltaはBからAを引いた値です。この例では数が一致しています。違いの理由を知りたいときは、該当する画像と測定値を確認します。"
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "両方の実行に回帰の結果が登録されている場合は、Hitsを開きます。この例はMeasureのスナップショットなので、hitsの比較はありません。",
           "focus": [
             350,
             405,
@@ -8549,32 +8952,75 @@
             "13_regression",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "両方の実行に回帰の結果が登録されている場合は、Hitsを開きます。この例はMeasureのスナップショットなので、hitsの比較はありません。"
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "異なる二つの実行を選びます。両側で同じ実行が選ばれている場合は、警告を見て選択を直します。",
           "focus": [
             350,
             235,
             3450,
             220
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "異なる二つの実行を選びます。両側で同じ実行が選ばれている場合は、警告を見て選択を直します。"
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "二つの出力のスナップショットと、その違いを説明する設定は保管しておきます。個々のログにはRun Historyを、元になるhitsの結果にはRegressionを使います。",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "二つの出力のスナップショットと、その違いを説明する設定は保管しておきます。個々のログにはRun Historyを、元になるhitsの結果にはRegressionを使います。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8586,113 +9032,123 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts：プレート間で対照を監視する",
+      "description": "キャンペーンの表を読み込み、対照と基準の限界を選び、アラートを確認して、プロットした点を書き出します。",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "測定項目と対照の集団を選ぶ。",
+        "基準期間とアラートのルールを設定する。",
+        "アラートを確認し、チャートの点を書き出す。"
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "下の合成データのキャンペーンCSVをダウンロードするか、プレートの識別情報、実行順、測定値、対照のラベルを含むウェル単位の表を用意します。この例では、意図的なドリフトを含む三十枚のプレートを示します。",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "QCを開き、続いてControl Chartsを開いて、キャンペーン全体で繰り返し測った対照を監視します。練習用のCSVは合成データのプレートで、意図的なドリフトが入っています。",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "QCを開き、続いてControl Chartsを開いて、キャンペーン全体で繰り返し測った対照を監視します。練習用のCSVは合成データのプレートで、意図的なドリフトが入っています。"
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "下の例のCSVをダウンロードし、Load tableをクリックして選びます。三十枚のプレートがあり、それぞれに対照の種類ごとに三ウェルと、サンプルが三ウェルあります。",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "下の例のCSVをダウンロードし、Load tableをクリックして選びます。三十枚のプレートがあり、それぞれに対照の種類ごとに三ウェルと、サンプルが三ウェルあります。"
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "Plate、Run order、Measurement、Control columnを表の列に対応させます。Control isでは、陰性対照としてnegを選びます。何も選ばないと、すべての行が含まれます。",
           "hold_after": 0.7,
           "focus": [
             290,
             460,
             740,
             700
-          ]
+          ],
+          "speech_text": "Plate、Run order、Measurement、Control columnを表の列に対応させます。Control isでは、陰性対照としてnegを選びます。何も選ばないと、すべての行が含まれます。"
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "Sigma fromで、ばらつきの推定方法を選びます。ここでは各プレートに選んだ対照ウェルが三つあるので、Autoはサブグループによる推定を使います。",
           "hold_after": 0.7,
           "focus": [
             290,
             980,
             1760,
             600
-          ]
+          ],
+          "speech_text": "Sigma fromで、ばらつきの推定方法を選びます。ここでは各プレートに選んだ対照ウェルが三つあるので、Autoはサブグループによる推定を使います。"
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "Rulesで、確認したいアラートを選びます。この例では、三シグマの限界を外れた点に注目するため、Limits onlyを使います。設定を変えると、チャートが描き直されます。",
           "hold_after": 0.7,
           "focus": [
             290,
             1160,
             1900,
             450
-          ]
+          ],
+          "speech_text": "Rulesで、確認したいアラートを選びます。この例では、三シグマの限界を外れた点に注目するため、Limits onlyを使います。設定を変えると、チャートが描き直されます。"
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "Baseline platesを二十にします。最初の二十枚のプレートで、系列の限界が決まります。レポートとルールの表を読み、印の付いた後のプレートを見つけます。",
           "hold_after": 0.7,
           "focus": [
             1010,
             450,
             2790,
             1600
-          ]
+          ],
+          "speech_text": "Baseline platesを二十にします。最初の二十枚のプレートで、系列の限界が決まります。レポートとルールの表を読み、印の付いた後のプレートを見つけます。"
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
-          "hold_after": 0.7
+          "narration": "陽性対照を確認するには、negを外してposを選びます。平均と限界を別々に確認し、例を続けるにはnegに戻します。",
+          "hold_after": 0.7,
+          "speech_text": "陽性対照を確認するには、negを外してposを選びます。平均と限界を別々に確認し、例を続けるにはnegに戻します。"
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "予定している基準期間が異なる場合は、Baseline platesを調整します。このツールには少なくとも八枚のプレートが必要です。アッセイに合った安定した基準を選びます。",
           "hold_after": 0.7,
           "focus": [
             295,
             1400,
             2600,
             375
-          ]
+          ],
+          "speech_text": "予定している基準期間が異なる場合は、Baseline platesを調整します。このツールには少なくとも八枚のプレートが必要です。アッセイに合った安定した基準を選びます。"
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "Export pointsをクリックし、CSVの保存先を選びます。プレートの識別情報、平均、サブグループの大きさ、限界、基準への所属、発動したルールが保存されます。",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "Export pointsをクリックし、CSVの保存先を選びます。プレートの識別情報、平均、サブグループの大きさ、限界、基準への所属、発動したルールが保存されます。"
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "入力のCSV、選んだ対照、基準の設定は、書き出した点と一緒に保管します。印の付いたプレートの識別情報を使って、取得やアッセイの変化を調べます。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "入力のCSV、選んだ対照、基準の設定は、書き出した点と一緒に保管します。印の付いたプレートの識別情報を使って、取得やアッセイの変化を調べます。"
         }
       ],
       "example_files": [
@@ -8701,6 +9157,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8711,27 +9207,28 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph：出力と依存関係を確認する",
+      "description": "プロジェクトの成果物グラフを開き、欠けている出力を確認して、依存関係の図をコピーします。",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "プロジェクトの成果物グラフを開く。",
+        "パス、状態、依存関係を確認する。",
+        "図をコピーし、記録を更新する。"
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "出力が登録されたspaCRのプロジェクトを選びます。External Masksの例には測定値と切り出し画像があります。削除した成果物がどう表示されるかは、Data Managerのレッスンで説明しています。",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "Helpを開き、続いてPipeline graphを開いて、プロジェクトに記録された出力と依存関係を確認します。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "Helpを開き、続いてPipeline graphを開いて、プロジェクトに記録された出力と依存関係を確認します。"
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "Browseでプロジェクトのフォルダーを選びます。グラフが空の場合は、そのフォルダーに登録された成果物があるか確認します。登録の記録がなくてもファイルが存在することはあります。",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8742,111 +9239,161 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "Browseでプロジェクトのフォルダーを選びます。グラフが空の場合は、そのフォルダーに登録された成果物があるか確認します。登録の記録がなくてもファイルが存在することはあります。"
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "測定済みのプロジェクトを選ぶと、成果物のボックスが表示されます。この例には、測定値、切り出し画像、リソースのログがあり、削除した切り出し画像のフォルダーは欠落として表示されます。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "測定済みのプロジェクトを選ぶと、成果物のボックスが表示されます。この例には、測定値、切り出し画像、リソースのログがあり、削除した切り出し画像のフォルダーは欠落として表示されます。"
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "成果物をクリックし、区切り線で詳細の表示を広げます。パス、役割、実行の識別子、作成時刻、ソフトウェアのバージョンを確認します。",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "成果物をクリックし、区切り線で詳細の表示を広げます。パス、役割、実行の識別子、作成時刻、ソフトウェアのバージョンを確認します。"
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "Missingの成果物を選ぶと、記録されたパスがわかります。表示されるサイズは保存された記録のものなので、見つからないファイルを調べるときは実際の場所を確認します。",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "Missingの成果物を選ぶと、記録されたパスがわかります。表示されるサイズは保存された記録のものなので、見つからないファイルを調べるときは実際の場所を確認します。"
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "記録されている場合は、入力と下流へのつながりを確認します。リソースのログなど、プロジェクトのフォルダーの外にある成果物もあります。",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "記録されている場合は、入力と下流へのつながりを確認します。リソースのログなど、プロジェクトのフォルダーの外にある成果物もあります。"
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "Current、Stale、Missingで、表示する成果物の状態を選びます。たとえば、欠けている出力に注目するにはCurrentを非表示にします。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "Current、Stale、Missingで、表示する成果物の状態を選びます。たとえば、欠けている出力に注目するにはCurrentを非表示にします。"
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "ボックスが一つも表示されない場合は、表示のフィルターと成果物の総数を確認します。確認したい状態を表示に戻します。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "ボックスが一つも表示されない場合は、表示のフィルターと成果物の総数を確認します。確認したい状態を表示に戻します。"
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "Copy Graphvizをクリックすると、フィルターで隠れたノードも含めて、図全体がDOTのテキストとしてコピーされます。Graphvizのツールに貼り付けると、描画したり保存したりできます。",
           "hold_after": 0.7,
           "focus": [
             345,
             230,
             3450,
             200
-          ]
+          ],
+          "speech_text": "Copy Graphvizをクリックすると、フィルターで隠れたノードも含めて、図全体がDOTのテキストとしてコピーされます。Graphvizのツールに貼り付けると、描画したり保存したりできます。"
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "目的のフィルターに戻し、もう一度成果物を選んで詳細を確認します。記録されたパスと上流の処理から、対応が必要なものを判断します。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "目的のフィルターに戻し、もう一度成果物を選んで詳細を確認します。記録されたパスと上流の処理から、対応が必要なものを判断します。"
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "プロジェクトを変更した後は、Redrawをクリックして登録情報を読み直します。保存された設定とログはRun Historyで、整理とアーカイブはData Managerで行います。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "44_data_manager",
             "45_project_browser"
-          ]
+          ],
+          "speech_text": "プロジェクトを変更した後は、Redrawをクリックして登録情報を読み直します。保存された設定とログはRun Historyで、整理とアーカイブはData Managerで行います。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9001,56 +9548,61 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC：プロジェクトの品質レポートを確認する",
+      "description": "プロジェクトを選び、利用できる品質レポートを読み、警告を調べて、ダッシュボードを更新します。",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "確認したいプロジェクトまたは実行を選ぶ。",
+        "利用できるレポート、欠けているレポート、古くなったレポートを読む。",
+        "指摘を調べ、表示を更新する。"
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "品質レポートが保存されたプロジェクトを使います。ダウンロードしたMaskとAnnotateの例では、レポートの種類が異なります。確認したいプロジェクトまたは実行フォルダーを具体的に選んでください。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
-          "hold_after": 0.7
+          "narration": "HomeのDataカテゴリーからQCを開き、プロジェクトと一緒に保存された品質レポートを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "ホームのDataカテゴリーからQCを開き、プロジェクトと一緒に保存された品質レポートを確認します。"
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "ヘッダーからは、Layer Viewer、Control Charts、Outliersを開けます。ダッシュボードの指摘をさらに調べる必要があるときは、それぞれのチュートリアルを使います。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "ヘッダーからは、Layer Viewer、Control Charts、Outliersを開けます。ダッシュボードの指摘をさらに調べる必要があるときは、それぞれのチュートリアルを使います。"
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "Browseをクリックし、プロジェクトのフォルダーを選びます。評価したい実行のレポートが入ったフォルダーを選びます。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Browseをクリックし、プロジェクトのフォルダーを選びます。評価したい実行のレポートが入ったフォルダーを選びます。"
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
-          "hold_after": 0.7
+          "narration": "Missingは、そのチェックのレポートが利用できないことを意味します。結論を出す前に、案内に従って必要なレポートを用意します。",
+          "hold_after": 0.7,
+          "speech_text": "Missingは、そのチェックのレポートが利用できないことを意味します。結論を出す前に、案内に従って必要なレポートを用意します。"
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "実行の出力が親のプロジェクトと分かれている場合は、その実行のサブフォルダーを選びます。表示されている範囲が、確認したいデータと一致しているか確かめます。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "speech_text": "実行の出力が親のプロジェクトと分かれている場合は、その実行のサブフォルダーを選びます。表示されている範囲が、確認したいデータと一致しているか確かめます。"
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "セグメンテーションの警告を読み、該当する視野を確認します。サイズ分布に関する警告なら、画像と物体の境界を比べて原因を探ります。",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -9061,65 +9613,112 @@
           "related_lessons": [
             "14_make_masks",
             "57_layer_viewer"
-          ]
+          ],
+          "speech_text": "セグメンテーションの警告を読み、該当する視野を確認します。サイズ分布に関する警告なら、画像と物体の境界を比べて原因を探ります。"
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
-          "hold_after": 0.7
+          "narration": "単位のカードも、ほかのカテゴリーと合わせて確認します。単位のレポートが一貫していればそのチェックは満たされますが、欠けているレポートには引き続き対応が必要です。",
+          "hold_after": 0.7,
+          "speech_text": "単位のカードも、ほかのカテゴリーと合わせて確認します。単位のレポートが一貫していればそのチェックは満たされますが、欠けているレポートには引き続き対応が必要です。"
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "五つのカテゴリーすべてと、その案内を読みます。データ漏洩については、サンプルの識別情報とグループ分けが、想定した独立な検証単位を反映しているか確認します。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "23_agreement",
             "33_plate_viewer"
-          ]
+          ],
+          "speech_text": "五つのカテゴリーすべてと、その案内を読みます。データ漏洩については、サンプルの識別情報とグループ分けが、想定した独立な検証単位を反映しているか確認します。"
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "失敗や警告の詳細を開き、影響を受けた視野と元のレポートを特定します。調べるには、該当する解析ツールを使います。",
           "hold_after": 0.7,
           "focus": [
             450,
             400,
             2950,
             240
-          ]
+          ],
+          "speech_text": "失敗や警告の詳細を開き、影響を受けた視野と元のレポートを特定します。調べるには、該当する解析ツールを使います。"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "ディスク上のレポートが変わったら、Refreshをクリックします。ダッシュボードは利用できる根拠を読み直します。更新したレポートは、それを作る解析で作成します。",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             2950,
             50
-          ]
+          ],
+          "speech_text": "ディスク上のレポートが変わったら、Refreshをクリックします。ダッシュボードは利用できる根拠を読み直します。更新したレポートは、それを作る解析で作成します。"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
-          "hold_after": 0.7
+          "narration": "古くなったレポートは、入力データと設定と照らし合わせて調べます。解決していない指摘は、プロジェクトの見直しで見えるようにしておきます。",
+          "hold_after": 0.7,
+          "speech_text": "古くなったレポートは、入力データと設定と照らし合わせて調べます。解決していない指摘は、プロジェクトの見直しで見えるようにしておきます。"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "品質レポートはプロジェクトと一緒に保管します。各指摘に対応するには、リンク先の専門ツールか、該当するモジュールのチュートリアルに進みます。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "品質レポートはプロジェクトと一緒に保管します。各指摘に対応するには、リンク先の専門ツールか、該当するモジュールのチュートリアルに進みます。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9131,37 +9730,40 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter：測定値とその切り出し画像を確認する",
+      "description": "二つの測定値の列をプロットし、物体の切り出し画像をプレビューして、選んだ物体をAnnotateに送ります。",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "測定値を読み込み、軸を選ぶ。",
+        "点の元になった切り出し画像を確認する。",
+        "選んだ物体をAnnotateに送る。"
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "対応する物体の切り出し画像と切り出し形式のファイルがそろった、spaCRの測定データベースを使います。ダウンロードできるAnnotateの例に、これらの入力が入っています。",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "Image UMAPを開き、続いてImage Scatterを開いて、既存の二つの測定値をプロットします。練習には、Annotateの例のデータベースと、対応する細胞の切り出し画像を使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ]
+          ],
+          "speech_text": "Image ユーマップを開き、続いてImage Scatterを開いて、既存の二つの測定値をプロットします。練習には、Annotateの例のデータベースと、対応する細胞の切り出し画像を使います。"
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
-          "hold_after": 0.7
+          "narration": "Browseをクリックし、measurements.dbを開きます。サムネイルが見つかるよう、プロジェクトのdataフォルダーと切り出し形式のファイルはデータベースと一緒にしておきます。",
+          "hold_after": 0.7,
+          "speech_text": "Browseをクリックし、メジャメンツ・ドット・ディービーを開きます。サムネイルが見つかるよう、プロジェクトのdataフォルダーと切り出し形式のファイルはデータベースと一緒にしておきます。"
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
-          "hold_after": 0.7
+          "narration": "表の選択でcellを選び、Plotをクリックします。別の表に切り替えたときは、もう一度Plotをクリックして行を読み込みます。",
+          "hold_after": 0.7,
+          "speech_text": "表の選択でcellを選び、Plotをクリックします。別の表に切り替えたときは、もう一度Plotをクリックして行を読み込みます。"
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "xに細胞の面積を、yに細胞のチャネル一の平均強度を設定します。軸を選ぶと、読み込んだ行がすぐに描き直されます。",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -9171,85 +9773,93 @@
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "xに細胞の面積を、yに細胞のチャネル一の平均強度を設定します。軸を選ぶと、読み込んだ行がすぐに描き直されます。"
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "点にポインターを合わせると、保存された切り出し画像と物体の完全な識別情報が表示されます。画像を見て、その点の元になった測定値を理解します。",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "点にポインターを合わせると、保存された切り出し画像と物体の完全な識別情報が表示されます。画像を見て、その点の元になった測定値を理解します。"
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "ポインターを離すと一時的なプレビューが消えます。別の点にポインターを合わせて確認します。",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "ポインターを離すと一時的なプレビューが消えます。別の点にポインターを合わせて確認します。"
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "xとyの測定値を入れ替えて、別の見方で関係を探ります。意味のある特徴量を選び、単位を確認します。",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "xとyの測定値を入れ替えて、別の見方で関係を探ります。意味のある特徴量を選び、単位を確認します。"
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "均一性の特徴量など、別の測定値を選びます。座標が欠けている行はプロットから除かれるので、プロットされた数は読み込んだ表の行数と異なることがあります。",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "均一性の特徴量など、別の測定値を選びます。座標が欠けている行はプロットから除かれるので、プロットされた数は読み込んだ表の行数と異なることがあります。"
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "この例の測定の次元のように値が一定の列を選ぶと、点が一直線に並びます。物体を確認するには、ばらつきのある特徴量に戻します。",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "この例の測定の次元のように値が一定の列を選ぶと、点が一直線に並びます。物体を確認するには、ばらつきのある特徴量に戻します。"
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "選んだ切り出し画像をAnnotateで確認するには、先にAnnotateを開いて同じプロジェクトを読み込みます。その後、開いているImage Scatterの画面に戻ります。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "選んだ切り出し画像をAnnotateで確認するには、先にAnnotateを開いて同じプロジェクトを読み込みます。その後、開いているImage Scatterの画面に戻ります。"
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "点そのものをクリックすると、その物体の識別情報がAnnotateに送られます。その後、そのページに切り替えます。ポインターを合わせるだけでは、切り出し画像のプレビューしか表示されません。",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "点そのものをクリックすると、その物体の識別情報がAnnotateに送られます。その後、そのページに切り替えます。ポインターを合わせるだけでは、切り出し画像のプレビューしか表示されません。"
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "ラベルを付ける前に、選んだ物体をAnnotateで確認します。表を書き出すにはDatabase Browserを、成分分析にはPCAを使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -9261,12 +9871,53 @@
             330,
             550,
             410
-          ]
+          ],
+          "speech_text": "ラベルを付ける前に、選んだ物体をAnnotateで確認します。表を書き出すにはDatabase Browserを、成分分析にはPCAを使います。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9278,14 +9929,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage：親の物体とその中身を閲覧する",
+      "description": "保存された親子関係を開き、ファミリーを選んで、対応する親細胞の切り出し画像をAnnotateで確認します。",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "測定値を読み込み、親子関係を展開する。",
+        "視野と物体の種類を確認しながら物体を選ぶ。",
+        "対応する親細胞の切り出し画像を開き、Pythonで階層全体を取得する。"
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "測定データベースと対応する細胞の切り出し画像を含む、Annotateの例一式をダウンロードします。Graph Builderのデータベースだけのアーカイブでは、画像は得られません。この例には細胞の切り出し画像しかないので、切り出し画像を確認するには親細胞をダブルクリックします。現在のファミリーに対するOpen cropsの操作では、欠けている子の切り出し画像が無関係な細胞の切り出し画像に置き換わることがあるため、この例では使わないでください。",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9293,87 +9944,141 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "HomeからDatabase Browserを開き、続いてLineageを開きます。ツリーを使って、各親細胞の中にどの測定済みの物体が記録されているかを閲覧します。",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ]
+          ],
+          "speech_text": "ホームからDatabase Browserを開き、続いてLineageを開きます。ツリーを使って、各親細胞の中にどの測定済みの物体が記録されているかを閲覧します。"
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
-          "hold_after": 0.7
+          "narration": "BrowseでAnnotateの例のmeasurements.dbを選び、Build treeをクリックします。ラベルが読めるよう、Objectの列と区切り線を広げます。物体は番号だけでなく、視野と種類でも識別します。",
+          "hold_after": 0.7,
+          "speech_text": "BrowseでAnnotateの例のメジャメンツ・ドット・ディービーを選び、Build treeをクリックします。ラベルが読めるよう、Objectの列と区切り線を広げます。物体は番号だけでなく、視野と種類でも識別します。"
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
-          "hold_after": 0.7
+          "narration": "このデータベースには二千三百四十一個の細胞があります。ツリーに表示される親のファミリーは最大二千です。すべてのファミリーが必要なときは、このレッスンの後半で説明するPythonでの書き出しを使います。",
+          "hold_after": 0.7,
+          "speech_text": "このデータベースには二千三百四十一個の細胞があります。ツリーに表示される親のファミリーは最大二千です。すべてのファミリーが必要なときは、このレッスンの後半で説明するPythonでの書き出しを使います。"
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
-          "hold_after": 0.7
+          "narration": "ツリーの上の要約を読みます。核も子として数えられるので、中身のある細胞でも病原体の物体を持たないことがあります。子の種類を見て、各ファミリーを解釈します。",
+          "hold_after": 0.7,
+          "speech_text": "ツリーの上の要約を読みます。核も子として数えられるので、中身のある細胞でも病原体の物体を持たないことがあります。子の種類を見て、各ファミリーを解釈します。"
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
-          "hold_after": 0.7
+          "narration": "親を展開すると、その子が表示されます。ここでは細胞三に、核五と病原体一が含まれています。確認したい物体の種類を選びます。",
+          "hold_after": 0.7,
+          "speech_text": "親を展開すると、その子が表示されます。ここでは細胞三に、核五と病原体一が含まれています。確認したい物体の種類を選びます。"
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
-          "hold_after": 0.7
+          "narration": "Select with contentsを使うと、親とその子をまとめて選べます。選んだ識別情報には、視野と物体の種類が含まれます。その物体だけが必要なときは、子だけを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "Select with contentsを使うと、親とその子をまとめて選べます。選んだ識別情報には、視野と物体の種類が含まれます。その物体だけが必要なときは、子だけを選びます。"
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
-          "hold_after": 0.7
+          "narration": "大きなファミリーを展開して、中身を確認します。この例には、三十三個の物体を含むファミリーが一つあります。数が不自然に見えるときは、対応する画像を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "大きなファミリーを展開して、中身を確認します。この例には、三十三個の物体を含むファミリーが一つあります。数が不自然に見えるときは、対応する画像を確認します。"
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
-          "hold_after": 0.7
+          "narration": "列の見出しをクリックすると、表示されたファミリーが並べ替えられます。並べ替えても、保存された関係と、二千の親という表示の上限は変わりません。",
+          "hold_after": 0.7,
+          "speech_text": "列の見出しをクリックすると、表示されたファミリーが並べ替えられます。並べ替えても、保存された関係と、二千の親という表示の上限は変わりません。"
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "切り出し画像を見るには、先にAnnotateを開いて対応する例のプロジェクトを読み込みます。Annotateを求めるメッセージが表示された場合は、Lineageから画像を要求する前にAnnotateを開きます。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "切り出し画像を見るには、先にAnnotateを開いて対応する例のプロジェクトを読み込みます。Annotateを求めるメッセージが表示された場合は、Lineageから画像を要求する前にAnnotateを開きます。"
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
-          "hold_after": 0.7
+          "narration": "細胞の切り出し画像を含む、ダウンロードしたプロジェクト一式を使います。物体の識別情報が一致するよう、同じ実行のデータベースと画像は一緒にしておきます。",
+          "hold_after": 0.7,
+          "speech_text": "細胞の切り出し画像を含む、ダウンロードしたプロジェクト一式を使います。物体の識別情報が一致するよう、同じ実行のデータベースと画像は一緒にしておきます。"
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
-          "hold_after": 0.7
+          "narration": "この例では、ファミリー全体に対するOpen cropsは避けます。欠けている核や病原体の切り出し画像が、無関係な細胞の切り出し画像に置き換わることがあります。ツリーに戻り、親細胞だけを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "この例では、ファミリー全体に対するOpen cropsは避けます。欠けている核や病原体の切り出し画像が、無関係な細胞の切り出し画像に置き換わることがあります。ツリーに戻り、親細胞だけを選びます。"
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
-          "hold_after": 0.7
+          "narration": "Lineageで親細胞をダブルクリックします。Annotateで、その親に対応する細胞の切り出し画像が開きます。これが、ダウンロードした例で利用できる切り出し画像です。",
+          "hold_after": 0.7,
+          "speech_text": "Lineageで親細胞をダブルクリックします。Annotateで、その親に対応する細胞の切り出し画像が開きます。これが、ダウンロードした例で利用できる切り出し画像です。"
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
-          "hold_after": 0.7
+          "narration": "親のサムネイルをShiftを押しながらクリックすると、プレビューが拡大されます。戻るにはEscapeを押します。普通に左クリックすると注釈のクラスが付くので、確認するだけのときはShiftを使います。",
+          "hold_after": 0.7,
+          "speech_text": "親のサムネイルをShiftを押しながらクリックすると、プレビューが拡大されます。戻るにはEscapeを押します。普通に左クリックすると注釈のクラスが付くので、確認するだけのときはShiftを使います。"
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "Build treeをクリックすると、表示が更新されます。Pythonで階層全体を得るには、read_object_tables、build_forest、lineage_frameを使い、表をCSVとして保存します。リンク先の例のCSVには、七千二百一個のノードすべてが入っています。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "Build treeをクリックすると、表示が更新されます。Pythonで階層全体を得るには、read_object_tables、build_forest、lineage_frameを使い、表をCSVとして保存します。リンク先の例のCSVには、七千二百一個のノードすべてが入っています。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9384,144 +10089,164 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer：画像とラベルのオーバーレイを確認する",
+      "description": "対応する画像とマスクを読み込み、オーバーレイを調整して、拡大しながら物体の境界を確認します。",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "画像とそれに対応するマスクを開く。",
+        "表示、不透明度、合成方法、レイヤーの順序を調整する。",
+        "拡大と移動でラベルを確認する。"
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "Layer_Viewer_real_image_mask.zipをダウンロードして展開します。含まれている強度画像と、それに対応する整数ラベルのマスクを使います。この例には、ピクセルの物理的なキャリブレーションはありません。",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "HomeからQCを開き、続いてLayer Viewerを開きます。リンク先の画像とマスクの例をダウンロードして展開します。この二つの入力には、ビューアー専用のファイル操作があります。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "ホームからQCを開き、続いてLayer Viewerを開きます。リンク先の画像とマスクの例をダウンロードして展開します。この二つの入力には、ビューアー専用のファイル操作があります。"
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
-          "hold_after": 0.7
+          "narration": "プラスImageをクリックし、fov01_C1 ドット tifを開きます。グレースケールの画像が、表示用にパーセンタイルでコントラストを調整した状態でキャンバスに表示されます。",
+          "hold_after": 0.7,
+          "speech_text": "プラスImageをクリックし、fov01_C1 ドット tifを開きます。グレースケールの画像が、表示用にパーセンタイルでコントラストを調整した状態でキャンバスに表示されます。"
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
-          "hold_after": 0.7
+          "narration": "Fitをクリックすると、画像が表示領域いっぱいに広がります。横長の領域では正方形の画像が引き伸ばされることがあるので、形を確認するときは区切り線を調整して領域をほぼ正方形にします。",
+          "hold_after": 0.7,
+          "speech_text": "Fitをクリックすると、画像が表示領域いっぱいに広がります。横長の領域では正方形の画像が引き伸ばされることがあるので、形を確認するときは区切り線を調整して領域をほぼ正方形にします。"
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
-          "hold_after": 0.7
+          "narration": "プラスMaskをクリックし、fov01_cell_mask ドット tifを開きます。ラベルの付いた四十四個の物体が画像の上に表示されます。ゼロは背景で、透明のままです。",
+          "hold_after": 0.7,
+          "speech_text": "プラスMaskをクリックし、fov01_cell_mask ドット tifを開きます。ラベルの付いた四十四個の物体が画像の上に表示されます。ゼロは背景で、透明のままです。"
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "設定を変える前に、レイヤーの一覧でmaskを選びます。チェックボックスを切り替えて、下の画像と境界を比べます。",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ]
+          ],
+          "speech_text": "設定を変える前に、レイヤーの一覧でmaskを選びます。チェックボックスを切り替えて、下の画像と境界を比べます。"
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "maskのOpacityをゼロにすると、レイヤーを読み込んだまま色を隠せます。別のレイヤーを調整する前に、選ばれている行を確認します。",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ]
+          ],
+          "speech_text": "maskのOpacityをゼロにすると、レイヤーを読み込んだまま色を隠せます。別のレイヤーを調整する前に、選ばれている行を確認します。"
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
-          "hold_after": 0.7
+          "narration": "Opacityを百パーセントにして、ラベルの形を確認します。ラベルの付いた各物体の内側が、色で覆われます。",
+          "hold_after": 0.7,
+          "speech_text": "Opacityを百パーセントにして、ラベルの形を確認します。ラベルの付いた各物体の内側が、色で覆われます。"
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
-          "hold_after": 0.7
+          "narration": "Opacityを五十パーセントに戻し、合成方法をtranslucentにして、マスク越しに画像の質感を見ます。物体の境界を下のシグナルと比べます。",
+          "hold_after": 0.7,
+          "speech_text": "Opacityを五十パーセントに戻し、合成方法をtranslucentにして、マスク越しに画像の質感を見ます。物体の境界を下のシグナルと比べます。"
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
-          "hold_after": 0.7
+          "narration": "合成方法をadditiveにすると、マスクの色が画像に加算されます。この表示では明るい部分が飽和することがあるので、はっきり比べたいときはtranslucentに戻します。",
+          "hold_after": 0.7,
+          "speech_text": "合成方法をadditiveにすると、マスクの色が画像に加算されます。この表示では明るい部分が飽和することがあるので、はっきり比べたいときはtranslucentに戻します。"
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
-          "hold_after": 0.7
+          "narration": "multiplyとminimumの合成方法も試して、暗めのオーバーレイを比べます。これらは表示される合成画像を変えるだけで、元の強度の値は元画像にそのまま残っています。",
+          "hold_after": 0.7,
+          "speech_text": "multiplyとminimumの合成方法も試して、暗めのオーバーレイを比べます。これらは表示される合成画像を変えるだけで、元の強度の値は元画像にそのまま残っています。"
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
-          "hold_after": 0.7
+          "narration": "opaqueを選び、Opacityのスライダーを動かして見え方を比べます。この整数マスクでは、五十パーセントのopaqueは五十パーセントのtranslucentと同じように見えます。続けるにはtranslucentに戻します。",
+          "hold_after": 0.7,
+          "speech_text": "opaqueを選び、Opacityのスライダーを動かして見え方を比べます。この整数マスクでは、五十パーセントのopaqueは五十パーセントのtranslucentと同じように見えます。続けるにはtranslucentに戻します。"
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
-          "hold_after": 0.7
+          "narration": "imageを選び、カラーマップの選択でcyanを選びます。強度画像の色が変わり、マスクはラベルの色のままです。グレースケールに戻すにはgrayを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "imageを選び、カラーマップの選択でcyanを選びます。強度画像の色が変わり、マスクはラベルの色のままです。グレースケールに戻すにはgrayを選びます。"
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
-          "hold_after": 0.7
+          "narration": "maskを選び、下向きの矢印を押して画像の後ろに移動します。上のレイヤーが手前に表示されます。ラベルを確認するには、マスクをもう一度上に移動します。",
+          "hold_after": 0.7,
+          "speech_text": "maskを選び、下向きの矢印を押して画像の後ろに移動します。上のレイヤーが手前に表示されます。ラベルを確認するには、マスクをもう一度上に移動します。"
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "見えているラベル付きの物体をクリックすると、ステータス行にその位置とラベル番号が表示されます。その物体の視野、プレート、ウェルを特定するには、プロジェクトのメタデータを使います。",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ]
+          ],
+          "speech_text": "見えているラベル付きの物体をクリックすると、ステータス行にその位置とラベル番号が表示されます。その物体の視野、プレート、ウェルを特定するには、プロジェクトのメタデータを使います。"
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
-          "hold_after": 0.7
+          "narration": "物体の上でマウスホイールを回すと、ポインターの周りが拡大されます。境界が確認しやすくなるまで近づきます。",
+          "hold_after": 0.7,
+          "speech_text": "物体の上でマウスホイールを回すと、ポインターの周りが拡大されます。境界が確認しやすくなるまで近づきます。"
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
-          "hold_after": 0.7
+          "narration": "Shiftを押しながら左ボタンでドラッグすると、表示を移動できます。中ボタンでドラッグしても移動できます。今の拡大率のまま、視野の中を移動します。",
+          "hold_after": 0.7,
+          "speech_text": "Shiftを押しながら左ボタンでドラッグすると、表示を移動できます。中ボタンでドラッグしても移動できます。今の拡大率のまま、視野の中を移動します。"
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
-          "hold_after": 0.7
+          "narration": "Fitをクリックすると、視野全体の表示に戻ります。合わせた画像が引き伸ばされて見える場合は、表示領域の形を調整します。",
+          "hold_after": 0.7,
+          "speech_text": "Fitをクリックすると、視野全体の表示に戻ります。合わせた画像が引き伸ばされて見える場合は、表示領域の形を調整します。"
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "プラスPointsとプラスShapesは、空の補助レイヤーを追加します。セグメンテーションのマスクを描いたり編集したりするにはMake Masksに進みます。このビューアーには、それらの空のレイヤーに描画する機能はありません。",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ]
+          ],
+          "speech_text": "プラスPointsとプラスShapesは、空の補助レイヤーを追加します。セグメンテーションのマスクを描いたり編集したりするにはMake Masksに進みます。このビューアーには、それらの空のレイヤーに描画する機能はありません。"
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
-          "hold_after": 0.7
+          "narration": "レイヤーを選び、Removeで表示から外します。元のファイルはディスクに残っているので、また読み込めます。",
+          "hold_after": 0.7,
+          "speech_text": "レイヤーを選び、Removeで表示から外します。元のファイルはディスクに残っているので、また読み込めます。"
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "これで、レイヤー表示の確認ができました。合成画像を書き出すには、Pythonからstack_from_pathsとLayerStack.render_uint8を使います。マスクの編集を保存するにはMake Masksへ、物体の測定にはMeasureへ進みます。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "これで、レイヤー表示の確認ができました。合成画像を書き出すには、Pythonからstack_from_pathsとLayerStack.render_uint8を使います。マスクの編集を保存するにはMake Masksへ、物体の測定にはMeasureへ進みます。"
         }
       ],
       "example_files": [
@@ -9531,6 +10256,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9541,93 +10306,145 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder：測定値をプロットして物体を絞り込む",
+      "description": "測定値の表を読み込み、プロットの軸を割り当て、グループを比べて、表示する物体を絞り込みます。",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "例の測定値の表を読み込む。",
+        "ヒストグラム、散布図、グループ別のパネルを作る。",
+        "物体を絞り込み、次に使う表示を選ぶ。"
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "Graph_Builder_real_measurements.zipをダウンロードして展開します。measurements.dbが入っています。後で切り出し画像を確認するには、対応するAnnotateのプロジェクトとその画像も用意しておきます。",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
-          "hold_after": 0.7
+          "narration": "HomeからGraph Builderを開き、測定値の表を探索します。まずリンク先の例のデータベースで試し、その後、自分の測定済みのプロジェクトで同じ手順を繰り返します。",
+          "hold_after": 0.7,
+          "speech_text": "ホームからGraph Builderを開き、測定値の表を探索します。まずリンク先の例のデータベースで試し、その後、自分の測定済みのプロジェクトで同じ手順を繰り返します。"
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Load tableをクリックし、展開したアーカイブからmeasurements ドット dbを開きます。cellの表を選びます。この例には、測定済みの細胞が二千三百四十一個あります。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ]
+          ],
+          "speech_text": "Load tableをクリックし、展開したアーカイブからmeasurements ドット dbを開きます。cellの表を選びます。この例には、測定済みの細胞が二千三百四十一個あります。"
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
-          "hold_after": 0.7
+          "narration": "列の一覧でcell_areaを見つけ、Xにドラッグします。自動で作られるグラフはヒストグラムになり、各棒は面積の区間ごとの細胞数を表します。軸を解釈する前に、測定値の単位を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "列の一覧でcell_areaを見つけ、Xにドラッグします。自動で作られるグラフはヒストグラムになり、各棒は面積の区間ごとの細胞数を表します。軸を解釈する前に、測定値の単位を確認します。"
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
-          "hold_after": 0.7
+          "narration": "cell_channel_1_mean_intensityをYにドラッグすると、散布図になります。各点は、細胞一つを面積とチャネル一の平均強度で配置したものです。大きな表を扱うときは、行数に関する注意を読みます。",
+          "hold_after": 0.7,
+          "speech_text": "cell_channel_1_mean_intensityをYにドラッグすると、散布図になります。各点は、細胞一つを面積とチャネル一の平均強度で配置したものです。大きな表を扱うときは、行数に関する注意を読みます。"
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
-          "hold_after": 0.7
+          "narration": "columnIDをColourにドラッグして、プレートの列を色分けします。凡例で色と記録された列のラベルを対応付け、詳しく見るべきグループを探します。",
+          "hold_after": 0.7,
+          "speech_text": "columnIDをColourにドラッグして、プレートの列を色分けします。凡例で色と記録された列のラベルを対応付け、詳しく見るべきグループを探します。"
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
-          "hold_after": 0.7
+          "narration": "rowIDを下方向のファセットの枠にドラッグすると、プレートの行ごとにパネルが作られます。共通の軸を使ってパネルを比べます。条件の間で統計的に比べるときは、独立したウェルを使います。",
+          "hold_after": 0.7,
+          "speech_text": "rowIDを下方向のファセットの枠にドラッグすると、プレートの行ごとにパネルが作られます。共通の軸を使ってパネルを比べます。条件の間で統計的に比べるときは、独立したウェルを使います。"
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
-          "hold_after": 0.7
+          "narration": "右側のフィルターのパネルでcell_areaを追加し、最小値を入力します。この例では二万千九百二十五を使い、千百七十一行が残ります。自分の測定値に合ったしきい値を選び、プロットされる数と軸がどう変わるかを見ます。",
+          "hold_after": 0.7,
+          "speech_text": "右側のフィルターのパネルでcell_areaを追加し、最小値を入力します。この例では二万千九百二十五を使い、千百七十一行が残ります。自分の測定値に合ったしきい値を選び、プロットされる数と軸がどう変わるかを見ます。"
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
-          "hold_after": 0.7
+          "narration": "フィルターのパネルでClear allをクリックすると、表全体に戻ります。プロットへの割り当てを外して別のグラフを始めたいときは、左側のClear all channelsを使います。",
+          "hold_after": 0.7,
+          "speech_text": "フィルターのパネルでClear allをクリックすると、表全体に戻ります。プロットへの割り当てを外して別のグラフを始めたいときは、左側のClear all channelsを使います。"
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
-          "hold_after": 0.7
+          "narration": "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。Open selection in Annotateが使えない場合は、対応するプロジェクトでAnnotateを別に開き、そこで物体を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。Open selection in Annotateが使えない場合は、対応するプロジェクトでAnnotateを別に開き、そこで物体を確認します。"
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
-          "hold_after": 0.7
+          "narration": "プロットの空いている部分をクリックすると、選択が解除されます。別の物体のグループを探る前に、有効なフィルターと表示されている数を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "プロットの空いている部分をクリックすると、選択が解除されます。別の物体のグループを探る前に、有効なフィルターと表示されている数を確認します。"
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "ヘッダーのショートカットから、ウェルのヒートマップにはPlate Viewerを、同じ形のグラフを並べるにはSmall Multiplesを開きます。表示を再現できるよう、元のデータベースと、選んだ列とフィルターを保存しておきます。",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
+          ],
+          "speech_text": "ヘッダーのショートカットから、ウェルのヒートマップにはPlate Viewerを、同じ形のグラフを並べるにはSmall Multiplesを開きます。表示を再現できるよう、元のデータベースと、選んだ列とフィルターを保存しておきます。"
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "現在の画面には、グラフを書き出すボタンはありません。スクリプトでプロットを作るにはGraph BuilderのAPIを、別のグラフツールで使うために表を書き出すにはDatabase Browserを使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "現在の画面には、グラフを書き出すボタンはありません。スクリプトでプロットを作るにはGraph BuilderのAPIを、別のグラフツールで使うために表を書き出すにはDatabase Browserを使います。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

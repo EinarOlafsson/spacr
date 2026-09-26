@@ -3052,136 +3052,176 @@
       "series": 3,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "分割模型",
-      "title": "Train Cellpose：经核查的配对数据与明确的API替代步骤",
-      "description": "找到Cellpose Workbench内的Train，识别当前来源导入缺陷，并用六组可下载细胞图像和掩膜完成真实的两轮Python训练演示。",
+      "section": "Tools",
+      "title": "训练Cellpose模型",
+      "description": "准备图像与掩膜对，在Cellpose Workbench中微调分割模型，并应用保存的检查点。",
       "objectives": [
-        "在Make Masks内找到Train和Apply，而不是寻找独立Home入口。",
-        "核对配对文件名，区分现有标签和经复核的真实参考。",
-        "识别部分导入，将API流程与有缺陷的GUI区分。",
-        "检查真实输入、预热学习率、权重变化和已验证路径。",
-        "区分训练损失、测试占位值、权重读取和独立准确性评估。"
+        "在Make Masks中检查图像及其对应的对象标签掩膜。",
+        "选择训练文件夹、起始模型、训练计划和输出位置。",
+        "运行训练，找到检查点，并将其应用到其他图像。"
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "使用链接中的六组配对数据、录制脚本和来源清单。真实视野保留细胞强度通道1和细胞掩膜平面4；平面6是病原体。现有标签及边缘截断物体未经独立人工复核，不能称作已确认真实标签。Train虽然导入数值，仍丢弃src并保留model_name=new_model，因此不启动GUI训练。明确调用spacr.submodules.train_cellpose，使用全新目录、两轮、minibatch 1、learning_rate=1e-5、weight_decay=1e-5、target_size=512，关闭spaCR额外扩增。normalize=False只关闭spaCR百分位预处理，不关闭除以最大值或Cellpose内部归一化。Cellpose仍旋转和缩放，内部块为256像素。入口种子19，内部随机过程仍存在。录像RTX 3090的CUDA上限65%，100GiB内存保护仅适用于该工作站。核查3,145,728个输入值及十二个展示数组，六组都保留在训练中。实际学习率为0和1.1111111111111112e-6，347个可训练参数张量中345个改变。损失从1.496740683913231升至1.5215517828861873。未提供测试数据，测试零值仅为占位。实际检查点在models/cellpose_model/models下，以weights_only=True读取；一般日志省略第二个models。读取不是推理或准确性验证。真实图在外部查看器显示，不插入GUI。保留原始数据、失败录像及原GUI阻塞证据。没有AI请求、服务回答、科学批准或发布。",
+      "prerequisite": "下载并解压链接中的示例：六张带掩膜的训练图像，另有三张单独用于Apply的图像。或者准备您自己的图像及对应的整数标签掩膜，并在训练前于Make Masks中检查。",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "打开Make Masks，再进入内部的Cellpose Workbench。Train和Apply是其中的标签页，不是独立Home入口。本课展示当前路径、设置导入问题以及明确的Python替代步骤。训练前如何检查和编辑掩膜，请参阅链接中的Make Masks课程。",
+          "visual": "home_make_masks",
+          "narration": "从Home打开Tools，然后选择Make Masks。从其工具栏打开Cellpose Workbench；它会打开在Train选项卡上。您将用图像及其对象标签掩膜进行训练，然后在Apply中使用保存的模型。",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ],
+          "speech_text": "从主页打开Tools，然后选择Make Masks。从其工具栏打开塞尔波斯 Workbench；它会打开在Train选项卡上。您将用图像及其对象标签掩膜进行训练，然后在Apply中使用保存的模型。"
+        },
+        {
+          "visual": "train_source",
+          "narration": "解压链接中的示例。其training文件夹包含六张图像和一个masks子文件夹，apply文件夹包含三张留待之后使用的单独图像。点击Image source folder旁的文件夹按钮并选择training。让Mask source folder保持为空即可使用masks子文件夹，也可以选择其他掩膜文件夹。",
+          "hold_after": 0.7,
+          "speech_text": "解压链接中的示例。其training文件夹包含六张图像和一个masks子文件夹，apply文件夹包含三张留待之后使用的单独图像。点击Image source folder旁的文件夹按钮并选择training。让Mask source folder保持为空即可使用masks子文件夹，也可以选择其他掩膜文件夹。"
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "每张图像都需要一个高度和宽度相同的掩膜。零表示背景，每个对象都有自己的正数编号。训练之前，请在Make Masks中打开训练文件夹，检查并修正标签。这张图像有九十五个已标注的细胞。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "speech_text": "每张图像都需要一个高度和宽度相同的掩膜。零表示背景，每个对象都有自己的正数编号。训练之前，请在Make Masks中打开训练文件夹，检查并修正标签。这张图像有九十五个已标注的细胞。"
+        },
+        {
+          "visual": "train_channels",
+          "narration": "本例是灰度图像，因此让Channels保持为空。对于多通道图像，最多添加三个从零开始编号的通道，例如用零和二表示第一和第三个通道。只有在自动检测找不到通道维度时，才设置Channel axis。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ],
+          "speech_text": "本例是灰度图像，因此让Channels保持为空。对于多通道图像，最多添加三个从零开始编号的通道，例如用零和二表示第一和第三个通道。只有在自动检测找不到通道维度时，才设置Channel axis。"
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "让Base model保持为cpsam，即从Cellpose-SAM开始；也可以输入检查点路径，继续训练之前的模型。输入Model name；这里是tutorial cells。让Checkpoint folder保持为空即保存在源文件夹内，或选择其他文件夹。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ],
+          "speech_text": "让Base model保持为cpsam，即从塞尔波斯-SAM开始；也可以输入检查点路径，继续训练之前的模型。输入Model name；这里是tutorial cells。让Checkpoint folder保持为空即保存在源文件夹内，或选择其他文件夹。"
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "设置N epochs和Batch size。这次快速运行使用十轮，批大小为一。轮数越多，模型得到的训练更新越多；批越大，占用的内存越多。开始时请保留显示的学习率。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ],
+          "speech_text": "设置N epochs和Batch size。这次快速运行使用十轮，批大小为一。轮数越多，模型得到的训练更新越多；批越大，占用的内存越多。开始时请保留显示的学习率。"
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "保持Normalize开启，并以第一和第九十九百分位数作为起点。它们决定每个通道使用的强度范围。Scale range会在训练中改变图像尺寸，Min train masks会跳过标注对象较少的图像。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ],
+          "speech_text": "保持Normalize开启，并以第一和第九十九百分位数作为起点。它们决定每个通道使用的强度范围。Scale range会在训练中改变图像尺寸，Min train masks会跳过标注对象较少的图像。"
+        },
+        {
+          "visual": "train_validation",
+          "narration": "如需跟踪验证损失，请选择单独的Validation image folder及其Validation mask folder。切勿在其中重复使用训练图像。如果像本例一样没有单独的标注集，请让两者都保持为空。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ],
+          "speech_text": "如需跟踪验证损失，请选择单独的Validation image folder及其Validation mask folder。切勿在其中重复使用训练图像。如果像本例一样没有单独的标注集，请让两者都保持为空。"
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。在这块GPU上，用六张图像训练十轮不到一分钟就完成了。",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ],
+          "speech_text": "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。在这块GPU上，用六张图像训练十轮不到一分钟就完成了。"
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "训练结束后，控制台会给出检查点路径。使用默认位置时，它位于源文件夹中的models、cellpose model、models下。文件名会在模型名称后加上架构和轮数。请把它与训练设置放在一起。",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ],
+          "speech_text": "训练结束后，控制台会给出检查点路径。使用默认位置时，它位于源文件夹中的models、塞尔波斯 model、models下。文件名会在模型名称后加上架构和轮数。请把它与训练设置放在一起。"
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "打开Apply选项卡。Custom model现在指向您训练的检查点。把Source设为示例的apply文件夹，其中的图像来自未用于训练的孔。把Channels设为零，Percentiles设为二和九十九。关闭Fill in，让相互接触的细胞保持分开，并开启Save和Verbose。",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Make Masks，再进入内部的塞尔波斯 Workbench。Train和Apply是其中的标签页，不是独立主页入口。本课展示当前路径、设置导入问题以及明确的Python替代步骤。训练前如何检查和编辑掩膜，请参阅链接中的Make Masks课程。"
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "在Train中查看起点和训练计划。不要把初始轮数或学习率当作建议照抄。训练需要配对图像和实例掩膜、来源目录以及输出名称。仅仅看到表单，不代表这些要求已经满足。",
-          "hold_after": 0.7,
-          "speech_text": "在Train中查看起点和训练计划。不要把初始轮数或学习率当作建议照抄。训练需要配对图像和实例掩膜、来源目录以及输出名称。仅仅看到表单，不代表这些要求已经满足。"
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "真实的Import settings选择器打开包含小规模示例设置的CSV。导入后显示两轮、批量一和较小学习率，但必需的来源被丢弃，指定名称仍为new model。这是部分导入，不是可运行配置，请勿按Run。",
-          "hold_after": 0.7,
-          "speech_text": "真实的Import settings选择器打开包含小规模示例设置的CSV。导入后显示两轮、批量一和较小学习率，但必需的来源被丢弃，指定名称仍为new model。这是部分导入，不是可运行配置，请勿按Run。"
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "下面的Python流程与GUI缺陷是分开的。它不会暗中设置隐藏来源，也不会修复表单。请在新文件夹使用链接中的示例包。脚本拒绝已存在的目标，保留原始配对数据，并明确记录使用的API实现及输入。",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "下面的Python流程与GUI缺陷是分开的。它不会暗中设置隐藏来源，也不会修复表单。请在新文件夹使用链接中的示例包。脚本拒绝已存在的目标，保留原始配对数据，并明确记录使用的API实现及输入。"
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "共有六组真实的五百一十二像素图像和掩膜，文件名一一对应。原始设置标明细胞强度为通道一，细胞掩膜为平面四，平面六是病原体。这些现有标签未经独立复核。用于正式训练前，应检查边界以及被裁切的物体。",
           "focus": [
-            190,
-            80,
-            3450,
-            900
+            366,
+            607,
+            1165,
+            1156
           ],
-          "hold_after": 0.7,
-          "speech_text": "共有六组真实的五百一十二像素图像和掩膜，文件名一一对应。原始设置标明细胞强度为通道一，细胞掩膜为平面四，平面六是病原体。这些现有标签未经独立复核。用于正式训练前，应检查边界以及被裁切的物体。"
+          "speech_text": "打开Apply选项卡。Custom model现在指向您训练的检查点。把Source设为示例的apply文件夹，其中的图像来自未用于训练的孔。把Channels设为零，Percentiles设为二和九十九。关闭Fill in，让相互接触的细胞保持分开，并开启Save和Verbose。"
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "这是API运行保存的真实六组配对图，在外部查看器中打开，并未插入spaCR。每张上方图像对应正下方掩膜。我们核对了所有输入图像和标签值，以及十二个显示数组与原数据的一致性。这证明对应关系，不证明标注质量。",
+          "visual": "apply_preview",
+          "narration": "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十六个细胞。在处理整个文件夹之前，请在这里调整设置。",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
+            390,
+            520,
+            3410,
+            1240
           ],
-          "hold_after": 0.7,
-          "speech_text": "这是API运行保存的真实六组配对图，在外部查看器中打开，并未插入斯佩克尔。每张上方图像对应正下方掩膜。我们核对了所有输入图像和标签值，以及十二个显示数组与原数据的一致性。这证明对应关系，不证明标注质量。"
+          "speech_text": "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十六个细胞。在处理整个文件夹之前，请在这里调整设置。"
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "向脚本提供数据来源及新目标目录。这个小规模CUDA示例使用全部六组、两轮和批量一。输入目标为五百一十二像素，而Cellpose内部以二百五十六像素块训练。关闭spaCR额外扩增，不会关闭Cellpose自己的归一化、旋转和缩放。",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
+          "visual": "apply_result",
+          "narration": "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十六、四十八和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。",
           "hold_after": 0.7,
-          "speech_text": "向脚本提供数据来源及新目标目录。这个小规模CUDA示例使用全部六组、两轮和批量一。输入目标为五百一十二像素，而塞尔波斯内部以二百五十六像素块训练。关闭斯佩克尔额外扩增，不会关闭塞尔波斯自己的归一化、旋转和缩放。"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "第一轮预热学习率为零，第二轮使用较小正值，使权重能够实际更新。将保存检查点与初始可训练权重比较后，三百四十七个参数张量中三百四十五个发生变化。仅改变直径设置无法通过检查。权重改变仍不能证明模型好。",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "第一轮预热学习率为零，第二轮使用较小正值，使权重能够实际更新。将保存检查点与初始可训练权重比较后，三百四十七个参数张量中三百四十五个发生变化。仅改变直径设置无法通过检查。权重改变仍不能证明模型好。"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "训练损失从约一点四九七略升至一点五二二。没有提供测试集，测试损失中的零只是占位，不代表完美表现。这是简短的运行机制演示，不说明收敛、分割改善或独立数据准确率。独立评估应与训练分开。",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "训练损失从约一点四九七略升至一点五二二。没有提供测试集，测试损失中的零只是占位，不代表完美表现。这是简短的运行机制演示，不说明收敛、分割改善或独立数据准确率。独立评估应与训练分开。"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "请使用验证文件中的检查点路径。它包含一般日志省略的第二个models目录。检查点应与设置、来源清单和检查记录一起保留。安全读取张量只验证文件可读，不是推理结果；下载包提供数据对和脚本，而非获认证模型。",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "请使用验证文件中的检查点路径。它包含一般日志省略的第二个models目录。检查点应与设置、来源清单和检查记录一起保留。安全读取张量只验证文件可读，不是推理结果；下载包提供数据对和脚本，而非获认证模型。"
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply有独立来源目录、自定义模型字段和实时预览。打开标签页不会自动选择外部检查点，也不会运行推理。请先阅读链接教程，并用独立图像验证。本例未使用可选spaCR AI，任何问题或服务回答都不能代替检查真实证据。",
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apply有独立来源目录、自定义模型字段和实时预览。打开标签页不会自动选择外部检查点，也不会运行推理。请先阅读链接教程，并用独立图像验证。本例未使用可选斯佩克尔 AI，任何问题或服务回答都不能代替检查真实证据。"
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ],
+          "speech_text": "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十六、四十八和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7610,22 +7650,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination：估计并检查校正模型",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "选择图像通道，估计光照场，检查其质控图，并重用保存的模型。",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "选择有代表性的视野和强度通道。",
+        "估计并检查光照模型。",
+        "在Mask或Measure中重用该模型。"
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "使用包含各采集组代表性视野的合并图像文件夹。示例使用Measure中下载的板示例的十六个视野。请清楚哪些保存的平面是强度，哪些是标签。",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "打开Measure，然后打开Illumination，估计用于校正图像亮度不均的模型。",
           "focus": [
             3625,
             65,
@@ -7635,11 +7675,12 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开Measure，然后打开Illumination，估计用于校正图像亮度不均的模型。"
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "把Source设为包含图像数组的merged文件夹。使用采集中具有代表性的视野；示例使用一块板上的十六个视野。",
           "focus": [
             363,
             375,
@@ -7650,121 +7691,132 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Source设为包含图像数组的merged文件夹。使用采集中具有代表性的视野；示例使用一块板上的十六个视野。"
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "把Channels设为要校正的已保存强度平面。示例使用通道零。请检查通道映射，并排除标签掩膜平面。",
           "focus": [
             374,
             475,
             850,
             65
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Channels设为要校正的已保存强度平面。示例使用通道零。请检查通道映射，并排除标签掩膜平面。"
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "估计光照场之前，请开启Illumination correction。如果它处于关闭状态，Run会在不生成校正模型的情况下结束。",
           "focus": [
             1518,
             405,
             2280,
             260
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "估计光照场之前，请开启Illumination correction。如果它处于关闭状态，Run会在不生成校正模型的情况下结束。"
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "选择一个估计器及其设置。在多项式示例中，使用四次多项式，并保持Illumination model为空以估计新的光照场。检查结果中是否出现属于细胞而非光照的结构。",
           "focus": [
             363,
             550,
             1140,
             300
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "选择一个估计器及其设置。在多项式示例中，使用四次多项式，并保持Illumination model为空以估计新的光照场。检查结果中是否出现属于细胞而非光照的结构。"
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "开启Illumination per plate，对不同的采集组分别拟合。把Maximum fields设为有代表性的样本数；示例包含全部十六个可用视野。",
           "focus": [
             363,
             858,
             1140,
             160
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "开启Illumination per plate，对不同的采集组分别拟合。把Maximum fields设为有代表性的样本数；示例包含全部十六个可用视野。"
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "如果有相机标定，请据此设置Illumination dark。它是原始计数上的加性偏移；示例中设为零。",
           "focus": [
             374,
             775,
             1110,
             61
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "如果有相机标定，请据此设置Illumination dark。它是原始计数上的加性偏移；示例中设为零。"
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "开启Illumination QC，并选择缺失模型的处理策略。选择error时，如果某块板缺少校正，处理会停止，以便您解决问题。",
           "focus": [
             363,
             1020,
             1140,
             150
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "开启Illumination QC，并选择缺失模型的处理策略。选择error时，如果某块板缺少校正，处理会停止，以便您解决问题。"
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "按Run，并在控制台中读取保存的模型路径。这一步只估计模型；要应用校正，请在后续分析中启用它。",
           "focus": [
             1518,
             405,
             2280,
             485
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "按Run，并在控制台中读取保存的模型路径。这一步只估计模型；要应用校正，请在后续分析中启用它。"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "打开illumination文件夹中保存的光照质控PNG。如果它没有显示在Figures面板中，请使用图像查看器。",
           "focus": [
             200,
             100,
             3440,
             1920
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开illumination文件夹中保存的光照质控PNG。如果它没有显示在Figures面板中，请使用图像查看器。"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "检查估计的光照场：亮度应平滑变化，且没有不需要的细胞形状结构。校正会先减去暗场偏移，再除以这个均值为一的光照场。",
           "focus": [
             400,
             680,
             790,
             825
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "检查估计的光照场：亮度应平滑变化，且没有不需要的细胞形状结构。校正会先减去暗场偏移，再除以这个均值为一的光照场。"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "比较校正前后的径向剖面。使用更多视野，评估校正在拟合所用图像之外的效果。",
           "focus": [
             1270,
             680,
             1080,
             840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "比较校正前后的径向剖面。使用更多视野，评估校正在拟合所用图像之外的效果。"
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "要重用模型，请设置其路径，并在目标Mask或Measure流程中启用校正。把通道、板标识和设置与模型放在一起，避免对同一强度校正两次。",
           "focus": [
             363,
             370,
@@ -7775,12 +7827,53 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "要重用模型，请设置其路径，并在目标Mask或Measure流程中启用校正。把通道、板标识和设置与模型放在一起，避免对同一强度校正两次。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7791,128 +7884,181 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager：查看占用、清理并归档",
+      "description": "查看项目存储情况，预览清理计划，并把项目移动到归档目标位置。",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "查看项目的磁盘占用。",
+        "检查并执行清理计划。",
+        "移动归档的项目并重新扫描。"
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "使用已完成的spaCR项目，并在清理之前保留一份独立备份。示例使用External Masks生成的项目的副本。",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "打开Help，然后打开Data manager。选择一个已完成的项目，查看其存储情况，并规划清理或归档。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "打开Help，然后打开Data manager。选择一个已完成的项目，查看其存储情况，并规划清理或归档。"
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "点击Choose project并选择项目根目录。阅读Usage，了解其文件、磁盘空间和已登记的产物。",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3400,
             570
-          ]
+          ],
+          "speech_text": "点击Choose project并选择项目根目录。阅读Usage，了解其文件、磁盘空间和已登记的产物。"
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "打开Prune，选择要考虑的产物类型。如果要保留测量数据库和模型权重，请不要勾选它们，然后点击Show what can be deleted。",
           "hold_after": 0.7,
           "focus": [
             345,
             245,
             3470,
             230
-          ]
+          ],
+          "speech_text": "打开Prune，选择要考虑的产物类型。如果要保留测量数据库和模型权重，请不要勾选它们，然后点击Show what can be deleted。"
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "检查建议删除的文件、可节省的空间和恢复信息。示例选择的是对象裁剪文件夹。请保留重新生成所删内容所需的输入和设置。",
           "hold_after": 0.7,
           "focus": [
             345,
             320,
             3450,
             160
-          ]
+          ],
+          "speech_text": "检查建议删除的文件、可节省的空间和恢复信息。示例选择的是对象裁剪文件夹。请保留重新生成所删内容所需的输入和设置。"
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
-          "hold_after": 0.7
+          "narration": "点击Delete查看最终的文件列表。删除无法撤销，因此在确认计划之前，请检查路径和您的备份。",
+          "hold_after": 0.7,
+          "speech_text": "点击Delete查看最终的文件列表。删除无法撤销，因此在确认计划之前，请检查路径和您的备份。"
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
-          "hold_after": 0.7
+          "narration": "如果想保留文件或修改选择，请使用Cancel。确认列表后，最终的Delete操作才会启用。",
+          "hold_after": 0.7,
+          "speech_text": "如果想保留文件或修改选择，请使用Cancel。确认列表后，最终的Delete操作才会启用。"
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "计划无误后确认Delete。在结果中查看删除的文件数量和回收的空间。",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             2500,
             240
-          ]
+          ],
+          "speech_text": "计划无误后确认Delete。在结果中查看删除的文件数量和回收的空间。"
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "查看更新后的Usage扫描。已删除的产物可能仍以缺失状态连同其记录的生成方法一起列出；需要时请通过相应模块重新生成。",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             580
-          ]
+          ],
+          "speech_text": "查看更新后的Usage扫描。已删除的产物可能仍以缺失状态连同其记录的生成方法一起列出；需要时请通过相应模块重新生成。"
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
-          "hold_after": 0.7
+          "narration": "打开Archive，在源项目之外选择一个空的目标位置。点击Show what would move，检查两个路径。",
+          "hold_after": 0.7,
+          "speech_text": "打开Archive，在源项目之外选择一个空的目标位置。点击Show what would move，检查两个路径。"
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
-          "hold_after": 0.7
+          "narration": "点击Move查看确认信息。Archive会移动项目，因此在继续之前请保留好所需的独立备份。",
+          "hold_after": 0.7,
+          "speech_text": "点击Move查看确认信息。Archive会移动项目，因此在继续之前请保留好所需的独立备份。"
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
-          "hold_after": 0.7
+          "narration": "确认Yes以移动项目。保留目标位置的清单文件，以及原位置留下的归档日志。",
+          "hold_after": 0.7,
+          "speech_text": "确认Yes以移动项目。保留目标位置的清单文件，以及原位置留下的归档日志。"
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "把目标位置选为项目并重新扫描。检查移动后的文件，并更新仍指向旧位置的外部引用。",
           "hold_after": 0.7,
           "focus": [
             345,
             80,
             3470,
             670
-          ]
+          ],
+          "speech_text": "把目标位置选为项目并重新扫描。检查移动后的文件，并更新仍指向旧位置的外部引用。"
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "用Database Browser查看测量表，用Report生成项目汇总，用Data Manager维护存储。把归档记录与项目文档一起保存。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "29_report"
-          ]
+          ],
+          "speech_text": "用Database Browser查看测量表，用Report生成项目汇总，用Data Manager维护存储。把归档记录与项目文档一起保存。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7923,49 +8069,52 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser：查找并检查项目",
+      "description": "搜索项目文件夹，检查记录的阶段，并确定下一步要打开的工具。",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "使用搜索根目录和深度发现项目。",
+        "检查产物和记录的阶段。",
+        "选择下一个相关工具。"
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "选择包含您的spaCR项目的文件夹。可以用已完成的External Masks和Format Converter示例进行练习。",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "打开Help，然后打开Project browser，查找项目文件夹并检查其记录的输出。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "37_batch"
-          ]
+          ],
+          "speech_text": "打开Help，然后打开Project browser，查找项目文件夹并检查其记录的输出。"
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "点击Add folder，选择一个搜索根目录。深度为零时只检查该文件夹本身；如果项目位于子文件夹中，请增加深度。",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             360
-          ]
+          ],
+          "speech_text": "点击Add folder，选择一个搜索根目录。深度为零时只检查该文件夹本身；如果项目位于子文件夹中，请增加深度。"
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "把Depth设为一，点击Scan，纳入根目录下一层的文件夹。检查得到的项目行。",
           "hold_after": 0.7,
           "focus": [
             345,
             180,
             3450,
             660
-          ]
+          ],
+          "speech_text": "把Depth设为一，点击Scan，纳入根目录下一层的文件夹。检查得到的项目行。"
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "结合磁盘上找到的文件阅读State和Stage。没有产物登记的文件夹，即使包含转换后的图像，也可能显示unknown。",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7976,33 +8125,36 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "结合磁盘上找到的文件阅读State和Stage。没有产物登记的文件夹，即使包含转换后的图像，也可能显示unknown。"
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "添加更多搜索根目录以纳入其他项目。选择一行进行检查；如果重新扫描后详情为空，请先选择另一行再返回。",
           "hold_after": 0.7,
           "focus": [
             345,
             225,
             3450,
             260
-          ]
+          ],
+          "speech_text": "添加更多搜索根目录以纳入其他项目。选择一行进行检查；如果重新扫描后详情为空，请先选择另一行再返回。"
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "拖动分隔条加宽详情区域。检查已登记的产物、未登记的文件以及最近一次运行时间戳的来源。",
           "hold_after": 0.7,
           "focus": [
             2020,
             300,
             1790,
             260
-          ]
+          ],
+          "speech_text": "拖动分隔条加宽详情区域。检查已登记的产物、未登记的文件以及最近一次运行时间戳的来源。"
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "打开Stages，查看哪些预期输出已经存在。使用What could run next选择合适的流程，然后检查该模块所需的输入。",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -8012,50 +8164,95 @@
           ],
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "打开Stages，查看哪些预期输出已经存在。使用What could run next选择合适的流程，然后检查该模块所需的输入。"
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "点击Size等列标题对项目排序。再次点击可反转顺序。",
           "hold_after": 0.7,
           "focus": [
             345,
             300,
             1680,
             170
-          ]
+          ],
+          "speech_text": "点击Size等列标题对项目排序。再次点击可反转顺序。"
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "需要缩小或扩大搜索范围时，请调整Depth并重新扫描。直接选择的项目在深度为零时仍可被发现。",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3450,
             340
-          ]
+          ],
+          "speech_text": "需要缩小或扩大搜索范围时，请调整Depth并重新扫描。直接选择的项目在深度为零时仍可被发现。"
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
-          "hold_after": 0.7
+          "narration": "选择一个根目录并点击Remove，停止在其中搜索。这只会把搜索位置从列表中移除，文件仍保留在磁盘上。",
+          "hold_after": 0.7,
+          "speech_text": "选择一个根目录并点击Remove，停止在其中搜索。这只会把搜索位置从列表中移除，文件仍保留在磁盘上。"
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "打开Run History查看任务记录，打开Database Browser查看测量数据，或打开Data Manager进行清理和归档。使用相关模块的教程继续分析。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "34_database",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "打开Run History查看任务记录，打开Database Browser查看测量数据，或打开Data Manager进行清理和归档。使用相关模块的教程继续分析。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8063,25 +8260,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge：编辑并取回标签掩膜",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "在napari中打开图像和掩膜，编辑标签，并把修正后的掩膜保存回spaCR。",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "打开对应的图像和标签文件。",
+        "在napari中编辑并撤销更改。",
+        "取回保存的掩膜并检查。"
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "安装可选的napari依赖，并把合成示例解压到新文件夹。保留一份未改动的备份：Take the mask back会覆盖所选的工作掩膜。在两轮已保存的编辑之间，请关闭并重新打开查看器。",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "打开Make Masks，然后打开Napari Bridge。用它以强度图像为参考编辑已有的标签掩膜。请保留一份未改动的掩膜备份。",
           "focus": [
             460,
             235,
@@ -8091,70 +8288,78 @@
           "related_lessons": [
             "14_make_masks"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开Make Masks，然后打开Napari Bridge。用它以强度图像为参考编辑已有的标签掩膜。请保留一份未改动的掩膜备份。"
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "下载并解压合成示例。Mask选择mask点tif，Image选择image点tif，然后按Open in napari。",
           "focus": [
             460,
             365,
             3350,
             370
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "下载并解压合成示例。Mask选择mask点tif，Image选择image点tif，然后按Open in napari。"
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
-          "hold_after": 0.7
+          "narration": "在napari中选择掩膜的Labels图层。标签零是背景；每个对象标签都有显示颜色。请在标签图层上进行编辑。",
+          "hold_after": 0.7,
+          "speech_text": "在napari中选择掩膜的Labels图层。标签零是背景；每个对象标签都有显示颜色。请在标签图层上进行编辑。"
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "回到spaCR，使用Take the mask back导入查看器中当前的标签。如果没有做任何更改，状态会显示掩膜未改变。",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "回到斯佩克尔，使用Take the mask back导入查看器中当前的标签。如果没有做任何更改，状态会显示掩膜未改变。"
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
-          "hold_after": 0.7
+          "narration": "练习时，选择标签十八，选择Fill，然后点击标签为二的对象。导入之前请检查更改后的标签。",
+          "hold_after": 0.7,
+          "speech_text": "练习时，选择标签十八，选择Fill，然后点击标签为二的对象。导入之前请检查更改后的标签。"
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
-          "hold_after": 0.7
+          "narration": "使用Undo撤销查看器中的最后一次编辑。准备保留更改时，再执行一次Fill。",
+          "hold_after": 0.7,
+          "speech_text": "使用Undo撤销查看器中的最后一次编辑。准备保留更改时，再执行一次Fill。"
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "在spaCR中点击Take the mask back。查看更改的像素数，然后检查保存的掩膜及其修正历史附属文件。",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "在斯佩克尔中点击Take the mask back。查看更改的像素数，然后检查保存的掩膜及其修正历史附属文件。"
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "进行下一轮编辑之前，点击Close viewer并重新打开掩膜。这样保存的掩膜就成为后续修正的起点。",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "进行下一轮编辑之前，点击Close viewer并重新打开掩膜。这样保存的掩膜就成为后续修正的起点。"
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "下一次编辑后，取回掩膜并再次检查结果。完成后关闭查看器，保留修正历史，并重新运行受更改标签影响的测量。",
           "focus": [
             460,
             445,
@@ -8165,12 +8370,53 @@
             "08_measure",
             "06_api"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "下一次编辑后，取回掩膜并再次检查结果。完成后关闭查看器，保留修正历史，并重新运行受更改标签影响的测量。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8178,86 +8424,137 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC：检查读段深度并选择阈值",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "加载比对后的计数，检查孔和向导序列的覆盖情况，并比较丰度阈值。",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "选择计数输入和质控设置。",
+        "检查覆盖情况和位置效应。",
+        "比较阈值，并保留生成的表和图。"
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "使用Regression教程中下载的示例筛选数据里的plate_1_unique_combinations.csv，或您自己的比对计数表。选择一个新的输出文件夹。如果需要依赖未比对读段或预期文库的检查，请提供比对质控文件和条形码参考文件。",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "打开Map Barcodes，然后打开Barcode QC。从一张比对计数表开始；链接中的Regression示例提供了一张供练习。",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开Map Barcodes，然后打开Barcode QC。从一张比对计数表开始；链接中的Regression示例提供了一张供练习。"
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
-          "hold_after": 0.7
+          "narration": "把Count data设为您的计数表，并选择新的输出位置。示例包含分布在三百八十四个孔中的比对读段。",
+          "hold_after": 0.7,
+          "speech_text": "把Count data设为您的计数表，并选择新的输出位置。示例包含分布在三百八十四个孔中的比对读段。"
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
-          "hold_after": 0.7
+          "narration": "根据实验设计设置Target gRNAs per well，并选择用于推导阈值的汇总方法。示例使用五和median。",
+          "hold_after": 0.7,
+          "speech_text": "根据实验设计设置Target gRNAs per well，并选择用于推导阈值的汇总方法。示例使用五和median。"
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
-          "hold_after": 0.7
+          "narration": "设置Starved read fraction，标记读段数明显低于板中位数的孔。示例使用零点一。排除之前，请先检查被标记的孔。",
+          "hold_after": 0.7,
+          "speech_text": "设置Starved read fraction，标记读段数明显低于板中位数的孔。示例使用零点一。排除之前，请先检查被标记的孔。"
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
-          "hold_after": 0.7
+          "narration": "开启Plot和Save，然后按Run。如需相应的检查，请添加比对质控或参考输入；仅凭计数表只能描述观察到的比对读段。",
+          "hold_after": 0.7,
+          "speech_text": "开启Plot和Save，然后按Run。如需相应的检查，请添加比对质控或参考输入；仅凭计数表只能描述观察到的比对读段。"
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
-          "hold_after": 0.7
+          "narration": "阅读完成日志和保存的输出路径。使用结果之前，请对照所选输入排查错误。",
+          "hold_after": 0.7,
+          "speech_text": "阅读完成日志和保存的输出路径。使用结果之前，请对照所选输入排查错误。"
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
-          "hold_after": 0.7
+          "narration": "从输出文件夹中打开barcode QC点PNG和threshold sweep点PNG。如果Figures面板为空，请使用图像查看器。",
+          "hold_after": 0.7,
+          "speech_text": "从输出文件夹中打开barcode QC点PNG和threshold sweep点PNG。如果Figures面板为空，请使用图像查看器。"
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
-          "hold_after": 0.7
+          "narration": "检查读段深度、行和列效应以及向导序列的分布。如果需要找出完全缺失的预期向导序列，请与参考文库进行比较。",
+          "hold_after": 0.7,
+          "speech_text": "检查读段深度、行和列效应以及向导序列的分布。如果需要找出完全缺失的预期向导序列，请与参考文库进行比较。"
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
-          "hold_after": 0.7
+          "narration": "检查阈值扫描。在本例中，把阈值设在每个孔读段的约百分之一点二一时，向导序列数的中位数为五，同时保留约百分之五十八的比对读段。",
+          "hold_after": 0.7,
+          "speech_text": "检查阈值扫描。在本例中，把阈值设在每个孔读段的约百分之一点二一时，向导序列数的中位数为五，同时保留约百分之五十八的比对读段。"
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
-          "hold_after": 0.7
+          "narration": "随着阈值变化，比较保留的读段、保留的孔以及高于向导序列目标的孔。请选择适合您设计的阈值；达到向导序列目标并不能确保结果归属于单个向导序列。",
+          "hold_after": 0.7,
+          "speech_text": "随着阈值变化，比较保留的读段、保留的孔以及高于向导序列目标的孔。请选择适合您设计的阈值；达到向导序列目标并不能确保结果归属于单个向导序列。"
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "把推荐值、扫描表、图和设置与源计数保存在一起。在后续分析中一致地使用所选阈值，并记录选择的理由。",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把推荐值、扫描表、图和设置与源计数保存在一起。在后续分析中一致地使用所选阈值，并记录选择的理由。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8265,7 +8562,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List：筛选候选并导出候选短名单",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -8273,80 +8570,131 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "加载Regression结果，按q值、向导序列数量和一致性筛选，然后导出所选候选。",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "用提供的配套脚本打开示例Regression结果。",
+        "筛选候选，并阅读其效应和向导序列一致性。",
+        "把所选行导出为CSV、Markdown或HTML。"
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。当前Regression中的Hits快捷方式不会显示面板；请改为运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "从Home打开Regression，选择Hits。如果面板仍未显示，请使用本课程附带的配套脚本打开Hit List。",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Regression，选择Hits。如果面板仍未显示，请使用本课程附带的配套脚本打开Hit List。"
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
-          "hold_after": 0.7
+          "narration": "解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
+          "hold_after": 0.7,
+          "speech_text": "解压链接中的示例并激活斯佩克尔环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
-          "hold_after": 0.7
+          "narration": "示例加载三百二十五个基因。加宽列以阅读效应、P、q和向导序列一致性。效应是标准化的边际效应。支持孔数请查看results_gene.csv中的wells_with_gene；导出的观测数为零表示支持数不可用。",
+          "hold_after": 0.7,
+          "speech_text": "示例加载三百二十五个基因。加宽列以阅读效应、P、q和向导序列一致性。效应是标准化的边际效应。支持孔数请查看results_gene.csv中的wells_with_gene；导出的观测数为零表示支持数不可用。"
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
-          "hold_after": 0.7
+          "narration": "把Max q设为零点零五。本例中没有基因通过，因此表格变为空。把Max q恢复为一即可浏览全部候选。",
+          "hold_after": 0.7,
+          "speech_text": "把Max q设为零点零五。本例中没有基因通过，因此表格变为空。把Max q恢复为一即可浏览全部候选。"
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
-          "hold_after": 0.7
+          "narration": "把Minimum guides设为二。剩下一百一十七个至少有两行已检验向导序列的基因。此过滤会保留原始q值。",
+          "hold_after": 0.7,
+          "speech_text": "把Minimum guides设为二。剩下一百一十七个至少有两行已检验向导序列的基因。此过滤会保留原始q值。"
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
-          "hold_after": 0.7
+          "narration": "把Minimum agreement设为一。剩下五十七个候选，它们所有已检验的向导序列都与基因效应符号一致。请结合q阅读一致性：这些候选仍未达到显著性阈值。",
+          "hold_after": 0.7,
+          "speech_text": "把Minimum agreement设为一。剩下五十七个候选，它们所有已检验的向导序列都与基因效应符号一致。请结合q阅读一致性：这些候选仍未达到显著性阈值。"
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
-          "hold_after": 0.7
+          "narration": "开启Hide controls，从此视图中移除对照行，剩下五十六个候选。再次关闭它，以便在之后的导出中包含该行。",
+          "hold_after": 0.7,
+          "speech_text": "开启Hide controls，从此视图中移除对照行，剩下五十六个候选。再次关闭它，以便在之后的导出中包含该行。"
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
-          "hold_after": 0.7
+          "narration": "清除其他过滤条件，选择Direction up，并把Minimum absolute effect设为零点一。剩下十六行。请为您的分析选择阈值，然后在下一步之前恢复这些控件。",
+          "hold_after": 0.7,
+          "speech_text": "清除其他过滤条件，选择Direction up，并把Minimum absolute effect设为零点一。剩下十六行。请为您的分析选择阈值，然后在下一步之前恢复这些控件。"
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
-          "hold_after": 0.7
+          "narration": "在Search中输入标识以查找对应行。没有匹配的搜索会使表格为空。清空Search即可恢复当前的筛选结果。",
+          "hold_after": 0.7,
+          "speech_text": "在Search中输入标识以查找对应行。没有匹配的搜索会使表格为空。清空Search即可恢复当前的筛选结果。"
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
-          "hold_after": 0.7
+          "narration": "导出时，设置两个向导序列、完全一致、包含对照并保持搜索为空。把所选的五十七行导出为CSV、Markdown或HTML。CSV保留数值细节。请把筛选选项与文件一起保存。",
+          "hold_after": 0.7,
+          "speech_text": "导出时，设置两个向导序列、完全一致、包含对照并保持搜索为空。把所选的五十七行导出为CSV、Markdown或HTML。CSV保留数值细节。请把筛选选项与文件一起保存。"
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "清除过滤条件即可回到全部三百二十五个基因。把候选短名单导出与原始结果分开保存。在Python中，使用build_hit_list，然后使用filter以及CSV、Markdown或HTML写出函数；请检查各格式的行数上限。",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "清除过滤条件即可回到全部三百二十五个基因。把候选短名单导出与原始结果分开保存。在Python中，使用build_hit_list，然后使用filter以及CSV、Markdown或HTML写出函数；请检查各格式的行数上限。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8354,95 +8702,103 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results：起草并导出运行报告",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "选择已完成的运行，生成报告，检查记录的设置和结果，并导出Markdown。",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "选择项目、运行日志和对应的结果文件夹。",
+        "生成摘要，并检查Methods、Results和Caveats选项卡。",
+        "复制报告文本，或导出带运行摘要的Markdown。"
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "先完成Regression示例。把其项目文件夹、运行日志和guide_permutation结果放在一起。在报告中使用生成的文本之前，请检查推断的设置、分析版本和统计阈值。",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "从Home打开Regression，然后打开Methods and Results。用这个工具根据已完成的分析起草报告。本演示接着使用Regression示例中保存的运行。",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Regression，然后打开Methods and Results。用这个工具根据已完成的分析起草报告。本演示接着使用Regression示例中保存的运行。"
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "选择项目文件夹、运行日志和对应的回归结果文件夹。在这个回归示例中保持Classifier为空。确认所选文件都属于您要描述的那次运行。",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "选择项目文件夹、运行日志和对应的回归结果文件夹。在这个回归示例中保持Classifier为空。确认所选文件都属于您要描述的那次运行。"
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
-          "hold_after": 0.7
+          "narration": "点击Build digest，然后阅读Methods和Results选项卡。把分析版本与保存的运行环境进行核对；导出工具的版本可能与执行分析的版本不同。",
+          "hold_after": 0.7,
+          "speech_text": "点击Build digest，然后阅读Methods和Results选项卡。把分析版本与保存的运行环境进行核对；导出工具的版本可能与执行分析的版本不同。"
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "阅读Caveats，并按名称把种子条目与保存的设置进行比较。置换种子和全局种子对应不同的随机数生成器。编辑报告时，未记录的历史种子应保持为未知。",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "阅读Caveats，并按名称把种子条目与保存的设置进行比较。置换种子和全局种子对应不同的随机数生成器。编辑报告时，未记录的历史种子应保持为未知。"
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "打开Run digest，检查结构化设置和源记录。把它们与正文比较，并在共享草稿之前查看关于缺失报告或推断默认值的警告。",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开Run digest，检查结构化设置和源记录。把它们与正文比较，并在共享草稿之前查看关于缺失报告或推断默认值的警告。"
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "在Results中，把效应量和校正后的q值放在一起检查。本例中没有基因低于零点零五的q值阈值。如果某个标题把列出的行称为hits，编辑时请把它们描述为排序后的候选。",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "在Results中，把效应量和校正后的q值放在一起检查。本例中没有基因低于零点零五的q值阈值。如果某个标题把列出的行称为hits，编辑时请把它们描述为排序后的候选。"
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
-          "hold_after": 0.7
+          "narration": "点击Copy sections复制显示的Methods和Results。把复制的文本与源记录进行核对。如果还需要结构化的运行摘要，请使用Export Markdown。",
+          "hold_after": 0.7,
+          "speech_text": "点击Copy sections复制显示的Methods和Results。把复制的文本与源记录进行核对。如果还需要结构化的运行摘要，请使用Export Markdown。"
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "点击Export Markdown并选择新的文件名。该文件包含报告的两个部分，并附有运行摘要作为附录。保留原始草稿，把审核后的修订另行保存。",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "点击Export Markdown并选择新的文件名。该文件包含报告的两个部分，并附有运行摘要作为附录。保留原始草稿，把审核后的修订另行保存。"
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AI是可选功能，会把摘要发送给您配置的服务提供商。使用该选项之前请检查其内容，然后把生成的任何文本与保存的分析进行核对。您也可以在Python中使用build_digest、render_methods和render_results。",
           "focus": [
             355,
             560,
@@ -8453,12 +8809,53 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Draft with AI是可选功能，会把摘要发送给您配置的服务提供商。使用该选项之前请检查其内容，然后把生成的任何文本与保存的分析进行核对。您也可以在Python中使用build_digest、render_methods和render_results。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8466,24 +8863,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare：比较保存的运行",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "选择两次保存的运行，检查设置和计数的差异，并查看可用的结果比较。",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "选择基准运行和比较运行。",
+        "检查设置和计数的差异。",
+        "找到可用的结果比较。"
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "下载并解压链接中的快照。按照其中的README，在spaCR环境中用一个新的目标文件夹运行prepare_run_compare_download.py。进行自己的比较时，请在输出被覆盖之前保存每次运行的输出。",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "从Home的Data类别中打开Run Compare，查看两次运行记录的输出。",
           "focus_modules": [
             "run_compare"
           ],
@@ -8491,54 +8888,60 @@
             "08_measure",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "从主页的Data类别中打开Run Compare，查看两次运行记录的输出。"
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
-          "hold_after": 0.7
+          "narration": "下载并解压快照示例。按照其README，用一个新的目标文件夹运行准备脚本。",
+          "hold_after": 0.7,
+          "speech_text": "下载并解压快照示例。按照其README，用一个新的目标文件夹运行准备脚本。"
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
-          "hold_after": 0.7
+          "narration": "点击Browse，选择准备好的比较文件夹。进行自己的比较时，请保留原始项目及其运行快照。",
+          "hold_after": 0.7,
+          "speech_text": "点击Browse，选择准备好的比较文件夹。进行自己的比较时，请保留原始项目及其运行快照。"
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "把基准运行选为A，把比较运行选为B，然后点击Compare。检查它们的模块名称和记录的版本。",
           "focus": [
             350,
             235,
             3450,
             190
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把基准运行选为A，把比较运行选为B，然后点击Compare。检查它们的模块名称和记录的版本。"
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "开启Show unchanged settings以包含相同的值。展开条目，检查每次运行使用的配置。",
           "focus": [
             350,
             360,
             2300,
             1400
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "开启Show unchanged settings以包含相同的值。展开条目，检查每次运行使用的配置。"
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "打开Counts比较对象总数。Delta是B减去A。本例中计数相同；需要理解某个差异时，请检查相关的图像和测量数据。",
           "focus": [
             350,
             425,
             1250,
             720
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开Counts比较对象总数。Delta是B减去A。本例中计数相同；需要理解某个差异时，请检查相关的图像和测量数据。"
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "当两次运行都登记了回归结果时，打开Hits。本例包含的是Measure快照，因此没有可用的hits比较。",
           "focus": [
             350,
             405,
@@ -8549,32 +8952,75 @@
             "13_regression",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "当两次运行都登记了回归结果时，打开Hits。本例包含的是Measure快照，因此没有可用的hits比较。"
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "请选择两次不同的运行。如果两侧选择了同一次运行，请根据警告更正选择。",
           "focus": [
             350,
             235,
             3450,
             220
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "请选择两次不同的运行。如果两侧选择了同一次运行，请根据警告更正选择。"
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "保留两个输出快照以及能解释其差异的设置。用Run History查看各自的日志，用Regression查看对应的hits结果。",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "保留两个输出快照以及能解释其差异的设置。用Run History查看各自的日志，用Regression查看对应的hits结果。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8586,113 +9032,123 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts：跨板监控对照",
+      "description": "加载批次表，选择对照和基线限值，检查警报，并导出绘制的数据点。",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "选择测量指标和对照群体。",
+        "设置基线和警报规则。",
+        "检查警报并导出图表数据点。"
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "下载下方的合成批次CSV，或准备一张按孔记录的表，包含板标识、运行顺序、一个测量值和对照标签。示例展示了带有预设漂移的三十块板。",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "打开QC，然后打开Control Charts，监控整个批次中重复出现的对照。练习用CSV使用合成的板和预设的漂移。",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "打开QC，然后打开Control Charts，监控整个批次中重复出现的对照。练习用CSV使用合成的板和预设的漂移。"
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "下载下方的示例CSV，点击Load table并选择它。其中有三十块板，每块板上每种对照各有三个孔，另有三个样本孔。",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "下载下方的示例CSV，点击Load table并选择它。其中有三十块板，每块板上每种对照各有三个孔，另有三个样本孔。"
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "把Plate、Run order、Measurement和Control column与表中的列对应起来。在Control is中选择neg作为阴性对照。不选择任何项则包含所有行。",
           "hold_after": 0.7,
           "focus": [
             290,
             460,
             740,
             700
-          ]
+          ],
+          "speech_text": "把Plate、Run order、Measurement和Control column与表中的列对应起来。在Control is中选择neg作为阴性对照。不选择任何项则包含所有行。"
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "选择Sigma from来决定变异的估计方法。这里Auto使用子组估计，因为每块板包含三个所选的对照孔。",
           "hold_after": 0.7,
           "focus": [
             290,
             980,
             1760,
             600
-          ]
+          ],
+          "speech_text": "选择Sigma from来决定变异的估计方法。这里Auto使用子组估计，因为每块板包含三个所选的对照孔。"
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "在Rules中选择要检查的警报。本例使用Limits only，专注于超出三西格玛限值的点。更改设置会重新绘制图表。",
           "hold_after": 0.7,
           "focus": [
             290,
             1160,
             1900,
             450
-          ]
+          ],
+          "speech_text": "在Rules中选择要检查的警报。本例使用Limits only，专注于超出三西格玛限值的点。更改设置会重新绘制图表。"
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "把Baseline plates设为二十。前二十块板确定该序列的限值。阅读报告和规则表，找到后面被标记的板。",
           "hold_after": 0.7,
           "focus": [
             1010,
             450,
             2790,
             1600
-          ]
+          ],
+          "speech_text": "把Baseline plates设为二十。前二十块板确定该序列的限值。阅读报告和规则表，找到后面被标记的板。"
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
-          "hold_after": 0.7
+          "narration": "要检查阳性对照，请取消neg并选择pos。分别查看它们的均值和限值，然后回到neg继续本例。",
+          "hold_after": 0.7,
+          "speech_text": "要检查阳性对照，请取消neg并选择pos。分别查看它们的均值和限值，然后回到neg继续本例。"
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "如果计划的参考期不同，请调整Baseline plates。该工具至少需要八块板；请选择适合该检测方法的稳定基线。",
           "hold_after": 0.7,
           "focus": [
             295,
             1400,
             2600,
             375
-          ]
+          ],
+          "speech_text": "如果计划的参考期不同，请调整Baseline plates。该工具至少需要八块板；请选择适合该检测方法的稳定基线。"
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "点击Export points并选择CSV保存位置。文件会保存板标识、均值、子组大小、限值、是否属于基线以及触发的规则。",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "点击Export points并选择CSV保存位置。文件会保存板标识、均值、子组大小、限值、是否属于基线以及触发的规则。"
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "把输入CSV、所选对照和基线设置与导出的点保存在一起。用被标记的板标识调查采集或检测方法上的变化。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "把输入CSV、所选对照和基线设置与导出的点保存在一起。用被标记的板标识调查采集或检测方法上的变化。"
         }
       ],
       "example_files": [
@@ -8701,6 +9157,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8711,27 +9207,28 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph：检查输出和依赖关系",
+      "description": "打开项目的产物图，检查缺失的输出，并复制其依赖关系图。",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "打开项目的产物图。",
+        "检查路径、状态和依赖关系。",
+        "复制关系图并刷新记录。"
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "选择一个带有已登记输出的spaCR项目。External Masks示例提供测量数据和裁剪图像；Data Manager课程展示了已删除产物的显示方式。",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "打开Help，然后打开Pipeline graph，检查项目记录的输出和依赖关系。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "打开Help，然后打开Pipeline graph，检查项目记录的输出和依赖关系。"
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "用Browse找到项目文件夹。如果图为空，请检查该文件夹是否有已登记的产物；文件可能存在，但没有登记记录。",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8742,111 +9239,161 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "用Browse找到项目文件夹。如果图为空，请检查该文件夹是否有已登记的产物；文件可能存在，但没有登记记录。"
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "选择已测量的项目以显示其产物框。示例包含测量数据、裁剪图像和资源日志，其中一个已删除的裁剪文件夹被标为缺失。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "选择已测量的项目以显示其产物框。示例包含测量数据、裁剪图像和资源日志，其中一个已删除的裁剪文件夹被标为缺失。"
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "点击一个产物，并拖动分隔条加宽详情区域。检查其路径、角色、运行标识、生成时间和软件版本。",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "点击一个产物，并拖动分隔条加宽详情区域。检查其路径、角色、运行标识、生成时间和软件版本。"
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "选择一个Missing产物，找到其记录的路径。显示的大小来自保存的记录，因此排查缺失文件时请检查实际位置。",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "选择一个Missing产物，找到其记录的路径。显示的大小来自保存的记录，因此排查缺失文件时请检查实际位置。"
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "在有记录的情况下，检查输入和下游链接。有些产物，例如资源日志，可能位于项目文件夹之外。",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "在有记录的情况下，检查输入和下游链接。有些产物，例如资源日志，可能位于项目文件夹之外。"
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "使用Current、Stale和Missing选择显示哪些状态的产物。例如，隐藏Current以专注于缺失的输出。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "使用Current、Stale和Missing选择显示哪些状态的产物。例如，隐藏Current以专注于缺失的输出。"
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "如果看不到任何框，请检查显示过滤器和产物总数。恢复您想检查的状态。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "如果看不到任何框，请检查显示过滤器和产物总数。恢复您想检查的状态。"
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "点击Copy Graphviz，把完整的关系图复制为DOT文本，其中也包括被过滤器隐藏的节点。把它粘贴到Graphviz工具中进行渲染或保存。",
           "hold_after": 0.7,
           "focus": [
             345,
             230,
             3450,
             200
-          ]
+          ],
+          "speech_text": "点击Copy Graphviz，把完整的关系图复制为DOT文本，其中也包括被过滤器隐藏的节点。把它粘贴到Graphviz工具中进行渲染或保存。"
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "恢复所需的过滤器，再次选择一个产物查看详情。根据其记录的路径和上游流程判断需要处理的内容。",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "恢复所需的过滤器，再次选择一个产物查看详情。根据其记录的路径和上游流程判断需要处理的内容。"
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "项目更改后点击Redraw重新读取登记信息。打开Run History查看保存的设置和日志，或打开Data Manager进行清理和归档。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "44_data_manager",
             "45_project_browser"
-          ]
+          ],
+          "speech_text": "项目更改后点击Redraw重新读取登记信息。打开Run History查看保存的设置和日志，或打开Data Manager进行清理和归档。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9001,56 +9548,61 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC：检查项目质量报告",
+      "description": "选择项目，阅读可用的质量报告，调查警告，并刷新仪表板。",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "选择要检查的项目或运行。",
+        "阅读可用、缺失和过期的报告。",
+        "调查发现的问题并刷新视图。"
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "使用保存有质量报告的项目。下载的Mask和Annotate示例提供不同的报告集；请选择您要检查的具体项目或运行文件夹。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
-          "hold_after": 0.7
+          "narration": "从Home的Data类别中打开QC，查看与项目一起保存的质量报告。",
+          "hold_after": 0.7,
+          "speech_text": "从主页的Data类别中打开QC，查看与项目一起保存的质量报告。"
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "标题栏可以打开Layer Viewer、Control Charts和Outliers。仪表板上的问题需要进一步调查时，请参考它们的教程。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "标题栏可以打开Layer Viewer、Control Charts和Outliers。仪表板上的问题需要进一步调查时，请参考它们的教程。"
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "点击Browse并选择项目文件夹。选择包含要评估的那次运行报告的文件夹。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "点击Browse并选择项目文件夹。选择包含要评估的那次运行报告的文件夹。"
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
-          "hold_after": 0.7
+          "narration": "Missing表示该项检查没有可用的报告。得出结论之前，请按照提示获取所需的报告。",
+          "hold_after": 0.7,
+          "speech_text": "Missing表示该项检查没有可用的报告。得出结论之前，请按照提示获取所需的报告。"
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "当某次运行的输出与上级项目分开存放时，请选择该运行的子文件夹。检查显示的范围是否与您要检查的数据一致。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "speech_text": "当某次运行的输出与上级项目分开存放时，请选择该运行的子文件夹。检查显示的范围是否与您要检查的数据一致。"
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "阅读分割警告，并检查对应的视野。对于大小分布的警告，请比较图像和对象边界以了解原因。",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -9061,65 +9613,112 @@
           "related_lessons": [
             "14_make_masks",
             "57_layer_viewer"
-          ]
+          ],
+          "speech_text": "阅读分割警告，并检查对应的视野。对于大小分布的警告，请比较图像和对象边界以了解原因。"
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
-          "hold_after": 0.7
+          "narration": "结合其他类别查看单位卡片。单位报告一致即可满足该项检查；缺失的报告仍需处理。",
+          "hold_after": 0.7,
+          "speech_text": "结合其他类别查看单位卡片。单位报告一致即可满足该项检查；缺失的报告仍需处理。"
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "阅读全部五个类别及其提示。对于数据泄漏，请检查样本标识和分组是否反映了预期的独立验证单位。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "23_agreement",
             "33_plate_viewer"
-          ]
+          ],
+          "speech_text": "阅读全部五个类别及其提示。对于数据泄漏，请检查样本标识和分组是否反映了预期的独立验证单位。"
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "打开失败或警告的详情，找出受影响的视野和源报告。使用相应的分析工具进行调查。",
           "hold_after": 0.7,
           "focus": [
             450,
             400,
             2950,
             240
-          ]
+          ],
+          "speech_text": "打开失败或警告的详情，找出受影响的视野和源报告。使用相应的分析工具进行调查。"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "磁盘上的报告更改后，点击Refresh。仪表板会重新读取可用的依据；请通过生成报告的分析来生成更新后的报告。",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             2950,
             50
-          ]
+          ],
+          "speech_text": "磁盘上的报告更改后，点击Refresh。仪表板会重新读取可用的依据；请通过生成报告的分析来生成更新后的报告。"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
-          "hold_after": 0.7
+          "narration": "对照输入数据和设置调查过期的报告。在项目审查中保留未解决的问题。",
+          "hold_after": 0.7,
+          "speech_text": "对照输入数据和设置调查过期的报告。在项目审查中保留未解决的问题。"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "把质量报告与项目保存在一起。继续使用相关的专用工具或模块教程处理每一项发现。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "把质量报告与项目保存在一起。继续使用相关的专用工具或模块教程处理每一项发现。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9131,37 +9730,40 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter：查看测量值及其裁剪图像",
+      "description": "绘制两列测量数据，预览对象裁剪图像，并把所选对象发送到Annotate。",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "加载测量数据并选择坐标轴。",
+        "查看某个点背后的裁剪图像。",
+        "把所选对象发送到Annotate。"
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "使用带有对应对象裁剪图像和裁剪格式文件的spaCR测量数据库。可下载的Annotate示例提供了这些输入。",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "打开Image UMAP，然后打开Image Scatter，绘制两个已有的测量值。练习时使用Annotate示例的数据库及其对应的细胞裁剪图像。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ]
+          ],
+          "speech_text": "打开Image 优麦普，然后打开Image Scatter，绘制两个已有的测量值。练习时使用Annotate示例的数据库及其对应的细胞裁剪图像。"
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
-          "hold_after": 0.7
+          "narration": "点击Browse并打开measurements.db。把项目的data文件夹和裁剪格式文件与数据库放在一起，以便找到缩略图。",
+          "hold_after": 0.7,
+          "speech_text": "点击Browse并打开测量数据库文件。把项目的data文件夹和裁剪格式文件与数据库放在一起，以便找到缩略图。"
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
-          "hold_after": 0.7
+          "narration": "在表选择器中选择cell，然后点击Plot。切换到其他表时，请再次点击Plot加载其中的行。",
+          "hold_after": 0.7,
+          "speech_text": "在表选择器中选择cell，然后点击Plot。切换到其他表时，请再次点击Plot加载其中的行。"
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "把x设为细胞面积，把y设为细胞通道一的平均强度。选择坐标轴后，已加载的行会立即重新绘制。",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -9171,85 +9773,93 @@
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "把x设为细胞面积，把y设为细胞通道一的平均强度。选择坐标轴后，已加载的行会立即重新绘制。"
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "把指针悬停在一个点上，查看其保存的裁剪图像和完整的对象标识。借助图像理解该点背后的测量值。",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "把指针悬停在一个点上，查看其保存的裁剪图像和完整的对象标识。借助图像理解该点背后的测量值。"
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "移开指针即可清除临时预览，然后悬停在另一个点上进行查看。",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "移开指针即可清除临时预览，然后悬停在另一个点上进行查看。"
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "交换x和y的测量值，从另一个角度探索两者关系。请选择有意义的特征并检查其单位。",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "交换x和y的测量值，从另一个角度探索两者关系。请选择有意义的特征并检查其单位。"
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "选择另一个测量值，例如均匀性特征。缺少坐标的行不会绘制，因此绘制的点数可能与加载的表行数不同。",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "选择另一个测量值，例如均匀性特征。缺少坐标的行不会绘制，因此绘制的点数可能与加载的表行数不同。"
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "常数列，例如本例中的测量维度，会让点排成一条线。请回到具有有用差异的特征来检查对象。",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "常数列，例如本例中的测量维度，会让点排成一条线。请回到具有有用差异的特征来检查对象。"
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "要在Annotate中查看所选的裁剪图像，请先打开Annotate并加载同一个项目，然后回到已有的Image Scatter视图。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "要在Annotate中查看所选的裁剪图像，请先打开Annotate并加载同一个项目，然后回到已有的Image Scatter视图。"
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "点击点本身，把其对象标识发送到Annotate，然后切换到该页面。仅悬停只会预览裁剪图像。",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "点击点本身，把其对象标识发送到Annotate，然后切换到该页面。仅悬停只会预览裁剪图像。"
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "在分配标签之前，先在Annotate中检查所选对象。导出表格请使用Database Browser，进行成分分析请使用PCA。",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -9261,12 +9871,53 @@
             330,
             550,
             410
-          ]
+          ],
+          "speech_text": "在分配标签之前，先在Annotate中检查所选对象。导出表格请使用Database Browser，进行成分分析请使用PCA。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9278,14 +9929,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage：浏览父对象及其内容",
+      "description": "打开保存的父子关系，选择一个家族，并在Annotate中查看对应的父细胞裁剪图像。",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "加载测量数据并展开父子关系。",
+        "在核对视野和对象类型的同时选择对象。",
+        "打开对应的父细胞裁剪图像，并通过Python获取完整层级。"
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "下载完整的Annotate示例，其中包括测量数据库和对应的细胞裁剪图像。Graph Builder中仅含数据库的归档无法提供图像。本例只含细胞裁剪图像：请双击父细胞查看裁剪图像。当前针对家族的Open crops操作可能会用无关的细胞裁剪图像代替缺失的子对象裁剪图像；在本例中请避免使用该操作。",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9293,87 +9944,141 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "从Home打开Database Browser，然后打开Lineage。用树形视图浏览每个父细胞中记录了哪些已测量对象。",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ]
+          ],
+          "speech_text": "从主页打开Database Browser，然后打开Lineage。用树形视图浏览每个父细胞中记录了哪些已测量对象。"
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
-          "hold_after": 0.7
+          "narration": "用Browse找到Annotate示例中的measurements.db，点击Build tree。加宽Object列和分隔条以阅读标签。识别对象时，除了编号，还要看它的视野和类型。",
+          "hold_after": 0.7,
+          "speech_text": "用Browse找到Annotate示例中的测量数据库文件，点击Build tree。加宽Object列和分隔条以阅读标签。识别对象时，除了编号，还要看它的视野和类型。"
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
-          "hold_after": 0.7
+          "narration": "该数据库包含两千三百四十一个细胞。树形视图最多显示两千个父家族。需要全部家族时，请使用本课程后面介绍的Python导出。",
+          "hold_after": 0.7,
+          "speech_text": "该数据库包含两千三百四十一个细胞。树形视图最多显示两千个父家族。需要全部家族时，请使用本课程后面介绍的Python导出。"
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
-          "hold_after": 0.7
+          "narration": "阅读树形视图上方的汇总。细胞核也算作子对象，因此有内容的细胞也可能没有病原体对象。请根据子对象类型解读每个家族。",
+          "hold_after": 0.7,
+          "speech_text": "阅读树形视图上方的汇总。细胞核也算作子对象，因此有内容的细胞也可能没有病原体对象。请根据子对象类型解读每个家族。"
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
-          "hold_after": 0.7
+          "narration": "展开一个父对象查看其子对象。这里细胞三包含细胞核五和病原体一。选择您要检查的具体对象类型。",
+          "hold_after": 0.7,
+          "speech_text": "展开一个父对象查看其子对象。这里细胞三包含细胞核五和病原体一。选择您要检查的具体对象类型。"
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
-          "hold_after": 0.7
+          "narration": "使用Select with contents同时选中父对象及其子对象。所选标识包含视野和对象类型。如果只需要某个子对象，请单独选择它。",
+          "hold_after": 0.7,
+          "speech_text": "使用Select with contents同时选中父对象及其子对象。所选标识包含视野和对象类型。如果只需要某个子对象，请单独选择它。"
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
-          "hold_after": 0.7
+          "narration": "展开一个大家族检查其内容。本例中有一个包含三十三个对象的家族。计数看起来异常时，请查看对应的图像。",
+          "hold_after": 0.7,
+          "speech_text": "展开一个大家族检查其内容。本例中有一个包含三十三个对象的家族。计数看起来异常时，请查看对应的图像。"
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
-          "hold_after": 0.7
+          "narration": "点击列标题对显示的家族排序。排序不会改变保存的关系，也不会改变两千个父对象的显示上限。",
+          "hold_after": 0.7,
+          "speech_text": "点击列标题对显示的家族排序。排序不会改变保存的关系，也不会改变两千个父对象的显示上限。"
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "要查看裁剪图像，请先打开Annotate并加载对应的示例项目。如果看到要求打开Annotate的消息，请在从Lineage请求图像之前先打开它。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "要查看裁剪图像，请先打开Annotate并加载对应的示例项目。如果看到要求打开Annotate的消息，请在从Lineage请求图像之前先打开它。"
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
-          "hold_after": 0.7
+          "narration": "使用完整下载的项目，其中包含细胞裁剪图像。把同一次运行的数据库和图像放在一起，使对象标识能够对应。",
+          "hold_after": 0.7,
+          "speech_text": "使用完整下载的项目，其中包含细胞裁剪图像。把同一次运行的数据库和图像放在一起，使对象标识能够对应。"
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
-          "hold_after": 0.7
+          "narration": "在本例中，请避免对整个家族使用Open crops。缺失的细胞核和病原体裁剪图像可能会被无关的细胞裁剪图像替代。请回到树形视图，只选择父细胞。",
+          "hold_after": 0.7,
+          "speech_text": "在本例中，请避免对整个家族使用Open crops。缺失的细胞核和病原体裁剪图像可能会被无关的细胞裁剪图像替代。请回到树形视图，只选择父细胞。"
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
-          "hold_after": 0.7
+          "narration": "在Lineage中双击父细胞。Annotate会打开该父对象对应的细胞裁剪图像。这就是下载示例中可用的裁剪图像。",
+          "hold_after": 0.7,
+          "speech_text": "在Lineage中双击父细胞。Annotate会打开该父对象对应的细胞裁剪图像。这就是下载示例中可用的裁剪图像。"
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
-          "hold_after": 0.7
+          "narration": "按住Shift点击父对象缩略图以放大预览，然后按Escape返回。普通的左键点击会分配标注类别，因此只想查看时请使用Shift。",
+          "hold_after": 0.7,
+          "speech_text": "按住Shift点击父对象缩略图以放大预览，然后按Escape返回。普通的左键点击会分配标注类别，因此只想查看时请使用Shift。"
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "点击Build tree刷新视图。要在Python中获得完整层级，请使用read_object_tables、build_forest和lineage_frame，然后把表保存为CSV。链接中的示例CSV包含全部七千二百零一个节点。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "点击Build tree刷新视图。要在Python中获得完整层级，请使用read_object_tables、build_forest和lineage_frame，然后把表保存为CSV。链接中的示例CSV包含全部七千二百零一个节点。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9384,144 +10089,164 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer：查看图像和标签叠加",
+      "description": "加载匹配的图像和掩膜，调整叠加效果，并放大检查对象边界。",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "打开图像及其对应的掩膜。",
+        "调整可见性、不透明度、混合方式和图层顺序。",
+        "通过缩放和平移检查标签。"
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "下载并解压Layer_Viewer_real_image_mask.zip。使用其中的强度图像和对应的整数标签掩膜。本例没有像素的物理标定。",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "从Home打开QC，然后打开Layer Viewer。下载并解压链接中的图像和掩膜示例。查看器为这两个输入提供了自己的文件控件。",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "从主页打开QC，然后打开Layer Viewer。下载并解压链接中的图像和掩膜示例。查看器为这两个输入提供了自己的文件控件。"
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
-          "hold_after": 0.7
+          "narration": "点击加号Image，打开fov01_C1点tif。灰度图像会以百分位对比度拉伸的方式显示在画布中。",
+          "hold_after": 0.7,
+          "speech_text": "点击加号Image，打开fov01_C1点tif。灰度图像会以百分位对比度拉伸的方式显示在画布中。"
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
-          "hold_after": 0.7
+          "narration": "点击Fit让图像填满面板。在较宽的面板中，Fit可能会拉伸正方形图像；检查形状时，请调整分隔条让面板大致呈正方形。",
+          "hold_after": 0.7,
+          "speech_text": "点击Fit让图像填满面板。在较宽的面板中，Fit可能会拉伸正方形图像；检查形状时，请调整分隔条让面板大致呈正方形。"
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
-          "hold_after": 0.7
+          "narration": "点击加号Mask，打开fov01_cell_mask点tif。四十四个带标签的对象显示在图像上方。零是背景，保持透明。",
+          "hold_after": 0.7,
+          "speech_text": "点击加号Mask，打开fov01_cell_mask点tif。四十四个带标签的对象显示在图像上方。零是背景，保持透明。"
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "更改控件之前，先在图层列表中选择mask。切换其复选框，把边界与下方的图像进行比较。",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ]
+          ],
+          "speech_text": "更改控件之前，先在图层列表中选择mask。切换其复选框，把边界与下方的图像进行比较。"
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "把mask的Opacity调到零，在保留图层的同时隐藏其颜色。调整其他图层之前，请确认所选的行。",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ]
+          ],
+          "speech_text": "把mask的Opacity调到零，在保留图层的同时隐藏其颜色。调整其他图层之前，请确认所选的行。"
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
-          "hold_after": 0.7
+          "narration": "把Opacity调到百分之百，检查标签的形状。颜色会覆盖每个带标签对象内部的图像。",
+          "hold_after": 0.7,
+          "speech_text": "把Opacity调到百分之百，检查标签的形状。颜色会覆盖每个带标签对象内部的图像。"
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
-          "hold_after": 0.7
+          "narration": "把Opacity恢复到百分之五十，并选择translucent混合，透过掩膜看到图像纹理。把对象边界与下方的信号进行比较。",
+          "hold_after": 0.7,
+          "speech_text": "把Opacity恢复到百分之五十，并选择translucent混合，透过掩膜看到图像纹理。把对象边界与下方的信号进行比较。"
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
-          "hold_after": 0.7
+          "narration": "选择additive混合，把掩膜颜色叠加到图像上。在这种显示中，明亮区域可能会饱和，因此需要更清晰的比较时请回到translucent。",
+          "hold_after": 0.7,
+          "speech_text": "选择additive混合，把掩膜颜色叠加到图像上。在这种显示中，明亮区域可能会饱和，因此需要更清晰的比较时请回到translucent。"
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
-          "hold_after": 0.7
+          "narration": "尝试multiply和minimum混合，比较较暗的叠加效果。这些选项只改变显示的合成图像，原始强度值仍保留在源图像中。",
+          "hold_after": 0.7,
+          "speech_text": "尝试multiply和minimum混合，比较较暗的叠加效果。这些选项只改变显示的合成图像，原始强度值仍保留在源图像中。"
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
-          "hold_after": 0.7
+          "narration": "选择opaque，并调节Opacity滑块比较其外观。对于这个整数掩膜，百分之五十的opaque混合看起来与百分之五十的translucent混合相同。请恢复translucent继续操作。",
+          "hold_after": 0.7,
+          "speech_text": "选择opaque，并调节Opacity滑块比较其外观。对于这个整数掩膜，百分之五十的opaque混合看起来与百分之五十的translucent混合相同。请恢复translucent继续操作。"
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
-          "hold_after": 0.7
+          "narration": "选择image，在色彩映射选择器中选择cyan。强度图像的颜色会改变，而掩膜保留其标签颜色。选择gray恢复灰度视图。",
+          "hold_after": 0.7,
+          "speech_text": "选择image，在色彩映射选择器中选择cyan。强度图像的颜色会改变，而掩膜保留其标签颜色。选择gray恢复灰度视图。"
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
-          "hold_after": 0.7
+          "narration": "选择mask，按向下箭头把它移到图像后面。上层图层显示在前面。再把掩膜移上来以检查其标签。",
+          "hold_after": 0.7,
+          "speech_text": "选择mask，按向下箭头把它移到图像后面。上层图层显示在前面。再把掩膜移上来以检查其标签。"
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "点击一个可见的带标签对象，在状态栏中读取其位置和标签编号。需要确定该对象所在的视野、板或孔时，请使用项目元数据。",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ]
+          ],
+          "speech_text": "点击一个可见的带标签对象，在状态栏中读取其位置和标签编号。需要确定该对象所在的视野、板或孔时，请使用项目元数据。"
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
-          "hold_after": 0.7
+          "narration": "在对象上滚动鼠标滚轮，以指针为中心放大。放大到边界易于检查为止。",
+          "hold_after": 0.7,
+          "speech_text": "在对象上滚动鼠标滚轮，以指针为中心放大。放大到边界易于检查为止。"
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
-          "hold_after": 0.7
+          "narration": "按住Shift并用鼠标左键拖动以平移。也可以用鼠标中键拖动。在保持当前缩放的同时浏览整个视野。",
+          "hold_after": 0.7,
+          "speech_text": "按住Shift并用鼠标左键拖动以平移。也可以用鼠标中键拖动。在保持当前缩放的同时浏览整个视野。"
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
-          "hold_after": 0.7
+          "narration": "点击Fit返回整个视野。如果适配后的图像看起来被拉伸，请调整面板形状。",
+          "hold_after": 0.7,
+          "speech_text": "点击Fit返回整个视野。如果适配后的图像看起来被拉伸，请调整面板形状。"
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "加号Points和加号Shapes会添加空的辅助图层。要绘制或编辑分割掩膜，请转到Make Masks；这个查看器没有为这些空图层提供绘图控件。",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ]
+          ],
+          "speech_text": "加号Points和加号Shapes会添加空的辅助图层。要绘制或编辑分割掩膜，请转到Make Masks；这个查看器没有为这些空图层提供绘图控件。"
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
-          "hold_after": 0.7
+          "narration": "选择一个图层并使用Remove把它从视图中移除。其原始文件仍保留在磁盘上，可以再次加载。",
+          "hold_after": 0.7,
+          "speech_text": "选择一个图层并使用Remove把它从视图中移除。其原始文件仍保留在磁盘上，可以再次加载。"
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "这样就得到了一个检查过的图层视图。要导出合成图像，请在Python中使用stack_from_paths和LayerStack.render_uint8。要保存掩膜编辑，请继续使用Make Masks；要进行对象测量，请使用Measure。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "这样就得到了一个检查过的图层视图。要导出合成图像，请在Python中使用stack_from_paths和LayerStack.render_uint8。要保存掩膜编辑，请继续使用Make Masks；要进行对象测量，请使用Measure。"
         }
       ],
       "example_files": [
@@ -9531,6 +10256,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9541,93 +10306,145 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder：绘制测量数据并过滤对象",
+      "description": "加载测量表，指定绘图坐标轴，比较分组，并过滤显示的对象。",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "加载示例测量表。",
+        "绘制直方图、散点图和分组面板。",
+        "过滤对象并选择后续视图。"
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "下载并解压Graph_Builder_real_measurements.zip。其中包含measurements.db。如需稍后查看图像裁剪，请同时保留对应的Annotate项目及其图像。",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
-          "hold_after": 0.7
+          "narration": "从Home打开Graph Builder探索测量表。先使用链接中的示例数据库，然后在您自己的已测量项目上重复这些步骤。",
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Graph Builder探索测量表。先使用链接中的示例数据库，然后在您自己的已测量项目上重复这些步骤。"
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ]
+          ],
+          "speech_text": "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。"
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
-          "hold_after": 0.7
+          "narration": "在列列表中找到cell_area，把它拖到X上。自动生成的图变成直方图：每个柱表示某个面积区间内的细胞数。解读坐标轴之前，请检查测量单位。",
+          "hold_after": 0.7,
+          "speech_text": "在列列表中找到cell_area，把它拖到X上。自动生成的图变成直方图：每个柱表示某个面积区间内的细胞数。解读坐标轴之前，请检查测量单位。"
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
-          "hold_after": 0.7
+          "narration": "把cell_channel_1_mean_intensity拖到Y上，生成散点图。每个点按面积和通道一的平均强度放置一个细胞。处理较大的表时，请留意行数提示。",
+          "hold_after": 0.7,
+          "speech_text": "把cell_channel_1_mean_intensity拖到Y上，生成散点图。每个点按面积和通道一的平均强度放置一个细胞。处理较大的表时，请留意行数提示。"
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
-          "hold_after": 0.7
+          "narration": "把columnID拖到Colour上，区分板上的各列。用图例把颜色与记录的列标签对应起来，并找出需要仔细检查的分组。",
+          "hold_after": 0.7,
+          "speech_text": "把columnID拖到Colour上，区分板上的各列。用图例把颜色与记录的列标签对应起来，并找出需要仔细检查的分组。"
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
-          "hold_after": 0.7
+          "narration": "把rowID拖到向下的分面通道上，为板上每一行生成一个面板。借助共享坐标轴比较各面板。在不同条件之间做统计比较时，请以独立的孔为单位。",
+          "hold_after": 0.7,
+          "speech_text": "把rowID拖到向下的分面通道上，为板上每一行生成一个面板。借助共享坐标轴比较各面板。在不同条件之间做统计比较时，请以独立的孔为单位。"
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
-          "hold_after": 0.7
+          "narration": "在右侧的过滤面板中添加cell_area并输入最小值。本例使用两万一千九百二十五，剩下一千一百七十一行。请为您自己的测量数据选择合适的阈值，并观察绘制的数量和坐标轴如何变化。",
+          "hold_after": 0.7,
+          "speech_text": "在右侧的过滤面板中添加cell_area并输入最小值。本例使用两万一千九百二十五，剩下一千一百七十一行。请为您自己的测量数据选择合适的阈值，并观察绘制的数量和坐标轴如何变化。"
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
-          "hold_after": 0.7
+          "narration": "在过滤面板中点击Clear all恢复完整的表。如果想移除绘图映射并开始另一张图，请使用左侧的Clear all channels。",
+          "hold_after": 0.7,
+          "speech_text": "在过滤面板中点击Clear all恢复完整的表。如果想移除绘图映射并开始另一张图，请使用左侧的Clear all channels。"
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
-          "hold_after": 0.7
+          "narration": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。",
+          "hold_after": 0.7,
+          "speech_text": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。"
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
-          "hold_after": 0.7
+          "narration": "点击图中的空白处清除选择。在探索另一组对象之前，请检查当前的过滤条件和显示的数量。",
+          "hold_after": 0.7,
+          "speech_text": "点击图中的空白处清除选择。在探索另一组对象之前，请检查当前的过滤条件和显示的数量。"
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
+          ],
+          "speech_text": "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。"
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "当前界面显示的图没有导出按钮。需要用脚本绘图时请使用Graph Builder API，或使用Database Browser导出表格，供其他绘图工具使用。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "当前界面显示的图没有导出按钮。需要用脚本绘图时请使用Graph Builder API，或使用Database Browser导出表格，供其他绘图工具使用。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

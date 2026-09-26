@@ -3052,136 +3052,176 @@
       "series": 3,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentação",
-      "title": "Train Cellpose: pares verificados e alternativa explícita pela API",
-      "description": "Encontre Train no Cellpose Workbench, reconheça a falha de importação da origem e acompanhe um treinamento Python real de duas épocas com seis pares baixáveis de imagem e máscara celular.",
+      "section": "Tools",
+      "title": "Treinar um modelo do Cellpose",
+      "description": "Prepare pares de imagem e máscara, ajuste um modelo de segmentação no Cellpose Workbench e aplique o checkpoint salvo.",
       "objectives": [
-        "Encontrar Train e Apply dentro de Make Masks, não como blocos Home separados.",
-        "Conferir nomes pareados e distinguir rótulos existentes de referência revisada.",
-        "Reconhecer importação parcial e separar a API da GUI defeituosa.",
-        "Inspecionar entradas, aquecimento, pesos alterados e caminho confirmado.",
-        "Distinguir perda de treino, campos de teste vazios e leitura dos pesos de acurácia independente."
+        "Inspecionar no Make Masks as imagens e as máscaras de rótulos de objetos correspondentes.",
+        "Escolher a pasta de treinamento, o modelo inicial, o cronograma de treinamento e o local de saída.",
+        "Executar o treinamento, encontrar o checkpoint e aplicá-lo a imagens separadas."
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "Use os seis pares, script gravado e manifesto do pacote. Os recortes preservam intensidade celular no canal 1 e máscara celular no plano 4 de campos reais; plano 6 é patógeno. Rótulos e objetos cortados NÃO são referência revisada independentemente. Train ainda descarta src e mantém model_name=new_model apesar da importação numérica; nenhum treino GUI começa. A chamada spacr.submodules.train_cellpose usa destino novo, duas épocas, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 e nenhum aumento extra spaCR. normalize=False desliga os percentis spaCR, não a divisão pelo máximo nem a normalização Cellpose. Rotação e redimensionamento internos continuam, com recortes de 256. Semente 19 na entrada; aleatoriedade interna mantida. CUDA limitado a 65% na RTX 3090, guarda de RAM 100 GiB adequada só a esta estação. Conferidos 3,145,728 valores e doze painéis; seis pares permaneceram no treino. Taxas 0 e 1.1111111111111112e-6; mudaram 345 de 347 tensores treináveis. Perda subiu de 1.496740683913231 a 1.5215517828861873. Sem teste: zeros são campos reservados. Checkpoint em models/cellpose_model/models lido com weights_only=True; resumo omite o segundo models. Leitura não é inferência nem validação de acurácia. Figura real em visualizador externo, sem inserção GUI. Originais, falhas e bloqueio GUI anterior preservados. Sem pedido AI, resposta, aprovação científica ou publicação.",
+      "prerequisite": "Baixe e extraia o exemplo indicado: seis imagens de treinamento com máscaras, mais três imagens separadas para o Apply. Ou prepare suas próprias imagens e as máscaras de rótulos inteiros correspondentes, e inspecione-as no Make Masks antes de treinar.",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Abra Make Masks e depois seu Cellpose Workbench integrado. Train e Apply são abas internas, não blocos separados no Home. A lição mostra o caminho atual, um problema de importação e uma alternativa Python explícita. A lição Make Masks vinculada ensina a inspecionar e editar máscaras antes de treinar.",
+          "visual": "home_make_masks",
+          "narration": "Na tela Home, abra Tools e depois Make Masks. Abra o Cellpose Workbench pela barra de ferramentas; ele abre na aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ],
+          "speech_text": "Na tela Home, abra Tools e depois Make Masks. Abra o cél pouz Workbench pela barra de ferramentas; ele abre na aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply."
+        },
+        {
+          "visual": "train_source",
+          "narration": "Extraia o exemplo indicado. A pasta training dele tem seis imagens e uma subpasta masks, e a pasta apply tem três imagens separadas para depois. Clique no botão de pasta ao lado de Image source folder e escolha training. Deixe Mask source folder vazio para usar a subpasta masks, ou escolha outra pasta de máscaras.",
+          "hold_after": 0.7,
+          "speech_text": "Extraia o exemplo indicado. A pasta training dele tem seis imagens e uma subpasta masks, e a pasta apply tem três imagens separadas para depois. Clique no botão de pasta ao lado de Image source folder e escolha training. Deixe Mask source folder vazio para usar a subpasta masks, ou escolha outra pasta de máscaras."
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "Cada imagem precisa de uma máscara com a mesma altura e largura. Zero é o fundo, e cada objeto tem seu próprio número positivo. Abra a pasta de treinamento no Make Masks para inspecionar os rótulos e corrigi-los antes de treinar. Esta imagem tem noventa e cinco células rotuladas.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "speech_text": "Cada imagem precisa de uma máscara com a mesma altura e largura. Zero é o fundo, e cada objeto tem seu próprio número positivo. Abra a pasta de treinamento no Make Masks para inspecionar os rótulos e corrigi-los antes de treinar. Esta imagem tem noventa e cinco células rotuladas."
+        },
+        {
+          "visual": "train_channels",
+          "narration": "Este exemplo é em tons de cinza, então deixe Channels vazio. Em uma imagem multicanal, adicione até três números de canal contados a partir de zero, por exemplo zero e dois para o primeiro e o terceiro canais. Defina Channel axis somente se a detecção automática não encontrar a dimensão dos canais.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ],
+          "speech_text": "Este exemplo é em tons de cinza, então deixe Channels vazio. Em uma imagem multicanal, adicione até três números de canal contados a partir de zero, por exemplo zero e dois para o primeiro e o terceiro canais. Defina Channel axis somente se a detecção automática não encontrar a dimensão dos canais."
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Mantenha Base model em cpsam para partir do Cellpose-SAM, ou digite o caminho de um checkpoint para continuar treinando um modelo anterior. Digite um Model name; aqui é tutorial cells. Deixe Checkpoint folder vazio para salvar dentro da pasta de origem, ou escolha outra pasta.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ],
+          "speech_text": "Mantenha Base model em cpsam para partir do cél pouz-SAM, ou digite o caminho de um checkpoint para continuar treinando um modelo anterior. Digite um Model name; aqui é tutorial cells. Deixe Checkpoint folder vazio para salvar dentro da pasta de origem, ou escolha outra pasta."
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "Defina N epochs e Batch size. Esta execução rápida usa dez épocas com tamanho de lote um. Mais épocas dão ao modelo mais atualizações de treinamento, e lotes maiores usam mais memória. Para começar, mantenha a taxa de aprendizado exibida.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ],
+          "speech_text": "Defina N epochs e Batch size. Esta execução rápida usa dez épocas com tamanho de lote um. Mais épocas dão ao modelo mais atualizações de treinamento, e lotes maiores usam mais memória. Para começar, mantenha a taxa de aprendizado exibida."
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "Mantenha Normalize ativado, com os percentis um e noventa e nove como ponto de partida. Eles definem a faixa de intensidade usada em cada canal. Scale range varia o tamanho das imagens durante o treinamento, e Min train masks ignora imagens com menos objetos rotulados.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ],
+          "speech_text": "Mantenha Normalize ativado, com os percentis um e noventa e nove como ponto de partida. Eles definem a faixa de intensidade usada em cada canal. Scale range varia o tamanho das imagens durante o treinamento, e Min train masks ignora imagens com menos objetos rotulados."
+        },
+        {
+          "visual": "train_validation",
+          "narration": "Para acompanhar a perda de validação, escolha uma Validation image folder separada e a Validation mask folder correspondente. Nunca reutilize ali imagens de treinamento. Deixe as duas vazias quando não tiver um conjunto rotulado separado, como neste exemplo.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ],
+          "speech_text": "Para acompanhar a perda de validação, escolha uma Validation image folder separada e a Validation mask folder correspondente. Nunca reutilize ali imagens de treinamento. Deixe as duas vazias quando não tiver um conjunto rotulado separado, como neste exemplo."
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso. Nesta GPU, dez épocas com seis imagens terminaram em menos de um minuto.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ],
+          "speech_text": "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso. Nesta GPU, dez épocas com seis imagens terminaram em menos de um minuto."
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "Quando o treinamento termina, o console mostra o caminho do checkpoint. No local padrão, ele fica na pasta de origem, em models, cellpose model, models. O nome do arquivo acrescenta ao nome do modelo a arquitetura e o número de épocas. Guarde-o junto com as configurações de treinamento.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ],
+          "speech_text": "Quando o treinamento termina, o console mostra o caminho do checkpoint. No local padrão, ele fica na pasta de origem, em models, cél pouz model, models. O nome do arquivo acrescenta ao nome do modelo a arquitetura e o número de épocas. Guarde-o junto com as configurações de treinamento."
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Abra a aba Apply. Custom model agora aponta para o checkpoint que você treinou. Defina Source como a pasta apply do exemplo, cujas imagens vêm de poços que não foram usados no treinamento. Defina Channels como zero e Percentiles como dois e noventa e nove. Desative Fill in para que células que se tocam continuem separadas, e ative Save e Verbose.",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Make Masks e depois seu cél pouz Workbench integrado. Train e Apply são abas internas, não blocos separados no Home. A lição mostra o caminho atual, um problema de importação e uma alternativa Python explícita. A lição Make Masks vinculada ensina a inspecionar e editar máscaras antes de treinar."
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "Em Train, confira ponto de partida e programação do treinamento. Não copie épocas ou taxa iniciais como recomendação. São necessárias imagens e máscaras de instâncias pareadas, pasta de origem e nome de saída. Ver um formulário não significa que esses requisitos estejam atendidos.",
-          "hold_after": 0.7,
-          "speech_text": "Em Train, confira ponto de partida e programação do treinamento. Não copie épocas ou taxa iniciais como recomendação. São necessárias imagens e máscaras de instâncias pareadas, pasta de origem e nome de saída. Ver um formulário não significa que esses requisitos estejam atendidos."
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "O seletor real Import settings abre um CSV com ajustes limitados. Depois aparecem duas épocas, minibatch um e taxa pequena. Porém, a origem obrigatória é descartada e o nome solicitado continua new model. É uma importação parcial, não uma configuração pronta: não pressione Run.",
-          "hold_after": 0.7,
-          "speech_text": "O seletor real Import settings abre um CSV com ajustes limitados. Depois aparecem duas épocas, minibatch um e taxa pequena. Porém, a origem obrigatória é descartada e o nome solicitado continua new model. É uma importação parcial, não uma configuração pronta: não pressione Run."
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "A rota Python seguinte é separada dessa falha GUI. Ela não preenche uma origem oculta nem conserta o formulário. Use o pacote vinculado em uma pasta nova. O script recusa destinos existentes, preserva os pares originais e registra exatamente a implementação da API e as entradas usadas.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "A rota Python seguinte é separada dessa falha GUI. Ela não preenche uma origem oculta nem conserta o formulário. Use o pacote vinculado em uma pasta nova. O script recusa destinos existentes, preserva os pares originais e registra exatamente a implementação da API e as entradas usadas."
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "São seis pares reais de imagem e máscara de quinhentos e doze pixels, com nomes correspondentes. Os ajustes originais identificam intensidade celular no canal um e máscara no plano quatro; seis é patógeno. Esses rótulos não são referência revisada independentemente. Confira limites e objetos cortados antes de treinar para produção.",
           "focus": [
-            190,
-            80,
-            3450,
-            900
+            366,
+            607,
+            1165,
+            1156
           ],
-          "hold_after": 0.7,
-          "speech_text": "São seis pares reais de imagem e máscara de quinhentos e doze pixels, com nomes correspondentes. Os ajustes originais identificam intensidade celular no canal um e máscara no plano quatro; seis é patógeno. Esses rótulos não são referência revisada independentemente. Confira limites e objetos cortados antes de treinar para produção."
+          "speech_text": "Abra a aba Apply. Custom model agora aponta para o checkpoint que você treinou. Defina Source como a pasta apply do exemplo, cujas imagens vêm de poços que não foram usados no treinamento. Defina Channels como zero e Percentiles como dois e noventa e nove. Desative Fill in para que células que se tocam continuem separadas, e ative Save e Verbose."
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "Esta é a figura real dos seis pares salva pela API e aberta em visualizador externo, não inserida no spaCR. Cada imagem superior corresponde à máscara abaixo. Conferimos todos os valores de entrada e os doze arrays exibidos com as fontes. Isso verifica correspondência, não qualidade da anotação.",
+          "visual": "apply_preview",
+          "narration": "Abra o Live preview, escolha uma imagem e pressione Run preview, com o mesmo canal e os mesmos percentis. Ele segmenta essa imagem com o seu checkpoint, que aqui encontra setenta e seis células. Ajuste as configurações aqui antes de processar a pasta inteira.",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
+            390,
+            520,
+            3410,
+            1240
           ],
-          "hold_after": 0.7,
-          "speech_text": "Esta é a figura real dos seis pares salva pela API e aberta em visualizador externo, não inserida no espáquer. Cada imagem superior corresponde à máscara abaixo. Conferimos todos os valores de entrada e os doze arrays exibidos com as fontes. Isso verifica correspondência, não qualidade da anotação."
+          "speech_text": "Abra o Live preview, escolha uma imagem e pressione Run preview, com o mesmo canal e os mesmos percentis. Ele segmenta essa imagem com o seu checkpoint, que aqui encontra setenta e seis células. Ajuste as configurações aqui antes de processar a pasta inteira."
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "Execute o script com a origem e um destino novo. O exemplo CUDA limitado usa seis pares, duas épocas e minibatch um. O alvo de entrada tem quinhentos e doze pixels; Cellpose treina internamente com recortes de duzentos e cinquenta e seis. Desligar aumentos extras do spaCR não desliga normalização, rotação e redimensionamento internos do Cellpose.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
+          "visual": "apply_result",
+          "narration": "Pressione Run. O Apply grava uma máscara por imagem em uma subpasta masks ao lado dessas imagens, e Verbose mostra cada resultado como uma figura. Aqui as três máscaras contêm setenta e seis, quarenta e oito e cinquenta e cinco células. Antes de usar um modelo em um experimento inteiro, compare as máscaras dele com campos rotulados separadamente.",
           "hold_after": 0.7,
-          "speech_text": "Execute o script com a origem e um destino novo. O exemplo CUDA limitado usa seis pares, duas épocas e minibatch um. O alvo de entrada tem quinhentos e doze pixels; cél pouz treina internamente com recortes de duzentos e cinquenta e seis. Desligar aumentos extras do espáquer não desliga normalização, rotação e redimensionamento internos do cél pouz."
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "A primeira época de aquecimento tem taxa zero. A segunda usa uma taxa positiva pequena, permitindo atualização real. Comparando checkpoint e pesos iniciais, mudaram trezentos e quarenta e cinco de trezentos e quarenta e sete tensores treináveis. Só mudar o diâmetro não passaria nessa verificação. Pesos alterados ainda não provam um bom modelo.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "A primeira época de aquecimento tem taxa zero. A segunda usa uma taxa positiva pequena, permitindo atualização real. Comparando checkpoint e pesos iniciais, mudaram trezentos e quarenta e cinco de trezentos e quarenta e sete tensores treináveis. Só mudar o diâmetro não passaria nessa verificação. Pesos alterados ainda não provam um bom modelo."
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "A perda de treino subiu um pouco, de aproximadamente um vírgula quatro nove sete para um vírgula cinco dois dois. Não foi fornecido conjunto de teste. Seus campos de perda zero são reservados, não desempenho perfeito. É uma demonstração mecânica, não convergência, segmentação melhor ou acurácia independente. Separe avaliação e treinamento.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "A perda de treino subiu um pouco, de aproximadamente um vírgula quatro nove sete para um vírgula cinco dois dois. Não foi fornecido conjunto de teste. Seus campos de perda zero são reservados, não desempenho perfeito. É uma demonstração mecânica, não convergência, segmentação melhor ou acurácia independente. Separe avaliação e treinamento."
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Use o caminho do checkpoint no arquivo de verificações. Ele contém um segundo diretório models omitido pelo resumo genérico. Guarde checkpoint, ajustes, manifesto e verificações juntos. Carregar seus tensores com segurança confirma um arquivo legível, não uma inferência; o pacote fornece pares e script, não um modelo certificado.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Use o caminho do checkpoint no arquivo de verificações. Ele contém um segundo diretório models omitido pelo resumo genérico. Guarde checkpoint, ajustes, manifesto e verificações juntos. Carregar seus tensores com segurança confirma um arquivo legível, não uma inferência; o pacote fornece pares e script, não um modelo certificado."
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply tem origem própria, campo de modelo personalizado e prévia ao vivo. Abrir a aba não seleciona nosso checkpoint externo nem executa inferência. Siga a lição vinculada e valide com imagens independentes. spaCR AI não é usado aqui: nenhuma pergunta ou resposta substitui examinar as evidências reais.",
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apply tem origem própria, campo de modelo personalizado e prévia ao vivo. Abrir a aba não seleciona nosso checkpoint externo nem executa inferência. Siga a lição vinculada e valide com imagens independentes. espáquer AI não é usado aqui: nenhuma pergunta ou resposta substitui examinar as evidências reais."
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ],
+          "speech_text": "Pressione Run. O Apply grava uma máscara por imagem em uma subpasta masks ao lado dessas imagens, e Verbose mostra cada resultado como uma figura. Aqui as três máscaras contêm setenta e seis, quarenta e oito e cinquenta e cinco células. Antes de usar um modelo em um experimento inteiro, compare as máscaras dele com campos rotulados separadamente."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7610,22 +7650,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination: estimar e inspecionar um modelo de correção",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "Escolha os canais de imagem, estime um campo de iluminação, inspecione a figura de controle de qualidade e reutilize o modelo salvo.",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "Selecionar campos representativos e canais de intensidade.",
+        "Estimar e inspecionar um modelo de iluminação.",
+        "Reutilizar o modelo no Mask ou no Measure."
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "Use uma pasta de imagens combinadas com campos representativos de cada grupo de aquisição. O exemplo usa os dezesseis campos do exemplo de placa baixado no Measure. Saiba quais planos salvos contêm intensidades e quais contêm rótulos.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "Abra o Measure e depois Illumination para estimar um modelo de correção do brilho irregular das imagens.",
           "focus": [
             3625,
             65,
@@ -7635,11 +7675,12 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra o Measure e depois Illumination para estimar um modelo de correção do brilho irregular das imagens."
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "Defina Source como a pasta merged que contém os arranjos de imagem. Use campos representativos da sua aquisição; o exemplo usa dezesseis campos de uma placa.",
           "focus": [
             363,
             375,
@@ -7650,121 +7691,132 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Defina Source como a pasta merged que contém os arranjos de imagem. Use campos representativos da sua aquisição; o exemplo usa dezesseis campos de uma placa."
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "Defina Channels como os planos de intensidade salvos que você quer corrigir. O exemplo usa o canal zero. Confira o mapeamento de canais e exclua os planos de máscaras de rótulos.",
           "focus": [
             374,
             475,
             850,
             65
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Defina Channels como os planos de intensidade salvos que você quer corrigir. O exemplo usa o canal zero. Confira o mapeamento de canais e exclua os planos de máscaras de rótulos."
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "Ative Illumination correction antes de estimar um campo. Se estiver desativado, o Run termina sem criar um modelo de correção.",
           "focus": [
             1518,
             405,
             2280,
             260
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ative Illumination correction antes de estimar um campo. Se estiver desativado, o Run termina sem criar um modelo de correção."
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "Escolha um estimador e as configurações dele. No exemplo polinomial, use grau quatro e deixe Illumination model vazio para estimar um campo novo. Procure no resultado estruturas que pertencem às células e não à iluminação.",
           "focus": [
             363,
             550,
             1140,
             300
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Escolha um estimador e as configurações dele. No exemplo polinomial, use grau quatro e deixe Illumination model vazio para estimar um campo novo. Procure no resultado estruturas que pertencem às células e não à iluminação."
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "Ative Illumination per plate para ajustar grupos de aquisição separadamente. Defina Maximum fields como uma amostra representativa; o exemplo inclui os dezesseis campos disponíveis.",
           "focus": [
             363,
             858,
             1140,
             160
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ative Illumination per plate para ajustar grupos de aquisição separadamente. Defina Maximum fields como uma amostra representativa; o exemplo inclui os dezesseis campos disponíveis."
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "Defina Illumination dark a partir da calibração da sua câmera, quando houver. É um deslocamento aditivo em contagens brutas; zero é o valor do exemplo.",
           "focus": [
             374,
             775,
             1110,
             61
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Defina Illumination dark a partir da calibração da sua câmera, quando houver. É um deslocamento aditivo em contagens brutas; zero é o valor do exemplo."
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "Ative Illumination QC e escolha uma regra para modelos ausentes. Com error selecionado, a falta da correção de uma placa interrompe o processamento para que você possa resolver.",
           "focus": [
             363,
             1020,
             1140,
             150
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ative Illumination QC e escolha uma regra para modelos ausentes. Com error selecionado, a falta da correção de uma placa interrompe o processamento para que você possa resolver."
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "Pressione Run e leia no console o caminho do modelo salvo. Esta etapa estima o modelo; ative-o numa análise posterior para aplicar a correção.",
           "focus": [
             1518,
             405,
             2280,
             485
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Pressione Run e leia no console o caminho do modelo salvo. Esta etapa estima o modelo; ative-o numa análise posterior para aplicar a correção."
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "Abra o PNG de controle de qualidade da iluminação salvo na pasta illumination. Use um visualizador de imagens se ele não aparecer no painel Figures.",
           "focus": [
             200,
             100,
             3440,
             1920
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra o PNG de controle de qualidade da iluminação salvo na pasta illumination. Use um visualizador de imagens se ele não aparecer no painel Figures."
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "Inspecione o campo de iluminação estimado: ele deve mostrar variação suave de brilho, sem estruturas indesejadas em forma de célula. A correção subtrai o deslocamento de escuro e divide por este campo de média um.",
           "focus": [
             400,
             680,
             790,
             825
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Inspecione o campo de iluminação estimado: ele deve mostrar variação suave de brilho, sem estruturas indesejadas em forma de célula. A correção subtrai o deslocamento de escuro e divide por este campo de média um."
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "Compare os perfis radiais de antes e depois. Use campos adicionais para avaliar se a correção funciona bem além das imagens usadas no ajuste.",
           "focus": [
             1270,
             680,
             1080,
             840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Compare os perfis radiais de antes e depois. Use campos adicionais para avaliar se a correção funciona bem além das imagens usadas no ajuste."
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "Para reutilizar o modelo, informe o caminho dele e ative a correção no fluxo do Mask ou do Measure pretendido. Guarde com ele os canais, as identidades das placas e as configurações, e evite corrigir as mesmas intensidades duas vezes.",
           "focus": [
             363,
             370,
@@ -7775,12 +7827,53 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Para reutilizar o modelo, informe o caminho dele e ative a correção no fluxo do Mask ou do Measure pretendido. Guarde com ele os canais, as identidades das placas e as configurações, e evite corrigir as mesmas intensidades duas vezes."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7791,128 +7884,181 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager: inspecionar o uso, limpar e arquivar",
+      "description": "Revise o armazenamento do projeto, pré-visualize um plano de limpeza e mova um projeto para um destino de arquivamento.",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "Inspecionar o uso de disco do projeto.",
+        "Revisar e aplicar um plano de limpeza.",
+        "Mover um projeto arquivado e examiná-lo de novo."
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "Use um projeto concluído do spaCR e mantenha um backup independente antes da limpeza. O exemplo usa uma cópia do projeto gerado pelo External Masks.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "Abra Help e depois Data manager. Escolha um projeto concluído para inspecionar o armazenamento e planejar a limpeza ou o arquivamento.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Abra Help e depois Data manager. Escolha um projeto concluído para inspecionar o armazenamento e planejar a limpeza ou o arquivamento."
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "Clique em Choose project e selecione a raiz do projeto. Leia Usage para ver os arquivos, o espaço em disco e os artefatos registrados.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3400,
             570
-          ]
+          ],
+          "speech_text": "Clique em Choose project e selecione a raiz do projeto. Leia Usage para ver os arquivos, o espaço em disco e os artefatos registrados."
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "Abra Prune e selecione os tipos de artefato a considerar. Deixe desmarcados os bancos de dados de medições e os pesos de modelos se quiser mantê-los e clique em Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
             245,
             3470,
             230
-          ]
+          ],
+          "speech_text": "Abra Prune e selecione os tipos de artefato a considerar. Deixe desmarcados os bancos de dados de medições e os pesos de modelos se quiser mantê-los e clique em Show what can be deleted."
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "Revise os arquivos propostos, a economia de espaço e as informações de recuperação. O exemplo seleciona a pasta de recortes de objetos. Mantenha as entradas e as configurações necessárias para regenerar o que você remover.",
           "hold_after": 0.7,
           "focus": [
             345,
             320,
             3450,
             160
-          ]
+          ],
+          "speech_text": "Revise os arquivos propostos, a economia de espaço e as informações de recuperação. O exemplo seleciona a pasta de recortes de objetos. Mantenha as entradas e as configurações necessárias para regenerar o que você remover."
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
-          "hold_after": 0.7
+          "narration": "Clique em Delete para revisar a lista final de arquivos. A exclusão não pode ser desfeita, então confira os caminhos e o seu backup antes de confirmar o plano.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Delete para revisar a lista final de arquivos. A exclusão não pode ser desfeita, então confira os caminhos e o seu backup antes de confirmar o plano."
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
-          "hold_after": 0.7
+          "narration": "Use Cancel se quiser manter os arquivos ou mudar a seleção. Confirmar a lista habilita a ação final Delete.",
+          "hold_after": 0.7,
+          "speech_text": "Use Cancel se quiser manter os arquivos ou mudar a seleção. Confirmar a lista habilita a ação final Delete."
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "Confirme Delete quando o plano estiver certo. Leia no resultado o número de arquivos removidos e o espaço recuperado.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             2500,
             240
-          ]
+          ],
+          "speech_text": "Confirme Delete quando o plano estiver certo. Leia no resultado o número de arquivos removidos e o espaço recuperado."
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "Revise a varredura atualizada em Usage. Artefatos removidos podem continuar listados como ausentes com a receita registrada; regenere-os pelo módulo adequado quando necessário.",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             580
-          ]
+          ],
+          "speech_text": "Revise a varredura atualizada em Usage. Artefatos removidos podem continuar listados como ausentes com a receita registrada; regenere-os pelo módulo adequado quando necessário."
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
-          "hold_after": 0.7
+          "narration": "Abra Archive e escolha um destino vazio fora do projeto de origem. Clique em Show what would move e inspecione os dois caminhos.",
+          "hold_after": 0.7,
+          "speech_text": "Abra Archive e escolha um destino vazio fora do projeto de origem. Clique em Show what would move e inspecione os dois caminhos."
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
-          "hold_after": 0.7
+          "narration": "Clique em Move para revisar a confirmação. O Archive move o projeto, então faça antes qualquer backup separado de que precise.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Move para revisar a confirmação. O Archive move o projeto, então faça antes qualquer backup separado de que precise."
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
-          "hold_after": 0.7
+          "narration": "Confirme Yes para mover o projeto. Mantenha o manifesto no destino e o registro de arquivamento deixado no local original.",
+          "hold_after": 0.7,
+          "speech_text": "Confirme Yes para mover o projeto. Mantenha o manifesto no destino e o registro de arquivamento deixado no local original."
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "Selecione o destino como projeto e examine-o de novo. Confira os arquivos movidos e atualize as referências externas que ainda apontam para o local antigo.",
           "hold_after": 0.7,
           "focus": [
             345,
             80,
             3470,
             670
-          ]
+          ],
+          "speech_text": "Selecione o destino como projeto e examine-o de novo. Confira os arquivos movidos e atualize as referências externas que ainda apontam para o local antigo."
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "Use o Database Browser para inspecionar tabelas de medições, o Report para criar um resumo do projeto e o Data Manager para a manutenção do armazenamento. Guarde os registros de arquivamento com a documentação do projeto.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "29_report"
-          ]
+          ],
+          "speech_text": "Use o Database Browser para inspecionar tabelas de medições, o Report para criar um resumo do projeto e o Data Manager para a manutenção do armazenamento. Guarde os registros de arquivamento com a documentação do projeto."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7923,49 +8069,52 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser: encontrar e inspecionar projetos",
+      "description": "Pesquise pastas de projeto, inspecione as etapas registradas e identifique a próxima ferramenta a abrir.",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "Descobrir projetos usando raízes e profundidade de busca.",
+        "Inspecionar artefatos e etapas registradas.",
+        "Escolher a próxima ferramenta relevante."
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "Escolha pastas que contenham seus projetos do spaCR. Os exemplos concluídos do External Masks e do Format Converter podem ser usados para praticar.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "Abra Help e depois Project browser para encontrar pastas de projeto e inspecionar as saídas registradas.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "37_batch"
-          ]
+          ],
+          "speech_text": "Abra Help e depois Project browser para encontrar pastas de projeto e inspecionar as saídas registradas."
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "Clique em Add folder e escolha uma raiz de busca. Profundidade zero verifica só essa pasta; aumente a profundidade quando os projetos estiverem em subpastas.",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             360
-          ]
+          ],
+          "speech_text": "Clique em Add folder e escolha uma raiz de busca. Profundidade zero verifica só essa pasta; aumente a profundidade quando os projetos estiverem em subpastas."
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "Defina Depth como um e clique em Scan para incluir as pastas logo abaixo da raiz. Inspecione as linhas de projeto resultantes.",
           "hold_after": 0.7,
           "focus": [
             345,
             180,
             3450,
             660
-          ]
+          ],
+          "speech_text": "Defina Depth como um e clique em Scan para incluir as pastas logo abaixo da raiz. Inspecione as linhas de projeto resultantes."
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "Leia State e Stage junto com os arquivos encontrados no disco. Uma pasta sem registro de artefatos pode mostrar unknown mesmo contendo imagens convertidas.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7976,33 +8125,36 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "Leia State e Stage junto com os arquivos encontrados no disco. Uma pasta sem registro de artefatos pode mostrar unknown mesmo contendo imagens convertidas."
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "Adicione mais raízes de busca para incluir outros projetos. Selecione uma linha para inspecioná-la; se os detalhes ficarem em branco depois de uma nova varredura, selecione outra linha e volte.",
           "hold_after": 0.7,
           "focus": [
             345,
             225,
             3450,
             260
-          ]
+          ],
+          "speech_text": "Adicione mais raízes de busca para incluir outros projetos. Selecione uma linha para inspecioná-la; se os detalhes ficarem em branco depois de uma nova varredura, selecione outra linha e volte."
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "Arraste o divisor para alargar os detalhes. Revise os artefatos registrados, os arquivos não registrados e a origem do horário da última execução.",
           "hold_after": 0.7,
           "focus": [
             2020,
             300,
             1790,
             260
-          ]
+          ],
+          "speech_text": "Arraste o divisor para alargar os detalhes. Revise os artefatos registrados, os arquivos não registrados e a origem do horário da última execução."
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "Abra Stages para ver quais saídas esperadas estão presentes. Use What could run next para escolher um fluxo adequado e depois confira as entradas exigidas por esse módulo.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -8012,50 +8164,95 @@
           ],
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Abra Stages para ver quais saídas esperadas estão presentes. Use What could run next para escolher um fluxo adequado e depois confira as entradas exigidas por esse módulo."
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "Clique num cabeçalho de coluna, como Size, para ordenar os projetos. Clique de novo para inverter a ordem.",
           "hold_after": 0.7,
           "focus": [
             345,
             300,
             1680,
             170
-          ]
+          ],
+          "speech_text": "Clique num cabeçalho de coluna, como Size, para ordenar os projetos. Clique de novo para inverter a ordem."
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "Ajuste Depth e faça a varredura de novo quando precisar de uma busca mais estreita ou mais ampla. Um projeto selecionado diretamente continua detectável com profundidade zero.",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3450,
             340
-          ]
+          ],
+          "speech_text": "Ajuste Depth e faça a varredura de novo quando precisar de uma busca mais estreita ou mais ampla. Um projeto selecionado diretamente continua detectável com profundidade zero."
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
-          "hold_after": 0.7
+          "narration": "Selecione uma raiz e clique em Remove para parar de pesquisar nela. Isso tira o local de busca da lista e mantém os arquivos no disco.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione uma raiz e clique em Remove para parar de pesquisar nela. Isso tira o local de busca da lista e mantém os arquivos no disco."
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "Abra o Run History para os registros de trabalhos, o Database Browser para as medições ou o Data Manager para limpeza e arquivamento. Use o tutorial do módulo correspondente para continuar a análise.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "34_database",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "Abra o Run History para os registros de trabalhos, o Database Browser para as medições ou o Data Manager para limpeza e arquivamento. Use o tutorial do módulo correspondente para continuar a análise."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8063,25 +8260,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge: editar e trazer de volta uma máscara de rótulos",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "Abra uma imagem e a máscara dela no napari, edite os rótulos e salve a máscara corrigida de volta no spaCR.",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "Abrir os arquivos de imagem e de rótulos correspondentes.",
+        "Editar e desfazer alterações no napari.",
+        "Trazer de volta a máscara salva e inspecioná-la."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "Instale a dependência opcional do napari e descompacte o exemplo sintético numa pasta nova. Mantenha um backup intacto: Take the mask back sobrescreve a máscara de trabalho selecionada. Feche e reabra o visualizador entre rodadas de edição salvas.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "Abra Make Masks e depois Napari Bridge. Use-o para editar uma máscara de rótulos existente tendo a imagem de intensidade como referência. Mantenha um backup intacto da máscara.",
           "focus": [
             460,
             235,
@@ -8091,70 +8288,78 @@
           "related_lessons": [
             "14_make_masks"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra Make Masks e depois Napari Bridge. Use-o para editar uma máscara de rótulos existente tendo a imagem de intensidade como referência. Mantenha um backup intacto da máscara."
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "Baixe e descompacte o exemplo sintético. Escolha mask ponto tif em Mask e image ponto tif em Image e pressione Open in napari.",
           "focus": [
             460,
             365,
             3350,
             370
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Baixe e descompacte o exemplo sintético. Escolha mask ponto tif em Mask e image ponto tif em Image e pressione Open in napari."
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
-          "hold_after": 0.7
+          "narration": "Selecione no napari a camada Labels da máscara. O rótulo zero é o fundo; cada rótulo de objeto tem uma cor de exibição. Faça as edições na camada de rótulos.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione no napari a camada Labels da máscara. O rótulo zero é o fundo; cada rótulo de objeto tem uma cor de exibição. Faça as edições na camada de rótulos."
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "Volte ao spaCR e use Take the mask back para importar os rótulos atuais do visualizador. Se você não fez alterações, o status informa que a máscara não mudou.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Volte ao espáquer e use Take the mask back para importar os rótulos atuais do visualizador. Se você não fez alterações, o status informa que a máscara não mudou."
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
-          "hold_after": 0.7
+          "narration": "Para praticar, selecione o rótulo dezoito, escolha Fill e clique no objeto com rótulo dois. Inspecione o rótulo alterado antes de importá-lo.",
+          "hold_after": 0.7,
+          "speech_text": "Para praticar, selecione o rótulo dezoito, escolha Fill e clique no objeto com rótulo dois. Inspecione o rótulo alterado antes de importá-lo."
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
-          "hold_after": 0.7
+          "narration": "Use Undo para reverter a última edição no visualizador. Repita a operação Fill quando quiser manter a alteração.",
+          "hold_after": 0.7,
+          "speech_text": "Use Undo para reverter a última edição no visualizador. Repita a operação Fill quando quiser manter a alteração."
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "Clique em Take the mask back no spaCR. Revise a contagem de pixels alterados e depois inspecione a máscara salva e o arquivo auxiliar com o histórico de correções.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Clique em Take the mask back no espáquer. Revise a contagem de pixels alterados e depois inspecione a máscara salva e o arquivo auxiliar com o histórico de correções."
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "Clique em Close viewer e reabra a máscara antes da próxima rodada de edição. Assim a máscara salva vira o ponto de partida das correções seguintes.",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Clique em Close viewer e reabra a máscara antes da próxima rodada de edição. Assim a máscara salva vira o ponto de partida das correções seguintes."
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "Depois da próxima edição, traga a máscara de volta e inspecione o resultado de novo. Feche o visualizador ao terminar, mantenha o histórico de correções e execute de novo as medições afetadas pelos rótulos alterados.",
           "focus": [
             460,
             445,
@@ -8165,12 +8370,53 @@
             "08_measure",
             "06_api"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Depois da próxima edição, traga a máscara de volta e inspecione o resultado de novo. Feche o visualizador ao terminar, mantenha o histórico de correções e execute de novo as medições afetadas pelos rótulos alterados."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8178,86 +8424,137 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC: inspecionar a profundidade de leitura e escolher um corte",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "Carregue contagens mapeadas, revise a cobertura de poços e de guias e compare limiares de abundância.",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "Escolher as entradas de contagem e as configurações de controle de qualidade.",
+        "Inspecionar a cobertura e os efeitos de posição.",
+        "Comparar limiares e guardar as tabelas e os gráficos resultantes."
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "Use plate_1_unique_combinations.csv dos dados da triagem de exemplo baixados no tutorial do Regression, ou a sua própria tabela de contagens mapeadas. Escolha uma pasta de saída nova. Forneça arquivos de controle de qualidade do mapeamento e de referência de códigos de barras quando precisar de verificações que dependem de leituras não mapeadas ou da biblioteca esperada.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "Abra Map Barcodes e depois Barcode QC. Comece com uma tabela de contagens mapeadas; o exemplo do Regression indicado fornece uma para praticar.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra Map Barcodes e depois Barcode QC. Comece com uma tabela de contagens mapeadas; o exemplo do Regression indicado fornece uma para praticar."
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
-          "hold_after": 0.7
+          "narration": "Defina Count data como a sua tabela de contagens e escolha um destino de saída novo. O exemplo contém leituras mapeadas em trezentos e oitenta e quatro poços.",
+          "hold_after": 0.7,
+          "speech_text": "Defina Count data como a sua tabela de contagens e escolha um destino de saída novo. O exemplo contém leituras mapeadas em trezentos e oitenta e quatro poços."
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
-          "hold_after": 0.7
+          "narration": "Defina Target gRNAs per well de acordo com o seu delineamento experimental e escolha o método de resumo usado para obter o corte. O exemplo usa cinco e median.",
+          "hold_after": 0.7,
+          "speech_text": "Defina Target gRNAs per well de acordo com o seu delineamento experimental e escolha o método de resumo usado para obter o corte. O exemplo usa cinco e median."
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
-          "hold_after": 0.7
+          "narration": "Defina Starved read fraction para sinalizar poços com poucas leituras em relação à mediana da placa. O exemplo usa zero vírgula um. Revise os poços sinalizados antes de excluí-los.",
+          "hold_after": 0.7,
+          "speech_text": "Defina Starved read fraction para sinalizar poços com poucas leituras em relação à mediana da placa. O exemplo usa zero vírgula um. Revise os poços sinalizados antes de excluí-los."
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
-          "hold_after": 0.7
+          "narration": "Ative Plot e Save e pressione Run. Adicione as entradas de controle de qualidade do mapeamento ou de referência quando quiser as verificações correspondentes; a tabela de contagens sozinha descreve as leituras mapeadas observadas.",
+          "hold_after": 0.7,
+          "speech_text": "Ative Plot e Save e pressione Run. Adicione as entradas de controle de qualidade do mapeamento ou de referência quando quiser as verificações correspondentes; a tabela de contagens sozinha descreve as leituras mapeadas observadas."
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
-          "hold_after": 0.7
+          "narration": "Leia o registro de conclusão e os caminhos de saída salvos. Investigue os erros em relação às entradas selecionadas antes de usar os resultados.",
+          "hold_after": 0.7,
+          "speech_text": "Leia o registro de conclusão e os caminhos de saída salvos. Investigue os erros em relação às entradas selecionadas antes de usar os resultados."
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
-          "hold_after": 0.7
+          "narration": "Abra barcode QC ponto PNG e threshold sweep ponto PNG na pasta de saída. Use um visualizador de imagens se o painel Figures estiver vazio.",
+          "hold_after": 0.7,
+          "speech_text": "Abra barcode QC ponto PNG e threshold sweep ponto PNG na pasta de saída. Use um visualizador de imagens se o painel Figures estiver vazio."
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
-          "hold_after": 0.7
+          "narration": "Inspecione a profundidade de leitura, os efeitos de linha e coluna e a representação das guias. Compare com uma biblioteca de referência quando precisar identificar guias esperadas que estão totalmente ausentes.",
+          "hold_after": 0.7,
+          "speech_text": "Inspecione a profundidade de leitura, os efeitos de linha e coluna e a representação das guias. Compare com uma biblioteca de referência quando precisar identificar guias esperadas que estão totalmente ausentes."
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
-          "hold_after": 0.7
+          "narration": "Inspecione a varredura de limiares. Neste exemplo, um corte perto de um vírgula dois um por cento das leituras de cada poço dá uma mediana de cinco guias e mantém cerca de cinquenta e oito por cento das leituras mapeadas.",
+          "hold_after": 0.7,
+          "speech_text": "Inspecione a varredura de limiares. Neste exemplo, um corte perto de um vírgula dois um por cento das leituras de cada poço dá uma mediana de cinco guias e mantém cerca de cinquenta e oito por cento das leituras mapeadas."
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
-          "hold_after": 0.7
+          "narration": "Compare as leituras mantidas, os poços mantidos e os poços acima da meta de guias conforme o corte muda. Escolha um corte adequado ao seu delineamento; a meta de guias não garante a atribuição a uma única guia.",
+          "hold_after": 0.7,
+          "speech_text": "Compare as leituras mantidas, os poços mantidos e os poços acima da meta de guias conforme o corte muda. Escolha um corte adequado ao seu delineamento; a meta de guias não garante a atribuição a uma única guia."
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "Guarde a recomendação, a tabela da varredura, os gráficos e as configurações junto com as contagens de origem. Use o corte escolhido de forma consistente na análise posterior e registre o motivo da escolha.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Guarde a recomendação, a tabela da varredura, os gráficos e as configurações junto com as contagens de origem. Use o corte escolhido de forma consistente na análise posterior e registre o motivo da escolha."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8265,7 +8562,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List: filtrar candidatos e exportar uma lista curta",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -8273,80 +8570,131 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "Carregue resultados do Regression, filtre por valor q, número de guias e concordância e exporte os candidatos selecionados.",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "Abrir os resultados de exemplo do Regression com o script complementar fornecido.",
+        "Filtrar candidatos e ler os efeitos e a concordância entre guias.",
+        "Exportar as linhas selecionadas como CSV, Markdown ou HTML."
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Extraia Hit_List_real_results_companion.zip e ative o seu ambiente do spaCR. O atalho Hits atual do Regression não mostra o painel; execute python hit_list_companion.py e use Browse para ir até a pasta de resultados extraída. O script complementar não se conecta ao Investigate. Use wells_with_gene de results_gene.csv para a contagem de poços de suporte: o n_obs=0 exportado não é o suporte real. O exemplo não contém genes que atendam q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "Na tela Home, abra Regression e escolha Hits. Se o painel continuar oculto, use o script complementar fornecido com esta aula para abrir o Hit List.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Na tela Home, abra Regression e escolha Hits. Se o painel continuar oculto, use o script complementar fornecido com esta aula para abrir o Hit List."
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
-          "hold_after": 0.7
+          "narration": "Extraia o exemplo indicado e ative o seu ambiente do spaCR. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída.",
+          "hold_after": 0.7,
+          "speech_text": "Extraia o exemplo indicado e ative o seu ambiente do espáquer. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
-          "hold_after": 0.7
+          "narration": "O exemplo carrega trezentos e vinte e cinco genes. Alargue as colunas para ler o efeito, P, q e a concordância entre guias. Os efeitos são efeitos marginais padronizados. Para a contagem de poços de suporte, leia wells_with_gene em results_gene.csv; a contagem de observações zero exportada indica que o suporte não está disponível.",
+          "hold_after": 0.7,
+          "speech_text": "O exemplo carrega trezentos e vinte e cinco genes. Alargue as colunas para ler o efeito, P, q e a concordância entre guias. Os efeitos são efeitos marginais padronizados. Para a contagem de poços de suporte, leia wells_with_gene em results_gene.csv; a contagem de observações zero exportada indica que o suporte não está disponível."
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
-          "hold_after": 0.7
+          "narration": "Defina Max q como zero vírgula zero cinco. Nenhum gene deste exemplo passa, então a tabela fica vazia. Volte Max q para um para percorrer todos os candidatos.",
+          "hold_after": 0.7,
+          "speech_text": "Defina Max q como zero vírgula zero cinco. Nenhum gene deste exemplo passa, então a tabela fica vazia. Volte Max q para um para percorrer todos os candidatos."
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
-          "hold_after": 0.7
+          "narration": "Defina Minimum guides como dois. Restam cento e dezessete genes com pelo menos duas linhas de guias testadas. Este filtro mantém os valores q originais.",
+          "hold_after": 0.7,
+          "speech_text": "Defina Minimum guides como dois. Restam cento e dezessete genes com pelo menos duas linhas de guias testadas. Este filtro mantém os valores q originais."
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
-          "hold_after": 0.7
+          "narration": "Defina Minimum agreement como um. Restam cinquenta e sete candidatos cujas guias testadas compartilham o sinal do efeito do gene. Leia a concordância junto com q: esses candidatos continuam sem passar o limiar de significância.",
+          "hold_after": 0.7,
+          "speech_text": "Defina Minimum agreement como um. Restam cinquenta e sete candidatos cujas guias testadas compartilham o sinal do efeito do gene. Leia a concordância junto com q: esses candidatos continuam sem passar o limiar de significância."
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
-          "hold_after": 0.7
+          "narration": "Ative Hide controls para tirar a linha de controle desta visualização, deixando cinquenta e seis candidatos. Desative de novo para incluir essa linha na exportação posterior.",
+          "hold_after": 0.7,
+          "speech_text": "Ative Hide controls para tirar a linha de controle desta visualização, deixando cinquenta e seis candidatos. Desative de novo para incluir essa linha na exportação posterior."
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
-          "hold_after": 0.7
+          "narration": "Limpe os outros filtros, escolha Direction up e defina Minimum absolute effect como zero vírgula um. Restam dezesseis linhas. Escolha os limiares adequados à sua análise e depois restaure esses controles antes do próximo passo.",
+          "hold_after": 0.7,
+          "speech_text": "Limpe os outros filtros, escolha Direction up e defina Minimum absolute effect como zero vírgula um. Restam dezesseis linhas. Escolha os limiares adequados à sua análise e depois restaure esses controles antes do próximo passo."
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
-          "hold_after": 0.7
+          "narration": "Digite um identificador em Search para encontrar a linha dele. Uma busca sem correspondência deixa a tabela vazia. Limpe Search para restaurar o conjunto filtrado atual.",
+          "hold_after": 0.7,
+          "speech_text": "Digite um identificador em Search para encontrar a linha dele. Uma busca sem correspondência deixa a tabela vazia. Limpe Search para restaurar o conjunto filtrado atual."
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
-          "hold_after": 0.7
+          "narration": "Para exportar, defina duas guias, concordância total, controles incluídos e busca vazia. Exporte as cinquenta e sete linhas selecionadas como CSV, Markdown ou HTML. O CSV preserva o detalhe numérico. Salve as escolhas de filtro junto com os arquivos.",
+          "hold_after": 0.7,
+          "speech_text": "Para exportar, defina duas guias, concordância total, controles incluídos e busca vazia. Exporte as cinquenta e sete linhas selecionadas como CSV, Markdown ou HTML. O CSV preserva o detalhe numérico. Salve as escolhas de filtro junto com os arquivos."
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "Limpe os filtros para voltar aos trezentos e vinte e cinco genes. Mantenha as exportações de listas curtas separadas dos resultados originais. Em Python, use build_hit_list, depois filter e as funções de gravação em CSV, Markdown ou HTML; confira o limite de linhas de cada formato.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Limpe os filtros para voltar aos trezentos e vinte e cinco genes. Mantenha as exportações de listas curtas separadas dos resultados originais. Em Python, use build_hit_list, depois filter e as funções de gravação em CSV, Markdown ou HTML; confira o limite de linhas de cada formato."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8354,95 +8702,103 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results: redigir e exportar um relatório de execução",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "Selecione uma execução concluída, gere o relatório, revise as configurações e os resultados registrados e exporte em Markdown.",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "Selecionar o projeto, o diário de execução e a pasta de resultados correspondente.",
+        "Gerar um resumo e revisar as abas Methods, Results e Caveats.",
+        "Copiar o texto do relatório ou exportar Markdown com o resumo da execução."
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "Conclua antes o exemplo do Regression. Mantenha juntos a pasta do projeto, o diário de execução e os resultados guide_permutation. Revise as configurações inferidas, as versões da análise e os limiares estatísticos antes de usar o texto gerado num relatório.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "Na tela Home, abra Regression e depois Methods and Results. Use esta ferramenta para redigir um relatório a partir de uma análise concluída. Este passo a passo continua com a execução salva do exemplo do Regression.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Na tela Home, abra Regression e depois Methods and Results. Use esta ferramenta para redigir um relatório a partir de uma análise concluída. Este passo a passo continua com a execução salva do exemplo do Regression."
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "Escolha a pasta do projeto, o diário de execução e a pasta de resultados de regressão correspondente. Deixe Classifier vazio neste exemplo de regressão. Confirme que todos os arquivos selecionados pertencem à execução que você quer descrever.",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Escolha a pasta do projeto, o diário de execução e a pasta de resultados de regressão correspondente. Deixe Classifier vazio neste exemplo de regressão. Confirme que todos os arquivos selecionados pertencem à execução que você quer descrever."
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
-          "hold_after": 0.7
+          "narration": "Clique em Build digest e leia as abas Methods e Results. Compare a versão da análise com o ambiente de execução salvo; a versão do exportador pode ser diferente da que fez a análise.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Build digest e leia as abas Methods e Results. Compare a versão da análise com o ambiente de execução salvo; a versão do exportador pode ser diferente da que fez a análise."
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "Leia Caveats e compare pelo nome as entradas de sementes com as configurações salvas. Uma semente de permutação e uma semente global se referem a geradores diferentes. Deixe como desconhecida uma semente histórica não registrada ao editar o relatório.",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Leia Caveats e compare pelo nome as entradas de sementes com as configurações salvas. Uma semente de permutação e uma semente global se referem a geradores diferentes. Deixe como desconhecida uma semente histórica não registrada ao editar o relatório."
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "Abra Run digest para inspecionar as configurações estruturadas e os registros de origem. Compare-os com o texto e revise os avisos sobre relatórios ausentes ou padrões inferidos antes de compartilhar o rascunho.",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra Run digest para inspecionar as configurações estruturadas e os registros de origem. Compare-os com o texto e revise os avisos sobre relatórios ausentes ou padrões inferidos antes de compartilhar o rascunho."
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "Em Results, inspecione juntos os tamanhos de efeito e os valores q corrigidos. Este exemplo não tem genes abaixo de um limiar de valor q de zero vírgula zero cinco. Descreva as linhas listadas como candidatos ordenados ao editar um título que as chame de hits.",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Em Results, inspecione juntos os tamanhos de efeito e os valores q corrigidos. Este exemplo não tem genes abaixo de um limiar de valor q de zero vírgula zero cinco. Descreva as linhas listadas como candidatos ordenados ao editar um título que as chame de hits."
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
-          "hold_after": 0.7
+          "narration": "Clique em Copy sections para copiar os Methods e Results exibidos. Confira o texto copiado com os registros de origem. Use Export Markdown quando também precisar do resumo estruturado da execução.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Copy sections para copiar os Methods e Results exibidos. Confira o texto copiado com os registros de origem. Use Export Markdown quando também precisar do resumo estruturado da execução."
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "Clique em Export Markdown e escolha um nome de arquivo novo. O arquivo contém as duas seções do relatório e o resumo da execução como apêndice. Guarde um rascunho original e salve suas revisões separadamente.",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Clique em Export Markdown e escolha um nome de arquivo novo. O arquivo contém as duas seções do relatório e o resumo da execução como apêndice. Guarde um rascunho original e salve suas revisões separadamente."
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AI é opcional e envia o resumo para o provedor configurado. Revise o conteúdo antes de usar essa opção e depois confira qualquer texto gerado com a análise salva. Você também pode usar build_digest, render_methods e render_results pelo Python.",
           "focus": [
             355,
             560,
@@ -8453,12 +8809,53 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Draft with AI é opcional e envia o resumo para o provedor configurado. Revise o conteúdo antes de usar essa opção e depois confira qualquer texto gerado com a análise salva. Você também pode usar build_digest, render_methods e render_results pelo Python."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8466,24 +8863,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare: comparar execuções salvas",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "Escolha duas execuções salvas, inspecione as diferenças de configurações e de contagens e confira as comparações de resultados disponíveis.",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "Selecionar a execução de referência e a de comparação.",
+        "Inspecionar as diferenças de configurações e de contagens.",
+        "Localizar as comparações de resultados disponíveis."
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "Baixe e descompacte os snapshots indicados. Siga o README para executar prepare_run_compare_download.py no seu ambiente do spaCR com uma pasta de destino nova. Nas suas próprias comparações, preserve as saídas de cada execução antes que sejam sobrescritas.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "Na categoria Data da tela Home, abra Run Compare para inspecionar as saídas registradas de duas execuções.",
           "focus_modules": [
             "run_compare"
           ],
@@ -8491,54 +8888,60 @@
             "08_measure",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Na categoria Data da tela Home, abra Run Compare para inspecionar as saídas registradas de duas execuções."
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
-          "hold_after": 0.7
+          "narration": "Baixe e descompacte o exemplo de snapshots. Siga o README para executar o script de preparação com uma pasta de destino nova.",
+          "hold_after": 0.7,
+          "speech_text": "Baixe e descompacte o exemplo de snapshots. Siga o README para executar o script de preparação com uma pasta de destino nova."
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
-          "hold_after": 0.7
+          "narration": "Clique em Browse e selecione a pasta de comparação preparada. Mantenha disponíveis os projetos originais e os snapshots de execução para as suas próprias comparações.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Browse e selecione a pasta de comparação preparada. Mantenha disponíveis os projetos originais e os snapshots de execução para as suas próprias comparações."
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "Escolha uma execução de referência como A e a execução de comparação como B e clique em Compare. Confira os nomes dos módulos e as versões registradas.",
           "focus": [
             350,
             235,
             3450,
             190
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Escolha uma execução de referência como A e a execução de comparação como B e clique em Compare. Confira os nomes dos módulos e as versões registradas."
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "Ative Show unchanged settings para incluir os valores iguais. Expanda as entradas para inspecionar a configuração usada por cada execução.",
           "focus": [
             350,
             360,
             2300,
             1400
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ative Show unchanged settings para incluir os valores iguais. Expanda as entradas para inspecionar a configuração usada por cada execução."
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "Abra Counts para comparar os totais de objetos. Delta é B menos A. O exemplo tem contagens iguais; inspecione as imagens e as medições pertinentes quando precisar entender uma diferença.",
           "focus": [
             350,
             425,
             1250,
             720
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra Counts para comparar os totais de objetos. Delta é B menos A. O exemplo tem contagens iguais; inspecione as imagens e as medições pertinentes quando precisar entender uma diferença."
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "Abra Hits quando as duas execuções tiverem resultados de regressão registrados. O exemplo contém snapshots do Measure, então não há comparação de hits disponível.",
           "focus": [
             350,
             405,
@@ -8549,32 +8952,75 @@
             "13_regression",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Abra Hits quando as duas execuções tiverem resultados de regressão registrados. O exemplo contém snapshots do Measure, então não há comparação de hits disponível."
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "Escolha duas execuções diferentes. Se a mesma execução estiver selecionada dos dois lados, use o aviso para corrigir a seleção.",
           "focus": [
             350,
             235,
             3450,
             220
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Escolha duas execuções diferentes. Se a mesma execução estiver selecionada dos dois lados, use o aviso para corrigir a seleção."
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "Guarde os dois snapshots de saída e as configurações que explicam as diferenças. Use o Run History para os registros individuais e o Regression para os resultados de hits correspondentes.",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Guarde os dois snapshots de saída e as configurações que explicam as diferenças. Use o Run History para os registros individuais e o Regression para os resultados de hits correspondentes."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8586,113 +9032,123 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts: monitorar os controles entre placas",
+      "description": "Carregue uma tabela de campanha, selecione os controles e os limites de referência, inspecione os alertas e exporte os pontos do gráfico.",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "Escolher a medição e a população de controles.",
+        "Definir a referência e as regras de alerta.",
+        "Inspecionar os alertas e exportar os pontos do gráfico."
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "Baixe o CSV de campanha sintético abaixo, ou prepare uma tabela por poço com a identidade da placa, a ordem de execução, uma medição e os rótulos de controle. O exemplo mostra trinta placas com uma deriva programada.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "Abra QC e depois Control Charts para monitorar controles repetidos ao longo de uma campanha. O CSV de prática usa placas sintéticas e uma deriva programada.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "Abra QC e depois Control Charts para monitorar controles repetidos ao longo de uma campanha. O CSV de prática usa placas sintéticas e uma deriva programada."
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "Baixe o CSV de exemplo abaixo, clique em Load table e selecione-o. Ele contém trinta placas, cada uma com três poços de cada tipo de controle e três poços de amostra.",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "Baixe o CSV de exemplo abaixo, clique em Load table e selecione-o. Ele contém trinta placas, cada uma com três poços de cada tipo de controle e três poços de amostra."
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "Associe Plate, Run order, Measurement e Control column às colunas da tabela. Em Control is, selecione neg para os controles negativos. Uma seleção vazia inclui todas as linhas.",
           "hold_after": 0.7,
           "focus": [
             290,
             460,
             740,
             700
-          ]
+          ],
+          "speech_text": "Associe Plate, Run order, Measurement e Control column às colunas da tabela. Em Control is, selecione neg para os controles negativos. Uma seleção vazia inclui todas as linhas."
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "Escolha Sigma from para definir o estimador da variação. Aqui, Auto usa o estimador por subgrupos, porque cada placa contém três poços de controle selecionados.",
           "hold_after": 0.7,
           "focus": [
             290,
             980,
             1760,
             600
-          ]
+          ],
+          "speech_text": "Escolha Sigma from para definir o estimador da variação. Aqui, Auto usa o estimador por subgrupos, porque cada placa contém três poços de controle selecionados."
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "Escolha em Rules os alertas que quer inspecionar. O exemplo usa Limits only para focar nos pontos fora dos limites de três sigma. Mudar uma configuração redesenha o gráfico.",
           "hold_after": 0.7,
           "focus": [
             290,
             1160,
             1900,
             450
-          ]
+          ],
+          "speech_text": "Escolha em Rules os alertas que quer inspecionar. O exemplo usa Limits only para focar nos pontos fora dos limites de três sigma. Mudar uma configuração redesenha o gráfico."
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "Defina Baseline plates como vinte. As primeiras vinte placas estabelecem os limites da série. Leia o relatório e a tabela de regras para localizar as placas posteriores sinalizadas.",
           "hold_after": 0.7,
           "focus": [
             1010,
             450,
             2790,
             1600
-          ]
+          ],
+          "speech_text": "Defina Baseline plates como vinte. As primeiras vinte placas estabelecem os limites da série. Leia o relatório e a tabela de regras para localizar as placas posteriores sinalizadas."
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
-          "hold_after": 0.7
+          "narration": "Para inspecionar os controles positivos, desmarque neg e selecione pos. Revise as médias e os limites deles separadamente e depois volte a neg para continuar o exemplo.",
+          "hold_after": 0.7,
+          "speech_text": "Para inspecionar os controles positivos, desmarque neg e selecione pos. Revise as médias e os limites deles separadamente e depois volte a neg para continuar o exemplo."
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "Ajuste Baseline plates quando o período de referência planejado for diferente. A ferramenta exige pelo menos oito placas; escolha uma referência estável e adequada ao ensaio.",
           "hold_after": 0.7,
           "focus": [
             295,
             1400,
             2600,
             375
-          ]
+          ],
+          "speech_text": "Ajuste Baseline plates quando o período de referência planejado for diferente. A ferramenta exige pelo menos oito placas; escolha uma referência estável e adequada ao ensaio."
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "Clique em Export points e escolha um destino CSV. Ele salva as identidades das placas, as médias, os tamanhos dos subgrupos, os limites, a participação na referência e as regras disparadas.",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "Clique em Export points e escolha um destino CSV. Ele salva as identidades das placas, as médias, os tamanhos dos subgrupos, os limites, a participação na referência e as regras disparadas."
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "Mantenha o CSV de entrada, os controles selecionados e as configurações de referência junto com os pontos exportados. Use as identidades das placas sinalizadas para investigar mudanças na aquisição ou no ensaio.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "Mantenha o CSV de entrada, os controles selecionados e as configurações de referência junto com os pontos exportados. Use as identidades das placas sinalizadas para investigar mudanças na aquisição ou no ensaio."
         }
       ],
       "example_files": [
@@ -8701,6 +9157,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8711,27 +9207,28 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph: inspecionar saídas e dependências",
+      "description": "Abra o grafo de artefatos de um projeto, inspecione as saídas ausentes e copie o diagrama de dependências.",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "Abrir o grafo de artefatos de um projeto.",
+        "Inspecionar caminhos, estados e dependências.",
+        "Copiar o diagrama e atualizar os registros."
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "Escolha um projeto do spaCR com saídas registradas. O exemplo do External Masks fornece medições e recortes; a aula do Data Manager mostra como aparece um artefato removido.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "Abra Help e depois Pipeline graph para inspecionar as saídas e dependências registradas de um projeto.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "Abra Help e depois Pipeline graph para inspecionar as saídas e dependências registradas de um projeto."
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "Use Browse para ir até a pasta do projeto. Se o grafo estiver vazio, confira se essa pasta tem artefatos registrados; arquivos podem existir sem registros correspondentes.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8742,111 +9239,161 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "Use Browse para ir até a pasta do projeto. Se o grafo estiver vazio, confira se essa pasta tem artefatos registrados; arquivos podem existir sem registros correspondentes."
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "Escolha o projeto medido para exibir as caixas de artefatos. O exemplo inclui medições, recortes e um registro de recursos, com uma pasta de recortes removida marcada como ausente.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "Escolha o projeto medido para exibir as caixas de artefatos. O exemplo inclui medições, recortes e um registro de recursos, com uma pasta de recortes removida marcada como ausente."
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "Clique num artefato e alargue os detalhes com o divisor. Inspecione o caminho, a função, o identificador da execução, o horário de produção e a versão do software.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "Clique num artefato e alargue os detalhes com o divisor. Inspecione o caminho, a função, o identificador da execução, o horário de produção e a versão do software."
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "Selecione um artefato Missing para encontrar o caminho registrado. O tamanho exibido descreve o registro salvo, então confira o local real ao investigar arquivos ausentes.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "Selecione um artefato Missing para encontrar o caminho registrado. O tamanho exibido descreve o registro salvo, então confira o local real ao investigar arquivos ausentes."
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "Inspecione os links de entrada e posteriores onde estiverem registrados. Alguns artefatos, como registros de recursos, podem ficar fora da pasta do projeto.",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "Inspecione os links de entrada e posteriores onde estiverem registrados. Alguns artefatos, como registros de recursos, podem ficar fora da pasta do projeto."
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "Use Current, Stale e Missing para escolher quais estados de artefato ficam visíveis. Por exemplo, oculte Current para focar nas saídas ausentes.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "Use Current, Stale e Missing para escolher quais estados de artefato ficam visíveis. Por exemplo, oculte Current para focar nas saídas ausentes."
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "Se nenhuma caixa estiver visível, confira os filtros de exibição e o total de artefatos. Restaure os estados que quer inspecionar.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "Se nenhuma caixa estiver visível, confira os filtros de exibição e o total de artefatos. Restaure os estados que quer inspecionar."
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "Clique em Copy Graphviz para copiar o diagrama completo como texto DOT, incluindo os nós ocultos pelos filtros. Cole-o numa ferramenta do Graphviz para renderizar ou salvar.",
           "hold_after": 0.7,
           "focus": [
             345,
             230,
             3450,
             200
-          ]
+          ],
+          "speech_text": "Clique em Copy Graphviz para copiar o diagrama completo como texto DOT, incluindo os nós ocultos pelos filtros. Cole-o numa ferramenta do Graphviz para renderizar ou salvar."
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "Restaure os filtros desejados e selecione de novo um artefato para inspecionar os detalhes. Use o caminho registrado e o fluxo anterior para decidir o que precisa de atenção.",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "Restaure os filtros desejados e selecione de novo um artefato para inspecionar os detalhes. Use o caminho registrado e o fluxo anterior para decidir o que precisa de atenção."
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "Clique em Redraw depois de mudanças no projeto para reler o registro. Abra o Run History para configurações e registros salvos, ou o Data Manager para limpeza e arquivamento.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "44_data_manager",
             "45_project_browser"
-          ]
+          ],
+          "speech_text": "Clique em Redraw depois de mudanças no projeto para reler o registro. Abra o Run History para configurações e registros salvos, ou o Data Manager para limpeza e arquivamento."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9001,56 +9548,61 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC: inspecionar os relatórios de qualidade de um projeto",
+      "description": "Escolha um projeto, leia os relatórios de qualidade disponíveis, investigue os avisos e atualize o painel.",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "Escolher o projeto ou a execução pretendidos.",
+        "Ler os relatórios disponíveis, ausentes e desatualizados.",
+        "Investigar os achados e atualizar a visualização."
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "Use um projeto com relatórios de qualidade salvos. Os exemplos baixados do Mask e do Annotate fornecem conjuntos de relatórios diferentes; escolha o projeto ou a pasta de execução específica que quer inspecionar.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
-          "hold_after": 0.7
+          "narration": "Abra o QC pela categoria Data da tela Home para revisar os relatórios de qualidade salvos com um projeto.",
+          "hold_after": 0.7,
+          "speech_text": "Abra o QC pela categoria Data da tela Home para revisar os relatórios de qualidade salvos com um projeto."
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "O cabeçalho abre Layer Viewer, Control Charts e Outliers. Use os tutoriais deles quando um achado do painel precisar de mais investigação.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "O cabeçalho abre Layer Viewer, Control Charts e Outliers. Use os tutoriais deles quando um achado do painel precisar de mais investigação."
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "Clique em Browse e escolha a pasta do projeto. Selecione a pasta que contém os relatórios da execução que você quer avaliar.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Clique em Browse e escolha a pasta do projeto. Selecione a pasta que contém os relatórios da execução que você quer avaliar."
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
-          "hold_after": 0.7
+          "narration": "Entenda Missing como um relatório indisponível para aquela verificação. Siga as orientações para obter o relatório necessário antes de tirar conclusões.",
+          "hold_after": 0.7,
+          "speech_text": "Entenda Missing como um relatório indisponível para aquela verificação. Siga as orientações para obter o relatório necessário antes de tirar conclusões."
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "Escolha uma subpasta de execução quando as saídas dela estiverem separadas do projeto principal. Confira se o escopo exibido corresponde aos dados que você quer revisar.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "speech_text": "Escolha uma subpasta de execução quando as saídas dela estiverem separadas do projeto principal. Confira se o escopo exibido corresponde aos dados que você quer revisar."
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "Leia os avisos de segmentação e inspecione os campos correspondentes. Diante de um aviso sobre a distribuição de tamanhos, compare as imagens e os contornos dos objetos para entender a causa.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -9061,65 +9613,112 @@
           "related_lessons": [
             "14_make_masks",
             "57_layer_viewer"
-          ]
+          ],
+          "speech_text": "Leia os avisos de segmentação e inspecione os campos correspondentes. Diante de um aviso sobre a distribuição de tamanhos, compare as imagens e os contornos dos objetos para entender a causa."
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
-          "hold_after": 0.7
+          "narration": "Revise o cartão de unidades junto com as demais categorias. Um relatório de unidades consistente resolve essa verificação; os relatórios ausentes continuam precisando de atenção.",
+          "hold_after": 0.7,
+          "speech_text": "Revise o cartão de unidades junto com as demais categorias. Um relatório de unidades consistente resolve essa verificação; os relatórios ausentes continuam precisando de atenção."
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "Leia as cinco categorias e as orientações. No caso do vazamento, confira se as identidades das amostras e o agrupamento refletem as unidades de validação independentes pretendidas.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "23_agreement",
             "33_plate_viewer"
-          ]
+          ],
+          "speech_text": "Leia as cinco categorias e as orientações. No caso do vazamento, confira se as identidades das amostras e o agrupamento refletem as unidades de validação independentes pretendidas."
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "Abra os detalhes das falhas ou avisos para identificar os campos afetados e os relatórios de origem. Use a ferramenta de análise adequada para investigá-los.",
           "hold_after": 0.7,
           "focus": [
             450,
             400,
             2950,
             240
-          ]
+          ],
+          "speech_text": "Abra os detalhes das falhas ou avisos para identificar os campos afetados e os relatórios de origem. Use a ferramenta de análise adequada para investigá-los."
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "Clique em Refresh depois que os relatórios mudarem no disco. O painel relê as evidências disponíveis; gere relatórios atualizados pela análise que os produz.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             2950,
             50
-          ]
+          ],
+          "speech_text": "Clique em Refresh depois que os relatórios mudarem no disco. O painel relê as evidências disponíveis; gere relatórios atualizados pela análise que os produz."
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
-          "hold_after": 0.7
+          "narration": "Investigue um relatório desatualizado comparando-o com os dados de entrada e as configurações. Mantenha visíveis os achados não resolvidos na revisão do projeto.",
+          "hold_after": 0.7,
+          "speech_text": "Investigue um relatório desatualizado comparando-o com os dados de entrada e as configurações. Mantenha visíveis os achados não resolvidos na revisão do projeto."
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "Guarde os relatórios de qualidade com o projeto. Continue nas ferramentas especializadas indicadas ou no tutorial do módulo adequado para tratar cada achado.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "Guarde os relatórios de qualidade com o projeto. Continue nas ferramentas especializadas indicadas ou no tutorial do módulo adequado para tratar cada achado."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9131,37 +9730,40 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter: inspecionar medições e seus recortes",
+      "description": "Plote duas colunas de medições, pré-visualize recortes de objetos e envie um objeto selecionado para o Annotate.",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "Carregar medições e escolher os eixos.",
+        "Inspecionar o recorte por trás de um ponto.",
+        "Enviar um objeto selecionado para o Annotate."
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "Use um banco de dados de medições do spaCR com os recortes de objetos e os arquivos de formato de recorte correspondentes. O exemplo para download do Annotate fornece essas entradas.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "Abra o Image UMAP e depois o Image Scatter para plotar duas medições existentes. Pratique com o banco de dados do exemplo do Annotate e os recortes de células correspondentes.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ]
+          ],
+          "speech_text": "Abra o Image iu mép e depois o Image Scatter para plotar duas medições existentes. Pratique com o banco de dados do exemplo do Annotate e os recortes de células correspondentes."
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
-          "hold_after": 0.7
+          "narration": "Clique em Browse e abra measurements.db. Mantenha a pasta data do projeto e os arquivos de formato de recorte junto com o banco de dados para que as miniaturas sejam encontradas.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Browse e abra measurements ponto dê bê. Mantenha a pasta data do projeto e os arquivos de formato de recorte junto com o banco de dados para que as miniaturas sejam encontradas."
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
-          "hold_after": 0.7
+          "narration": "Selecione cell no seletor de tabelas e clique em Plot. Ao trocar para outra tabela, clique em Plot de novo para carregar as linhas dela.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione cell no seletor de tabelas e clique em Plot. Ao trocar para outra tabela, clique em Plot de novo para carregar as linhas dela."
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "Defina x como a área celular e y como a intensidade média do canal um da célula. A escolha dos eixos redesenha na hora as linhas carregadas.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -9171,85 +9773,93 @@
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "Defina x como a área celular e y como a intensidade média do canal um da célula. A escolha dos eixos redesenha na hora as linhas carregadas."
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "Passe o ponteiro sobre um ponto para ver o recorte salvo e a identidade completa do objeto. Use a imagem para entender a medição por trás do ponto.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "Passe o ponteiro sobre um ponto para ver o recorte salvo e a identidade completa do objeto. Use a imagem para entender a medição por trás do ponto."
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "Afaste o ponteiro para limpar a pré-visualização temporária e depois passe sobre outro ponto para inspecioná-lo.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "Afaste o ponteiro para limpar a pré-visualização temporária e depois passe sobre outro ponto para inspecioná-lo."
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "Troque as medições de x e y para explorar a relação por outro ângulo. Escolha características que façam sentido e confira as unidades.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "Troque as medições de x e y para explorar a relação por outro ângulo. Escolha características que façam sentido e confira as unidades."
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "Selecione outra medição, como a característica de homogeneidade. Linhas sem coordenadas ficam fora do gráfico, então a contagem plotada pode ser diferente da contagem da tabela carregada.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "Selecione outra medição, como a característica de homogeneidade. Linhas sem coordenadas ficam fora do gráfico, então a contagem plotada pode ser diferente da contagem da tabela carregada."
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "Uma coluna constante, como a dimensão da medição neste exemplo, coloca os pontos numa linha. Volte para uma característica com variação útil para inspecionar objetos.",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "Uma coluna constante, como a dimensão da medição neste exemplo, coloca os pontos numa linha. Volte para uma característica com variação útil para inspecionar objetos."
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "Para inspecionar um recorte selecionado no Annotate, abra antes o Annotate e carregue o mesmo projeto. Depois volte à visualização existente do Image Scatter.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Para inspecionar um recorte selecionado no Annotate, abra antes o Annotate e carregue o mesmo projeto. Depois volte à visualização existente do Image Scatter."
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "Clique no próprio ponto para enviar a identidade do objeto para o Annotate e depois mude para essa página. Passar o ponteiro só pré-visualiza o recorte.",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "Clique no próprio ponto para enviar a identidade do objeto para o Annotate e depois mude para essa página. Passar o ponteiro só pré-visualiza o recorte."
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "Inspecione o objeto selecionado no Annotate antes de atribuir um rótulo. Use o Database Browser para exportar tabelas, ou o PCA para análise de componentes.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -9261,12 +9871,53 @@
             330,
             550,
             410
-          ]
+          ],
+          "speech_text": "Inspecione o objeto selecionado no Annotate antes de atribuir um rótulo. Use o Database Browser para exportar tabelas, ou o PCA para análise de componentes."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9278,14 +9929,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage: percorrer objetos pais e seu conteúdo",
+      "description": "Abra as relações pai-filho salvas, selecione uma família e inspecione no Annotate o recorte da célula pai correspondente.",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "Carregar medições e expandir as relações pai-filho.",
+        "Selecionar objetos conferindo o campo e o tipo de objeto.",
+        "Abrir o recorte da célula pai correspondente e obter a hierarquia completa pelo Python."
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "Baixe o exemplo completo do Annotate com o banco de dados de medições e os recortes de células correspondentes. O arquivo do Graph Builder, que só tem o banco de dados, não fornece imagens. Este exemplo só tem recortes de células: dê um clique duplo numa célula pai para inspecionar um recorte. A ação atual Open crops numa família pode trocar recortes filhos ausentes por recortes de células não relacionadas; evite essa ação com este exemplo.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9293,87 +9944,141 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "Na tela Home, abra Database Browser e depois Lineage. Use a árvore para ver quais objetos medidos estão guardados dentro de cada célula pai.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ]
+          ],
+          "speech_text": "Na tela Home, abra Database Browser e depois Lineage. Use a árvore para ver quais objetos medidos estão guardados dentro de cada célula pai."
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
-          "hold_after": 0.7
+          "narration": "Use Browse para ir até measurements.db do exemplo do Annotate e clique em Build tree. Alargue a coluna Object e o divisor para ler os rótulos. Identifique um objeto pelo campo e pelo tipo, além do número.",
+          "hold_after": 0.7,
+          "speech_text": "Use Browse para ir até measurements ponto dê bê do exemplo do Annotate e clique em Build tree. Alargue a coluna Object e o divisor para ler os rótulos. Identifique um objeto pelo campo e pelo tipo, além do número."
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
-          "hold_after": 0.7
+          "narration": "Este banco de dados contém duas mil trezentas e quarenta e uma células. A árvore mostra até duas mil famílias de pais. Use a exportação em Python mostrada mais adiante nesta aula quando precisar de todas as famílias.",
+          "hold_after": 0.7,
+          "speech_text": "Este banco de dados contém duas mil trezentas e quarenta e uma células. A árvore mostra até duas mil famílias de pais. Use a exportação em Python mostrada mais adiante nesta aula quando precisar de todas as famílias."
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
-          "hold_after": 0.7
+          "narration": "Leia o resumo acima da árvore. Um núcleo conta como filho, então uma célula com conteúdo pode não ter nenhum objeto patógeno. Use os tipos de filho para interpretar cada família.",
+          "hold_after": 0.7,
+          "speech_text": "Leia o resumo acima da árvore. Um núcleo conta como filho, então uma célula com conteúdo pode não ter nenhum objeto patógeno. Use os tipos de filho para interpretar cada família."
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
-          "hold_after": 0.7
+          "narration": "Expanda um pai para ver os filhos dele. Aqui a célula três contém o núcleo cinco e o patógeno um. Escolha o tipo de objeto específico que quer inspecionar.",
+          "hold_after": 0.7,
+          "speech_text": "Expanda um pai para ver os filhos dele. Aqui a célula três contém o núcleo cinco e o patógeno um. Escolha o tipo de objeto específico que quer inspecionar."
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
-          "hold_after": 0.7
+          "narration": "Use Select with contents para selecionar o pai e os filhos juntos. As identidades selecionadas incluem o campo e o tipo de objeto. Selecione só um filho quando precisar apenas desse objeto.",
+          "hold_after": 0.7,
+          "speech_text": "Use Select with contents para selecionar o pai e os filhos juntos. As identidades selecionadas incluem o campo e o tipo de objeto. Selecione só um filho quando precisar apenas desse objeto."
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
-          "hold_after": 0.7
+          "narration": "Expanda uma família grande para inspecionar o conteúdo. Este exemplo inclui uma família com trinta e três objetos. Revise as imagens correspondentes quando uma contagem parecer incomum.",
+          "hold_after": 0.7,
+          "speech_text": "Expanda uma família grande para inspecionar o conteúdo. Este exemplo inclui uma família com trinta e três objetos. Revise as imagens correspondentes quando uma contagem parecer incomum."
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
-          "hold_after": 0.7
+          "narration": "Clique num cabeçalho de coluna para ordenar as famílias exibidas. A ordenação mantém as relações salvas e o limite de exibição de dois mil pais.",
+          "hold_after": 0.7,
+          "speech_text": "Clique num cabeçalho de coluna para ordenar as famílias exibidas. A ordenação mantém as relações salvas e o limite de exibição de dois mil pais."
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "Para ver recortes, abra antes o Annotate e carregue o projeto de exemplo correspondente. Se aparecer a mensagem pedindo o Annotate, abra-o antes de pedir imagens pelo Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Para ver recortes, abra antes o Annotate e carregue o projeto de exemplo correspondente. Se aparecer a mensagem pedindo o Annotate, abra-o antes de pedir imagens pelo Lineage."
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
-          "hold_after": 0.7
+          "narration": "Use o projeto baixado completo, que inclui os recortes de células. Mantenha juntos o banco de dados e as imagens da mesma execução para que as identidades dos objetos correspondam.",
+          "hold_after": 0.7,
+          "speech_text": "Use o projeto baixado completo, que inclui os recortes de células. Mantenha juntos o banco de dados e as imagens da mesma execução para que as identidades dos objetos correspondam."
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
-          "hold_after": 0.7
+          "narration": "Evite Open crops numa família inteira neste exemplo. Recortes ausentes de núcleos e patógenos podem ser trocados por recortes de células não relacionadas. Volte à árvore e escolha só a célula pai.",
+          "hold_after": 0.7,
+          "speech_text": "Evite Open crops numa família inteira neste exemplo. Recortes ausentes de núcleos e patógenos podem ser trocados por recortes de células não relacionadas. Volte à árvore e escolha só a célula pai."
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
-          "hold_after": 0.7
+          "narration": "Dê um clique duplo na célula pai no Lineage. O Annotate abre o recorte de célula correspondente a esse pai. É o recorte disponível no exemplo baixado.",
+          "hold_after": 0.7,
+          "speech_text": "Dê um clique duplo na célula pai no Lineage. O Annotate abre o recorte de célula correspondente a esse pai. É o recorte disponível no exemplo baixado."
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
-          "hold_after": 0.7
+          "narration": "Clique com Shift na miniatura do pai para ampliar a pré-visualização e depois pressione Escape para voltar. Um clique esquerdo comum atribui uma classe de anotação, então use Shift quando só quiser inspecionar.",
+          "hold_after": 0.7,
+          "speech_text": "Clique com Shift na miniatura do pai para ampliar a pré-visualização e depois pressione Escape para voltar. Um clique esquerdo comum atribui uma classe de anotação, então use Shift quando só quiser inspecionar."
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "Clique em Build tree para atualizar a visualização. Para a hierarquia completa em Python, use read_object_tables, build_forest e lineage_frame e salve a tabela como CSV. O CSV de exemplo indicado contém todos os sete mil duzentos e um nós.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "Clique em Build tree para atualizar a visualização. Para a hierarquia completa em Python, use read_object_tables, build_forest e lineage_frame e salve a tabela como CSV. O CSV de exemplo indicado contém todos os sete mil duzentos e um nós."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9384,144 +10089,164 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer: inspecionar imagens e sobreposições de rótulos",
+      "description": "Carregue uma imagem e a máscara correspondente, ajuste a sobreposição e amplie para inspecionar os contornos dos objetos.",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "Abrir uma imagem e a máscara correspondente.",
+        "Ajustar a visibilidade, a opacidade, a mesclagem e a ordem das camadas.",
+        "Inspecionar os rótulos com zoom e deslocamento."
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "Baixe e extraia Layer_Viewer_real_image_mask.zip. Use a imagem de intensidade incluída e a máscara de rótulos inteiros correspondente. Este exemplo não tem calibração física de pixels.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "Na tela Home, abra QC e depois Layer Viewer. Baixe e extraia o exemplo indicado de imagem e máscara. O visualizador tem seus próprios controles de arquivo para essas duas entradas.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "Na tela Home, abra QC e depois Layer Viewer. Baixe e extraia o exemplo indicado de imagem e máscara. O visualizador tem seus próprios controles de arquivo para essas duas entradas."
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
-          "hold_after": 0.7
+          "narration": "Clique em mais Image e abra fov01_C1 ponto tif. A imagem em tons de cinza aparece na tela com um ajuste de contraste por percentis para exibição.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em mais Image e abra fov01_C1 ponto tif. A imagem em tons de cinza aparece na tela com um ajuste de contraste por percentis para exibição."
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
-          "hold_after": 0.7
+          "narration": "Clique em Fit para preencher o painel da imagem. O Fit pode esticar uma imagem quadrada num painel largo; ajuste o divisor para deixar o painel mais ou menos quadrado ao inspecionar formas.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Fit para preencher o painel da imagem. O Fit pode esticar uma imagem quadrada num painel largo; ajuste o divisor para deixar o painel mais ou menos quadrado ao inspecionar formas."
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
-          "hold_after": 0.7
+          "narration": "Clique em mais Mask e abra fov01_cell_mask ponto tif. Os quarenta e quatro objetos rotulados aparecem sobre a imagem. O zero é o fundo e fica transparente.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em mais Mask e abra fov01_cell_mask ponto tif. Os quarenta e quatro objetos rotulados aparecem sobre a imagem. O zero é o fundo e fica transparente."
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "Selecione mask na lista de camadas antes de mudar os controles dela. Marque e desmarque a caixa dela para comparar os contornos com a imagem por baixo.",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ]
+          ],
+          "speech_text": "Selecione mask na lista de camadas antes de mudar os controles dela. Marque e desmarque a caixa dela para comparar os contornos com a imagem por baixo."
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "Leve a Opacity de mask a zero para ocultar as cores mantendo a camada carregada. Confira a linha selecionada antes de ajustar outra camada.",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ]
+          ],
+          "speech_text": "Leve a Opacity de mask a zero para ocultar as cores mantendo a camada carregada. Confira a linha selecionada antes de ajustar outra camada."
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
-          "hold_after": 0.7
+          "narration": "Leve Opacity a cem por cento para inspecionar a forma dos rótulos. As cores cobrem a imagem dentro de cada objeto rotulado.",
+          "hold_after": 0.7,
+          "speech_text": "Leve Opacity a cem por cento para inspecionar a forma dos rótulos. As cores cobrem a imagem dentro de cada objeto rotulado."
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
-          "hold_after": 0.7
+          "narration": "Volte Opacity para cinquenta por cento e escolha a mesclagem translucent para ver a textura da imagem através da máscara. Compare os contornos dos objetos com o sinal por baixo.",
+          "hold_after": 0.7,
+          "speech_text": "Volte Opacity para cinquenta por cento e escolha a mesclagem translucent para ver a textura da imagem através da máscara. Compare os contornos dos objetos com o sinal por baixo."
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
-          "hold_after": 0.7
+          "narration": "Escolha a mesclagem additive para somar as cores da máscara à imagem. Áreas claras podem saturar nesta exibição, então volte para translucent quando precisar de uma comparação mais clara.",
+          "hold_after": 0.7,
+          "speech_text": "Escolha a mesclagem additive para somar as cores da máscara à imagem. Áreas claras podem saturar nesta exibição, então volte para translucent quando precisar de uma comparação mais clara."
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
-          "hold_after": 0.7
+          "narration": "Experimente as mesclagens multiply e minimum para comparar sobreposições mais escuras. Essas opções mudam a composição exibida, enquanto os valores de intensidade originais continuam disponíveis na imagem de origem.",
+          "hold_after": 0.7,
+          "speech_text": "Experimente as mesclagens multiply e minimum para comparar sobreposições mais escuras. Essas opções mudam a composição exibida, enquanto os valores de intensidade originais continuam disponíveis na imagem de origem."
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
-          "hold_after": 0.7
+          "narration": "Escolha opaque e ajuste o controle Opacity para comparar a aparência. Com esta máscara de inteiros, a mesclagem opaque a cinquenta por cento fica igual à translucent a cinquenta por cento. Volte para translucent para continuar.",
+          "hold_after": 0.7,
+          "speech_text": "Escolha opaque e ajuste o controle Opacity para comparar a aparência. Com esta máscara de inteiros, a mesclagem opaque a cinquenta por cento fica igual à translucent a cinquenta por cento. Volte para translucent para continuar."
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
-          "hold_after": 0.7
+          "narration": "Selecione image e escolha cyan no seletor de mapa de cores. A imagem de intensidade muda de cor, e a máscara mantém as cores dos rótulos. Escolha gray para voltar aos tons de cinza.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione image e escolha cyan no seletor de mapa de cores. A imagem de intensidade muda de cor, e a máscara mantém as cores dos rótulos. Escolha gray para voltar aos tons de cinza."
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
-          "hold_after": 0.7
+          "narration": "Selecione mask e pressione a seta para baixo para colocá-la atrás da imagem. A camada de cima aparece na frente. Suba a máscara de novo para inspecionar os rótulos.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione mask e pressione a seta para baixo para colocá-la atrás da imagem. A camada de cima aparece na frente. Suba a máscara de novo para inspecionar os rótulos."
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "Clique num objeto rotulado visível para ler a posição e o número do rótulo na linha de status. Use os metadados do seu projeto quando precisar identificar o campo, a placa ou o poço desse objeto.",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ]
+          ],
+          "speech_text": "Clique num objeto rotulado visível para ler a posição e o número do rótulo na linha de status. Use os metadados do seu projeto quando precisar identificar o campo, a placa ou o poço desse objeto."
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
-          "hold_after": 0.7
+          "narration": "Gire a roda do mouse sobre um objeto para ampliar em torno do ponteiro. Aproxime até que o contorno fique fácil de inspecionar.",
+          "hold_after": 0.7,
+          "speech_text": "Gire a roda do mouse sobre um objeto para ampliar em torno do ponteiro. Aproxime até que o contorno fique fácil de inspecionar."
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
-          "hold_after": 0.7
+          "narration": "Segure Shift e arraste com o botão esquerdo do mouse para se deslocar. Você também pode arrastar com o botão do meio. Percorra o campo mantendo o zoom atual.",
+          "hold_after": 0.7,
+          "speech_text": "Segure Shift e arraste com o botão esquerdo do mouse para se deslocar. Você também pode arrastar com o botão do meio. Percorra o campo mantendo o zoom atual."
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
-          "hold_after": 0.7
+          "narration": "Clique em Fit para voltar ao campo inteiro. Ajuste o formato do painel se a imagem ajustada parecer esticada.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Fit para voltar ao campo inteiro. Ajuste o formato do painel se a imagem ajustada parecer esticada."
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "Mais Points e mais Shapes adicionam camadas auxiliares vazias. Para desenhar ou editar máscaras de segmentação, continue no Make Masks; este visualizador não tem controles de desenho para essas camadas vazias.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ]
+          ],
+          "speech_text": "Mais Points e mais Shapes adicionam camadas auxiliares vazias. Para desenhar ou editar máscaras de segmentação, continue no Make Masks; este visualizador não tem controles de desenho para essas camadas vazias."
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
-          "hold_after": 0.7
+          "narration": "Selecione uma camada e use Remove para tirá-la da visualização. O arquivo original continua no disco, pronto para ser carregado de novo.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione uma camada e use Remove para tirá-la da visualização. O arquivo original continua no disco, pronto para ser carregado de novo."
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "O resultado é uma visualização de camadas inspecionada. Para exportar uma composição, use stack_from_paths e LayerStack.render_uint8 pelo Python. Continue no Make Masks para salvar edições de máscaras, ou no Measure para medições de objetos.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "O resultado é uma visualização de camadas inspecionada. Para exportar uma composição, use stack_from_paths e LayerStack.render_uint8 pelo Python. Continue no Make Masks para salvar edições de máscaras, ou no Measure para medições de objetos."
         }
       ],
       "example_files": [
@@ -9531,6 +10256,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9541,93 +10306,145 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder: plotar medições e filtrar objetos",
+      "description": "Carregue uma tabela de medições, atribua os eixos do gráfico, compare grupos e filtre os objetos exibidos.",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "Carregar uma tabela de medições de exemplo.",
+        "Montar um histograma, um gráfico de dispersão e painéis por grupo.",
+        "Filtrar objetos e escolher uma visualização para o próximo passo."
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "Baixe e extraia Graph_Builder_real_measurements.zip. Ele contém measurements.db. Para inspecionar recortes de imagem depois, mantenha também disponíveis o projeto do Annotate correspondente e as imagens dele.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
-          "hold_after": 0.7
+          "narration": "Abra o Graph Builder na tela Home para explorar uma tabela de medições. Comece com o banco de dados de exemplo indicado e depois repita os passos com o seu próprio projeto medido.",
+          "hold_after": 0.7,
+          "speech_text": "Abra o Graph Builder na tela Home para explorar uma tabela de medições. Comece com o banco de dados de exemplo indicado e depois repita os passos com o seu próprio projeto medido."
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Clique em Load table e abra measurements ponto db do arquivo extraído. Escolha a tabela cell. Este exemplo contém duas mil trezentas e quarenta e uma células medidas.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ]
+          ],
+          "speech_text": "Clique em Load table e abra measurements ponto db do arquivo extraído. Escolha a tabela cell. Este exemplo contém duas mil trezentas e quarenta e uma células medidas."
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
-          "hold_after": 0.7
+          "narration": "Encontre cell_area na lista de colunas e arraste para X. O gráfico automático vira um histograma: cada barra conta as células num intervalo de área. Confira as unidades da medição antes de interpretar o eixo.",
+          "hold_after": 0.7,
+          "speech_text": "Encontre cell_area na lista de colunas e arraste para X. O gráfico automático vira um histograma: cada barra conta as células num intervalo de área. Confira as unidades da medição antes de interpretar o eixo."
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
-          "hold_after": 0.7
+          "narration": "Arraste cell_channel_1_mean_intensity para Y para fazer um gráfico de dispersão. Cada ponto posiciona uma célula pela área e pela intensidade média do canal um. Leia o aviso sobre o número de linhas ao trabalhar com tabelas maiores.",
+          "hold_after": 0.7,
+          "speech_text": "Arraste cell_channel_1_mean_intensity para Y para fazer um gráfico de dispersão. Cada ponto posiciona uma célula pela área e pela intensidade média do canal um. Leia o aviso sobre o número de linhas ao trabalhar com tabelas maiores."
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
-          "hold_after": 0.7
+          "narration": "Arraste columnID para Colour para distinguir as colunas da placa. Use a legenda para associar as cores aos rótulos de coluna registrados e procure grupos que precisem de uma inspeção mais cuidadosa.",
+          "hold_after": 0.7,
+          "speech_text": "Arraste columnID para Colour para distinguir as colunas da placa. Use a legenda para associar as cores aos rótulos de coluna registrados e procure grupos que precisem de uma inspeção mais cuidadosa."
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
-          "hold_after": 0.7
+          "narration": "Arraste rowID para o canal de facetas para baixo para criar um painel para cada linha da placa. Compare os painéis usando os eixos compartilhados. Use poços independentes ao fazer comparações estatísticas entre condições.",
+          "hold_after": 0.7,
+          "speech_text": "Arraste rowID para o canal de facetas para baixo para criar um painel para cada linha da placa. Compare os painéis usando os eixos compartilhados. Use poços independentes ao fazer comparações estatísticas entre condições."
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
-          "hold_after": 0.7
+          "narration": "No painel de filtros à direita, adicione cell_area e informe um mínimo. O exemplo usa vinte e um mil novecentos e vinte e cinco, o que deixa mil cento e setenta e uma linhas. Escolha limiares adequados às suas medições e observe a contagem plotada e os eixos mudarem.",
+          "hold_after": 0.7,
+          "speech_text": "No painel de filtros à direita, adicione cell_area e informe um mínimo. O exemplo usa vinte e um mil novecentos e vinte e cinco, o que deixa mil cento e setenta e uma linhas. Escolha limiares adequados às suas medições e observe a contagem plotada e os eixos mudarem."
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
-          "hold_after": 0.7
+          "narration": "Clique em Clear all no painel de filtros para restaurar a tabela completa. Use Clear all channels à esquerda quando quiser remover as atribuições do gráfico e começar outro.",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Clear all no painel de filtros para restaurar a tabela completa. Use Clear all channels à esquerda quando quiser remover as atribuições do gráfico e começar outro."
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
-          "hold_after": 0.7
+          "narration": "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. Se Open selection in Annotate não estiver disponível, abra o Annotate separadamente com o projeto correspondente e inspecione os objetos lá.",
+          "hold_after": 0.7,
+          "speech_text": "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. Se Open selection in Annotate não estiver disponível, abra o Annotate separadamente com o projeto correspondente e inspecione os objetos lá."
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
-          "hold_after": 0.7
+          "narration": "Clique numa parte vazia do gráfico para limpar a seleção. Confira os filtros ativos e a contagem exibida antes de explorar outro grupo de objetos.",
+          "hold_after": 0.7,
+          "speech_text": "Clique numa parte vazia do gráfico para limpar a seleção. Confira os filtros ativos e a contagem exibida antes de explorar outro grupo de objetos."
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "Use os atalhos do cabeçalho para abrir o Plate Viewer, com mapas de calor por poço, ou o Small Multiples, com gráficos repetidos. Guarde o banco de dados de origem, as colunas escolhidas e os filtros para poder reproduzir a visualização.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
+          ],
+          "speech_text": "Use os atalhos do cabeçalho para abrir o Plate Viewer, com mapas de calor por poço, ou o Small Multiples, com gráficos repetidos. Guarde o banco de dados de origem, as colunas escolhidas e os filtros para poder reproduzir a visualização."
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "A tela atual mostra os gráficos sem botão de exportação. Use a API do Graph Builder para gráficos por script, ou o Database Browser para exportar uma tabela para outra ferramenta de gráficos.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "A tela atual mostra os gráficos sem botão de exportação. Use a API do Graph Builder para gráficos por script, ou o Database Browser para exportar uma tabela para outra ferramenta de gráficos."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

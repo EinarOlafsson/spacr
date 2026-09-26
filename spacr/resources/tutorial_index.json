@@ -282,7 +282,7 @@
     },
     "train_cellpose": {
       "lesson": "19_train_cellpose",
-      "title": "Train Cellpose: verified pairs and an explicit API workaround"
+      "title": "Train a Cellpose model"
     },
     "train_compare": {
       "lesson": "28_training_runs",
