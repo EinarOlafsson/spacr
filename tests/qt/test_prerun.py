@@ -267,8 +267,11 @@ def test_unregistering_hands_the_screen_back_to_whoever_had_it(qtbot):
 
     chaining.register()
     before = APP_FACTORIES.get("measure")
+    before_mask = APP_FACTORIES.get("mask")
     prerun.register()
-    assert prerun.unregister() == 2
+    assert APP_FACTORIES.get("mask") is before_mask, (
+        "the Mask screen carries nothing of this module's any more")
+    assert prerun.unregister() == 1
     assert APP_FACTORIES.get("measure") is before
 
 
@@ -493,17 +496,22 @@ def image_source(tmp_path):
 
 @pytest.fixture
 def panel(qtbot, registered):
+    """The panel in the popup the Model zoo opens for the Mask screen."""
     screen = _screen(qtbot, "mask")
-    found = prerun.diameter_panel(screen)
-    assert found is not None
-    return found
+    dialog = prerun.diameter_dialog(screen)
+    assert dialog is not None
+    qtbot.addWidget(dialog)
+    yield dialog.panel
 
 
-def test_the_panel_is_on_the_mask_screen_above_the_run_row(panel):
+def test_the_panel_is_in_its_popup_and_not_on_the_mask_screen(panel):
+    """Item 533: the estimate moved off the main screen into a popup."""
     screen = panel._screen
+    assert screen.app_key == prerun.DIAMETER_APP
+    assert isinstance(panel.window(), prerun.DiameterDialog)
+    assert screen.findChildren(prerun.DiameterPanel) == []
     layout = screen._actions_row.parentWidget().layout()
-    assert layout.indexOf(panel) >= 0
-    assert layout.indexOf(panel) < layout.indexOf(screen._actions_row)
+    assert layout.indexOf(panel) < 0
     assert panel.objectName() == prerun.DIAMETER_OBJECT_NAME
     # Why the number matters, on screen, next to the button that measures it.
     assert "30/diameter" in _texts(panel)
@@ -567,7 +575,9 @@ def test_an_unusable_estimate_is_never_written(qtbot, registered):
     from spacr.diameter import DiameterEstimate
 
     screen = _screen(qtbot, "mask")
-    panel = prerun.diameter_panel(screen)
+    dialog = prerun.diameter_dialog(screen)
+    qtbot.addWidget(dialog)
+    panel = dialog.panel
     panel._estimates = {"cell": DiameterEstimate(
         object_type="cell", diameter=float("nan"), low=float("nan"),
         high=float("nan"), n_objects=0, n_fields=0, method="none",

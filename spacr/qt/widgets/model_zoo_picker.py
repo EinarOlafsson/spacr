@@ -1184,7 +1184,28 @@ class ModelZooPicker(QDialog):
         buttons.addButton(QDialogButtonBox.Cancel)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self._accept_selected)
-        layout.addWidget(buttons)
+
+        from ..prerun import diameter_screen_of
+
+        self._diameter_screen = diameter_screen_of(parent)
+        self._diameter_dialog = None
+        self.diameter_button = None
+        if self._diameter_screen is None:
+            layout.addWidget(buttons)
+        else:
+            bottom = QHBoxLayout()
+            self.diameter_button = QPushButton(tr("Measure diameters…"), self)
+            self.diameter_button.setObjectName("DiameterButton")
+            self.diameter_button.setAutoDefault(False)
+            self.diameter_button.setToolTip(tr(
+                "Measure the cell, nucleus and pathogen diameters from a few "
+                "fields of your own images, and write them into Mask "
+                "generation's settings. API: spacr.qt.prerun.DiameterDialog."))
+            self.diameter_button.clicked.connect(self._measure_diameters)
+            bottom.addWidget(self.diameter_button)
+            bottom.addStretch(1)
+            bottom.addWidget(buttons)
+            layout.addLayout(bottom)
 
         self.refresh()
         self._warm_the_community_catalogue()
@@ -1217,6 +1238,26 @@ class ModelZooPicker(QDialog):
         trained_by="Cellpose",
         notes=(),
     )
+
+    def _measure_diameters(self) -> None:
+        """Open the diameter popup for the Mask generation screen (item 533).
+
+        One popup per zoo window, opened again rather than rebuilt, and
+        window-modal on the zoo so the zoo is where the user returns. What
+        it measures is also kept on the screen, so a later zoo window shows
+        it too.
+        """
+        dialog = self._diameter_dialog
+        if dialog is None:
+            from ..prerun import diameter_dialog
+
+            dialog = diameter_dialog(self._diameter_screen, parent=self)
+            if dialog is None:
+                self.status.setText(tr("Could not open the diameter estimate."))
+                return
+            self._diameter_dialog = dialog
+        dialog.open()
+        dialog.raise_()
 
     def _warm_the_community_catalogue(self) -> None:
         """Fetch the community rows off the GUI thread, then redraw.
@@ -1960,6 +2001,12 @@ class ModelZooPicker(QDialog):
         timer = getattr(self, "_probe_timer", None)
         if timer is not None:
             timer.stop()
+        diameters = getattr(self, "_diameter_dialog", None)
+        if diameters is not None:
+            try:
+                diameters.close()
+            except RuntimeError:
+                pass
         super().done(result)
 
     def chosen_path(self) -> Optional[str]:

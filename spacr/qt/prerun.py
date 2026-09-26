@@ -17,9 +17,12 @@ live in a module nothing calls:
   ``diameter`` is the single most consequential Cellpose 4 setting spaCR
   exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by
   ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is
-  the one users guess at.  The panel this module puts on the Mask screen turns
-  the guess into a measurement, per object type, and shows how many objects it
-  measured so the number can be disbelieved.
+  the one users guess at.  The panel this module builds turns the guess into a
+  measurement, per object type, and shows how many objects it measured so the
+  number can be disbelieved.  It opens in a popup of its own from the
+  *Measure diameters…* button in Mask generation's Model zoo popup (item
+  533), next to the choice of model it is the other half of, rather than on
+  the main screen.
 
 **Neither one blocks anything.**  The banner is advisory by construction: it
 never touches the Run button, never disables it, never intercepts the click.
@@ -65,6 +68,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QApplication,
+    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -80,13 +84,14 @@ __all__ = [
     "BLOCKS_RUN",
     "DIAMETER_APP",
     "DIAMETER_OBJECT_NAME",
+    "DiameterDialog",
     "DiameterPanel",
     "QC_APP",
     "QC_OBJECT_NAME",
     "QSS_NAME",
     "SegQCBanner",
-    "diameter_panel",
-    "install_diameter_panel",
+    "diameter_dialog",
+    "diameter_screen_of",
     "install_qc_banner",
     "qc_banner",
     "register",
@@ -96,7 +101,7 @@ __all__ = [
 #: The module whose screen carries the segmentation-QC banner.
 QC_APP = "measure"
 
-#: The module whose screen carries the diameter estimator.
+#: The module whose Model zoo popup offers the diameter estimator.
 DIAMETER_APP = "mask"
 
 #: Object names, for the stylesheet and for tests that look widgets up.
@@ -1109,6 +1114,11 @@ class DiameterPanel(_JobMixin, QFrame):
     was measured and how much to trust it. A proposal without those is just a
     different guess.
 
+    It lives in a :class:`DiameterDialog`, opened from the Model zoo popup,
+    so the last measurement is kept on the screen it was made for and shown
+    again the next time the popup opens: closing a window is not a reason to
+    measure twice.
+
     :param screen: the ``AppScreen`` it belongs to.
     :param estimator: what to call to estimate, for tests. Defaults to
         :func:`spacr.diameter.estimate_diameters`.
@@ -1181,6 +1191,10 @@ class DiameterPanel(_JobMixin, QFrame):
             "Advisory only — nothing here changes a setting until you press Use.",
             "PrerunAdvisory")
         column.addWidget(self._advisory)
+
+        remembered = getattr(screen, "_diameter_estimates", None)
+        if isinstance(remembered, dict) and remembered:
+            self._show_estimates(remembered)
 
 
     def _settings(self) -> Dict[str, Any]:
@@ -1270,12 +1284,26 @@ class DiameterPanel(_JobMixin, QFrame):
                       f"{box.get('error') or 'the estimator failed'}.")
             self.estimated.emit([])
             return
-        self._estimates = estimates
-        self._draw_rows()
-        usable = [obj for obj, est in estimates.items() if est.usable]
-        self._btn_use_all.setVisible(bool(usable))
+        usable = self._show_estimates(estimates)
+        try:
+            self._screen._diameter_estimates = dict(estimates)
+        except (AttributeError, TypeError):
+            LOG.debug("could not keep the diameters on %r", self._screen)
         self._status.hide()
         self.estimated.emit(usable)
+
+    def _show_estimates(self, estimates: Dict[str, Any]) -> List[str]:
+        """Draw ``estimates`` and offer *Use all* when any can be used.
+
+        :param estimates: proposals keyed by object type.
+        :returns: the object types with a usable proposal.
+        """
+        self._estimates = dict(estimates)
+        self._draw_rows()
+        usable = [obj for obj, est in self._estimates.items()
+                  if getattr(est, "usable", False)]
+        self._btn_use_all.setVisible(bool(usable))
+        return usable
 
     def _say(self, text: str) -> None:
         """Put one line in the panel's status area.
@@ -1390,6 +1418,103 @@ class DiameterPanel(_JobMixin, QFrame):
 
 
 
+class DiameterDialog(QDialog):
+    """The diameter estimate in a popup of its own, opened from the Model zoo.
+
+    Asked for in item 533: "in mask generation the, diamiter calculation
+    should be a button in the model zoo button popup window not on the main
+    screen. pressing the button should bring another pupup with all the
+    information in the current container." So this holds the whole
+    :class:`DiameterPanel` -- the measure button, one row per object type
+    with its evidence and note, *Use* per row and *Use all* -- and the panel
+    still writes into the settings of the screen that opened the zoo.
+
+    Being a ``QDialog`` is what dresses it: :mod:`spacr.qt.widgets.glass`
+    gives every dialog the translucent card, the rounded corners and the
+    travelling rim, and it recognises one by its type. The way out is Close,
+    red, at the bottom right, like every other spaCR dialog.
+
+    :param screen: the Mask generation screen the estimates are for.
+    :param estimator: diameter estimator, for tests.
+    :param parent: the window that opened it, normally the Model zoo popup.
+    """
+
+    def __init__(self, screen: QWidget, *, estimator=None,
+                 parent: Optional[QWidget] = None) -> None:
+        """Build the popup around a fresh :class:`DiameterPanel`.
+
+        :param screen: the screen whose settings the estimates are for.
+        :param estimator: how to measure the diameters.
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        from .i18n import tr
+
+        self.setObjectName("DiameterDialog")
+        self.setWindowTitle(tr("Measure diameters"))
+        self._screen = screen
+        column = QVBoxLayout(self)
+        self.panel = DiameterPanel(screen, estimator=estimator, parent=self)
+        column.addWidget(self.panel)
+        column.addStretch(1)
+
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self.close_button = QPushButton(tr("Close"), self)
+        self.close_button.setObjectName("DangerButton")
+        self.close_button.setAutoDefault(False)
+        self.close_button.clicked.connect(self.reject)
+        row.addWidget(self.close_button)
+        column.addLayout(row)
+
+        from .preferences import scaled_px
+        self.resize(scaled_px(720), self.sizeHint().height())
+
+
+def diameter_screen_of(widget) -> Optional[QWidget]:
+    """The Mask generation screen ``widget`` sits in, or None.
+
+    Walks the parents, so the Model zoo popup finds the screen whichever
+    control opened it -- the per-object model cell or a ``*_model_name``
+    field's button -- without either of them passing it along. A screen
+    with no ``<object>_diameter`` setting has nothing to write an estimate
+    into, and does not count.
+
+    :param widget: any widget, or None.
+    """
+    current = widget
+    while current is not None:
+        if (str(getattr(current, "app_key", "")) == DIAMETER_APP
+                and any(f"{obj}_diameter" in _widgets(current)
+                        for obj in _DIAMETER_OBJECTS)):
+            return current
+        parent_of = getattr(current, "parentWidget", None)
+        current = parent_of() if callable(parent_of) else None
+    return None
+
+
+def diameter_dialog(screen, *, estimator=None,
+                    parent: Optional[QWidget] = None) -> Optional[DiameterDialog]:
+    """Build the diameter popup for ``screen``, not yet shown.
+
+    :param screen: the Mask generation screen.
+    :param estimator: diameter estimator, for tests.
+    :param parent: the window that opens it.
+    :returns: the dialog, or None when the screen has no diameter setting or
+        the popup could not be built. Never raises: a Model zoo that opens
+        without this button's popup is better than one that does not open.
+    """
+    try:
+        if not any(f"{obj}_diameter" in _widgets(screen)
+                   for obj in _DIAMETER_OBJECTS):
+            return None
+        return DiameterDialog(screen, estimator=estimator, parent=parent)
+    except Exception:
+        LOG.exception("could not build the diameter popup for %s",
+                      getattr(screen, "app_key", "?"))
+        return None
+
+
 def qc_banner(screen) -> Optional[SegQCBanner]:
     """The banner installed on ``screen``, or None.
 
@@ -1398,16 +1523,6 @@ def qc_banner(screen) -> Optional[SegQCBanner]:
     """
     found = getattr(screen, "_seg_qc_banner", None)
     return found if isinstance(found, SegQCBanner) else None
-
-
-def diameter_panel(screen) -> Optional[DiameterPanel]:
-    """The diameter panel installed on ``screen``, or None.
-
-    :param screen: the screen widget whose ``_diameter_panel`` attribute is
-        read.
-    """
-    found = getattr(screen, "_diameter_panel", None)
-    return found if isinstance(found, DiameterPanel) else None
 
 
 def _insert_above_actions(screen, widget) -> bool:
@@ -1466,40 +1581,14 @@ def install_qc_banner(screen, *, reader=None,
         return None
 
 
-def install_diameter_panel(screen, *, estimator=None) -> Optional[DiameterPanel]:
-    """Put a :class:`DiameterPanel` above ``screen``'s Run row.
-
-    :param screen: an ``AppScreen``.
-    :param estimator: diameter estimator, for tests.
-    :returns: the panel, or None when this screen cannot carry one.
-    """
-    try:
-        existing = diameter_panel(screen)
-        if existing is not None:
-            return existing
-        if not any(f"{obj}_diameter" in _widgets(screen)
-                   for obj in _DIAMETER_OBJECTS):
-            return None
-        panel = DiameterPanel(screen, estimator=estimator)
-        if not _insert_above_actions(screen, panel):
-            panel.setParent(None)
-            panel.deleteLater()
-            return None
-        screen._diameter_panel = panel
-        return panel
-    except Exception:
-        LOG.exception("could not install the diameter panel on %s",
-                      getattr(screen, "app_key", "?"))
-        return None
-
-
 def install(screen) -> None:
-    """Install whichever of the two belongs on ``screen``."""
-    key = str(getattr(screen, "app_key", ""))
-    if key == QC_APP:
+    """Install the segmentation-QC banner when ``screen`` is Measure's.
+
+    Mask generation's diameter panel is no longer installed on its screen:
+    it opens from the Model zoo popup instead, see :func:`diameter_dialog`.
+    """
+    if str(getattr(screen, "app_key", "")) == QC_APP:
         install_qc_banner(screen)
-    if key == DIAMETER_APP:
-        install_diameter_panel(screen)
 
 
 #: app key -> the factory this module displaced, so it can delegate to it.
@@ -1566,7 +1655,7 @@ def _prerun_screen(app_key: str, host=None):
 
 
 def register() -> bool:
-    """Install the banner and the panel on their screens. Idempotent.
+    """Install the banner on the Measure screen. Idempotent.
 
     Called by :func:`spacr.qt.register_self_registering_modules` after
     ``app.py`` has finished importing and before the first window is built.
@@ -1582,7 +1671,7 @@ def register() -> bool:
         LOG.exception("could not register the pre-run stylesheet")
 
     installed = False
-    for key in (QC_APP, DIAMETER_APP):
+    for key in (QC_APP,):
         current = APP_FACTORIES.get(key)
         if current is _prerun_screen:
             continue
