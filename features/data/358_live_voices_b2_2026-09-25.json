@@ -1,0 +1,296 @@
+{
+  "source_commit": "0c8460bd1845df318af2c5466aadcdeac2f15a85",
+  "workflow": 36213137754,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "0c8460bd1845df318af2c5466aadcdeac2f15a85",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 629563640,
+    "media_files": 102
+  },
+  "candidate": "release-candidate-append-1dgypni8",
+  "media_revision": "9575040605aa5b2857ee20b2c12175e0bf86a450",
+  "cache_key": "voices-b2-20260925-1dgypni8",
+  "refreshed_lessons": [
+    "05_home",
+    "14_make_masks",
+    "17_timelapse"
+  ],
+  "narration_voices": {
+    "05_home": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "14_make_masks": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "17_timelapse": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    }
+  },
+  "hosted_web_lessons": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "05_home",
+    "14_make_masks",
+    "17_timelapse",
+    "71_investigate_hit",
+    "76_ops",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "hosted_web_bytes": {
+    "02_conda_install": 3743210,
+    "03_pip_install": 5405952,
+    "04_platform_installers": 6279964,
+    "05_home": 6051800,
+    "14_make_masks": 24818797,
+    "17_timelapse": 7322576,
+    "71_investigate_hit": 13708815,
+    "76_ops": 7204723,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "db3f5b3cb09f4307fe984e8536fd582e5954a3c0d51170321fa145b473b59740",
+  "catalog_matches_candidate": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "7889a137cba11ca6299dbff2563193e40a2cb8bb8bdebd232422bca8ab03568b"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/07_mask/video/07_mask_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/43f02dcd-e715-4784-80f1-40424ea07faf",
+      "width": 3840,
+      "time": 29.160186,
+      "expected": 29.56595474285113,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450/05_home/web/05_home_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/aa356062-9923-4078-a612-a2e12f0e2823",
+      "width": 2560,
+      "time": 35.449861,
+      "expected": 35.6626231590414,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "14_make_masks",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450/14_make_masks/web/14_make_masks_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/c9377248-4005-4d7a-9f73-b49f6b626dc3",
+      "width": 2560,
+      "time": 24.741405,
+      "expected": 25.208174615286882,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "17_timelapse",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450/17_timelapse/web/17_timelapse_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/fa2b6c59-c904-4211-89da-9c4f22d76b42",
+      "width": 2560,
+      "time": 33.184284,
+      "expected": 33.52812037232969,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450/05_home/web/05_home_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/6ba72f75-63b1-4f7d-8916-13ada0f90584",
+      "width": 2560,
+      "time": 35.444668,
+      "expected": 35.71787104656459,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "14_make_masks",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450/14_make_masks/web/14_make_masks_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/2c64d7c8-8a91-4811-8a59-3f2929d3e27d",
+      "width": 2560,
+      "time": 24.73153,
+      "expected": 25.22275256616774,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "17_timelapse",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450/17_timelapse/web/17_timelapse_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/78697c84-84af-49b1-b493-2e9b2c231b08",
+      "width": 2560,
+      "time": 33.152552,
+      "expected": 33.43000138013138,
+      "error": null
+    }
+  ],
+  "passed": true
+}
