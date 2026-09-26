@@ -2,11 +2,15 @@
 IMPORT TEST DATA IN EVERY VENDOR FORMAT AND NAMING, READ BACK BY IMPORT
 ================================================================================
 
-Status:    BUILT 2026-09-21. Published as einarolafsson/spacr-example-import
+Status:    DONE here, re-verified 2026-09-25 (188 checks pass on nightly);
+           remaining: docs lane -- the new public docstrings
+           (spacr.import_examples, spacr.qt.import_demo, the ForeignScreen
+           methods, naming_choices) are in the English API catalog and the
+           reviewed German pack only; es/fr/hi/is/ko/pt/sv/zh_CN API packs
+           are owed (411/316). The nine runtime captions are translated in
+           all nine locales. Published as einarolafsson/spacr-example-import
            (one 283,852,800-byte archive, 24 variants), Import reads every
-           one back, and the button is on the Import screen. The i18n
-           catalogs for the new strings and docstrings are NOT regenerated --
-           see the last section.
+           one back, and the button is on the Import screen.
 
 Requested: 2026-09-21 -- "for the import modual, you should take a small set of
            images and convert them into czi, nd2, lif, TIFF stack, etc. and
@@ -160,3 +164,10 @@ locales: 81 records, each bound to its current source and hash and checked by
 the ordinary gates. Full de/sv/es runtime audits pass at 3824 UI sources.
 The API docstring translation work remains with 411; no Import behavior or
 test data changed. Evidence: docs/i18n/2026-09-21-download-caption-review.md.
+
+2026-09-25 -- RE-VERIFIED ON NIGHTLY; ONLY API TRANSLATIONS LEFT
+tests/qt/test_import_test_data_chooser.py, tests/test_import_example_round_trip.py
+and tests/test_convert.py: 188 passed (16 s, offscreen) on nightly a93f937d2.
+The runtime catalogs are complete (Codex, above). docs/source/_static/i18n/
+api/en.json carries import_examples (9 hits); of the reviewed API packs only
+de names it. The other eight packs are the docs lane's API translation pass.

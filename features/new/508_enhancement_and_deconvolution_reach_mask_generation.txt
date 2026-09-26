@@ -1,9 +1,10 @@
 EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
 
-Status: BUILT 2026-09-25 and on nightly; measured on real fields the same day
-        (last note: a sensible chain moves pooled F1 by -0.04 to +0.01 on
-        four Toxo PV fields -- plumbing proven, no default change earned).
-        Docs lane and catalog rows still owed (see TESTS/FOR THE DOCS).
+Status: BUILT 2026-09-25, on nightly (5c207ad71 .. 2ca9d9a60, checked
+        2026-09-25); measured on real fields the same day (last note: a
+        sensible chain moves pooled F1 by -0.04 to +0.01 on four Toxo PV
+        fields -- plumbing proven, no default change earned). Owed: docs
+        lane and catalog rows (see TESTS / FOR THE DOCS).
 Owner: Claude (item 508 session). Related: 473 (the chain), 479, 489, 490 (PSF).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)

@@ -195,3 +195,180 @@ def test_mask_generation_model_fields_offer_dino_rows():
     from spacr.qt.widgets.object_settings_grid import ObjectSettingsGrid
 
     assert "cellpose_dino" in ObjectSettingsGrid.MODEL_KINDS
+
+
+# ---------------------------------------------------------------------------
+# The previews and Make Masks' boxes run cellpose_dino: in its backend (525)
+# ---------------------------------------------------------------------------
+
+def _preview_backend(monkeypatch):
+    from tests.qt import test_cellpose_3_models_are_selectable as cp3
+
+    return cp3._preview_backend(monkeypatch)
+
+
+def test_a_preview_of_a_dino_model_runs_in_its_backend(monkeypatch):
+    """Routed by the run's table, given the SAM call, and its RGB flow and
+    cell probability land in the Flows and Cell probability views."""
+    import numpy as np
+
+    LP, loads, calls = _preview_backend(monkeypatch)
+    image = np.random.default_rng(1).random((16, 16, 2)).astype(np.float32)
+    request = LP.PreviewRequest(
+        image=image, model="cellpose_dino:/m/cellposedino_vit_b",
+        diameter=25.0, flow_threshold=0.6, cellprob=-0.5,
+        channels={"cell": 0, "nucleus": 1}, object_types=("cell",))
+    masks, flows = LP._segment_multi(request)
+
+    assert [load["name"] for load in loads] == ["cellpose_dino"]
+    assert loads[0]["model_name"] == "cellpose_dino:/m/cellposedino_vit_b"
+    [call] = calls
+    assert call["shapes"] == [(16, 16, 2)]
+    assert call["normalize"] is False and call["channel_axis"] == -1
+    assert call["diameter"] == 25.0
+    assert (call["flow_threshold"], call["cellprob_threshold"]) == (0.6, -0.5)
+    assert masks["cell"].dtype == np.int32
+    assert set(np.unique(masks["cell"])) == {0, 1, 2}
+    assert flows["cell"].shape == (16, 16, 3) and np.all(flows["cell"] == 9)
+    np.testing.assert_array_equal(request.cellprob_maps["cell"],
+                                  np.full((16, 16), 1.5, np.float32))
+
+
+def test_a_nucleus_preview_of_a_dino_model_is_one_plane(monkeypatch):
+    import numpy as np
+
+    LP, loads, calls = _preview_backend(monkeypatch)
+    LP._segment_multi(LP.PreviewRequest(
+        image=np.ones((16, 16, 2), np.float32), model="cellpose_dino:/m/w",
+        channels={"cell": 0, "nucleus": 1}, object_types=("nucleus",)))
+    assert loads[0]["object_type"] == "nucleus"
+    assert calls[0]["shapes"] == [(16, 16, 1)]
+
+
+def test_the_preview_model_box_takes_a_dino_value(tmp_path):
+    from spacr.qt.widgets import live_preview as LP
+
+    weights = tmp_path / "cellposedino_vit_b"
+    weights.write_bytes(b"")
+    assert LP._is_a_real_model_name(f"cellpose_dino:{weights}")
+    assert not LP._is_a_real_model_name("cellpose_dino:")
+    assert not LP._is_a_real_model_name(f"cellpose_dino:{tmp_path}/gone")
+    assert not LP._checkpoint_is_missing(f"cellpose_dino:{weights}")
+    assert LP._checkpoint_is_missing(f"cellpose_dino:{tmp_path}/gone")
+    assert LP._checkpoint_is_missing("cellpose_dino:")
+
+
+def test_the_timelapse_preview_segments_a_dino_frame_in_its_backend(
+        monkeypatch):
+    import numpy as np
+
+    from spacr.qt.widgets import timelapse_preview as TP
+
+    LP, loads, calls = _preview_backend(monkeypatch)
+    monkeypatch.setattr(TP, "preview_cellpose_model",
+                        LP.preview_cellpose_model)
+    mask = TP.segment_frame(
+        np.random.default_rng(2).random((16, 16)).astype(np.float32),
+        {"model": "cellpose_dino:/m/w", "diameter": 18.0})
+    assert loads[0]["name"] == "cellpose_dino"
+    assert calls[0]["diameter"] == 18.0
+    assert calls[0]["shapes"] == [(16, 16, 1)]
+    assert mask.dtype == np.int32 and set(np.unique(mask)) == {0, 1, 2}
+
+
+def test_the_preview_zoo_button_asks_for_dino_rows(qapp, monkeypatch):
+    import types
+
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.widgets import live_preview as LP
+
+    asked = []
+
+    def choose(parent, kinds=None):
+        asked.append(kinds)
+        return "cellpose_dino:/m/w"
+
+    monkeypatch.setattr(mzp, "choose_model", choose)
+    host = types.SimpleNamespace(_model_box=QComboBox())
+    LP.LivePreviewPanel._choose_a_preview_model(host)
+    assert asked == [("cellpose", "cellpose3", "cellpose_dino")]
+    assert host._model_box.currentText() == "cellpose_dino:/m/w"
+
+
+def _downloaded_dino(tmp_path, monkeypatch):
+    folder = tmp_path / "models"
+    folder.mkdir()
+    (folder / DINO.name).write_bytes(b"weights")
+    monkeypatch.setattr(mzp, "remembered_model_dir", lambda: str(folder))
+    monkeypatch.setattr(mzp, "remembered_sources",
+                        lambda: tuple(model_zoo.ZOO_SOURCES))
+    monkeypatch.setattr(model_zoo, "catalogue", lambda **kwargs: [DINO])
+    return f"cellpose_dino:{folder / DINO.name}"
+
+
+def test_make_masks_lists_downloaded_dino_models(tmp_path, monkeypatch):
+    from spacr.qt.screens import make_masks as mm
+
+    value = _downloaded_dino(tmp_path, monkeypatch)
+    assert mm._zoo_cellpose_dino_models() == [
+        (value, f"Cellpose-DINO · {DINO.name}")]
+    assert mm._zoo_cellpose_models() == []
+    (tmp_path / "models" / DINO.name).unlink()
+    assert mm._zoo_cellpose_dino_models() == []
+
+
+def test_make_masks_model_list_offers_downloaded_dino_models(qapp, tmp_path,
+                                                             monkeypatch):
+    import types
+
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.screens import make_masks as mm
+
+    value = _downloaded_dino(tmp_path, monkeypatch)
+    combo = QComboBox()
+    combo.addItem("cpsam", "cpsam")
+    host = types.SimpleNamespace(_cp_model=combo, _cp_fetched={})
+    mm.MakeMasksScreen._fill_zoo_models(host)
+    mm.MakeMasksScreen._fill_zoo_models(host)
+    rows = [(combo.itemText(i), combo.itemData(i))
+            for i in range(combo.count())]
+    assert rows == [("cpsam", "cpsam"),
+                    (f"Cellpose-DINO · {DINO.name}", value)]
+    assert combo.currentData() == "cpsam"
+
+
+def test_make_masks_mode_box_offers_downloaded_dino_models(tmp_path,
+                                                           monkeypatch):
+    """Each downloaded checkpoint becomes a magnifier mode of the
+    Cellpose-DINO backend, segmented through ``_backend_model``."""
+    from spacr.qt.screens import make_masks as mm
+
+    value = _downloaded_dino(tmp_path, monkeypatch)
+    monkeypatch.setattr(mm, "_MAGNIFIER_BACKENDS",
+                        dict(mm._MAGNIFIER_BACKENDS))
+    monkeypatch.setattr(mm, "_MAGNIFIER_SEGMENTERS",
+                        dict(mm._MAGNIFIER_SEGMENTERS))
+    assert mm._offer_cellpose_dino_modes() == [value]
+    assert mm._offer_cellpose_dino_modes() == []
+    assert mm._MAGNIFIER_BACKENDS[value] == (
+        "cellpose_dino", f"Cellpose-DINO · {DINO.name}")
+    assert mm._MAGNIFIER_SEGMENTERS[value] is mm._backend_segmenter
+    assert not mm._backend_ready(value)
+    _install(tmp_path)
+    assert mm._backend_ready(value)
+    assert mm._magnifier_mode_label(value) == f"Cellpose-DINO · {DINO.name}"
+
+    loaded = []
+
+    def load(name, **kwargs):
+        loaded.append((name, kwargs))
+        return "dino-model"
+
+    monkeypatch.setattr(SB, "_load_backend", load)
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    monkeypatch.setattr(mm, "_BACKEND_MODEL_ENVS", {})
+    assert mm._backend_model(value) == "dino-model"
+    assert loaded == [("cellpose_dino", {
+        "model_name": str(tmp_path / "models" / DINO.name)})]

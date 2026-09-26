@@ -2,10 +2,10 @@
 A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- "2026-08-20 -- DONE, and the cause
-           was worse than the report." Part B of the original ask (printing the
-           chosen alpha) is named in the closing note as still owed.
-           Originally filed 2026-08-20.
+Status:    DONE, closed 2026-09-25. Part B (the chosen alpha in the run
+           summary) is delivered and now tested end to end: a real CV fit of
+           each penalised family writes "alpha=<alpha_> (cross-validated, not
+           given)" into the summary file. Originally filed 2026-08-20.
 Reported:  2026-08-19, from a live run on the TSG101 screen --
 
   ValueError: lasso shrank all 790 coefficients to exactly zero at alpha=1:
@@ -122,3 +122,21 @@ the defaults and the refusal all have to agree about which they are.
 
 STILL OWED (B of the original ask): the chosen alpha is printed by the
 cross-validation itself but is not yet carried into the run summary.
+
+2026-09-25 -- PART B CLOSED, VERIFIED ON A REAL FIT.
+The run summary's "hyperparameters" line has read the fitted estimator's
+`alpha_` since commit d53960639 (`regression_summary._hyperparameter_report`),
+but the only tests were stubs carrying an `alpha_` attribute. Added
+`test_the_cross_validated_alpha_is_written_into_the_run_summary`, one per
+penalised family: settings with the posted `alpha=1` go through the defaults
+factory (rewritten to 'auto'), `regression_model` fits the real
+LassoCV / RidgeCV / ElasticNetCV, `write_run_summary` writes the file, and the
+file must contain `alpha=<model.alpha_> (cross-validated, not given)`.
+`perform_regression` hands `write_run_summary` exactly that estimator
+(`fits[primary][0]`, from `regression_model`), so this is the path a run takes.
+
+One thing the test surfaced, not a defect: with `inference` left at 'auto' the
+defaults resolve a well-level run to the permutation test, and the summary
+then says, correctly, that no model was fitted and no hyperparameter read. The
+alpha line appears on parametric runs, which is the only place it means
+anything.

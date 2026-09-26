@@ -1,0 +1,30 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Toxoplasma：ページを見て回り、アッセイを選ぶ",
+  "description": "生物種のページを開き、細胞の図を調べて、利用できるアッセイを選びます。",
+  "objectives": [
+    "Homeからページを開き、主な操作部分を見つける。",
+    "利用できる入力、操作、出力を確認する。",
+    "次に使える解析や参考資料を選ぶ。"
+  ],
+  "prerequisite": "spaCRのHomeを開いてください。生物種のガイドには入力ファイルは必要ありません。各アッセイには、それぞれの入力とリンク先の手順があります。",
+  "scenes": [
+    "Toxoplasmaの実験は、どれも一つのページから始められます。HomeからToxoplasmaを選ぶと、生物種のガイド、細胞の図、利用できるアッセイが並んで表示され、画像を読み込む前に見て回れます。",
+    "まず情報パネルの導入部分から読みます。各パネルは個別にスクロールでき、区切り線をドラッグすると、ガイドやアッセイのタイルに広い場所を割り当てられます。",
+    "図は自由に調べられます。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。",
+    "知りたいことに合うタイルを選びます。Plaque Assayはプラークを数えて面積を測り、Invasion Assayは何匹の寄生虫が内部に入ったかを調べます。Recruitmentは寄生胞にどれだけマーカーが集まるかを、Replication Assayは各寄生胞に何匹の寄生虫がいるかを測り、Host–Pathogenは寄生胞を宿主細胞と結び付けます。それぞれに専用のレッスンがあります。",
+    "そのうちの一つをたどってみましょう。Host–Pathogenをクリックすると、その解析画面が開きます。Load test dataで付属の顕微鏡の例が読み込まれ、そこからはHost–Pathogenのチュートリアルが、設定、プレビュー、Runまで案内します。",
+    "Toxoplasmaのページに戻ると、Starplastは知識マップを専用のアプリケーションで開きます。初回は、たどるべきインストール手順が表示されます。一方、参考リンクをクリックすると、生物種の資料がブラウザーで開きます。",
+    "ガイドは解析ファイルを書き出さないので、実際の作業はほかの場所で行います。画像のセグメンテーションや測定がまだの場合は、先にHomeに戻ります。画像や表の準備ができたら、アッセイのページに引き継ぎます。"
+  ]
+}

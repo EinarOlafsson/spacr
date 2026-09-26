@@ -1,12 +1,13 @@
 {
   "schema": 1,
   "language": "de",
-  "workflow_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
+  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
     "pipeline_followup": "2026-09-23: seven new or expanded phrases checked against pipeline input routes and annotation behavior; no native-speaker sign-off.",
-    "host_pathogen_followup": "2026-09-23: whole-vacuole identity, uninfected-host denominator, optional explicit parasite counts, control-calibrated ratios and unknown states reviewed against implementation; no native-speaker sign-off."
+    "host_pathogen_followup": "2026-09-23: whole-vacuole identity, uninfected-host denominator, optional explicit parasite counts, control-calibrated ratios and unknown states reviewed against implementation; no native-speaker sign-off.",
+    "narration_2026_09_25": "107 phrases added for the rewritten 78-81 stories and generated handoffs; AI technical review (Claude Opus 5.5), no native-speaker signoff."
   },
   "records": [
     {
@@ -1228,6 +1229,541 @@
       "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
       "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
       "translation": "Messen Sie ganze Vakuolen und Referenzkompartimente der Wirtszellen und behalten Sie nicht infizierte Wirtszellen im Nenner des Infektionsanteils bei. Wählen Sie Markerkanäle und anhand von Kontrollen kalibrierte Schwellenwerte für die Quotienten. Zählen Sie optional einzeln segmentierte Parasiten anhand expliziter Vakuolenzuordnungen oder einer Spalte mit gemessenen Anzahlen. Prüfen Sie Tabellen für Vakuolen, Wirtszellen und Wells, gemeinsame Markerzustände, Replikationsverteilungen und nicht zugeordnete Parasitenverknüpfungen; unbekannte Messwerte bleiben unbekannt."
+    },
+    {
+      "source": "spaCR screens",
+      "source_sha256": "1709a0fdd58514c0c116c09229be2ee7c0f285a74cfa7bf36eff48f9d685b78a",
+      "translation": "spaCR screens"
+    },
+    {
+      "source": "the run queue",
+      "source_sha256": "2c98be8de7c83ff0ea02e619d52beb7b336533adbf96686e3d89480f9a034dc5",
+      "translation": "die Laufwarteschlange"
+    },
+    {
+      "source": "the label masks",
+      "source_sha256": "acf55963d0bfb61030c0e3624d6b6fd837e797a929ee8adea25cf4ebdf930b84",
+      "translation": "die Labelmasken"
+    },
+    {
+      "source": "the object crops",
+      "source_sha256": "f918bbd08a858a7c0ff853bc65d662a537dba68015494095db5abf7ac627000f",
+      "translation": "die Objekt-Bildausschnitte"
+    },
+    {
+      "source": "{artifacts} from",
+      "source_sha256": "afaa233e21c0606ded300ef66d7c13352bf466143ce5c1a0bff8f48909a62a37",
+      "translation": "{artifacts} aus"
+    },
+    {
+      "source": "the assay results",
+      "source_sha256": "92ce5e1dd9373c897110178229262331698112d3ce640a95990bafc7094317d6",
+      "translation": "die Assay-Ergebnisse"
+    },
+    {
+      "source": "the object counts",
+      "source_sha256": "20c5cf216dc0df6690e9696782112eead95d8f1dab0bf9bdee7a4d88defb647a",
+      "translation": "die Objektzählungen"
+    },
+    {
+      "source": "the AnnData export",
+      "source_sha256": "dd4e470cccafacd1661bf7885b64523853e2c1aea0dbd3e024ee0ce32c271ad5",
+      "translation": "den AnnData-Export"
+    },
+    {
+      "source": "the reusable gates",
+      "source_sha256": "6e4af060a80dfe5f65bc78b054a479e38876905e2231e8f0b6cef79f5d60aa88",
+      "translation": "die wiederverwendbaren Gates"
+    },
+    {
+      "source": "{items} and {last}",
+      "source_sha256": "69faa4f0e0f2439b86179d6e9554642dad1b209fbfed0eabc9216db12cff879d",
+      "translation": "{items} und {last}"
+    },
+    {
+      "source": "{items}, and {last}",
+      "source_sha256": "233abe6fe1f1373843adf917c956883e1ca47d5c30685944bef135b525393251",
+      "translation": "{items} sowie {last}"
+    },
+    {
+      "source": "the image embeddings",
+      "source_sha256": "48c5e84cbac1939288ebfb4895fbd1ea643080e0455fc67929caf9c27de9046c",
+      "translation": "die Bild-Embeddings"
+    },
+    {
+      "source": "the measured objects",
+      "source_sha256": "d19842300522956cce87e64779f653cb9156a654965c07e8f7214141904f25a9",
+      "translation": "die gemessenen Objekte"
+    },
+    {
+      "source": "the sequencing reads",
+      "source_sha256": "b20093fe76e1a7cbe00575e4ab792a99e9d012d14caa4a635ef7221e7e4f498a",
+      "translation": "die Sequenzier-Reads"
+    },
+    {
+      "source": "the microscope images",
+      "source_sha256": "7ec0cd5f60e8857e0ab1a8e779a6ec92c3ce19134a7648bdb8374a200f597695",
+      "translation": "die Mikroskopbilder"
+    },
+    {
+      "source": "the shareable reports",
+      "source_sha256": "14edc7cd3d247b0da1008d1745d0284f9b80a0624cd5bd78bab30306ee53b84b",
+      "translation": "die teilbaren Berichte"
+    },
+    {
+      "source": "{name} reads {items}.",
+      "source_sha256": "ef38ded487508a359bf5bd3d591a81a4b929bae2b21323c6edda3f7aa60b413d",
+      "translation": "{name} liest {items}."
+    },
+    {
+      "source": "{peer} uses them too.",
+      "source_sha256": "231d800f52cd85dc7df6e61046faae1d15003a3303c1d4ed4cb6bc08c6a1271d",
+      "translation": "Auch {peer} nutzt sie."
+    },
+    {
+      "source": "They also feed {peer}.",
+      "source_sha256": "1b41cf81efd822bc12cd21fd5f115dfd5071e7d722733064a4bc3b33f08f95b7",
+      "translation": "Sie fließen auch in {peer} ein."
+    },
+    {
+      "source": "the experimental layout",
+      "source_sha256": "a2e3106a86c9e033efc63484698fc21ee06ab55b7708b8ed512b5d5d4d8681ec",
+      "translation": "das Versuchslayout"
+    },
+    {
+      "source": "the feature definitions",
+      "source_sha256": "4015e65f9e47cfbb71bfd4c75b2710852d24cabad338c32eddf86d09094eb653",
+      "translation": "die Merkmalsdefinitionen"
+    },
+    {
+      "source": "the run/model comparison",
+      "source_sha256": "e13ad9b64e8f823c04bda0edd02a7336907420aae3e10842f51da88f69a4de46",
+      "translation": "den Vergleich von Läufen und Modellen"
+    },
+    {
+      "source": "the training annotations",
+      "source_sha256": "0fea00423f4ef1845e7f1e38f4ee43929d9df4fc8191895479d622d97c69483e",
+      "translation": "die Trainingsannotationen"
+    },
+    {
+      "source": "Look for {artifact} here:",
+      "source_sha256": "81bc5dbe23cc7493aa9bf7453d1f81a40ef9b93e7f5ddcf3090da28ba9e90b0f",
+      "translation": "Hier finden Sie {artifact}:"
+    },
+    {
+      "source": "the external measurements",
+      "source_sha256": "e392225eda9e661cb82dbd8793f9d149f9451b09bb55d3f3976eea892dc6a342",
+      "translation": "die externen Messwerte"
+    },
+    {
+      "source": "the guide counts per well",
+      "source_sha256": "2296e542829f16819d0c7f0c5d47e711d981a3764699f05e9d3918560e5ff2a3",
+      "translation": "die Guide-Zählungen pro Well"
+    },
+    {
+      "source": "the image attribution maps",
+      "source_sha256": "52c0158ffc1988177c538ff5131738f644580b3408692d1e99658819f336b032",
+      "translation": "die Attributionskarten der Bilder"
+    },
+    {
+      "source": "the images and label masks",
+      "source_sha256": "b219f3a2c39f71c0bf290b80d1a1666381a3a3e858cc4bd88ded114883c010a1",
+      "translation": "die Bilder und Labelmasken"
+    },
+    {
+      "source": "the curated training fields",
+      "source_sha256": "d07837498c8563ef7670665a690577bd0951520f5515a607a3ea14372eb294c4",
+      "translation": "die kuratierten Trainingsbildfelder"
+    },
+    {
+      "source": "the projection and clusters",
+      "source_sha256": "ba34cb4a9aa442be745a5baaa87a70706cc3662aed36bdbb9ecf0266af34ce60",
+      "translation": "die Projektion und die Cluster"
+    },
+    {
+      "source": "the quality-control results",
+      "source_sha256": "a83899a480a696c40563b326d448eb5acce54aa60f3e6c89f43344a8e1c71a9c",
+      "translation": "die Ergebnisse der Qualitätskontrolle"
+    },
+    {
+      "source": "the segmentation checkpoint",
+      "source_sha256": "26023675228430360b54f847071804ef4d8a66f0aaadbef6c63a79383fdac6c0",
+      "translation": "den Segmentierungs-Checkpoint"
+    },
+    {
+      "source": "You'll find {artifact} here:",
+      "source_sha256": "1026db6f12a4a6d125239e31ac014f2acfe38f959b44444ebf7d0e52ecb70dec",
+      "translation": "{artifact} finden Sie hier:"
+    },
+    {
+      "source": "the trained image classifier",
+      "source_sha256": "c35984568b0a393b72c462473963a902fe4becac3dd20e1df715c43c29f386a3",
+      "translation": "den trainierten Bildklassifikator"
+    },
+    {
+      "source": "the figures and table exports",
+      "source_sha256": "96a17963c9e9ffe94b7193702f871bbe528f65fd6533700402354f8ea0e5c26b",
+      "translation": "die Abbildungen und Tabellenexporte"
+    },
+    {
+      "source": "the fitted feature classifier",
+      "source_sha256": "f6f67d27b0e7c64bcccd1a9069072eb5848ee13bd8251bb03d90a8cb3e248678",
+      "translation": "den angepassten Merkmalsklassifikator"
+    },
+    {
+      "source": "the run history and artifacts",
+      "source_sha256": "bc84b8e21d6d57e05da18ee7f94d4e27f0415bd95fb30843c96445d55498522e",
+      "translation": "den Laufverlauf und seine Artefakte"
+    },
+    {
+      "source": "the bundled organism reference",
+      "source_sha256": "0e0d892e31dc03a963882d6e5d2f0a3a88ae29d27614ea1783303591eb0f0405",
+      "translation": "die mitgelieferte Organismusreferenz"
+    },
+    {
+      "source": "the direct Cellpose TIFF masks",
+      "source_sha256": "931c5e2db7b87e1dd22e6043980e294e6dcfaed721c2cbe040f236afe74ef7fc",
+      "translation": "die direkten Cellpose-TIFF-Masken"
+    },
+    {
+      "source": "the linked time-series objects",
+      "source_sha256": "98971227d3e9f62d58e9af373bcd5fce29b90d28898000ce81a185bf6de26f7a",
+      "translation": "die verknüpften Zeitreihenobjekte"
+    },
+    {
+      "source": "{peer} can supply {artifacts}.",
+      "source_sha256": "5ce3d3a3f2ce4437a8f7b9655154f31a0d96c7c1c877d56fd83341a4b0158ac7",
+      "translation": "{peer} kann {artifacts} liefern."
+    },
+    {
+      "source": "the optical barcode assignments",
+      "source_sha256": "5687b2fc831be5228614cc902a7c72f1f0472a410f305176b755c8a108f1146d",
+      "translation": "die optischen Barcode-Zuordnungen"
+    },
+    {
+      "source": "the regression results and hits",
+      "source_sha256": "9d18bd9a4f1d4118117338bb3155d9b79fdd50dfd553bce1430b223ed30a998f",
+      "translation": "die Regressionsergebnisse und Hits"
+    },
+    {
+      "source": "{peer} can supply them as well.",
+      "source_sha256": "319632d4bfe1cbfe76fd6636a2f57c9a1066aaca09f3c1cfda313ba339b42475",
+      "translation": "Auch {peer} kann sie liefern."
+    },
+    {
+      "source": "the classifier evaluation bundle",
+      "source_sha256": "67fd10357abf5afcefba3d9f452364c3147881c4301fde24ba28183b3758ccc0",
+      "translation": "das Evaluierungspaket des Klassifikators"
+    },
+    {
+      "source": "the object classification scores",
+      "source_sha256": "98d8fb50fc3e8132f40d8bc9c8e6835166d238d41c99f09aedcb2de55230d985",
+      "translation": "die Objekt-Klassifikationsscores"
+    },
+    {
+      "source": "{peer} is another place they go.",
+      "source_sha256": "1a93cba0a3d339bae3bcb9fac52a075b5835f61b3c9096409864744933e4af1e",
+      "translation": "Sie können auch in {peer} weitergehen."
+    },
+    {
+      "source": "{peer} picks up {artifacts} next.",
+      "source_sha256": "3074d4df9eda0e0e8be758fd4708af05f0fdb4ae24fd92269584e428c506ddcc",
+      "translation": "Als Nächstes übernimmt {peer} {artifacts}."
+    },
+    {
+      "source": "{peer} reads {artifacts} as well.",
+      "source_sha256": "b4cb57dcab90646d69e7ea6d94c323f41bb1034186f7a77e028de4b825def10b",
+      "translation": "Auch {peer} liest {artifacts}."
+    },
+    {
+      "source": "the aligned mosaic and coordinates",
+      "source_sha256": "4b06daacaf005dc61a1c7f78de346b60fcdf7e1e3a093fe8939378e31a3c54ea",
+      "translation": "das ausgerichtete Mosaik und seine Koordinaten"
+    },
+    {
+      "source": "the area-derived size-proxy results",
+      "source_sha256": "e51b5c8b765f92bf6a5aaec1de68fe467d896e654616071ad7208c9372e94a8a",
+      "translation": "die Ergebnisse des flächenbasierten Größenmaßes"
+    },
+    {
+      "source": "From those, {name} produces {items}.",
+      "source_sha256": "77aeb5bf832ffdab1dadd000e331caa11a6b062022d6788e9d2ea6795a181382",
+      "translation": "Daraus erzeugt {name} {items}."
+    },
+    {
+      "source": "the screen design and power estimates",
+      "source_sha256": "a751d0f285d12b289ca0e06a06c5d8d8ae5bf446cde8ad32c39e85f1ec3c2792",
+      "translation": "das Screen-Design und die Power-Schätzungen"
+    },
+    {
+      "source": "Sequencing modules and how they relate",
+      "source_sha256": "4e75c2b76afeb08a59df4f8d0ba0e9f6088c392b5133f85ddfeafb4abe4a2043",
+      "translation": "Sequenziermodule und ihre Zusammenhänge"
+    },
+    {
+      "source": "the organism guide and assay selection",
+      "source_sha256": "892ca6ddf9a52afab78858eb5a298477ac10d46b3f2bf2e9c6e52025822110fd",
+      "translation": "den Organismusleitfaden und die Assay-Auswahl"
+    },
+    {
+      "source": "{artifacts_from} {peer} work here too.",
+      "source_sha256": "83dabc3d9d51674d8bef4b404bea03c4ac9f02ae057612160153fe9a69768e54",
+      "translation": "Auch {artifacts_from} {peer} eignen sich hier."
+    },
+    {
+      "source": "the pooled-screen simulation assumptions",
+      "source_sha256": "ef7d675a5d3084a7cbbaef10c1b1e20b5d6dcb602b5c00df81d3634856cee90c",
+      "translation": "die Annahmen der Simulation eines gepoolten Screens"
+    },
+    {
+      "source": "the synthetic screen simulation summaries",
+      "source_sha256": "e853ca549ed76db6c9b535c1eb2ca7caafe3f60e223b96f6e68cc860f7d20fa8",
+      "translation": "die Zusammenfassungen der synthetischen Screen-Simulation"
+    },
+    {
+      "source": "the host-cell-aggregated compartment areas",
+      "source_sha256": "cf896d73d962a4bde359424041cbc4f9db09b3ce80e636f5dc4f894cb65d415e",
+      "translation": "die pro Wirtszelle aggregierten Kompartimentflächen"
+    },
+    {
+      "source": "You can also take {artifacts} on to {peer}.",
+      "source_sha256": "e831632ab06476c248ac02b27e0463289ba1c446c23cf66f0d493b31f338ff41",
+      "translation": "Sie können {artifacts} auch an {peer} weitergeben."
+    },
+    {
+      "source": "The columns to keep an eye on are {columns}.",
+      "source_sha256": "5cc9d48bb9c0754a43d2eded6f953342cd39392d56b3ebde8f92a949a5534657",
+      "translation": "Achten Sie besonders auf die Spalten {columns}."
+    },
+    {
+      "source": "the TIFF fields for direct Cellpose inference",
+      "source_sha256": "a63b1ce2d7d195ffc484a904f6d96215ce901050d3a2da0d97110e61caf7fde0",
+      "translation": "die TIFF-Bildfelder für die direkte Cellpose-Inferenz"
+    },
+    {
+      "source": "If you start in {peer}, it provides {artifacts}.",
+      "source_sha256": "a5f4f271096b5379be6f6d53b6c53f76fa7182c6e01a39271c79d91a3d492fc1",
+      "translation": "Wenn Sie in {peer} beginnen, liefert es {artifacts}."
+    },
+    {
+      "source": "Depending on the route, the tables that matter are {tables}.",
+      "source_sha256": "73edd4987cc1803e199b07f73a1a4b82291bc3d74d57f1bcc902b7293ce5ef1a",
+      "translation": "Je nach Weg sind die wichtigen Tabellen {tables}."
+    },
+    {
+      "source": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
+      "source_sha256": "287f0ce05974bbf2d3e0fcbbcafa9d56e2a31129ed89d7797ffa66ba011b03c9",
+      "translation": "Verfolgen Sie einen gepoolten bildbasierten Screen von Home über Bildmessungen, Phänotypklassifikation und Barcode-Zählungen bis zur Regression."
+    },
+    {
+      "source": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
+      "source_sha256": "7b73600857ae9eac64e768c170f632d9c061005b21a8e2c61e5e485a870eb2ad",
+      "translation": "Installieren Sie spaCR und öffnen Sie Home. Wählen Sie die Ausgangsdaten für Ihren Workflow und folgen Sie dann den verlinkten Modul-Lektionen für Bedienelemente und Beispieldaten."
+    },
+    {
+      "source": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
+      "source_sha256": "d1144840374924e7e75ad8ed21042c8db9eac7f0bf3ccd551c361472cb938f0b",
+      "translation": "Verbinden Sie Sequenzier- und optische Barcode-Workflows mit Phänotypscores, Regression, Versuchsplanung, Power-Schätzungen, Dosis-Wirkungs-Analyse und Laufvergleich."
+    },
+    {
+      "source": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
+      "source_sha256": "1a176ab3c0d9b877d5d351493995d68529cd6121e83ffb464e04bab131421cb4",
+      "translation": "Manche Analysen brauchen zuerst ein aus Kacheln zusammengesetztes Bild. Öffnen Sie Align & Stitch von Home aus, prüfen Sie Kachelgeometrie, Überlappung und Kanalzuordnung und speichern Sie das Mosaik mit seinen Koordinatenaufzeichnungen. Behalten Sie für OPS auch die ursprünglichen Zyklus- und Positionsidentitäten."
+    },
+    {
+      "source": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
+      "source_sha256": "82e7c9ea3d3a685f076ec33b2f96e68847e3317040f8693be7852e17fd2cce3a",
+      "translation": "Replication Assay, ebenfalls unter Toxoplasma auf Home, zählt die Parasiten in jeder Vakuole und vergleicht diese Verteilungen zwischen Bedingungen. Es liest Objekte aus Measure, braucht aber explizite Zuordnungen von Parasit zu Vakuole; die Wirtsidentität allein definiert keine Vakuole."
+    },
+    {
+      "source": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
+      "source_sha256": "bf00adbec38a52959e82be1ce7e46e9794f86f9428b659e3bbb7080e7f438fe6",
+      "translation": "Recruitment fragt, wie viel eines Markers sich am Parasiten sammelt. Öffnen Sie Toxoplasma von Home aus und wählen Sie Recruitment. Es liest Kompartimentintensitäten aus Measure mit zueinander passenden Wirts- und Pathogenidentitäten und berechnet Rekrutierungsverhältnisse, die jedes Well und jede Bedingung erhalten."
+    },
+    {
+      "source": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
+      "source_sha256": "2cf161d3bf12c8cf08e91ecabb8ad5c24ca6acd037c0d59b53c6b74fa1b73164",
+      "translation": "Öffnen Sie jederzeit nach Measure QC von Home aus, um Ihre Arbeit zu prüfen. Es liest die gespeicherten Prüfungen zu Segmentierung, Einheiten, Übersprechen und Platteneffekten, und seine eingebetteten Betrachter lassen Sie genauer hinsehen. Eine fehlende Prüfung ist keine bestandene Prüfung. QC speichert seine Ergebnisse mit exportierbaren Abbildungen und Tabellen."
+    },
+    {
+      "source": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
+      "source_sha256": "07167b783fa0ae762969fbb95481f190b24eb970e4777e98c6464ab12a801d08",
+      "translation": "Um Parasiten, die nur anhaften, von denen zu unterscheiden, die eingedrungen sind, öffnen Sie Toxoplasma von Home aus und wählen Invasion Assay. Es stützt sich auf zweifarbige Differentialfärbungsmessungen aus Measure zusammen mit Färbe-Baseline-Kontrollen und speichert die Assay-Ergebnisse mit intakten Wells und Bedingungen."
+    },
+    {
+      "source": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
+      "source_sha256": "a824a04f298016d44055093abb3411ca415446c598f37e6573e019e2de894b4d",
+      "translation": "Wenn Sie Ihre nächste Aufgabe kennen, springen Sie zu ihrem Kapitel und öffnen Sie die verlinkte Modul-Lektion für Bedienelemente und Beispieldaten. Bewahren Sie jede Ausgabe neben den Einstellungen auf, die sie erzeugt haben. Die Modulseiten und die Python-API beschreiben dieselben Dateien, Tabellen und Kennungen, wenn Sie Schritte in Ihrer eigenen Analyse verbinden."
+    },
+    {
+      "source": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
+      "source_sha256": "fcbd2c714c776e292493c06db223b6de0588af774fe329b909870c8776283ddc",
+      "translation": "Sobald Sie mehr als eine Analyse haben, öffnen Sie Run Compare von Home aus. Es liest Ihre gespeicherten Laufaufzeichnungen und Regression-Ergebnisse und stellt Einstellungen, Zählungen und Hit-Listen nebeneinander. Haben sich die Eingabedaten zwischen den Läufen geändert, sind die Unterschiede kein kontrollierter Modellvergleich; lesen Sie sie mit diesem Wissen."
+    },
+    {
+      "source": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
+      "source_sha256": "a12cefbbcb9fb7707fed3c87538aadf923c210341e60628790ee77381257d63d",
+      "translation": "Barcode QC liegt in Map Barcodes; öffnen Sie also Map Barcodes von Home aus und wählen Sie es dort. Es liest die gerade erzeugten Guide-Zählungen und zeigt Zuordnungstiefe, Abdeckung, Barcode-Kollisionen und Positionseffekte. Es speichert die QC-Ergebnisse mit exportierbaren Abbildungen und Tabellen, damit Sie entscheiden können, welche Guides Sie vor dem nächsten Schritt filtern."
+    },
+    {
+      "source": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
+      "source_sha256": "75ebed73e7cb5060246101a521d4d9276b502737fb6962da28ea8c98d47ccec5",
+      "translation": "Dose–Response beantwortet die Frage „wie viel“, nicht „welcher Guide“, und braucht daher überhaupt keine Sequenzierung. Öffnen Sie es von Home aus und bringen Sie Ihre gemessenen Antworten mit den Dosis- und Bedingungsidentitäten aus Experiment Design mit. Legen Sie Dosis- und Antwortspalten, Kontrollen und Einheiten fest und passen Sie dann die Kurven an. Es speichert Assay-Ergebnisse mit Abbildungen und Tabellen zum Export."
+    },
+    {
+      "source": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
+      "source_sha256": "368bc59b9ac36adc061e348bcf7fa6b7850634229799c8d4ccdd5de7817707be",
+      "translation": "Betrachten Sie diese Lektion als Karte, wohin jede Datei geht. Jedes Kapitel ist ein Modul: wie Sie es öffnen, was es liest, was es schreibt und welches Modul diese Ausgabe als Nächstes übernimmt. Beginnen Sie bei den Dateien, die Sie haben, oder beim Ergebnis, das Sie brauchen, und folgen Sie von dort den Übergaben. Behalten Sie Objekt-, Platten- und Well-Kennungen auf dem ganzen Weg bei Ihren Daten."
+    },
+    {
+      "source": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well. Keep barcode references and plate layouts with your count tables, and for an optical screen, join the decoded objects to their phenotypes and aggregate them before Regression. The linked module lessons show the settings and outputs for each step.",
+      "source_sha256": "0d75fe5f303a158d2b1641e78e59d112c0a51c24777909875f716c1cbea086aa",
+      "translation": "Die Barcode-Seite eines Screens endet also immer gleich: Identitäten, die über Platte und Well mit Phänotypen verknüpft sind. Bewahren Sie Barcode-Referenzen und Plattenlayouts bei Ihren Zähltabellen auf, und verknüpfen Sie bei einem optischen Screen die dekodierten Objekte mit ihren Phänotypen und aggregieren Sie sie vor Regression. Die verlinkten Modul-Lektionen zeigen Einstellungen und Ausgaben jedes Schritts."
+    },
+    {
+      "source": "So a pooled screen runs as two streams that meet in Regression. Before you open it, check that the plate and well identifiers match across your scores, guide counts and plate layout, and keep the annotation column, classifier settings and barcode references with the run. The linked module lessons walk through each step, or choose the pooled-screen walkthrough on Home.",
+      "source_sha256": "c14f80b63e5e53fe6c1139b8c053e129945e1a59a82ededadb50fd6f3715dfd1",
+      "translation": "Ein gepoolter Screen läuft also als zwei Ströme, die sich in Regression treffen. Prüfen Sie vor dem Öffnen, dass Platten- und Well-Kennungen zwischen Scores, Guide-Zählungen und Plattenlayout übereinstimmen, und bewahren Sie Annotationsspalte, Klassifikatoreinstellungen und Barcode-Referenzen beim Lauf auf. Die verlinkten Modul-Lektionen führen durch jeden Schritt, oder wählen Sie die Anleitung zum gepoolten Screen auf Home."
+    },
+    {
+      "source": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
+      "source_sha256": "2c0d7903f782ec7e590990e95d24d4a2fc455fc5d1807856ccba09844943be4c",
+      "translation": "Der Bildweg führt also fast immer von Mask zu Measure und verzweigt sich dann je nach Ihrer Frage. Um Ihr eigenes Segmentierungsmodell zu trainieren, bereiten Sie in Make Masks Bild-Masken-Paare vor, trainieren sie in Cellpose Workbench und öffnen das gespeicherte Modell wieder in Mask. Mit kompatiblen Ausgaben können Sie auch später einsteigen. Wohin Sie auch gehen, bewahren Sie Kanalidentitäten, Einheiten und Objektschlüssel bei jedem Ergebnis auf."
+    },
+    {
+      "source": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
+      "source_sha256": "4e1a8ce2204e4ac1aa562e07db573b3e1220209a76ce76dbc98539f52e101c0a",
+      "translation": "Rohe Mikroskopbilder beginnen in Mask. Öffnen Sie es von Home aus, wählen Sie Kanäle und Segmentierungsmodelle und prüfen Sie die Vorschau, bevor Sie starten. Mask schreibt jedes Bildfeld als zusammengeführtes Array, Bildkanäle und ganzzahlige Labelebenen gemeinsam, und dieses zusammengeführte Array liest Measure als Nächstes. Mask behält außerdem eine kleine Zähldatenbank, doch das ist nur eine Strichliste, keine Merkmalstabelle."
+    },
+    {
+      "source": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
+      "source_sha256": "bf6069eb0912c20a3bc48d93254215e8598edfc30e74755469e832ebcae15f87",
+      "translation": "Gehen Sie nun zurück vor das Experiment. Öffnen Sie Power / Design von Home aus, um abzuschätzen, wie viele Stichproben Sie brauchen, um einen Effekt zu sehen, basierend auf den gewählten Effektgrößen und der Variabilität. Pilotmessungen können diese Annahmen stützen, sind aber optional. Das Layout aus Experiment Design fließt in diese Schätzungen ein, und die Schätzungen können Sie wiederum dazu bringen, dieses Design zu überarbeiten."
+    },
+    {
+      "source": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
+      "source_sha256": "b86361798acfed79b3c2fd5ed184696964a478a4974fe14502cef8bcb00b7d2a",
+      "translation": "Nun zu den Toxoplasma-Assays. Öffnen Sie Toxoplasma von Home aus und wählen Sie Plaque Assay. Dieses überspringt Measure: Es liest Plaque-Bilder oder bereits vorhandene Masken und führt das konfigurierte Plaque-Modell aus. Masken aus Make Masks funktionieren hier, wenn es Plaque-Masken mit passenden Quellbildern sind; Zellmasken sind keine Plaque-Labels. Es speichert Plaque-Ergebnisse und Masken, und die Lektion zum Plaque-Beispiel zeigt einen vollständigen Lauf."
+    },
+    {
+      "source": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
+      "source_sha256": "3c413dfd5550bf3ff592cf43fb7236e9f0817725acd171085f21338500c60590",
+      "translation": "Während die Bilder einen Weg gehen, gehen die Sequenzier-Reads einen anderen. Öffnen Sie Map Barcodes von Home aus, geben Sie ihm Ihre FASTQ-Dateien und die Barcode-Referenzen, die Ihren Screen kodieren, und es zählt, welche Guides in jedem Well auftauchen. Prüfen Sie die zugeordneten Zählungen und die Barcode-QC, bevor Sie ihnen vertrauen. Die geschriebene unique_combinations.csv ist die Guide-Zähltabelle, die Regression Well für Well mit Ihren Phänotypscores verbindet."
+    },
+    {
+      "source": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
+      "source_sha256": "476e217b4106216ac4b3f8faa4e18b7ed96da0a1ba69847b4c4688a41c663a9f",
+      "translation": "Embeddings beschreibt Objekte danach, was ein Modell sieht, statt nach handverlesenen Merkmalen. Öffnen Sie es von Home aus, wählen Sie ein Modell und eine Kanalregel, und es kodiert die von Measure erzeugten Objekt-Bildausschnitte in einen Merkmalsvektor pro Objekt. Halten Sie Objektidentitäten, Encoder und Kanalregel zusammen mit diesen Merkmalen fest, denn Image UMAP braucht eine Merkmalstabelle mit passenden Objekt-IDs, und nicht jeder Weg speichert sie für Sie."
+    },
+    {
+      "source": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
+      "source_sha256": "f31b0e3feab908ac6377c33cc40fdfabb8a55667d4d9411c80296d29c67c110f",
+      "translation": "Alles beginnt mit Ihren Mikroskopbildern. Öffnen Sie Mask von Home aus, wählen Sie die Kanäle und ein Segmentierungsmodell und prüfen Sie die Vorschau, bevor Sie es ausführen. Mask findet die Objekte in jedem Bildfeld und speichert jedes Bildfeld als zusammengeführtes Array, in dem die Bildkanäle mit ihren Labelmasken gestapelt sind. Diese zusammengeführten Arrays öffnet Measure als Nächstes. Die kleine Zähldatenbank, die Mask hinterlässt, ist nur eine Strichliste, noch keine Merkmalstabelle."
+    },
+    {
+      "source": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
+      "source_sha256": "21b54f753865f9296518cfdaa37c59e8ba1bb733323eaa6d099f64a8cd405384",
+      "translation": "Ein gepoolter Screen erzählt seine Geschichte zweimal, einmal in Bildern und einmal in Sequenzier-Reads, und spaCR führt beides am Ende zusammen. Auf der Bildseite machen Mask und Measure aus Ihren Mikroskop-Bildfeldern gemessene Zellen, und Annotate und Classify machen aus diesen Zellen Phänotypscores. Auf der Sequenzierseite macht Map Barcodes aus Reads Guide-Zählungen. Regression verbindet beides über Platte und Well. Steigen Sie dort ein, wo Ihre Ergebnisse beginnen."
+    },
+    {
+      "source": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
+      "source_sha256": "58f9a55bd3dc1cf0f1d93b20c17a8fd64cf9e32260bce7843b545cbad513eed3",
+      "translation": "Die Bildanalyse in spaCR folgt Ihren Bildern von den Pixeln bis zu den Antworten. Rohbilder beginnen in Mask, das die Objekte findet. Wenn Sie Masken von Hand korrigieren möchten, verwenden Sie Make Masks, oder importieren Sie vorhandene Masken. Measure macht dann aus Bildern und Masken Zahlen, auf Wunsch auch Bildausschnitte. Von dort wählen Sie den Weg: Klassifikation, Bilderkundung, Gating oder ein Assay. Fügen Sie Kacheln zuerst zusammen, wenn die Analyse ein einziges Koordinatensystem braucht."
+    },
+    {
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+      "translation": "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus; es zeigt Ihnen die Objekt-Bildausschnitte, die Measure gespeichert hat oder streamt. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes."
+    },
+    {
+      "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
+      "source_sha256": "8e52f400e22abea6044720c14d7da981af621c37bc3c43d5152350440c2a89d8",
+      "translation": "Durch Sequenzierung erfährt ein gepoolter Screen, welcher Guide in welchem Well oder welcher Zelle sitzt, und spaCR liest sie auf zwei Arten. Reads eines Sequenzierers gehen in Map Barcodes. Zyklus für Zyklus abgebildete Barcodes gehen in OPS, das in Mask liegt. So oder so landen die Barcode-Identitäten in Regression neben Ihren Phänotypen. Um diesen Kern herum liegen die Planungswerkzeuge Experiment Design und Power für die Zeit vor der Aufnahme sowie Dose–Response und Run Compare für Ihre Ergebnisse."
+    },
+    {
+      "source": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+      "source_sha256": "43e7f79521b57714babc0a6106a7d3214699486774cd08c6ba80d3a102560a3a",
+      "translation": "Öffnen Sie Experiment Design von Home aus, um die Platten zu planen, bevor Sie etwas aufnehmen. Geben Sie Bedingungen, Kontrollen, Replikate und Plattenvorgaben ein, mit Blick auf Ihre Power-Schätzungen, und exportieren Sie das Versuchslayout. Dieses Layout reicht weit. Power / Design nutzt es für die Stichprobenannahmen, und später, wenn das Experiment aufgenommen und gemessen ist, verwendet Dose–Response seine Dosis- und Bedingungsidentitäten; lassen Sie diese also durchgehend unverändert."
+    },
+    {
+      "source": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+      "source_sha256": "542f2a25d6bc5b5c1784cdf8b4feffb26dc8b6d6ca0310c5acda1b17be2bad48",
+      "translation": "Beginnen Sie mit den Sequenzier-Reads. Öffnen Sie Map Barcodes von Home aus und geben Sie ihm Ihre FASTQ-Dateien, Single-End oder Paired-End, zusammen mit den Barcode-Referenztabellen, die Ihr Experiment kodieren. Map Barcodes ordnet jedem Read seine Barcodes zu, zählt die Guides in jedem Well und speichert unique_combinations.csv und annotated_reads.h5 in seinem Laufordner. Bevor Sie diesen Zählungen vertrauen, öffnen Sie sie in Barcode QC. Haben sie die Prüfung bestanden, sind sie die Guide-Zählungen, die Regression über dieselben Platten- und Well-Schlüssel mit Phänotypscores verbindet."
+    },
+    {
+      "source": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
+      "source_sha256": "0fe87f6232115c552ae38b05b6dffd909331a2dddd88316265912061359cc9a0",
+      "translation": "Optische Screens gehen einen anderen Weg. Öffnen Sie Mask von Home aus und wählen Sie dann OPS. Statt Reads nimmt OPS die Bilder jedes Sequenzierzyklus, richtet sie an den Phänotypbildern aus und dekodiert für jeden Kern einen Barcode. Die Ergebnisse landen in der measurements.db von OPS, mit Tabellen für Geometrie, Phänotyp-Ausrichtung, Kerne und Barcodes. Diese Datenbank ist allerdings keine FASTQ-Zähltabelle. Um sie in Regression zu nutzen, verknüpfen und aggregieren Sie zuerst die dekodierten Identitäten mit Ihren Phänotypdaten, sodass jedes Objekt oder Well beides trägt."
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
+      "translation": "Manchmal brauchen Masken eine menschliche Hand. Öffnen Sie Make Masks von Home aus, um sie Bildfeld für Bildfeld zu korrigieren. Was Sie hier speichern, kann zwei Wege gehen. Für das Segmentierungstraining kuratieren Sie Bild-Masken-Paare und halten sie als Trainingsbildfelder zusammen. Zum Messen verwenden Sie FEATURES, um jedes Bild mit seiner Maske zu paaren und ein gemessenes Projekt zu schreiben – so erreichen diese Masken Measure; eine einzelne Maske ist kein zusammengeführtes Array. Hier gezeichnete Plaque-Masken können mit ihren passenden Quellbildern auch in Plaque Assay einfließen. Das Speichern einer Maske trainiert keinen Klassifikator."
+    },
+    {
+      "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+      "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
+      "translation": "Öffnen Sie als Nächstes Measure von Home aus und richten Sie es auf dasselbe Projekt, mit korrekt gesetzten Bild- und Maskenkanalindizes. Measure liest jedes zusammengeführte Array, Bilder und Labelebenen gemeinsam, und schreibt jede Zelle, jeden Kern oder Parasiten als Zeile in measurements.db. Schalten Sie das Speichern von Ausschnitten ein, und es schneidet zusätzlich ein kleines PNG um jedes Objekt aus, indiziert in png_list. Ab hier verzweigt sich die Geschichte. Annotate zeigt diese Ausschnitte, damit Sie Beispiele beschriften können, und Classify lernt entweder aus den Ausschnitten oder aus den gemessenen Merkmalen; halten Sie Objektidentitäten daher stabil."
+    },
+    {
+      "source": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
+      "source_sha256": "aa480763b8fdc0f37ce7ec8d49f9ebc31d85c45748724d74ac0402ea2a74b700",
+      "translation": "Mit Messwerten in der Hand ist Annotate der Ort, an dem Sie anhand von Beispielen lehren. Öffnen Sie es von Home aus; es zeigt die Objekt-Bildausschnitte, die Measure gespeichert hat oder aus dem Projekt streamt. Beschriften Sie repräsentative Objekte; jedes Label kommt in eine Annotationsspalte der Tabelle png_list, gebunden an die Identität des Objekts. Sie müssen nicht bei null anfangen: In Gate Editor gespeicherte Gates können Kandidatenlabels zur Prüfung vorschlagen. Verwenden Sie für jede Frage eine eigene Spalte, halten Sie Trainings- und Evaluierungsobjekte getrennt, und auf dieser Spalte trainiert Classify als Nächstes."
+    },
+    {
+      "source": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
+      "source_sha256": "737abb7d17017d52677b164ee2921618dfd73d528f25398c56017f43af68cd19",
+      "translation": "Das zweite ist die direkte Maskenerzeugung mit Cellpose, spacr.spacr_cellpose.identify_masks_finetune, ebenfalls ohne Home-Kachel oder Menüeintrag. Trotz des Namens führt es Inferenz aus, kein Training: Es wendet ein Standard- oder eigenes Cellpose-Modell auf die TIFF-Bildfelder eines Ordners an. Prüfen Sie zuerst Normalisierung, Kanäle, Größenanpassung und Modelleinstellungen und aktivieren Sie das Speichern, denn Masken werden nur geschrieben, wenn save eingeschaltet ist. Sie erhalten Label-TIFFs, kein Measure-fertiges Projekt. Um weiterzumachen, importieren Sie die Bild-Masken-Paare vor Measure über External Masks oder kuratieren Sie sie für das Training."
+    },
+    {
+      "source": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
+      "source_sha256": "428d8fa2854a627bbcf473c3d6f9dd8cf450ce167739de0e12d565d2924ee6a2",
+      "translation": "Öffnen Sie Classify von Home aus – hier werden Ihre Labels zu Scores. Classify hat zwei Familien, und Ihre Daten entscheiden zwischen ihnen. Computer Vision lernt aus den Objekt-Bildausschnitten selbst, Tabular Machine Learning aus den gemessenen Merkmalsspalten. In beiden Fällen trainiert es auf den Labels aus Annotate, prüft sich an den zurückgehaltenen Objekten und speichert das trainierte Modell, ein Evaluierungspaket und die Scores, als CSV-Dateien und nach dem Zusammenführen in png_list. Wählen Sie die CV- oder ML-Score-Spalte, die Sie testen wollen, lassen Sie Platten- und Well-Identität intakt und bringen Sie sie in Regression."
+    },
+    {
+      "source": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
+      "source_sha256": "210a36c0bde8db5336b0d643fbec120141412a965e4a96144c185984dcaac5d7",
+      "translation": "Mit Gate Editor wählen Sie Objekte nach Regeln statt nach Augenmaß. Öffnen Sie es von Home aus und zeichnen Sie Schwellenwert- oder Polygon-Gates auf echten Spalten: gemessenen Merkmalen aus Measure in ihren tatsächlichen Einheiten oder den Koordinaten einer Image-UMAP-Projektion. Speichern Sie ein Gate, und Sie können es erneut auf beliebige kompatible Objekte anwenden. Seine Schaltfläche Annotate schreibt die angezeigten Gates in eine Annotationsspalte, sobald Sie die ausgewählten Objekte geprüft und binäre oder Mehrklassen-Labels gewählt haben. Gespeicherte Gates können auch in Annotate Kandidatenlabels vorschlagen. Wählen Sie dann dieselbe Spalte und Objektpopulation in Classify und halten Sie Validierungsobjekte von den Trainingslabels getrennt."
+    },
+    {
+      "source": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
+      "source_sha256": "4eab84e3490d34e089a06f4585d7e32e383ccf6f078c9bdd1b0aa99b56b17ff8",
+      "translation": "Host–Pathogen Analysis betrachtet die Infektion von beiden Seiten. Öffnen Sie Toxoplasma von Home aus und wählen Sie es dann. Es liest Messungen aus Measure, die ganze Vakuolen, Wirts-Referenzkompartimente und die nicht infizierten Wirtszellen umfassen, die den Infektionsnenner bilden. Wählen Sie die Markerkanäle und legen Sie an Ihren Kontrollen kalibrierte Verhältnis-Schwellenwerte fest. Haben Sie einzelne Parasiten segmentiert, kann es sie pro Vakuole aus expliziten Verknüpfungen oder einer gemessenen Zählspalte zählen. Sie erhalten dann Vakuolen-, Wirts- und Well-Tabellen, kombinierte Markerzustände, Replikationsverteilungen und alle Parasitenverknüpfungen, die es nicht zuordnen konnte. Unbekannte Messwerte bleiben unbekannt, und die Wirtsidentität allein definiert nie eine Vakuole."
+    },
+    {
+      "source": "This is where the two halves of the screen meet. Open Regression from Home and give it both: the phenotype scores from Classify and the guide counts from Map Barcodes. Regression matches them on plate and well, so those keys have to agree in both files. Choose the response column and your controls, run the fit, and open the diagnostics before you believe any hit. If your barcodes were read optically with OPS instead, join and aggregate the decoded objects to your phenotype and guide data first; OPS does not hand over a ready-made count table. Regression can also model a directly measured response. It writes a results folder of coefficients, hit tables, settings and diagnostic figures.",
+      "source_sha256": "fc8e6fcfdc0df40b5b50e7f4523908220e4bdf8cb5110209bf067763baaa0423",
+      "translation": "Hier treffen sich die beiden Hälften des Screens. Öffnen Sie Regression von Home aus und geben Sie ihm beides: die Phänotypscores aus Classify und die Guide-Zählungen aus Map Barcodes. Regression ordnet sie über Platte und Well zu, daher müssen diese Schlüssel in beiden Dateien übereinstimmen. Wählen Sie die Antwortspalte und Ihre Kontrollen, führen Sie die Anpassung aus und öffnen Sie die Diagnosen, bevor Sie irgendeinem Hit glauben. Wurden Ihre Barcodes stattdessen optisch mit OPS gelesen, verknüpfen und aggregieren Sie zuerst die dekodierten Objekte mit Ihren Phänotyp- und Guide-Daten; OPS liefert keine fertige Zähltabelle. Regression kann auch eine direkt gemessene Antwort modellieren. Es schreibt einen Ergebnisordner mit Koeffizienten, Hit-Tabellen, Einstellungen und Diagnoseabbildungen."
+    },
+    {
+      "source": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
+      "source_sha256": "b292be611385980d0e0b646738bf79a2b59d336afbf057dcd0d4768083908501",
+      "translation": "Wie auch immer Sie sequenziert haben – Barcodes treffen in Regression auf Phänotypen. Öffnen Sie es von Home aus. Bei einem gepoolten Screen nimmt es Phänotypscores aus Classify und Guide-Zählungen aus Map Barcodes. Bei einem optischen Screen nimmt es die dekodierten OPS-Objekte, nachdem Sie sie selbst verknüpft und aggregiert haben; das ist keine direkte Dateiübergabe. Es kann auch eine direkt gemessene Antwort modellieren. In jedem Fall müssen Platten- und Well-Kennungen zwischen den Eingaben übereinstimmen. Wählen Sie Antwort und Kontrollen, führen Sie die Anpassung aus und lesen Sie die Diagnosen, bevor Sie etwas einen Hit nennen. Der geschriebene Ergebnisordner mit Koeffizienten, Hit-Tabellen, Einstellungen und Abbildungen ist das, was Run Compare öffnet, wenn Sie diesen Lauf einem anderen gegenüberstellen wollen."
+    },
+    {
+      "source": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
+      "source_sha256": "029f3c5ca1ff41f4a21df2b7ad6963449a8e3b9f5d4abb213f991ab3b98eb1f1",
+      "translation": "Zwei Werkzeuge dieser Karte gibt es nur in Python. Das erste ist das Größenmaß der Endodyogenie, spacr.submodules.analyze_endodyogeny; es hat weder Home-Kachel noch Menüeintrag. Es liest gemessene Kompartimentflächen aus Ihren Measure-Projekten, beschriftet sie nach Bedingung und teilt die Fläche hoch 1,5 in log2-Größenverdopplungen ein. Standardmäßig summiert es die Pathogenfläche pro Wirtszelle, nicht pro Vakuole, sodass mehrere Vakuolen in einer Zelle zusammengefasst werden. Deshalb ist es ein flächenbasiertes Größenmaß, kein gemessenes Volumen und keine Parasitenzahl; für Parasiten pro Vakuole verwenden Sie Replication Assay. Legen Sie Kompartiment, Flächenfilter, Kalibrierung, Bedingungen und Gruppierung fest, bevor Sie es aufrufen, und prüfen Sie Aggregation und Flächeneinheiten, bevor Sie die Klassen lesen. Die Zähldatenbank von Mask allein reicht nicht aus."
+    },
+    {
+      "source": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database.",
+      "source_sha256": "e203b3a2ba9acc4c9ad007b1d25fbfc439ba1bf3515bddd82c69c7c1f6e2285e",
+      "translation": "Ein weiteres Planungswerkzeug gibt es nur in Python: den Simulationsdurchlauf für gepoolte Screens, spacr.sim.run_multiple_simulations, ohne Home-Kachel oder Menüeintrag. Sie übergeben ihm ein Einstellungs-Dictionary mit Annahmen wie Screengröße, Belegung, Klassifikatorgenauigkeit und Sequenzierung. Es erweitert jede Kombination, simuliert jede in einem Prozesspool und hängt synthetische Zusammenfassungszeilen an simulations.db an; der Aufruf selbst gibt None zurück. Halten Sie das Parameterraster klein und setzen Sie max_workers ausdrücklich, bevor Sie es ausführen. Was herauskommt, sind Planungsbelege, keine Daten, und sie können Messungen oder Barcode-Zählungen in Regression nicht ersetzen. Lesen Sie die Zusammenfassungen, halten Sie Ihre Annahmen fest und übertragen Sie sie von Hand in Power / Design oder Experiment Design, da keines dieser Werkzeuge die Simulationsdatenbank importiert."
+    },
+    {
+      "source": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
+      "source_sha256": "cca3dcdff190d4a0d55abf37829e7babe9e9d5abe3314cbfafe105748b3713ae",
+      "translation": "Image UMAP dient zum Hinsehen, bevor Sie beschriften. Öffnen Sie es von Home aus; es projiziert die gemessenen Merkmale aus Measure oder Encoder-Merkmale aus Embeddings mit passenden Objekt-IDs auf eine Karte, auf der ähnliche Objekte nahe beieinander liegen. Öffnen Sie repräsentative Bildausschnitte, um zu sehen, was eine Region wirklich enthält. Ein Cluster ist nur eine Kandidatengruppe, kein validierter Phänotyp. Wenn eine Region wirklich bedeutsam aussieht, ziehen Sie ein Lasso darum, prüfen Sie, was Sie erfasst haben, und schreiben Sie die Auswahl in eine Annotationsspalte der passenden Messdatenbank. Classify kann dann auf dieser Spalte trainieren. Die Projektion kann auch an Gate Editor gehen, wenn Sie die Auswahl lieber dort mit den passenden Koordinaten- und Merkmalsspalten festlegen. Nicht jeder GUI-Weg speichert Encoder-Merkmale für Sie, und eine Form in einem Diagramm allein belegt keinen biologischen Phänotyp."
+    },
+    {
+      "source": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
+      "source_sha256": "124d161d8f5715bdcbe4c44bf52b5a6521e970ea0b3099a68fe0929059722c8b",
+      "translation": "Öffnen Sie Classify von Home aus, um Labels in Vorhersagen zu verwandeln. Es hat zwei Familien, und Ihre Daten entscheiden zwischen ihnen. Computer Vision lernt aus Objekt-Bildausschnitten, die Measure speichert oder streamt; Tabular Machine Learning lernt aus den gemessenen Merkmalsspalten. Die Labels können aus drei Quellen stammen. Meist kommen sie aus Annotate. Gate Editor kann geprüfte Gate-Auswahlen in eine Annotationsspalte schreiben, und Image UMAP kann dasselbe mit geprüften Lasso-Auswahlen tun; wählen Sie in beiden Fällen hier dieselbe Spalte und Objektpopulation. Ein Embedding-Cluster ist keine Referenzwahrheit; prüfen Sie also die Ausschnitte, validieren Sie die Labels und halten Sie Validierungsobjekte vom Training fern. Classify speichert dann seine Scores, das trainierte Modell und ein Evaluierungspaket mit Vorhersagen auf den zurückgehaltenen Daten. Wählen Sie in einem Screen die gemeinte CV- oder ML-Score-Spalte und bringen Sie sie mit intakter Platten- und Well-Identität in Regression."
+    },
+    {
+      "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
+      "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
+      "translation": "Measure ist der Knotenpunkt dieser ganzen Karte. Öffnen Sie es von Home aus und richten Sie es auf das Projekt, das Mask erstellt hat, mit korrekt gesetzten Bild- und Maskenkanalindizes; in Make Masks gepaarte Masken kommen ebenfalls hier an. Measure liest Bilder und Labelebenen gemeinsam und schreibt jede Zelle, jeden Kern oder Parasiten als Zeile in measurements.db. Schalten Sie das Speichern von Ausschnitten ein, wenn Sie ein PNG jedes Objekts möchten, und bewahren Sie die Datenbank bei ihrem Quellprojekt auf, wenn Sie Ausschnitte stattdessen streamen. Fast alles andere beginnt bei diesen Zeilen. Annotate und Classify nutzen Messwerte und Ausschnitte, um Phänotypen zu lernen. Image UMAP projiziert sie, damit Sie nach Gruppierungen suchen können, und Embeddings kodiert die Ausschnitte mit einem Modell und hält Encoder und Kanalregel fest. Gate Editor setzt Schwellenwerte auf den echten gemessenen Merkmalen in ihren echten Einheiten, und QC zeigt, welche Prüfungen existieren und welche fehlen. Auch die Toxoplasma-Assays setzen hier an: Recruitment braucht die richtigen Kompartimentintensitäten, Invasion Assay zweifarbige Färbungsmessungen mit Baseline-Kontrollen und Replication Assay explizite Verknüpfungen von Parasit zu Vakuole. Host–Pathogen Analysis verlangt Masken ganzer Vakuolen und Wirts-Referenzintensitäten, wobei die nicht infizierten Zellen erhalten bleiben. Und das Größenmaß der Endodyogenie liest das gemessene Projekt aus Python, nachdem Sie Wirtszell-Aggregation und Flächeneinheiten geprüft haben; die Zähldatenbank von Mask allein reicht nicht aus."
     }
   ],
   "retired_records": [

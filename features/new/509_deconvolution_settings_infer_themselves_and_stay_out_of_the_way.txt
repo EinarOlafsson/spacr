@@ -1,8 +1,9 @@
 DECONVOLUTION INFERS ITS OWN VALUES, AND THE ADVANCED SETTINGS COLLAPSE
 
-Status: BUILT 2026-09-25. Inference, one-click PSF and the folds are done, and
-        since the second pass the Mask Live preview infers too; translations
-        owed to the catalog lane.
+Status: BUILT 2026-09-25, on nightly (1d9e6f0f5, 41f0f22b2; checked 2026-09-25).
+        Inference, one-click PSF and the folds are done, and since the
+        second pass the Mask Live preview infers too; translations owed to
+        the catalog lane.
 Owner: 509 agent. Related: 490 (measured and calculated PSFs), 473, 508.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)

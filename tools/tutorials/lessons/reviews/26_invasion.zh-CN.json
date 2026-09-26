@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "zh-CN",
-  "title": "侵入实验",
-  "description": "配置当前的双色染色分析，区分染色基准孔和实验条件，检查真实阈值、图表与输出文件。演示数据库明确为合成数据。",
+  "title": "Invasion Assay：对外部染色和总染色打分",
+  "description": "映射两个染色通道，选择染色基线，运行分析，并检查入侵判定和阈值敏感性。",
   "objectives": [
-    "将细胞外染色和总染色对应到正确的测量列。",
-    "使用已更名的染色基准设置并检查阈值敏感性。",
-    "结合每孔分母解读图表，不把合成模式当作生物学效应。"
+    "选择测量数据库，并映射外部染色和总染色。",
+    "设置基线孔和阈值控制，然后运行分析。",
+    "检查分布、每孔分母以及保存的结果表。"
   ],
-  "prerequisite": "保留原有合成数据库，在字节完全相同的新副本上运行当前GUI。1,800条虚构测量中，360条为染色基准对象，1,440条属于12个人工实验孔。没有实际采集的双色图像，通用下载示例板也不能证明通透处理前后的染色设计。Vehicle和inhibitor是教学标签，不是已测试的处理。选择平均强度是因为这些列可用，并不意味着它通常最适合表面染色。独立计算核对分类、阈值、计数、汇总及图形几何，但不验证图像、疗效或统计推断。原始和副本输入均保持不变。当前设置为stain_baseline_wells，旧名为control_wells，并准确记录六位小数的双峰性阈值。",
+  "prerequisite": "解压链接的合成Invasion Assay示例，并使用其设置参考。数据库包含1,800条合成的寄生虫测量数据；条件名称和结果仅作示意。对于您自己的检测，请使用经过验证的双色染色设计：通透化之前做外部染色，之后做总染色，并检查有代表性的图像。",
   "scenes": [
-    "在Home的Assays部分打开Invasion Assay。此模块对已经测量的寄生体分类，不在这里进行图像分割。本例数据库明确为合成数据。图表演示的是设置和计算，而非实际观察到的侵入或处理效应。",
-    "选择包含measurements、斜杠、measurements、点、db的实验文件夹。这个新的专用副本有一千八百条虚构寄生体记录，其中三百六十条是染色基准对象，一千四百四十条属于实验孔。普通下载示例板不能替代经过验证的双色染色实验。",
-    "Outside channel是通透处理前施加的染色，这里为通道一。Total channel是处理后的染色，这里为通道零。细胞外染色阳性的寄生体归为attached；强度等于或低于阈值时归为invaded。因此，细胞外染色偏弱可能导致错误的invaded分类。",
-    "本教学数据库包含平均强度列，所以选择mean。这并不是针对表面染色的一般建议。对于真实数据，请检查哪些边界或百分位测量可用且适合。用于测量局部背景的环形区域也不同于细胞外染色通道本身。",
-    "将Stain baseline wells设为第一列。它替代旧名control wells，指定人工的阴性染色基准，而不是溶媒条件。这些对象用于确定染色阈值，并从实验结果的分母中排除。Vehicle和inhibitor仍在第二列和第三列。",
-    "Control quantile设为零点九九。三百六十个基准对象得到约二十二点八个强度单位的阈值。固定值Outside threshold保持为空，因此使用基准推导的阈值。本次运行并未应用自动方法产生的阈值。",
-    "Threshold sensitivity设为零点二五，分别评估阈值降低和提高百分之二十五时的结果。提高阈值可能使更多寄生体归为invaded。解释变化前，应检查效率变化范围和质量标记；运行成功并不能证明染色可靠。",
-    "Extracellular class决定如何处理没有宿主细胞关联的对象。本例选择classify，交由染色信号决定；但所有教学记录本来就有宿主关联。对于真实数据，请先检查宿主分割，再有意识地选择attached、exclude或classify。",
-    "运行Run会产生三幅真实图表。阈值页面展示的是每孔一个分布，而不是每个寄生体一个分布。本例所用阈值线来自基准，十二个孔全部可见。请检查阈值是否位于合理的群体之间；这些虚构分布不能替代检查有代表性的染色图像。",
-    "如果图例超出画布，请打开Figure settings，在坐标轴页的Legend position选择best。确认对话框，使标签保持可见。这只是显示调整：我们已核对绘制值和已保存的结果表没有改变。",
-    "每孔的柱形显示attached和invaded的比例，每根柱子上标有一百二十个已分类寄生体。染色基准孔不在其中。请将分母与比例一起阅读：基于极少对象得到的高比例，不等同于充分采样的孔中相同的比例。",
-    "两个虚构条件各有七百二十个已分类寄生体。invaded比例约为百分之三十九点七和百分之六十八点九。汇总还报告孔间平均值，它通常不等于将所有对象合并计算的比例。这里无论条件标签还是任何P值，都不能证明生物学效应。",
-    "查看控制台和结果文件夹中的对象分类、视野阈值、每孔效率、条件汇总及比较表。推断应使用独立实验孔，不能把单个寄生体当作可互换的重复。spaCR AI是可选功能，本次本地分析未使用它。得出生物学结论前，请先验证染色和图像。"
+    "从Home打开Toxoplasma，然后选择Invasion Assay。先准备一个测量数据库，其中包含寄生虫在外部染色和总染色下的强度。使用链接的合成样本练习通道映射、阈值选择和结果检查。",
+    "解压样本，把Source设为其中的invasion文件夹，该文件夹包含measurements/measurements.db。输入随附的设置参考，并替换其中Source的占位值。样本包含基线孔和两种检测条件。",
+    "把Outside channel设为一，Total channel设为零。外部染色在通透化之前进行，总染色在之后进行。外部染色阳性的寄生虫被归为附着，处于外部阈值或低于该阈值的被归为已入侵。使用您自己的测量数据时，请检查采集通道的顺序。",
+    "在Intensity statistic中选择mean，以匹配示例数据库中的列。对于您自己的检测，请选择适合该染色的可用统计量，并检查有代表性的对象。本样本请将Minimum total intensity保持为一百。",
+    "使用c1，把Stain baseline wells设为第一列。这些阴性染色的测量值用来确定阈值，并从检测的分母中排除。在Pathogen plate metadata中，把vehicle映射到第二列，把inhibitor映射到第三列。",
+    "把Control quantile设为零点九九，固定的Outside threshold保持不设。这样由基线测量值决定阈值，本例中约为二十二点八。解释分类结果之前，请在输出中检查实际应用的阈值。",
+    "把Threshold sensitivity设为零点二五。这样还会评估比所选阈值低和高百分之二十五的阈值。比较得到的入侵效率范围，看看结果在多大程度上取决于阈值的选择。",
+    "对于本样本，把Extracellular class设为classify。对于没有关联宿主细胞的对象，classify依据染色判断，attached把它们归为附着，exclude则把它们从打分群体中移除。请结合宿主细胞分配的质量来选择这项设置。",
+    "保持Save开启，然后点击Run。处理完成后，打开阈值图。它显示各孔的分布和实际应用的阈值。在实际实验中，请把这些分布与有代表性的染色图像进行比较，并排查外部染色较弱的情况。",
+    "如果图例超出了图的范围，请打开Figure settings。在axes选项卡中，把Legend position设为best，然后确认。检查标签在屏幕上的图和导出的图中都清晰可见。",
+    "打开每孔图。每根柱子显示附着和已入侵的比例，上方标有已打分的寄生虫数量。基线孔不包括在内。比较各孔时，请同时查看数量和比例。",
+    "打开条件汇总。把合并计算的入侵比例与各孔的平均值进行比较，因为两者的加权方式不同。在比较不同条件之前，请检查每孔结果的变异。",
+    "所有结果都保存在Source中的results/analyze_invasion里。parasite_calls.csv记录每个寄生虫的判定，field_thresholds.csv记录判定所依据的阈值，well_invasion.csv记录每孔的比例，condition_summary.csv记录合并后的比较。请把图和设置与它们一起保存，并在独立的重复实验之间比较各条件。"
   ]
 }

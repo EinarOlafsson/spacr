@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial caption translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "de",
-  "title": "Invasionsassay",
-  "description": "Den aktuellen Zweifarbenassay konfigurieren, Färbungsreferenz-Wells von Versuchsbedingungen trennen und echte Schwellenwerte, Diagramme und Dateien prüfen. Die Beispieldatenbank ist ausdrücklich synthetisch.",
+  "title": "Invasion Assay: Außen- und Gesamtfärbung auswerten",
+  "description": "Ordnen Sie zwei Färbekanäle zu, wählen Sie die Färbe-Baseline, führen Sie die Analyse aus und prüfen Sie Invasionszuordnungen und Schwellenwertempfindlichkeit.",
   "objectives": [
-    "Außen- und Gesamtfärbung den richtigen Messspalten zuordnen.",
-    "Die umbenannte Färbungsreferenz einstellen und die Schwellenempfindlichkeit prüfen.",
-    "Abbildungen und Nenner pro Well lesen, ohne synthetische Muster als biologische Effekte zu deuten."
+    "Die Messdatenbank wählen und Außen- und Gesamtfärbung zuordnen.",
+    "Baseline-Wells und Schwellenwerteinstellungen festlegen und dann die Analyse ausführen.",
+    "Verteilungen, Nenner pro Well und gespeicherte Ergebnistabellen prüfen."
   ],
-  "prerequisite": "Die vorhandene synthetische Datenbank bleibt erhalten; die aktuelle GUI läuft auf einer neuen bytegleichen Kopie. Von 1.800 erfundenen Messungen dienen 360 als Färbungsreferenz, 1.440 stammen aus zwölf künstlichen Assay-Wells. Aufgenommene Zweifarbenbilder fehlen; auch die allgemeine Download-Platte belegt kein Färbungsdesign vor und nach Permeabilisierung. Vehicle und inhibitor sind Lehrbezeichnungen, keine getesteten Behandlungen. Der Mittelwert wird wegen der verfügbaren Spalten gewählt, nicht als generell beste Größe für eine Oberflächenfärbung. Unabhängige Berechnungen prüfen Klassen, Schwellen, Zählungen, Zusammenfassungen und Diagrammgeometrie; Bildqualität, Wirksamkeit und statistische Inferenz werden nicht validiert. Original und Eingabekopie bleiben unverändert. Die aktuelle Einstellung heißt stain_baseline_wells statt control_wells; der auf sechs Dezimalstellen darstellbare Bimodalitätsgrenzwert wird exakt erfasst.",
+  "prerequisite": "Entpacken Sie das verlinkte synthetische Invasion-Assay-Beispiel und verwenden Sie dessen Einstellungsreferenz. Die Datenbank enthält 1.800 synthetische Parasitenmessungen; Bedingungsnamen und Ergebnisse dienen nur der Veranschaulichung. Verwenden Sie für Ihren eigenen Assay ein validiertes Zweifarben-Färbedesign mit Außenfärbung vor der Permeabilisierung und Gesamtfärbung danach, und prüfen Sie repräsentative Bilder.",
   "scenes": [
-    "Öffnen Sie Invasion Assay im Bereich Assays von Home. Dieses Modul klassifiziert bereits vermessene Parasiten; hier segmentiert es keine Bilder. Unsere Beispieldatenbank ist ausdrücklich synthetisch. Die Diagramme erläutern Einstellungen und Rechenwege, keine beobachtete Invasion und keinen Behandlungseffekt.",
-    "Wählen Sie den Versuchsordner mit measurements/measurements.db. Die neue private Kopie enthält 1.800 erfundene Parasitenzeilen: 360 Färbungsreferenzobjekte und 1.440 Objekte aus Assay-Wells. Die gewöhnliche Download-Platte ersetzt keinen validierten Zweifarben-Färbungsversuch.",
-    "Outside channel bezeichnet die Färbung vor der Permeabilisierung, hier Kanal 1. Total channel ist die spätere Färbung, hier Kanal 0. Ein außenpositiver Parasit heißt attached; bei einem Signal gleich oder unter der Außenschwelle heißt er invaded. Schwache Außenfärbung kann daher falsche invaded-Klassifikationen erzeugen.",
-    "Wir wählen mean, weil die Lehrdatenbank Spalten für die mittlere Intensität enthält. Das ist keine allgemeine Empfehlung für Oberflächenfärbung. Prüfen Sie bei realen Daten, welche Rand- oder Perzentilmessungen verfügbar und geeignet sind. Ein lokaler Hintergrundring ist ebenfalls etwas anderes als der Außenfärbungskanal selbst.",
-    "Setzen Sie Stain baseline wells auf Spalte 1. Die Einstellung ersetzt den früheren Namen control wells und bezeichnet die künstliche Negativfärbungsreferenz, nicht die Vehikelbedingung. Diese Objekte bestimmen die Färbungsschwelle und gehen nicht in die Ergebnisnenner ein. Vehicle und inhibitor bleiben in Spalten 2 und 3.",
-    "Control quantile beträgt 0,99. Die 360 Referenzobjekte ergeben eine Schwelle von etwa 22,8 Intensitätseinheiten. Outside threshold bleibt leer, damit die referenzbasierte Schwelle verwendet wird. Der automatische Algorithmus liefert in diesem Lauf nicht die angewandte Schwelle.",
-    "Threshold sensitivity beträgt 0,25: Auch eine um 25 % niedrigere und höhere Schwelle wird bewertet. Eine höhere Schwelle kann mehr Parasiten als invaded einstufen. Prüfen Sie Effizienzspanne und Qualitätsmarkierungen vor der Interpretation; ein erfolgreicher Lauf beweist keine zuverlässige Färbung.",
-    "Extracellular class legt den Umgang mit Objekten ohne Wirtszellzuordnung fest. Hier überlässt classify die Entscheidung der Färbung; alle Lehrdatenzeilen haben bereits eine Wirtszuordnung. Entscheiden Sie bei realen Daten nach Prüfung der Wirtszellsegmentierung bewusst zwischen attached, exclude und classify.",
-    "Run erzeugt drei echte Abbildungen. Die Schwellenseite zeigt eine Verteilung pro Well, nicht pro Parasit. Die angewandte Linie stammt hier aus der Referenz, und alle zwölf Wells sind sichtbar. Prüfen Sie, ob die Schwelle plausible Populationen trennt; erfundene Verteilungen ersetzen keine repräsentativen Färbungsbilder.",
-    "Ragt eine Legende über die Zeichenfläche hinaus, öffnen Sie Figure settings und wählen im Achsenreiter best unter Legend position. Bestätigen Sie, damit die Beschriftungen sichtbar bleiben. Dies ändert nur die Darstellung: Die gezeichneten Werte und gespeicherten Ergebnistabellen bleiben nachweislich unverändert.",
-    "Die Well-Balken zeigen attached- und invaded-Anteile; über jedem Balken stehen 120 klassifizierte Parasiten. Referenz-Wells fehlen. Lesen Sie den Nenner immer mit: Ein hoher Anteil aus sehr wenigen Objekten ist nicht gleichwertig mit demselben Anteil aus einem gut beprobten Well.",
-    "Beide erfundenen Bedingungen enthalten jeweils 720 klassifizierte Parasiten. Ihre invaded-Anteile liegen bei etwa 39,7 % und 68,9 %. Die Zusammenfassung enthält auch den Mittelwert über Wells, der im Allgemeinen nicht dem Zusammenlegen aller Objekte entspricht. Weder diese Namen noch ein p-Wert belegen hier einen biologischen Effekt.",
-    "Prüfen Sie Konsole und Ergebnisordner auf Parasitenklassen, Feldschwellen, Well-Effizienzen, Bedingungsübersichten und Vergleiche. Nutzen Sie unabhängige Versuchs-Wells für Inferenz, nicht einzelne Parasiten als austauschbare Replikate. spaCR AI ist optional und wurde bei dieser lokalen Analyse nicht eingesetzt. Validieren Sie Färbung und Bilder vor biologischen Schlussfolgerungen."
+    "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Invasion Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenintensitäten für die Außen- und die Gesamtfärbung enthält. Üben Sie mit der verlinkten synthetischen Probe Kanalzuordnung, Schwellenwertwahl und Ergebnisprüfung.",
+    "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner invasion, der measurements/measurements.db enthält. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie deren Platzhalter für Source. Die Probe enthält Baseline-Wells und zwei Assay-Bedingungen.",
+    "Setzen Sie Outside channel auf 1 und Total channel auf 0. Die Außenfärbung wird vor der Permeabilisierung aufgetragen, die Gesamtfärbung danach. Außen-positive Parasiten werden als anhaftend eingestuft, solche auf oder unter dem Außenschwellenwert als eingedrungen. Prüfen Sie bei eigenen Messungen die Reihenfolge Ihrer Aufnahmekanäle.",
+    "Wählen Sie unter Intensity statistic mean, passend zu den Spalten der Beispieldatenbank. Wählen Sie für Ihren eigenen Assay eine verfügbare Statistik, die zur Färbung passt, und prüfen Sie repräsentative Objekte. Belassen Sie Minimum total intensity für diese Probe bei 100.",
+    "Setzen Sie Stain baseline wells mit c1 auf Spalte 1. Diese Messungen ohne Färbung legen den Grenzwert fest und werden aus den Nennern des Assays ausgeschlossen. Ordnen Sie unter Pathogen plate metadata vehicle der Spalte 2 und inhibitor der Spalte 3 zu.",
+    "Setzen Sie Control quantile auf 0,99 und lassen Sie den festen Outside threshold leer. Dann bestimmen die Baseline-Messungen den Grenzwert, in diesem Beispiel etwa 22,8. Prüfen Sie den angewendeten Schwellenwert in der Ausgabe, bevor Sie die Einstufungen interpretieren.",
+    "Setzen Sie Threshold sensitivity auf 0,25. Damit werden auch Grenzwerte 25 Prozent unter und über dem gewählten Schwellenwert ausgewertet. Vergleichen Sie den resultierenden Bereich der Invasionseffizienz, um zu sehen, wie stark Ihr Ergebnis von der Schwellenwertwahl abhängt.",
+    "Setzen Sie Extracellular class für die Probe auf classify. Für Objekte ohne Wirtszell-Verknüpfung verwendet classify die Färbung, attached stuft sie als anhaftend ein, und exclude entfernt sie aus der bewerteten Population. Wählen Sie diese Einstellung mit Blick auf die Qualität Ihrer Wirtszellzuordnungen.",
+    "Lassen Sie Save aktiviert und klicken Sie auf Run. Öffnen Sie nach Abschluss der Verarbeitung die Schwellenwertabbildung. Sie zeigt die Verteilungen pro Well und den angewendeten Grenzwert. Vergleichen Sie bei einem Experiment diese Verteilungen mit repräsentativen gefärbten Bildern und untersuchen Sie schwache Außenfärbung.",
+    "Wenn eine Legende über die Abbildung hinausragt, öffnen Sie Figure settings. Setzen Sie im Tab axes Legend position auf best und bestätigen Sie. Prüfen Sie, dass die Beschriftungen sowohl in der Bildschirmansicht als auch in der exportierten Abbildung sichtbar bleiben.",
+    "Öffnen Sie die Abbildung pro Well. Jeder Balken zeigt die Anteile anhaftender und eingedrungener Parasiten, darüber die Zahl der bewerteten Parasiten. Baseline-Wells sind ausgeschlossen. Lesen Sie beim Vergleich von Wells die Anzahlen zusammen mit den Anteilen.",
+    "Öffnen Sie die Zusammenfassung nach Bedingung. Vergleichen Sie den gepoolten Invasionsanteil mit dem Mittelwert über die Wells, da beide unterschiedlich gewichten. Prüfen Sie die Streuung der Ergebnisse pro Well, bevor Sie Bedingungen vergleichen.",
+    "Alles landet in results/analyze_invasion innerhalb von Source. parasite_calls.csv enthält die Einstufung jedes Parasiten, field_thresholds.csv die zugrunde liegenden Grenzwerte, well_invasion.csv die Anteile pro Well und condition_summary.csv den gepoolten Vergleich. Bewahren Sie Abbildungen und Einstellungen dazu auf und vergleichen Sie Bedingungen über unabhängige Replikate hinweg."
   ]
 }

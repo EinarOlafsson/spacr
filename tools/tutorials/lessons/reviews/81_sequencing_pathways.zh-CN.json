@@ -1,38 +1,39 @@
 {
   "language": "zh-CN",
-  "title": "测序模块及其关联",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "e5335413a37e795563110b03c5e417f7f684ee5761afaa68bc261c9930146608",
+  "title": "测序模块及其相互关系",
   "section": "工作流程",
-  "description": "将测序和光学条形码流程与表型评分、回归分析、实验设计、统计功效估计、剂量反应分析及运行比较连接起来。",
-  "scenes": [
-    "从 Home 开始，先明确研究问题和条形码数据类型。Map Barcodes 读取测序文件；光学混池筛选通过 OPS 读取已配准的多轮图像。两者都需要明确建立条形码身份与实验之间的对应关系。Regression 将兼容的扰动计数与表型评分关联起来，不能替代条形码解码。规划筛选时，应在采集数据之前使用 Experiment Design 和 Power；而 Dose-Response 和 Run Compare 则用于在采集之后检查适用的结果。",
-    "从 Home 打开 Map Barcodes。提供编码实验信息的参考数据。先检查映射后的计数和条形码质控，再将每孔向导序列计数与表型评分配对。输入数据：测序读段。输出数据：每孔向导序列计数。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。",
-    "从 Home 打开 Map Barcodes，然后选择 Barcode QC。在过滤向导序列计数之前，检查映射深度、覆盖度、条形码冲突和位置效应。输入数据：每孔向导序列计数。输出数据：质量控制结果；图表和表格导出文件。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。",
-    "从 Home 打开 Mask，然后选择 OPS。使用测序循环图像和表型图像对齐结果，对每个细胞核的条形码进行解码。进入 Regression 之前，先将解码后的身份信息聚合或连接到兼容的表型输入；OPS 数据库不能直接替代由 FASTQ 生成的计数 CSV 文件。输入数据：显微镜图像；已对齐的拼接图和坐标。输出数据：光学条形码分配结果。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。",
-    "从 Home 打开 Regression。匹配表型输入和向导序列计数输入中的板号与孔位标识，选择响应变量和对照，并在解释命中结果前检查诊断信息。也支持直接测量的响应值。输入数据：对象分类评分；每孔向导序列计数；光学条形码分配结果；测量后的对象。输出数据：回归结果和命中项。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板号和孔位身份。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
-    "从 Home 打开 Power / Design。根据选定的效应量和变异程度估计采样需求；可选择使用预实验测量结果来支持假设。输入数据：筛选设计和统计功效估计；测量后的对象；实验布局。输出数据：筛选设计和统计功效估计。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。",
-    "从 Home 打开 Experiment Design。输入实验条件、对照、重复和板布局限制，然后在数据采集之前导出实验布局。输入数据：筛选设计和统计功效估计。输出数据：实验布局。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。",
-    "从 Home 打开 Dose–Response。在曲线拟合之前，提供剂量列、响应列、对照和单位；这条路径不需要测序。输入数据：测量后的对象；实验布局。输出数据：实验分析结果；图表和表格导出文件。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。",
-    "从 Home 打开 Run Compare。比较兼容的已保存设置、计数和命中列表，不要把输入数据发生变化的情况当成受控的模型比较。输入数据：运行历史和产物；回归结果和命中项。输出数据：运行或模型比较。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
-    "在 Python 中通过 spacr.sim.run_multiple_simulations 使用混池筛选模拟参数扫描。这个流程仅通过 API 提供，没有 Home 磁贴或菜单入口。使用 Python 参数扫描 API 探索明确陈述的筛选设计假设。它会展开参数组合，在进程池中运行模拟，并写出合成数据的汇总统计量；返回值为 None。运行前，显式设置较小的 max_workers 值，并限定参数网格的规模。输出不能替代实验性 Regression 所需的测量结果或条形码计数。将模拟发现用作规划依据，并记录其假设。选择规划假设时，检查模拟汇总结果；再将这些假设手动输入 Power / Design 或 Experiment Design。这两个工具都不导入此模拟数据库，也都不导出模拟设置网格。输入数据：混池筛选模拟假设。输出数据：合成筛选模拟汇总结果。",
-    "将测序参考数据和板布局与计数一起保存，并在解释回归结果之前，检查与图像评分的连接。光学分配结果需要专门的对象连接和聚合，不能自动充当可直接替换的测序计数文件。应将规划假设、拟合效应和已完成运行之间的比较视为不同类型的结果。关联课程和从 Home 开始的操作指南展示了各类实验的路径。"
-  ],
+  "description": "把测序和光学条形码工作流程与表型分数、回归、实验规划、检验效能估计、剂量反应分析和运行比较联系起来。",
   "objectives": [
     "根据已有数据选择起始模块。",
-    "确定每个模块读取和写出哪些数据。",
-    "通过链接的模块课程和 API 说明了解下一步。"
+    "明确每个模块读取和写入的内容。",
+    "下一步请参阅链接的模块教程和 API 输入输出约定。"
   ],
-  "prerequisite": "安装 spaCR 并打开 Home。本课程解释界面导航和数据交接；链接的模块课程提供完整的数据操作示例。输入和输出包含有条件的替代方案，各模块会分别说明。",
-  "lesson": "81_sequencing_pathways",
-  "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "prerequisite": "安装 spaCR 并打开 Home。选择工作流程的起始数据，然后按照链接的模块课程了解控件和示例数据。",
+  "scenes": [
+    "测序是混池筛选得知哪个向导位于哪个孔或哪个细胞的方式，spaCR 可以用两种方式读取它。测序仪产生的读段进入 Map Barcodes。逐个循环成像得到的条形码进入 OPS，它位于 Mask 之中。无论哪种方式，条形码标识最终都会在 Regression 中与您的表型并列。围绕这一核心的是规划工具：采集之前使用 Experiment Design 和 Power，得到结果后使用 Dose–Response 和 Run Compare。",
+    "从测序读段开始。从 Home 打开 Map Barcodes，提供单端或双端的 FASTQ 文件，以及编码您实验信息的条形码参考表。Map Barcodes 把每条读段与其条形码匹配，统计每个孔中的向导，并在运行文件夹中保存 unique_combinations.csv 和 annotated_reads.h5。在信任这些计数之前，请在 Barcode QC 中打开它们。检查通过后，它们就是 Regression 按相同的板和孔键与表型分数配对的向导计数。",
+    "Barcode QC 位于 Map Barcodes 之中，所以请从 Home 打开 Map Barcodes，然后在其中选择它。它读取您刚生成的向导计数，并显示比对深度、覆盖度、条形码冲突和位置效应。它会把 QC 结果连同可导出的图和表一起保存，方便您在继续之前决定要过滤哪些向导。",
+    "光学筛选走的是另一条路。从 Home 打开 Mask，然后选择 OPS。OPS 不使用读段，而是获取每个测序循环的图像，把它们与表型图像对齐，并为每个细胞核解码出一个条形码。结果保存在 OPS 的 measurements.db 中，包含几何、表型对齐、细胞核和条形码等表。不过，这个数据库并不是 FASTQ 计数表。要在 Regression 中使用它，请先把解码得到的标识与表型数据连接并汇总，使每个对象或孔同时带有两类信息。",
+    "无论您用哪种方式测序，条形码都会在 Regression 中与表型汇合。从 Home 打开它。对于混池筛选，它接收来自 Classify 的表型分数和来自 Map Barcodes 的向导计数。对于光学筛选，它接收您自己连接并汇总之后的已解码 OPS 对象；这并不是直接的文件交接。它也可以对直接测量的响应建模。在任何情况下，各输入之间的板和孔标识符都必须一致。选择响应和对照，运行拟合，并在把任何结果称为命中之前阅读诊断。它写出的结果文件夹包含系数、命中表、设置和图，当您想把这次运行与另一次对比时，Run Compare 打开的就是这个文件夹。",
+    "现在回到实验开始之前。从 Home 打开 Power / Design，根据您选择的效应大小和变异程度，估计需要多少采样才能看到效应。预实验测量可以支持这些假设，但并非必需。Experiment Design 的布局会用于这些估计，而估计结果也可能让您回头修改设计。",
+    "在采集任何数据之前，从 Home 打开 Experiment Design 规划板的布局。结合您的检验效能估计，输入条件、对照、重复和板的约束，然后导出实验布局。这份布局会被用在很多地方。Power / Design 用它设定采样假设；之后在实验完成采集和测量后，Dose–Response 会使用其中的剂量和条件标识，所以请始终保持它们不变。",
+    "Dose–Response 回答的是多少，而不是哪个向导，所以完全不需要测序。从 Home 打开它，带上您测得的响应以及来自 Experiment Design 的剂量和条件标识。设置剂量列和响应列、对照和单位，然后拟合曲线。它会把检测结果连同可导出的图和表一起保存。",
+    "一旦有了不止一次分析，就从 Home 打开 Run Compare。它读取您保存的运行记录和 Regression 结果，把它们的设置、计数和命中列表并排显示。如果两次运行之间输入数据发生了变化，这些差异就不是受控的模型比较，阅读时请记住这一点。",
+    "还有一个规划工具只能在 Python 中使用：混池筛选模拟扫描，即 spacr.sim.run_multiple_simulations，同样没有 Home 磁贴或菜单项。您向它提供一个包含各项假设的设置字典，例如筛选规模、占有率、分类器准确率和测序情况。它会展开所有组合，在进程池中逐一模拟，并把合成的摘要行追加到 simulations.db；调用本身返回 None。请保持参数网格较小，并在运行前明确设置 max_workers。得到的是用于规划的依据，而不是数据，不能在 Regression 中代替测量值或条形码计数。阅读摘要，记录您的假设，并手动把它们带到 Power / Design 或 Experiment Design 中，因为这两个工具都不会导入模拟数据库。",
+    "所以，筛选的条形码这一侧总是以同样的方式结束：身份信息通过板和孔与表型连接起来。请把条形码参考和板布局与计数表放在一起；对于光学筛选，先把解码后的对象与其表型连接并汇总，再交给 Regression。链接的模块课程展示了每一步的设置和输出。"
+  ],
   "review": {
-    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "3969416438f08436ab1988e19608ca40ec1d048d59d21e50cf88be8eca5575dd",
     "corrections": [
-      "Retain separate sequencing and optical barcode workflows and their explicit phenotype joins.",
-      "Distinguish prospective design/power assumptions from measured dose responses and completed-run comparisons.",
-      "Keep the simulation API, None return and max_workers literal, bounded CPU process-pool guidance, synthetic output caveat and manual transfer to planning tools.",
-      "Navigation and data-handoff overview only; no claim that the capture executed an experiment."
-    ]
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
   }
 }
