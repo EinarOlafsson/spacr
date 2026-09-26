@@ -4,15 +4,18 @@ HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
 
 Status:    OPEN ON THE 500 ms STALL CEILING AND NOTHING ELSE, filed
            2026-08-27. HIGH PRIORITY. The 5 s and 10 s budgets have been met
-           since 2026-09-15, with the worst module at 4.2 s under load. The
-           ceiling is breached by 13 of the 47 measured intervals, against
-           16 on origin/nightly this morning:
-           2026-09-19 halved the stall -- 30,089 ms of over-ceiling stall
-           across 45 modules to 15,182 ms, Regression 6.6 s to 3.7 s, Mask
-           3.7 s to 1.9 s -- by paying a screen's stylesheet once instead of
-           four times and by making five application-wide event filters test
-           the event type before doing anything. The last note says what is
-           left and which of the remaining levers needs a decision.
+           since 2026-09-15. 2026-09-25: a module open now breathes between
+           its steps and no longer styles Make Masks three times or
+           Preferences twice; at load 37-53 on 32 cores the intervals over
+           500 ms fell from 35-42 to 19-23 of 51, and their total from
+           38.7-48.4 s to 14.0-16.8 s (four alternating pairs; xvfb agrees).
+           Still over at that load: Preferences, Mask, Make Masks,
+           Regression, Annotate, the organism pages and about a dozen more.
+           What is left is one indivisible Qt call per screen -- its first
+           stylesheet -- plus Annotate's pandas import and Preferences'
+           synchronous build; see the 2026-09-25 note. The machine never
+           dropped below load 30 today, so the quiet-machine, real-display
+           and macOS/Windows answers are still owed.
 Owner:     spacr/qt startup, application registration, module factories,
            optional-dependency boundaries, preload policy, and timing.
 Depends:   282 for lazy loading and memory budgets, which the 2026-09-14
@@ -1589,3 +1592,131 @@ both pass. Five existing parser-compatibility tests pass. Timing windows now
 pause the GUI GC timer as well as automatic GC and restore pending cleanup;
 explicit sweeps still fail the accounting guard. No timing budget changed.
 This is a bounded motility/load fix, not full284release-performance acceptance.
+
+2026-09-25 — A MODULE OPEN BREATHES BETWEEN ITS STEPS; ITS DOUBLE WORK IS GONE
+Re-measured on nightly a93f937d2 first (one offscreen run, load ~11): 13 of
+51 intervals over 500 ms, 10,938 ms over the ceiling in total; worst Make
+Masks 1,921, Preferences 1,276, Regression 1,007, Mask 1,004. Load then rose
+to 30-90 on 32 cores for the rest of the day (other sessions), so every A/B
+below alternates arms, byte-compiles both trees, and is read as paired.
+
+HOW THE WORST GAPS WERE FOUND. A GUI-thread stack sampler (a daemon thread
+reading sys._current_frames() every ~2 ms, weighted by elapsed time) ran
+inside the real benchmark and kept the samples between the two heartbeat
+beats that bounded each module's worst gap. cProfile is unusable for this
+on Python 3.12: it charged worker-thread time (the catalogue fetch) to the
+GUI thread.
+
+WHAT THE GAPS WERE, AND WHAT CHANGED (d29d9254c, then the 150 ms threshold):
+  * ONE FREEZE PER OPEN, BY CONSTRUCTION. _on_nav_selected ran build, theme,
+    stack join, translation and first show back to back; Regression's worst
+    gap began inside the screen factory and ended after the show. MainWindow
+    now breathes between those steps, and AppScreen (settings -> runtime
+    panel) and Make Masks (between its tool cards, before the view pane)
+    breathe inside their constructors -- only during a window's open
+    (spacr.qt.screens._a_window_is_opening_a_screen), only after a step has
+    run 150 ms, user input held back, with a second pass when the first ran
+    >= 100 ms (one pass can run the timers BEFORE the posted Polish that
+    sheets the page). A navigation requested during a breath is posted and
+    runs after the open returns. The Preparing card stays up until the
+    screen is on show.
+  * COLD ICONS IN THE FREEZE: 15-25 % of the worst gap on Mask, Classify,
+    Regression and Toxoplasma was fold-strip and organism icons decoded,
+    LANCZOS-downscaled and re-inked on the GUI thread (first run, or a new
+    theme). iconset._warm_the_bundled_icons re-inks every bundled PNG on a
+    worker thread 1.5 s after launch; each writer now has its own .part file.
+  * THE WALKTHROUGH OVERLAY INSIDE THE SWITCH (80-150 ms of a first Mask or
+    Analyze Plaques open): now offered 30 ms after currentChanged, checking
+    again that the screen is still current and unseen.
+  * THE LANGUAGE READ PER tr(): 5 % of Make Masks' gap was QSettings reads in
+    get_language; the whole open runs inside ui_language_resolved_once.
+  * MAKE MASKS WAS STYLED THREE TIMES. ensure_widget_qss_applied put a sheet
+    on the empty root, every card was polished against it as it was added,
+    and adding the body stack (a reparent into a sheeted parent) repolished
+    the whole tree -- 575 ms on that one line at load 70 -- before the window
+    sheet did it all again at the show. The root now registers as a sheet
+    that waits for its show (the AppScreen mechanism): one pass remains.
+  * PREFERENCES WAS STYLED TWICE. The glass filter appended its card rule
+    with setStyleSheet after the dialog had the window sheet: a second full
+    repolish, 20 % of the gap. theme._add_to_a_windows_own_rules records it
+    as the dialog's own rule and puts it on with the sheet, once (sampled
+    setStyleSheet time in the Preferences gap 1,827 -> 870 units, same load).
+
+RESULTS, medians, tools/spacr_startup_benchmark.py --runs 1 --record-only;
+base = an export of nightly a93f937d2, new = this branch. "stall" is the
+worst event-loop gap, "open" the click-to-interactive time, both in ms.
+Offscreen, 4 alternating pairs, load 37.5-52.8:
+
+    module              stall base -> new     open base -> new
+    __home__ (start)         602 ->  479          8478 -> 7357
+    __preferences__         2869 -> 1972          2946 -> 2069
+    mask                    1532 -> 1042          3619 -> 4075
+    measure                 1224 ->  511          1698 -> 2393
+    annotate                1058 ->  785          1176 -> 1394
+    classify_merged         1410 ->  418          1763 -> 1534
+    map_barcodes            1418 ->  514          2160 -> 2329
+    regression              2454 ->  735          5378 -> 5202
+    feature_explorer         878 ->  518           965 -> 1249
+    external_masks          1202 ->  587          2440 -> 2352
+    experiment_design       1203 ->  606          1249 -> 1651
+    tabulate                 841 ->  547           893 -> 1273
+    dose_response           1322 ->  630          1408 -> 1724
+    make_masks              4254 ->  916          4355 -> 3099
+    umap                    1433 ->  673          2046 -> 2307
+    graph_builder            663 ->  546           745 -> 1071
+    gate_editor             1241 ->  691          1322 -> 1660
+    feature_dict             738 ->  579           841 -> 1048
+    trellis                  840 ->  580           943 -> 1337
+    toxoplasma              1579 ->  945          1647 -> 1799
+    candida                 1002 ->  566          1016 -> 1286
+    analyze_plaques         1942 ->  794          2069 -> 2337
+    invasion                1020 ->  514          1498 -> 1825
+    replication              997 ->  510          2704 -> 3448
+    (the other 27 rows are under 500 ms on the new arm at this load)
+    intervals over 500 ms 35-42 -> 19-23; over-500 total 38.7-48.4 s ->
+    14.0-16.8 s. Under xvfb-run (real xcb windows, 2 pairs, load 34-43):
+    36-39 -> 15-24 intervals, 39.9-44.7 s -> 11.6-18.3 s, same shape
+    module by module. Every row: features/data/284_open_breaths_2026-09-25.json.
+
+THE COST, STATED: A BREATH IS A FRAME. Several opens take longer at this
+load (Mask +0.5 s, Measure +0.7 s, some light screens +0.1-0.4 s) because a
+breath paints the whole window over the moving backdrop -- 70-250 ms a frame
+at load 50 -- where the old open painted nothing until it was done. That is
+the "animated background continues to produce frames while a module loads"
+requirement being paid for. Breathing only after 150 ms of work is what
+spares light screens (a 50 ms threshold cost visibly more; d29d9254c had
+100 ms). Every open stays far inside the 10 s budget; Home is unaffected.
+
+WHAT IS LEFT OVER 500 ms, AND WHY IT IS NOT A BREATH AWAY:
+  * EACH SCREEN'S FIRST STYLESHEET is one setStyleSheet -- Qt restyling every
+    widget on the page -- and cannot be sliced. Thread CPU time of that one
+    call at load 70-80: Make Masks ~590 ms, Preferences ~550, Mask and
+    Regression 360-420, Home 340-390, the organism pages 85-125 per pass.
+    Lowering it means fewer widgets at open or a smaller sheet (theme / 380
+    work), not scheduling.
+  * ANNOTATE imports pandas (spacr.qt.linked_selection -> spacr.selection),
+    64 % of its gap, because it is the first data screen the benchmark
+    opens. Lazy would mean spacr.selection importing pandas per function.
+  * PREFERENCES is built synchronously inside PreferencesDialog(); breathing
+    there needs its own re-entrancy guard and was not attempted.
+  * ANALYZE PLAQUES' preview card belongs to the session editing
+    plaque_preview.py and was left alone.
+
+NOT MEASURABLE HERE, AND NOT COUNTED AGAINST THE ITEM: a quiet-machine run
+(this box sat at load 30-90 all day; the one load-11 baseline is unpaired),
+the maintainer's real display with a compositor, and macOS/Windows.
+
+TESTS: 331 related Qt tests pass (all-module smoke, every tile and fold
+opens, Home navigation, sheeted-once, per-window sheets, glass, icon cache,
+idle-time build, startup benchmark, Make Masks, translated-once,
+Preferences), plus new ones in existing files: the icon warm-up fills both
+caches off the GUI thread and two writers never share a .part file; the
+walkthrough is offered after the switch and not for a module already left;
+the glass rule joins the window sheet in one setStyleSheet and survives a
+theme change; a navigation requested mid-open waits for it; a breath runs
+only during an open and only when due. The public-docstring count
+(test_api_i18n_extractor) and the documentation API inventory hash already
+fail on nightly (11,724 vs 11,710 reviewed); this change adds no public
+symbol (the new helpers are private for that reason).
+IS 284 DONE? NO. The ceiling is still breached on this machine, and what
+remains is the list above, not something only another platform can answer.

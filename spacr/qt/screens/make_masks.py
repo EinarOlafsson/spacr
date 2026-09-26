@@ -182,7 +182,7 @@ from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
 from ..theme import (SPACING, active_palette, block_surface,
                      ensure_widget_qss_applied, mark_surface,
-                     register_widget_qss)
+                     register_widget_qss, set_a_sheeted_widgets_own_rule)
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
@@ -7374,6 +7374,7 @@ class MakeMasksScreen(QWidget):
         #: the generic settings form and carries no registry key to be
         #: looked up by.
         self._fold_page_title = HEADER_TITLE
+        set_a_sheeted_widgets_own_rule(self, "")
         ensure_widget_qss_applied(MAKE_MASKS_QSS_NAME, root=self)
         self._build_ui()
         self._install_shortcuts()
@@ -7624,6 +7625,9 @@ class MakeMasksScreen(QWidget):
             self._settings_scroll, "Settings", mode=EDGE, stretch=1,
             extent=SETTINGS_WIDTH, fold_key="make_masks/Settings",
             hint="or drag to make the settings wider or narrower")
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._body_splitter.add_pane(self._build_view_pane(), "Masks",
                                      stretch=3, extent=900)
         self._body_stack.addWidget(self._body_splitter)
@@ -8904,9 +8908,13 @@ class MakeMasksScreen(QWidget):
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._methods_card = self._build_detection_card()
         col.addWidget(self._methods_card)
         self._sync_method_controls()
+        _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_enhance_card())
         col.addWidget(self._build_magnifier_card())
 

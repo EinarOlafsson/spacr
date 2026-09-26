@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import threading
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Tuple
@@ -506,7 +507,7 @@ def _write_cached_icon(path: Path, array) -> None:
     try:
         from PIL import Image
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".part")
+        tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.part")
         Image.fromarray(array, "RGBA").save(tmp, format="PNG", optimize=False)
         os.replace(tmp, path)
     except Exception:
@@ -549,6 +550,35 @@ def themed_array(path: str, theme: Optional[str] = None):
         time and size key both the in-memory and the on-disk cache.
     """
     return _themed_array(_file_stamp(path), theme or active_theme())
+
+
+def _warm_the_bundled_icons(theme: str) -> int:
+    """Re-ink every bundled PNG for ``theme`` into both caches, off the GUI.
+
+    FOR A WORKER THREAD, started once the window is up. A module's fold
+    strip, an organism page and the command palette each ask for app icons
+    Home never drew, and on a first run -- or after a theme change -- each
+    one was decoded, downscaled and re-inked on the GUI thread inside the
+    module's opening freeze: 15-25 % of the worst event-loop gap on Mask,
+    Classify, Regression and Toxoplasma, measured. Nothing here touches a
+    widget: it fills :func:`_themed_array`'s ``lru_cache`` and the on-disk
+    icon cache, which the GUI then reads.
+
+    SVG artwork is left for the GUI thread, since it is rendered through
+    Qt's painter rather than PIL.
+
+    :param theme: the theme to ink for, resolved by the caller on the GUI
+        thread (:func:`active_theme` reads preferences).
+    :returns: how many icons were warmed.
+    """
+    warmed = 0
+    for path in bundled_icon_paths():
+        try:
+            if _themed_array(_file_stamp(path), theme) is not None:
+                warmed += 1
+        except Exception:                                    # noqa: BLE001
+            continue
+    return warmed
 
 
 def themed_qimage(path: str, theme: Optional[str] = None):
