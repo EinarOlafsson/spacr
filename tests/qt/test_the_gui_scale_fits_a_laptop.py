@@ -172,6 +172,59 @@ def test_a_round_trip_has_zero_drift_on_every_recorded_size(qtbot,
     assert after == before
 
 
+def _layout_item_wrappers() -> list:
+    """Every Python wrapper alive on a layout item that is not a QObject."""
+    import gc
+
+    from PySide6.QtWidgets import QLayout, QLayoutItem
+
+    return [o for o in gc.get_objects()
+            if isinstance(o, QLayoutItem)
+            and not isinstance(o, (QLayout, QWidget))]
+
+
+def test_a_live_change_leaves_no_wrapper_on_a_layout_item_qt_can_delete(
+        qtbot, qt_theme_applied):
+    """Item 43: the live change took a Qt shard down with a segfault.
+
+    It found nested layouts by asking every layout in the application for
+    its items, and each item it asked about got a Python wrapper that the
+    layout's wrapper kept. A layout item is not a QObject, so when Qt
+    deleted one -- a button box re-lays its buttons whenever they change --
+    the wrapper stayed registered at the freed address, and the next object
+    Qt put there came back to Python as that item: locally a message box's
+    ``layout()`` came back as a ``QSpacerItem`` and ``allWidgets()`` handed
+    back a ``QWidgetItem``, then ``free(): invalid pointer`` or a segfault.
+    """
+    import shiboken6
+    from PySide6.QtWidgets import QLayout, QMessageBox
+
+    box = QMessageBox()
+    qtbot.addWidget(box)
+    box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel
+                           | QMessageBox.Help)
+    nested = QVBoxLayout()
+    nested.addSpacing(12)
+    nested.addWidget(QLabel("inside a nested layout"))
+    panel, column, button, label, view = _panel_with_every_kind_of_size(qtbot)
+    column.addLayout(nested)
+    box.show()
+    before = {id(o) for o in _layout_item_wrappers()}
+    for scale in (0.5, 1.7, 1.0):
+        gui_scale.set_gui_scale_live(scale)
+        box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+    made = [o for o in _layout_item_wrappers() if id(o) not in before]
+    assert made == [], [type(o).__name__ for o in made]
+    stale = [o for o in made if shiboken6.isValid(o)]
+    assert stale == []
+    assert isinstance(box.layout(), QLayout)
+    gui_scale.set_gui_scale_live(0.5)
+    spacer = nested._gs_spacers[0][0]
+    assert spacer.sizeHint().height() == 6, (
+        "a spacer in a nested layout is still reached")
+
+
 def test_a_widget_that_re_measures_itself_keeps_its_hundred_percent_size(
         qtbot, qt_theme_applied):
     """The close-mark case: a size re-derived from the scaled font.

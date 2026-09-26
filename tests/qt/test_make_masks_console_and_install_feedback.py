@@ -40,24 +40,24 @@ def test_the_console_keeps_lines_and_rewrites_one_progress_line(qtbot):
     console = mm._MasksConsole()
     qtbot.addWidget(console)
     console.show()
-    console.say("Loaded plate1_A02_12.tif")
+    console.post("Loaded plate1_A02_12.tif")
     for step in range(0, 101, 10):
-        console.say(f"Restoring {step}%…", "progress")
+        console.post(f"Restoring {step}%…", "progress")
         assert console.progress_text() == f"Restoring {step}%…"
         assert console.progress.percent() == step
     text = console.text()
     assert "Loaded plate1_A02_12.tif" in text
     assert "Restoring" not in text, "a progress step went into the scrollback"
 
-    console.say("Loading the model…", "progress")
+    console.post("Loading the model…", "progress")
     assert console.progress.percent() is None, "no number: the bar is busy"
-    console.say("Restoration finished in 3.1 s.")
+    console.post("Restoration finished in 3.1 s.")
     assert console.progress_text() == ""
     assert not console.progress.isVisibleTo(console)
-    console.say("Restoration finished in 3.1 s.")
+    console.post("Restoration finished in 3.1 s.")
     assert console.text().count("Restoration finished in 3.1 s.") == 1
-    console.say("Cellpose 3 raised ValueError: nope", "error")
-    console.say("careful", "warning")
+    console.post("Cellpose 3 raised ValueError: nope", "error")
+    console.post("careful", "warning")
     assert "nope" in console.text() and "careful" in console.text()
 
 
@@ -407,7 +407,7 @@ def test_an_install_streams_pip_lines_and_ends_with_one_line(qtbot):
     button = zoo._BackendInstallButton("cellpose3", probe=disk,
                                       installer=installer)
     qtbot.addWidget(button)
-    button.said.connect(console.say)
+    button.said.connect(console.post)
     button.click()
     qtbot.wait(3 * console.STREAM_MS)
 

@@ -119,6 +119,14 @@ def test_the_warm_up_redraws_the_table_when_rows_arrive(qapp, qtbot,
         qtbot.waitUntil(lambda: any(
             getattr(pairs[dialog._chosen[stem]][1], "key", "") == CYTO3.key
             for stem, pairs in dialog._groups), timeout=5000)
+        assert answers["network"], "the warm-up never asked bioimage.io"
+        group = next(
+            index for index, (stem, pairs) in enumerate(dialog._groups)
+            if getattr(pairs[dialog._chosen[stem]][1], "key", "") == CYTO3.key)
+        row = dialog._row_of_group(group)
+        assert row is not None, "the new row is in the groups, not the table"
+        assert dialog.table.rowCount() == len(dialog._groups)
+        assert dialog.table.item(row, 2).text() == CYTO3.trained_on
     finally:
         dialog._stop_any_download()
 
