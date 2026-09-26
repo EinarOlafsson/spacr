@@ -112,7 +112,7 @@ Tests (offscreen, upload faked, CUDA hidden)
   Before (on nightly dd431f036): 523 + Make Masks curation set (test_523,
   test_curation_tool, test_make_masks, the two queue-editor tests,
   test_make_masks_toolbar, test_make_masks_is_a_tool...): 116 passed.
-  After merging nightly d2772a8e4: that set + test_528: 128 passed; the
+  After merging nightly d2772a8e4: that set + test_528: 131 passed; the
   comment/help-index/runtime-i18n guards passed before the merge.
   Not from 528: nightly d2772a8e4 itself is +32 callables beyond its own
   pins (9,764 vs 9,732 with 528; docs 11,790 vs 11,758), rows of other
