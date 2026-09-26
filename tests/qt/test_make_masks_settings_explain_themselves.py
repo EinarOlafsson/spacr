@@ -204,6 +204,9 @@ def _awaiting_translation(screen) -> set:
     threshold, the U-Net model path, and propagation's minimum distance,
     seed percentile and stop value. Still owed by item 473's Image
     enhancement card: the CLAHE tile, gamma, morphology and sharpen help.
+    Owed again since 2026-09-26: the CLAHE help, whose wording 6fe2876fb
+    changed ("saturating" for a figurative phrase) after the lane had
+    translated the old one.
 
     Everything else once listed here -- the detection buttons, the other
     method and propagation parameters, the rest of the enhancement card,
@@ -218,8 +221,8 @@ def _awaiting_translation(screen) -> set:
                if key in method]
     widgets += [widget for key, widget in getattr(screen, "_propagate_widgets", {}).items()
                 if key in propagate]
-    for name in ("_enh_clahe_tile", "_enh_gamma", "_enh_morphology",
-                 "_enh_sharpen"):
+    for name in ("_enh_clahe", "_enh_clahe_tile", "_enh_gamma",
+                 "_enh_morphology", "_enh_sharpen"):
         widget = getattr(screen, name, None)
         if widget is not None:
             widgets.append(widget)
