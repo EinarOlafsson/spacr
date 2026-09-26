@@ -5,6 +5,910 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.mask_engine.dilate_objects#0",
+      "source": "Grow every object by ``distance`` pixels, without merging any two.",
+      "source_sha256": "79fca8048995edd10cbdeffe004e6fc1b76756f7e0d22bc7c9e17c341b94b68c",
+      "context": "Grow every object by ``distance`` pixels, without merging any two.",
+      "translation": "Låt varje objekt växa med ``distance`` pixlar, utan att slå ihop några två.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#1",
+      "source": "A label takes the background pixels within ``distance`` of it; a pixel contested by two labels goes to the nearer one, and a pixel that already carries a label is never taken. SO THE OBJECT COUNT CANNOT CHANGE, which is what makes this safe on a mask that has been curated: ids survive, and an object that has been given the right id keeps it, along with every measurement, track and crop keyed by it.",
+      "source_sha256": "4832de25fae555c54525303db321fe06173cfafc2638e3d07b1fcb00673c7e4a",
+      "context": "A label takes the background pixels within ``distance`` of it; a pixel contested by two labels goes to the nearer one, and a pixel that already carries a label is never taken. so the object count cannot change, which is what makes this safe on a mask that has been curated: ids survive, and an object that has been given the right id keeps it, along with every measurement, track and extracted image region keyed by it.",
+      "translation": "En etikett tar de bakgrundspixlar som ligger inom ``distance`` från den; en pixel som två etiketter tävlar om går till den närmaste, och en pixel som redan bär en etikett tas aldrig. DÄRFÖR KAN ANTALET OBJEKT INTE ÄNDRAS, vilket är det som gör detta säkert på en mask som har kurerats: id:n överlever, och ett objekt som har fått rätt id behåller det, tillsammans med varje mätning, spår och utsnitt som är nycklat på det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#2",
+      "source": "The distance is Euclidean (:func:`skimage.segmentation.expand_labels`), so ``1`` adds the four edge neighbours and not the corners -- the same metric :func:`shrink_objects` takes away by, which is what makes a shrink after a dilate land back where it started on an object with no neighbour close enough to have blocked the growth.",
+      "source_sha256": "44f8fde05f27329897f2a788482a8d805b7c6683c5f0ad235ac1bc4fbe06ba4e",
+      "context": "The distance is Euclidean (:func:`skimage.segmentation.expand_labels`), so ``1`` adds the four edge neighbours and not the corners -- the same metric :func:`shrink_objects` takes away by, which is what makes a shrink after a dilate land back where it started on an object with no neighbour close enough to have blocked the growth.",
+      "translation": "Avståndet är euklidiskt (:func:`skimage.segmentation.expand_labels`), så ``1`` lägger till de fyra kantgrannarna och inte hörnen -- samma metrik som :func:`shrink_objects` tar bort med, vilket är det som gör att en krympning efter en utvidgning hamnar där den började för ett objekt utan någon granne som är nära nog att ha blockerat tillväxten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#3",
+      "source": "label image; 0 is background.",
+      "source_sha256": "3215e3d55b295231f1b3ef5baec290be8395ea09e8aa888aa20ec6dbc27bf447",
+      "context": "label image; 0 is background.",
+      "translation": "etikettbild; 0 är bakgrund.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#4",
+      "source": "pixels to grow by. 0 or less returns a copy.",
+      "source_sha256": "d92990eff1502c98070ab1a30c72abd1e23f9408002afb0f0fd03cc54dc0d4e8",
+      "context": "pixels to grow by. 0 or less returns a copy.",
+      "translation": "pixlar att växa med. 0 eller mindre returnerar en kopia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#5",
+      "source": "a mask of the same dtype with the same label values.",
+      "source_sha256": "85f1388aa10ac11b8dfadf6c106bee82ee0c78c44e7ee17e27a72ce5cd6efdeb",
+      "context": "a mask of the same dtype with the same label values.",
+      "translation": "en mask med samma dtype och samma etikettvärden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.divide_object#6",
+      "source": "2-D label mask; it is not modified.",
+      "source_sha256": "d3c3d8862dc9d90b3e4c79f24c9a177f08929a020f8ba108c0dd07131e1f5d82",
+      "context": "2-D label mask; it is not modified.",
+      "translation": "2-D-etikettmask; den ändras inte.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.divide_object#7",
+      "source": "first end of the cut as ``(x, y)`` in pixels.",
+      "source_sha256": "e654b4297c68448eafc447b332bb8bf9ea239885dcc29132276cb2b79eee3e48",
+      "context": "first end of the cut as ``(x, y)`` in pixels.",
+      "translation": "snittets första ände som ``(x, y)`` i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.divide_object#8",
+      "source": "second end of the cut as ``(x, y)`` in pixels.",
+      "source_sha256": "aba322576d956fe76aade96228c7072b6c442c0b9b1483608fb6963323305b7c",
+      "context": "second end of the cut as ``(x, y)`` in pixels.",
+      "translation": "snittets andra ände som ``(x, y)`` i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#1",
+      "source": "2-D label mask; a modified copy is returned and the input is left alone.",
+      "source_sha256": "0f65df0e8985bed2a1b838bb20b46b7a1750b9dd72537876e598e0c8665f4956",
+      "context": "2-D label mask; a modified copy is returned and the input is left alone.",
+      "translation": "2-D-etikettmask; en ändrad kopia returneras och indata lämnas orörda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#2",
+      "source": "column in pixels; out of range returns ``mask`` itself.",
+      "source_sha256": "834b5f364a86faec70eaa6c4ecd06683e35b456f7b2792c64b0b201bd44fbff1",
+      "context": "column in pixels; out of range returns ``mask`` itself.",
+      "translation": "kolumn i pixlar; utanför intervallet returneras ``mask`` själv.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#3",
+      "source": "row in pixels; out of range returns ``mask`` itself.",
+      "source_sha256": "75492e3286d73d75bc45da5299da1790a426b3f4655c25ddc15741675f396c79",
+      "context": "row in pixels; out of range returns ``mask`` itself.",
+      "translation": "rad i pixlar; utanför intervallet returneras ``mask`` själv.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_in_place#3",
+      "source": "2-D label mask, modified in place.",
+      "source_sha256": "b39764833d7296754b1ab90859fceed7912b3173df950692228b774775e022a4",
+      "context": "2-D label mask, modified in place.",
+      "translation": "2-D-etikettmask, ändras på plats.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_in_place#4",
+      "source": "column in pixels; out of range removes nothing.",
+      "source_sha256": "4e80ff1f60e16541bfa17104238f7f16ec9f83a90367071bfaa594c19bc41359",
+      "context": "column in pixels; out of range removes nothing.",
+      "translation": "kolumn i pixlar; utanför intervallet tas ingenting bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_in_place#5",
+      "source": "row in pixels; out of range removes nothing.",
+      "source_sha256": "b18d98c89ff3bbba09bd6f07e5406a4cb836a64c2a3f0c25c971b7f0e92b9b6b",
+      "context": "row in pixels; out of range removes nothing.",
+      "translation": "rad i pixlar; utanför intervallet tas ingenting bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#0",
+      "source": "The stem a field is known by in ``curate_status.csv``.",
+      "source_sha256": "74232f44f3e55ba93db682d39e4b6cfd0bb2ce1c585a2b48b03e5489fc2738c3",
+      "context": "The stem a field is known by in ``curate_status.csv``.",
+      "translation": "Den stam som ett synfält är känt under i ``curate_status.csv``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#1",
+      "source": "``os.path.splitext`` gives ``well_A1_seg`` for ``well_A1_seg.npy``, and the queue calls that field ``well_A1``; a status row written under the first name would never take the field out of the queue.",
+      "source_sha256": "a29e3aba397dd82344d1c4987bb2d2b32dab278b5aa60da5aabc4fff1ded70c8",
+      "context": "``os.path.splitext`` gives ``well_A1_seg`` for ``well_A1_seg.npy``, and the work list calls that field ``well_A1``; a status row written under the first name would never take the field out of the work list.",
+      "translation": "``os.path.splitext`` ger ``well_A1_seg`` för ``well_A1_seg.npy``, och kön kallar det synfältet ``well_A1``; en statusrad som skrivits under det första namnet skulle aldrig ta ut synfältet ur kön.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#2",
+      "source": "an image file name, or a ``_seg.npy`` bundle name.",
+      "source_sha256": "055241e198f03c2c0695bc25f56b93ffb7a979f7cf6d8d62ebb20a680cd663ef",
+      "context": "an image file name, or a ``_seg.npy`` bundle name.",
+      "translation": "ett bildfilnamn, eller ett ``_seg.npy``-paketnamn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#3",
+      "source": "the file name without its extension, or without :data:`SEG_SUFFIX` for a bundle.",
+      "source_sha256": "b5f61b0e87582c3e5d709647031b31c135352fa163e0db4458b72dd6ff4a4b4a",
+      "context": "the file name without its extension, or without :data:`SEG_SUFFIX` for a bundle.",
+      "translation": "filnamnet utan dess filändelse, eller utan :data:`SEG_SUFFIX` för ett paket.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#0",
+      "source": "Fill enclosed background pixels, optionally retaining primary identities.",
+      "source_sha256": "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+      "context": "Fill enclosed background pixels, optionally retaining primary identities.",
+      "translation": "Fyll inneslutna bakgrundspixlar, och behåll valfritt primära identiteter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "source": "label image to fill.",
+      "source_sha256": "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
+      "context": "label image to fill.",
+      "translation": "etikettbild som ska fyllas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#2",
+      "source": "fill per object without merging or renumbering labels. Requires exact uint16-compatible IDs; default retains binary relabeling.",
+      "source_sha256": "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309",
+      "context": "fill per object without merging or renumbering labels. Requires exact uint16-compatible IDs; default retains binary relabeling.",
+      "translation": "fyll per objekt utan att slå ihop eller numrera om etiketter. Kräver exakta uint16-kompatibla ID:n; standardvärdet behåller binär ommärkning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#0",
+      "source": "Drop objects outside the bounds; ``(mask, dropped ids)``.",
+      "source_sha256": "4b4b2b03868aed62c2be18f6cebae49829944cdf2c6a8a9f469a132f3e6d6e0b",
+      "context": "Drop objects outside the bounds; ``(mask, dropped ids)``.",
+      "translation": "Släpp objekt utanför gränserna; ``(mask, dropped ids)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#1",
+      "source": ":func:`filter_report` without the measurements: the same engine, the same list, only the ids kept. Area is the pixel count; intensity is the mean on the *raw* image. Each legacy bound is off at 0.",
+      "source_sha256": "db4af42a59864de23388dc3ca417d86b9a8797fa02929ca7110c6c3c5e7cb971",
+      "context": ":func:`filter_report` without the measurements: the same engine, the same list, only the ids kept. Area is the pixel count; intensity is the mean on the *raw* image. Each legacy bound is off at 0.",
+      "translation": ":func:`filter_report` utan mätningarna: samma motor, samma lista, bara de id:n som behålls. Area är antalet pixlar; intensitet är medelvärdet i den *råa* bilden. Varje äldre gräns är avstängd vid 0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#3",
+      "source": "raw intensity image the same height and width as ``mask``.",
+      "source_sha256": "65ce25808a7411238c8bc8971492ab50ef73c81387ca767d2177354de745c776",
+      "context": "raw intensity image the same height and width as ``mask``.",
+      "translation": "råintensitetsbild med samma höjd och bredd som ``mask``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#4",
+      "source": "further filter entries (see :func:`normalise_filters`).",
+      "source_sha256": "70b5e3d1b29957702ec73c3b92e8009d262c97f5845e9092dc3305b098dd7e86",
+      "context": "further filter entries (see :func:`normalise_filters`).",
+      "translation": "ytterligare filterposter (se :func:`normalise_filters`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#5",
+      "source": "retain primary/secondary identities when measuring and removing labels; disconnected pieces sharing an ID count together.",
+      "source_sha256": "eab577b260db095a8ff31b38e3506c6de379b4f0e3a24cf8bb18c778e503738c",
+      "context": "retain primary/secondary identities when measuring and removing labels; disconnected pieces sharing an ID count together.",
+      "translation": "behåll primära/sekundära identiteter när etiketter mäts och tas bort; frånkopplade delar som delar ett ID räknas tillsammans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_properties#0",
+      "source": "The regionprops a filter row may name, for an image at hand.",
+      "source_sha256": "851dd06adfccc7bca4f0f283d1ca60b43b84b76d64048be9501c8515ef62d0a1",
+      "context": "The regionprops a filter row may name, for an image at hand.",
+      "translation": "De regionprops som en filterrad får namnge, för en given bild.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_properties#1",
+      "source": "True when an intensity image exists for the mask, so the intensity statistics are real for it. Without one they are not offered at all, rather than offered and refused later.",
+      "source_sha256": "a94b06f52f55c253f5c149405a6f8a7fe9bbe32ff0a4c2768353acb5de784c14",
+      "context": "True when an intensity image exists for the mask, so the intensity statistics are real for it. Without one they are not offered at all, rather than offered and refused later.",
+      "translation": "True när det finns en intensitetsbild för masken, så att intensitetsstatistiken är verklig för den. Utan en sådan erbjuds de inte alls, i stället för att erbjudas och vägras senare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_properties#2",
+      "source": "property names, shape properties first, each group sorted.",
+      "source_sha256": "8b9d60b732b3a8ed063b7d40f207499269766eec709b6583129b260a7aaa2a70",
+      "context": "property names, shape properties first, each group sorted.",
+      "translation": "egenskapsnamn, formegenskaper först, varje grupp sorterad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#0",
+      "source": "Judge every object of ``labels`` against ``filters``; return the failures.",
+      "source_sha256": "4acbf4f655e4efe1f77ce350920b688e69a087ea830905a890d6fc3923def327",
+      "context": "Judge every object of ``labels`` against ``filters``; return the failures.",
+      "translation": "Bedöm varje objekt i ``labels`` mot ``filters``; returnera de som inte klarar sig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#1",
+      "source": "THE ONE FILTER ENGINE. Make Masks' Filter list, :func:`filter_report`, and Mask generation's :func:`spacr.utils._filter_objects` all run this, so one list gives one answer wherever it is applied. It calls :func:`skimage.measure.regionprops_table` ONCE per mask with every property the list names plus ``report``, never once per filter.",
+      "source_sha256": "af6d4e0796f6b7224e59e45d63bf4763051de3d56267083fe2416376b3bc3579",
+      "context": "The one filter engine. Make Masks' Filter list, :func:`filter_report`, and Mask generation's :func:`spacr.utils._filter_objects` all run this, so one list gives one answer wherever it is applied. It calls :func:`skimage.measure.regionprops_table` ONCE per mask with every property the list names plus ``report``, never once per filter.",
+      "translation": "DEN ENDA FILTERMOTORN. Make Masks filterlista, :func:`filter_report` och Mask-genereringens :func:`spacr.utils._filter_objects` kör alla denna, så att en lista ger ett svar var den än tillämpas. Den anropar :func:`skimage.measure.regionprops_table` EN GÅNG per mask med varje egenskap som listan namnger plus ``report``, aldrig en gång per filter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#2",
+      "source": "An object is kept when ``min <= value <= max`` for every entry; a side that is None is off. A NaN measurement fails no bound, since there is nothing to compare.",
+      "source_sha256": "b78036b50e6d85e9701e95c26d27b891ca6f65c664411a12ccd8b55e01aea6c0",
+      "context": "An object is kept when ``min <= value <= max`` for every entry; a side that is None is off. A NaN measurement fails no bound, since there is nothing to compare.",
+      "translation": "Ett objekt behålls när ``min <= value <= max`` för varje post; en sida som är None är avstängd. En NaN-mätning faller inte på någon gräns, eftersom det inte finns något att jämföra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#3",
+      "source": "integer label image, 2-D or 3-D.",
+      "source_sha256": "69058d0e186acc584a2f205d476c22c02deda91b805a5cb14519921c764f3b1f",
+      "context": "integer label image, 2-D or 3-D.",
+      "translation": "heltalsetikettbild, 2-D eller 3-D.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#5",
+      "source": "pixel values the same shape as ``labels``; required exactly when an entry names an intensity property.",
+      "source_sha256": "1c8c5b7f0a5936a5f6a8e5e6f5efe12d3cbf6ba16531ea4f0a36846e518ebdf1",
+      "context": "pixel values the same shape as ``labels``; required exactly when an entry names an intensity property.",
+      "translation": "pixelvärden med samma form som ``labels``; krävs exakt när en post namnger en intensitetsegenskap.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#6",
+      "source": "extra properties to measure in the same pass so a caller can print them; they judge nothing.",
+      "source_sha256": "2afb13b4302e73eb7c80d4254a5983aaf5c0502e3d792d69ed9d5041af2084e3",
+      "context": "extra properties to measure in the same pass so a caller can print them; they judge nothing.",
+      "translation": "extra egenskaper att mäta i samma pass så att en anropare kan skriva ut dem; de bedömer ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#7",
+      "source": "raise when an intensity property is not finite for some object, as Mask generation always has.",
+      "source_sha256": "bb1a7d6d49eda3513dca65afeab4b0cad4de0bdb4418aeb48388263ccd4327e6",
+      "context": "throw an exception when an intensity property is not finite for some object, as Mask generation always has.",
+      "translation": "generera ett undantag när en intensitetsegenskap inte är ändlig för något objekt, som Mask-genereringen alltid har gjort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#8",
+      "source": "the removals sorted by label; empty when nothing fails.",
+      "source_sha256": "c05c878a4a19e19e43ce3e3b60ddf1b5cef4ccc27a213b92b9295428e6a398a7",
+      "context": "the removals sorted by label; empty when nothing fails.",
+      "translation": "borttagningarna sorterade efter etikett; tomt när inget faller bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#9",
+      "source": "an intensity property without an intensity image, or a property scikit-image cannot compute for this dimensionality.",
+      "source_sha256": "64352534df43eeff3512194508b1a87b8cf7e39232c975727d34ef63b759d677",
+      "context": "an intensity property without an intensity image, or a property scikit-image cannot compute for this dimensionality.",
+      "translation": "en intensitetsegenskap utan intensitetsbild, eller en egenskap som scikit-image inte kan beräkna för den här dimensionaliteten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#0",
+      "source": "Filter ``mask`` by the legacy bounds and ``filters``, measuring what went.",
+      "source_sha256": "9dc621adb34edc225cac72d68888c4d1b1d299776dde39ca1b04277c418770b5",
+      "context": "Filter ``mask`` by the legacy bounds and ``filters``, measuring what went.",
+      "translation": "Filtrera ``mask`` med de äldre gränserna och ``filters``, och mät det som togs bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#1",
+      "source": "The four keyword bounds are migrated into the filter list by :func:`legacy_filters` and judged together with ``filters`` by :func:`apply_filters` -- one engine, one regionprops pass.",
+      "source_sha256": "190daa82746023624ee031cf5e9ae343cc7cd4950c672e1445f4731771d159c5",
+      "context": "The four keyword bounds are migrated into the filter list by :func:`legacy_filters` and judged together with ``filters`` by :func:`apply_filters` -- one engine, one regionprops pass.",
+      "translation": "De fyra nyckelordsgränserna migreras in i filterlistan av :func:`legacy_filters` och bedöms tillsammans med ``filters`` av :func:`apply_filters` -- en motor, ett regionprops-pass.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#3",
+      "source": "raw intensity image the same height and width as ``mask``; a 3-D image is averaged over its last axis first.",
+      "source_sha256": "617c291f90d560bd8aba35b9609ad5da233deba5f5b1cfff5c45bb09a16d3511",
+      "context": "raw intensity image the same height and width as ``mask``; a 3-D image is averaged over its last axis first.",
+      "translation": "råintensitetsbild med samma höjd och bredd som ``mask``; en 3-D-bild medelvärdesbildas först över sin sista axel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#5",
+      "source": "measure all pixels bearing an ID as one object, including lone or disconnected primary/secondary labels.",
+      "source_sha256": "9f2dbe9cd509ab62b1e874f75099da7dc3b99cc77cac0b919576dca78328ba73",
+      "context": "measure all pixels bearing an ID as one object, including lone or disconnected primary/secondary labels.",
+      "translation": "mät alla pixlar som bär ett ID som ett objekt, inklusive ensamma eller frånkopplade primära/sekundära etiketter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#6",
+      "source": "``(mask, removals)``, the removals sorted by id. Nothing to do returns the original array untouched and an empty list.",
+      "source_sha256": "615635ec8895b75af3f659fdd9bb23fcaf5ceccdc5730fd6774010ba2247f335",
+      "context": "``(mask, removals)``, the removals sorted by id. Nothing to do returns the original array untouched and an empty list.",
+      "translation": "``(mask, removals)``, med borttagningarna sorterade efter id. Om det inte finns något att göra returneras den ursprungliga arrayen orörd och en tom lista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filters_need_intensity#0",
+      "source": "Whether any entry of ``filters`` needs an intensity image.",
+      "source_sha256": "2bc23ff9fa06cec8ac55ba300875c2c90ba992b57e6e933da027f2b03d792ef5",
+      "context": "Whether any entry of ``filters`` needs an intensity image.",
+      "translation": "Om någon post i ``filters`` behöver en intensitetsbild.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filters_need_intensity#1",
+      "source": "a canonical filter list, as :func:`normalise_filters` returns.",
+      "source_sha256": "d39c17b981cde26c3e39fcefebc333f89bd7de2a95ac697d2b1f8b529a21f5ea",
+      "context": "a canonical filter list, as :func:`normalise_filters` returns.",
+      "translation": "en kanonisk filterlista, så som :func:`normalise_filters` returnerar den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#0",
+      "source": "Reflect an image about its OWN range, for a DETECTOR to read.",
+      "source_sha256": "3c659a00a91be34f5a330b477103b8acbe982b841306d08e9b3d8bb3e5c971db",
+      "context": "Reflect an image about its OWN range, for a DETECTOR to read.",
+      "translation": "Spegla en bild kring dess EGET intervall, för en DETEKTOR att läsa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#1",
+      "source": "Masks are generated from the inverted image so a threshold written for bright objects can take dark ones. It is ``max + min - value`` on the field's own extremes.",
+      "source_sha256": "3548b57449897559315c85534130a4beb46e5e10f642dd9dd2c3094d786fc3ee",
+      "context": "Masks are generated from the inverted image so a threshold written for bright objects can take dark ones. It is ``max + min - value`` on the microscope field of view's own extremes.",
+      "translation": "Masker genereras från den inverterade bilden så att en tröskel som skrivits för ljusa objekt kan ta mörka. Den är ``max + min - value`` på synfältets egna extremvärden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#10",
+      "source": "47 objects, 20%",
+      "source_sha256": "6981acd485ff95522ea04a7e2efdb4da061cb729b28abccc528f8fe6a2db067d",
+      "context": "47 objects, 20%",
+      "translation": "47 objekt, 20%",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#12",
+      "source": "3 objects, 8%",
+      "source_sha256": "0d56ffccbcfa23dbf1220af755f5c1c56728033411bd0300eb8691ab537034ae",
+      "context": "3 objects, 8%",
+      "translation": "3 objekt, 8%",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#15",
+      "source": "0 objects, 0% -- nothing",
+      "source_sha256": "e07a4ba9fc7357a7d2f54c511aa288596ba4a01941900d0a1ce7874fc314e89d",
+      "context": "0 objects, 0% -- nothing",
+      "translation": "0 objekt, 0% -- ingenting",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#17",
+      "source": "The complement puts that field into 61440..65535, so a correction of 0.8 asks for a cut at about 49000, below every pixel there is, and 1.3 asks for one above all of them. The correction stops being a dial and becomes an on/off switch. At exactly 1.0 the two agree, which is why this is easy to miss.",
+      "source_sha256": "8406a05569b0730005dbbd8e1dd18deffbb75a43d093e66e4d5d8b5089f3b756",
+      "context": "The complement puts that field into 61440..65535, so a correction of 0.8 asks for a cut at about 49000, below every pixel there is, and 1.3 asks for one above all of them. The correction stops being a dial and becomes an on/off switch. At exactly 1.0 the two agree, which is why this is easy to miss.",
+      "translation": "Komplementet lägger det synfältet i 61440..65535, så en korrektion på 0.8 begär ett snitt vid ungefär 49000, under varje pixel som finns, och 1.3 begär ett över dem alla. Korrektionen upphör att vara en ratt och blir en av/på-brytare. Vid exakt 1.0 stämmer de två överens, vilket är skälet till att detta är lätt att missa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#18",
+      "source": "The other two candidates were considered and are worse. The DTYPE's maximum is the case above. The CONTRAST-STRETCHED view is a viewing choice, and a detector reading it would move when the percentiles moved, which is the argument :func:`filter_objects` already makes about intensity bounds.",
+      "source_sha256": "3103d6417f27e3da0275f098f521dc766a7d82f9d2b93fa087d5f25ac84c6fec",
+      "context": "The other two candidates were considered and are worse. The DTYPE's maximum is the case above. The CONTRAST-STRETCHED view is a viewing choice, and a detector reading it would move when the percentiles moved, which is the argument :func:`filter_objects` already makes about intensity bounds.",
+      "translation": "De två andra kandidaterna övervägdes och är sämre. DTYPE:ns maximum är fallet ovan. Den KONTRASTSTRÄCKTA vyn är ett visningsval, och en detektor som läste den skulle flytta sig när percentilerna flyttade sig, vilket är det argument som :func:`filter_objects` redan framför om intensitetsgränser.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#19",
+      "source": "Reflecting about the image's own extremes keeps the span exactly, maps the darkest pixel onto the brightest and back, and is its own inverse on an image whose extremes it has not changed.",
+      "source_sha256": "83131d66cb08207e0f2ea0a0b974f96aa4c42931720e3e7f57a3c3304699bc13",
+      "context": "Reflecting about the image's own extremes keeps the span exactly, maps the darkest pixel onto the brightest and back, and is its own inverse on an image whose extremes it has not changed.",
+      "translation": "Att spegla kring bildens egna extremvärden bevarar spännvidden exakt, mappar den mörkaste pixeln på den ljusaste och tillbaka, och är sin egen invers på en bild vars extremvärden den inte har ändrat.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#2",
+      "source": "WHY THIS IS NOT :func:`invert_intensity`, which is the other inversion in this module and is one line away. The difference is not taste and it is not a duplicate that wants merging -- the two are read by different things and only one of them can afford to move the numbers:",
+      "source_sha256": "f625564cc94d07160f19066d7348ab3ce1478a92e4cb041dc84c6a288252eefa",
+      "context": "Why this is not :func:`invert_intensity`, which is the other inversion in this module and is one line away. The difference is not taste and it is not a duplicate that wants merging -- the two are read by different things and only one of them can afford to move the numbers:",
+      "translation": "VARFÖR DETTA INTE ÄR :func:`invert_intensity`, som är den andra inverteringen i den här modulen och bara en rad bort. Skillnaden är inte en smaksak och inte en dubblett som bör slås ihop -- de två läses av olika saker och bara en av dem har råd att flytta talen:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#20",
+      "source": "Nonfinite pixels take no part in finding the extremes and are returned unchanged, since a NaN is not dark and is not bright.",
+      "source_sha256": "16e1460fc42a276ed6deaa09c0e36b53ad2ab89fdcc8bee0bd46559263816288",
+      "context": "Nonfinite pixels take no part in finding the extremes and are returned unchanged, since a NaN is not dark and is not bright.",
+      "translation": "Icke-ändliga pixlar deltar inte i att hitta extremvärdena och returneras oförändrade, eftersom ett NaN varken är mörkt eller ljust.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#21",
+      "source": "any 2-D field, as the canvas holds it.",
+      "source_sha256": "dd7260741bd59003cdcf29e62f0d9b96cf8b370afb6666e98c98b4e810424541",
+      "context": "any 2-D field, as the canvas holds it.",
+      "translation": "valfritt 2-D-synfält, så som duken håller det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#22",
+      "source": "``(lo, hi)`` to reflect about, instead of ``image``'s own extremes. WHAT A CROP IS GIVEN: a region inverted about its own extremes is inverted differently wherever the box is put, so the magnifier hands it the whole field's pair and the box stays a preview of what the detect button will do with the same setting. (:func:`invert_intensity` needs no such thing, being a function of the pixel value alone -- another way the two differ.)",
+      "source_sha256": "ec87f4f25f0aba8e65221e0ee59fde63ce7b140d38676094ad9ea3462ac542e1",
+      "context": "``(lo, hi)`` to reflect about, instead of ``image``'s own extremes. what an extracted image region is given: a region inverted about its own extremes is inverted differently wherever the box is put, so the magnifier hands it the whole field's pair and the box stays a preview of what the detect button will do with the same setting. (:func:`invert_intensity` needs no such thing, being a function of the pixel value alone -- another way the two differ.)",
+      "translation": "``(lo, hi)`` att spegla kring, i stället för ``image``s egna extremvärden. VAD ETT UTSNITT FÅR: en region som inverteras kring sina egna extremvärden inverteras olika beroende på var rutan placeras, så förstoringsglaset ger den hela synfältets par och rutan förblir en förhandsvisning av vad detektera-knappen kommer att göra med samma inställning. (:func:`invert_intensity` behöver inget sådant, eftersom den enbart är en funktion av pixelvärdet -- ännu ett sätt som de två skiljer sig på.)",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#23",
+      "source": "a NEW array of the input's dtype. The original is never touched: the readout and the filter must keep reporting the raw values whatever the detector was shown.",
+      "source_sha256": "7f7c70e57e77688caea2b7ab371128f7d378ffe777cf34ddf3deaffc8809973f",
+      "context": "a NEW array of the input's dtype. The original is never touched: the readout and the filter must keep reporting the raw values whatever the detector was shown.",
+      "translation": "en NY array med indatas dtype. Originalet rörs aldrig: avläsningen och filtret måste fortsätta att rapportera de råa värdena oavsett vad detektorn visades.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#3",
+      "source": ":func:`invert_intensity` complements the DTYPE and is what \"Invert image\" draws with. It has to be exactly reversible, because a curator leaves it on all day, and nothing downstream reads its result.",
+      "source_sha256": "20b7e5f9841d1cd7b815708613b12375768b11ade6de9a8ca96bba65a8e855ee",
+      "context": ":func:`invert_intensity` complements the DTYPE and is what \"Invert image\" draws with. It has to be exactly reversible, because a curator leaves it on all day, and nothing downstream reads its result.",
+      "translation": ":func:`invert_intensity` komplementerar DTYPE:n och är det som \"Invert image\" ritar med. Den måste vara exakt reversibel, eftersom en kurator har den påslagen hela dagen, och ingenting nedströms läser dess resultat.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#4",
+      "source": "this one is read by a THRESHOLD, and the Otsu threshold correction is a MULTIPLIER on the level Otsu finds, applied to absolute intensity in :func:`_otsu_levels`. Multiplying is not invariant to an offset, so an inversion that moves the field's span moves what the correction means. Measured on a 12-bit field (216..4095) with dark objects, inverted and put through :func:`_otsu_instances` on the bright side:",
+      "source_sha256": "439833bd1492fe96e8a9e1c24113e9da5f6c1db6b6fadc91e915f404c18531f2",
+      "context": "this one is read by a THRESHOLD, and the Otsu threshold correction is a MULTIPLIER on the level Otsu finds, applied to absolute intensity in :func:`_otsu_levels`. Multiplying is not invariant to an offset, so an inversion that moves the microscope field of view's span moves what the correction means. Measured on a 12-bit microscope field of view (216..4095) with dark objects, inverted and put through :func:`_otsu_instances` on the bright side:",
+      "translation": "den här läses av en TRÖSKEL, och Otsu-tröskelns korrektion är en MULTIPLIKATOR på den nivå som Otsu hittar, tillämpad på absolut intensitet i :func:`_otsu_levels`. Multiplikation är inte invariant för en förskjutning, så en invertering som flyttar synfältets spännvidd flyttar det som korrektionen betyder. Uppmätt på ett 12-bitars synfält (216..4095) med mörka objekt, inverterat och kört genom :func:`_otsu_instances` på den ljusa sidan:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#5",
+      "source": "correction",
+      "source_sha256": "34627e3242f2ca21f540951cb5376600aebba58675654dd5f61e860c6948bffa",
+      "context": "correction",
+      "translation": "korrektion",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#6",
+      "source": "dtype complement",
+      "source_sha256": "3189c371f55bcfc76ecb9721f1c5cb10b695e7e3f8ba6509f84173919983103c",
+      "context": "dtype complement",
+      "translation": "komplement till dtype",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#7",
+      "source": "reflection about range",
+      "source_sha256": "e88047a17087c7a9ee20ca8a773017bd8c786de099ba0427dfd046d505308cfe",
+      "context": "reflection about range",
+      "translation": "spegling kring intervallet",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#9",
+      "source": "1 object, 100% of the field -- everything",
+      "source_sha256": "20550882ae3477dbb3e809c68513c60a25496740069c327688ea7678e97b53c3",
+      "context": "1 object, 100% of the microscope field of view -- everything",
+      "translation": "1 objekt, 100% av synfältet -- allting",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#0",
+      "source": "Return the photographic complement of ``image``: dark becomes bright.",
+      "source_sha256": "bd3b486693874b0f7527bc462831d7b9a74ab217327e4a8caa0171f4f96c6fa6",
+      "context": "Return the photographic complement of ``image``: dark becomes bright.",
+      "translation": "Returnera det fotografiska komplementet till ``image``: mörkt blir ljust.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#1",
+      "source": "Low intensity becomes high intensity and vice versa, fitted to the dtype. WHAT IS BUILT IS THE COMPLEMENT, ``dtype_max - value``, NOT THE RECIPROCAL, for three reasons that are worth having written down because the reciprocal is the obvious first thought:",
+      "source_sha256": "4ff231cc4df36e3ecc6be0da73df2a777af0310b7bb54201e1a91ba20c93ea04",
+      "context": "Low intensity becomes high intensity and vice versa, fitted to the dtype. what is built is the complement, ``dtype_max - value``, not the reciprocal, for three reasons that are worth having written down because the reciprocal is the obvious first thought:",
+      "translation": "Låg intensitet blir hög intensitet och tvärtom, anpassat till dtype:n. DET SOM BYGGS ÄR KOMPLEMENTET, ``dtype_max - value``, INTE RECIPROKEN, av tre skäl som är värda att ha nedskrivna eftersom reciproken är den uppenbara första tanken:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#2",
+      "source": "it is what every image viewer means by Invert, so the picture that comes back is the one a reader expects from Invert;",
+      "source_sha256": "de0ffdcdf6d1285e06d67e1adb74436e44ce9097089d1fee7006db01597e88e6",
+      "context": "it is what every image viewer means by Invert, so the picture that comes back is the one a reader expects from Invert;",
+      "translation": "det är vad varje bildvisare menar med Invert, så bilden som kommer tillbaka är den som en läsare förväntar sig av Invert;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#3",
+      "source": "it is EXACTLY reversible on an integer field -- inverting twice returns the identical array, which is what makes it safe to leave switched on while curating, and is asserted by comparing arrays;",
+      "source_sha256": "06bae63760cca3b2589b15108c00bdda656ac7cbec3b8b017675d6f6b8e35659",
+      "context": "it is EXACTLY reversible on an integer field -- inverting twice returns the identical array, which is what makes it safe to leave switched on while curating, and is asserted by comparing arrays;",
+      "translation": "det är EXAKT reversibelt på ett heltalssynfält -- att invertera två gånger ger tillbaka den identiska arrayen, vilket är det som gör det säkert att lämna påslaget under kurering, och det verifieras genom att jämföra arrayer;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#4",
+      "source": "``1/value`` divides by zero on every background pixel, and it squashes the bright end non-linearly, so two objects a thousand counts apart come back indistinguishable while the background explodes.",
+      "source_sha256": "712e964d4ec4305b3c6dae792a7b785abd54d79a8996c74f74f6ea478070b28c",
+      "context": "``1/value`` divides by zero on every background pixel, and it squashes the bright end non-linearly, so two objects a thousand counts apart come back indistinguishable while the background explodes.",
+      "translation": "``1/value`` dividerar med noll på varje bakgrundspixel, och den trycker ihop den ljusa änden icke-linjärt, så att två objekt som skiljer sig med tusen räkningar kommer tillbaka omöjliga att skilja åt medan bakgrunden exploderar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#5",
+      "source": "The reciprocal remains a reasonable SECOND mode for anyone who wants a log-like lift of the dim end; it is not this one.",
+      "source_sha256": "970409c266e941a7045204da1e24cc16aa795ba9b9f079062e4570c9f5744d00",
+      "context": "The reciprocal remains a reasonable SECOND mode for anyone who wants a log-like lift of the dim end; it is not this one.",
+      "translation": "Reciproken förblir ett rimligt ANDRA läge för den som vill ha ett log-liknande lyft av den mörka änden; det är inte det här.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#6",
+      "source": "WHICH RANGE IS COMPLEMENTED depends on the dtype, because fitting to the dtype only has a meaning where the dtype has ends:",
+      "source_sha256": "b9dec447baaed356068e863deead62cf21ba7e6dd5b9e54642ac6a32b0979f8a",
+      "context": "Which range is complemented depends on the dtype, because fitting to the dtype only has a meaning where the dtype has ends:",
+      "translation": "VILKET INTERVALL SOM KOMPLEMENTERAS beror på dtype:n, eftersom anpassning till dtype:n bara har en betydelse där dtype:n har ändpunkter:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#7",
+      "source": "``unsigned integers`` the dtype's own range, so a ``uint16`` field is ``65535 - value``. A 12-bit camera writing into ``uint16`` therefore comes back in the top sixteenth of the range; a display that stretches by percentiles puts that back where a reader can see it, and the array is still exactly invertible, which a data-range complement would not be across two fields of different brightness. ``signed integers`` ``iinfo.min + iinfo.max - value``, the same complement on the range the dtype actually spans. ``bool`` logical not. ``floating point`` the ARRAY'S OWN range, ``min + max - value``, because a float image has no dtype maximum worth speaking of. The complement of a range maps its ends onto each other, so a second call computes the same two ends and comes back to the original -- but NOT bit for bit: ``s - (s - x)`` rounds twice, and the round trip is out by up to one unit in the last place of ``s``. Measured on a 200x200 field over 0..65535: 0.002 in ``float32`` and 4e-12 in ``float64``, against an interval of one count. The round trip is EXACT for every integer and boolean dtype, which is every dtype a field is read in.",
+      "source_sha256": "6ea3a594264382be86b2ed4104f114ef1775e471ce2771fa183fc36ca2e7cdb0",
+      "context": "``unsigned integers`` the dtype's own range, so a ``uint16`` microscope field of view is ``65535 - value``. A 12-bit camera writing into ``uint16`` therefore comes back in the top sixteenth of the range; a display that stretches by percentiles puts that back where a reader can see it, and the array is still exactly invertible, which a data-range complement would not be across two microscope fields of view of different brightness. ``signed integers`` ``iinfo.min + iinfo.max - value``, the same complement on the range the dtype actually spans. ``bool`` logical not. ``floating point`` the array's own range, ``min + max - value``, because a float image has no dtype maximum worth speaking of. The complement of a range maps its ends onto each other, so a second call computes the same two ends and comes back to the original -- but NOT bit for bit: ``s - (s - x)`` rounds twice, and the round trip is out by up to one unit in the last place of ``s``. Measured on a 200x200 microscope field of view over 0..65535: 0.002 in ``float32`` and 4e-12 in ``float64``, against an interval of one count. The round trip is EXACT for every integer and boolean dtype, which is every dtype a microscope field of view is read in.",
+      "translation": "``unsigned integers`` dtype:ns eget intervall, så ett ``uint16``-synfält blir ``65535 - value``. En 12-bitars kamera som skriver till ``uint16`` kommer därför tillbaka i intervallets översta sextondel; en visning som sträcker efter percentiler flyttar tillbaka det dit en läsare kan se det, och arrayen är fortfarande exakt inverterbar, vilket ett komplement över dataintervallet inte skulle vara mellan två synfält med olika ljusstyrka. ``signed integers`` ``iinfo.min + iinfo.max - value``, samma komplement över det intervall som dtype:n faktiskt spänner över. ``bool`` logiskt icke. ``floating point`` ARRAYENS EGET intervall, ``min + max - value``, eftersom en flyttalsbild inte har något dtype-maximum värt att tala om. Komplementet av ett intervall mappar dess ändar på varandra, så ett andra anrop beräknar samma två ändar och kommer tillbaka till originalet -- men INTE bit för bit: ``s - (s - x)`` avrundas två gånger, och rundturen avviker med upp till en enhet i sista positionen av ``s``. Uppmätt på ett 200x200-synfält över 0..65535: 0.002 i ``float32`` och 4e-12 i ``float64``, mot ett intervall på en räkning. Rundturen är EXAKT för varje heltals- och boolesk dtype, vilket är alla dtypes som ett synfält läses in i.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#8",
+      "source": "any numeric or boolean array. It is not modified.",
+      "source_sha256": "42c2e2a94b4c793a50edbadf38c0fe6f534fc65e9366e954bb8aa8cf1a304667",
+      "context": "any numeric or boolean array. It is not modified.",
+      "translation": "valfri numerisk eller boolesk array. Den ändras inte.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#9",
+      "source": "a new array of the same shape and dtype.",
+      "source_sha256": "8919bed90e76d85480d1634f052e0a8b38d33e02796c5689fc7b9645914b3eef",
+      "context": "a new array of the same shape and dtype.",
+      "translation": "en ny array med samma form och dtype.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#0",
+      "source": "Swap object and background in a LABEL image, and relabel.",
+      "source_sha256": "43b776cf2adcc8b3214ee60897390513f72732bf94bd7a111337da2a4c865423",
+      "context": "Swap object and background in a LABEL image, and relabel.",
+      "translation": "Byt plats på objekt och bakgrund i en ETIKETTbild, och märk om.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#1",
+      "source": "NOT AN INTENSITY INVERSION -- that is :func:`invert_intensity`, and the Make Masks screen's \"Invert image\" is wired to that one. This flips the MASK: every labelled pixel becomes background and every background pixel becomes foreground, and what comes out is then labelled afresh. On an ordinary field the background is one connected region, so what comes back is a SINGLE field-sized object with holes where the objects were -- which is why it looks as if it does not invert at all: one flat overlay over the whole frame reads as nothing having happened.",
+      "source_sha256": "1993c18c1a24eb00eb33b285bc01a721bfefa7117f7001d7c86af6f1275ae448",
+      "context": "Not an intensity inversion -- that is :func:`invert_intensity`, and the Make Masks screen's \"Invert image\" is wired to that one. This flips the MASK: every labelled pixel becomes background and every background pixel becomes foreground, and what comes out is then labelled afresh. On an ordinary field the background is one connected region, so what comes back is a SINGLE field-sized object with holes where the objects were -- which is why it looks as if it does not invert at all: one flat overlay over the whole frame reads as nothing having happened.",
+      "translation": "INTE EN INTENSITETSINVERTERING -- det är :func:`invert_intensity`, och Make Masks-vyns \"Invert image\" är kopplad till den. Detta vänder på MASKEN: varje märkt pixel blir bakgrund och varje bakgrundspixel blir förgrund, och det som kommer ut märks sedan på nytt. På ett vanligt synfält är bakgrunden en sammanhängande region, så det som kommer tillbaka är ETT ENDA synfältsstort objekt med hål där objekten var -- vilket är skälet till att det ser ut som om den inte inverterar alls: ett platt överlägg över hela ramen ser ut som att ingenting har hänt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#2",
+      "source": "It is kept because it is a real thing to want -- a curator who has outlined the space BETWEEN the cells has drawn the complement of what is wanted -- but under the name that says what it does.",
+      "source_sha256": "0ab73b73feedfad673d77a8ba177a0cfe86d1c284f1e5370fff82ddfe8633b1d",
+      "context": "It is kept because it is a real thing to want -- a curator who has outlined the space BETWEEN the cells has drawn the complement of what is wanted -- but under the name that says what it does.",
+      "translation": "Den behålls eftersom den är något man faktiskt kan vilja ha -- en kurator som har ritat konturen av utrymmet MELLAN cellerna har ritat komplementet till det som önskas -- men under ett namn som säger vad den gör.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#3",
+      "source": "label mask; every pixel above 0 counts as object. The result keeps its dtype.",
+      "source_sha256": "11f00c1aa5d9c0e0b0d16883852f365977f5d7c38b59d203694f2a6b0c96d93c",
+      "context": "label mask; every pixel above 0 counts as object. The result keeps its dtype.",
+      "translation": "etikettmask; varje pixel över 0 räknas som objekt. Resultatet behåller sin dtype.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#0",
+      "source": "Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.",
+      "source_sha256": "8675cfd11142814fd1e0be362fb8a5a7110ed50b641f38c661bfc8ff49593a5c",
+      "context": "Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.",
+      "translation": "Normalisera ``image`` till 0..1 över dess EGET intervall, ta ``1 - v`` och anpassa tillbaka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#1",
+      "source": "THE ONE INVERSION. The field is normalised to 0..1 and every pixel becomes ``1 - value``, which gives an image that Otsu and the magnifier can work on when the objects are dark. That is the reason for the button.",
+      "source_sha256": "1ea5ae17e66c964b75dbea69c04eb1a2c6cce63f86cb24b88e246c1bfa1766e3",
+      "context": "The one inversion. The microscope field of view is normalised to 0..1 and every pixel becomes ``1 - value``, which gives an image that Otsu and the magnifier can work on when the objects are dark. That is the reason for the button.",
+      "translation": "DEN ENDA INVERTERINGEN. Synfältet normaliseras till 0..1 och varje pixel blir ``1 - value``, vilket ger en bild som Otsu och förstoringsglaset kan arbeta med när objekten är mörka. Det är skälet till knappen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#2",
+      "source": "So the purpose is a DETECTOR reading dark objects, and the picture the curator sees has to be the picture the detector reads -- one switch, one meaning. That decision replaced the two inversions this module used to carry for Make Masks, :func:`invert_intensity` (the dtype complement, drawn but never detected on) and :func:`invert_for_detection` (detected on but never drawn). Both are kept for callers outside Make Masks and neither is what the screen uses now.",
+      "source_sha256": "d3c9674db7046d4986b4a126eb0fa05603dd647de749cf5e9e9772d9c37e7dcf",
+      "context": "So the purpose is a DETECTOR reading dark objects, and the picture the curator sees has to be the picture the detector reads -- one switch, one meaning. That decision replaced the two inversions this module used to carry for Make Masks, :func:`invert_intensity` (the dtype complement, drawn but never detected on) and :func:`invert_for_detection` (detected on but never drawn). Both are kept for callers outside Make Masks and neither is what the screen uses now.",
+      "translation": "Syftet är alltså att en DETEKTOR ska läsa mörka objekt, och bilden som kuratorn ser måste vara den bild som detektorn läser -- en brytare, en betydelse. Det beslutet ersatte de två inverteringar som den här modulen tidigare bar för Make Masks, :func:`invert_intensity` (dtype-komplementet, som ritades men aldrig detekterades på) och :func:`invert_for_detection` (som detekterades på men aldrig ritades). Båda behålls för anropare utanför Make Masks och ingen av dem är vad programvyn använder nu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#3",
+      "source": "WHY NORMALISING FIRST IS THE POINT AND NOT A DETAIL. The Otsu threshold correction is a MULTIPLIER on an absolute level, so what it means depends on where the field's intensities sit. A dtype complement moves a 12-bit field (216..4095) up into 61440..65535, and a correction of 0.8 then asks for a cut below every pixel present while 1.3 asks for one above them all -- the dial becomes an on/off switch, which is the measurement recorded in :func:`invert_for_detection`. Normalising to the field's own range first puts EVERY field on the same 0..1 span before the multiplier is applied, so one correction value means the same thing on the next image.",
+      "source_sha256": "d1158ca3ef8d80a1bc68b67cb909e38f2a41d5e73f344949ee9d7fa05945d63d",
+      "context": "Why normalising first is the point and not a detail. The Otsu threshold correction is a MULTIPLIER on an absolute level, so what it means depends on where the microscope field of view's intensities sit. A dtype complement moves a 12-bit microscope field of view (216..4095) up into 61440..65535, and a correction of 0.8 then asks for a cut below every pixel present while 1.3 asks for one above them all -- the dial becomes an on/off switch, which is the measurement recorded in :func:`invert_for_detection`. Normalising to the microscope field of view's own range first puts EVERY microscope field of view on the same 0..1 span before the multiplier is applied, so one correction value means the same thing on the next image.",
+      "translation": "VARFÖR NORMALISERING FÖRST ÄR POÄNGEN OCH INTE EN DETALJ. Otsu-tröskelns korrektion är en MULTIPLIKATOR på en absolut nivå, så vad den betyder beror på var synfältets intensiteter ligger. Ett dtype-komplement flyttar ett 12-bitars synfält (216..4095) upp till 61440..65535, och en korrektion på 0.8 begär då ett snitt under varje pixel som finns medan 1.3 begär ett över dem alla -- ratten blir en av/på-brytare, vilket är den mätning som registreras i :func:`invert_for_detection`. Att först normalisera till synfältets eget intervall lägger VARJE synfält på samma spann 0..1 innan multiplikatorn tillämpas, så att ett korrektionsvärde betyder samma sak på nästa bild.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#4",
+      "source": "WHAT IS GIVEN UP, said plainly: this is not exactly reversible on the original numbers the way the dtype complement was. Inverting a field rescales it to the full range, and the original span cannot be recovered from the result. It does not need to be -- the screen keeps the untouched array and re-derives this one, so nothing measured, filtered or saved ever sees it -- but a caller that inverts an array and keeps only the result has lost where it sat.",
+      "source_sha256": "738b20a3252ea2ed73497d6cf8330edb6bc1354463c5883a961f6d92fd5dcae9",
+      "context": "What is given up, said plainly: this is not exactly reversible on the original numbers the way the dtype complement was. Inverting a field rescales it to the full range, and the original span cannot be recovered from the result. It does not need to be -- the screen keeps the untouched array and re-derives this one, so nothing measured, filtered or saved ever sees it -- but a caller that inverts an array and keeps only the result has lost where it sat.",
+      "translation": "VAD SOM GES UPP, sagt rakt ut: detta är inte exakt reversibelt på de ursprungliga talen på det sätt som dtype-komplementet var. Att invertera ett synfält skalar om det till hela intervallet, och det ursprungliga spannet kan inte återvinnas ur resultatet. Det behöver det inte heller -- programvyn behåller den orörda arrayen och härleder den här på nytt, så ingenting som mäts, filtreras eller sparas ser den någonsin -- men en anropare som inverterar en array och bara behåller resultatet har förlorat var den låg.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#5",
+      "source": "THE RETURN DTYPE IS THE INPUT'S, because the display path hands the result to :func:`normalize_uint16`, which reads ``np.iinfo`` and raises on a float. An integer field comes back spanning that dtype's full range; a float field comes back in 0..1, where a float already belongs.",
+      "source_sha256": "137c2562e448a3fc3274dd7daa1cec4fea459d6a30bc103a679fd3b1b5fe1136",
+      "context": "The return dtype is the input's, because the display path hands the result to :func:`normalize_uint16`, which reads ``np.iinfo`` and produces an error on a float. An integer field comes back spanning that dtype's full range; a float field comes back in 0..1, where a float already belongs.",
+      "translation": "RETURENS DTYPE ÄR INDATAS, eftersom visningsvägen lämnar resultatet till :func:`normalize_uint16`, som läser ``np.iinfo`` och genererar ett undantag för ett flyttal. Ett heltalssynfält kommer tillbaka och spänner över den dtype:ns hela intervall; ett flyttalssynfält kommer tillbaka i 0..1, där ett flyttal redan hör hemma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#6",
+      "source": "A FLAT FIELD has no range to normalise onto. ``v - min`` is 0 everywhere, so the normalised value is taken as 0 and the inverse as 1: a flat field inverts to a flat bright one, which is the literal reading of the formula and is what an inversion of \"no contrast\" should look like.",
+      "source_sha256": "1c299d387626b5b01c2dbd685e716b941fd3abfc4bf43def6868dcb43cc5f9ab",
+      "context": "A flat field has no range to normalise onto. ``v - min`` is 0 everywhere, so the normalised value is taken as 0 and the inverse as 1: a flat field inverts to a flat bright one, which is the literal reading of the formula and is what an inversion of \"no contrast\" should look like.",
+      "translation": "ETT PLATT SYNFÄLT har inget intervall att normalisera till. ``v - min`` är 0 överallt, så det normaliserade värdet tas som 0 och inversen som 1: ett platt synfält inverteras till ett platt ljust, vilket är formelns bokstavliga läsning och hur en invertering av \"no contrast\" bör se ut.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#7",
+      "source": "the field, of any shape and any real dtype.",
+      "source_sha256": "d3a5c7b4808bba0ad594cffd81dcff91d1284053e0ec011dd546a15739869dfe",
+      "context": "the field, of any shape and any real dtype.",
+      "translation": "synfältet, av valfri form och valfri reell dtype.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#8",
+      "source": "a new array, same shape, same dtype, inverted.",
+      "source_sha256": "87ebb87d9aee2cbcca399b68ed3305cbcb6433b101760dfbbb7c5296fcfb69ab",
+      "context": "a new array, same shape, same dtype, inverted.",
+      "translation": "en ny array, samma form, samma dtype, inverterad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#0",
+      "source": "Whether ``filename`` names a Cellpose ``_seg.npy`` bundle.",
+      "source_sha256": "4074e3319545fd302c8d0b8f8b6add3b8f7f92fa204d9a59b5cfc700a92c5e0d",
+      "context": "Whether ``filename`` names a Cellpose ``_seg.npy`` bundle.",
+      "translation": "Om ``filename`` namnger ett Cellpose-paket ``_seg.npy``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#1",
+      "source": "a file name or path.",
+      "source_sha256": "2fdbda77e20fca84780c95222a2ceb374606b6b05de91711eb39955d7206b100",
+      "context": "a file name or path.",
+      "translation": "ett filnamn eller en sökväg.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#2",
+      "source": "``True`` when it ends in :data:`SEG_SUFFIX`, which is how a ``seg`` queue's fields are named in the editor's file list.",
+      "source_sha256": "8d08ea4e2b9e164e23f3d06a4f198c33d284339268baf47a90b4219d07695622",
+      "context": "``True`` when it ends in :data:`SEG_SUFFIX`, which is how a ``seg`` work list's fields are named in the editor's file list.",
+      "translation": "``True`` när det slutar med :data:`SEG_SUFFIX`, vilket är hur synfälten i en ``seg``-kö namnges i redigerarens fillista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.legacy_filters#0",
+      "source": "The four old hard-coded bounds as entries of the filter list.",
+      "source_sha256": "078b2a80dad7dfd82418d413c312833a9e10e89d36e312d5b0dd50de951f3351",
+      "context": "The four old hard-coded bounds as entries of the filter list.",
+      "translation": "De fyra gamla hårdkodade gränserna som poster i filterlistan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.legacy_filters#1",
+      "source": "This is the migration: 0 meant off for each old bound, and it becomes a missing side here, so an old settings file or call is judged by the one filter engine with the answer it always had. Area becomes ``area`` and mean intensity becomes ``intensity_mean``; equality was kept before and is kept now.",
+      "source_sha256": "a26f2e2da7118a505fcb39c6da32dde9bfe8f135c9a5a3ec24151e1d2095a36d",
+      "context": "This is the migration: 0 meant off for each old bound, and it becomes a missing side here, so an old settings file or call is judged by the one filter engine with the answer it always had. Area becomes ``area`` and mean intensity becomes ``intensity_mean``; equality was kept before and is kept now.",
+      "translation": "Detta är migreringen: 0 betydde avstängt för varje gammal gräns, och det blir här en saknad sida, så att en gammal inställningsfil eller ett gammalt anrop bedöms av den enda filtermotorn med det svar den alltid har haft. Area blir ``area`` och medelintensitet blir ``intensity_mean``; likhet behölls tidigare och behålls nu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.list_images#1",
+      "source": "directory to list (not recursively); an empty value or a missing directory gives ``[]``. Only names ending in :data:`IMAGE_EXTS`, case-insensitively, are kept.",
+      "source_sha256": "b0be52ca52882f6ed1b0fc397f93dbc16b69d7d972190789f8c4fc230700d698",
+      "context": "directory to list (not recursively); an empty value or a missing directory gives ``[]``. Only names ending in :data:`IMAGE_EXTS`, case-insensitively, are kept.",
+      "translation": "katalog som ska listas (inte rekursivt); ett tomt värde eller en saknad katalog ger ``[]``. Endast namn som slutar med :data:`IMAGE_EXTS`, skiftlägesokänsligt, behålls.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#0",
+      "source": "Load an image and its accompanying mask.",
+      "source_sha256": "5250057c18de49e55abf1889d1667fbd8621788521f0266002a5198ccbf91ff7",
+      "context": "Load an image and its accompanying mask.",
+      "translation": "Läs in en bild och dess tillhörande mask.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#5",
+      "source": "A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is read by :func:`load_seg_bundle` instead.",
+      "source_sha256": "c824b0d9667e223cb6e974a1f77a8795593cfecbf7c02e7b88509738d441ed57",
+      "context": "A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is read by :func:`load_seg_bundle` instead.",
+      "translation": "Ett ``filename`` som slutar med :data:`SEG_SUFFIX` är ett Cellpose-paket och läses i stället av :func:`load_seg_bundle`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#6",
+      "source": "the folder holding the image, or the bundle.",
+      "source_sha256": "3268376744c3aa635e176e1ffe486ffcfa0839c8971e2bd4cd5cc17667309b46",
+      "context": "the folder holding the image, or the bundle.",
+      "translation": "mappen som innehåller bilden, eller paketet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#7",
+      "source": "the image, or the ``_seg.npy`` bundle, to load.",
+      "source_sha256": "06c3b6005871c9aff0755ef333108a85b9e367fe29cdeaedb7f75c3791bbc754",
+      "context": "the image, or the ``_seg.npy`` bundle, to load.",
+      "translation": "bilden, eller ``_seg.npy``-paketet, som ska läsas in.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#8",
+      "source": "where the masks are, when not in ``<folder>/masks``; see :func:`masks_folder`.",
+      "source_sha256": "2a9368963cf8c125e5a0950e9223687924349a703021c6a2e4b7f788f20262d8",
+      "context": "where the masks are, when not in ``<folder>/masks``; see :func:`masks_folder`.",
+      "translation": "var maskerna finns, när de inte finns i ``<folder>/masks``; se :func:`masks_folder`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#0",
+      "source": "Load a Cellpose bundle as the editor's ``(image, mask)`` pair.",
+      "source_sha256": "ecc6eefbe5538c34d71a0a582f35571392107c89e3e29a95d2e1743981cc52f3",
+      "context": "Load a Cellpose bundle as the editor's ``(image, mask)`` pair.",
+      "translation": "Läs in ett Cellpose-paket som redigerarens par ``(image, mask)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#1",
+      "source": "the ``_seg.npy`` bundle.",
+      "source_sha256": "1a7791c876b3a03ecd04ffd813bfde5c8e9607f0a8fe4c6f119695186ba13c18",
+      "context": "the ``_seg.npy`` bundle.",
+      "translation": "``_seg.npy``-paketet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#2",
+      "source": "``(image, mask)``, checked and converted exactly as :func:`load_image_and_mask` converts a TIFF pair.",
+      "source_sha256": "06b914af78e20f22e3caa360b97b5af2dda14b82e41c4e932964fe78565e9842",
+      "context": "``(image, mask)``, checked and converted exactly as :func:`load_image_and_mask` converts a TIFF pair.",
+      "translation": "``(image, mask)``, kontrollerat och konverterat exakt som :func:`load_image_and_mask` konverterar ett TIFF-par.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#3",
+      "source": "for a file that is not a bundle, a bundle with no image to show, or labels that do not fit the image.",
+      "source_sha256": "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64",
+      "context": "for a file that is not a bundle, a bundle with no image to show, or labels that do not fit the image.",
+      "translation": "för en fil som inte är ett paket, ett paket utan någon bild att visa, eller etiketter som inte passar bilden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#1",
+      "source": "intensity image, 2-D or with channels on the last axis; distances are taken over the channel values.",
+      "source_sha256": "2d59208e9b6905cb67ad993c00dcbccb9e8f30d5a56e0c728787870a9f1ca4d5",
+      "context": "intensity image, 2-D or with image data channels on the last axis; distances are taken over the image data channel values.",
+      "translation": "intensitetsbild, 2-D eller med kanaler på den sista axeln; avstånden tas över kanalvärdena.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#2",
+      "source": "mask with the same height and width as ``image``; it is copied, not modified.",
+      "source_sha256": "16e5dc2b659e4471c07b7f60b4b7348cacdf6ebff2897225693ac140a31a4893",
+      "context": "mask with the same height and width as ``image``; it is copied, not modified.",
+      "translation": "mask med samma höjd och bredd som ``image``; den kopieras, ändras inte.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#3",
+      "source": "seed column in pixels.",
+      "source_sha256": "d1a4a8f099b22d4f717a5e6ed88b6c6f4e9ebdd1d456fa6f576ee64af9778dbc",
+      "context": "seed column in pixels.",
+      "translation": "fröets kolumn i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#4",
+      "source": "seed row in pixels. A seed outside the image returns ``mask`` unchanged.",
+      "source_sha256": "af68bcedc6a7f3e76a2a7b1335fecf5df57b03faad46a27c5b4d936023175aa1",
+      "context": "seed row in pixels. A seed outside the image returns ``mask`` unchanged.",
+      "translation": "fröets rad i pixlar. Ett frö utanför bilden returnerar ``mask`` oförändrad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#5",
+      "source": "largest distance from the seed value that still fills, in the image's own intensity units; see :func:`relative_tolerance`.",
+      "source_sha256": "6d95194dbe98aa6d299ad567ccdff2faf3bfd77a40490302c898266797509a0c",
+      "context": "largest distance from the seed value that still fills, in the image's own intensity units; see :func:`relative_tolerance`.",
+      "translation": "största avstånd från fröets värde som fortfarande fylls, i bildens egna intensitetsenheter; se :func:`relative_tolerance`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#1",
+      "source": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<masks folder>/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
+      "source_sha256": "dabf556af9d691b0f11cb4b5e6bfb0e498bbf460f10aa28400df8719a2d5ea89",
+      "context": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<masks folder>/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
+      "translation": ":func:`load_image_and_mask` accepterar en mask under bildens egen filändelse, men allt som :func:`save_mask` skriver hamnar i ``<masks folder>/<stem>.tif``. Liggaren är nycklad på den fil som faktiskt skrevs, så båda måste vara överens om ett namn; fråga här i stället för att bygga om det vid varje anropsställe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#3",
+      "source": "the field's image, or its ``_seg.npy`` bundle.",
+      "source_sha256": "9d95c8a71f9d8f20c7da076b377137784e6cf4fd3a2a1a28a4e705f344e6f76b",
+      "context": "the microscope field of view's image, or its ``_seg.npy`` bundle.",
+      "translation": "synfältets bild, eller dess ``_seg.npy``-paket.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#4",
+      "source": "where the masks are, when not in ``<folder>/masks``.",
+      "source_sha256": "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
+      "context": "where the masks are, when not in ``<folder>/masks``.",
+      "translation": "var maskerna finns, när de inte finns i ``<folder>/masks``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#5",
+      "source": "the mask's path; for a bundle, the bundle itself, which is where its labels are written back.",
+      "source_sha256": "67270ea32d82556f322142b19bcc2587f5d0809a49324a9ff316c10d426d1942",
+      "context": "the mask's path; for a bundle, the bundle itself, which is where its labels are written back.",
+      "translation": "maskens sökväg; för ett paket, själva paketet, vilket är dit dess etiketter skrivs tillbaka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.masks_folder#0",
+      "source": "Where the masks of the images in ``folder`` are kept.",
+      "source_sha256": "ac1a71d3b559389c6eeecc0bc7ff257ce9c3172ee2aa6ee2df43bf7964a369f8",
+      "context": "Where the masks of the images in ``folder`` are kept.",
+      "translation": "Var maskerna för bilderna i ``folder`` förvaras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.widgets.timelapse_preview.render_frame#10",
       "source": "channel of ``image`` to draw.",
       "source_sha256": "d8213535675744824be34ee8a42b055f744a913d0c81715c96998f900a5ce4d9",
