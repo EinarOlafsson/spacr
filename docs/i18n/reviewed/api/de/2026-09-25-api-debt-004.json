@@ -3963,6 +3963,846 @@
       "context": "Canonical English prose is retained in ``apiTooltipDescriptionSource``; only the presentation HTML/plain accessibility chrome is regenerated. A label showing why its setting is greyed keeps that reason after the regenerated help (``_LABEL_NOTE_PROPERTY``); before, the language pass dropped it, so a greyed row's name never said why. Field widgets marked ``metadata`` stay quiet because their visible label owns hover help. API-dot destinations carry the selected documentation language while retaining the same module page.",
       "translation": "Der kanonische englische Fließtext wird in ``apiTooltipDescriptionSource`` beibehalten; nur die HTML-/Klartext-Darstellung für die Barrierefreiheit wird neu erzeugt. Ein Label, das zeigt, warum seine Einstellung ausgegraut ist, behält diesen Grund nach der neu erzeugten Hilfe (``_LABEL_NOTE_PROPERTY``); zuvor verwarf der Sprachdurchlauf ihn, sodass der Name einer ausgegrauten Zeile nie sagte, warum. Feld-Widgets, die mit ``metadata`` markiert sind, bleiben still, weil ihr sichtbares Label die Hover-Hilfe übernimmt. API-Punkt-Ziele tragen die gewählte Dokumentationssprache und behalten dieselbe Modulseite bei.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.refresh_api_tooltips#2",
+      "source": "widget whose own and descendant setting widgets (those with ``settingsAppKey`` and ``settingKey`` properties) are refreshed; ``None`` does nothing.",
+      "source_sha256": "35b124e48c495946ecdb79693d066dbd2b5603657225f6dc3124914653e11749",
+      "context": "widget whose own and descendant setting widgets (those with ``settingsAppKey`` and ``settingKey`` properties) are refreshed; ``None`` does nothing.",
+      "translation": "Widget, dessen eigene und untergeordnete Einstellungs-Widgets (jene mit den Eigenschaften ``settingsAppKey`` und ``settingKey``) aktualisiert werden; ``None`` bewirkt nichts.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#4",
+      "source": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
+      "source_sha256": "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+      "context": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
+      "translation": "Regressionseinstellungen; die CSVs mit den sgRNA-Zählungen werden aus den ``count``-Einträgen von ``paired_data`` genommen oder, wenn es keine gibt, aus dem alten ``count_data``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.resolve_default_settings#1",
+      "source": "application key; a registered plugin's defaults are used first, then the registered or built-in defaults for that key, and an unknown key gets a minimal ``{'src': ...}`` dict.",
+      "source_sha256": "d65fdf31e839f53f35b32b7b7d6861260a15bb5d4ea8214a59c4d62627e09a2d",
+      "context": "application structured-data name; a registered plugin's defaults are used first, then the registered or built-in defaults for that structured-data name, and an unknown structured-data name gets a minimal ``{'src': ...}`` key-value mapping.",
+      "translation": "Anwendungsschlüssel; zuerst werden die Standardwerte eines registrierten Plugins verwendet, dann die registrierten oder eingebauten Standardwerte für diesen Schlüssel, und ein unbekannter Schlüssel erhält ein minimales ``{'src': ...}``-Wörterbuch.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.section_tooltip_is_curated#2",
+      "source": "tree heading: an object with ``title`` and ``path`` attributes, a tuple whose first item is the title, or anything converted to a title with ``str()``.",
+      "source_sha256": "e8b7e53513cf777bcfc4b8c3ea40388c49838ba7b126bb7c6fa0eb915874e1a1",
+      "context": "tree heading: an object with ``title`` and ``path`` attributes, a tuple whose first item is the title, or anything converted to a title with ``str()``.",
+      "translation": "Baumüberschrift: ein Objekt mit den Attributen ``title`` und ``path``, ein Tupel, dessen erstes Element der Titel ist, oder etwas beliebiges, das mit ``str()`` in einen Titel umgewandelt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.TabulateScreen#5",
+      "source": "Item 471: the pivot, the graph and the filter are sections of :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` panes -- each folds by its heading and each shared edge drags.",
+      "source_sha256": "e6eb3db85c0f1da124d205e48574c7972d13bf01cd26ba9b3890acb8c5b50468",
+      "context": "Item 471: the pivot, the graph and the filter are sections of :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` panes -- each folds by its heading and each shared edge drags.",
+      "translation": "Eintrag 471: Die Pivot-Tabelle, der Graph und der Filter sind Abschnitte von Bereichen eines :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- jeder klappt über seine Überschrift ein, und jede gemeinsame Kante lässt sich ziehen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.TabulateScreen.load_path#3",
+      "source": "a ``.csv``, ``.tsv`` or ``.txt`` file, or any other suffix as a SQLite database whose table names fill the table picker. A database that cannot be listed is reported in the source line and nothing is read.",
+      "source_sha256": "1a3ed596103cceb0a19836c3fab1336eaab13c6856f0b256980076271947840c",
+      "context": "a ``.csv``, ``.tsv`` or ``.txt`` file, or any other suffix as a SQLite database whose table names fill the table picker. A database that cannot be listed is reported in the source line and nothing is read.",
+      "translation": "eine ``.csv``-, ``.tsv``- oder ``.txt``-Datei oder, bei jeder anderen Endung, eine SQLite-Datenbank, deren Tabellennamen die Tabellenauswahl füllen. Eine Datenbank, die nicht aufgelistet werden kann, wird in der Quellzeile gemeldet, und es wird nichts gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.TabulateScreen.set_frame#1",
+      "source": "the table to filter and pivot; it replaces the current one.",
+      "source_sha256": "8e77edd55b85bac5616acf17ab0cf91cecfbd309ef5e1f7eb3763963b74b8bfb",
+      "context": "the table to filter and pivot; it replaces the current one.",
+      "translation": "die zu filternde und zu pivotierende Tabelle; sie ersetzt die aktuelle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose#1",
+      "source": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``.",
+      "source_sha256": "ac8bcef40aacf7ca6b8bde21f784089a606672b2f3e8641ab937b94bd8cf41a9",
+      "context": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``.",
+      "translation": "Die Werkbank bettet die Workflows ``train_cellpose`` und ``cellpose_masks`` als Registerkarten Train und Apply ein, jede gestützt auf ihren eigenen :class:`~spacr.qt.screens.app_screen.AppScreen`. Die Registerkarte Train liest ``src`` und ``mask_src`` (Standard ``<src>/masks``) und schreibt Modell-Checkpoints unter ``<src>/models``. Die Registerkarte Apply liest ``<src>/*.tif`` aus ihrem unabhängigen Quellverzeichnis und schreibt Masken nach ``<src>/masks``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.apply_seed#1",
+      "source": "settings name to value, passed unchanged to :meth:`apply_settings_dict`.",
+      "source_sha256": "71e66ee25bab4b6b7091b9ce8f5176495139e2969f19e7d8a7f5a9b35a1991e0",
+      "context": "settings name to value, passed unchanged to :meth:`apply_settings_dict`.",
+      "translation": "Einstellungsname auf Wert, unverändert an :meth:`apply_settings_dict` übergeben.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent#0",
+      "source": "Close both module pages before their owning workbench is destroyed.",
+      "source_sha256": "39978af95b31704b6afa7e2cf74917594ee71025b507895a7571b3c9a223d393",
+      "context": "Close both module pages before their owning workbench is destroyed.",
+      "translation": "Schließt beide Modulseiten, bevor ihre zugehörige Werkbank zerstört wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent#1",
+      "source": "Qt close event; ignored when a page is finishing a write.",
+      "source_sha256": "a872c9477219a4a627e81da1575725204e8313e16eafa2eeaaa43a3173520b64",
+      "context": "Qt close event; ignored when a page is finishing a write.",
+      "translation": "Qt-Schließereignis; ignoriert, wenn eine Seite gerade einen Schreibvorgang abschließt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.screen_for#1",
+      "source": "the app key to find, compared as a string with each tab's ``app_key``.",
+      "source_sha256": "a1ecdb10693044f6e15d4fc89063df1aca492b741f9f81932e9207356f4c696c",
+      "context": "the app key to find, compared as a string with each tab's ``app_key``.",
+      "translation": "der zu suchende App-Schlüssel, als Zeichenkette mit dem ``app_key`` jeder Registerkarte verglichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.trained_checkpoint#1",
+      "source": "Found by looking, not by rebuilding the file name: the training module stamps the architecture and epoch count into what it saves, and a second copy of that formula here would go stale the first time it changed. Everything under the training output folder whose name starts with the model name counts; a finished run's save is preferred over the periodic ones it made on the way, and among equals the most recently written wins.",
+      "source_sha256": "b0fd3dd089ff0975c5fe72e962635661207d1ceed1e9c7c515ed46be58a2a349",
+      "context": "Found by looking, not by rebuilding the file name: the training module stamps the architecture and epoch count into what it saves, and a second copy of that formula here would go stale the first time it changed. Everything under the training output folder whose name starts with the model name counts; a finished processing session's save is preferred over the periodic ones it made on the way, and among equals the most recently written wins.",
+      "translation": "Durch Nachsehen gefunden, nicht durch Nachbilden des Dateinamens: Das Trainingsmodul schreibt die Architektur und die Anzahl der Epochen in das, was es speichert, und eine zweite Kopie dieser Formel hier würde veralten, sobald sie sich zum ersten Mal ändert. Alles im Trainings-Ausgabeordner, dessen Name mit dem Modellnamen beginnt, zählt; die Speicherung eines abgeschlossenen Laufs wird den periodischen vorgezogen, die er unterwegs angelegt hat, und unter gleichwertigen gewinnt die zuletzt geschriebene.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_compare.TrainCompareScreen.identify_series#1",
+      "source": "legend label of a plotted series, looked up in the figure's ``spacr_series_by_label`` mapping.",
+      "source_sha256": "9aba14a9c426ca729e6566c3530ac87140b8e760489a08afd869aef692023f50",
+      "context": "legend label of a plotted series, looked up in the figure's ``spacr_series_by_label`` mapping.",
+      "translation": "Legendenbeschriftung einer gezeichneten Serie, im Mapping ``spacr_series_by_label`` der Abbildung nachgeschlagen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_compare.TrainCompareScreen.select_runs#1",
+      "source": "run ids to tick; every other run is unticked. Ids that match no listed run are reported and make the call return ``False``.",
+      "source_sha256": "2942f956d7be5ffd88652181a587e7e2bf9d0971ae6039c7691769ae0cf383ab",
+      "context": "run ids to tick; every other run is unticked. Ids that match no listed run are reported and make the call return ``False``.",
+      "translation": "anzuhakende Lauf-IDs; jeder andere Lauf wird abgehakt. IDs, die zu keinem aufgelisteten Lauf passen, werden gemeldet und lassen den Aufruf ``False`` zurückgeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.train_compare.TrainCompareScreen.set_metric#1",
+      "source": "metric name; it must be one of :meth:`available_metrics`, otherwise an error is shown and ``False`` returned.",
+      "source_sha256": "d7c2bd5ea3c4b7ce29864bfcea9b03b9b5a7d36f9d6395dc0eecfa681ecde8fe",
+      "context": "metric name; it must be one of :meth:`available_metrics`, otherwise an error is shown and ``False`` returned.",
+      "translation": "Metrikname; er muss einer aus :meth:`available_metrics` sein, andernfalls wird ein Fehler angezeigt und ``False`` zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.trellis.TrellisScreen#5",
+      "source": "Item 471: the panel and the side tabs share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), and the side tabs fold by their heading.",
+      "source_sha256": "2f01d370fd44d96dca57de576c67a3658dedb1280f016214abac3fb54c1a3665",
+      "context": "Item 471: the panel and the side tabs share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), and the side tabs fold by their heading.",
+      "translation": "Eintrag 471: Das Panel und die seitlichen Registerkarten teilen sich eine ziehbare Kante in einem :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), und die seitlichen Registerkarten klappen über ihre Überschrift ein.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.trellis.TrellisScreen.set_frame#1",
+      "source": "the table to plot; it is also handed to the formula panel.",
+      "source_sha256": "6d61e61e45a3f368e29e4cd394a18a7757ef3aba144fdaadaf3661f54d4b4e19",
+      "context": "the table to plot; it is also handed to the formula panel.",
+      "translation": "die darzustellende Tabelle; sie wird auch an das Formelpanel übergeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.trellis.TrellisScreen.set_frame#2",
+      "source": "source caption; empty shows the row and column counts.",
+      "source_sha256": "d72860bf3f1b83e9dcc1d45c485ee346579307af43265c69d2427a15c17d3e7a",
+      "context": "source caption; empty shows the row and column counts.",
+      "translation": "Quellbeschriftung; leer zeigt die Zeilen- und Spaltenanzahl.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.volcano.find_results_table#2",
+      "source": "a results CSV, a regression output folder, or a folder searched recursively for one; ``~`` is expanded.",
+      "source_sha256": "6e5e7b2fdb58dcf189d3da8e4c111ee48117608734a96b44555cfee38577fac5",
+      "context": "a results CSV, a regression output folder, or a folder searched recursively for one; ``~`` is expanded.",
+      "translation": "eine Ergebnis-CSV, ein Regressions-Ausgabeordner oder ein Ordner, der rekursiv nach einem solchen durchsucht wird; ``~`` wird expandiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screensaver.Screensaver.closeEvent#2",
+      "source": "the close event, passed on to the base class after the backdrop is paused.",
+      "source_sha256": "4af3ade59d97c5510ddcbe41e00275c4075e9af16cf79cf3839e54e8fe2d535e",
+      "context": "the close event, passed on to the base class after the backdrop is paused.",
+      "translation": "das Schließereignis, an die Basisklasse weitergereicht, nachdem der Hintergrund pausiert wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screensaver.Screensaver.paintEvent#1",
+      "source": "the paint event; not read, the whole window is filled.",
+      "source_sha256": "93ebf1dcecd5c65d050f543d9908725d190c36aae8f6df9a7a2f1ce28b6abf09",
+      "context": "the paint event; not read, the whole window is filled.",
+      "translation": "das Paint-Ereignis; nicht gelesen, das ganze Fenster wird gefüllt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks#0",
+      "source": "Pair a read-only primary mask with one editable secondary-mask field.",
+      "source_sha256": "9ad5db4a17e7171ea4241b72527948b2a35df0ca7fcdd8ae75ba10bf9442e671",
+      "context": "Pair a read-only primary mask with one editable secondary-mask microscope field of view.",
+      "translation": "Koppelt eine schreibgeschützte Primärmaske mit einem bearbeitbaren Sekundärmaskenfeld.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks#1",
+      "source": "Folder sources match the image's stem. Explicit files are bound to one image so moving through a queue cannot accidentally reuse yesterday's nuclei on a same-sized new field. The immutable snapshot records class names and the source checksum; neither loading nor validation writes a primary mask.",
+      "source_sha256": "a506ba90d2ad07901d1245fd2402cb7a5039c3596466d08b4edf82d28802b824",
+      "context": "Folder sources match the image's stem. Explicit files are bound to one image so moving through a work list cannot accidentally reuse yesterday's nuclei on a same-sized new microscope field of view. The immutable snapshot records class names and the source checksum; neither loading nor validation writes a primary mask.",
+      "translation": "Ordnerquellen passen zum Dateinamenstamm des Bildes. Explizite Dateien werden an ein Bild gebunden, sodass das Durchlaufen einer Warteschlange nicht versehentlich die Zellkerne von gestern auf einem gleich großen neuen Sichtfeld wiederverwenden kann. Der unveränderliche Schnappschuss hält Klassennamen und die Prüfsumme der Quelle fest; weder das Laden noch die Validierung schreibt eine Primärmaske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#0",
+      "source": "A validated primary mask and the field and object classes it belongs to.",
+      "source_sha256": "8dddc592375886a56c868e915a71225aace1b864a5ee8c6b6b82d0b47d7955da",
+      "context": "A validated primary mask and the microscope field of view and object classes it belongs to.",
+      "translation": "Eine validierte Primärmaske und das Sichtfeld und die Objektklassen, zu denen sie gehört.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#1",
+      "source": "resolved source-mask path.",
+      "source_sha256": "582017a07f05da52061659ef478b1eb68dde6673993bdc9c0f75c6e4e81ce69c",
+      "context": "resolved source-mask path.",
+      "translation": "aufgelöster Pfad der Quellmaske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#2",
+      "source": "resolved image path identifying this field.",
+      "source_sha256": "1f45b085dd204ba8e7821114aef25297438f42ee56868d78f7d36fb5f8f0cfe2",
+      "context": "resolved image path identifying this microscope field of view.",
+      "translation": "aufgelöster Bildpfad, der dieses Sichtfeld identifiziert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#3",
+      "source": "primary object class, for example ``nucleus``.",
+      "source_sha256": "eac44c506be7687fc66eb632fad327ee21992b96bb98e0765c9b12248ec98649",
+      "context": "primary object class, for example ``nucleus``.",
+      "translation": "primäre Objektklasse, zum Beispiel ``nucleus``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#4",
+      "source": "distinct output object class, for example ``cell``.",
+      "source_sha256": "8ce7d6eca232caacef3173948d05adca298ca2218cbb8477c94cc25f83a10dc4",
+      "context": "distinct output object class, for example ``cell``.",
+      "translation": "davon verschiedene Ausgabe-Objektklasse, zum Beispiel ``cell``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#5",
+      "source": "checksum of the source file actually read.",
+      "source_sha256": "7bf4c9d63a975eede710f5542f0f5adf6420754f94491ca9a410ab873af7681b",
+      "context": "checksum of the source file actually read.",
+      "translation": "Prüfsumme der tatsächlich gelesenen Quelldatei.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#6",
+      "source": "owned, read-only uint16 primary labels matching the image.",
+      "source_sha256": "9fc02241f56ebf9550a815e313b2dc20af21cfb6c4193976e28c561f2fcc91df",
+      "context": "owned, read-only uint16 primary labels matching the image.",
+      "translation": "eigene, schreibgeschützte uint16-Primärlabels, die zum Bild passen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#0",
+      "source": "Copy primary labels inside a rectangle for a worker request.",
+      "source_sha256": "0bdfd8f1669372a2147b7f0c0da1bb7dafb66118f4203303b1fde9a611e23bbf",
+      "context": "Copy primary labels inside a rectangle for a worker request.",
+      "translation": "Kopiert die Primärlabels innerhalb eines Rechtecks für eine Worker-Anfrage.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#1",
+      "source": "``(x0,y0,x1,y1)`` pixel bounds, with exclusive upper bounds.",
+      "source_sha256": "f08b6880604b5334d248ca18a8f1ea8bb993ac20fc03735be5d6c1c44da784fb",
+      "context": "``(x0,y0,x1,y1)`` pixel bounds, with exclusive upper bounds.",
+      "translation": "``(x0,y0,x1,y1)``-Pixelgrenzen, mit exklusiven oberen Grenzen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#2",
+      "source": "independent label array preserving the source object IDs.",
+      "source_sha256": "d77ea86ac68313a9dcd9e5d8089d257bd2fe5517d7a11a564593aab01db55405",
+      "context": "independent label array preserving the source object IDs.",
+      "translation": "unabhängiges Label-Array, das die Objekt-IDs der Quelle beibehält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#3",
+      "source": "the rectangle is empty or extends outside the image.",
+      "source_sha256": "9d7d83b37d547827a1079cce3ddbb4c127c68526c2c3b95b571629a160e3a338",
+      "context": "the rectangle is empty or extends outside the image.",
+      "translation": "das Rechteck ist leer oder reicht über das Bild hinaus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.identity#0",
+      "source": "Hashable field/source/class token for asynchronous request keys.",
+      "source_sha256": "9fcffdd55fa67ca842c84e956c598437f238db275b1ccf4b36c6094788143255",
+      "context": "Hashable field/source/class token for asynchronous request structured-data names.",
+      "translation": "Hashbares Token aus Sichtfeld, Quelle und Klasse für die Schlüssel asynchroner Anfragen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.provenance#0",
+      "source": "Return JSON-safe source identity for the mask's curation ledger.",
+      "source_sha256": "3db33f6c2c3dc24af266213322b4c6b4037713d73314ef47f6caaa9af281c753",
+      "context": "Return JSON-safe source identity for the mask's curation ledger.",
+      "translation": "Gibt eine JSON-sichere Quellidentität für den Kurations-Ledger der Maske zurück.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination#0",
+      "source": "Refuse any output that would overwrite the primary, including aliases.",
+      "source_sha256": "de33f453e5429defd3781bd68e731a6fe5a856e3bb6398b4949f6733d6f62542",
+      "context": "Refuse any output that would overwrite the primary, including aliases.",
+      "translation": "Verweigert jede Ausgabe, die die Primärmaske überschreiben würde, einschließlich Aliasen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination#1",
+      "source": "proposed secondary-mask destination, as a string or path.",
+      "source_sha256": "9525845618e8016e4e95687d93eda0b093f596a2ee8fd08759b33957def8a548",
+      "context": "proposed secondary-mask destination, as a string or path.",
+      "translation": "vorgeschlagenes Ziel der Sekundärmaske, als Zeichenkette oder Pfad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination#2",
+      "source": "the destination is the primary file, a symbolic link to it or an existing hard link to it.",
+      "source_sha256": "f315809757f3a47542d4ad4f047a7e208ad76b9ec100b56a2f35307843a76750",
+      "context": "the destination is the primary file, a symbolic link to it or an existing hard link to it.",
+      "translation": "das Ziel ist die Primärdatei, ein symbolischer Link darauf oder ein bestehender harter Link darauf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#0",
+      "source": "Load a field's primary labels without modifying either mask file.",
+      "source_sha256": "386f1b94dbe36dce1a42e4c721aabaa5e8b0319320929f289a19857b2b958bca",
+      "context": "Load a microscope field of view's primary labels without modifying either mask file.",
+      "translation": "Lädt die Primärlabels eines Sichtfelds, ohne eine der beiden Maskendateien zu verändern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#1",
+      "source": "one TIFF/PNG/NPY/Cellpose bundle or a folder containing a matching ``<image stem>`` mask. Multiple matching files are refused.",
+      "source_sha256": "5e3769be7f753877e597081531682a4ed71a6798714187165b26aac5979577df",
+      "context": "one TIFF/PNG/NPY/Cellpose bundle or a folder containing a matching ``<image stem>`` mask. Multiple matching files are refused.",
+      "translation": "ein TIFF/PNG/NPY/Cellpose-Bündel oder ein Ordner mit einer passenden ``<image stem>``-Maske. Mehrere passende Dateien werden abgelehnt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#10",
+      "source": "an input cannot be read.",
+      "source_sha256": "98a1a3094d4543a44cc1d6f685b59fe2ba5fa4f3a69739e5e575dec73d821239",
+      "context": "an input cannot be read.",
+      "translation": "eine Eingabe kann nicht gelesen werden.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#2",
+      "source": "image currently being edited; field identity is its path.",
+      "source_sha256": "0319e3749b4ce4932b3579d4f99816940ee277fa9b061353f5c8d5f7c6725cf9",
+      "context": "image currently being edited; microscope field of view identity is its path.",
+      "translation": "das gerade bearbeitete Bild; die Identität des Sichtfelds ist sein Pfad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#3",
+      "source": "expected ``(height,width)`` of the primary mask.",
+      "source_sha256": "4ffdb352a47fbbe989e5f7911ec136d0f3159c7380d29170a0636d51fb0ad6e4",
+      "context": "expected ``(height,width)`` of the primary mask.",
+      "translation": "erwartete ``(height,width)`` der Primärmaske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#4",
+      "source": "destination of the editable secondary mask. Must not alias the primary through a path, symbolic link or hard link.",
+      "source_sha256": "80b4ffa2f2da47585dbb11d971016275502ddd83a5278514c7aeccb943333ae9",
+      "context": "destination of the editable secondary mask. Must not alias the primary through a path, symbolic link or hard link.",
+      "translation": "Ziel der bearbeitbaren Sekundärmaske. Darf nicht über einen Pfad, symbolischen Link oder harten Link ein Alias der Primärmaske sein.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#5",
+      "source": "nonempty name of the source object class.",
+      "source_sha256": "6acb9a3eae352088cc833aae3cf31c72247294a94cb2dcc29735eaa42e45ae4e",
+      "context": "nonempty name of the source object class.",
+      "translation": "nicht leerer Name der Quell-Objektklasse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#6",
+      "source": "distinct nonempty name of the output class.",
+      "source_sha256": "441404d01f611d5646eb8039c0e08981680040c8f3696e932b8fef176e261b2c",
+      "context": "distinct nonempty name of the output class.",
+      "translation": "davon verschiedener, nicht leerer Name der Ausgabeklasse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#7",
+      "source": "field for which an explicit file was chosen. Required for file sources; ignored for folders that resolve each field by name.",
+      "source_sha256": "6eee3686a40a5e932af86ece0dc6fe5c1a3775941e3dd6b32791c3f165f30814",
+      "context": "field for which an explicit file was chosen. Required for file sources; ignored for folders that resolve each field by name.",
+      "translation": "Sichtfeld, für das eine explizite Datei gewählt wurde. Erforderlich für Dateiquellen; ignoriert für Ordner, die jedes Sichtfeld über den Namen auflösen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#8",
+      "source": "immutable :class:`PrimaryMaskSource` with read-only uint16 labels.",
+      "source_sha256": "29eacc981c2ca3efd10f91822e624ced1bcd9925b1526c9afedaa55281e962e1",
+      "context": "immutable :class:`PrimaryMaskSource` with read-only uint16 labels.",
+      "translation": "unveränderliche :class:`PrimaryMaskSource` mit schreibgeschützten uint16-Labels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#9",
+      "source": "ambiguous/missing pairing, incompatible classes, shape, labels, field binding, output alias or a source changed during reading.",
+      "source_sha256": "425728857598b6d661f63167bad04770729e28d841dce31f9441edfadf13fb5f",
+      "context": "ambiguous/missing pairing, incompatible classes, shape, labels, field binding, output alias or a source changed during reading.",
+      "translation": "mehrdeutige/fehlende Zuordnung, inkompatible Klassen, Form, Labels, Sichtfeldbindung, Ausgabe-Alias oder eine Quelle, die sich während des Lesens geändert hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_diff.DiffRow#1",
+      "source": "the settings key.",
+      "source_sha256": "24b81051d00918cfe9d4e4cce66abe9c8ef8258fce7a12b9ddb155f693967368",
+      "context": "the setting name.",
+      "translation": "der Einstellungsschlüssel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_diff.DiffRow#2",
+      "source": "its value in run A, or None when the key is absent there.",
+      "source_sha256": "77e4267496f82001cb4ddb78a7357b8e093ee0c5c304b193caae76e085c8222b",
+      "context": "its value in run A, or None when the structured-data name is absent there.",
+      "translation": "sein Wert in Lauf A oder None, wenn der Schlüssel dort fehlt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.settings_diff.DiffRow#3",
+      "source": "its value in run B, or None when the key is absent there.",
+      "source_sha256": "40235809b6d9152627fff37493e916eed09dc83a1067b3b255dd0874d82dc391",
+      "context": "its value in run B, or None when the structured-data name is absent there.",
+      "translation": "sein Wert in Lauf B oder None, wenn der Schlüssel dort fehlt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.settings_diff.DiffRow#4",
+      "source": "``\"added\"``, ``\"removed\"``, ``\"changed\"`` or ``\"same\"``, as defined in the module description.",
+      "source_sha256": "55e28d3253c1b34d662d582a8024dfc6eee58301d4e23b8b9eaa23d6546a4863",
+      "context": "``\"added\"``, ``\"removed\"``, ``\"changed\"`` or ``\"same\"``, as defined in the module description.",
+      "translation": "``\"added\"``, ``\"removed\"``, ``\"changed\"`` oder ``\"same\"``, wie in der Modulbeschreibung definiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_diff.SettingsDiff.category#1",
+      "source": "category heading to look up, compared exactly with :attr:`CategoryDiff.category`.",
+      "source_sha256": "b6100c599556a13c924611171d224382ac013aa48024aa72618fef56a86f0dfc",
+      "context": "category heading to look up, compared exactly with :attr:`CategoryDiff.category`.",
+      "translation": "nachzuschlagende Kategorieüberschrift, exakt mit :attr:`CategoryDiff.category` verglichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_pack#9",
+      "source": "WHY IT ONCE READ NOTHING AT ALL. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
+      "source_sha256": "c0e1314bfb7b71ce15b026328020d1b228e2d98f300b7a05268605042a2de2d9",
+      "context": "Why it once read nothing at all. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
+      "translation": "WARUM ES EINST ÜBERHAUPT NICHTS LAS. Dieses Modul wurde als sicherer Nachfolger eines Lesers geschrieben, der blind zusammenführte, und konnte ihn dann nicht ersetzen, weil drei Dinge, die es nicht tat, drei Dinge sind, die das veröffentlichte Paket braucht:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_pack.read_pack#2",
+      "source": "app key whose pack file is looked for, first as ``<app_key>_settings.csv`` and then under the published names in ``PACK_FILES``.",
+      "source_sha256": "19f4a4e1d56e181f36cd1b8fcce3bf84aa723cd6c337c411632be990bc77079f",
+      "context": "app key whose pack file is looked for, first as ``<app_key>_settings.csv`` and then under the published names in ``PACK_FILES``.",
+      "translation": "App-Schlüssel, dessen Paketdatei gesucht wird, zuerst als ``<app_key>_settings.csv`` und dann unter den veröffentlichten Namen in ``PACK_FILES``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_pack.read_pack#3",
+      "source": "folder holding the unpacked settings pack.",
+      "source_sha256": "d85b74f3a742bbc0ef7909a3194e526bccd8f938617e843a817b570779f0065f",
+      "context": "folder holding the unpacked settings pack.",
+      "translation": "Ordner mit dem entpackten Einstellungspaket.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.apply#1",
+      "source": "Called on every change to the query, the Modified filter or the disclosure level — one path, so the three can never disagree about what should be on screen. The screen also calls it after each pass of the object rule, so a channel the user commits is judged by the same filter as every other row.",
+      "source_sha256": "9bc96a2c5cb5f58b6e54d75de6f9a331760e401559063ad824cef7aedc5d5a08",
+      "context": "Called on every change to the query, the Modified filter or the disclosure level — one path, so the three can never disagree about what should be on application view. The application view also calls it after each pass of the object rule, so a channel the user commits is judged by the same filter as every other row.",
+      "translation": "Wird bei jeder Änderung der Abfrage, des Modified-Filters oder der Detailstufe aufgerufen — ein einziger Weg, sodass die drei sich nie darüber uneinig sein können, was in der Ansicht stehen soll. Die Ansicht ruft es auch nach jedem Durchlauf der Objektregel auf, sodass ein Kanal, den der Benutzer festlegt, nach demselben Filter beurteilt wird wie jede andere Zeile.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.apply#2",
+      "source": "The per-object table has no form rows of its own to count. Its section is counted by the settings it answers for instead, so under Essentials the table stays on screen while it holds the channels, which the flat form no longer shows while the table is on.",
+      "source_sha256": "0f9fa9aedd8062770858b34dfbc6490814b591d0216c1d37bf62959c73006ee1",
+      "context": "The per-object table has no form rows of its own to count. Its section is counted by the settings it answers for instead, so under Essentials the table stays on application view while it holds the channels, which the flat form no longer shows while the table is on.",
+      "translation": "Die Tabelle pro Objekt hat keine eigenen Formularzeilen, die gezählt werden könnten. Ihr Abschnitt wird stattdessen über die Einstellungen gezählt, für die sie zuständig ist, sodass die Tabelle unter Essentials in der Ansicht bleibt, solange sie die Kanäle enthält, die das flache Formular nicht mehr anzeigt, solange die Tabelle aktiv ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.apply#3",
+      "source": "A heading that holds only sub-headings has no rows of its own either, so its matches are rolled up out of the headings below it before any section is hidden — see :meth:`_counting_the_sub_headings`.",
+      "source_sha256": "678ae01683dc4af7e1cd7caba91582a59b22d631ffd5422927dd9090577d8cbf",
+      "context": "A heading that holds only sub-headings has no rows of its own either, so its matches are rolled up out of the headings below it before any section is hidden — see :meth:`_counting_the_sub_headings`.",
+      "translation": "Eine Überschrift, die nur Unterüberschriften enthält, hat ebenfalls keine eigenen Zeilen, daher werden ihre Treffer aus den Überschriften darunter zusammengefasst, bevor ein Abschnitt ausgeblendet wird — siehe :meth:`_counting_the_sub_headings`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.apply#4",
+      "source": "while the filter narrows, open every section it keeps. The screen passes ``False`` when it re-applies the filter after the object rule or after laying out rows: a section the user shut then stays shut, and only a section this call brings back onto the form is opened.",
+      "source_sha256": "b42bf90e2b1c795e0efe9d94bdbc0c02163be5bcebdd1e1e7360750e242aaa6b",
+      "context": "while the filter narrows, open every section it keeps. The application view passes ``False`` when it re-applies the filter after the object rule or after laying out rows: a section the user shut then stays shut, and only a section this call brings back onto the form is opened.",
+      "translation": "solange der Filter einengt, jeden Abschnitt öffnen, den er behält. Die Ansicht übergibt ``False``, wenn sie den Filter nach der Objektregel oder nach dem Anordnen der Zeilen erneut anwendet: Ein Abschnitt, den der Benutzer geschlossen hat, bleibt dann geschlossen, und nur ein Abschnitt, den dieser Aufruf zurück ins Formular bringt, wird geöffnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.keys_it_hides#0",
+      "source": "The indexed settings :meth:`apply` would hide right now.",
+      "source_sha256": "75d704bfd311f596a58a2d3cb3cc8a2daa34c1e7a5dd9af486af0d90604ea0f2",
+      "context": "The indexed settings :meth:`apply` would hide right now.",
+      "translation": "Die indizierten Einstellungen, die :meth:`apply` gerade jetzt ausblenden würde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.keys_it_hides#1",
+      "source": "What the object rule asks before it sets rows (``SettingsWidgets.rows_the_screen_hides``), so a row this strip is about to hide is not shown by the rule first.",
+      "source_sha256": "2e0e65c17fe1bed8d96ae162d880add9dfb6d9c78602a162a4677d6413354d4b",
+      "context": "What the object rule asks before it sets rows (``SettingsWidgets.rows_the_screen_hides``), so a row this strip is about to hide is not shown by the rule first.",
+      "translation": "Was die Objektregel abfragt, bevor sie Zeilen setzt (``SettingsWidgets.rows_the_screen_hides``), sodass eine Zeile, die dieser Streifen gleich ausblenden wird, nicht zuerst von der Regel angezeigt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#0",
+      "source": "Show one setting with every other category shut.",
+      "source_sha256": "d979e1e8ed606942a3ddc9512a9a48a77979a3246ed73e75983e308d8c64d80a",
+      "context": "Show one setting with every other category shut.",
+      "translation": "Zeigt eine Einstellung, während jede andere Kategorie geschlossen ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#1",
+      "source": "WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the search filter. Typing the key into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
+      "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
+      "context": "What a help-search result needs, and it is deliberately NOT the search filter. Typing the structured-data name into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
+      "translation": "WAS EIN ERGEBNIS DER HILFESUCHE BRAUCHT, und es ist bewusst NICHT der Suchfilter. Den Schlüssel in das Feld darüber einzutippen würde auch jede andere Einstellung ausblenden, sodass ein Benutzer, der aus der Hilfesuche kam und sich dann die benachbarten Zeilen ansehen wollte, erst herausfinden müsste, was mit dem Formular passiert ist. Das Aufdecken lässt das Modul dagegen vollständig und entscheidet nur, welche Überschrift geöffnet ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#2",
+      "source": "Nothing is rebuilt and no value is read or written: the row was already on the form, and this shows its section and scrolls to it -- or, for a category not built yet (indexed with no field), the screen builds it first, as opening it would. That is what makes arriving here from a search safe for a half-typed value -- the same property the filter has, for the same reason.",
+      "source_sha256": "2fbfa317c12cf8ab1293186638ade7285e8d9c9d4bf59f9f811ea2c1ebfeb13b",
+      "context": "Nothing is rebuilt and no value is read or written: the row was already on the form, and this shows its section and scrolls to it -- or, for a category not built yet (indexed with no field), the screen builds it first, as opening it would. That is what makes arriving here from a search safe for a half-typed value -- the same property the filter has, for the same reason.",
+      "translation": "Es wird nichts neu aufgebaut, und kein Wert wird gelesen oder geschrieben: Die Zeile war bereits im Formular, und dies zeigt ihren Abschnitt und scrollt zu ihr -- oder, bei einer noch nicht aufgebauten Kategorie (indiziert ohne Feld), baut die Ansicht sie zuerst auf, wie es das Öffnen täte. Genau das macht das Ankommen hier aus einer Suche sicher für einen halb eingetippten Wert -- dieselbe Eigenschaft, die der Filter hat, aus demselben Grund.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#3",
+      "source": "THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE IS NEVER REMEMBERED. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
+      "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
+      "context": "The disclosure level is changed only if it has to be, and the change is never remembered. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
+      "translation": "DIE DETAILSTUFE WIRD NUR GEÄNDERT, WENN ES SEIN MUSS, UND DIE ÄNDERUNG WIRD NIE GESPEICHERT. Ein bedingungsloser Wechsel zu All settings würde funktionieren, würde aber auch die gespeicherte Essentials/All-Wahl dieses Moduls jedes Mal überschreiben, wenn jemand hierher kommt -- eine Einstellung, die der Benutzer gewählt hat, geändert als Nebenwirkung des Nachschlagens. Daher wird zuerst der Filter geleert, und die Stufe wird nur erhöht, wenn die Zeile danach immer noch nicht im Formular steht, was genau der Fall ist, in dem Essentials sie verbirgt; und die Erhöhung läuft über :meth:`_show_all_without_remembering`, sodass das Formular die Zeile zeigt, während der Speicher weiterhin die vom Benutzer gewählte Stufe enthält. Die meisten Einstellungen sind keine Essentials, daher würde ein Nachschlagen, das die Erhöhung speichert, fast jedes Modul dauerhaft aus Essentials herausnehmen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#5",
+      "source": "True when the module renders ``key`` and it was revealed.",
+      "source_sha256": "fc70079c9307a138112458e5b5beead4807f7ebbf6b3c8d70ef9956794d6683a",
+      "context": "True when the module renders ``key`` and it was revealed.",
+      "translation": "True, wenn das Modul ``key`` darstellt und es aufgedeckt wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.section_of#0",
+      "source": "The section widget holding ``key``'s row, or ``None``.",
+      "source_sha256": "1423867b1eed6c89ded1f0eb99622d5193227ad9af0a292d5e8e349add8cf40b",
+      "context": "The section widget holding ``key``'s row, or ``None``.",
+      "translation": "Das Abschnitts-Widget, das die Zeile von ``key`` enthält, oder ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.section_of#2",
+      "source": "the collapsible section, or ``None`` when this module does not render that setting.",
+      "source_sha256": "2fbbf5e1a98c9c40f40c8ea750aab87e7b2654649ced1c0504762c596c80652f",
+      "context": "the collapsible section, or ``None`` when this module does not render that setting.",
+      "translation": "der einklappbare Abschnitt oder ``None``, wenn dieses Modul diese Einstellung nicht darstellt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.set_level#1",
+      "source": "disclosure level: ``'all'`` shows every setting; any other value selects ``'essentials'``.",
+      "source_sha256": "12ec5c9e7642f7422d8a4f19fd09eed0353e88fe952a7f5b2ad46c263795d558",
+      "context": "disclosure level: ``'all'`` shows every setting; any other value selects ``'essentials'``.",
+      "translation": "Detailstufe: ``'all'`` zeigt jede Einstellung; jeder andere Wert wählt ``'essentials'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.set_modified_only#1",
+      "source": "``True`` to show only settings changed from their defaults; coerced with ``bool()``.",
+      "source_sha256": "51758c3b5afb0c4a778b3857872dedb37264b7c70ec06a8d45fbfc535d5225ad",
+      "context": "``True`` to show only settings changed from their defaults; coerced with ``bool()``.",
+      "translation": "``True``, um nur Einstellungen anzuzeigen, die von ihren Standardwerten abweichen; mit ``bool()`` umgewandelt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.set_query#1",
+      "source": "search text for the box; ``None`` or empty clears it.",
+      "source_sha256": "bd850d5f63944d4ccbb5f9b5e06ce2af374b2c400baf07fa56acb41c6e935047",
+      "context": "search text for the box; ``None`` or empty clears it.",
+      "translation": "Suchtext für das Feld; ``None`` oder leer löscht es.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.install_window_hooks#2",
+      "source": "the main window; nothing is installed unless it has a ``_stack`` screen stack, and a watcher already on it is returned.",
+      "source_sha256": "2943af82a68ded5de5a4e480f0231f083b9450017686389e6ad6eae047a0a78a",
+      "context": "the main window; nothing is installed unless it has a ``_stack`` screen stack, and a watcher already on it is returned.",
+      "translation": "das Hauptfenster; es wird nichts installiert, außer es hat einen ``_stack``-Ansichtsstapel, und ein bereits darauf installierter Beobachter wird zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.remember_disclosure#1",
+      "source": "application key the level is stored under.",
+      "source_sha256": "94fea61e33ea7916607a546acc834a5932e4fa70cbae09c0c82986378d4bc5e2",
+      "context": "application key the level is stored under.",
+      "translation": "Anwendungsschlüssel, unter dem die Stufe gespeichert wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.settings_search.remember_disclosure#2",
+      "source": "disclosure level; ``'all'`` is stored as is and any other value as ``'essentials'``.",
+      "source_sha256": "6b2c0b7ac9b543f1e53fbb8fbb076317beaae13901e5b22309e8042450f9016a",
+      "context": "disclosure level; ``'all'`` is stored as is and any other value as ``'essentials'``.",
+      "translation": "Detailstufe; ``'all'`` wird unverändert gespeichert und jeder andere Wert als ``'essentials'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.setup_screen.apply#2",
+      "source": "``{question key: value}`` from the setup screen, keyed as in :func:`questions` (e.g. ``\"language\"``, ``\"theme\"``); keys that are not questions are ignored, and each value is passed to its question's setter.",
+      "source_sha256": "09e59654c7327da023f360a8690889b3cf3860be5e62773536c88384a656fb7b",
+      "context": "``{question key: value}`` from the setup screen, keyed as in :func:`questions` (e.g. ``\"language\"``, ``\"theme\"``); structured-data names that are not questions are ignored, and each value is passed to its question's setter.",
+      "translation": "``{question key: value}`` aus der Einrichtungsansicht, mit Schlüsseln wie in :func:`questions` (z. B. ``\"language\"``, ``\"theme\"``); Schlüssel, die keine Fragen sind, werden ignoriert, und jeder Wert wird an den Setter seiner Frage übergeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.setup_screen.mark_answered#1",
+      "source": "the spaCR version whose setup was seen, normally :func:`current_version`; stored as ``str``.",
+      "source_sha256": "e2e12c1cdea4fa22d617892e9b08a1ca82f5fda47421d9d3ca04b2ad950056b2",
+      "context": "the spaCR version whose setup was seen, normally :func:`current_version`; stored as ``str``.",
+      "translation": "die spaCR-Version, deren Einrichtung gesehen wurde, normalerweise :func:`current_version`; als ``str`` gespeichert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.setup_screen.take_the_setup_flags#2",
+      "source": "the command-line words after the program name, or ``None``; a word in :data:`SKIP_FLAGS` (compared stripped and lower-cased) is removed and counts as asking to skip.",
+      "source_sha256": "758507f8d8cc633c914c87d7d7d7135cbd87dabc5473f2828d5613ab937e733c",
+      "context": "the command-line words after the program name, or ``None``; a word in :data:`SKIP_FLAGS` (compared stripped and lower-cased) is removed and counts as asking to skip.",
+      "translation": "die Befehlszeilenwörter nach dem Programmnamen oder ``None``; ein Wort in :data:`SKIP_FLAGS` (bereinigt und in Kleinbuchstaben verglichen) wird entfernt und gilt als Wunsch zum Überspringen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.eventFilter#1",
+      "source": "the watched object: the covered window or the card's scroll viewport.",
+      "source_sha256": "fd1501d7acf500a640cc4872018e945f1b65e557fa250995f96c0447ffed45df",
+      "context": "the watched object: the covered window or the card's scroll viewport.",
+      "translation": "das beobachtete Objekt: das überdeckte Fenster oder der Scroll-Viewport der Karte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.eventFilter#2",
+      "source": "the event delivered to it. A resize of the window resizes the overlay to match; a mouse press on the scroll viewport dismisses the overlay and is consumed.",
+      "source_sha256": "a3a7640616bb467931ff4abf12160680ed3632cd87d784e87016f0bbe0466241",
+      "context": "the event delivered to it. A resize of the window resizes the overlay to match; a mouse press on the scroll viewport dismisses the overlay and is consumed.",
+      "translation": "das ihm zugestellte Ereignis. Eine Größenänderung des Fensters passt die Größe des Overlays entsprechend an; ein Mausdrücken auf den Scroll-Viewport schließt das Overlay und wird verbraucht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent#1",
+      "source": "the key event; which key was pressed is not read.",
+      "source_sha256": "029ff431c7e3d16d7434bc072282808870acd8e573c4002c92555da75a6663ee",
+      "context": "the key event; which key was pressed is not read.",
+      "translation": "das Tastenereignis; welche Taste gedrückt wurde, wird nicht gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent#1",
+      "source": "the mouse press event; its button and position are not read.",
+      "source_sha256": "61a5b73353a3cad05ca2b93892197a897c6284448a4ad0645c49bc7f43124f65",
+      "context": "the mouse press event; its button and position are not read.",
+      "translation": "das Mausdrück-Ereignis; seine Taste und Position werden nicht gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.paintEvent#0",
+      "source": "Leave the main window visible around the translucent shortcut card.",
+      "source_sha256": "8f839dd8a25652b644862ee52d3d06b2bbfa4d00aa010029a5eba0f20751f6f9",
+      "context": "Leave the main window visible around the translucent shortcut card.",
+      "translation": "Lässt das Hauptfenster um die durchscheinende Tastenkürzel-Karte herum sichtbar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.paintEvent#1",
+      "source": "the paint event; ignored, so nothing is painted behind the card.",
+      "source_sha256": "196f35d0309fd2a0cf78b1f2835ab7091715103eb20cf13d549f2c70599666fc",
+      "context": "the paint event; ignored, so nothing is painted behind the card.",
+      "translation": "das Paint-Ereignis; ignoriert, sodass hinter der Karte nichts gezeichnet wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.resizeEvent#1",
+      "source": "the resize event; not read, the card is re-centred for the overlay's current size.",
+      "source_sha256": "d9283644fb8b2639a7f2b94e99d5f98121a560618fb7a1694e16695772cd02d9",
+      "context": "the resize event; not read, the card is re-centred for the overlay's current size.",
+      "translation": "das Größenänderungsereignis; nicht gelesen, die Karte wird für die aktuelle Größe des Overlays neu zentriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.discover#3",
+      "source": "the widget whose child :class:`QShortcut` and :class:`QAction` objects are searched; a widget that cannot be searched yields an empty list.",
+      "source_sha256": "d63e4ccef730bbe90834e4bb8144f7794c8361c03fdf39ee48b8c65e503ec759",
+      "context": "the widget whose child :class:`QShortcut` and :class:`QAction` objects are searched; a widget that cannot be searched yields an empty list.",
+      "translation": "das Widget, dessen untergeordnete :class:`QShortcut`- und :class:`QAction`-Objekte durchsucht werden; ein Widget, das nicht durchsucht werden kann, ergibt eine leere Liste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.install#2",
+      "source": "the main window the application shortcuts are bound to.",
+      "source_sha256": "b08af858cd0d8c067c44c081c63981367bc8f3fa8a6a7bebb3a54e6ecffba6ff",
+      "context": "the main window the application shortcuts are bound to.",
+      "translation": "das Hauptfenster, an das die Tastenkürzel der Anwendung gebunden sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.native#2",
+      "source": "a key sequence in Qt's portable spelling, such as ``'Ctrl+H'``. Returned unchanged when Qt cannot convert it.",
+      "source_sha256": "cc3dc1a3454889ce45170fb7ed5bd7f1348b1ba843831ea13f39531613170426",
+      "context": "a key sequence in Qt's portable spelling, such as ``'Ctrl+H'``. Returned unchanged when Qt cannot convert it.",
+      "translation": "eine Tastenfolge in der portablen Schreibweise von Qt, etwa ``'Ctrl+H'``. Unverändert zurückgegeben, wenn Qt sie nicht umwandeln kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shortcuts.show_cheat_sheet#2",
+      "source": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has; anything else gets a modal dialog parented to it.",
+      "source_sha256": "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746",
+      "context": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has; anything else gets a modal dialog parented to it.",
+      "translation": "das zu überdeckende Fenster. Ein :class:`QWidget` mit einer Größe ungleich null erhält das Overlay und ersetzt jedes Overlay, das es bereits hat; alles andere erhält einen modalen Dialog, dessen Elternteil es ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shutdown.ask_how_to_quit#7",
+      "source": ":data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or :data:`CANCEL`.",
+      "source_sha256": "fdc06c0565649f53d3120bb462100832feb467243822f04750779aafbeb3c3c9",
+      "context": ":data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or :data:`CANCEL`.",
+      "translation": ":data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` oder :data:`CANCEL`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.shutdown.describe_active#2",
+      "source": "running job handles; each one's ``app_key`` (or ``'job'``) and ``elapsed()`` seconds, shown in whole minutes, are listed.",
+      "source_sha256": "273b26ef8b50ee3de1aa7d6053e7c9c12db80f2be89d5aa4b8ea606e385e1c2e",
+      "context": "executing job handles; each one's ``app_key`` (or ``'job'``) and ``elapsed()`` seconds, shown in whole minutes, are listed.",
+      "translation": "Handles laufender Jobs; der ``app_key`` (oder ``'job'``) jedes Jobs und seine ``elapsed()``-Sekunden, in ganzen Minuten angezeigt, werden aufgelistet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.shutdown.style_as_danger#2",
+      "source": "the push button to restyle; it is given the object name ``DangerButton`` when it has none.",
+      "source_sha256": "1758fc64cae13751dc967075c8b0465e3b81380cfe90fac4b2c9f04229e7b553",
+      "context": "the push button to restyle; it is given the object name ``DangerButton`` when it has none.",
+      "translation": "die umzugestaltende Schaltfläche; sie erhält den Objektnamen ``DangerButton``, wenn sie keinen hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#0",
+      "source": "Play spaCR's sounds: off by default, rendered off the GUI thread, or silent.",
+      "source_sha256": "084a80aed404afe58809ed74c4bfccc70dd044d8d0830503a9f0627c2a6407fd",
+      "context": "Play spaCR's sounds: off by default, rendered off the main GUI execution path, or silent.",
+      "translation": "Spielt die Klänge von spaCR ab: standardmäßig aus, außerhalb des GUI-Threads erzeugt, oder stumm.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#1",
+      "source": "The sounds themselves are synthesized by :mod:`spacr.qt.sound_synth`; this module decides when one plays and hands it to the operating system through Qt Multimedia's :class:`~PySide6.QtMultimedia.QSoundEffect`.",
+      "source_sha256": "45617cb93c3f610889a38e1cfab6cbea477305c4a9642e83d7fa29d6c0338809",
+      "context": "The sounds themselves are synthesized by :mod:`spacr.qt.sound_synth`; this module decides when one plays and hands it to the operating system through Qt Multimedia's :class:`~PySide6.QtMultimedia.QSoundEffect`.",
+      "translation": "Die Klänge selbst werden von :mod:`spacr.qt.sound_synth` synthetisiert; dieses Modul entscheidet, wann einer abgespielt wird, und übergibt ihn über :class:`~PySide6.QtMultimedia.QSoundEffect` von Qt Multimedia an das Betriebssystem.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#2",
+      "source": "Three rules shape everything here, and each is a measurement rather than a preference:",
+      "source_sha256": "fa2dce1b831d30b6ad07cc6632f62ee34cd91838a94919f69aeadb3000146c27",
+      "context": "Three rules shape everything here, and each is a measurement rather than a preference:",
+      "translation": "Drei Regeln prägen hier alles, und jede ist eine Messung statt einer Vorliebe:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#3",
+      "source": "**Nothing exists while sound is off.** The master switch defaults to off, and until somebody turns it on :func:`apply_sound_preferences` returns before constructing anything: no thread, no event filter, no Qt Multimedia import. An application-wide event filter costs every event in the process (measured at 0.93 us per event per filter), so the filter is installed only while a click or hover sound is actually wanted, and removed the moment neither is.",
+      "source_sha256": "29831456c3bfde0446adc3340e65d9592ffdc98986e0f8471ab6d67430671f8b",
+      "context": "**Nothing exists while sound is off.** The master switch defaults to off, and until somebody turns it on :func:`apply_sound_preferences` returns before constructing anything: no independent execution path, no event filter, no Qt Multimedia import. An application-wide event filter costs every event in the process (measured at 0.93 us per event per filter), so the filter is installed only while a click or hover sound is actually wanted, and removed the moment neither is.",
+      "translation": "**Solange der Ton aus ist, existiert nichts.** Der Hauptschalter ist standardmäßig aus, und bis jemand ihn einschaltet, kehrt :func:`apply_sound_preferences` zurück, bevor irgendetwas erzeugt wird: kein Thread, kein Ereignisfilter, kein Import von Qt Multimedia. Ein anwendungsweiter Ereignisfilter kostet bei jedem Ereignis im Prozess Zeit (gemessen 0.93 us pro Ereignis und Filter), daher wird der Filter nur installiert, solange ein Klick- oder Hover-Klang tatsächlich gewünscht ist, und entfernt, sobald keiner von beiden es ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#4",
+      "source": "**Qt Multimedia is touched only on the GUI thread.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the GUI thread against the real stack.",
+      "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
+      "context": "**Qt Multimedia is touched only on the main GUI execution path.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the main GUI execution path against the real stack.",
+      "translation": "**Qt Multimedia wird nur im GUI-Thread angefasst.** :class:`_SoundPlayer` besitzt ``QMediaDevices`` und jeden ``QSoundEffect`` und lebt dort, wo die Ereignisschleife der Anwendung läuft; der eigene ``QThread`` behält den Teil, der wirklich langsam ist, nämlich das Synthetisieren eines Klangsatzes (:class:`_SoundRenderer`, numpy und Dateischreibvorgänge, nichts aus Qt Multimedia). Die Verbindung zum Soundserver ist langsam -- 354 ms gemessen auf einer PipeWire-Workstation --, daher wird sie EINMAL bezahlt, über einen Leerlauf-Timer nach dem Einschalten des Tons (:meth:`SoundEngine._warm`), und protokolliert statt spürbar. Einen bereits geladenen Klang abzuspielen ist ``play()``, das sofort zurückkehrt: 0.007-0.014 ms im GUI-Thread mit dem echten Stack.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#5",
+      "source": "This rule is written in a crash. Building the effects on the audio thread instead does move the connection off the GUI thread -- but Qt Multimedia's device handling belongs to the thread that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong thread. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
+      "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
+      "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
+      "translation": "Diese Regel ist aus einem Absturz entstanden. Die Effekte stattdessen im Audio-Thread aufzubauen verlagert die Verbindung zwar aus dem GUI-Thread -- aber die Geräteverwaltung von Qt Multimedia gehört zu dem Thread, dem die Ereignisschleife gehört, sodass sie mit dem FFmpeg-Backend Socket-Notifier aus dem falschen Thread aktiviert. Ein erneutes Öffnen von Preferences bei eingeschaltetem Ton führt dann zu einem Segfault oder blockiert die Oberfläche mit einem leeren Preferences-Rahmen, bis sie zwangsweise beendet wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#6",
+      "source": "**A missing sound stack is silence.** No device, no server, no Qt Multimedia, a file that will not load: each ends in a debug log line and no sound. Nothing here raises into a caller and nothing opens a dialog.",
+      "source_sha256": "d7c01f103e706aa57c85e452515ef3de2dbc771114a95b5af683ff598ee1c1ee",
+      "context": "**A missing sound stack is silence.** No device, no server, no Qt Multimedia, a file that will not load: each ends in a debug log line and no sound. Nothing here raises into a caller and nothing opens a dialog.",
+      "translation": "**Ein fehlender Sound-Stack bedeutet Stille.** Kein Gerät, kein Server, kein Qt Multimedia, eine Datei, die sich nicht laden lässt: Jedes davon endet in einer Debug-Logzeile und ohne Ton. Nichts hier löst eine Ausnahme beim Aufrufer aus, und nichts öffnet einen Dialog.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound#7",
+      "source": "The hover sound is the risky one, so it is debounced twice: the pointer must rest on an enabled control for :data:`HOVER_SETTLE_MS` before anything is considered, and a hover sound never follows another within :data:`HOVER_COOLDOWN_S` or a click within :data:`HOVER_AFTER_CLICK_S`.",
+      "source_sha256": "2bc2d687f5572cfd79a84607e0c7314c8202992ab80b6d43a9cb7897efef3e2f",
+      "context": "The hover sound is the risky one, so it is debounced twice: the pointer must rest on an enabled control for :data:`HOVER_SETTLE_MS` before anything is considered, and a hover sound never follows another within :data:`HOVER_COOLDOWN_S` or a click within :data:`HOVER_AFTER_CLICK_S`.",
+      "translation": "Der Hover-Klang ist der riskante, daher wird er zweifach entprellt: Der Zeiger muss für :data:`HOVER_SETTLE_MS` auf einem aktivierten Steuerelement ruhen, bevor irgendetwas in Betracht gezogen wird, und ein Hover-Klang folgt nie innerhalb von :data:`HOVER_COOLDOWN_S` auf einen anderen oder innerhalb von :data:`HOVER_AFTER_CLICK_S` auf einen Klick.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound.InputSoundFilter#0",
+      "source": "Application-wide filter that hears presses and hovers on controls.",
+      "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
+      "context": "Application-wide filter that hears presses and hovers on controls.",
+      "translation": "Anwendungsweiter Filter, der Drücken und Hovern auf Steuerelementen wahrnimmt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.sound.InputSoundFilter#1",
+      "source": "Installed only while a click or hover sound is wanted (see :meth:`SoundEngine.apply`). The body is two liveness checks and at most four comparisons for an event it does not want.",
+      "source_sha256": "5d8d6aae2c84ed2327f55f33e4a6166922aa807287ea37a18b367cc6a88a8f1a",
+      "context": "Installed only while a click or hover sound is wanted (see :meth:`SoundEngine.apply`). The body is two liveness checks and at most four comparisons for an event it does not want.",
+      "translation": "Nur installiert, solange ein Klick- oder Hover-Klang gewünscht ist (siehe :meth:`SoundEngine.apply`). Der Rumpf besteht aus zwei Lebendigkeitsprüfungen und höchstens vier Vergleichen für ein Ereignis, das er nicht will.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
