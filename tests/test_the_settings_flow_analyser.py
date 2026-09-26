@@ -232,15 +232,32 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     docs job that cannot finish, and the next raise wants its own three
     lines above.
 
+    RAISED TO 8,000 ON 2026-09-26, AGAINST TWO MEASURED BUILDS. The page
+    had grown to 7,533 cross-references (7,506 before item 493's two mask
+    GPU settings, the rest from the settings added since 09-09). Both
+    builds used `sphinx-build -E -b html` on one tree at the same commit,
+    back to back; the only difference was the page, with the last 533
+    `:py:func:` roles turned into `:code:` literals for the 7,000 state:
+
+        7,533 xrefs   22:16 wall   3,301,044 KB peak   0 warnings
+        7,000 xrefs   23:39 wall   3,280,532 KB peak   0 warnings
+
+    The 533 extra cross-references cost nothing measurable: the difference
+    is inside the run-to-run noise, and in the wrong direction. The wall
+    clock is NOT comparable with the 09-09 numbers: the machine was shared
+    (load average 40 to 65 on 32 cores) and AutoAPI now reads a larger
+    package, so only the difference between the two states is evidence.
+    8,000 keeps the same 500-ish margin above the measured count.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 7500, (
+    assert xrefs <= 8000, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "7,000 measured against a real sphinx-build on 2026-09-09. This is "
+        "7,533 measured against a real sphinx-build on 2026-09-26. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
