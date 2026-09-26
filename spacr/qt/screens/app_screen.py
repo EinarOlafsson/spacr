@@ -1898,6 +1898,7 @@ class AppScreen(QWidget):
         self.the_name_carries_the_help()
         self._form_shape_on_screen = self._form_shape()
         self._watch_the_settings_that_decide_the_form()
+        _screens_package._breathe_while_a_window_opens()
         body.add_pane(self._build_runtime_panel(), "Runtime", stretch=2,
                       extent=800)
 

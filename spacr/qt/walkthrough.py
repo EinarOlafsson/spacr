@@ -537,6 +537,9 @@ def maybe_show(window: QMainWindow, app_key: str) -> Optional[_TourOverlay]:
 
 
 
+_OFFER_AFTER_MS = 30
+
+
 class _WalkthroughHandler(QObject):
     """Bound-method targets for the menu entries and the screen stack."""
 
@@ -563,6 +566,33 @@ class _WalkthroughHandler(QObject):
         if not app_key or was_seen(app_key):
             return
         if getattr(screen, "_settings_model", None) is None:
+            return
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(_OFFER_AFTER_MS, self, lambda: self._offer(app_key))
+
+    def _offer(self, app_key: str) -> None:
+        """Show ``app_key``'s walkthrough if its screen is still the one on show.
+
+        RUN A MOMENT AFTER THE SWITCH, NOT INSIDE IT. ``currentChanged`` is
+        emitted from inside the stack's switch, which is also where the new
+        screen is first shown and styled; building the overlay there added
+        its cost to that one freeze (80-150 ms of a first Mask or Analyze
+        Plaques open, measured). A timer lets the event loop turn and the
+        screen paint first. Everything the switch checked is checked again,
+        because the user may have moved on in between. The wait,
+        :data:`_OFFER_AFTER_MS`, is long enough for the loop to turn and
+        short enough to read as part of the opening.
+        """
+        if getattr(self._window, "_pathway_walkthrough_active", False):
+            return
+        try:
+            screen = self._window._stack.currentWidget()
+            if str(getattr(screen, "app_key", "") or "") != app_key:
+                return
+        except Exception:
+            return
+        if was_seen(app_key):
             return
         maybe_show(self._window, app_key)
 

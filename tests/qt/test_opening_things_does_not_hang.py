@@ -119,3 +119,50 @@ def test_the_backdrop_never_waits_on_the_heavy_lock(window):
         "opened soon after launch will freeze behind the preloader")
     assert "singleShot" in body, (
         "the backdrop does not retry, so a busy lock loses it entirely")
+
+
+def test_a_navigation_that_arrives_mid_open_waits_for_it(window, qtbot):
+    """Item 284: an open now lets the event loop breathe between its steps,
+    and a timer or queued signal run in a breath may ask for another module.
+    That request must not build a second screen inside the first open; it
+    runs once the open in progress has returned."""
+    key = "convert"
+    assert key not in window._screens
+    window._opening_a_screen = True
+    try:
+        window._on_nav_selected(key)
+        assert key not in window._screens
+    finally:
+        window._opening_a_screen = False
+    qtbot.waitUntil(lambda: key in window._screens, timeout=int(
+        MODULE_BUDGET * 1000))
+    assert window._stack.currentWidget() is window._screens[key]
+
+
+def test_a_breath_runs_only_during_an_open_and_only_when_it_is_due(
+        monkeypatch):
+    """The breath is the window's to give: a screen built by a test, a
+    rebuild or a folded panel is built in one piece, and a step shorter
+    than :data:`spacr.qt.screens.BREATH_AFTER_S` costs no repaint."""
+    from PySide6.QtCore import QCoreApplication
+
+    from spacr.qt import screens
+
+    passes = []
+    monkeypatch.setattr(QCoreApplication, "processEvents",
+                        staticmethod(lambda *a, **k: passes.append(a)))
+    screens._stop_breathing_while_a_window_opens()
+    screens._breathe_while_a_window_opens()
+    assert passes == []
+
+    screens._start_breathing_while_a_window_opens(
+        time.perf_counter() - 10 * screens.BREATH_AFTER_S)
+    try:
+        screens._breathe_while_a_window_opens()
+        assert len(passes) == 1
+        screens._breathe_while_a_window_opens()
+        assert len(passes) == 1, "a breath straight after a breath"
+    finally:
+        screens._stop_breathing_while_a_window_opens()
+    screens._breathe_while_a_window_opens()
+    assert len(passes) == 1
