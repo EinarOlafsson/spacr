@@ -5,6 +5,2166 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.widgets.ambient#58",
+      "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
+      "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
+      "context": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and execution concurrency it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
+      "translation": "``drift`` behåller den synkrona vägen, och dess rad ovan är skälet: det är den enda motorn utan buffert, den försämras minst av de sju (2.1x mot 48.7x för ``cells``), och att tråda den skulle innebära att publicera en bildruta i full upplösning — 7.91 MiB per plats mot 126.6 KiB för ``blobs`` — för att köpa den minsta förbättringen på listan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient#59",
+      "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
+      "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",
+      "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
+      "translation": "Prestandan beror på hårdvara, skärmstorlek, tema och samtidigt arbete. Inställningarna har förutsägbara relativa kostnader: detalj är ungefär kvadratisk, täthet är ungefär linjär, och oskärpa är billig för de sex buffrade temana. ``drift`` har ingen buffert, så dess oskärpa är ett andra, bredare pass per punkt och begränsas av :data:`DRIFT_HALO_MAX_PX`. :data:`WORK_BUDGET` begränsar kombinationer av täthet och detalj som skulle få bakgrunden att konkurrera med analysarbete. Dolda widgetar slutar rendera helt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.advance_frame#2",
+      "source": "seconds to step; the engine scales the step by its speed, and a step that is not positive leaves the clock where it is.",
+      "source_sha256": "565bc361da7158233b4b15e06212859245cb61e944cd497c718c9525afe40e5f",
+      "context": "seconds to step; the engine scales the step by its speed, and a step that is not positive leaves the clock where it is.",
+      "translation": "sekunder att stega; motorn skalar steget med sin hastighet, och ett steg som inte är positivt lämnar klockan där den är.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.changeEvent#2",
+      "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
+      "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
+      "context": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
+      "translation": "ändringshändelsen; den går först till basklassen, och bara en ``ApplicationPaletteChange`` hanteras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.eventFilter#1",
+      "source": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
+      "source_sha256": "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
+      "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
+      "translation": "objektet som händelsen gäller — föräldern (vars storleksändring den här widgeten följer) eller det bevakade toppnivåfönstret.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.eventFilter#2",
+      "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
+      "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
+      "context": "the event; resize, window-state, hide, show, move and application view-change types are acted on, and every event is still passed on to the base-class filter.",
+      "translation": "händelsen; typerna storleksändring, fönstertillstånd, dölj, visa, flytta och skärmbyte hanteras, och varje händelse skickas ändå vidare till basklassens filter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent#1",
+      "source": "the focus event; it is ignored and focus is cleared.",
+      "source_sha256": "8f9a215b2df946f32e8ecc15d8a0824761d84f5f49f45a3f4b97d7076c68c5a9",
+      "context": "the focus event; it is ignored and focus is cleared.",
+      "translation": "fokushändelsen; den ignoreras och fokus rensas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.hideEvent#1",
+      "source": "the hide event; passed on to the base class before the animation stops.",
+      "source_sha256": "6451fe110fb89cda590e1013d7b254fd2cbc0b1b8d613fa41c33c317cb278f25",
+      "context": "the hide event; passed on to the base class before the animation stops.",
+      "translation": "döljningshändelsen; skickas vidare till basklassen innan animationen stoppas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.paintEvent#4",
+      "source": "the paint event; a new frame is taken from the shading thread only when its ``rect()`` covers the whole widget, otherwise the current frame is repainted.",
+      "source_sha256": "1081bb5bd61e83fba215027133d2e5e6a6a03c5e7293ec3b47b841cc46b1634b",
+      "context": "the paint event; a new frame is taken from the shading independent execution path only when its ``rect()`` covers the whole widget, otherwise the current frame is repainted.",
+      "translation": "målningshändelsen; en ny bildruta hämtas från skuggningstråden bara när dess ``rect()`` täcker hela widgeten, annars målas den aktuella bildrutan om.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_animating#2",
+      "source": "truthy to animate, falsy to pause.",
+      "source_sha256": "dcdb22bd2f1ea77bdf4883ccf8f382fa269ed279ccac1b101b0bd5816a1126e0",
+      "context": "truthy to animate, falsy to pause.",
+      "translation": "sant värde för att animera, falskt för att pausa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_backdrop#2",
+      "source": "an image path, ``QPixmap`` or ``QImage``, or ``None``; anything that does not load as a non-null pixmap also gives the flat fill.",
+      "source_sha256": "3abc541d6d91dcce1f1e744932dfc5585c8792f2a5bc29514a5c4124f4903444",
+      "context": "an image path, ``QPixmap`` or ``QImage``, or ``None``; anything that does not load as a non-null pixmap also gives the flat fill.",
+      "translation": "en bildsökväg, ``QPixmap`` eller ``QImage``, eller ``None``; allt som inte läses in som en pixmap som inte är null ger också den platta fyllningen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_background_color#2",
+      "source": "a ``QColor`` or any string ``QColor`` accepts; an invalid colour keeps the current one, and alpha is forced opaque. The widget then stops following the application theme.",
+      "source_sha256": "8a4cbc04071ce3fc5bebc3adab291337a135b9a29725ab6e2c32692dd5d81d65",
+      "context": "a ``QColor`` or any string ``QColor`` accepts; an invalid colour keeps the current one, and alpha is forced opaque. The widget then stops following the application theme.",
+      "translation": "en ``QColor`` eller valfri sträng som ``QColor`` accepterar; en ogiltig färg behåller den aktuella, och alfa tvingas till ogenomskinlig. Widgeten slutar då följa programmets tema.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blur#1",
+      "source": "the blur amount, converted with ``float``.",
+      "source_sha256": "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a",
+      "context": "the blur amount, converted with ``float``.",
+      "translation": "oskärpans mängd, konverterad med ``float``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_density#1",
+      "source": "the density multiplier, converted with ``float``.",
+      "source_sha256": "fc3e8f0940c42e24bac7736826c9860c98f17545375b0f42c89ef798d2771f4a",
+      "context": "the density multiplier, converted with ``float``.",
+      "translation": "täthetsmultiplikatorn, konverterad med ``float``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_direction#1",
+      "source": "one of :data:`DRIFT_DIRECTIONS`.",
+      "source_sha256": "de54510650fb63e4883010d63e199aacefe5df23d1830958f8869ce87960bebd",
+      "context": "one of :data:`DRIFT_DIRECTIONS`.",
+      "translation": "en av :data:`DRIFT_DIRECTIONS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_fps#1",
+      "source": "frames per second, converted with ``int`` and clamped to :data:`MIN_FPS` to :data:`MAX_FPS`.",
+      "source_sha256": "bc71fb10ea14d3a145da870b5b90de829102c29ec8d38fe3b4f7da36f76cc4bd",
+      "context": "frames per second, converted with ``int`` and clamped to :data:`MIN_FPS` to :data:`MAX_FPS`.",
+      "translation": "bildrutor per sekund, konverterade med ``int`` och begränsade till :data:`MIN_FPS` till :data:`MAX_FPS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_palette#2",
+      "source": "a palette the current theme offers.",
+      "source_sha256": "f580c3c2f2931212d4d8f5f1842945890834490f65610b80cc9855cfccb75ead",
+      "context": "a palette the current theme offers.",
+      "translation": "en palett som det aktuella temat erbjuder.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_resolution#1",
+      "source": "the resolution multiplier, converted with ``float``.",
+      "source_sha256": "73445b2a76651bf859233ff92614faa93d432650be945f228602acf616379c63",
+      "context": "the resolution multiplier, converted with ``float``.",
+      "translation": "upplösningsmultiplikatorn, konverterad med ``float``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_size_scale#1",
+      "source": "the size multiplier, converted with ``float``.",
+      "source_sha256": "f1dfd87cfc6e26030ed89d583b7220f746a7610b3c61f0da8d932f51d9ab389c",
+      "context": "the size multiplier, converted with ``float``.",
+      "translation": "storleksmultiplikatorn, konverterad med ``float``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_speed#2",
+      "source": "the speed multiplier, converted with ``float``.",
+      "source_sha256": "30601855f208d9086a9b4c8c953460a18c7618e74ce1ba21ebf69fa68dd36943",
+      "context": "the speed multiplier, converted with ``float``.",
+      "translation": "hastighetsmultiplikatorn, konverterad med ``float``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_theme#3",
+      "source": "a paintable theme name.",
+      "source_sha256": "54666679917e662f4ea18b99a0d0f892cedf15c8e04ff8a7f45a949e0b667c36",
+      "context": "a paintable theme name.",
+      "translation": "ett namn på ett tema som kan målas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_time#1",
+      "source": "the new clock value, in animation seconds (the clock :meth:`advance_frame` steps, already scaled by speed).",
+      "source_sha256": "73583b622d68e2e3f9d8079fe0625f218863a5aadb43364ca4063b646670ba43",
+      "context": "the new clock value, in animation seconds (the clock :meth:`advance_frame` steps, already scaled by speed).",
+      "translation": "det nya klockvärdet, i animationssekunder (den klocka som :meth:`advance_frame` stegar, redan skalad med hastigheten).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#2",
+      "source": "softness of the painted shapes; the widget clamps it to :data:`BLUR_RANGE`.",
+      "source_sha256": "a0fd8c0189eae9eed8b457b2b21ef93ad44a8cdada03d5ca6e477aa939849d0e",
+      "context": "softness of the painted shapes; the widget clamps it to :data:`BLUR_RANGE`.",
+      "translation": "mjukheten hos de målade formerna; widgeten begränsar den till :data:`BLUR_RANGE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#3",
+      "source": "animation-clock multiplier, clamped to :data:`SPEED_RANGE`.",
+      "source_sha256": "1c5f8f04a64d7184310c32cbb0cc017eee9415d89923ca4114653fa33d1fa4ec",
+      "context": "animation-clock multiplier, clamped to :data:`SPEED_RANGE`.",
+      "translation": "multiplikator för animationsklockan, begränsad till :data:`SPEED_RANGE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#4",
+      "source": "element-size multiplier, clamped to :data:`SIZE_RANGE`.",
+      "source_sha256": "c174cd3c7f6c5e8d324e0a626499eade11a9ea7a4452510990ddf591a06cbdd2",
+      "context": "element-size multiplier, clamped to :data:`SIZE_RANGE`.",
+      "translation": "multiplikator för elementstorlek, begränsad till :data:`SIZE_RANGE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#5",
+      "source": "detail (render buffer) multiplier, clamped to :data:`RESOLUTION_RANGE`.",
+      "source_sha256": "26efe7e1730078e7df14a85d9e2e0540bfa91a759a09d60dda90db53967a7c9d",
+      "context": "detail (render buffer) multiplier, clamped to :data:`RESOLUTION_RANGE`.",
+      "translation": "multiplikator för detalj (renderingsbuffert), begränsad till :data:`RESOLUTION_RANGE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#6",
+      "source": "element-count multiplier, clamped to :data:`DENSITY_RANGE`.",
+      "source_sha256": "f0841b081b47229c8d3488be0a8a95aab6ab8c410cc01cd6901cb0d5002cd76d",
+      "context": "element-count multiplier, clamped to :data:`DENSITY_RANGE`.",
+      "translation": "multiplikator för antal element, begränsad till :data:`DENSITY_RANGE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#7",
+      "source": "starfield drift direction, one of :data:`DRIFT_DIRECTIONS`; an unknown name falls back to the default.",
+      "source_sha256": "8978f7070f828d993111e587de205f5c53668d71b59baa2c34074541051be28c",
+      "context": "starfield drift direction, one of :data:`DRIFT_DIRECTIONS`; an unknown name falls back to the default.",
+      "translation": "stjärnfältets driftriktning, en av :data:`DRIFT_DIRECTIONS`; ett okänt namn faller tillbaka på standardvärdet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#0",
+      "source": "Chladni figures: sand on a plate that is driven by what is playing.",
+      "source_sha256": "20c9739fd833271312a8e7c10d41115c970393fbdf27d574a0de10eb801ab652",
+      "context": "Chladni figures: sand on a plate that is driven by what is playing.",
+      "translation": "Chladni-figurer: sand på en platta som drivs av det som spelas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#1",
+      "source": "A floor with particles on it, and the particles are sand on a vibrating plate. The physics is in :mod:`spacr.qt.resonance` and is worth one paragraph here because it is what makes this theme different from a particle system with a music-shaped wobble: a plate driven at one of its resonances has lines that do not move, sand is thrown off everywhere else and comes to rest along them, and the figure IS the nodal set. So there is a right answer for where a particle goes, and the drive decides which figure it is and how hard the sand is being shaken rather than deciding the motion directly.",
+      "source_sha256": "4169dd518c67a35e48f9064d4858db9fceff6784a5c59ed3e15f39bb73476151",
+      "context": "A floor with particles on it, and the particles are sand on a vibrating plate. The physics is in :mod:`spacr.qt.resonance` and is worth one paragraph here because it is what makes this theme different from a particle system with a music-shaped wobble: a plate driven at one of its resonances has lines that do not move, sand is thrown off everywhere else and comes to rest along them, and the figure IS the nodal set. So there is a right answer for where a particle goes, and the drive decides which figure it is and how hard the sand is being shaken rather than deciding the motion directly.",
+      "translation": "Ett golv med partiklar på, och partiklarna är sand på en vibrerande platta. Fysiken finns i :mod:`spacr.qt.resonance` och är värd ett stycke här eftersom det är den som skiljer detta tema från ett partikelsystem med en musikformad vickning: en platta som drivs vid en av sina resonanser har linjer som inte rör sig, sanden kastas bort överallt annars och kommer till vila längs dem, och figuren ÄR nodmängden. Det finns alltså ett rätt svar på var en partikel hamnar, och drivningen avgör vilken figur det är och hur hårt sanden skakas snarare än att avgöra rörelsen direkt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#2",
+      "source": "WHAT DRIVES IT. :func:`spacr.qt.resonance.playing_moment` -- the music bed's own precomputed envelope and spectrum, read at the position the bed is at. Nothing captures the machine's audio; nothing here can hear anything spaCR is not playing. With sound off it returns silence and the plate idles on its own clock, which is the case almost everybody sees because sound is off on a fresh install.",
+      "source_sha256": "c00dbf5b3953eb6b969df38d53098c89f032487c27bba1b6a777ca58f5958071",
+      "context": "What drives it. :func:`spacr.qt.resonance.playing_moment` -- the music bed's own precomputed envelope and spectrum, read at the position the bed is at. Nothing captures the machine's audio; nothing here can hear anything spaCR is not playing. With sound off it returns silence and the plate idles on its own clock, which is the case almost everybody sees because sound is off on a fresh install.",
+      "translation": "VAD SOM DRIVER DEN. :func:`spacr.qt.resonance.playing_moment` -- musikbäddens egen förberäknade envelopp och spektrum, lästa vid den position som bädden befinner sig på. Ingenting spelar in maskinens ljud; ingenting här kan höra något som spaCR inte spelar. Med ljudet avstängt returnerar den tystnad och plattan går på tomgång i sin egen takt, vilket är det fall som nästan alla ser eftersom ljudet är avstängt på en ny installation.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#3",
+      "source": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two threads and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING THREAD, where the failure is a picture that differs from the one the GUI thread would have drawn. So the drive is an INPUT, set on the GUI thread between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
+      "context": "Why the drive is read in :meth:`advance` and not WHERE it is used. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the shading independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "translation": "VARFÖR DRIVNINGEN LÄSES I :meth:`advance` OCH INTE DÄR (WHERE) DEN ANVÄNDS. Varje annan motor lovar att en bildruta är en ren funktion av ``(seed, clock, size)``, och två tester håller fast vid det: det ena skuggar samma klocka i två trådar och jämför byten, det andra stegar en motor tolv gånger och hoppar en andra direkt till samma klocka. Att läsa en realtidssignal inuti :meth:`shade` skulle bryta båda, och det skulle bryta dem i SKUGGNINGSTRÅDEN, där felet är en bild som skiljer sig från den som GUI-tråden skulle ha ritat. Därför är drivningen en INDATA, som sätts i GUI-tråden mellan bildrutorna under motorlåset exakt som :meth:`set_palette` gör, och löftet blir \"en ren funktion av ``(seed, clock, size, drive)``\" -- vilket är samma löfte medan ingenting spelas, och det är då testerna körs.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#4",
+      "source": ":meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in pixels. Start with no floor and no canvas; the first shade builds both.",
+      "source_sha256": "0c86df9cc97b20e02acfda9edb6f9c1e2c42e48626b39dc40c4514b8c9cde73e",
+      "context": ":meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in pixels. Start with no floor and no canvas; the first shade builds both.",
+      "translation": ":meth:`geometry` ger ``(x, y, brightness)`` per målad partikel, i pixlar. Börja utan golv och utan duk; den första skuggningen bygger båda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#0",
+      "source": "Step the clock and read what is playing.",
+      "source_sha256": "12c69edf78839f899c0e8c8c509e48215a67e6bfdb600c9e215b4238a32142d6",
+      "context": "Step the clock and read what is playing.",
+      "translation": "Stega klockan och läs vad som spelas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#1",
+      "source": "The one place a real-time signal enters this engine, and it is here because this runs on the GUI thread between frames while the shading thread is locked out -- see the class docstring. It costs a lock, an index and two array reads; measured at 6.8 us with the music bed playing, against the 41 ms a frame the cap allows.",
+      "source_sha256": "dc0a33e3a6f42419191a8b150d897d87a8957d056736c435136bf4f0edad03bc",
+      "context": "The one place a real-time signal enters this engine, and it is here because this runs on the main GUI execution path between frames while the shading independent execution path is locked out -- see the class docstring. It costs a lock, an index and two array reads; measured at 6.8 us with the music bed playing, against the 41 ms a frame the cap allows.",
+      "translation": "Det enda stället där en realtidssignal kommer in i den här motorn, och den finns här eftersom detta körs i GUI-tråden mellan bildrutorna medan skuggningstråden är utestängd -- se klassens docstring. Det kostar ett lås, ett index och två arrayläsningar; uppmätt till 6.8 us med musikbädden spelande, mot de 41 ms per bildruta som taket tillåter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#2",
+      "source": "What is read is damped by :meth:`answering` before it is stored, so the Speed preference reaches the music-driven half of the theme as well as the clock.",
+      "source_sha256": "c05982352b0fa955e15e5a76bc8ca426e215740d2643d48070ff7f30abd8feb4",
+      "context": "What is read is damped by :meth:`answering` before it is stored, so the Speed preference reaches the music-driven half of the theme as well as the clock.",
+      "translation": "Det som läses dämpas av :meth:`answering` innan det lagras, så att inställningen Speed når den musikdrivna halvan av temat såväl som klockan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#0",
+      "source": "``moment`` scaled by how much of it the Speed setting lets in.",
+      "source_sha256": "b0b1f6405fce048f4468fe8a2bb0ff45bb8085c7a6c4389b00784e86c004f9d5",
+      "context": "``moment`` scaled by how much of it the Speed setting lets in.",
+      "translation": "``moment`` skalat efter hur mycket av det som inställningen Speed släpper in.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#1",
+      "source": "THE CLOCK IS NOT THE WHOLE ANIMATION HERE, WHICH IS WHY THIS EXISTS. :meth:`AmbientEngine.advance` multiplies ``dt`` by :attr:`speed`, and that is the whole of the Speed preference for every other theme, because every other theme's motion is a function of the clock alone. Half of this one is a function of the music instead: the throw on an onset, the per-band brightness and the figure the spectrum's centre of mass asks for. At the bottom of :data:`SPEED_RANGE` the breath, the mode walk and the wander all crawl at a tenth, and a kick would still have thrown the sand :data:`RESONANCE_THROW` of the plate twice a second -- leaving the busiest movement in the theme running at full rate for somebody who set the slider to its minimum precisely to stop that.",
+      "source_sha256": "d25285229ab79054823e95f2d610a392b9f28cdb8a2248a9f6c9336764f23c5b",
+      "context": "The clock is not the whole animation here, which is why this exists. :meth:`AmbientEngine.advance` multiplies ``dt`` by :attr:`speed`, and that is the whole of the Speed preference for every other theme, because every other theme's motion is a function of the clock alone. Half of this one is a function of the music instead: the throw on an onset, the per-band brightness and the figure the spectrum's centre of mass asks for. At the bottom of :data:`SPEED_RANGE` the breath, the mode walk and the wander all crawl at a tenth, and a kick would still have thrown the sand :data:`RESONANCE_THROW` of the plate twice a second -- leaving the busiest movement in the theme running at full rate for somebody who set the slider to its minimum precisely to stop that.",
+      "translation": "KLOCKAN ÄR INTE HELA ANIMATIONEN HÄR, VILKET ÄR SKÄLET TILL ATT DETTA FINNS. :meth:`AmbientEngine.advance` multiplicerar ``dt`` med :attr:`speed`, och det är hela inställningen Speed för varje annat tema, eftersom varje annat temas rörelse enbart är en funktion av klockan. Hälften av det här temat är i stället en funktion av musiken: kastet vid en ansats, ljusstyrkan per band och den figur som spektrumets tyngdpunkt begär. Längst ned i :data:`SPEED_RANGE` kryper andningen, modvandringen och vandringen i en tiondel av farten, och en bastrumma skulle ändå ha kastat sanden :data:`RESONANCE_THROW` av plattan två gånger i sekunden -- vilket lämnar den mest intensiva rörelsen i temat på full hastighet för någon som satte reglaget på minimum just för att stoppa den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#2",
+      "source": "So the share let in is ``min(1, speed)``: the shipped setting and anything above it hear the music in full, and turning the animation down turns the reaction down with it, until at the minimum the plate is the idle plate. Above 1.0 it is *not* scaled up, because every field of a :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the loop's own loudest: there is nothing above full to give.",
+      "source_sha256": "8319ec7778de7f5a32e93186a70cefb5306565d87eae996a367a7329de1868f4",
+      "context": "So the share let in is ``min(1, speed)``: the shipped setting and anything above it hear the music in full, and turning the animation down turns the reaction down with it, until at the minimum the laboratory microplate is the idle laboratory microplate. Above 1.0 it is *not* scaled up, because every microscope field of view of a :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the loop's own loudest: there is nothing above full to give.",
+      "translation": "Den andel som släpps in är därför ``min(1, speed)``: den levererade inställningen och allt över den hör musiken fullt ut, och att skruva ned animationen skruvar ned reaktionen med den, tills plattan vid minimum är tomgångsplattan. Över 1.0 skalas den *inte* upp, eftersom varje fält i en :class:`~spacr.qt.resonance.Moment` redan ligger mellan 0 och 1 mot loopens eget starkaste: det finns inget över fullt att ge.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#3",
+      "source": "what :func:`spacr.qt.resonance.playing_moment` returned.",
+      "source_sha256": "6a595daf922db1fcc2da4c5447cb339efdbcff63a01473173ec8464abff7a0b3",
+      "context": "what :func:`spacr.qt.resonance.playing_moment` returned.",
+      "translation": "det som :func:`spacr.qt.resonance.playing_moment` returnerade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#4",
+      "source": "the same moment at speed 1.0 or above, a damped copy below it.",
+      "source_sha256": "1daeb4783ffbd0cc6d9bbeab460a2bfb5ab5e0ea33f5629ba5fe269d821f76bd",
+      "context": "the same moment at speed 1.0 or above, a damped copy below it.",
+      "translation": "samma ögonblick vid hastighet 1.0 eller högre, en dämpad kopia under det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#0",
+      "source": "How hard the plate is being driven, 0 to 1.",
+      "source_sha256": "d5fcd180833bcdd43144ab9450481e5b0b9464ac975165c851ae59c32223f7dd",
+      "context": "How hard the plate is being driven, 0 to 1.",
+      "translation": "Hur hårt plattan drivs, 0 till 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#1",
+      "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
+      "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
+      "context": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
+      "translation": "Det starkare av det som spelas och tomgångsandningen, så att ett tyst parti aldrig tar bilden under det som tystnad skulle ha ritat. Det är regeln som gör \"den går på tomgång vackert i tystnad\" och \"den reagerar på musiken\" till samma kodväg.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#0",
+      "source": "Every grain as ``(x, y, brightness)`` in pixels.",
+      "source_sha256": "b84207e0f7a99d7d924f7493673b6bbae44cc7f9ec373105197b819d488c672e",
+      "context": "Every grain as ``(x, y, brightness)`` in pixels.",
+      "translation": "Varje korn som ``(x, y, brightness)`` i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#1",
+      "source": "canvas width in pixels.",
+      "source_sha256": "405005d19f21c4d35e655b774f3520add4e5d4dc3c8840cd6d09540fab657791",
+      "context": "canvas width in pixels.",
+      "translation": "dukens bredd i pixlar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#2",
+      "source": "canvas height.",
+      "source_sha256": "db6111c9a435ab7ec9f382aae41e472eee177c73660a422dded30c7e00521d4a",
+      "context": "canvas height.",
+      "translation": "dukens höjd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#3",
+      "source": "one tuple per painted grain.",
+      "source_sha256": "cd4c99ef5c5fb69d26c38c98694016d42f4a6e1b928aaf84125e5bd2ce898840",
+      "context": "one tuple per painted grain.",
+      "translation": "en tuple per målat korn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.mode_position#0",
+      "source": "Where along :data:`spacr.qt.resonance.MODES` the figure sits.",
+      "source_sha256": "b54a45528254f228f491b3073f55fc755a09232170b65b6671fca111f7dee829",
+      "context": "Where along :data:`spacr.qt.resonance.MODES` the figure sits.",
+      "translation": "Var längs :data:`spacr.qt.resonance.MODES` figuren befinner sig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.plate#0",
+      "source": "The square the figure is drawn in: ``(left, top, side)`` in px.",
+      "source_sha256": "1d291dacedcf5b85d38a7c4eba4428b62fb171aefa28f3cc3d58e68373303598",
+      "context": "The square the figure is drawn in: ``(left, top, side)`` in px.",
+      "translation": "Kvadraten som figuren ritas i: ``(left, top, side)`` i px.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#0",
+      "source": "Where the sand is now, and how brightly each grain shows.",
+      "source_sha256": "b794197a63ccf59891947499777c528dd1ca5c8bb6b4f90f4107702693f4298a",
+      "context": "Where the sand is now, and how brightly each grain shows.",
+      "translation": "Var sanden är nu, och hur starkt varje korn lyser.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#1",
+      "source": "The whole simulation, and it is four numpy passes: wander the seeded starting points, build the lattice for the mode the drive asks for, relax onto its nodal lines, and throw the result off them by whatever the last onset was worth.",
+      "source_sha256": "a594da0f792af1475529f015d09130dcba826db157f5cc03f3e99b07a8e4edda",
+      "context": "The whole simulation, and it is four numpy passes: wander the seeded starting points, build the lattice for the mode the drive asks for, relax onto its nodal lines, and throw the result off them by whatever the last onset was worth.",
+      "translation": "Hela simuleringen, och den består av fyra numpy-pass: låt de fröade startpunkterna vandra, bygg gittret för den mod som drivningen begär, relaxera in på dess nodlinjer och kasta ut resultatet från dem med vad den senaste ansatsen var värd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#2",
+      "source": "how many grains; the density setting's own count by default.",
+      "source_sha256": "95d0e830ff6cbeb68678389b5f39d24e4d506d5f34a8f8f9bb8e0ed43d17c89b",
+      "context": "how many grains; the density setting's own count by default.",
+      "translation": "hur många korn; täthetsinställningens eget antal som standard.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#3",
+      "source": "``(x, y, brightness)`` in plate units, x and y in 0..1.",
+      "source_sha256": "3f3bde981785cd7aed6dbaaea8957c1a9e258fbc483f4d2c28c39fec595dc9fa",
+      "context": "``(x, y, brightness)`` in plate units, x and y in 0..1.",
+      "translation": "``(x, y, brightness)`` i plattenheter, x och y i 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.animation_label#2",
+      "source": ":data:`NO_ANIMATION` or a paintable theme name; any other name raises :class:`ValueError`.",
+      "source_sha256": "cfbbd9ee9d5b8c9afcff677306500af26b720a73b5bb2867b61b442ca408600e",
+      "context": ":data:`NO_ANIMATION` or a paintable theme name; any other name raises :class:`ValueError`.",
+      "translation": ":data:`NO_ANIMATION` eller ett namn på ett tema som kan målas; alla andra namn genererar :class:`ValueError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.default_palette_for#1",
+      "source": "a paintable theme name; an unknown one raises :class:`ValueError`.",
+      "source_sha256": "059bff6a6990e1bb6dd99a84d09dc2d9c442e7d607bbb090cad94cf3381919b4",
+      "context": "a paintable theme name; an unknown one throws :class:`ValueError`.",
+      "translation": "ett namn på ett tema som kan målas; ett okänt genererar :class:`ValueError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.dressed#2",
+      "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
+      "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+      "context": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
+      "translation": "det begärda temanamnet; returneras som det är om inte spaceout-utsmyckningen är på. Det valideras inte här.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.dressed#3",
+      "source": "the requested palette name, treated the same way.",
+      "source_sha256": "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100",
+      "context": "the requested palette name, treated the same way.",
+      "translation": "det begärda palettnamnet, som behandlas på samma sätt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.drift_direction_label#1",
+      "source": "one of :data:`DRIFT_DIRECTIONS`; any other value raises :class:`ValueError`.",
+      "source_sha256": "99444b56c5d77cfab0be041751ccb90b07f5d87c87009ad4d561793277492132",
+      "context": "one of :data:`DRIFT_DIRECTIONS`; any other value raises :class:`ValueError`.",
+      "translation": "en av :data:`DRIFT_DIRECTIONS`; alla andra värden genererar :class:`ValueError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_animation_choice#1",
+      "source": "the value to test, typically a stored preference.",
+      "source_sha256": "4cade2a77c543163e26ed5a0704f32ccfb4d7151fd596515902e9f87b3441e50",
+      "context": "the value to test, typically a stored preference.",
+      "translation": "värdet som ska testas, vanligtvis en lagrad inställning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_drift_direction#1",
+      "source": "the value to test.",
+      "source_sha256": "704a925a72017a5cf295ce4c33ad3ba3f29de928766f18a2aea5eb7300287c70",
+      "context": "the value to test.",
+      "translation": "värdet som ska testas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_palette#1",
+      "source": "the theme name; an unknown theme offers nothing.",
+      "source_sha256": "c1312040fe195cfd7115baeaf2239dcc077eb3a6b9d50a89c0f09a102cfa6680",
+      "context": "the theme name; an unknown theme offers nothing.",
+      "translation": "temanamnet; ett okänt tema erbjuder ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_palette#2",
+      "source": "the palette name to look for among ``theme``'s palettes.",
+      "source_sha256": "cde3c76f6f415d0d6c12cb6c0f82e247e15811390b9e01c9b0802f5951687b11",
+      "context": "the palette name to look for among ``theme``'s palettes.",
+      "translation": "palettnamnet att leta efter bland paletterna för ``theme``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.palette_colors#2",
+      "source": "a palette ``theme`` offers; an unknown theme, or a palette the theme does not offer, raises :class:`ValueError`.",
+      "source_sha256": "5c919dc215a57084480b713811f75e58e4edb63251038ca4b8e96cb4b4c8da31",
+      "context": "a palette ``theme`` offers; an unknown theme, or a palette the theme does not offer, throws :class:`ValueError`.",
+      "translation": "en palett som ``theme`` erbjuder; ett okänt tema, eller en palett som temat inte erbjuder, genererar :class:`ValueError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.theme_label#1",
+      "source": "a paintable theme name; any other raises :class:`ValueError`.",
+      "source_sha256": "044af7c7fd761d33ef9cfaabe426e54c753890c9a4a05074a34271b117095d10",
+      "context": "a paintable theme name; any other raises :class:`ValueError`.",
+      "translation": "ett namn på ett tema som kan målas; alla andra genererar :class:`ValueError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.ZoomedAnimation#1",
+      "source": "the animation file, as passed to :func:`zoomed_animation`.",
+      "source_sha256": "870a113ab9be2438a7808b2f2517d57103765985b772dc3acc408deddcb3c0d7",
+      "context": "the animation file, as passed to :func:`zoomed_animation`.",
+      "translation": "animationsfilen, så som den skickades till :func:`zoomed_animation`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.ZoomedAnimation#2",
+      "source": "side of the square display frames, in pixels.",
+      "source_sha256": "bc277c295a9945db50fb77199ba3707d4bb9e63cd94ee7abbedb655f46497bc7",
+      "context": "side of the square display frames, in pixels.",
+      "translation": "sidan på de kvadratiska visningsbildrutorna, i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#2",
+      "source": "side of the square frame, in pixels.",
+      "source_sha256": "b3e6f3864ad7a121aa02d76319dc91999f9109262604d58681f9f1f07ff6af54",
+      "context": "side of the square frame, in pixels.",
+      "translation": "sidan på den kvadratiska bildrutan, i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#3",
+      "source": "the well rectangle ``(left, top, right, bottom)`` in pixels of this frame; ``None`` uses :func:`field_geometry` for ``size``.",
+      "source_sha256": "fc53c836e2bf03417639f711dca27d7b9514181490424d6cfa93615014687d9f",
+      "context": "the microplate sample position rectangle ``(left, top, right, bottom)`` in pixels of this frame; ``None`` uses :func:`field_geometry` for ``size``.",
+      "translation": "brunnsrektangeln ``(left, top, right, bottom)`` i pixlar för den här bildrutan; ``None`` använder :func:`field_geometry` för ``size``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#4",
+      "source": "the well's corner radius in pixels; ``None`` uses :func:`field_geometry` for ``size``.",
+      "source_sha256": "1f3200a7185ffe9d274d110a2944be218db15cd99f6528f251881ed7c3826b94",
+      "context": "the microplate sample position's corner radius in pixels; ``None`` uses :func:`field_geometry` for ``size``.",
+      "translation": "brunnens hörnradie i pixlar; ``None`` använder :func:`field_geometry` för ``size``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#5",
+      "source": "half-width, in pixels, of the band masked around the field path.",
+      "source_sha256": "eb67f39a5ba220a38d8c1eb27c6d2e72e550b6b061da99aefc4df671095b9c36",
+      "context": "half-width, in pixels, of the band masked around the field path.",
+      "translation": "halva bredden, i pixlar, på bandet som maskas runt fältets bana.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_bounds#2",
+      "source": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them.",
+      "source_sha256": "1c120d148b690d892818030db7e4408fd0b98de1bef873cd03490f7fa6b04c2e",
+      "context": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them.",
+      "translation": "animationens RGB uint8-bildrutor, alla med samma kvadratiska storlek, så som :func:`read_frames` returnerar dem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_bounds#3",
+      "source": "boolean mask of pixels to ignore, as :func:`chrome_mask` returns it, or ``None`` to count every pixel.",
+      "source_sha256": "ad1b9fb4bf2721a27367d2f741954b95a37183927d0d695bc22927c1737cd232",
+      "context": "boolean mask of pixels to ignore, as :func:`chrome_mask` returns it, or ``None`` to count every pixel.",
+      "translation": "boolesk mask över pixlar att ignorera, så som :func:`chrome_mask` returnerar den, eller ``None`` för att räkna varje pixel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_bounds#4",
+      "source": "lit 8-neighbours a lit pixel needs to count; see :data:`MIN_NEIGHBOURS`.",
+      "source_sha256": "62651e0d7f07374d34bad0e88cc91821833a835c2ca477e545d98022a1cb3fe1",
+      "context": "lit 8-neighbours a lit pixel needs to count; see :data:`MIN_NEIGHBOURS`.",
+      "translation": "tända 8-grannar som en tänd pixel behöver för att räknas; se :data:`MIN_NEIGHBOURS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_extent#2",
+      "source": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. An empty sequence gives 0.0.",
+      "source_sha256": "4e42d84ca34ff8ec124ccd22881292b17c1f48dc46e8d85f7862925b132b85b6",
+      "context": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. An empty sequence gives 0.0.",
+      "translation": "animationens RGB uint8-bildrutor, alla med samma kvadratiska storlek, så som :func:`read_frames` returnerar dem. En tom sekvens ger 0.0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_mask#3",
+      "source": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. A pixel is lit when any channel is above :data:`BACKGROUND_LEVEL`.",
+      "source_sha256": "0a8ce722869cb7ed00154d073651eb94ce43a868ef3c12949d68ae28c7d39d0b",
+      "context": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. A pixel is lit when any image data channel is above :data:`BACKGROUND_LEVEL`.",
+      "translation": "animationens RGB uint8-bildrutor, alla med samma kvadratiska storlek, så som :func:`read_frames` returnerar dem. En pixel är tänd när någon kanal ligger över :data:`BACKGROUND_LEVEL`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.drop_specks#2",
+      "source": "2-D boolean mask of lit pixels.",
+      "source_sha256": "f620ebd5201e9e572f7fefafe478927457319d6324773f0eb2956e3b5a6b252c",
+      "context": "2-D boolean mask of lit pixels.",
+      "translation": "2-D boolesk mask över tända pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.drop_specks#3",
+      "source": "lit 8-neighbours a pixel needs to be kept; 0 or less returns ``mask`` unchanged.",
+      "source_sha256": "7230a9c04e5f5ec1c142f026f6e7464919e71653fd4480e1e259f474b76c9589",
+      "context": "lit 8-neighbours a pixel needs to be kept; 0 or less returns ``mask`` unchanged.",
+      "translation": "tända 8-grannar som en pixel behöver för att behållas; 0 eller mindre returnerar ``mask`` oförändrad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.field_geometry#1",
+      "source": "side of the square frame, in pixels; the geometry drawn at :data:`SOURCE_SIZE` is scaled to it.",
+      "source_sha256": "b1f98241db1bcec9d0fcdd41114b785edef96de60a9e1e0faed928e67110d787",
+      "context": "side of the square frame, in pixels; the geometry drawn at :data:`SOURCE_SIZE` is scaled to it.",
+      "translation": "sidan på den kvadratiska bildrutan, i pixlar; geometrin som ritats vid :data:`SOURCE_SIZE` skalas till den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.from_qimage#2",
+      "source": "the ``QImage`` to convert; it is converted to RGB888 first, so any format is accepted.",
+      "source_sha256": "d8cd1203af37e6f7ab0501020b4d1145346102f214218c0ba7c87dc994e9287b",
+      "context": "the ``QImage`` to convert; it is converted to RGB888 first, so any format is accepted.",
+      "translation": "den ``QImage`` som ska konverteras; den konverteras först till RGB888, så alla format accepteras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.source_content_extent#1",
+      "source": "the packaged animation file, decoded with :func:`read_frames`; a file with no frames gives 0.0.",
+      "source_sha256": "3fd9ae6b2ae8761e49e3986fa93ad5acf847e04ed1296b36b6059e80db914862",
+      "context": "the packaged animation file, decoded with :func:`read_frames`; a file with no frames gives 0.0.",
+      "translation": "den paketerade animationsfilen, avkodad med :func:`read_frames`; en fil utan bildrutor ger 0.0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.to_qimage#2",
+      "source": "one RGB frame, an array of shape (H, W, 3), converted to uint8.",
+      "source_sha256": "76e4021a0381ca5f528404aa07673a8383cbf2a7a649a2b429e2d26ea9539aaf",
+      "context": "one RGB frame, an array of shape (H, W, 3), converted to uint8.",
+      "translation": "en RGB-bildruta, en array med formen (H, W, 3), konverterad till uint8.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoom_frames#1",
+      "source": "the source RGB uint8 frames, all the same square size; the chrome mask is built for that size.",
+      "source_sha256": "591255563122f2afbd464adb82ba474d33818a8bfba691e00b5c4f3c34c21d0a",
+      "context": "the source RGB uint8 frames, all the same square size; the chrome mask is built for that size.",
+      "translation": "käll-RGB uint8-bildrutorna, alla med samma kvadratiska storlek; dekorationsmasken byggs för den storleken.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoom_frames#2",
+      "source": "side of the square output frames, in pixels.",
+      "source_sha256": "3f7f98afffc4b894b72c874afee2cc8b7d917921d600d8edefad96e3fc42f951",
+      "context": "side of the square output frames, in pixels.",
+      "translation": "sidan på de kvadratiska utdatabildrutorna, i pixlar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoom_frames#3",
+      "source": "share of the output square the content should span.",
+      "source_sha256": "7fc788c1d52bc02f28e2523ee830e9d77326a56725e0b65dde9ec2cc97e54c9e",
+      "context": "share of the output square the content should span.",
+      "translation": "andel av utdatakvadraten som innehållet ska spänna över.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoomed_animation#2",
+      "source": "the packaged animation file; the cache is keyed on it together with ``size`` and ``target``.",
+      "source_sha256": "7fbf79ccdd65e32017e5706fb27c9fb2397698520d500dd75182c85c4bc4f588",
+      "context": "the packaged animation file; the cache is keyed on it together with ``size`` and ``target``.",
+      "translation": "den paketerade animationsfilen; cachen är nycklad på den tillsammans med ``size`` och ``target``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoomed_animation#3",
+      "source": "side of the square display frames, in pixels; converted to ``int``.",
+      "source_sha256": "619c755ac04e549d5efd00122603a2e336d2a9af5b415849821cf098e2fc1445",
+      "context": "side of the square display frames, in pixels; converted to ``int``.",
+      "translation": "sidan på de kvadratiska visningsbildrutorna, i pixlar; konverteras till ``int``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoomed_animation#4",
+      "source": "share of the output square the content should span; converted to ``float``.",
+      "source_sha256": "6b8f7ad84f1965526e69e13f5df484273125ab8830bc5370ee95b5983136bea7",
+      "context": "share of the output square the content should span; converted to ``float``.",
+      "translation": "andel av utdatakvadraten som innehållet ska spänna över; konverteras till ``float``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.closeEvent#1",
+      "source": "the close event, passed on to the base class after the strategy worker is shut down.",
+      "source_sha256": "f85eb957b68de84ede1845f60f0b822b44fa520cc13acd6b8d64180fe21906e7",
+      "context": "the close event, passed on to the base class after the strategy worker is shut down.",
+      "translation": "stängningshändelsen, som skickas vidare till basklassen efter att strategiarbetaren har stängts av.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.set_strategy#1",
+      "source": "key of a strategy in :data:`spacr.regression_annotation.STRATEGIES`, matched as a string against the menu entries. An unknown key leaves the selection unchanged and returns ``False``.",
+      "source_sha256": "bc3983a3d02c20779f3925494c2ee3406fee2510eb4b3237718f903471b151ff",
+      "context": "structured-data name of a strategy in :data:`spacr.regression_annotation.STRATEGIES`, matched as a string against the menu entries. An unknown structured-data name leaves the selection unchanged and returns ``False``.",
+      "translation": "nyckel för en strategi i :data:`spacr.regression_annotation.STRATEGIES`, matchad som sträng mot menyposterna. En okänd nyckel lämnar urvalet oförändrat och returnerar ``False``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.clear_result#2",
+      "source": "why there is no result, shown as the plot's status line.",
+      "source_sha256": "7d5cbb451a50de07ceea9a5169153258aeab0a8d343d3aaef7fb29ce2c0fa94a",
+      "context": "why there is no result, shown as the plot's status line.",
+      "translation": "varför det inte finns något resultat, visat som diagrammets statusrad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.refuse#1",
+      "source": "short reason shown as the emptied plot's status line.",
+      "source_sha256": "ebe9a1b20f4f628a43714a8f1b1054b7643611b97706e76805c6a4d37800eab8",
+      "context": "short reason shown as the emptied plot's status line.",
+      "translation": "kort orsak som visas som det tömda diagrammets statusrad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.refuse#2",
+      "source": "fuller explanation written into the report box.",
+      "source_sha256": "2e3f1efd7d30326055c6848f978137e62251e652bcd8e19a45a6395f9e42b484",
+      "context": "fuller explanation written into the report box.",
+      "translation": "fylligare förklaring som skrivs i rapportrutan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.say#1",
+      "source": "the message for the report box; converted to a string.",
+      "source_sha256": "0eec7402d80a8cc6960e8c68fd274c4b2936774a718db33e00d9c921e74b6a17",
+      "context": "the message for the report box; converted to a string.",
+      "translation": "meddelandet för rapportrutan; konverteras till en sträng.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.PurityScatter.clear_plot#1",
+      "source": "why the plot is empty, shown as its status line.",
+      "source_sha256": "530d6afddd4e581be988aaa5697d3e98bd01facc7c89b9956badf5040ef7313a",
+      "context": "why the plot is empty, shown as its status line.",
+      "translation": "varför diagrammet är tomt, visat som dess statusrad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the text is then elided to the label's new width.",
+      "source_sha256": "8bf643bdc7991eb4a8b8efba85fc8c8acac0ea43d93b97bd25743dd4ba545f88",
+      "context": "the resize event, passed to the base class; the text is then elided to the label's new width.",
+      "translation": "storleksändringshändelsen, som skickas till basklassen; texten elideras sedan till etikettens nya bredd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.retranslate_dynamic_content#1",
+      "source": "the language to translate the hover help into, converted to a string; a falsy value clears it. Any :meth:`set_url` override is dropped.",
+      "source_sha256": "ca5f9dbc0dae0cf78f4ccea3a96c6f9edac4ceaba5a41402aa54dbf923a221fd",
+      "context": "the language to translate the hover help into, converted to a string; a falsy value clears it. Any :meth:`set_url` override is dropped.",
+      "translation": "språket som hovringshjälpen ska översättas till, konverterat till en sträng; ett falskt värde rensar den. En eventuell åsidosättning från :meth:`set_url` släpps.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.setText#1",
+      "source": "the full description; None becomes ``\"\"``. It is kept whole and painted elided to fit.",
+      "source_sha256": "1f6667309b13b8e7ccd4323aa5cdeed2effb90071ce261020623256e1138cb29",
+      "context": "the full description; None becomes ``\"\"``. It is kept whole and painted elided to fit.",
+      "translation": "den fullständiga beskrivningen; None blir ``\"\"``. Den behålls hel och målas eliderad så att den får plats.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.set_api_app_key#1",
+      "source": "the module whose API page is linked; None or empty means no link. Any :meth:`set_url` override is dropped.",
+      "source_sha256": "0a43c7eb580fcc31f3390d3c33daf404989704bfb6327073fbd3a6686a683df7",
+      "context": "the module whose API page is linked; None or empty means no link. Any :meth:`set_url` override is dropped.",
+      "translation": "modulen vars API-sida länkas; None eller tomt betyder ingen länk. En eventuell åsidosättning från :meth:`set_url` släpps.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.set_url#1",
+      "source": "the documentation URL to link instead of the module's API page; empty removes the override.",
+      "source_sha256": "43affedfd69bc40a30d35d8ff13a2a6843a006b193e3b66392e96c2bf9bebf63",
+      "context": "the documentation URL to link instead of the module's API page; empty removes the override.",
+      "translation": "dokumentations-URL:en som ska länkas i stället för modulens API-sida; tomt tar bort åsidosättningen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.enterEvent#1",
+      "source": "the enter event, passed on to the base class after any pending hide is cancelled.",
+      "source_sha256": "5a8d8dc53c5e1208a1af449c6242b840625cd1f4e741c81e6c7d8ac71f3d59c1",
+      "context": "the enter event, passed on to the base class after any pending hide is cancelled.",
+      "translation": "inträdeshändelsen, som skickas vidare till basklassen efter att en eventuell väntande döljning har avbrutits.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.eventFilter#1",
+      "source": "the watched object; the filter is installed on the application, so this is whatever received the event. Not read.",
+      "source_sha256": "0563e75ef454e0cbc7b4f3abfe1a939b887568ccc88c0c440de6dacfd5020f3f",
+      "context": "the watched object; the filter is installed on the application, so this is whatever received the event. Not read.",
+      "translation": "det bevakade objektet; filtret är installerat på programmet, så detta är det som tog emot händelsen. Läses inte.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.eventFilter#2",
+      "source": "the event; only a mouse press while the panel is visible is acted on, using its global position. Always returns ``False`` so the press still reaches its target.",
+      "source_sha256": "c70f26e84196cbbbdaf0e67b9c9f4b94ced87b13e11fc916067ed83b9bb456de",
+      "context": "the event; only a mouse press while the panel is visible is acted on, using its global position. Always returns ``False`` so the press still reaches its target.",
+      "translation": "händelsen; bara ett mustryck medan panelen är synlig hanteras, med dess globala position. Returnerar alltid ``False`` så att trycket ändå når sitt mål.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.hideEvent#1",
+      "source": "the hide event, passed on to the base class.",
+      "source_sha256": "9495c4719c1701ca26090dcf86a98a2b234f81f37ffb02aec4e7b5505dddd4bd",
+      "context": "the hide event, passed on to the base class.",
+      "translation": "döljningshändelsen, som skickas vidare till basklassen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.keyPressEvent#1",
+      "source": "the key event; Escape, Up/Left and Down/Right are accepted here (the arrows only with more than one entry), and any other key goes to the base class.",
+      "source_sha256": "6d712c58da41f60a844eb40409298a694bad98794a55ceef0677d59fab7e34bf",
+      "context": "the key event; Escape, Up/Left and Down/Right are accepted here (the arrows only with more than one entry), and any other key goes to the base class.",
+      "translation": "tangenthändelsen; Escape, Upp/Vänster och Ned/Höger accepteras här (pilarna bara med fler än en post), och alla andra tangenter går till basklassen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.leaveEvent#1",
+      "source": "the leave event, passed on to the base class after a 100 ms hide is scheduled.",
+      "source_sha256": "f0f0f8cd969ac33a2fbcfc5356e407f97b58577ee76ba7f675b27a06d1d3f410",
+      "context": "the leave event, passed on to the base class after a 100 ms hide is scheduled.",
+      "translation": "lämnahändelsen, som skickas vidare till basklassen efter att en döljning på 100 ms har schemalagts.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.open_for#2",
+      "source": "the widget the panel is docked under; see :meth:`show_for`.",
+      "source_sha256": "30ab88c65f274deb4e5645f0332e364cbce1457f7a8b7556542df5c51f71f4fc",
+      "context": "the widget the panel is docked under; see :meth:`show_for`.",
+      "translation": "widgeten som panelen dockas under; se :meth:`show_for`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.open_for#3",
+      "source": "availability mappings (``{title, reason, url, offer}``) as :meth:`show_for` takes them; an empty list shows nothing.",
+      "source_sha256": "9b6122d14a6c94a08eb9cb0d1e1f615a7a9729ae5d7b339edab6f19eea8233ce",
+      "context": "availability mappings (``{title, reason, url, offer}``) as :meth:`show_for` takes them; an empty list shows nothing.",
+      "translation": "tillgänglighetsmappningar (``{title, reason, url, offer}``) så som :meth:`show_for` tar dem; en tom lista visar ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.set_install_handler#2",
+      "source": "callable taking the current entry's ``offer``, or ``None`` to leave the signal with no receiver.",
+      "source_sha256": "9f2bf3104940af5a691efb2f1840a4e04fd0e820c7e8695061ba139c5feec1d3",
+      "context": "callable taking the current entry's ``offer``, or ``None`` to leave the signal with no receiver.",
+      "translation": "anropsbart objekt som tar den aktuella postens ``offer``, eller ``None`` för att lämna signalen utan mottagare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.show_entry#1",
+      "source": "entry position; wraps around modulo the number of entries, so ``-1`` is the last one.",
+      "source_sha256": "7761c36ca40137601f7886278410c9991ac86ff532c895e886bd8386b38217d4",
+      "context": "entry position; wraps around modulo the number of entries, so ``-1`` is the last one.",
+      "translation": "postens position; går runt modulo antalet poster, så att ``-1`` är den sista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.install_word_for#1",
+      "source": "the offer's action, ``\"install\"``, ``\"elsewhere\"``, ``\"impossible\"`` or ``\"ready\"`` (which gives ``''``); any other value gives ``\"What it needs\"``.",
+      "source_sha256": "3be68699b230aba068dd766ab9600a4a53013d10bf478f3f3c69bde9c224792d",
+      "context": "the offer's action, ``\"install\"``, ``\"elsewhere\"``, ``\"impossible\"`` or ``\"ready\"`` (which gives ``''``); any other value gives ``\"What it needs\"``.",
+      "translation": "erbjudandets åtgärd, ``\"install\"``, ``\"elsewhere\"``, ``\"impossible\"`` eller ``\"ready\"`` (som ger ``''``); alla andra värden ger ``\"What it needs\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexResult#1",
+      "source": "whether the pattern (and the sample, when one was given) passed.",
+      "source_sha256": "e04001e0f631dc5d3b842e3a6fbb61a624465156e75283edc0ff93823c4d67d7",
+      "context": "whether the pattern (and the sample, when one was given) passed.",
+      "translation": "om mönstret (och provet, när ett sådant angavs) godkändes.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexResult#2",
+      "source": "one-line explanation to show beside the field.",
+      "source_sha256": "3f136229f979d0c944402311f3eebe28e5309a7ebab09593915e7e6af5c6c1c8",
+      "context": "one-line explanation to show beside the field.",
+      "translation": "förklaring på en rad att visa bredvid fältet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexResult#3",
+      "source": "the ``columnID``, ``grna`` and ``rowID`` values the sample produced; empty when no sample was matched.",
+      "source_sha256": "7e159cad9389bfcab9d29b294dd197d9c1e166a9b6e39cc0b930fca1a7c213c5",
+      "context": "the ``columnID``, ``grna`` and ``rowID`` values the sample produced; empty when no sample was matched.",
+      "translation": "de värden för ``columnID``, ``grna`` och ``rowID`` som provet gav; tomt när inget prov matchades.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexWidget.set_value#1",
+      "source": "the regex text; ``None`` clears the field, anything else is converted with ``str``.",
+      "source_sha256": "6328691f40df71a4680ff2a7a61238c23846d1c3d95d31d5a624afbf6bf3a9fc",
+      "context": "the regex text; ``None`` clears the field, anything else is converted with ``str``.",
+      "translation": "regex-texten; ``None`` rensar fältet, allt annat konverteras med ``str``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.evaluate_barcode_regex#2",
+      "source": "the regular expression, stripped of surrounding whitespace; it must define the named groups ``columnID``, ``grna`` and ``rowID``.",
+      "source_sha256": "d270042a12621c0aa20bc0c889c0a953835fd9ab05b1fdf68fe015b6f2d206c1",
+      "context": "the regular expression, stripped of surrounding whitespace; it must define the named groups ``columnID``, ``grna`` and ``rowID``.",
+      "translation": "det reguljära uttrycket, rensat från omgivande blanktecken; det måste definiera de namngivna grupperna ``columnID``, ``grna`` och ``rowID``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.evaluate_barcode_regex#3",
+      "source": "an optional read to match from its start with ``re.match``; all whitespace is removed first, and empty skips the match.",
+      "source_sha256": "d51ca89c50a42cf25dc9ad292cd0f10ea8f5055964d4e3700409191e92a97344",
+      "context": "an optional read to match from its start with ``re.match``; all whitespace is removed first, and empty skips the match.",
+      "translation": "en valfri avläsning att matcha från dess början med ``re.match``; alla blanktecken tas först bort, och tomt hoppar över matchningen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.add_title_action#0",
+      "source": "Put ``widget`` at the right-hand end of the title row.",
+      "source_sha256": "1911bc647177e16f13ee1470636edc8025bb0ce9213f1c2ac8bbd44b4f9e4978",
+      "context": "Put ``widget`` at the right-hand end of the title row.",
+      "translation": "Lägg ``widget`` längst till höger i titelraden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.add_title_action#1",
+      "source": "The title row is built on first use, so a card nobody adds an action to keeps its original layout exactly.",
+      "source_sha256": "fcfd170415344b79b748a5e16f10cf5d2a637887745a1ef799e0ba62ae17c36c",
+      "context": "The title row is built on first use, so a card nobody adds an action to keeps its original layout exactly.",
+      "translation": "Titelraden byggs vid första användningen, så att ett kort som ingen lägger till en åtgärd på behåller sin ursprungliga layout exakt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.add_title_action#2",
+      "source": "the control to add, e.g. a Refresh button.",
+      "source_sha256": "b3ff52a4737f92ff264de9f5055e060205c754880a528b2af0df6e571efcbcc0",
+      "context": "the control to add, e.g. a Refresh button.",
+      "translation": "kontrollen som ska läggas till, t.ex. en Refresh-knapp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#0",
+      "source": "Let the card shrink to its heading while ``folder`` is shut.",
+      "source_sha256": "1e74ff7cd596a4b3acf00609ed7b5ff33755b4696a8a994835423fe0d6249ab1",
+      "context": "Let the card shrink to its heading while ``folder`` is shut.",
+      "translation": "Låt kortet krympa till sin rubrik medan ``folder`` är stängd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#1",
+      "source": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
+      "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "translation": "Innehållet läggs ut med en stretch, och en layout räknar den stretchen även medan innehållet är dolt, så att ett hopfällt kort ändå bad om utrymme och delade det lika med den stretch som låser en hopfälld rubrik mot botten av sin panel (punkt 515): den hopfällda Console blev halva panelens höjd. Hopfällt ger innehållet upp sin stretch; öppnat tar det tillbaka den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#2",
+      "source": "the :class:`~spacr.qt.widgets.foldable.Folder` that folds :attr:`body`.",
+      "source_sha256": "373da990fb11b9c9307b2c6bfb75acf74507f19a818434789b6f98acc835fbc8",
+      "context": "the :class:`~spacr.qt.widgets.foldable.Folder` that folds :attr:`body`.",
+      "translation": "den :class:`~spacr.qt.widgets.foldable.Folder` som fäller ihop :attr:`body`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
+      "context": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-key-value mapping applies nothing.",
+      "translation": "mappning så som den sparades med arbetsytan; dess poster ``picture_settings``, ``widgets``, ``picture_mode`` och ``coefficient`` tillämpas var och en när de finns, och något som inte är en dict tillämpar ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading#0",
+      "source": "Cancel the active montage and queued selections without blocking.",
+      "source_sha256": "435887725b2c66014cd2ef4f053a4b7fc4b591be1613df6acaf2181c49e560c6",
+      "context": "Cancel the active montage and queued selections without blocking.",
+      "translation": "Avbryt det aktiva montaget och köade urval utan att blockera.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading#1",
+      "source": "whether there was a current montage request to cancel. An existing database or filesystem read may finish before exit; no later stage or stale result is shown.",
+      "source_sha256": "219f2273a6d119c16e0bd9475214957870c73fe98c8d7b31b961350913ecfac1",
+      "context": "whether there was a current montage request to cancel. An existing database or filesystem read may finish before exit; no later stage or stale result is shown.",
+      "translation": "om det fanns en aktuell montagebegäran att avbryta. En pågående databas- eller filsystemläsning kan slutföras före avslut; inget senare steg eller inaktuellt resultat visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.closeEvent#1",
+      "source": "the close event; passed to the base class after :meth:`shutdown`.",
+      "source_sha256": "584510f5f798fb2f56a6b4ead22ef991f7c5b9702d186e445257c21770dcadd1",
+      "context": "the close event; passed to the base class after :meth:`shutdown`.",
+      "translation": "stängningshändelsen; skickas till basklassen efter :meth:`shutdown`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.resizeEvent#1",
+      "source": "the resize event; passed to the base class, and the reflow timer is restarted so only the last of a burst reflows.",
+      "source_sha256": "152e4cb2abdd85f1883fc39ed6b481051c88091746687e0e3bda2c483ef23bbb",
+      "context": "the resize event; passed to the base class, and the reflow timer is restarted so only the last of a burst reflows.",
+      "translation": "storleksändringshändelsen; skickas till basklassen, och omflödningstimern startas om så att bara den sista i en serie ger en omflödning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.load#3",
+      "source": "optional callback receiving stage text on the calling thread. A GUI caller must relay it through a queued Qt signal.",
+      "source_sha256": "04c5609c3a751322b7f26b57428e44c0fea4538347033832f75865cf6052c728",
+      "context": "optional callback receiving stage text on the calling independent execution path. A GUI caller must relay it through a queued Qt signal.",
+      "translation": "valfri återanropsfunktion som tar emot stegtext i den anropande tråden. En GUI-anropare måste vidarebefordra den via en köad Qt-signal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.load#4",
+      "source": "optional zero-argument predicate checked between reads and processing stages. An operation already in progress may finish.",
+      "source_sha256": "1a7d999b76786696bbd4b62a5649b26eb80fbec5444b48e5b79de5b91e098c1b",
+      "context": "optional zero-argument predicate checked between reads and processing stages. An operation already in progress may finish.",
+      "translation": "valfritt predikat utan argument som kontrolleras mellan läsningar och bearbetningssteg. En operation som redan pågår kan slutföras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_mapping.ChannelMappingWidget.set_value#2",
+      "source": "``None`` (the default mapping), a colour-slot mapping, a legacy ``png_dims`` list, or the string form of either; an unparseable string falls back to the default mapping.",
+      "source_sha256": "7359afd68a797a43eaac57ddaafc2a7dc3432efb8d1201d638602acdbee46175",
+      "context": "``None`` (the default mapping), a colour-slot mapping, a legacy ``png_dims`` list, or the string form of either; an unparseable string falls back to the default mapping.",
+      "translation": "``None`` (standardmappningen), en mappning av färgplatser, en äldre ``png_dims``-lista eller strängformen av någon av dem; en sträng som inte kan tolkas faller tillbaka på standardmappningen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_picker.ChannelPicker.set_value#1",
+      "source": "the channels to check: a comma-separated string, an iterable of names, or an empty value, read by :func:`parse`; unknown names are ignored.",
+      "source_sha256": "621c7f91297b24bce29d4419fb4edfdc7219d6b310de0aaed06d5c66f9bce859",
+      "context": "the channels to check: a comma-separated string, an iterable of names, or an empty value, read by :func:`parse`; unknown names are ignored.",
+      "translation": "kanalerna som ska markeras: en kommaseparerad sträng, en itererbar samling namn eller ett tomt värde, läst av :func:`parse`; okända namn ignoreras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_picker.to_text#1",
+      "source": "channel names, stripped and lower-cased; names outside ``('r', 'g', 'b')`` are dropped.",
+      "source_sha256": "0dee345c6ef3cc44877e07705ac3c734d42ab76b706d2ed1d73629d5828fa022",
+      "context": "channel names, stripped and lower-cased; names outside ``('r', 'g', 'b')`` are dropped.",
+      "translation": "kanalnamn, trimmade och med gemener; namn utanför ``('r', 'g', 'b')`` tas bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.remove_at#1",
+      "source": "zero-based position of the class; out of range does nothing.",
+      "source_sha256": "1176a8e366712eb0ed48e79a7f1bc78e11fc77289a678e12d56d96626553dac1",
+      "context": "zero-based position of the class; out of range does nothing.",
+      "translation": "klassens nollbaserade position; utanför intervallet gör ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_basis#2",
+      "source": "the dataset basis, passed on as the ``dataset_mode`` setting: ``\"metadata\"`` offers the plate coordinates, ``\"annotation\"`` the table's annotation columns. The column list is refilled.",
+      "source_sha256": "e61ddd7826b063ea57339e332404e09ba718346edea665ac29735eca6d300e20",
+      "context": "the dataset basis, passed on as the ``dataset_mode`` setting: ``\"metadata\"`` offers the laboratory microplate coordinates, ``\"annotation\"`` the table's annotation columns. The column list is refilled.",
+      "translation": "datamängdens grund, som skickas vidare som inställningen ``dataset_mode``: ``\"metadata\"`` erbjuder plattkoordinaterna, ``\"annotation\"`` tabellens annoteringskolumner. Kolumnlistan fylls på nytt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_frame#1",
+      "source": "the table whose column names are offered (filtered by the basis), or ``None`` when no table is loaded, which disables adding a class and shows a hint.",
+      "source_sha256": "b22c7c1208180bbe7f1f784fe7220877f8aeb3c4253fd25d09efc93cb76156af",
+      "context": "the table whose column names are offered (filtered by the basis), or ``None`` when no table is loaded, which disables adding a class and shows a hint.",
+      "translation": "tabellen vars kolumnnamn erbjuds (filtrerade efter grunden), eller ``None`` när ingen tabell är inläst, vilket inaktiverar tillägg av en klass och visar ett tips.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_value#2",
+      "source": "a mapping of class name to ``{column, value, random_complement}``, a legacy list or tuple of class names, or the text of either; anything else leaves the table empty. Malformed entries are skipped.",
+      "source_sha256": "bc4b7d18e0d85a973458287c53e4b1f6ace257503dcc7bef8e517976c30a8eb4",
+      "context": "a mapping of class name to ``{column, value, random_complement}``, a legacy list or tuple of class names, or the text of either; anything else leaves the table empty. Malformed entries are skipped.",
+      "translation": "en mappning från klassnamn till ``{column, value, random_complement}``, en äldre lista eller tuple med klassnamn, eller texten för någon av dem; allt annat lämnar tabellen tom. Felaktiga poster hoppas över.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#0",
+      "source": "Install a vendor command-line tool, then sign in to it, from a screen row.",
+      "source_sha256": "e1c34a4b115b9fe5e9f7d265bf10b3f2bc89ddba74dc265f8d50bc377b4c6d8a",
+      "context": "Install a vendor command-line tool, then sign in to it, from a screen row.",
+      "translation": "Installera ett leverantörskommandoradsverktyg och logga sedan in i det, från en rad i en programvy.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#1",
+      "source": "The setup screen shows one of these under its AI provider marks and one under its GitHub mark. Pressing Install there runs the tool's own installer -- :func:`spacr.qt.ai.cli_install.run_install`, on a :class:`spacr.qt.job_runner.JobRunner` worker thread, never on the GUI thread -- and this panel shows what is happening: the command that is running, the installer's latest line of output, a Cancel button, and at the end either the next step or a sentence the user can act on.",
+      "source_sha256": "804238cd2c160742b339b5642008dc54ad9c2c7ed0e3879a76dab5d16a0e040b",
+      "context": "The setup application view shows one of these under its AI provider marks and one under its GitHub mark. Pressing Install there runs the tool's own installer -- :func:`spacr.qt.ai.cli_install.run_install`, on a :class:`spacr.qt.job_runner.JobRunner` background execution unit, never on the main GUI execution path -- and this panel shows what is happening: the command that is executing, the installer's latest line of output, a Cancel button, and at the end either the next step or a sentence the user can act on.",
+      "translation": "Konfigurationsvyn visar en sådan under sina märken för AI-leverantörer och en under sitt GitHub-märke. Att trycka på Install där kör verktygets eget installationsprogram -- :func:`spacr.qt.ai.cli_install.run_install`, i en arbetstråd i :class:`spacr.qt.job_runner.JobRunner`, aldrig i GUI-tråden -- och den här panelen visar vad som händer: kommandot som körs, installationsprogrammets senaste utdatarad, en Cancel-knapp och i slutet antingen nästa steg eller en mening som användaren kan agera på.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#2",
+      "source": "After a successful install the owner's ``after_install`` starts the tool's sign-in, and :meth:`CliSetupPanel.sign_in` watches for it to finish by asking the tool's own status command every few seconds, again off the GUI thread.",
+      "source_sha256": "95f959e9509f4e918e9a211cc5a1103342868265e1dcf7198af3b004f5847c62",
+      "context": "After a successful install the owner's ``after_install`` starts the tool's sign-in, and :meth:`CliSetupPanel.sign_in` watches for it to finish by asking the tool's own status command every few seconds, again off the main GUI execution path.",
+      "translation": "Efter en lyckad installation startar ägarens ``after_install`` verktygets inloggning, och :meth:`CliSetupPanel.sign_in` bevakar när den blir klar genom att fråga verktygets eget statuskommando med några sekunders mellanrum, även det utanför GUI-tråden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#3",
+      "source": "The command is on screen from the first moment to the last, with a Copy button beside it, for the user who would rather run it themselves.",
+      "source_sha256": "ae1b1619582a66ca8ae9b49d0e2a8e82616bf572eadc6fb668e2b45026bda789",
+      "context": "The command is on application view from the first moment to the last, with a Copy button beside it, for the user who would rather run it themselves.",
+      "translation": "Kommandot visas på skärmen från första till sista stund, med en Copy-knapp bredvid, för den användare som hellre kör det själv.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#0",
+      "source": "Install one command-line tool and see its sign-in through.",
+      "source_sha256": "c255117fb22e1f5daabf5d481612c6f91be018704de0dc87704ed2e8c6db02a6",
+      "context": "Install one command-line tool and see its sign-in through.",
+      "translation": "Installera ett kommandoradsverktyg och för dess inloggning i mål.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#1",
+      "source": "the owning widget.",
+      "source_sha256": "94422e94f2fd7a9b47b2a970555cd74816199555f54d3b548b11288a84c36080",
+      "context": "the owning widget.",
+      "translation": "den ägande widgeten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#2",
+      "source": "``False`` runs the installer and the sign-in checks inline, for a test that drives the panel synchronously.",
+      "source_sha256": "4a78791f6f89fa3047bfe83e35ec6e9f903e9b5e606efeb04bceabcb8e35af5b",
+      "context": "``False`` runs the installer and the sign-in checks inline, for a test that drives the panel synchronously.",
+      "translation": "``False`` kör installationsprogrammet och inloggningskontrollerna direkt, för ett test som driver panelen synkront.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#3",
+      "source": "opens an install page; the default browser by default.",
+      "source_sha256": "8651c4a9a9887051f0fb36aba3bdd8b5d7423d3b0327c29af64b40e6773088ff",
+      "context": "opens an install page; the default browser by default.",
+      "translation": "öppnar en installationssida; som standard standardwebbläsaren.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#4",
+      "source": "what the panel is doing, one of this module's states.",
+      "source_sha256": "8e26d0b209d61932d35c0b7741bdaf51e5512eb2ea05161bb4e7c626e0194e4e",
+      "context": "what the panel is doing, one of this module's states.",
+      "translation": "vad panelen gör, ett av den här modulens tillstånd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#5",
+      "source": "Build the panel, hidden until there is something to show.",
+      "source_sha256": "d7fe0b3995c7aa14f6e74c7820499aed011972262666369e3b8dccef0fe1d96e",
+      "context": "Build the panel, hidden until there is something to show.",
+      "translation": "Bygg panelen, dold tills det finns något att visa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#7",
+      "source": "run jobs on a worker thread.",
+      "source_sha256": "42c9eee9ff9f5da8f6bb3044c81107cc1b058ff5220a775abd4862c35de6a6dd",
+      "context": "run jobs on a background execution unit.",
+      "translation": "kör jobb i en arbetstråd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#8",
+      "source": "opens an install page.",
+      "source_sha256": "88ff52f255ddc6a2f879a493531f5f04a0b81e4bbf77f7dd2a3c400917d19d3e",
+      "context": "opens an install page.",
+      "translation": "öppnar en installationssida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.cancel#0",
+      "source": "Stop the installer, or stop waiting for the sign-in.",
+      "source_sha256": "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027",
+      "context": "Stop the installer, or stop waiting for the sign-in.",
+      "translation": "Stoppa installationsprogrammet, eller sluta vänta på inloggningen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.copy_command#0",
+      "source": "Put the command on the clipboard.",
+      "source_sha256": "d3b36bba715f751c401f1f8985f409066457edff41ab1c2bef9c1f63e2539dba",
+      "context": "Put the command on the clipboard.",
+      "translation": "Lägg kommandot i urklippet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.copy_command#1",
+      "source": "the command copied, which stays on screen either way.",
+      "source_sha256": "9f72a83511eb53e365cf8f945a966ab7f4764e3558939da184471144b5cd9405",
+      "context": "the command copied, which stays on application view either way.",
+      "translation": "det kopierade kommandot, som stannar på skärmen i vilket fall som helst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.done#0",
+      "source": "Close the panel and have the owner look at the tool again.",
+      "source_sha256": "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a",
+      "context": "Close the panel and have the owner look at the tool again.",
+      "translation": "Stäng panelen och låt ägaren titta på verktyget igen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#0",
+      "source": "Run ``tool``'s installer off the GUI thread.",
+      "source_sha256": "3418d878d629e2aaad031a4d8c8ee80a4411a79314f855d01d9ba11c1fc0b1e5",
+      "context": "Run ``tool``'s installer off the main GUI execution path.",
+      "translation": "Kör installationsprogrammet för ``tool`` utanför GUI-tråden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#1",
+      "source": "Shows the command before anything runs and keeps it on screen. When none of the tool's install methods can run on this computer, says which program is missing instead and offers the command and the install page.",
+      "source_sha256": "a8491fe73e562580e7a5583b06e9c1e02491475a3b44ed078b3b22597062d5f8",
+      "context": "Shows the command before anything runs and keeps it on application view. When none of the tool's install methods can execute on this computer, says which program is missing instead and offers the command and the install page.",
+      "translation": "Visar kommandot innan något körs och behåller det på skärmen. När ingen av verktygets installationsmetoder kan köras på den här datorn anges i stället vilket program som saknas, och kommandot och installationssidan erbjuds.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#3",
+      "source": "called on the GUI thread once the tool is installed, to start its sign-in.",
+      "source_sha256": "5f47937809f82dcddb1abf0088e8dc539063c8047000e1becdfc7379b7910a94",
+      "context": "called on the main GUI execution path once the tool is installed, to start its sign-in.",
+      "translation": "anropas i GUI-tråden när verktyget har installerats, för att starta dess inloggning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#4",
+      "source": "the tool's install page, offered when an install fails.",
+      "source_sha256": "e9ff692d1754cb12037743bdccb076b3099610b2080682d25faf25159e600208",
+      "context": "the tool's install page, offered when an install fails.",
+      "translation": "verktygets installationssida, som erbjuds när en installation misslyckas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#5",
+      "source": "``True`` when an installer was started.",
+      "source_sha256": "baa145c9a7c7ae68b4e2848506b4fa56da12ba786c166ba2a2ad45feb10e201a",
+      "context": "``True`` when an installer was started.",
+      "translation": "``True`` när ett installationsprogram startades.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.is_busy#0",
+      "source": "Whether an installer is running.",
+      "source_sha256": "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b",
+      "context": "Whether an installer is running.",
+      "translation": "Om ett installationsprogram körs.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.shutdown#0",
+      "source": "Stop the installer and the sign-in watch, and retire the thread.",
+      "source_sha256": "6e84b02c3315655555ec5ffac6a5934239a4c9d031afa8388a4e09b426b3aa45",
+      "context": "Stop the installer and the sign-in watch, and retire the thread.",
+      "translation": "Stoppa installationsprogrammet och inloggningsbevakningen, och pensionera tråden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.shutdown#1",
+      "source": "Called when the screen closes: an installer left running with no Cancel button on screen is one the user can no longer stop. The worker's own answer is dropped once the thread is retired, so an install that was running is shown as cancelled here, and the panel no longer counts as busy.",
+      "source_sha256": "acc52eabc78f6766ee5fc1bf80b1a20b6bd6b54378716a42c233fb6354bf4c8a",
+      "context": "Called when the application view closes: an installer left executing with no Cancel button on application view is one the user can no longer stop. The worker's own answer is dropped once the independent execution path is retired, so an install that was executing is shown as cancelled here, and the panel no longer counts as busy.",
+      "translation": "Anropas när programvyn stängs: ett installationsprogram som lämnas igång utan någon Cancel-knapp på skärmen är ett som användaren inte längre kan stoppa. Arbetarens eget svar släpps när tråden har pensionerats, så en installation som pågick visas här som avbruten, och panelen räknas inte längre som upptagen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#0",
+      "source": "Start ``tool``'s sign-in and watch for it to finish.",
+      "source_sha256": "0f88e90165ddb26c624e4ecac91297acf660409395d3714469e9ad50edcd3c1f",
+      "context": "Start ``tool``'s sign-in and watch for it to finish.",
+      "translation": "Starta inloggningen för ``tool`` och bevaka när den blir klar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#2",
+      "source": "starts the sign-in -- in a terminal for an AI CLI, in spaCR itself for the GitHub CLI -- and says whether it started.",
+      "source_sha256": "94ca04d3102ddb92a780ac6010c4d200ef4dd3507aa101cafbad6bdf598edb47",
+      "context": "starts the sign-in -- in a terminal for an AI CLI, in spaCR itself for the GitHub CLI -- and says whether it started.",
+      "translation": "startar inloggningen -- i en terminal för ett AI-CLI, i spaCR självt för GitHub-CLI:t -- och säger om den startade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#3",
+      "source": "whether the sign-in started.",
+      "source_sha256": "7ac3a00cb0d55d71a2fb59f4e757e4d7fdb311a86ca17dede0724a757e1620d3",
+      "context": "whether the sign-in started.",
+      "translation": "om inloggningen startade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in_failed#0",
+      "source": "Say that a sign-in the owner was running has ended unfinished.",
+      "source_sha256": "080e25eef76809a4ed9af7d2c5952603a93f7e2b30918961e60de9658c6b7987",
+      "context": "Say that a sign-in the owner was running has ended unfinished.",
+      "translation": "Säg att en inloggning som ägaren körde har avslutats utan att bli klar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in_failed#1",
+      "source": "what happened and what to do, already translated.",
+      "source_sha256": "f20ec4322b2fd5bd93b664f18751d531c97e8114c76928293a53094f5b25e346",
+      "context": "what happened and what to do, already translated.",
+      "translation": "vad som hände och vad man ska göra, redan översatt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.tool_label#0",
+      "source": "The name of the tool this panel is installing or signing in to.",
+      "source_sha256": "376f4535b1ace3f791b84598e8213aa138d255887d948446fc4365b1a35f6bea",
+      "context": "The name of the tool this panel is installing or signing in to.",
+      "translation": "Namnet på verktyget som den här panelen installerar eller loggar in i.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.tool_label#1",
+      "source": "its label, such as ``\"Claude\"``, or ``\"\"`` before the panel has been given a tool.",
+      "source_sha256": "af1d852ed4f2b25685308101ef4fc5e1d2c43761cee43d32d83c357343125b86",
+      "context": "its label, such as ``\"Claude\"``, or ``\"\"`` before the panel has been given a tool.",
+      "translation": "dess etikett, till exempel ``\"Claude\"``, eller ``\"\"`` innan panelen har fått ett verktyg.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_section.CollapsibleSection.set_open_minimum#1",
+      "source": "the smallest body height, in pixels, the open section may be dragged to; converted to ``int`` and floored at 0. The header's folded height is added on top.",
+      "source_sha256": "fe08f02ba6ad730004785b9fe35a41224680e0efdce1b484dde21ed133e820b7",
+      "context": "the smallest body height, in pixels, the open section may be dragged to; converted to ``int`` and floored at 0. The header's folded height is added on top.",
+      "translation": "den minsta innehållshöjd, i pixlar, som det öppna avsnittet får dras ned till; konverteras till ``int`` och begränsas nedåt vid 0. Rubrikens hopfällda höjd läggs till ovanpå.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#0",
+      "source": "Drag an edge to resize a pane; collapsing is where the drag stops.",
+      "source_sha256": "b58492b31ef101ea14c8e802a7b0eb0aea3bae6da9ce598bceb456a81a9ee9a1",
+      "context": "Drag an edge to resize a pane; collapsing is where the drag stops.",
+      "translation": "Dra i en kant för att ändra storlek på en panel; hopfällning sker där dragningen stannar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#1",
+      "source": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
+      "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "translation": "Punkt 471, del B. Två önskemål som visar sig vara ett: varje behållare fälls ihop (\"närhelst något fälls ihop ska det automatiskt låsas mot botten av den behållare det ligger i\"), och varje behållare kan \"förstoras eller krympas genom att dra i kanterna\". En :class:`~PySide6.QtWidgets.QSplitter` gör redan båda -- ett handtag att dra i, och ett barn som kan tas ned till ingenting -- så båda halvorna finns här som EN mekanism, och allt som fälls ihop i en delare kan också storleksändras, och tvärtom.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#2",
+      "source": "THE THREE PIECES, AND WHAT SLICE C REUSES",
+      "source_sha256": "582b1bb33c1d80d3a614bbad57ef3426fc3bfd6492137169210801e0edfb2184",
+      "context": "The three pieces, and what slice c reuses",
+      "translation": "DE TRE DELARNA, OCH VAD DEL C ÅTERANVÄNDER",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#3",
+      "source": ":class:`CollapsibleSplitter` A ``QSplitter`` whose children are registered as named panes",
+      "source_sha256": "690d316705e8040992431f6cb6aa7f1a55a5b4926b2861a29cabfa68cbf10322",
+      "context": ":class:`CollapsibleSplitter` A ``QSplitter`` whose children are registered as named panes",
+      "translation": ":class:`CollapsibleSplitter` En ``QSplitter`` vars barn registreras som namngivna paneler",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#4",
+      "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
+      "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
+      "context": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on application view, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
+      "translation": ":class:`FocusCollapse` Den automatiska halvan. Vissa widgetar är FOKUSwidgetar (en realtidsförhandsvisning, figurpanelen): medan någon av dem visas på skärmen fälls MÅLpanelerna ihop (konsolen, System, knapparna, inställningskolumnen), och när den sista försvinner kommer de tillbaka. Den strider aldrig mot användaren: ett mål som användaren fäller ut för hand LÅSES öppet och lämnas ifred tills VYN tar slut. Se klassen för vad en vy är.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#5",
+      "source": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
+      "source_sha256": "daa0f348342f5d7483d80aaa03cd37f18baecb084b033ac9e8dfc735dd7b9486",
+      "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
+      "translation": ":func:`lock_folded_to_bottom` För en hopfälld panel som INTE ligger i en delare (ett avsnitt i ett rullningsområde, en figurruta i en kolumn): håller dess rubrik längst ned i det utrymme som dess layout ger den, vilket är regeln \"låses automatiskt mot botten\" för sig. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Del C:s användning av de tre ovan inuti programvyerna: en rubrik som fäller ihop en tabell, en figur, en sidopanel; samma rubrik i en delare, så att avsnittet också byter utrymme med sina grannar genom dragning; och samma hopfällning på ett kort med titel. Hopfällning visar eller bygger aldrig en panel som dess ägare håller dold.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#0",
+      "source": "A splitter whose panes resize by dragging and collapse at the limit.",
+      "source_sha256": "8f46c3128462953f906597968dd4fa39e9e983467bf9be2d1ecd06e827bcdc5e",
+      "context": "A splitter whose panes resize by dragging and collapse at the limit.",
+      "translation": "En delare vars paneler storleksändras genom dragning och fälls ihop vid gränsen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#1",
+      "source": "See the module docstring for the pane kinds and the API.",
+      "source_sha256": "963c2a287b6e6d5155240c3ae5a7eda15d0979cdf7d8cde6ea1101d025879a3d",
+      "context": "See the module docstring for the pane kinds and the API.",
+      "translation": "Se modulens docstring för paneltyperna och API:t.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#2",
+      "source": "``Qt.Vertical`` stacks the panes.",
+      "source_sha256": "b37b74992cb7d11a28a924407466d479fc5a7ed6d3d037143595d0bbee377c3c",
+      "context": "``Qt.Vertical`` stacks the panes.",
+      "translation": "``Qt.Vertical`` staplar panelerna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#4",
+      "source": "where the dragged sizes are remembered, e.g. ``\"mask::shell\"``; empty remembers nothing (what a test wants).",
+      "source_sha256": "1b7ffede4715a1f11ca970739ba43beaeb7671b76bac685169c3e9ff2b26d289",
+      "context": "where the dragged sizes are remembered, e.g. ``\"mask::shell\"``; empty remembers nothing (what a test wants).",
+      "translation": "var de dragna storlekarna sparas, t.ex. ``\"mask::shell\"``; tomt sparar ingenting (vilket ett test vill ha).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#5",
+      "source": "Build an empty splitter; add panes with :meth:`add_pane`.",
+      "source_sha256": "af629d7f48d1d75e9ae7fa5446e034897a656d7ee4d3efdf1892c81d0b46466e",
+      "context": "Build an empty splitter; add panes with :meth:`add_pane`.",
+      "translation": "Bygg en tom delare; lägg till paneler med :meth:`add_pane`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.addWidget#0",
+      "source": "Add as Qt does, and let a wrapping container inherit a pane.",
+      "source_sha256": "bf229559667297adffa98a67008efac9a15d0e85e3f58995d6cb904be9493851",
+      "context": "Add as Qt does, and let a wrapping container inherit a pane.",
+      "translation": "Lägg till som Qt gör, och låt en omslutande behållare ärva en panel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.addWidget#1",
+      "source": "the child to add.",
+      "source_sha256": "e3871ecc548b22bc72d750d180843bce8650f6529566580896d384355e1ae9a0",
+      "context": "the child to add.",
+      "translation": "barnet som ska läggas till.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#0",
+      "source": "Register ``widget`` as the pane ``name``, adding it if need be.",
+      "source_sha256": "67b8af81c4aa62110454d49de24be1f4d47964bfcc367594e8d3c1fd3a2dda90",
+      "context": "Register ``widget`` as the pane ``name``, adding it if need be.",
+      "translation": "Registrera ``widget`` som panelen ``name``, och lägg till den vid behov.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#1",
+      "source": "the pane. Added at ``index`` (or the end) unless it is already a child of this splitter.",
+      "source_sha256": "636633ed68aa222e1723fe37c1c16b9c935f8edbda343c3faf440e7f7988a7a8",
+      "context": "the pane. Added at ``index`` (or the end) unless it is already a child of this splitter.",
+      "translation": "panelen. Läggs till vid ``index`` (eller i slutet) om den inte redan är ett barn till den här delaren.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#10",
+      "source": "what dragging the pane's handle does, for its tooltip.",
+      "source_sha256": "ce623f063c4c5dfebc70ab4181551abe00480f0ed1419c339aaebe69dfc8a940",
+      "context": "what dragging the pane's handle does, for its tooltip.",
+      "translation": "vad dragning i panelens handtag gör, för dess verktygstips.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#11",
+      "source": "the :class:`Pane`.",
+      "source_sha256": "148c1fb74b8934811ddad31e6ba2d0ce92541a3cfe9574879d704bfa2ee325b3",
+      "context": "the :class:`Pane`.",
+      "translation": ":class:`Pane`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#2",
+      "source": "stable English name, used for the stored size and the handle's tooltip; translated where it is shown.",
+      "source_sha256": "b2e79a776faa97100aad423439023f39cd7e6924dd03c6f0dcbf380eef4441f0",
+      "context": "stable English name, used for the stored size and the handle's tooltip; translated where it is shown.",
+      "translation": "stabilt engelskt namn, som används för den sparade storleken och handtagets verktygstips; översätts där det visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#3",
+      "source": "the heading's Folder; makes it a HEADER pane.",
+      "source_sha256": "23b4cbff11ca1b8a0bc710934160a74f1a9de8d476ca73e1b40c0d19e358bcbd",
+      "context": "the heading's Folder; makes it a HEADER pane.",
+      "translation": "rubrikens Folder; gör den till en RUBRIKpanel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#4",
+      "source": ":data:`EDGE` for a pane that collapses to nothing.",
+      "source_sha256": "5ab37fc9e92ecada3e4a599fe1c1d691a4a984feb36b50e413af0bf828c955be",
+      "context": ":data:`EDGE` for a pane that collapses to nothing.",
+      "translation": ":data:`EDGE` för en panel som fälls ihop till ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#5",
+      "source": "0 keeps its own size as the splitter grows.",
+      "source_sha256": "b5d5ebce0a506bbc3bbbff6c7d04805dce16cc463b1ba9f4d1c6eabdc94624fa",
+      "context": "0 keeps its own size as the splitter grows.",
+      "translation": "0 behåller sin egen storlek när delaren växer.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#6",
+      "source": "the size to open at when the user never dragged it.",
+      "source_sha256": "84725cb1e90da6582ad0c37a253352b9ab9a8898f01f4a9ec84281f52ab2e051",
+      "context": "the size to open at when the user never dragged it.",
+      "translation": "storleken att öppna med när användaren aldrig har dragit i den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#7",
+      "source": "its minimum while open; ``None`` keeps the widget's.",
+      "source_sha256": "857d23883fbdc3a3dc03d63138fc4364bd65f716e6dbc51a231605bf253299bd",
+      "context": "its minimum while open; ``None`` keeps the widget's.",
+      "translation": "dess minimum när den är öppen; ``None`` behåller widgetens.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#8",
+      "source": "showing the widget also opens the pane.",
+      "source_sha256": "b98e89e6d05d9a806e40e9c7c1211bb7850952375a2a0a43ffc7bb734354b8be",
+      "context": "showing the widget also opens the pane.",
+      "translation": "att visa widgeten öppnar också panelen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#9",
+      "source": "remembers an EDGE pane's collapse across restarts.",
+      "source_sha256": "e19e26532dc4a89a2f8722be4bf9c4aca7f3b6cc5764e1cbdf2db6f941ed4cce",
+      "context": "remembers an EDGE pane's collapse across restarts.",
+      "translation": "minns en EDGE-panels hopfällning mellan omstarter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#0",
+      "source": "Wrap ``widget`` in a :class:`FoldSection` and add it as a pane.",
+      "source_sha256": "8092e744bfaa41bc1604a148a4d97c31bdecf9a3a8939e7f081e1bd5cd6b8799",
+      "context": "Wrap ``widget`` in a :class:`FoldSection` and add it as a pane.",
+      "translation": "Omslut ``widget`` i en :class:`FoldSection` och lägg till den som en panel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#1",
+      "source": "The short way to give a splitter child a heading that folds it: the section's Folder makes it a HEADER pane, so it resizes by its edge, collapses at the limit of a drag, and folded, is its heading at the bottom of its room.",
+      "source_sha256": "1a767e833fcf28207c19d1e6c476b1e7dbb0bea358212499be97eb6db51291dd",
+      "context": "The short way to give a splitter child a heading that folds it: the section's Folder makes it a HEADER pane, so it resizes by its edge, collapses at the limit of a drag, and folded, is its heading at the bottom of its room.",
+      "translation": "Det korta sättet att ge ett barn i en delare en rubrik som fäller ihop det: avsnittets Folder gör det till en HEADER-panel, så att det storleksändras via sin kant, fälls ihop vid gränsen för en dragning och, hopfällt, är sin rubrik längst ned i sitt utrymme.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#10",
+      "source": "widgets for the right-hand end of the heading.",
+      "source_sha256": "9ee115e30e041375947c5065169cd4a580dac5538a5befe68f96d45785a268eb",
+      "context": "widgets for the right-hand end of the heading.",
+      "translation": "widgetar för den högra änden av rubriken.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#11",
+      "source": "the section; its pane is ``self.pane(name)``.",
+      "source_sha256": "abab387f73f55b0c70c4a88d4abd6bf191a1ff246de7764b44c0d4919f541e42",
+      "context": "the section; its pane is ``self.pane(name)``.",
+      "translation": "avsnittet; dess panel är ``self.pane(name)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#2",
+      "source": "the content. Must not already be in this splitter.",
+      "source_sha256": "d3bcd0fb6e66cacb3f6686fb623e44e81da89dd2e0e46f48b3183d25135aaa33",
+      "context": "the content. Must not already be in this splitter.",
+      "translation": "innehållet. Får inte redan finnas i den här delaren.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#3",
+      "source": "stable English name for the heading and the stored size.",
+      "source_sha256": "f3b460ee1a39cb56852e6bec53e9420294349377795b0d323a27705b69c02f2e",
+      "context": "stable English name for the heading and the stored size.",
+      "translation": "stabilt engelskt namn för rubriken och den sparade storleken.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#4",
+      "source": "``\"<module>/<section>\"`` to remember a user fold.",
+      "source_sha256": "a642fe84fe093fb45837200ff842027845135b9419fec575b643afd006a156d9",
+      "context": "``\"<module>/<section>\"`` to remember a user fold.",
+      "translation": "``\"<module>/<section>\"`` för att minnas en hopfällning som användaren gjort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#7",
+      "source": "its minimum while open.",
+      "source_sha256": "43fe1ffcf11878bb7cf6b5b24d22c8f631958eec18aafd1a1912944f38378527",
+      "context": "its minimum while open.",
+      "translation": "dess minimum när det är öppet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#8",
+      "source": "showing it also opens it.",
+      "source_sha256": "07f326c1f865e07f4baec413c490d2bf9f03329e9f148a65630d4e5acfd59c90",
+      "context": "showing it also opens it.",
+      "translation": "att visa det öppnar det också.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#9",
+      "source": "where to insert it; the end by default.",
+      "source_sha256": "9401893ae0bba7329a50cb202fb60b248f323e68bb85ce325e5d086c9eaf12c6",
+      "context": "where to insert it; the end by default.",
+      "translation": "var det ska infogas; som standard i slutet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.createHandle#0",
+      "source": "Every handle is a :class:`_PaneHandle`.",
+      "source_sha256": "a7d3dbbea0f96158da6625bf1ce0fb9e647d3af271bcbb4769abeaaf9010b055",
+      "context": "Every handle is a :class:`_PaneHandle`.",
+      "translation": "Varje handtag är en :class:`_PaneHandle`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#0",
+      "source": "Follow a pane being shown or hidden by its owner.",
+      "source_sha256": "4eedf4d385d73c6ff80b50f061c3dbde65ebe1fc9242693e447318461c45bd8d",
+      "context": "Follow a pane being shown or hidden by its owner.",
+      "translation": "Följ en panel som visas eller döljs av sin ägare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#1",
+      "source": "a pane's widget.",
+      "source_sha256": "601eea472cc254985da182579a722dd07ba7d03ed80980a92ce40aa9e8b3d905",
+      "context": "a pane's widget.",
+      "translation": "en panels widget.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#2",
+      "source": "the event; only show and hide are read.",
+      "source_sha256": "d563a49c023a9cb88a65a0df32cf0af2691152d7970dadd90e8d69dc3bb4e2d5",
+      "context": "the event; only show and hide are read.",
+      "translation": "händelsen; bara visa och dölj läses.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#3",
+      "source": "False, so the event goes on as usual.",
+      "source_sha256": "8b1883e2b0b1a87ca91a6fa824048a5c7a3109414526cb42903d7ac8a5db8bb6",
+      "context": "False, so the event goes on as usual.",
+      "translation": "False, så att händelsen fortsätter som vanligt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.extents#0",
+      "source": "``{pane name: size to open at}`` for every registered pane.",
+      "source_sha256": "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90",
+      "context": "``{pane name: size to open at}`` for every registered pane.",
+      "translation": "``{pane name: size to open at}`` för varje registrerad panel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.insertWidget#0",
+      "source": "Insert as Qt does, and let a wrapping container inherit a pane.",
+      "source_sha256": "7f9e0dae1da1eba1315a04cbf5702f0f06129c0bedd65fd97e8ca112c9a55e2b",
+      "context": "Insert as Qt does, and let a wrapping container inherit a pane.",
+      "translation": "Infoga som Qt gör, och låt en omslutande behållare ärva en panel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.insertWidget#1",
+      "source": "where to insert it.",
+      "source_sha256": "de81f7cb7b3ab794a92863d7823777ebc743933c26f3c437c6d5b2f75d909762",
+      "context": "where to insert it.",
+      "translation": "var det ska infogas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.insertWidget#2",
+      "source": "the child to insert.",
+      "source_sha256": "8e3623cb2f44cbf098ea1c4fbb3727dd4cad3343578f798302aae43afddf83c5",
+      "context": "the child to insert.",
+      "translation": "barnet som ska infogas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.is_collapsed#0",
+      "source": "Whether the pane ``name`` is collapsed; False for no such pane.",
+      "source_sha256": "7e74563fb1e742cdba9062d6d4e041c463c8e40f93e68a91d44df299416d51ae",
+      "context": "Whether the pane ``name`` is collapsed; False for no such pane.",
+      "translation": "Om panelen ``name`` är hopfälld; False om ingen sådan panel finns.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.is_collapsed#1",
+      "source": "the pane's name.",
+      "source_sha256": "d36656d07574959b2b2e0ac8c70c80bafa4923f9bd323e3dd5a61c3f9c85b6db",
+      "context": "the pane's name.",
+      "translation": "panelens namn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.pane#0",
+      "source": "The pane called ``name``, or None.",
+      "source_sha256": "d277ac5759eabbe904ce05d257cb7ed7526112fac6c66140c4842a9733480fc8",
+      "context": "The pane called ``name``, or None.",
+      "translation": "Panelen som heter ``name``, eller None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.pane#1",
+      "source": "the name it was added under.",
+      "source_sha256": "7f2772b9bcba991ebb6c6c98a07209fea683cccbb226f2b83f40e833693cf903",
+      "context": "the name it was added under.",
+      "translation": "namnet som den lades till under.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.panes#0",
+      "source": "Every registered pane, in the order registered.",
+      "source_sha256": "7b8d5cbac22a5b0f63e3277b4cf09819cb92c3340e113ce4927128ab3e4cf33a",
+      "context": "Every registered pane, in the order registered.",
+      "translation": "Varje registrerad panel, i registreringsordning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#0",
+      "source": "Give every visible pane its share and return the new sizes.",
+      "source_sha256": "166b55b2c78f0c8c3a442a1687f7143afc1127d23be668ab055cc734a1170dcb",
+      "context": "Give every visible pane its share and return the new sizes.",
+      "translation": "Ge varje synlig panel dess andel och returnera de nya storlekarna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#1",
+      "source": "Collapsed HEADER panes get their heading, collapsed EDGE panes get nothing, panes with ``stretch`` 0 get their own size, and the rest of the room is shared by the others in proportion to their current size. A pane being opened (``grow``), one too small to have a real size, and every pane on the first layout (``fresh``) are sized from their remembered size instead. ``refit`` sizes a fixed-size pane that wraps to the height its width now needs.",
+      "source_sha256": "3fadf841c3ec17ab846526377f43000bade8f9fac1e51c0d27ecd4a56c94d253",
+      "context": "Collapsed HEADER panes get their heading, collapsed EDGE panes get nothing, panes with ``stretch`` 0 get their own size, and the rest of the room is shared by the others in proportion to their current size. A pane being opened (``grow``), one too small to have a real size, and every pane on the first layout (``fresh``) are sized from their remembered size instead. ``refit`` sizes a fixed-size pane that wraps to the height its width now needs.",
+      "translation": "Hopfällda HEADER-paneler får sin rubrik, hopfällda EDGE-paneler får ingenting, paneler med ``stretch`` 0 får sin egen storlek, och resten av utrymmet delas av de övriga i proportion till deras aktuella storlek. En panel som öppnas (``grow``), en som är för liten för att ha en verklig storlek och varje panel vid den första layouten (``fresh``) får i stället sin ihågkomna storlek. ``refit`` ger en panel med fast storlek som radbryts den höjd som dess bredd nu kräver.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#2",
+      "source": "the sizes set, or ``[]`` when there was nothing to lay out.",
+      "source_sha256": "696509aabd8e5d0f2c3c644dea5541da5d01fe7cda37b8757b721940ff69292d",
+      "context": "the sizes set, or ``[]`` when there was nothing to lay out.",
+      "translation": "de satta storlekarna, eller ``[]`` när det inte fanns något att lägga ut.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.resizeEvent#0",
+      "source": "A new width can wrap a row onto another line; make room for it.",
+      "source_sha256": "fce729befe554d48dd88f9504f40a4b63e099fe56ea03dd7dd8009881fdfa077",
+      "context": "A new width can wrap a row onto another line; make room for it.",
+      "translation": "En ny bredd kan bryta en rad till en annan rad; gör plats för det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.resizeEvent#1",
+      "source": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
+      "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
+      "context": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
+      "translation": "En storleksändring av fönstret är ingen dragning -- inget handtag hålls -- så att anpassa om här strider inte mot någon.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.resizeEvent#2",
+      "source": "the resize event.",
+      "source_sha256": "fe2c0cbbb7217715f0b614b43336f506439d0c3142b4af7d370657ded8e66997",
+      "context": "the resize event.",
+      "translation": "storleksändringshändelsen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.set_collapsed#0",
+      "source": "Collapse or open the pane ``name``.",
+      "source_sha256": "9f72b257bc176bd533ee11553025553e7d30bb8c8b92012e341e5537a141f2f8",
+      "context": "Collapse or open the pane ``name``.",
+      "translation": "Fäll ihop eller öppna panelen ``name``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.set_collapsed#2",
+      "source": "True to collapse it.",
+      "source_sha256": "97998d2646c673d7643df0a55e1f452f7b896c817ea4029282b9ae96a9f5a1e9",
+      "context": "True to collapse it.",
+      "translation": "True för att fälla ihop den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.set_collapsed#3",
+      "source": "True when a person asked for it. Only such a change is remembered, and only such a change pins a pane against :class:`FocusCollapse`.",
+      "source_sha256": "d8019a607b52a65faed6eae9e96bbdcb4b41fb816107fba38c33d8bac28c6d44",
+      "context": "True when a person asked for it. Only such a change is remembered, and only such a change pins a pane against :class:`FocusCollapse`.",
+      "translation": "True när en person bad om det. Bara en sådan ändring minns, och bara en sådan ändring låser en panel mot :class:`FocusCollapse`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.set_collapsed#4",
+      "source": "whether the pane is now in the state asked for.",
+      "source_sha256": "c06b64730b32fbf6c1c753a8bb92df43523dc3602293f946f0204ede3499a1c6",
+      "context": "whether the pane is now in the state asked for.",
+      "translation": "om panelen nu är i det begärda tillståndet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.showEvent#0",
+      "source": "Lay the panes out from their remembered sizes, once.",
+      "source_sha256": "311565a0f15f9fbe69a05a155451df6389c5a0fa48155597a142f3089873fee7",
+      "context": "Lay the panes out from their remembered sizes, once.",
+      "translation": "Lägg ut panelerna utifrån deras ihågkomna storlekar, en gång.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.showEvent#1",
+      "source": "the show event.",
+      "source_sha256": "8c1e6502cc2603ef801d75a086331fc5fedcf62ba19448cb07ac4e4b9a32bee8",
+      "context": "the show event.",
+      "translation": "visningshändelsen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.toggle_pane#0",
+      "source": "Flip the pane ``name``; returns whether it is now collapsed.",
+      "source_sha256": "d54b152e9f778f7cb9d5716e0e326021d0a23ec7d7839ed26ebf020812a4b07c",
+      "context": "Flip the pane ``name``; returns whether it is now collapsed.",
+      "translation": "Växla panelen ``name``; returnerar om den nu är hopfälld.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.toggle_pane#2",
+      "source": "whether a person asked for it; see :meth:`set_collapsed`.",
+      "source_sha256": "40739df2715ea850ccdfec1b9afb2e4edb7925296548866f6cb5e69d5a2c3055",
+      "context": "whether a person asked for it; see :meth:`set_collapsed`.",
+      "translation": "om en person bad om det; se :meth:`set_collapsed`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#0",
+      "source": "Collapse the surroundings while a focus widget is on screen.",
+      "source_sha256": "3d3085aa5265d2b6a4950254296c804980ef40eabd98b5b6ebafd52ae7dd42fb",
+      "context": "Collapse the surroundings while a focus widget is on application view.",
+      "translation": "Fäll ihop omgivningen medan en fokuswidget visas på skärmen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "Item 471: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
+      "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "Punkt 471: \"när en realtidsförhandsvisning öppnas tar den hela skärmhöjden: konsolen, System-behållaren och knappavsnittet under System fälls automatiskt ihop, och inställningarna fälls ihop åt vänster\", och samma sak närhelst figurer visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
+      "source": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
+      "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
+      "context": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
+      "translation": "FOKUSwidgetar bevakas (:meth:`watch`); medan NÅGON av dem visas fälls MÅLpanelerna (:meth:`target`) ihop, och när den sista döljs öppnas de mål som detta fällde ihop igen. Ett mål som redan var hopfällt -- av användaren, eller ihågkommet från förra sessionen -- lämnas exakt som det är, åt båda hållen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#3",
+      "source": "NEVER FIGHTS THE USER. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
+      "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
+      "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
+      "translation": "STRIDER ALDRIG MOT ANVÄNDAREN. Ett mål som användaren öppnar för hand (genom att klicka på dess rubrik eller dess handtag, eller dra upp det) LÅSES: ingenting här fäller ihop det igen förrän vyn tar slut. Ett mål som användaren fäller ihop för hand är också användarens, och öppnas inte igen när fokus försvinner.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#4",
+      "source": "A VIEW is one visit to one screen: it begins when the screen is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another screen (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the screen with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
+      "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
+      "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
+      "translation": "En VY är ett besök i en programvy: den börjar när programvyn visas (:meth:`begin_view`, från dess ``showEvent``) och slutar när den döljs för att användaren gick till en annan programvy (:meth:`end_view`, från dess ``hideEvent``). Att minimera fönstret avslutar den inte -- ägaren skickar bara icke-spontana händelser. Låsningar varar under vyn: att återvända till programvyn med dess realtidsförhandsvisning fortfarande öppen fäller ihop omgivningen igen, vilket är vad en ny ankomst till den layouten skulle få.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#5",
+      "source": "owner, normally the screen.",
+      "source_sha256": "78449e2b7507197eebeb844bde3654f2d77fb6b4b2b5d4893d59203016d56ce5",
+      "context": "owner, normally the screen.",
+      "translation": "ägare, normalt programvyn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#6",
+      "source": "Watch nothing and collapse nothing until told what to.",
+      "source_sha256": "23e8c4dc6830ce2b72717526b732a719a341b06d8a231b6445c7df4a76a2a056",
+      "context": "Watch nothing and collapse nothing until told what to.",
+      "translation": "Bevaka ingenting och fäll inte ihop något förrän den får veta vad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.begin_view#0",
+      "source": "The screen came on: forget last view's pins and apply the rule.",
+      "source_sha256": "28a509e4d44cc689826096778320a180e1f39a7ed1c0af40d9305a8f682f5548",
+      "context": "The screen came on: forget last view's pins and apply the rule.",
+      "translation": "Programvyn visades: glöm förra vyns låsningar och tillämpa regeln.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.end_view#0",
+      "source": "The user left the screen: their pins for this view are spent.",
+      "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
+      "context": "The user left the screen: their pins for this view are spent.",
+      "translation": "Användaren lämnade programvyn: låsningarna för den här vyn är förbrukade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.eventFilter#0",
+      "source": "A focus widget was shown or hidden.",
+      "source_sha256": "2c5a54c53f881d6baa2bcbb27ad772d1ca082a3f51cb2218d145e12bd826e221",
+      "context": "A focus widget was shown or hidden.",
+      "translation": "En fokuswidget visades eller doldes.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.eventFilter#1",
+      "source": "the focus widget.",
+      "source_sha256": "d2d2a8670bf9e6e55ecba38c5389fab4360586d3600d993a994a27ad116e9281",
+      "context": "the focus widget.",
+      "translation": "fokuswidgeten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.is_active#0",
+      "source": "Whether any focus widget is shown.",
+      "source_sha256": "26a1b33f2b7f5bcf560637cba2eec855f4333979172a0a096667aa494913eef8",
+      "context": "Whether any focus widget is shown.",
+      "translation": "Om någon fokuswidget visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.is_pinned#0",
+      "source": "Whether the user opened ``name`` by hand during this view.",
+      "source_sha256": "55e9d3f2c1bf147bef870db697df4c29511144f14498e314cf6ce7eaab1c70bf",
+      "context": "Whether the user opened ``name`` by hand during this view.",
+      "translation": "Om användaren öppnade ``name`` för hand under den här vyn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.is_pinned#1",
+      "source": "the splitter holding the pane.",
+      "source_sha256": "3be2d5a493e84d39bdd78db0701b421168e98558afd7e10e8fb94114c4c15cef",
+      "context": "the splitter holding the pane.",
+      "translation": "delaren som innehåller panelen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.refresh#0",
+      "source": "Collapse or restore the targets for what is shown now.",
+      "source_sha256": "0cb4f6b31f52ec514b655723086af7533908817dd1f884587502a350ccbbc200",
+      "context": "Collapse or restore the targets for what is shown now.",
+      "translation": "Fäll ihop eller återställ målen efter vad som visas nu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.refresh#1",
+      "source": "Acts on a CHANGE (or when ``force``), so a figure arriving while a preview is already open does not re-collapse what the user opened.",
+      "source_sha256": "c4a635069c3ee79f71cbbafb0469240adc3a0d28482c9fa40be1828aba57a9ec",
+      "context": "Acts on a CHANGE (or when ``force``), so a figure arriving while a preview is already open does not re-collapse what the user opened.",
+      "translation": "Agerar vid en ÄNDRING (eller när ``force``), så att en figur som dyker upp medan en förhandsvisning redan är öppen inte fäller ihop det som användaren öppnade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.refresh#2",
+      "source": "whether a focus widget is shown.",
+      "source_sha256": "4e654a698b6a97f16b0c4f1373cddd812d75776497a1bf59d0e9a7eee18b66af",
+      "context": "whether a focus widget is shown.",
+      "translation": "om en fokuswidget visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.target#0",
+      "source": "Collapse the pane ``name`` of ``splitter`` while a focus is shown.",
+      "source_sha256": "7b29c4574d017ac5fadf9a91eda4ef0c7a4f4435a6674c2c74df0d255cd92f81",
+      "context": "Collapse the pane ``name`` of ``splitter`` while a focus is shown.",
+      "translation": "Fäll ihop panelen ``name`` i ``splitter`` medan ett fokus visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.watch#0",
+      "source": "Treat ``widget`` being shown as a reason to collapse the targets.",
+      "source_sha256": "c6349fddfa01fd5a727a1eb11ce172312f2e63824d8b3c502d4fae51ec4c1980",
+      "context": "Treat ``widget`` being shown as a reason to collapse the targets.",
+      "translation": "Behandla att ``widget`` visas som ett skäl att fälla ihop målen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.watch#1",
+      "source": "Only its hidden flag is read -- it is never shown, measured or built, so a lazily-built panel stays unbuilt until its owner shows it.",
+      "source_sha256": "b3e1deb668ffbe2c56a766fbbc3c2eefce8c95fb4fa9c9b2d9a8b4f68f3fa33f",
+      "context": "Only its hidden flag is read -- it is never shown, measured or built, so a lazily-built panel stays unbuilt until its owner shows it.",
+      "translation": "Bara dess döljflagga läses -- den visas, mäts eller byggs aldrig, så att en lat byggd panel förblir obyggd tills dess ägare visar den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#0",
+      "source": "A body under a clickable heading; folded, the heading sits at the bottom.",
+      "source_sha256": "0b0da09fc6c8378bf915e8a760c3426e6f1b33a754c79553f2cdf0bd09cc3342",
+      "context": "A body under a clickable heading; folded, the heading sits at the bottom.",
+      "translation": "Ett innehåll under en klickbar rubrik; hopfällt sitter rubriken längst ned.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
+      "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "Punkt 471, del C: \"alla avsnitt i figur- eller realtidsförhandsvisningsbehållarna ska också gå att fälla ihop ... varje GUI-element, vare sig det är en figur eller en tabell\". Detta är det enda sättet som ett avsnitt i en programvy får en hopfällningskontroll, så att alla ser ut och beter sig likadant: en pil och ett namn ovanför innehållet (samma :class:`~spacr.qt.widgets.foldable.Folder` som konsolen och System använder), ett klick fäller ihop det, och ett hopfällt avsnitt är sin rubrik låst mot BOTTEN av det utrymme det får (:func:`lock_folded_to_bottom`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
+      "source": "start folded until the user opens it; with a ``persist_key`` the opening is remembered.",
+      "source_sha256": "ce367506a0c939b24168994d61d1ae6fc841dd1eab3f27b9bc55ec3a5b0293e9",
+      "context": "start folded until the user opens it; with a ``persist_key`` the opening is remembered.",
+      "translation": "börja hopfällt tills användaren öppnar det; med en ``persist_key`` minns öppnandet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#11",
+      "source": "the heading label (object name ``FoldHeading``).",
+      "source_sha256": "eb38260072611def4fff026c93c34b268282f6202bbdc4828d7d0b199077c571",
+      "context": "the heading label (object name ``FoldHeading``).",
+      "translation": "rubriketiketten (objektnamn ``FoldHeading``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#12",
+      "source": "the section's Folder; HELD, it owns the click filter.",
+      "source_sha256": "4296ea57ac0cf30ca2c87bf2262e212b50be063fc58ab577473ea5f59ed76908",
+      "context": "the section's Folder; HELD, it owns the click filter.",
+      "translation": "avsnittets Folder; HÅLLEN, den äger klickfiltret.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#13",
+      "source": "the content widget.",
+      "source_sha256": "06a293bddf96f151f446aa8626d937bc12c817d5d73f66d0ca35acb697a3d65c",
+      "context": "the content widget.",
+      "translation": "innehållswidgeten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#14",
+      "source": "Wrap ``body`` under a heading called ``name``.",
+      "source_sha256": "04c0ca21e6bf86e589b431419aafd44f8f0c11f057a8b2d7403326e5626d0e93",
+      "context": "Wrap ``body`` under a heading called ``name``.",
+      "translation": "Omslut ``body`` under en rubrik som heter ``name``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
+      "source": "THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
+      "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "translation": "INNEHÅLLETS EGEN SYNLIGHET FÖRBLIR DESS ÄGARES. Hopfällningen döljer en inre hållare, aldrig innehållet, så att utfällning inte kan visa en panel som dess ägare dolde eller bygga en panel som byggs vid första visningen (punkterna 284/380). Omvänt följer avsnittet sitt innehåll: medan ägaren håller innehållet dolt är hela avsnittet -- rubriken inräknad -- också dolt, och det kommer tillbaka när ägaren visar innehållet. Bara innehållets döljflagga läses för det, så ingenting visas, mäts eller byggs för att ta reda på det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
+      "source": "the section's content. Re-parented into the section.",
+      "source_sha256": "27130d018ab582654526102e0c0b5ebbb8f97950abe520f18ec786fb55ec53b5",
+      "context": "the section's content. Re-parented into the section.",
+      "translation": "avsnittets innehåll. Får avsnittet som ny förälder.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#4",
+      "source": "stable English name; the heading shows it translated.",
+      "source_sha256": "328d5f2506eb311c27d82ca12f822f16fa8ea770be356369e6f31da2b07d81e4",
+      "context": "stable English name; the heading shows it translated.",
+      "translation": "stabilt engelskt namn; rubriken visar det översatt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#6",
+      "source": "``\"<module>/<section>\"``; given, a fold the USER makes survives a restart (a fold made on their behalf never does).",
+      "source_sha256": "34e4dc8eea30a1c5bfc967c3bde80f0750be071b617bddb230936825e418c716",
+      "context": "``\"<module>/<section>\"``; given, a fold the USER makes survives a restart (a fold made on their behalf never does).",
+      "translation": "``\"<module>/<section>\"``; om den anges överlever en hopfällning som ANVÄNDAREN gör en omstart (en hopfällning som görs för användarens räkning gör det aldrig).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#7",
+      "source": "the body's stretch inside the section.",
+      "source_sha256": "4adc6c8d84a4d3976b5a750acf19b66294e9649466a08fc957b2d098158eaa31",
+      "context": "the body's stretch inside the section.",
+      "translation": "innehållets stretch inuti avsnittet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#8",
+      "source": "widgets put at the right-hand end of the heading row (a Refresh button, a count); they stay visible while folded.",
+      "source_sha256": "a934f5deafd8c64bcddbae6c3864d8bbd1a1bcb6dd26eecf77b8cb9536750f38",
+      "context": "widgets put at the right-hand end of the heading row (a Refresh button, a count); they stay visible while folded.",
+      "translation": "widgetar som placeras i högra änden av rubrikraden (en Refresh-knapp, ett antal); de förblir synliga när avsnittet är hopfällt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#9",
+      "source": "False keeps the section shown whatever the body's own flag says.",
+      "source_sha256": "4c6dd13b8e9062d6c41520de2074a02f06d1a079132befb4c1cbc69f576faccd",
+      "context": "False keeps the section shown whatever the body's own flag says.",
+      "translation": "False håller avsnittet synligt oavsett vad innehållets egen flagga säger.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.eventFilter#0",
+      "source": "Hide the section with its body, and show it again with it.",
+      "source_sha256": "12457f3fc2688dc9e00732a2a83b2250e3711b0dc3beb0578302e5984204a6de",
+      "context": "Hide the section with its body, and show it again with it.",
+      "translation": "Dölj avsnittet med dess innehåll, och visa det igen med det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.eventFilter#1",
+      "source": "the body.",
+      "source_sha256": "26fe516fe23b700d3ed190771b5480f094b896416592c4a22d1db1541a224265",
+      "context": "the body.",
+      "translation": "innehållet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.eventFilter#2",
+      "source": "only ShowToParent and HideToParent are read.",
+      "source_sha256": "fa0229d83e99466e792c2210153ba0bffebbe126b0d423e2828dcbfe1ce4493a",
+      "context": "only ShowToParent and HideToParent are read.",
+      "translation": "bara ShowToParent och HideToParent läses.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.set_folded#0",
+      "source": "Fold or open the section; returns the new folded state.",
+      "source_sha256": "5ecc168c1cf2c22a2f287cbc0fb1ba2f468ef1b1cf64bb8a42d5059769ae6141",
+      "context": "Fold or open the section; returns the new folded state.",
+      "translation": "Fäll ihop eller öppna avsnittet; returnerar det nya hopfällda tillståndet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.set_folded#1",
+      "source": "True to fold it.",
+      "source_sha256": "4dd233bfcdb4a7321702bf481be2cff6c1a86d97e8903fa35a9c15f657d0f76e",
+      "context": "True to fold it.",
+      "translation": "True för att fälla ihop det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_correction#1",
       "source": "a multiple-testing method name or alias accepted by :func:`spacr.multiple_testing.canonical_method`, or ``None``; an unknown name raises :class:`ValueError`. Choosing ``\"none\"`` moves an adjusted p axis back to raw.",
       "source_sha256": "55ad730f42ff3345443e2921c8c508e96c4ea261ad158bae17ab638bda35615f",
