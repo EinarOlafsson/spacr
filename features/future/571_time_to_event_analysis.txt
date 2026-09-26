@@ -1,0 +1,20 @@
+TIME-TO-EVENT ANALYSIS: KAPLAN-MEIER AND COX FOR EGRESS, LYSIS, HOST DEATH
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    From timelapse tracks and detected events, compute time-to-event per
+    object (time to egress, host lysis, host death, parasite division),
+    Kaplan-Meier curves per condition with censoring at movie end, log-rank
+    tests and Cox models with covariates; figures in the house style.
+
+DONE WHEN
+    On a timelapse with annotated events, curves and hazard ratios match
+    lifelines run on the same table.

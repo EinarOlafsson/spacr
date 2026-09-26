@@ -1,0 +1,20 @@
+SEGMENTATION PARAMETER-ROBUSTNESS REPORT
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/approaches-to-systematically-quantify-and-compare-cell-segmentation-quality/47062
+
+WHAT TO BUILD
+    Re-segment a sample of fields across a small grid of key parameters
+    (diameter, flow/cellprob thresholds, enhancement on/off) and report how
+    stable object counts, areas and downstream measurements are,
+    highlighting settings where results are fragile.
+
+DONE WHEN
+    The report runs on a plate sample and flags a deliberately fragile
+    setting.

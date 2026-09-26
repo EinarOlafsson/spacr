@@ -1,0 +1,20 @@
+ONE-CLICK ZENODO ARCHIVE OF A RUN, WITH A DOI
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Package a finished run's settings, run journal, report, results tables
+    and (optionally) masks into a Zenodo deposit with metadata, so an
+    analysis gets a citable DOI; uses the user's own Zenodo token; sandbox
+    mode for testing.
+
+DONE WHEN
+    A run is deposited to the Zenodo sandbox with correct metadata and
+    files.
