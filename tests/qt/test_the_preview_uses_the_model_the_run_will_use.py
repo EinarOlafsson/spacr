@@ -310,8 +310,8 @@ def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
     """``kinds`` is a rule rather than a parameter: the zoo also carries the
     YOLO well detector and ``CellposeModel`` cannot load it, so offering it
     here produces a preview that fails the moment it is selected. Cellpose 3
-    rows are offered since item 503: the pass segments a ``cellpose3:`` model
-    through the run's own ``_cellpose3_masks``."""
+    rows are offered since item 503 and Cellpose-DINO rows since item 525:
+    the pass segments each in its own backend, as the run does."""
     import spacr.qt.widgets.model_zoo_picker as picker
 
     seen = {}
@@ -320,7 +320,7 @@ def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
         lambda parent=None, kinds=None: seen.update(kinds=kinds))
     panel._choose_a_preview_model()
 
-    assert seen["kinds"] == ("cellpose", "cellpose3")
+    assert seen["kinds"] == ("cellpose", "cellpose3", "cellpose_dino")
 
 
 # --------------------------------------------------------------------------
