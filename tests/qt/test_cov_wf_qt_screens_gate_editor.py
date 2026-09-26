@@ -285,7 +285,7 @@ def test_the_graph_is_written_to_the_path_the_dialog_returned(drawn, tmp_path,
     picked = {"path": str(tmp_path / "picked.png")}
     written = []
 
-    def _render(_figure, path):
+    def _render(_figure, path, **_kwargs):
         written.append(path)
         open(path, "wb").close()
         return True
@@ -371,14 +371,14 @@ def test_a_renderer_that_raises_is_reported_instead_of_thrown(drawn, tmp_path,
 
     good = str(tmp_path / "good.png")
 
-    def _render(_figure, path):
+    def _render(_figure, path, **_kwargs):
         open(path, "wb").close()
         return True
 
     monkeypatch.setattr(queue, "render_figure_to_png", _render)
     assert drawn.save_graph(good) == good
 
-    def _explode(_figure, _path):
+    def _explode(_figure, _path, **_kwargs):
         raise RuntimeError("the PDF backend went away")
 
     monkeypatch.setattr(queue, "render_figure_to_png", _explode)
