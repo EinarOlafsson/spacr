@@ -317,6 +317,12 @@ def plot_residual_by_position(residuals: Sequence[float],
     order = sorted(set(labels.tolist()), key=_natural_key)
     if len(order) > MAX_PANEL_BLOCKS:
         def _distance(block):
+            """How far a block's Durbin-Watson sits from 2, or -1 without one.
+
+            :param block: a block label from ``labels``.
+            :returns: ``|DW - 2|``, so the most autocorrelated blocks sort
+                first; -1.0 when the report has no finite statistic.
+            """
             dw = float(per_block.get(block, {}).get("durbin_watson",
                                                     float("nan")))
             return abs(dw - 2.0) if np.isfinite(dw) else -1.0
