@@ -2,7 +2,11 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    ~95%, 2026-09-20. Every part of the REQUEST is built and
+Status:    2026-09-25: DONE here; remaining: docs lane only -- the
+           quiet_crop_paths docstring in the reviewed API packs other than
+           de ("Loading stopped" reached hi/is on nightly the same day). Today the Embeddings tile was redrawn from 527's new outline
+           icon, which had left the README guard red.
+           ~95%, 2026-09-20. Every part of the REQUEST is built and
            measured: equal gutters, Make Masks the only module section the
            README ever had, and all 22 tiles landing on prose that answers
            what the module is for, needs, produces and what to do next.
@@ -868,3 +872,27 @@ flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
 remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
 future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
+
+2026-09-25 -- THE EMBEDDINGS TILE FOLLOWS 527's ICON; NOTHING BUT I18N LEFT
+On nightly a93f937d2 two README guards were red:
+test_readme_presentation.py::test_every_module_is_one_tile_of_one_size_in_one_grid
+and ::test_every_workflow_button_tracks_the_home_screen_registry_and_api,
+both "embeddings.png on disk is not what the generator draws: 14086 px of
+ink disagree, tolerance is 16". Cause: f90665c02 (527) redrew
+spacr/resources/icons/embeddings.png in outline at the house stroke weight
+and did not regenerate the tile. Fixed with
+`packaging/generate_readme_visuals.py --only embeddings`, which changed
+exactly the two tile PNGs (spacr/resources/icons/workflow/apps/ and
+docs/source/_static/workflow/apps/); every text file it rewrote came out
+byte-identical. After: the README/landing-page/crop-loader guards
+(test_every_module_lands_on_prose, test_readme_presentation,
+test_every_module_is_reachable_and_documented,
+test_the_readme_describes_the_build_that_ships, test_crop_loader_endings,
+qt/test_the_embedding_screen_loads_its_own_crops) 117 passed.
+
+REMAINING (docs lane): "Loading stopped" is translated in de/es/fr/ko/pt/
+zh_CN but not hi/is; spacr.crops.quiet_crop_paths is in the reviewed API
+pack for de only. No code is owed under 366.
+
+2026-09-25, after merging nightly: the hi/is runtime catalogs now carry
+this item's strings (checked by grep of spacr/qt/i18n_catalogs/hi.py, is.py).
