@@ -640,7 +640,7 @@ def test_gui_offers_ultrack_in_the_timelapse_mode_combo():
     kind, options, default = spec["timelapse_mode"]
     assert kind == "combo"
     assert "ultrack" in options
-    assert set(options) == {"trackastra", "ultrack", "trackpy", "iou", "btrack"}
+    assert set(options) == {"trackastra", "ultrack", "trackpy", "iou", "btrack", "timeflows"}
     assert default == "trackastra", "the default must not change"
 
 

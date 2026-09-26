@@ -59,8 +59,36 @@ def indexed(folder, prefix):
     return found
 
 
-def selected_pairs(movie, sequence, segmentation, gaps, maximum):
-    """Select real endpoints using explicit full segmentation and TRA files."""
+def pair_hardness(files):
+    """Annotation-only motion of one candidate pair, before any model runs.
+
+    Every object with the same track in both frames contributes its centroid
+    displacement over its source diameter. Returns the share moving at least
+    half a diameter, the mean displacement and the number of tracked objects.
+    """
+    masks = [tracked_masks(tifffile.imread(mask), tifffile.imread(marker))[0]
+             for _image, mask, marker in files]
+    here, there = tm.object_centroids(masks[0]), tm.object_centroids(masks[1])
+    moves = [float(np.hypot(there[k][0] - v[0], there[k][1] - v[1]) / max(v[2], 1.0))
+             for k, v in here.items() if k in there]
+    if not moves:
+        return {'fast_share': 0.0, 'mean_motion': 0.0, 'tracked_objects': 0}
+    return {'fast_share': float(np.mean(np.asarray(moves) >= 0.5)),
+            'mean_motion': float(np.mean(moves)), 'tracked_objects': len(moves)}
+
+
+def selected_pairs(movie, sequence, segmentation, gaps, maximum, selection='even', candidates=0):
+    """Select real endpoints using explicit full segmentation and TRA files.
+
+    ``selection='even'`` spaces ``maximum`` pairs evenly per gap. ``'hardest'``
+    spaces ``candidates`` evenly, scores each from its annotations alone with
+    :func:`pair_hardness`, and keeps the ``maximum`` with the largest share of
+    objects moving half a diameter or more (mean displacement breaks ties).
+    """
+    if selection not in ('even', 'hardest'):
+        raise ValueError('Selection must be even or hardest')
+    if selection == 'hardest' and (maximum < 1 or candidates < maximum):
+        raise ValueError('Hardest selection needs a positive pair limit and at least that many candidates')
     if len(sequence) != 2 or not sequence.isascii() or not sequence.isdecimal():
         raise ValueError('CTC sequences must be two-digit directory names')
     if maximum < 0 or segmentation not in ('GT', 'ST'):
@@ -79,14 +107,39 @@ def selected_pairs(movie, sequence, segmentation, gaps, maximum):
         starts = sorted(number for number in usable if number + gap in usable)
         if not starts:
             raise ValueError(f'No complete pairs at gap {gap} in {movie}/{sequence}')
-        if maximum and len(starts) > maximum:
-            positions = np.linspace(0, len(starts) - 1, maximum).round().astype(int)
+        limit = candidates if selection == 'hardest' else maximum
+        if limit and len(starts) > limit:
+            positions = np.linspace(0, len(starts) - 1, limit).round().astype(int)
             starts = [starts[index] for index in sorted(set(positions.tolist()))]
-        for start in starts:
-            result.append({'sequence': sequence, 'gap_frames': gap,
-                           'frame_numbers': [start, start + gap],
-                           'files': [[source[number] for source in sources]
-                                     for number in (start, start + gap)]})
+        chosen = [{'sequence': sequence, 'gap_frames': gap,
+                   'frame_numbers': [start, start + gap],
+                   'files': [[source[number] for source in sources]
+                             for number in (start, start + gap)]} for start in starts]
+        if selection == 'hardest':
+            for pair in chosen:
+                pair['hardness'] = pair_hardness(pair['files'])
+            chosen.sort(key=lambda pair: (-pair['hardness']['fast_share'],
+                                          -pair['hardness']['mean_motion'],
+                                          pair['frame_numbers'][0]))
+            chosen = sorted(chosen[:maximum], key=lambda pair: pair['frame_numbers'][0])
+        result.extend(chosen)
+    return result
+
+
+def reselected_pairs(movie, segmentation, previous):
+    """Rebuild an earlier run's selection so two checkpoints score the same pairs."""
+    record = json.loads(Path(previous).read_text())
+    if Path(record['movie']).resolve() != Path(movie).resolve() or record['segmentation_source'] != segmentation:
+        raise ValueError('--pairs-from must name a run on the same movie and segmentation')
+    result = []
+    for chosen in record['selected']:
+        sequence, (start, end) = chosen['sequence'], chosen['frame_numbers']
+        movie = Path(movie)
+        sources = [indexed(movie / sequence, 't'),
+                   indexed(movie / f'{sequence}_{segmentation}' / 'SEG', 'man_seg'),
+                   indexed(movie / f'{sequence}_GT' / 'TRA', 'man_track')]
+        result.append({**chosen, 'files': [[source[number] for source in sources]
+                                           for number in (start, end)]})
     return result
 
 
@@ -169,15 +222,30 @@ def main(argv=None):
     parser.add_argument('--precision', choices=['checkpoint', 'float32'], default='checkpoint',
                         help='Encoder arithmetic: saved dtype, or float32 (often faster on CPUs without native bfloat16)')
     parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--selection', choices=['even', 'hardest'], default='even',
+                        help='even spacing, or the pairs whose annotations move most (chosen before any model runs)')
+    parser.add_argument('--candidates-per-gap', type=int, default=40,
+                        help='evenly spaced candidates per sequence and gap ranked by --selection hardest')
+    parser.add_argument('--pairs-from', type=Path,
+                        help="an earlier run.json whose selected pairs are reused exactly")
+    parser.add_argument('--select-only', action='store_true',
+                        help='write run.json with the selected pairs and stop before loading the model')
     args = parser.parse_args(argv)
     if args.pairs_per_gap < 0 or any(gap < 1 for gap in args.gaps):
         parser.error('pairs-per-gap must be non-negative and gaps positive')
+    if args.selection == 'hardest' and (args.pairs_per_gap < 1 or args.candidates_per_gap < args.pairs_per_gap):
+        parser.error('--selection hardest needs pairs-per-gap >= 1 and candidates-per-gap >= pairs-per-gap')
     metadata = args.checkpoint.with_suffix(args.checkpoint.suffix + '.json')
     provenance = json.loads(metadata.read_text())
     check_holdout(args.movie, provenance)
-    selections = [pair for sequence in dict.fromkeys(args.sequences)
+    selections = reselected_pairs(args.movie, args.segmentation, args.pairs_from) if args.pairs_from else [
+                  pair for sequence in dict.fromkeys(args.sequences)
                   for pair in selected_pairs(args.movie, sequence, args.segmentation,
-                                             list(dict.fromkeys(args.gaps)), args.pairs_per_gap)]
+                                             list(dict.fromkeys(args.gaps)), args.pairs_per_gap,
+                                             args.selection, args.candidates_per_gap)]
+    if args.pairs_from:
+        args.selection = f'reused from {args.pairs_from}'
+        args.gaps = sorted({pair['gap_frames'] for pair in selections})
     args.out.mkdir(parents=True, exist_ok=False)
     run = {'checkpoint': str(args.checkpoint.resolve()), 'checkpoint_sha256': digest(args.checkpoint),
            'checkpoint_metadata': provenance, 'metadata_sha256': digest(metadata),
@@ -185,7 +253,11 @@ def main(argv=None):
            'segmentation_source': args.segmentation, 'device': args.device, 'seed': args.seed,
            'requested_precision': args.precision,
            'selected_pairs': len(selections), 'pairs_per_gap': args.pairs_per_gap,
-           'gaps_frames': args.gaps,
+           'gaps_frames': args.gaps, 'selection': args.selection,
+           'candidates_per_gap': args.candidates_per_gap if args.selection != 'even' else None,
+           'selected': [{'sequence': pair['sequence'], 'gap_frames': pair['gap_frames'],
+                         'frame_numbers': pair['frame_numbers'], 'hardness': pair.get('hardness')}
+                        for pair in selections],
            'software': {name: version(name) for name in ('numpy', 'scipy', 'torch', 'cellpose', 'tifffile')},
            'evaluator_sha256': digest(__file__), 'model_code_sha256': digest(tm.__file__),
            'scoring_code_sha256': digest(timeflows_validation.__file__),
@@ -194,6 +266,8 @@ def main(argv=None):
            'holdout_check': 'Resolved movie paths and aliases; not a content comparison against all training images.',
            'controls': 'IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.'}
     (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n')
+    if args.select_only:
+        return 0
     predict = checkpoint_predictors(args.checkpoint, args.device, args.seed, args.precision)
     run['precision'] = predict.precision
     (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n')

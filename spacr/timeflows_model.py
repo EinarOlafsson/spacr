@@ -790,6 +790,115 @@ def link_by_timeflows(labels_t: np.ndarray, labels_t1: np.ndarray,
     return {int(sources[r]): int(targets[c]) for r, c in pairs}
 
 
+def _stitch_links(masks: np.ndarray, links: Sequence[Dict[int, int]]) -> np.ndarray:
+    """Whole-movie track ids from frame-to-frame links.
+
+    Frame 0's objects become tracks ``1..n`` in ascending label order. In each
+    later frame an object linked from the previous frame keeps that track; an
+    unlinked object (a newcomer, or a daughter after a division) starts the
+    next track, again in ascending label order. The same masks and links
+    therefore always give the same ids, so a re-run is reproducible. Links to
+    or from labels that are not present are ignored, and a target claimed by
+    two sources keeps the first in ascending source order.
+
+    :param masks: ``(T, H, W)`` integer label stack, any ids per frame.
+    :param links: ``T - 1`` dicts, ``links[t]`` mapping labels in frame ``t``
+        to labels in frame ``t + 1``.
+    :returns: the relabelled stack, 0 for background.
+    :raises ValueError: a stack that is not ``(T, H, W)``, or the wrong
+        number of link dicts.
+    """
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError("_stitch_links needs a (T, H, W) label stack")
+    if len(links) != max(len(masks) - 1, 0):
+        raise ValueError("_stitch_links needs one link dict per consecutive frame pair")
+    out = np.zeros(masks.shape, dtype=np.int64)
+    next_id = 1
+    previous: Dict[int, int] = {}
+    for t, frame in enumerate(masks):
+        labels = [int(label) for label in np.unique(frame) if label]
+        current: Dict[int, int] = {}
+        if t:
+            present = set(labels)
+            for source in sorted(links[t - 1]):
+                target = int(links[t - 1][source])
+                if source in previous and target in present and target not in current:
+                    current[target] = previous[source]
+        for label in labels:
+            if label not in current:
+                current[label] = next_id
+                next_id += 1
+        if labels:
+            lookup = np.zeros(max(labels) + 1, dtype=np.int64)
+            for label, track in current.items():
+                lookup[label] = track
+            out[t] = lookup[frame]
+        previous = current
+    return out
+
+
+def _load_timeflows(path: str, device: str = "cpu", precision: str = "checkpoint"):
+    """A saved Timeflows network, rebuilt locally without any download.
+
+    :param path: a state dict written by :func:`main`.
+    :param device: where to run.
+    :param precision: ``'checkpoint'`` keeps the saved encoder dtype;
+        ``'float32'`` expands it, which is far faster on CPUs without native
+        bfloat16 but changes arithmetic, so predictions can differ slightly.
+    :returns: the network in eval mode on ``device``.
+    :raises ValueError: an unknown precision.
+    """
+    torch = _torch()
+    from cellpose.vit import CPSAM
+
+    if precision not in ("checkpoint", "float32"):
+        raise ValueError("precision must be 'checkpoint' or 'float32'")
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    dtype = state["encoder.encoder.patch_embed.proj.weight"].dtype
+    if precision == "float32":
+        dtype = torch.float32
+    encoder = CPSAM(ps=int(state["up.weight"].shape[-1]), dtype=dtype).to(dtype=dtype)
+    net = TimeflowsNet(CellposeSamFeatures(encoder))
+    net.load_state_dict(state, strict=True)
+    return net.to(device).eval()
+
+
+def _track_movie(net, frames: Sequence[np.ndarray], masks: np.ndarray, *,
+                device: str = "cpu", min_successor: float = 0.5,
+                max_distance: float = 1.0,
+                predict: Optional[Callable] = None) -> Tuple[np.ndarray, List[Dict[int, int]]]:
+    """Track a whole movie: link each consecutive pair, then stitch ids.
+
+    :param net: a trained :func:`TimeflowsNet`.
+    :param frames: ``T`` images, each ``(H, W)`` or ``(H, W, C)``; each is
+        normalised here the way training normalised them.
+    :param masks: ``(T, H, W)`` label stack from any segmenter.
+    :param device: where to run the network.
+    :param min_successor: passed to :func:`link_by_timeflows`.
+    :param max_distance: passed to :func:`link_by_timeflows`.
+    :param predict: stand-in for :func:`predict_pair`, for tests.
+    :returns: the relabelled stack (see :func:`_stitch_links`) and the links.
+    :raises ValueError: frames and masks disagree in count or size.
+    """
+    masks = np.asarray(masks)
+    if masks.ndim != 3 or len(frames) != len(masks):
+        raise ValueError("_track_movie needs one frame per (T, H, W) mask plane")
+    predict = predict or predict_pair
+    links: List[Dict[int, int]] = []
+    previous = None
+    for t in range(len(masks)):
+        frame = _normalise(np.asarray(frames[t], dtype=np.float32))
+        if frame.shape[:2] != masks.shape[1:]:
+            raise ValueError("Each frame must match its mask plane in size")
+        if previous is not None:
+            links.append(link_by_timeflows(
+                masks[t - 1], masks[t], predict(net, previous, frame, device=device),
+                min_successor=min_successor, max_distance=max_distance))
+        previous = frame
+    return _stitch_links(masks, links), links
+
+
 def scramble_test(labels_t: np.ndarray, labels_t1: np.ndarray,
                   predict: Callable[[np.ndarray, np.ndarray], Dict[str, np.ndarray]],
                   frame_t: np.ndarray, frame_t1: np.ndarray, *,
@@ -854,7 +963,8 @@ def _normalise(image: np.ndarray) -> np.ndarray:
 
 
 def ctc_pairs(movie: str, sequence: str = "01",
-              max_pairs: Optional[int] = None, *, segmentation: str = "ST") -> List[_Pair]:
+              max_pairs: Optional[int] = None, *, segmentation: str = "ST",
+              gaps: Sequence[int] = (1,)) -> List[_Pair]:
     """Consecutive-frame training pairs from one Cell Tracking Challenge movie.
 
     Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver
@@ -875,7 +985,12 @@ def ctc_pairs(movie: str, sequence: str = "01",
         require tens of gigabytes of memory.
     :param segmentation: ``'ST'`` for silver masks (the training default), or
         ``'GT'`` for supplied ground-truth full masks during validation.
-    :returns: the pairs, in time order.
+    :param gaps: frame intervals to pair, ``(1,)`` by default. A gap ``g``
+        pairs frame ``n`` with ``n + g``, so the same movie supplies larger
+        displacements, the way a sparser acquisition would. Each gap gets its
+        own ``max_pairs``; frames shared between gaps are read once. A track
+        ending inside the gap, including a dividing parent, has no successor.
+    :returns: the pairs, gap by gap in the order given, each in time order.
     :raises ValueError: sequence/limit, duplicate frame identities or annotation
         arrays are invalid.
     """
@@ -890,6 +1005,9 @@ def ctc_pairs(movie: str, sequence: str = "01",
         raise ValueError("The pair limit must be non-negative")
     if segmentation not in ("ST", "GT"):
         raise ValueError("CTC segmentation must be ST or GT")
+    gaps = list(dict.fromkeys(int(gap) for gap in gaps))
+    if not gaps or any(gap < 1 for gap in gaps):
+        raise ValueError("CTC frame gaps must be positive")
 
     def indexed(folder, prefix):
         """Map frame number to path for the ``prefix*.tif`` files in ``folder``."""
@@ -910,23 +1028,26 @@ def ctc_pairs(movie: str, sequence: str = "01",
     segs = indexed(os.path.join(movie, f"{sequence}_{segmentation}", "SEG"), "man_seg")
     tracks = indexed(os.path.join(movie, f"{sequence}_GT", "TRA"), "man_track")
     usable = set(frames) & set(segs) & set(tracks)
-    starts = sorted(n for n in usable if n + 1 in usable)
-    if max_pairs is not None and len(starts) > max_pairs > 0:
-        picks = np.linspace(0, len(starts) - 1, max_pairs).round().astype(int)
-        starts = [starts[i] for i in sorted(set(picks.tolist()))]
-    needed = sorted({n for s in starts for n in (s, s + 1)})
+    chosen = []
+    for gap in gaps:
+        starts = sorted(n for n in usable if n + gap in usable)
+        if max_pairs is not None and len(starts) > max_pairs > 0:
+            picks = np.linspace(0, len(starts) - 1, max_pairs).round().astype(int)
+            starts = [starts[i] for i in sorted(set(picks.tolist()))]
+        chosen.extend((n, n + gap) for n in starts)
+    needed = sorted({n for pair in chosen for n in pair})
     loaded = {}
     for n in needed:
         labels, counts = _ctc_track_masks(tifffile.imread(segs[n]), tifffile.imread(tracks[n]))
         loaded[n] = (_normalise(tifffile.imread(frames[n])), labels, counts)
     pairs = []
-    for n in starts:
+    for n, m in chosen:
         source = loaded[n][1]
-        excluded = loaded[n + 1][2]["excluded_track_ids"]
+        excluded = loaded[m][2]["excluded_track_ids"]
         if excluded:
             source = source.copy()
             source[np.isin(source, excluded)] = 0
-        pairs.append(_Pair(loaded[n][0], loaded[n + 1][0], source, loaded[n + 1][1]))
+        pairs.append(_Pair(loaded[n][0], loaded[m][0], source, loaded[m][1]))
     return pairs
 
 
@@ -956,7 +1077,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--full-steps", type=int, default=2000)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--max-pairs", type=int, default=60,
-                        help="pairs per movie sequence, spaced evenly (0 = all)")
+                        help="pairs per movie sequence and gap, spaced evenly (0 = all)")
+    parser.add_argument("--gaps", nargs="+", type=int, default=[1],
+                        help="frame intervals to pair; wider gaps supply larger displacements")
     parser.add_argument("--validation-movies", nargs="+",
                         help="held-out CTC movies for checks during training")
     parser.add_argument("--validation-segmentation", choices=("GT", "ST"), default="GT",
@@ -966,6 +1089,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--validation-every", type=int,
                         help="sampled updates per check; default is one training-pair-count epoch")
     args = parser.parse_args(argv)
+    if any(gap < 1 for gap in args.gaps):
+        parser.error("--gaps must be positive frame intervals")
     if args.validation_every is not None and (not args.validation_movies or args.validation_every < 1):
         parser.error("--validation-every requires --validation-movies and a positive interval")
     if args.validation_movies:
@@ -976,7 +1101,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for movie in args.movies:
         for sequence in ("01", "02"):
             pairs.extend(ctc_pairs(movie, sequence,
-                                   max_pairs=args.max_pairs or None))
+                                   max_pairs=args.max_pairs or None, gaps=args.gaps))
             print(f"{movie.rsplit('/', 1)[-1]} {sequence}: {len(pairs)} pairs so far",
                   flush=True)
     if not pairs:
@@ -1035,6 +1160,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         with open(args.out + ".json", "w", encoding="utf-8") as handle:
             json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
                    "max_pairs_per_sequence": args.max_pairs,
+                   "gaps_frames": list(dict.fromkeys(args.gaps)),
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
                    "sampling": {"strategy": "inverse_frequency_displacement_bins",
                                 "bins": 5, "weights": weights.tolist()},
