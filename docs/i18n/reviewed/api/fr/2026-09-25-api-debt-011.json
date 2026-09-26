@@ -1,0 +1,2064 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.load_array_async#2",
+      "source": "merged ``.npy`` file, run folder or ``merged/`` folder, as :func:`load_merged_array` accepts; an empty value submits nothing.",
+      "source_sha256": "d3113f36cec5b0fb75709c1d324cd19b85464a9335b1040a2bdd7e7736cc1d13",
+      "context": "merged ``.npy`` file, processing-session folder or ``merged/`` folder, as :func:`load_merged_array` accepts; an empty value submits nothing.",
+      "translation": "fichier ``.npy`` fusionné, dossier d’exécution ou dossier ``merged/``, tels que les accepte :func:`load_merged_array` ; une valeur vide ne soumet rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count#3",
+      "source": "number of organelle slots, clamped to 0-``MAX_ORGANELLES``; a value ``int()`` rejects is ignored.",
+      "source_sha256": "77564fff36f4719b1e954a5418468cba04b02f1d7662a6c0e3063d81b8c730a1",
+      "context": "number of organelle slots, clamped to 0-``MAX_ORGANELLES``; a value ``int()`` rejects is ignored.",
+      "translation": "nombre d’emplacements d’organites, borné à 0-``MAX_ORGANELLES`` ; une valeur que ``int()`` rejette est ignorée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.annotate_crops#2",
+      "source": "crop dicts from :func:`spacr.measure.crop_objects_from_array`, each with a ``label``; updated in place with ``category``, ``included`` and, for cells, ``phenotype``.",
+      "source_sha256": "cc060a92ab683194ee2b3f562da1a65cf50e9dc0f69e0ad964361907304c2ea7",
+      "context": "extracted image region key-value mappings from :func:`spacr.measure.crop_objects_from_array`, each with a ``label``; updated in place with ``category``, ``included`` and, for cells, ``phenotype``.",
+      "translation": "dictionnaires de vignettes issus de :func:`spacr.measure.crop_objects_from_array`, chacun avec un ``label`` ; mis à jour sur place avec ``category``, ``included`` et, pour les cellules, ``phenotype``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.annotate_crops#3",
+      "source": "the merged ``(H, W, C)`` array the crops came from, or ``None``, in which case every crop is simply included.",
+      "source_sha256": "f7654d427682061222e5a475092460d0ecf0bcb97e476eaae78735e736b9d3f5",
+      "context": "the merged ``(H, W, C)`` array the extracted image regions came from, or ``None``, in which case every extracted image region is simply included.",
+      "translation": "le tableau fusionné ``(H, W, C)`` dont proviennent les vignettes, ou ``None``, auquel cas chaque vignette est simplement incluse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.annotate_crops#4",
+      "source": "widget snapshot with ``object``, ``cell_dim``, ``dims``, ``minima`` and ``uninfected``; only ``object == \"cell\"`` is categorised by phenotype.",
+      "source_sha256": "399fc028f69d5f29d022aa3b3789e4e445222e1d7f63ac46163e24e6b6a9018c",
+      "context": "widget snapshot with ``object``, ``cell_dim``, ``dims``, ``minima`` and ``uninfected``; only ``object == \"cell\"`` is categorised by phenotype.",
+      "translation": "instantané du widget avec ``object``, ``cell_dim``, ``dims``, ``minima`` et ``uninfected`` ; seul ``object == \"cell\"`` est catégorisé par phénotype.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.compute_crops#2",
+      "source": "merged ``(H, W, C)`` array of image channels then mask slices.",
+      "source_sha256": "acfdfd38e08b01d8ff51e4c52dc12329d0399405cf0930275a36e91a77dcf44b",
+      "context": "merged ``(H, W, C)`` array of image data channels then mask slices.",
+      "translation": "tableau fusionné ``(H, W, C)`` des canaux d’image suivis des tranches de masques.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.compute_crops#3",
+      "source": "keyword arguments for :func:`spacr.measure.crop_objects_from_array`, e.g. ``mask_dim``; a crop failure is returned as ``error`` rather than raised.",
+      "source_sha256": "47ef0a2e1c1ee0f88a4b207393084ce05c89b70c620df564bd1fa7ca1cb08e59",
+      "context": "keyword arguments for :func:`spacr.measure.crop_objects_from_array`, e.g. ``mask_dim``; an extracted image region failure is returned as ``error`` without producing an error.",
+      "translation": "arguments nommés pour :func:`spacr.measure.crop_objects_from_array`, p. ex. ``mask_dim`` ; un échec de découpe est renvoyé comme ``error`` au lieu d’être levé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.compute_crops#4",
+      "source": "widget snapshot passed to :func:`annotate_crops`.",
+      "source_sha256": "d3eefa732dc7ceec9d48683ed67dd4bff49ae1ecdda941ed9fb6754f1710c1e1",
+      "context": "widget snapshot passed to :func:`annotate_crops`.",
+      "translation": "instantané du widget transmis à :func:`annotate_crops`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.closeEvent#1",
+      "source": "the close event, passed on to the base class after the join worker is asked to shut down.",
+      "source_sha256": "2c309dd9c04ea6f87cd3e988862564593f8e538b05194d70733a3a668938ad05",
+      "context": "the close event, passed on to the base class after the join worker is asked to shut down.",
+      "translation": "l’événement de fermeture, transmis à la classe de base après que le worker de jointure a été invité à s’arrêter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_data#1",
+      "source": "the object rows for the montage and the contrasts; its numeric measurement columns fill the measurement menu, and the previous choice is kept when still offered.",
+      "source_sha256": "85c3ee0c3b409ffaf3859785bd9c6d4a3291b8015cf791c44711eb5a94db6133",
+      "context": "the object rows for the montage and the contrasts; its numeric measurement columns fill the measurement menu, and the previous choice is kept when still offered.",
+      "translation": "les lignes d’objets pour le montage et les contrastes ; ses colonnes de mesures numériques remplissent le menu des mesures, et le choix précédent est conservé s’il est encore proposé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_data#2",
+      "source": "selected group names mapped to object-index values; copied.",
+      "source_sha256": "d76a173c9dd628e38f0637c4bf03e70e5a66a423e7c7b5839507317c0998cd30",
+      "context": "selected group names mapped to object-index values; copied.",
+      "translation": "noms des groupes sélectionnés associés à des valeurs d’index d’objets ; copiés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_selected_guides#1",
+      "source": "the selected guides, stored as strings (``None`` for none); any explicit well subset is cleared so wells are derived from them.",
+      "source_sha256": "7c04e7583f8a1cde6f821b23c59b39e197b3f161cf7615650453bbe02d5c40a6",
+      "context": "the selected guides, stored as strings (``None`` for none); any explicit well subset is cleared so microplate sample positions are derived from them.",
+      "translation": "les guides sélectionnés, stockés sous forme de chaînes (``None`` pour aucun) ; tout sous-ensemble explicite de puits est effacé afin que les puits soient déduits des guides.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_selected_wells#1",
+      "source": "an explicit well subset, stored as strings, or ``None`` to derive the wells from the selected guides.",
+      "source_sha256": "a15201da1f776b88994f990443ccb4d15481a32ede28e6657cb700206d8f5ee4",
+      "context": "an explicit well subset, stored as strings, or ``None`` to derive the microplate sample positions from the selected guides.",
+      "translation": "un sous-ensemble explicite de puits, stocké sous forme de chaînes, ou ``None`` pour déduire les puits des guides sélectionnés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.ColumnRegressionPanel.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after the worker queue is stopped.",
+      "source_sha256": "4400d8318b38409862811e9353608f5013befebcac2de7a8fec3989681743341",
+      "context": "the close event; it is passed on to the base class after the worker-event list is stopped.",
+      "translation": "l’événement de fermeture ; il est transmis à la classe de base après l’arrêt de la file des workers.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.ColumnRegressionPanel.set_selected_columns#1",
+      "source": "column names to select, compared as strings; every other listed column is deselected, and ``None`` selects none.",
+      "source_sha256": "aeb3c66d91c8967fee7b85460fb2a315376eddcf30efce0cf9f9142463880e7d",
+      "context": "column names to select, compared as strings; every other listed column is deselected, and ``None`` selects none.",
+      "translation": "noms des colonnes à sélectionner, comparés sous forme de chaînes ; toutes les autres colonnes listées sont désélectionnées, et ``None`` n’en sélectionne aucune.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after the workers and path probes are stopped.",
+      "source_sha256": "e53ffd6f375ef316abe19707a3e9446c74fd86af10c8dcd2da3ab6c3ffbeae8c",
+      "context": "the close event; it is passed on to the base class after the workers and path probes are stopped.",
+      "translation": "l’événement de fermeture ; il est transmis à la classe de base après l’arrêt des workers et des sondes de chemins.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_anchor#1",
+      "source": "name of the table to anchor on, set as the anchor box's current text; a name not offered there leaves the choice unchanged.",
+      "source_sha256": "dbc86001fc4ae4e143f56082007f7efb16c3b59d6790d4d8f55108e701f80c65",
+      "context": "name of the table to anchor on, set as the anchor box's current text; a name not offered there leaves the choice unchanged.",
+      "translation": "nom de la table servant d’ancre, défini comme texte actuel de la boîte d’ancre ; un nom qui n’y est pas proposé laisse le choix inchangé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_database_provider#1",
+      "source": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh, starting immediately.",
+      "source_sha256": "556a7d13103b1e600b2c2cf5396e0f8e568fc99609ce94c41aad0ec6a29823e3",
+      "context": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh, starting immediately.",
+      "translation": "appelable sans argument renvoyant les lignes de la table d’entrée (voir :func:`attached_databases` pour les formes acceptées) ; il est appelé à chaque rafraîchissement, en commençant immédiatement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_selected_tables#1",
+      "source": "table names to tick, compared as strings; every other listed table is unticked.",
+      "source_sha256": "f045d6cb4bc57c6a0992d5dffe1b8ba3376eee67fa48e2928bd5b47c48e98168",
+      "context": "table names to tick, compared as strings; every other listed table is unticked.",
+      "translation": "noms des tables à cocher, comparés sous forme de chaînes ; toutes les autres tables listées sont décochées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.add_section#2",
+      "source": "the widget to add as a foldable section; ``None`` does nothing.",
+      "source_sha256": "fcb5254ac6ace6275f0862f27c0578a0e09566c1f10df093831e67f9c4f5c5f3",
+      "context": "the widget to add as a foldable section; ``None`` does nothing.",
+      "translation": "le widget à ajouter comme section repliable ; ``None`` ne fait rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.scan#1",
+      "source": "the measurement frame passed to :func:`spacr.measurement_scan.scan_measurements` together with ``kwargs``.",
+      "source_sha256": "d0dcf2577c4338a43386a63ae4b478a7794b36599d5cc4aa7f5597cfa2207b75",
+      "context": "the measurement frame passed to :func:`spacr.measurement_scan.scan_measurements` together with ``kwargs``.",
+      "translation": "le cadre de mesures transmis à :func:`spacr.measurement_scan.scan_measurements` avec ``kwargs``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.section_is_shown#2",
+      "source": "the section's title; an unknown title returns ``False``.",
+      "source_sha256": "24c5edefc65fe194d7f068207feac07210865ae22dc6d04a0843ae2a430ac831",
+      "context": "the section's title; an unknown title returns ``False``.",
+      "translation": "le titre de la section ; un titre inconnu renvoie ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_database_provider#2",
+      "source": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh by the databases section.",
+      "source_sha256": "b2256c85f6af1e05ab05af506145644654c48de16b4ae9aa33c9c21d735dbfb8",
+      "context": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh by the databases section.",
+      "translation": "appelable sans argument renvoyant les lignes de la table d’entrée (voir :func:`attached_databases` pour les formes acceptées) ; il est appelé à chaque rafraîchissement par la section des bases de données.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_frame_provider#1",
+      "source": "zero-argument callable returning the frame the scan runs on, called each time the frame is needed.",
+      "source_sha256": "779edab7f2b1980228fc36581425ee2bf92295dc1c50307a3c8703818ae48406",
+      "context": "zero-argument callable returning the frame the scan runs on, called each time the frame is needed.",
+      "translation": "appelable sans argument renvoyant le cadre sur lequel l’analyse s’exécute, appelé chaque fois que le cadre est nécessaire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_result#1",
+      "source": "the :class:`~spacr.measurement_scan.ScanResult` to show; its ``frame()`` and ``rows`` fill the table, with a verdict per row.",
+      "source_sha256": "5700a63c2aa9b2a408b2e01110997d3fc593a382cb5031376461a0d4ed38f479",
+      "context": "the :class:`~spacr.measurement_scan.ScanResult` to show; its ``frame()`` and ``rows`` fill the table, with a verdict per row.",
+      "translation": "le :class:`~spacr.measurement_scan.ScanResult` à afficher ; ses ``frame()`` et ``rows`` remplissent la table, avec un verdict par ligne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_section_expanded#1",
+      "source": "the section's title; an unknown title is ignored.",
+      "source_sha256": "6066708a7cc532a87de73ecd705467981256824dbbc40d440bf1ec32db681169",
+      "context": "the section's title; an unknown title is ignored.",
+      "translation": "le titre de la section ; un titre inconnu est ignoré.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_section_expanded#2",
+      "source": "``True`` to open the section, ``False`` to fold it; coerced with ``bool()``.",
+      "source_sha256": "0faaac7169aa729cc05ce971ab97f21e008576471ca344ac2c5e5d7bf251dbd6",
+      "context": "``True`` to open the section, ``False`` to fold it; coerced with ``bool()``.",
+      "translation": "``True`` pour ouvrir la section, ``False`` pour la replier ; converti avec ``bool()``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.WorkflowSteps.set_box_heights#2",
+      "source": "mapping of box key to height in pixels at 100 % font scale, as :meth:`box_heights` returns; unknown keys are ignored and ``None`` changes nothing.",
+      "source_sha256": "2a57255bf35fa0e6e3852c5d2f416678e6a8ae92488fc3005effe3ad54cd1ed6",
+      "context": "mapping of box structured-data name to height in pixels at 100 % font scale, as :meth:`box_heights` returns; unknown structured-data names are ignored and ``None`` changes nothing.",
+      "translation": "correspondance entre clé de boîte et hauteur en pixels à une échelle de police de 100 %, telle que la renvoie :meth:`box_heights` ; les clés inconnues sont ignorées et ``None`` ne change rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.WorkflowSteps.set_step_folds#2",
+      "source": "mapping of step number to ``True`` (open) or ``False`` (folded), as :meth:`step_folds` returns; unknown numbers are ignored and ``None`` changes nothing.",
+      "source_sha256": "866b554569a6d18257fc35dbb73626dd0a606bb0902cb0682cba8f6f1e32d9e8",
+      "context": "mapping of step number to ``True`` (open) or ``False`` (folded), as :meth:`step_folds` returns; unknown numbers are ignored and ``None`` changes nothing.",
+      "translation": "correspondance entre numéro d’étape et ``True`` (ouverte) ou ``False`` (repliée), telle que la renvoie :meth:`step_folds` ; les numéros inconnus sont ignorés et ``None`` ne change rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.anchor_tables#2",
+      "source": "measurement table names; those holding one row per cell are kept, in their given order.",
+      "source_sha256": "0d0b5468ae8433eeb01f58fcf026505655c16a93c6001295256a8f6fc2e8b25c",
+      "context": "measurement table names; those holding one row per cell are kept, in their given order.",
+      "translation": "noms des tables de mesures ; celles qui contiennent une ligne par cellule sont conservées, dans l’ordre donné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#2",
+      "source": "how the first frame is named in the sentence, such as ``'merged measurements'``.",
+      "source_sha256": "9f66a5ac869cbf93c867f09375fed85f85203163b66feb792b8b31a1212db6cb",
+      "context": "how the first frame is named in the sentence, such as ``'merged measurements'``.",
+      "translation": "le nom donné au premier cadre dans la phrase, par exemple ``'merged measurements'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#3",
+      "source": "the first frame; its well keys come from :func:`well_keys`.",
+      "source_sha256": "d7d3ded5cec9bcd97c01d955bd745d5433012222fd13c8e3e7f0cd08875cd155",
+      "context": "the first frame; its well keys come from :func:`well_keys`.",
+      "translation": "le premier cadre ; ses clés de puits proviennent de :func:`well_keys`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#4",
+      "source": "how the second frame is named in the sentence.",
+      "source_sha256": "4e5665737e68366071a9cf61ee580af148cc0d6ba844553dcc83ec7f02c21d50",
+      "context": "how the second frame is named in the sentence.",
+      "translation": "le nom donné au second cadre dans la phrase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#5",
+      "source": "the second frame; its well keys come from :func:`well_keys`.",
+      "source_sha256": "df171410cb4ae54a7b24e17ea1ccc3834d50a92132fe0544c77a3a2f606fec8b",
+      "context": "the second frame; its well keys come from :func:`well_keys`.",
+      "translation": "le second cadre ; ses clés de puits proviennent de :func:`well_keys`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.displayed_plates#1",
+      "source": "plate ids, each passed through ``canonical_plate_id``.",
+      "source_sha256": "8150daec34a19c0e15fad28b8f8e0eda548ea35ec01f52546d5c6bef304aa7e2",
+      "context": "plate ids, each passed through ``canonical_plate_id``.",
+      "translation": "identifiants de plaques, chacun passé par ``canonical_plate_id``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.merge_evidence#2",
+      "source": "the merged frame; the ``default_aggregation``, ``identifier_columns`` and ``dropped_columns`` entries of its ``attrs`` are listed.",
+      "source_sha256": "ba9b3e7f22af36e37c6b4c39219d1c1d90140ba6e346ab99495f4017b39f0d9e",
+      "context": "the merged frame; the ``default_aggregation``, ``identifier_columns`` and ``dropped_columns`` entries of its ``attrs`` are listed.",
+      "translation": "le cadre fusionné ; les entrées ``default_aggregation``, ``identifier_columns`` et ``dropped_columns`` de ses ``attrs`` sont listées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.merge_report#2",
+      "source": "the merged frame, passed to :func:`merge_summary` and :func:`merge_evidence`.",
+      "source_sha256": "7d93de0128e695077754e02230128e8f7ce65f43e693194ae5ba869abedadc05",
+      "context": "the merged frame, passed to :func:`merge_summary` and :func:`merge_evidence`.",
+      "translation": "le cadre fusionné, transmis à :func:`merge_summary` et :func:`merge_evidence`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.ordered_columns#2",
+      "source": "the frame whose columns are ordered; ``None`` returns an empty list.",
+      "source_sha256": "c5e18580877312434fef2419bb894ca044008e02c72b1e719f32ab98adeeb6e4",
+      "context": "the frame whose columns are ordered; ``None`` returns an empty list.",
+      "translation": "le cadre dont les colonnes sont ordonnées ; ``None`` renvoie une liste vide.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.verdict_for#1",
+      "source": "one scan row; its ``survives_across_scan`` and ``survives_within_run`` attributes are read, and missing ones count as false.",
+      "source_sha256": "eecc824e8256cff6c9b055dd7921d246bac2faffc4b7f8a3c52b83e6d5f08e37",
+      "context": "one scan row; its ``survives_across_scan`` and ``survives_within_run`` attributes are read, and missing ones count as false.",
+      "translation": "une ligne d’analyse ; ses attributs ``survives_across_scan`` et ``survives_within_run`` sont lus, et ceux qui manquent comptent comme faux.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.well_keys#2",
+      "source": "the frame to read; its ``prc`` column is used when present, else ``plateID``, ``rowID`` and ``columnID`` joined with underscores. ``None`` or a frame without columns gives ``(\"\", ())``.",
+      "source_sha256": "2c4a39540e298bf403ec93567ee8ec1cb3b3905802820108aad0441bc9500bc9",
+      "context": "the frame to read; its ``prc`` column is used when present, else ``plateID``, ``rowID`` and ``columnID`` joined with underscores. ``None`` or a frame without columns gives ``(\"\", ())``.",
+      "translation": "le cadre à lire ; sa colonne ``prc`` est utilisée si elle est présente, sinon ``plateID``, ``rowID`` et ``columnID`` joints par des tirets bas. ``None`` ou un cadre sans colonnes donne ``(\"\", ())``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#0",
+      "source": "One \"Load test data…\" button for every screen that reads a measurements DB.",
+      "source_sha256": "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
+      "context": "One \"Load test data…\" button for every screen that reads a measurements DB.",
+      "translation": "Un bouton \"Load test data…\" pour chaque vue qui lit une base de données de mesures.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#1",
+      "source": "The Annotate example (``einarolafsson/spacr-example-annotate``) is a real plate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and pathogen tables, and the 2,341 crops under ``data/`` it indexes. Annotate and Classify already fetch it into the shared example plate folder (:func:`spacr.example_archives.example_plate_folder`). Every other screen that opens a measurements database can be shown working on the same plate, so this module fetches it once and hands it to whichever screen asked.",
+      "source_sha256": "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
+      "context": "The Annotate example (``einarolafsson/spacr-example-annotate``) is a real plate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and pathogen tables, and the 2,341 extracted image regions under ``data/`` it indexes. Annotate and Classify already fetch it into the shared example plate folder (:func:`spacr.example_archives.example_plate_folder`). Every other application view that opens a measurements database can be shown working on the same plate, so this module fetches it once and hands it to whichever application view asked.",
+      "translation": "L’exemple Annotate (``einarolafsson/spacr-example-annotate``) est une vraie plaque : ``measurements/measurements.db`` avec ses tables de cellules, de cytoplasmes, de noyaux et de pathogènes, et les 2,341 vignettes qu’elle indexe sous ``data/``. Annotate et Classify la récupèrent déjà dans le dossier partagé de la plaque d’exemple (:func:`spacr.example_archives.example_plate_folder`). Toute autre vue qui ouvre une base de données de mesures peut être montrée à l’œuvre sur la même plaque ; ce module la récupère donc une fois et la transmet à la vue qui l’a demandée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#2",
+      "source": "ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
+      "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
+      "context": "One helper, not one copy per screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
+      "translation": "UN SEUL ASSISTANT, PAS UNE COPIE PAR VUE. La décision cache-ou-téléchargement, l’état occupé du bouton et le message d’échec sont les mêmes pour Plate Viewer, Tabulate, Graph Builder et les autres ; seuls diffèrent le champ rempli et la méthode qui l’ouvre. Une vue ne transmet donc que cette différence, sous forme de rappel, et rien d’autre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#3",
+      "source": "THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
+      "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
+      "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
+      "translation": "LE TÉLÉCHARGEMENT EST CELUI QUI EXISTE DÉJÀ. Rien de nouveau n’est publié : l’archive, le worker et la boîte de dialogue de progression sont ceux de :func:`spacr.qt.hf_download.download_annotate_example`, le même appel que fait le bouton de Classify, et une plaque déjà décompressée par l’un d’eux est réutilisée sans accéder au réseau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",
+      "source": "The example plate's ``measurements/measurements.db``, present or not.",
+      "source_sha256": "d6349afaeb8e4c7b6a3f5c0700f94120cd25d5d3363587432cafb282533f5e86",
+      "context": "The example plate's ``measurements/measurements.db``, present or not.",
+      "translation": "Le ``measurements/measurements.db`` de la plaque d’exemple, présent ou non.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.example_measurements_folder#0",
+      "source": "The shared example plate folder the Annotate example unpacks into.",
+      "source_sha256": "490735e017fc577495ae4652c476018771ea4f4546cc63d0e5f479371a996eef",
+      "context": "The shared example plate folder the Annotate example unpacks into.",
+      "translation": "Le dossier partagé de la plaque d’exemple dans lequel se décompresse l’exemple Annotate.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#0",
+      "source": "Add the \"Load test data…\" button to ``layout`` and wire it to ``apply``.",
+      "source_sha256": "35a741fc62ff7f06a37d0f0c5766dfa3e92774f853345fdce1cb60d2f549be1a",
+      "context": "Add the \"Load test data…\" button to ``layout`` and wire it to ``apply``.",
+      "translation": "Ajoute le bouton \"Load test data…\" à ``layout`` et le connecte à ``apply``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#1",
+      "source": "the screen the button belongs to. The button, the callback and the reporter are kept on it, so :func:`load_test_data` can be called with the screen alone -- which is what a test does.",
+      "source_sha256": "2e073d047dfbeb01d706a118d259cdb554066a9bf706740bae9caf1be730fa30",
+      "context": "the screen the button belongs to. The button, the callback and the reporter are kept on it, so :func:`load_test_data` can be called with the screen alone -- which is what a test does.",
+      "translation": "la vue à laquelle appartient le bouton. Le bouton, le rappel et le rapporteur y sont conservés, de sorte que :func:`load_test_data` peut être appelée avec la seule vue -- ce que fait un test.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#2",
+      "source": "the box layout the button goes into, normally the row that holds the screen's own source field.",
+      "source_sha256": "69cc8ac4df27a3a0113a64d5a2efab09c4a157933fd6720899e6c8becc751062",
+      "context": "the box layout the button goes into, normally the row that holds the screen's own source field.",
+      "translation": "la disposition en boîte dans laquelle va le bouton, normalement la ligne qui contient le champ source propre de la vue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#3",
+      "source": "called as ``apply(folder, database)`` once the example is on disk: the plate folder and its ``measurements/measurements.db``. It fills the screen's source field and opens it.",
+      "source_sha256": "ca51f54516b6b8512d9dc7fbc9773826653e3bade2da373aa160b05d4f4756cb",
+      "context": "called as ``apply(folder, database)`` once the example is on disk: the laboratory microplate folder and its ``measurements/measurements.db``. It fills the screen's source microscope field of view and opens it.",
+      "translation": "appelé sous la forme ``apply(folder, database)`` une fois l’exemple sur le disque : le dossier de la plaque et son ``measurements/measurements.db``. Il remplit le champ source de la vue et l’ouvre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#4",
+      "source": "where a failed download is reported, usually the screen's status label's ``setText``. Logged when omitted.",
+      "source_sha256": "bd8bac43d72807d78ce466e8ff523bbd9ae3690ab47f4d893b9be25c9b752b33",
+      "context": "where a failed download is reported, usually the screen's status label's ``setText``. Logged when omitted.",
+      "translation": "l’endroit où un téléchargement échoué est signalé, généralement le ``setText`` de l’étiquette d’état de la vue. Journalisé si omis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#5",
+      "source": "position in ``layout``; appended when omitted.",
+      "source_sha256": "9915c3dd95db5235b1f48663627cf8f88eaf63e4c82945e9f20768d95b73f714",
+      "context": "position in ``layout``; appended when omitted.",
+      "translation": "position dans ``layout`` ; ajouté à la fin si omis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#0",
+      "source": "Reuse or fetch the example plate, then hand it to the screen.",
+      "source_sha256": "6e47707c240501614be06eb4375d416e54145669cf575ec4954f23f39f438710",
+      "context": "Reuse or fetch the example plate, then hand it to the screen.",
+      "translation": "Réutilise ou récupère la plaque d’exemple, puis la transmet à la vue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#1",
+      "source": "a screen :func:`install_test_data_button` was called on.",
+      "source_sha256": "95a6fb2e3d1ce9422ba44f6190b9b42315d979f6038e4304bfc23152552297c3",
+      "context": "a screen :func:`install_test_data_button` was called on.",
+      "translation": "une vue sur laquelle :func:`install_test_data_button` a été appelée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#2",
+      "source": "replaces :func:`spacr.qt.hf_download.download_annotate_example`, with the same ``(parent, destination, on_done)`` signature. For tests.",
+      "source_sha256": "24326216821b1e5dd766d13001f92943c6e1ff30a8e4c5c7da01908b6ea85c0c",
+      "context": "replaces :func:`spacr.qt.hf_download.download_annotate_example`, with the same ``(parent, destination, on_done)`` signature. For tests.",
+      "translation": "remplace :func:`spacr.qt.hf_download.download_annotate_example`, avec la même signature ``(parent, destination, on_done)``. Pour les tests.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#3",
+      "source": "``{\"folder\": ..., \"db\": ...}`` when the plate was handed over before returning -- always, when it was already cached -- and an empty mapping while a download is still running or after it failed.",
+      "source_sha256": "6f462c3336f041de4f2b4049b33d34e57afab7e5dd5ee8b78345f24e89d9304d",
+      "context": "``{\"folder\": ..., \"db\": ...}`` when the plate was handed over before returning -- always, when it was already cached -- and an empty mapping while a download is still executing or after it failed.",
+      "translation": "``{\"folder\": ..., \"db\": ...}`` lorsque la plaque a été transmise avant le retour -- toujours, lorsqu’elle était déjà en cache -- et un dictionnaire vide tant qu’un téléchargement est en cours ou après son échec.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog#1",
+      "source": "source metadata frame, passed to :func:`spacr.metadata_resolution.resolve_metadata_columns`.",
+      "source_sha256": "a3cddb25fd32cf99354233d5fdc0ff81c1c174d4c43e1c9746089b6dbcb58c23",
+      "context": "source metadata frame, passed to :func:`spacr.metadata_resolution.resolve_metadata_columns`.",
+      "translation": "cadre de métadonnées source, transmis à :func:`spacr.metadata_resolution.resolve_metadata_columns`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog#2",
+      "source": "canonical columns that must be present in the result; a dialog asks for the mapping of each one that cannot be resolved, and cancelling it raises :class:`MetadataResolutionRequired`.",
+      "source_sha256": "eefbc134515a14a27abceca61b75aaa3b761134c16d7592175bc2e8dc5ea0bab",
+      "context": "canonical columns that must be present in the result; a dialog asks for the mapping of each one that cannot be resolved, and cancelling it raises :class:`MetadataResolutionRequired`.",
+      "translation": "colonnes canoniques qui doivent être présentes dans le résultat ; une boîte de dialogue demande la correspondance de chacune de celles qui ne peuvent pas être résolues, et son annulation lève :class:`MetadataResolutionRequired`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_table.MetadataTablePanel.set_rows#1",
+      "source": "one dict per row, keyed by column; missing keys show blank.",
+      "source_sha256": "5b1a4e43738da1ceaba78483bbba48577a0c73c288d6abae15ccf958e3ebd6bd",
+      "context": "one key-value mapping per row, keyed by column; missing structured-data names show blank.",
+      "translation": "un dictionnaire par ligne, indexé par colonne ; les clés manquantes s’affichent vides.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_table.MetadataTablePanel.write_filename_map#1",
+      "source": "path of the CSV to write, converted to :class:`~pathlib.Path`; its parent folders are created.",
+      "source_sha256": "68de095a089b186d9bedc19e98c606f5e6541a12eda2fabcdca113a505533d1e",
+      "context": "path of the CSV to write, converted to :class:`~pathlib.Path`; its parent folders are created.",
+      "translation": "chemin du CSV à écrire, converti en :class:`~pathlib.Path` ; ses dossiers parents sont créés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#0",
+      "source": "Add a local model to the zoo, and optionally share it on Hugging Face.",
+      "source_sha256": "ae68f7d5151aa234f03b42a2ff7b8b6f219556f341a8e4557d14334b4f1b5a96",
+      "context": "Add a local model to the zoo, and optionally share it on Hugging Face.",
+      "translation": "Ajoute un modèle local au zoo et, en option, le partage sur Hugging Face.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#1",
+      "source": "WHY THERE IS NO BUILT-IN TOKEN. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is running it:",
+      "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
+      "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
+      "translation": "POURQUOI IL N’Y A PAS DE JETON INTÉGRÉ. Téléverser vers un seul compte depuis la machine de chaque utilisateur impliquerait de livrer un jeton d’écriture dans spaCR. Un jeton d’écriture n’est pas une simple autorisation de téléversement : il peut aussi réécrire et SUPPRIMER tous les modèles de ce compte, et quiconque installe spaCR peut le lire dans le paquet. Le téléversement utilise donc le jeton de la personne qui l’exécute :",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#2",
+      "source": "`huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN environment variable.",
+      "source_sha256": "aadc2854b00ed8ade7a04e15c32f181033ac0f1a4c823341a2e80bfaaa46abdc",
+      "context": "`huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN environment variable.",
+      "translation": "`huggingface-cli login`, ou la variable d’environnement HF_TOKEN / HUGGING_FACE_HUB_TOKEN.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#3",
+      "source": "It publishes to :data:`SHARE_REPO` when that token may write there -- the owner can grant that per person in the repository's settings -- and otherwise to the uploader's own namespace, which always works and is never destructive to somebody else. Either way the model card carries the same table, so a shared model is readable in the same terms as a bundled one.",
+      "source_sha256": "886adc1042dc6a03134fc30538ffe305522c01cbfeb705bfc4cafa384f03c366",
+      "context": "It publishes to :data:`SHARE_REPO` when that token may write there -- the owner can grant that per person in the repository's settings -- and otherwise to the uploader's own namespace, which always works and is never destructive to somebody else. Either way the model card carries the same table, so a shared model is readable in the same terms as a bundled one.",
+      "translation": "Il publie dans :data:`SHARE_REPO` lorsque ce jeton peut y écrire -- le propriétaire peut l’accorder personne par personne dans les paramètres du dépôt -- et sinon dans l’espace de noms propre de la personne qui téléverse, ce qui fonctionne toujours et n’est jamais destructif pour quelqu’un d’autre. Dans les deux cas, la carte du modèle porte la même table, de sorte qu’un modèle partagé se lit dans les mêmes termes qu’un modèle intégré.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#0",
+      "source": "The model card, carrying the same table every spaCR model card uses.",
+      "source_sha256": "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f",
+      "context": "The model card, carrying the same table every spaCR model card uses.",
+      "translation": "La carte du modèle, portant la même table que toutes les cartes de modèles spaCR.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#1",
+      "source": "the share form's values: ``display_name``, ``kind``, ``trained_on``, ``notes`` and the metrics (``f1``, ``aji``, ``dice``, ``train_loss``, ``val_loss`` and the rest); a missing value is shown as unstated.",
+      "source_sha256": "c613f840ed581f7bfb72a28a6bd487212a919fc3a498391e5b993bcca78b3561",
+      "context": "the share form's values: ``display_name``, ``kind``, ``trained_on``, ``notes`` and the metrics (``f1``, ``aji``, ``dice``, ``train_loss``, ``val_loss`` and the rest); a missing value is shown as unstated.",
+      "translation": "les valeurs du formulaire de partage : ``display_name``, ``kind``, ``trained_on``, ``notes`` et les métriques (``f1``, ``aji``, ``dice``, ``train_loss``, ``val_loss`` et les autres) ; une valeur manquante est affichée comme non renseignée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#2",
+      "source": "file name of the checkpoint; also the heading when no ``display_name`` is given.",
+      "source_sha256": "665cebb2e57183db3edc3ce6b95639af84c5dcbbf451079485825119fc6c341d",
+      "context": "file name of the checkpoint; also the heading when no ``display_name`` is given.",
+      "translation": "nom de fichier du point de contrôle ; sert aussi de titre lorsqu’aucun ``display_name`` n’est fourni.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#3",
+      "source": "hex SHA-256 digest of the checkpoint, printed on the card.",
+      "source_sha256": "425d0447a75a61ac17cedebcdb4fba7e9449c0f6d78fa8185a8f1226d30ac486",
+      "context": "hex SHA-256 digest of the checkpoint, printed on the card.",
+      "translation": "empreinte SHA-256 hexadécimale du point de contrôle, imprimée sur la carte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#4",
+      "source": "Hugging Face repository the model is published to; accepted but not written into the card.",
+      "source_sha256": "472376c2bb8913166a008eb0385169c00f3f6a40c2a7c5fe162bd57424d320b9",
+      "context": "Hugging Face repository the model is published to; accepted but not written into the card.",
+      "translation": "dépôt Hugging Face dans lequel le modèle est publié ; accepté mais non écrit dans la carte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#5",
+      "source": "folder inside the repository that holds the checkpoint.",
+      "source_sha256": "6714d20ca5de1b3c6c72ebe2980b2cd87db917c1539048f83748fc60f5c56962",
+      "context": "folder inside the repository that holds the checkpoint.",
+      "translation": "dossier du dépôt qui contient le point de contrôle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#0",
+      "source": "Publish through the central endpoint. Returns its reply.",
+      "source_sha256": "3b3c7fc5665fe5c5a01571b55fa31f8abcc0add55bf86e314f06660bf342c7f1",
+      "context": "Publish through the central endpoint. Returns its reply.",
+      "translation": "Publie via le point de terminaison central. Renvoie sa réponse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#1",
+      "source": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
+      "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
+      "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
+      "translation": "Parle directement à l’API HTTP de Gradio avec urllib plutôt que via gradio_client, car ce paquet n’est pas une dépendance de spaCR : lorsqu’il manquait, ceci levait une exception, l’appelant se rabattait sur le jeton propre de la personne qui téléversait, et le modèle partait à un endroit où personne ne le cherchait. Un chemin de publication qui dépend d’une importation facultative est un chemin de publication qui fait silencieusement autre chose.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#2",
+      "source": "local checkpoint file to upload.",
+      "source_sha256": "d664ac3b81a27114b8d1d6bda5f91489a4d5a195b1c47485e6e6d6d154c101ed",
+      "context": "local checkpoint file to upload.",
+      "translation": "fichier de point de contrôle local à téléverser.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#3",
+      "source": "the share form's values; ``display_name``, ``kind``, ``trained_on`` and ``contact`` are sent as their own arguments, the whole mapping as JSON, and a non-empty ``train_data_dir`` is packed with :func:`pack_training_data` and uploaded too.",
+      "source_sha256": "9502f1d44ceb407712c5c31cc183f7ab977a832179f57a79221ea444c4a74d45",
+      "context": "the share form's values; ``display_name``, ``kind``, ``trained_on`` and ``contact`` are sent as their own arguments, the whole mapping as JSON, and a non-empty ``train_data_dir`` is packed with :func:`pack_training_data` and uploaded too.",
+      "translation": "les valeurs du formulaire de partage ; ``display_name``, ``kind``, ``trained_on`` et ``contact`` sont envoyés comme arguments distincts, le dictionnaire complet en JSON, et un ``train_data_dir`` non vide est empaqueté avec :func:`pack_training_data` puis téléversé lui aussi.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.find_token#0",
+      "source": "The uploader's own Hugging Face token, or ``None``.",
+      "source_sha256": "b688695597f69f7ddb29215d8b87aed0fcd25dc8f07555c0d3f7119c9af7ccee",
+      "context": "The uploader's own Hugging Face token, or ``None``.",
+      "translation": "Le jeton Hugging Face propre à la personne qui téléverse, ou ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.pack_training_data#0",
+      "source": "Pack a training-data folder into ONE uncompressed tar. Returns its path.",
+      "source_sha256": "61f9284152df4f473d6170f8d3e0fddd2ae6673881ad103a67cedd307ea76ece",
+      "context": "Pack a training-data folder into ONE uncompressed tar. Returns its path.",
+      "translation": "Empaquette un dossier de données d’entraînement dans UNE archive tar non compressée. Renvoie son chemin.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.pack_training_data#1",
+      "source": "Uncompressed on purpose: microscopy TIFFs are already poorly compressible and gzipping tens of gigabytes costs far more time than it saves bytes. Raises if the result would be larger than the endpoint accepts, BEFORE the upload is attempted, so a user does not wait out a transfer that was never going to be accepted.",
+      "source_sha256": "35d3f5c6f2b786ec0efc23428814dbc8bf1f8bb065cfde96df0c0222bca90a6d",
+      "context": "Uncompressed on purpose: microscopy TIFFs are already poorly compressible and gzipping tens of gigabytes costs far more time than it saves bytes. Raises if the result would be larger than the endpoint accepts, BEFORE the upload is attempted, so a user does not wait out a transfer that was never going to be accepted.",
+      "translation": "Non compressée à dessein : les TIFFs de microscopie se compressent déjà mal, et compresser en gzip des dizaines de gigaoctets coûte bien plus de temps que cela n’économise d’octets. Lève une exception si le résultat dépasserait ce qu’accepte le point de terminaison, AVANT toute tentative de téléversement, afin qu’un utilisateur n’attende pas la fin d’un transfert qui n’aurait jamais été accepté.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.pack_training_data#2",
+      "source": "training-data folder to pack; it must exist, and its files must total no more than ``MAX_TRAIN_BYTES``.",
+      "source_sha256": "1b39417d2768b8b694aec567f44f9f777a283c2cd9279cc88058973dcb9f9d45",
+      "context": "training-data folder to pack; it must exist, and its files must total no more than ``MAX_TRAIN_BYTES``.",
+      "translation": "dossier de données d’entraînement à empaqueter ; il doit exister, et ses fichiers ne doivent pas totaliser plus de ``MAX_TRAIN_BYTES``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.share#0",
+      "source": "Upload a checkpoint and its card. Returns the model page URL.",
+      "source_sha256": "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6",
+      "context": "Upload a checkpoint and its card. Returns the model page URL.",
+      "translation": "Téléverse un point de contrôle et sa carte. Renvoie l’URL de la page du modèle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.share#2",
+      "source": "the share form's values; ``display_name`` names the staging folder and the whole mapping fills the model card.",
+      "source_sha256": "6e1cd653ad02b285414a03dbf634f75055d9883a33a7f58376d0e3cbe95316c9",
+      "context": "the share form's values; ``display_name`` names the staging folder and the whole mapping fills the model card.",
+      "translation": "les valeurs du formulaire de partage ; ``display_name`` nomme le dossier de préparation et le dictionnaire complet remplit la carte du modèle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.share#3",
+      "source": "Hugging Face access token used for every call.",
+      "source_sha256": "6bfbbf00c9f858682bd7d68af2bc3799c7c506d8ba6163ca849836e8dfc38ce7",
+      "context": "Hugging Face access token used for every call.",
+      "translation": "jeton d’accès Hugging Face utilisé pour chaque appel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.slugify#0",
+      "source": "A repository-safe folder name.",
+      "source_sha256": "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2",
+      "context": "A repository-safe folder name.",
+      "translation": "Un nom de dossier sûr pour un dépôt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.slugify#1",
+      "source": "display name or file name to convert; it is lower-cased and every run of characters other than ``a-z`` and ``0-9`` becomes one hyphen. An empty result becomes ``\"model\"``.",
+      "source_sha256": "f66851d0354cf6353e8b0e89c6e960b294fae90ca87aee346995b53f6bfd98fb",
+      "context": "display name or file name to convert; it is lower-cased and every run of characters other than ``a-z`` and ``0-9`` becomes one hyphen. An empty result becomes ``\"model\"``.",
+      "translation": "nom d’affichage ou nom de fichier à convertir ; il est mis en minuscules et chaque suite de caractères autres que ``a-z`` et ``0-9`` devient un trait d’union. Un résultat vide devient ``\"model\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.target_repo#0",
+      "source": "Where this token may publish: the shared repo, or its own namespace.",
+      "source_sha256": "ef702b78f58bfe6d734105745312038cf671874a2f47322c7781bb64749b3189",
+      "context": "Where this token may publish: the shared repo, or its own namespace.",
+      "translation": "Où ce jeton peut publier : le dépôt partagé, ou son propre espace de noms.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.target_repo#1",
+      "source": "Hugging Face access token; it decides whether the shared repository is reachable and, if not, whose namespace is used.",
+      "source_sha256": "57116a5d4b249db3eff043d06db4b553fd3879d8b7cf906008a2eaefc230ae0c",
+      "context": "Hugging Face access token; it decides whether the shared repository is reachable and, if not, whose namespace is used.",
+      "translation": "jeton d’accès Hugging Face ; il détermine si le dépôt partagé est accessible et, sinon, quel espace de noms est utilisé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog#0",
+      "source": "The form that collects a shared model's scorecard before it is uploaded.",
+      "source_sha256": "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb",
+      "context": "The form that collects a shared model's scorecard before it is uploaded.",
+      "translation": "Le formulaire qui recueille la fiche d’évaluation d’un modèle partagé avant son téléversement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#0",
+      "source": "One line per scorecard column, in the order the card prints them.",
+      "source_sha256": "61390605499dc3518998d0ccc3668f8a29376b8c066b606a532ae07072b2efd0",
+      "context": "One line per scorecard column, in the order the card prints them.",
+      "translation": "Une ligne par colonne de la fiche d’évaluation, dans l’ordre où la carte les imprime.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#1",
+      "source": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
+      "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
+      "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
+      "translation": "Le vide est autorisé partout : une carte qui indique \"not recorded\" est honnête, et un formulaire qui refuserait d’être soumis sans nombre recevrait un nombre inventé. Construit le formulaire pour partager ``filename``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#2",
+      "source": "the checkpoint being shared, named in the title.",
+      "source_sha256": "1776997906ae52022105ae68f34d68135b94bc7a098d299293340cd70cedcb1b",
+      "context": "the checkpoint being shared, named in the title.",
+      "translation": "le point de contrôle partagé, nommé dans le titre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#3",
+      "source": "the dialog's parent widget.",
+      "source_sha256": "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+      "context": "the dialog's parent widget.",
+      "translation": "le widget parent de la boîte de dialogue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog.train_data_dir#0",
+      "source": "The chosen training-data folder, or an empty string.",
+      "source_sha256": "d1b14ff4ed5df35b0b66b1642ed76592c3c5c629b567315dc236e09a8bc8d4bc",
+      "context": "The chosen training-data folder, or an empty string.",
+      "translation": "Le dossier de données d’entraînement choisi, ou une chaîne vide.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog.values#0",
+      "source": "What the user typed, by field key.",
+      "source_sha256": "ee3567a1c9be16f4ab269f93ec7244ef437c36e730871d9d9a756b03dac3c8d0",
+      "context": "What the user typed, by field structured-data name.",
+      "translation": "Ce que l’utilisateur a saisi, par clé de champ.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker#4",
+      "source": "WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on screen and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
+      "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
+      "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
+      "translation": "POURQUOI LA LISTE A CINQ EN-TÊTES PLUTÔT QU’UN BOOLÉEN. C’était auparavant une liste unique avec \"show unvetted community uploads\" à côté -- un contrôle capable de masquer exactement une des cinq origines du catalogue. Avec dix modèles entraînés ici, quatre backbones Cellpose-SAM standard, la collection de bioimage.io, les quatre propres au backend Cellpose 3 et un catalogue partagé, un utilisateur qui voulait les dix et pas le reste n’avait aucun moyen de le dire. :class:`SourceStrip` présente les cinq origines sous forme de cinq noms cliquables, chacun bleu lorsque ses lignes sont affichées et estompé lorsqu’elles sont masquées, avec mémorisation d’une ouverture à l’autre. L’avertissement que portait le booléen est inchangé et arrive toujours avant la première ligne non vérifiée -- voir :meth:`ModelZooPicker._may_show_source`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#0",
+      "source": "Install, or uninstall, one segmentation backend, with progress and Cancel.",
+      "source_sha256": "08fdc22c56380ceb93f6ad8b4a42a0af5aea2c0eb380cdaca82420f4adc02945",
+      "context": "Install, or uninstall, one segmentation backend, with progress and Cancel.",
+      "translation": "Installe, ou désinstalle, un backend de segmentation, avec progression et Cancel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#1",
+      "source": "WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
+      "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
+      "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
+      "translation": "CE QU’IL MODIFIE, DIT AVANT DE LE MODIFIER. Un backend s’installe dans un environnement propre sous ``~/.spacr/backends`` ; l’environnement de spaCR n’est jamais touché, donc rien ici ne peut empêcher spaCR de démarrer. La boîte de dialogue indique où il va, ce qu’il télécharge, sa taille et sous quelle licence, avant qu’on appuie sur Install.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
+      "source": "THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it runs and a console can say why it failed after the dialog has gone.",
+      "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
+      "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
+      "translation": "LA VUE DERRIÈRE PEUT LA SUIVRE. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` et :attr:`job_cancelled` indiquent au widget qui a ouvert la boîte de dialogue ce que fait l’installation, de sorte qu’un bouton peut afficher \"installing\" pendant qu’elle s’exécute et qu’une console peut expliquer pourquoi elle a échoué après la fermeture de la boîte de dialogue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
+      "source": "IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "source_sha256": "4d965f83a69236a3d60c8c66352ad7279f1bfc764d773b28727d3369e0af3ae3",
+      "context": "It belongs to the window, not the widget that asked (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "translation": "ELLE APPARTIENT À LA FENÊTRE, PAS AU WIDGET DEMANDEUR (point 521). Une boîte de dialogue hérite de la feuille de style de chaque widget situé au-dessus d’elle, et Plaque Assay la demande depuis son aperçu, dont le curseur d’échelle propre reformule la feuille de l’application à l’échelle de cet aperçu : à 150 %, Install et Cancel mesuraient 59 px de haut, et non les 40 px de tous les autres boutons. Rattachée à ``parent.window()``, elle reçoit le même thème que toutes les autres boîtes de dialogue tout en restant centrée sur la fenêtre qui l’a ouverte, et modale pour celle-ci.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#12",
+      "source": "THE BAR SITS ON THE BUTTONS. The progress line is the last thing above the buttons and the status keeps four lines' room while a job runs, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
+      "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
+      "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
+      "translation": "LA BARRE REPOSE SUR LES BOUTONS. La ligne de progression est le dernier élément au-dessus des boutons et l’état réserve la place de quatre lignes pendant l’exécution d’une tâche, de sorte que la barre ne bouge pas quand la ligne d’état s’allonge ou raccourcit. Décrit le backend et attend le bouton.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
+      "source": "THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for minutes -- runs on a worker thread; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
+      "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
+      "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
+      "translation": "LA FENÊTRE CONTINUE DE RÉPONDRE. L’installation -- un venv, puis pip, souvent pendant plusieurs minutes -- s’exécute sur un thread de travail ; la boîte de dialogue montre l’étape en cours et la dernière ligne de pip, et Cancel arrête pip et tout ce qu’il a lancé, puis supprime l’environnement à moitié construit. Un échec affiche la sortie propre de la commande en échec, telle quelle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#3",
+      "source": "the backend, e.g. ``'cellpose3'``.",
+      "source_sha256": "7e497fb4a045681bcad0a2c40a3f6fe64d3734559befc759922b4bb7bd1fed0d",
+      "context": "the backend, e.g. ``'cellpose3'``.",
+      "translation": "le backend, p. ex. ``'cellpose3'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#4",
+      "source": "the widget that opened it; the dialog's parent is its window.",
+      "source_sha256": "06f76c2871d7276b76b0fd66b292bc993652967480ab4c5189adbc67394ece5c",
+      "context": "the widget that opened it; the dialog's parent is its window.",
+      "translation": "le widget qui l’a ouverte ; le parent de la boîte de dialogue est sa fenêtre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#5",
+      "source": "remove the backend's environment instead.",
+      "source_sha256": "4748e5681b75f8096bd2b854f4c28f0a7b9e3eaa2498cccf7460a2016afeb6a7",
+      "context": "remove the backend's environment instead.",
+      "translation": "supprimer plutôt l’environnement du backend.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#6",
+      "source": "``job(progress=..., cancel=...)``; the real install or uninstall when None. Tests pass their own.",
+      "source_sha256": "a303f21de2d25d8bcb3241ceeb7f1114b217ae23699962d0e98ebc1143a84e64",
+      "context": "``job(progress=..., cancel=...)``; the real install or uninstall when None. Tests pass their own.",
+      "translation": "``job(progress=..., cancel=...)`` ; la véritable installation ou désinstallation lorsque None. Les tests fournissent la leur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
+      "source": "build an installed backend's environment again (item 518), for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "source_sha256": "8054ed9d398f84daab6408594ba11a1b03259e10eec6cf57ef5cdcbdfcda489c",
+      "context": "build an installed backend's environment again (item 518), for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "translation": "reconstruire l’environnement d’un backend installé (point 518), pour un backend installé avant qu’un paquet dont il a désormais besoin soit épinglé ; la boîte de dialogue l’indique et son bouton affiche Reinstall.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#8",
+      "source": "a sentence saying why the install is offered, shown first in the description.",
+      "source_sha256": "3c7f63bb04ca00246d6aef443d705bdface19dcc3cbbf38096630615a010a3f4",
+      "context": "a sentence saying why the install is offered, shown first in the description.",
+      "translation": "une phrase expliquant pourquoi l’installation est proposée, affichée en premier dans la description.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#9",
+      "source": "the last failure's message, verbatim; empty until one.",
+      "source_sha256": "610563a430fc675b42d9c6ea62808d59f690a579b0bdc13da97d3a3502b9c922",
+      "context": "the last failure's message, verbatim; empty until one.",
+      "translation": "le message du dernier échec, tel quel ; vide tant qu’il n’y en a pas eu.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent#0",
+      "source": "Closing the window is Cancel; it never leaves a thread behind.",
+      "source_sha256": "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8",
+      "context": "Closing the window is Cancel; it never leaves a thread behind.",
+      "translation": "Fermer la fenêtre équivaut à Cancel ; cela ne laisse jamais de thread derrière soi.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent#1",
+      "source": "the close event; while a job is running it is ignored and :meth:`reject` is called instead, otherwise it is passed on to the base class.",
+      "source_sha256": "5cef9c494381c0373985087e659299cd9e3fba470876fba52807bdb200a1c4a4",
+      "context": "the close event; while a job is executing it is ignored and :meth:`reject` is called instead, otherwise it is passed on to the base class.",
+      "translation": "l’événement de fermeture ; pendant l’exécution d’une tâche, il est ignoré et :meth:`reject` est appelée à la place, sinon il est transmis à la classe de base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.reject#0",
+      "source": "Cancel a running install; close once it has stopped.",
+      "source_sha256": "581c9b32c755b27e55e68a34c65af0bda4ef9e43fa047980d69164a15aa02589",
+      "context": "Cancel an executing install; close once it has stopped.",
+      "translation": "Annule une installation en cours ; ferme une fois qu’elle s’est arrêtée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.running#0",
+      "source": "Whether the install or uninstall is in progress.",
+      "source_sha256": "4f014375c2f712d3aec8bbf844bb82f3fe6108130ee0fc9eebee32cd168728b6",
+      "context": "Whether the install or uninstall is in progress.",
+      "translation": "Indique si l’installation ou la désinstallation est en cours.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.start#0",
+      "source": "Start the job on a worker thread.",
+      "source_sha256": "7e6a1d9228b2cb30c2d78cc5952dfafbc98bd148e10b450b673bff7a972fdcca",
+      "context": "Start the job on a background execution unit.",
+      "translation": "Lance la tâche sur un thread de travail.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.closeEvent#1",
+      "source": "the close event; passed on to the base class after any download is stopped.",
+      "source_sha256": "c83b51fd2d00bdb4fa6ff9c472c539b7e0fa67af849624cb0af66dae886a044e",
+      "context": "the close event; passed on to the base class after any download is stopped.",
+      "translation": "l’événement de fermeture ; transmis à la classe de base après l’arrêt de tout téléchargement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done#0",
+      "source": "Retire catalogue callbacks and probe polling on every dialog exit.",
+      "source_sha256": "5603745bad4bbf31c8003ab69b664cb242c75fb30fc3475ad860291f0b7a52af",
+      "context": "Retire catalogue callbacks and probe polling on every dialog exit.",
+      "translation": "Retire les rappels du catalogue et l’interrogation des sondes à chaque sortie de la boîte de dialogue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done#1",
+      "source": "dialog result passed unchanged to Qt.",
+      "source_sha256": "d2f1f33b1012f5d6a2ecbde064e7b5b705f314d0cd4b835abe0ba5da5230aaf1",
+      "context": "dialog result passed unchanged to Qt.",
+      "translation": "résultat de la boîte de dialogue transmis tel quel à Qt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done#2",
+      "source": "A network request may still be running. Its thread is retained by the shared drain mechanism until it finishes. Retiring catalogue work never waits for HTTP, and discarded results cannot refresh this dialog.",
+      "source_sha256": "c06048eea240099c1b176c24a4360cfe4b322235284823ffd0cc1780aadbf639",
+      "context": "A network request may still be running. Its thread is retained by the shared drain mechanism until it finishes. Retiring catalogue work never waits for HTTP, and discarded results cannot refresh this dialog.",
+      "translation": "Une requête réseau peut encore être en cours. Son thread est conservé par le mécanisme de vidage partagé jusqu’à ce qu’il se termine. Le retrait du travail de catalogue n’attend jamais HTTP, et les résultats abandonnés ne peuvent pas rafraîchir cette boîte de dialogue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip#0",
+      "source": "The five source headings, their state, and where that state is kept.",
+      "source_sha256": "464fba5be1c3c17c080dd2555f3ef1444036257de02e7c2a90c812032a6c8edd",
+      "context": "The five source headings, their state, and where that state is kept.",
+      "translation": "Les cinq en-têtes de sources, leur état, et l’endroit où cet état est conservé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip#1",
+      "source": "Replaces the single \"show unvetted community uploads\" checkbox. The catalogue has five origins and the checkbox could fold away exactly one of them; a user who wants the ten models trained here, and not bioimage.io's collection, had no way to say so.",
+      "source_sha256": "ce244a454b59feb46de17281bbac6600e4c92dba84b493223ae13c6934f93a2c",
+      "context": "Replaces the single \"show unvetted community uploads\" checkbox. The catalogue has five origins and the checkbox could fold away exactly one of them; a user who wants the ten models trained here, and not bioimage.io's collection, had no way to say so.",
+      "translation": "Remplace l’unique case à cocher \"show unvetted community uploads\". Le catalogue a cinq origines et la case ne pouvait en masquer qu’une seule ; un utilisateur qui voulait les dix modèles entraînés ici, et non la collection de bioimage.io, n’avait aucun moyen de le dire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip#2",
+      "source": "The strip owns the preference and nothing else: which rows a table then shows is the table's business, reached through :attr:`changed`. That is what lets the picker, the Model Zoo page and Make Masks agree about what is on without sharing a widget.",
+      "source_sha256": "962ce084f332aa9168c89ce9e65342f4dec897d99981f0d76b182d34cce12a19",
+      "context": "The strip owns the preference and nothing else: which rows a table then shows is the table's business, reached through :attr:`changed`. That is what lets the picker, the Model Zoo page and Make Masks agree about what is on without sharing a widget.",
+      "translation": "La bande possède la préférence et rien d’autre : les lignes qu’une table affiche ensuite relèvent de la table, qui y accède via :attr:`changed`. C’est ce qui permet au sélecteur, à la page Model Zoo et à Make Masks de s’accorder sur ce qui est activé sans partager de widget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip#3",
+      "source": "the widget that owns it.",
+      "source_sha256": "e04f336e1bc9711cb15c6b698f989774a811580e5dc706f9e42631ee9c6fae59",
+      "context": "the widget that owns it.",
+      "translation": "le widget qui la possède.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip#4",
+      "source": "``guard(name) -> bool``, consulted before a heading is turned ON. Returning False leaves it off -- it is how the community warning refuses. ``None`` allows everything.",
+      "source_sha256": "36fb6b33441b1da38ea63aa7ec01d7fe868b125e5081a9a444a74eaf1768f8cc",
+      "context": "``guard(name) -> bool``, consulted before a heading is turned ON. Returning False leaves it off -- it is how the community warning refuses. ``None`` allows everything.",
+      "translation": "``guard(name) -> bool``, consulté avant qu’un en-tête soit ACTIVÉ. Renvoyer False le laisse désactivé -- c’est ainsi que l’avertissement communautaire refuse. ``None`` autorise tout.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip#5",
+      "source": "Build the five headings in the state this user left them.",
+      "source_sha256": "4b096434e9fa9832454dfa5e4a8c4d205c5a2252deb6bd36e6f4bafea34c5fcd",
+      "context": "Build the five headings in the state this user left them.",
+      "translation": "Construit les cinq en-têtes dans l’état où cet utilisateur les a laissés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.enabled#0",
+      "source": "The headings that are on, in :data:`ZOO_SOURCES` order.",
+      "source_sha256": "7f86d5fbab4942b5aded6aaf03ee13c9e07f5bd673a6fca6a6a7b990dab20adc",
+      "context": "The headings that are on, in :data:`ZOO_SOURCES` order.",
+      "translation": "Les en-têtes activés, dans l’ordre de :data:`ZOO_SOURCES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.heading#0",
+      "source": "The label for one source, for a test or a tooltip retarget.",
+      "source_sha256": "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33",
+      "context": "The label for one source, for a test or a tooltip retarget.",
+      "translation": "L’étiquette d’une source, pour un test ou un reciblage d’infobulle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.heading#1",
+      "source": "a source name from :data:`spacr.model_zoo.ZOO_SOURCES`; converted to ``str``. An unknown name raises :class:`KeyError`.",
+      "source_sha256": "dd64702de238968fb791ca7d7d149645aaca7e792fe1e3b9f8b2043bef1522d5",
+      "context": "a source name from :data:`spacr.model_zoo.ZOO_SOURCES`; converted to ``str``. An unknown name throws :class:`KeyError`.",
+      "translation": "un nom de source issu de :data:`spacr.model_zoo.ZOO_SOURCES` ; converti en ``str``. Un nom inconnu lève :class:`KeyError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.is_on#0",
+      "source": "Whether one heading is on.",
+      "source_sha256": "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb",
+      "context": "Whether one heading is on.",
+      "translation": "Indique si un en-tête est activé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.is_on#1",
+      "source": "a source name from :data:`spacr.model_zoo.ZOO_SOURCES`; converted to ``str``, and an unknown name gives False.",
+      "source_sha256": "c3136edab1a6abc7a52f2f97eb05bbd677a4f1fabb90c3b712e446df715fa2aa",
+      "context": "a source name from :data:`spacr.model_zoo.ZOO_SOURCES`; converted to ``str``, and an unknown name gives False.",
+      "translation": "un nom de source issu de :data:`spacr.model_zoo.ZOO_SOURCES` ; converti en ``str``, et un nom inconnu donne False.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.set_on#0",
+      "source": "Turn one heading on or off, asking :attr:`_guard` first.",
+      "source_sha256": "5bd9e5014406138c2a26de441b82be781ff358db03f6eb1ce4a5a1dcc8a3fe86",
+      "context": "Turn one heading on or off, asking :attr:`_guard` first.",
+      "translation": "Active ou désactive un en-tête, en consultant d’abord :attr:`_guard`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.set_on#1",
+      "source": "the heading.",
+      "source_sha256": "c5359620322fa359602548f9a596ac6a1d75a656c90c13143a902ceadecc81c9",
+      "context": "the heading.",
+      "translation": "l’en-tête.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.set_on#2",
+      "source": "the state wanted.",
+      "source_sha256": "4f6e14a8399ac023435ef2bde481b0aaca84a6273cbf9811f460c25af2b31a70",
+      "context": "the state wanted.",
+      "translation": "l’état souhaité.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.set_on#3",
+      "source": "the state it actually ended in.",
+      "source_sha256": "c07b3fd119c91c5d1109e8b695e6d1f21eee0f2dcdfb7d91754f87259af679bb",
+      "context": "the state it actually ended in.",
+      "translation": "l’état dans lequel il s’est effectivement retrouvé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.community_guard#0",
+      "source": "A :class:`SourceStrip` guard that warns once about community uploads.",
+      "source_sha256": "a14c4bcf6b8b1d937866b1fc6ef142eceb0041c2b13298928f86340fb0e49270",
+      "context": "A :class:`SourceStrip` guard that warns once about community uploads.",
+      "translation": "Une garde de :class:`SourceStrip` qui avertit une fois au sujet des dépôts communautaires.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.community_guard#1",
+      "source": "Shared by the picker and the Model Zoo page so the two say the same thing, once each, rather than one of them quietly listing unvetted rows. The \"once\" is per window, which is what the checkbox did.",
+      "source_sha256": "f2d0b29a72666987081df1a07d6665594fb7c8fb9e28dbe7d217a302a2eac2a2",
+      "context": "Shared by the picker and the Model Zoo page so the two say the same thing, once each, rather than one of them quietly listing unvetted rows. The \"once\" is per window, which is what the checkbox did.",
+      "translation": "Partagée par le sélecteur et la page Model Zoo afin que les deux disent la même chose, une fois chacun, plutôt que l’un d’eux liste discrètement des lignes non vérifiées. Le \"once\" s’entend par fenêtre, ce que faisait la case à cocher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.community_guard#2",
+      "source": "the widget the warning belongs to; it carries the flag.",
+      "source_sha256": "a9c9ebc925cc30bf55aa7106f8ddd4de3c82486617c73f1bacf1ee2615c7360d",
+      "context": "the widget the warning belongs to; it carries the flag.",
+      "translation": "le widget auquel appartient l’avertissement ; il porte l’indicateur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#0",
+      "source": "Say what an unvetted upload is, and ask whether to show them anyway.",
+      "source_sha256": "5850ab4c441dd5ed31c4491fb8b623da3eb24c7af0aa710bf1de82221ab2c149",
+      "context": "Say what an unvetted upload is, and ask whether to show them anyway.",
+      "translation": "Explique ce qu’est un dépôt non vérifié, et demande s’il faut quand même les afficher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#1",
+      "source": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
+      "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
+      "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
+      "translation": "Les mots sont ceux de la case à cocher retirée, inchangés. C’est le contrôle qui les portait qui posait problème, pas la phrase. Elle est dite plutôt que simplement affichée comme étiquette, car la différence entre un modèle examiné et un modèle non examiné n’est pas visible dans une table.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#2",
+      "source": "the widget the dialog belongs to.",
+      "source_sha256": "db75cefcce8d531e9088a79124d1593d6bd518ca3a7865376de71e5d06819344",
+      "context": "the widget the dialog belongs to.",
+      "translation": "le widget auquel appartient la boîte de dialogue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#3",
+      "source": "True when the user said to show them.",
+      "source_sha256": "97895d43905c5841c50c3bc16a48515336f656f2da61e9b570fb13e422881036",
+      "context": "True when the user said to show them.",
+      "translation": "True lorsque l’utilisateur a demandé à les afficher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#0",
+      "source": "Open the install dialog for one backend. True when it is ready after.",
+      "source_sha256": "c80fa0850e0c1c69dd12c8963797c46d68e1caab1963b71ea01a9985012f37d0",
+      "context": "Open the install dialog for one backend. True when it is ready after.",
+      "translation": "Ouvre la boîte de dialogue d’installation d’un backend. True lorsqu’il est prêt ensuite.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#1",
+      "source": "Shared by the Model Zoo screen, the Model Zoo button, the Make Masks Mode box and Plaque Assay's Figure mode, so the places that can start an install say the same thing about it and run the same install.",
+      "source_sha256": "77e80fddd9ed686e50b67e90c1a86331642c0ec5aa08bfa2bd7ab70f909eb957",
+      "context": "Shared by the Model Zoo screen, the Model Zoo button, the Make Masks Mode box and Plaque Assay's Figure mode, so the places that can start an install say the same thing about it and run the same install.",
+      "translation": "Partagé par la vue Model Zoo, le bouton Model Zoo, la zone Mode de Make Masks et le mode Figure de Plaque Assay, afin que tous les endroits pouvant lancer une installation en disent la même chose et exécutent la même installation.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#2",
+      "source": "the widget asking.",
+      "source_sha256": "53dd6abf43806dcb502818a378d52e78e2a3ae85b34aa79088bf1b6818325047",
+      "context": "the widget asking.",
+      "translation": "le widget demandeur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#3",
+      "source": "the backend.",
+      "source_sha256": "876455caf5c20c793116c46d93f7fabc2522d16609921e1d3422016e41089fc9",
+      "context": "the backend.",
+      "translation": "le backend.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#4",
+      "source": "``watch(dialog)``, called before the dialog opens, so the caller can connect to its ``job_*`` signals and follow the install.",
+      "source_sha256": "cddce71f8363725e16f2af9d25eb3d93d9219524a3fd46e8c9175b82b3890c11",
+      "context": "``watch(dialog)``, called before the dialog opens, so the caller can connect to its ``job_*`` signals and follow the install.",
+      "translation": "``watch(dialog)``, appelé avant l’ouverture de la boîte de dialogue, afin que l’appelant puisse se connecter à ses signaux ``job_*`` et suivre l’installation.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#5",
+      "source": "build an installed backend again (item 518).",
+      "source_sha256": "ba4fe9d0fd56b23ff22c22769cc3813c0ad0d55c44e55772e75f18476fedab2a",
+      "context": "build an installed backend again (item 518).",
+      "translation": "reconstruire un backend déjà installé (point 518).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#6",
+      "source": "a sentence saying why it is offered, shown in the dialog.",
+      "source_sha256": "50fee25f0e2ba94de24506de84e96d707e8123183d9ab7fe150c544e22a8aa76",
+      "context": "a sentence saying why it is offered, shown in the dialog.",
+      "translation": "une phrase expliquant pourquoi elle est proposée, affichée dans la boîte de dialogue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend_package#0",
+      "source": "Install the backend a zoo row needs. True when it is ready after.",
+      "source_sha256": "39005fe3a0a9676ad00af53980dc35c4fdaf3a955c141dfc03a2ada579cc19b8",
+      "context": "Install the backend a zoo row needs. True when it is ready after.",
+      "translation": "Installe le backend dont a besoin une ligne du zoo. True lorsqu’il est prêt ensuite.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend_package#2",
+      "source": "a ``backend`` row, or a ``cellpose3`` model row.",
+      "source_sha256": "2ab8c99db544bf35503e4ebfa9ae46ffbb0e62e1e747727607c6281bb9d71393",
+      "context": "a ``backend`` row, or a ``cellpose3`` model row.",
+      "translation": "une ligne ``backend``, ou une ligne de modèle ``cellpose3``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.remembered_sources#0",
+      "source": "Which source headings this user last left on.",
+      "source_sha256": "f7fbc09847c881b34faf61658c43e9c96ced75efcf9fa629d5017561e3327ffa",
+      "context": "Which source headings this user last left on.",
+      "translation": "Les en-têtes de sources que cet utilisateur a laissés activés en dernier.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.remembered_sources#1",
+      "source": "Through QSettings for the same reason the download folder is -- the headings a user folds away stay folded away tomorrow, not only for the rest of this dialog. Read here rather than held on the dialog so the Make Masks Mode box and the Model Zoo page answer from the same preference without owning a copy of it.",
+      "source_sha256": "67bcb855e228984e1a7920eb7a602ae721e6e159cbf6379caf49ed182121cba3",
+      "context": "Through QSettings for the same reason the download folder is -- the headings a user folds away stay folded away tomorrow, not only for the rest of this dialog. Read here rather than held on the dialog so the Make Masks Mode box and the Model Zoo page answer from the same preference without owning a copy of it.",
+      "translation": "Via QSettings, pour la même raison que le dossier de téléchargement -- les en-têtes qu’un utilisateur replie restent repliés le lendemain, et pas seulement pour le reste de cette boîte de dialogue. Lu ici plutôt que conservé sur la boîte de dialogue, afin que la zone Mode de Make Masks et la page Model Zoo répondent à partir de la même préférence sans en posséder de copie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.remembered_sources#2",
+      "source": "names from :data:`spacr.model_zoo.ZOO_SOURCES`, in that order.",
+      "source_sha256": "96d64bb350a19510e320747c74732c4a558dc78cc58987a46b73205663cd9d18",
+      "context": "names from :data:`spacr.model_zoo.ZOO_SOURCES`, in that order.",
+      "translation": "noms issus de :data:`spacr.model_zoo.ZOO_SOURCES`, dans cet ordre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.uninstall_backend#0",
+      "source": "Open the uninstall dialog for one backend. True when it was removed.",
+      "source_sha256": "e1e1f6804e5343bd45d2351c753ca375c541adc84c2cc493262d0f8dae44650f",
+      "context": "Open the uninstall dialog for one backend. True when it was removed.",
+      "translation": "Ouvre la boîte de dialogue de désinstallation d’un backend. True lorsqu’il a été supprimé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.module_hint_bar.ModuleHintBar.event#3",
+      "source": "any event sent to the bar; a ``QEvent.ToolTip`` is accepted and consumed, everything else goes to the base class.",
+      "source_sha256": "57cc280e1d0692a30f331cefa9c0b2a8c94e303b009492b1468d0c44e0612347",
+      "context": "any event sent to the bar; a ``QEvent.ToolTip`` is accepted and consumed, everything else goes to the base class.",
+      "translation": "tout événement envoyé à la barre ; un ``QEvent.ToolTip`` est accepté et consommé, tout le reste est transmis à la classe de base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.apply_settings#1",
+      "source": "the Motility settings dict. ``tracked_object``, ``max_displacement``, ``straightness_threshold``, ``drop_straight_tracks``, ``channels``, ``pixels_per_um`` and ``seconds_per_frame`` are read when present; errors are logged, not raised.",
+      "source_sha256": "185c5c0ed8bdd35edd5972bd83f92bcd08c04883a5697f9800bb45c01c654dbd",
+      "context": "the Motility settings key-value mapping. ``tracked_object``, ``max_displacement``, ``straightness_threshold``, ``drop_straight_tracks``, ``channels``, ``pixels_per_um`` and ``seconds_per_frame`` are read when present; errors are logged, not raised.",
+      "translation": "le dictionnaire des réglages Motility. ``tracked_object``, ``max_displacement``, ``straightness_threshold``, ``drop_straight_tracks``, ``channels``, ``pixels_per_um`` et ``seconds_per_frame`` sont lus lorsqu’ils sont présents ; les erreurs sont journalisées, pas levées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.closeEvent#2",
+      "source": "the close event, passed on to the base class after any running worker has been waited for (up to five seconds each).",
+      "source_sha256": "ea5eb180c28bfe1bd23e10714601d6f8259c5e18d6a1cacc54b3da9fe8182376",
+      "context": "the close event, passed on to the base class after any executing worker has been waited for (up to five seconds each).",
+      "translation": "l’événement de fermeture, transmis à la classe de base après avoir attendu chaque worker en cours (jusqu’à cinq secondes chacun).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.load_folder#2",
+      "source": "a plate or ``merged`` folder, scanned with :func:`scan_plate_payload`; a failure or a plate with no time series is shown in the status line.",
+      "source_sha256": "55e68d62e7632a5f4518307499b0eb8294aeb5d238476f01b757101a5d33d659",
+      "context": "a plate or ``merged`` folder, scanned with :func:`scan_plate_payload`; a failure or a plate with no time series is shown in the status line.",
+      "translation": "un dossier de plaque ou ``merged``, analysé avec :func:`scan_plate_payload` ; un échec ou une plaque sans série temporelle est signalé dans la ligne d’état.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.load_folder_async#2",
+      "source": "a plate or ``merged`` folder; ``None`` or an empty path submits nothing and returns ``False``.",
+      "source_sha256": "b5313056dd5f3f82777e390a894849cc55d4d2a8e394c1289fc635cc8d9e1366",
+      "context": "a plate or ``merged`` folder; ``None`` or an empty path submits nothing and returns ``False``.",
+      "translation": "un dossier de plaque ou ``merged`` ; ``None`` ou un chemin vide ne soumet rien et renvoie ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.set_propagate_callback#1",
+      "source": "callable taking one settings dict, or ``None`` to push nothing.",
+      "source_sha256": "122e65811c782adb1883e1859cc61402684a410c28fcc8fd6a7741a8d2650b3a",
+      "context": "callable taking one settings key-value mapping, or ``None`` to push nothing.",
+      "translation": "appelable recevant un dictionnaire de réglages, ou ``None`` pour ne rien transmettre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.build_point_table#2",
+      "source": "folder holding the merged ``.npy`` arrays.",
+      "source_sha256": "2514a2a28d0ec58781b09d1eb7474e29db946e58598b55de5b3827eebe0a1f8a",
+      "context": "folder holding the merged ``.npy`` arrays.",
+      "translation": "dossier contenant les tableaux ``.npy`` fusionnés.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.build_point_table#3",
+      "source": "parsed file names of one (plate, well, field) group in time order; each supplies ``filename``, ``plateID``, ``wellID`` and ``fieldID``, and its position becomes ``frame``.",
+      "source_sha256": "3abccb8b7e680e74def263f7b78f25ea43c8e5b6acc4d6ae46bc4ab3cb498859",
+      "context": "parsed file names of one (laboratory microplate, microplate sample position, microscope field of view) group in time order; each supplies ``filename``, ``plateID``, ``wellID`` and ``fieldID``, and its position becomes ``frame``.",
+      "translation": "noms de fichiers analysés d’un groupe (plaque, puits, champ) dans l’ordre temporel ; chacun fournit ``filename``, ``plateID``, ``wellID`` et ``fieldID``, et sa position devient ``frame``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.build_point_table#4",
+      "source": "number of intensity channels, used to orient each array.",
+      "source_sha256": "5c4738b044a4ca64e5aa2314528b5fb2039dc9d9d13668c2ae112cf389b46a95",
+      "context": "number of intensity image data channels, used to orient each array.",
+      "translation": "nombre de canaux d’intensité, utilisé pour orienter chaque tableau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.build_point_table#5",
+      "source": "index of the label plane whose objects are tracked.",
+      "source_sha256": "8c60d80d59909101b9bb3908b0d53e8c1dc0427b4cacb35317bfbc0289546f74",
+      "context": "index of the label image layer whose objects are tracked.",
+      "translation": "index du plan d’étiquettes dont les objets sont suivis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.build_point_table#6",
+      "source": "index of the pathogen mask plane; an object overlapping it is ``infected``. ``None`` marks every object uninfected.",
+      "source_sha256": "93a236ca361da54042d7ff84de4964102e368f48834f444bbd1cc97ceffeff7e",
+      "context": "index of the pathogen mask image layer; an object overlapping it is ``infected``. ``None`` marks every object uninfected.",
+      "translation": "index du plan du masque de pathogènes ; un objet qui le chevauche est ``infected``. ``None`` marque chaque objet comme non infecté.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.default_plane_layout#2",
+      "source": "number of planes in a merged array.",
+      "source_sha256": "8860ae7eef64ad4c4d0d477d2420c0725f2dd61cfd09679d212d2bdba1126d54",
+      "context": "number of image layers in a merged array.",
+      "translation": "nombre de plans dans un tableau fusionné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.default_plane_layout#3",
+      "source": "number of intensity channels stored before the mask planes; values below 1 count as 1.",
+      "source_sha256": "0faeb8b10d956e2a13e90929b847c4c17996e613d8284fe61d36105f3b55c9c9",
+      "context": "number of intensity image data channels stored before the mask image layers; values below 1 count as 1.",
+      "translation": "nombre de canaux d’intensité stockés avant les plans de masques ; les valeurs inférieures à 1 comptent comme 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.group_merged_files#1",
+      "source": "Shares the lightweight parser behind :func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with the assay without importing plotting or model dependencies.",
+      "source_sha256": "86ec378aed4f92d5a6e8f57634bab575423a545539d3c2d346857d6bfd446707",
+      "context": "Shares the lightweight parser behind :func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with the assay without importing plotting or model dependencies.",
+      "translation": "Partage l’analyseur léger sous-jacent à :func:`spacr.timelapse._parse_merged_filename`, de sorte que le regroupement concorde avec l’essai sans importer les dépendances de tracé ni de modèle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.group_merged_files#2",
+      "source": "folder of merged ``.npy`` arrays; only groups with at least two time points are returned.",
+      "source_sha256": "57641361b80fd836c88d43eacaa0cbbdf0c7074532d56b422ceac367e56670e6",
+      "context": "folder of merged ``.npy`` arrays; only groups with at least two time points are returned.",
+      "translation": "dossier des tableaux ``.npy`` fusionnés ; seuls les groupes ayant au moins deux points temporels sont renvoyés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.render_motility_figure#2",
+      "source": "point table as returned by :func:`build_point_table`, one row per object per frame; drawn as tracks from the origin.",
+      "source_sha256": "b7f1a6b8a8dc1a354d05e836cebafae28023bdb0d31a99d4257b1e7e1fd87c0a",
+      "context": "point table as returned by :func:`build_point_table`, one row per object per frame; drawn as tracks from the origin.",
+      "translation": "table de points telle que renvoyée par :func:`build_point_table`, une ligne par objet et par image ; dessinée sous forme de pistes partant de l’origine.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.render_motility_figure#3",
+      "source": "per-track table as returned by :func:`track_metrics`, for the length histogram and the velocity panel.",
+      "source_sha256": "d91dc1c74c13297288cdedf1c2c8b06ed579820516393dbf8e03417a3be27ff7",
+      "context": "per-track table as returned by :func:`track_metrics`, for the length histogram and the velocity panel.",
+      "translation": "table par piste telle que renvoyée par :func:`track_metrics`, pour l’histogramme des longueurs et le panneau des vitesses.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.render_motility_figure#4",
+      "source": "supplies the velocity axis unit; an uncalibrated one is labelled px/frame on the plot.",
+      "source_sha256": "3b56994bcdd686eae6f4f78d60c055c6074842840a4d7785417c2868fd8d2561",
+      "context": "supplies the velocity axis unit; an uncalibrated one is labelled px/frame on the plot.",
+      "translation": "fournit l’unité de l’axe des vitesses ; une calibration absente est indiquée px/frame sur le graphique.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.render_motility_figure#5",
+      "source": "minimum track length in frames, drawn as the cutoff on the length histogram.",
+      "source_sha256": "d15bf4a0d270ceacfdf8ec863dd634fc08c9fa272ae35be08dc70ece1b1ed332",
+      "context": "minimum track length in frames, drawn as the cutoff on the length histogram.",
+      "translation": "longueur minimale des pistes en images, dessinée comme seuil sur l’histogramme des longueurs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.render_motility_figure#6",
+      "source": "straightness threshold of the current settings; not drawn.",
+      "source_sha256": "e9da0317cdf7a10a7d357f99a786d2d1bbd523597757b843c45ff55aab0b5d30",
+      "context": "straightness threshold of the current settings; not drawn.",
+      "translation": "seuil de rectitude des réglages actuels ; non dessiné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.resolve_merged_dir#2",
+      "source": "a plate folder holding ``merged/``, the ``merged`` folder itself, or a file inside either (its parent folder is used).",
+      "source_sha256": "1ffd0601a95a927d4dee94d777db949d8fd9c9d5b0c23d1a3215a3a435c8ce22",
+      "context": "a plate folder holding ``merged/``, the ``merged`` folder itself, or a file inside either (its parent folder is used).",
+      "translation": "un dossier de plaque contenant ``merged/``, le dossier ``merged`` lui-même, ou un fichier situé dans l’un ou l’autre (son dossier parent est alors utilisé).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.run_motility_pass#1",
+      "source": "the merged folder, group file names, channel count, plane indices and frame cap passed to :func:`build_point_table`.",
+      "source_sha256": "71e00955251b166cc3cd9dc5b5bc7413db2d972e1404f65119536c2e739b789f",
+      "context": "the merged folder, group file names, image data channel count, image layer indices and frame cap passed to :func:`build_point_table`.",
+      "translation": "le dossier fusionné, les noms de fichiers du groupe, le nombre de canaux, les indices des plans et le plafond d’images transmis à :func:`build_point_table`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.scan_plate_payload#2",
+      "source": "a plate folder or its ``merged`` folder; any failure is caught and reported in the ``error`` entry.",
+      "source_sha256": "1de622b5f61b47367b72523308b6cec5ec9ae1e4bd93977e58b626bf4c24ba7c",
+      "context": "a plate folder or its ``merged`` folder; any failure is caught and reported in the ``error`` entry.",
+      "translation": "un dossier de plaque ou son dossier ``merged`` ; tout échec est intercepté et signalé dans l’entrée ``error``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.smooth_and_filter_tracks#2",
+      "source": "point table as returned by :func:`build_point_table`, one row per object per frame; tracks are keyed by plate, well, field and ``cellID``. ``None`` or empty is returned as is.",
+      "source_sha256": "0e2d60cbdced2bf42d877e25490b1480abfad43a00bf2c7087e211d98c010a09",
+      "context": "point table as returned by :func:`build_point_table`, one row per object per frame; tracks are keyed by laboratory microplate, microplate sample position, microscope field of view and ``cellID``. ``None`` or empty is returned as is.",
+      "translation": "table de points telle que renvoyée par :func:`build_point_table`, une ligne par objet et par image ; les pistes sont indexées par plaque, puits, champ et ``cellID``. ``None`` ou une table vide est renvoyé tel quel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.smooth_and_filter_tracks#3",
+      "source": "largest plausible step between frames, in pixels.",
+      "source_sha256": "863687a14035c43fe666f91cf4c23d717f6d39e37e5d5b3a3fc1b90f4f8964f1",
+      "context": "largest plausible step between frames, in pixels.",
+      "translation": "plus grand pas plausible entre deux images, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.summarise#1",
+      "source": "per-track table as returned by :func:`track_metrics`; tracks flagged ``too_short`` are left out of the means.",
+      "source_sha256": "d8e4cf508146b2c27ebb25fe804adf8c53eb581e6a4ae502e5fb56bdca0ad9cd",
+      "context": "per-track table as returned by :func:`track_metrics`; tracks flagged ``too_short`` are left out of the means.",
+      "translation": "table par piste telle que renvoyée par :func:`track_metrics` ; les pistes marquées ``too_short`` sont exclues des moyennes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.summarise#2",
+      "source": "supplies the velocity unit and whether it is calibrated.",
+      "source_sha256": "648efa2a4087afc97c7f3612463fdff8b98cd4752e6cf100d8e595f5ec3ab483",
+      "context": "supplies the velocity unit and whether it is calibrated.",
+      "translation": "fournit l’unité de vitesse et indique si elle est calibrée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.summarise#3",
+      "source": "the minimum track length in frames, recorded in the summary.",
+      "source_sha256": "32e127d2237ad91dab8dfcae490585faa52f0eae67bcad788cde390874c7ca22",
+      "context": "the minimum track length in frames, recorded in the summary.",
+      "translation": "la longueur minimale des pistes en images, consignée dans le résumé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.summarise#4",
+      "source": "straightness at or above which a used track counts as highly straight.",
+      "source_sha256": "88610227e01be3d30992d8c93008d25868f1cc8718caedfc5ef3cd128d0d4b8d",
+      "context": "straightness at or above which a used track counts as highly straight.",
+      "translation": "rectitude à partir de laquelle une piste utilisée compte comme très rectiligne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.track_metrics#3",
+      "source": "point table as returned by :func:`build_point_table`, one row per object per frame.",
+      "source_sha256": "6b387c78fbf280fad89b1dbfca0c7d5db568f841e7904d01cd24c9e87b318e4e",
+      "context": "point table as returned by :func:`build_point_table`, one row per object per frame.",
+      "translation": "table de points telle que renvoyée par :func:`build_point_table`, une ligne par objet et par image.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.track_metrics#4",
+      "source": "pixel size and frame interval; its factor converts px/frame to the reported velocity unit.",
+      "source_sha256": "8b28c23a435774a3842d11dfe22dda7edce874f6044fc6c0b3f84478c985b92b",
+      "context": "pixel size and frame interval; its factor converts px/frame to the reported velocity unit.",
+      "translation": "taille de pixel et intervalle entre images ; son facteur convertit les px/frame dans l’unité de vitesse rapportée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.choose_model_for#1",
+      "source": "object name whose ``model_name`` cell receives the chosen path, e.g. ``\"cell\"``.",
+      "source_sha256": "17ecf3ec03769df27de587896013c2efb74e33a8713d9a1bd2949dcf54a1f16d",
+      "context": "object name whose ``model_name`` cell receives the chosen path, e.g. ``\"cell\"``.",
+      "translation": "nom de l’objet dont la cellule ``model_name`` reçoit le chemin choisi, p. ex. ``\"cell\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.eventFilter#3",
+      "source": "the object the filter is installed on: this widget (font changes), the help band (enter and leave) or the table's viewport (tooltip, mouse move and leave).",
+      "source_sha256": "ee650cea5ac6be3bd67e13874c1dbf92e654754674bdfe65cddc72b6942c42a3",
+      "context": "the object the filter is installed on: this widget (font changes), the help band (enter and leave) or the table's viewport (tooltip, mouse move and leave).",
+      "translation": "l’objet sur lequel le filtre est installé : ce widget (changements de police), la bande d’aide (entrée et sortie) ou la zone d’affichage de la table (infobulle, déplacement et sortie de la souris).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.eventFilter#4",
+      "source": "the event; a tooltip event on the viewport is swallowed and every other event is passed on to the base class.",
+      "source_sha256": "881e91cd02a622b4d06518684eb31b3d53867568d687f6aa89cb976af30dc53c",
+      "context": "the event; a tooltip event on the viewport is swallowed and every other event is passed on to the base class.",
+      "translation": "l’événement ; un événement d’infobulle sur la zone d’affichage est absorbé et tout autre événement est transmis à la classe de base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_app_key#1",
+      "source": "registry key of the module, e.g. ``\"mask\"``; ``None`` or empty clears it.",
+      "source_sha256": "039f53c8c805314e080b86c1d22bf22ea27119fcb4987b7dba7627984b843cce",
+      "context": "registry key of the module, e.g. ``\"mask\"``; ``None`` or empty clears it.",
+      "translation": "clé de registre du module, p. ex. ``\"mask\"`` ; ``None`` ou vide l’efface.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#2",
+      "source": "flat settings dict, or ``None``; its ``<object>_<question>`` keys become the table.",
+      "source_sha256": "ec3c208cbef1149a8c79825598d17c06087bf0a35f8d73ba72be73704a1715dd",
+      "context": "flat settings key-value mapping, or ``None``; its ``<object>_<question>`` structured-data names become the table.",
+      "translation": "dictionnaire de réglages à plat, ou ``None`` ; ses clés ``<object>_<question>`` deviennent la table.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_user_height#1",
+      "source": "wanted table height in pixels.",
+      "source_sha256": "23841250889d3ff52e29cb2c16ca4a8b25864b562a0a5c7b9d0b6333d61c9c53",
+      "context": "wanted table height in pixels.",
+      "translation": "hauteur souhaitée de la table, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_value#2",
+      "source": "settings question, i.e. the key suffix shared by every object (``\"min_area\"`` for ``cell_min_area``).",
+      "source_sha256": "a2a380946a273cbb8efd377c320f2e52d9321013c0b943aaafda1baf93984176",
+      "context": "settings question, i.e. the structured-data name suffix shared by every object (``\"min_area\"`` for ``cell_min_area``).",
+      "translation": "question de réglage, c’est-à-dire le suffixe de clé partagé par chaque objet (``\"min_area\"`` pour ``cell_min_area``).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_value#3",
+      "source": "object name, the key prefix (``\"cell\"``, ``\"nucleus\"``, ...).",
+      "source_sha256": "c0c20877f50c9eb0d15708b3fe87275af917a5f244370951e399e9726a8161b8",
+      "context": "object name, the key prefix (``\"cell\"``, ``\"nucleus\"``, ...).",
+      "translation": "nom de l’objet, le préfixe de la clé (``\"cell\"``, ``\"nucleus\"``, ...).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_value#4",
+      "source": "what the user would type; converted to the type of the cell's current value (or a sibling's). Returns ``False`` for an unknown row or column, a cell the object does not ask, or no change.",
+      "source_sha256": "6cc7ebd533d74cd19955ac0e9e0bfba5f9a0b0eb8d39b973b277f4819ce77e90",
+      "context": "what the user would type; converted to the type of the cell's current value (or a sibling's). Returns ``False`` for an unknown row or column, a cell the object does not ask, or no change.",
+      "translation": "ce que l’utilisateur taperait ; converti au type de la valeur actuelle de la cellule (ou de celle d’une cellule voisine). Renvoie ``False`` pour une ligne ou une colonne inconnue, une cellule que l’objet ne demande pas, ou l’absence de changement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.question_at#1",
+      "source": "zero-based table row; out of range gives ``''``.",
+      "source_sha256": "d204ab3bd36dee884107b89acafd9ea57c01bc71c2ab0f58599e3e6735225165",
+      "context": "zero-based table row; out of range gives ``''``.",
+      "translation": "ligne de la table, à partir de zéro ; hors limites, donne ``''``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.set_table#1",
+      "source": "``{question: {object: value}}`` mapping, or ``None`` for an empty table. Rows keep its order; columns follow the canonical object order.",
+      "source_sha256": "0c7aeae96c3b976a6df6249aa2063b3d5094bb122fbac5bd1a42c5356357992e",
+      "context": "``{question: {object: value}}`` mapping, or ``None`` for an empty table. Rows keep its order; columns follow the canonical object order.",
+      "translation": "dictionnaire ``{question: {object: value}}``, ou ``None`` pour une table vide. Les lignes conservent son ordre ; les colonnes suivent l’ordre canonique des objets.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult#7",
+      "source": "number of rows in the frame that was analysed; :meth:`object_frame` and :meth:`filtered` require a frame of this length.",
+      "source_sha256": "74212c418a8c0aad12c201f43bac3b17e0253a4b72687ffbd6579d9c3d5e766d",
+      "context": "number of rows in the frame that was analysed; :meth:`object_frame` and :meth:`filtered` require a frame of this length.",
+      "translation": "nombre de lignes du cadre analysé ; :meth:`object_frame` et :meth:`filtered` exigent un cadre de cette longueur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult#8",
+      "source": "how many of those rows received a finite score.",
+      "source_sha256": "ec1c7758ce4565e2d05097ddcc2f26bb5a5120d37d3eb87af6644cc4fa55eaa4",
+      "context": "how many of those rows received a finite score.",
+      "translation": "nombre de ces lignes ayant reçu un score fini.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult.filtered#3",
+      "source": "the frame :func:`detect_outliers` was given, or one with the same number of rows in the same order; any other length raises :class:`OutlierError`.",
+      "source_sha256": "831f91a358256488bf7635a0f8aa80f71cb03df348e8a112211dc078e219ffc9",
+      "context": "the frame :func:`detect_outliers` was given, or one with the same number of rows in the same order; any other length raises :class:`OutlierError`.",
+      "translation": "le cadre fourni à :func:`detect_outliers`, ou un cadre ayant le même nombre de lignes dans le même ordre ; toute autre longueur lève :class:`OutlierError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.from_dict#1",
+      "source": "mapping written by :meth:`to_dict`; only the spec's own field names are read, and the constructor still validates them.",
+      "source_sha256": "a7d88c9367250013e3e3b11ef9d857954eb65f08aecfb2fdd4c6c55650cfb20b",
+      "context": "mapping written by :meth:`to_dict`; only the spec's own field names are read, and the constructor still validates them.",
+      "translation": "dictionnaire écrit par :meth:`to_dict` ; seuls les noms de champs propres à la spécification sont lus, et le constructeur les valide encore.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.from_json#1",
+      "source": "JSON text written by :meth:`to_json`.",
+      "source_sha256": "d50c445201944c03792a85392154f5a0706ddf1de7bb0bd356ae1de4c0f1a684",
+      "context": "JSON text written by :meth:`to_json`.",
+      "translation": "texte JSON écrit par :meth:`to_json`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.with_features#1",
+      "source": "column names to test; stored as a de-duplicated tuple.",
+      "source_sha256": "88339e94a474074aab106ccf3dd0310e193861f88008a5f19192e1673a098f02",
+      "context": "column names to test; stored as a de-duplicated tuple.",
+      "translation": "noms des colonnes à tester ; stockés sous forme de tuple dédoublonné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.with_method#1",
+      "source": "one of :data:`METHODS` (``\"mad\"``, ``\"iqr\"`` or ``\"mahalanobis\"``); anything else raises :class:`OutlierError`.",
+      "source_sha256": "4787e9f691aaba9a870b26ef25b3eef2750ec8772ac47ebf6dfb623a6e6d0a72",
+      "context": "one of :data:`METHODS` (``\"mad\"``, ``\"iqr\"`` or ``\"mahalanobis\"``); anything else raises :class:`OutlierError`.",
+      "translation": "l’une des :data:`METHODS` (``\"mad\"``, ``\"iqr\"`` ou ``\"mahalanobis\"``) ; toute autre valeur lève :class:`OutlierError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.with_transform#1",
+      "source": "one of :data:`TRANSFORMS` (``\"none\"`` or ``\"log10\"``); anything else raises :class:`OutlierError`.",
+      "source_sha256": "f02b059985f47c5246e7bd2d902ed1fcd16a67f0f2e7889ace97889d6188222b",
+      "context": "one of :data:`TRANSFORMS` (``\"none\"`` or ``\"log10\"``); anything else raises :class:`OutlierError`.",
+      "translation": "l’une des :data:`TRANSFORMS` (``\"none\"`` ou ``\"log10\"``) ; toute autre valeur lève :class:`OutlierError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.with_well_keys#1",
+      "source": "columns that together identify a well; stored as a de-duplicated tuple.",
+      "source_sha256": "eda9e792799cef1b23cb636534359f869afbbbcab3c2c4b0af2f935f89e080cd",
+      "context": "columns that together identify a microplate sample position; stored as a de-duplicated tuple.",
+      "translation": "colonnes qui, ensemble, identifient un puits ; stockées sous forme de tuple dédoublonné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.candidate_features#4",
+      "source": "measurement table whose columns are classified.",
+      "source_sha256": "e8fd7ac3c56290c28819fb7f85dedabde354c0467695af2e8ad67493de856571",
+      "context": "measurement table whose columns are classified.",
+      "translation": "table de mesures dont les colonnes sont classées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.median_absolute_deviation#2",
+      "source": "the feature's values; they are converted to float and every non-finite entry is ignored.",
+      "source_sha256": "bb946c68ff61a7d3cab5df345ac809cecf5ff2abdf552328421f5e8a5014b9eb",
+      "context": "the feature's values; they are converted to float and every non-finite entry is ignored.",
+      "translation": "les valeurs de la caractéristique ; elles sont converties en flottants et chaque entrée non finie est ignorée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.tukey_fences#4",
+      "source": "``(q1, q3, low, high, note)``; ``note`` is ``\"\"``, ``\"iqr-zero\"``, ``\"constant\"`` or ``\"empty\"``.",
+      "source_sha256": "9e82b5a762972d4bf99824823abf3db5d7cc8f87cfda5d0920c709914710dbcb",
+      "context": "``(q1, q3, low, high, note)``; ``note`` is ``\"\"``, ``\"iqr-zero\"``, ``\"constant\"`` or ``\"empty\"``.",
+      "translation": "``(q1, q3, low, high, note)`` ; ``note`` vaut ``\"\"``, ``\"iqr-zero\"``, ``\"constant\"`` ou ``\"empty\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.well_key_columns#2",
+      "source": "measurement table whose column names are searched.",
+      "source_sha256": "f3f479cabb27ed742d2d2f2171bbb2df7cd6dc9462790667d5e013c7ef9da9da",
+      "context": "measurement table whose column names are searched.",
+      "translation": "table de mesures dont les noms de colonnes sont examinés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#10",
+      "source": "per feature, the divisor applied after centring: the standard deviation (``ddof=1``) under z-score scaling, else 1.",
+      "source_sha256": "fc31d33a53d93c64b3ded4899eb52f2cfc8bc194d9d2746650158084a5a2219c",
+      "context": "per feature, the divisor applied after centring: the standard deviation (``ddof=1``) under z-score scaling, else 1.",
+      "translation": "par caractéristique, le diviseur appliqué après le centrage : l’écart-type (``ddof=1``) avec la mise à l’échelle z-score, sinon 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#12",
+      "source": "rows in the frame :func:`pca` was given, before the NaN policy.",
+      "source_sha256": "17df7c2133b77b75b8c51898a8e6fa65a5533af3f712d76bd915284299190aa6",
+      "context": "rows in the frame :func:`pca` was given, before the NaN policy.",
+      "translation": "nombre de lignes du cadre fourni à :func:`pca`, avant application de la politique NaN.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#13",
+      "source": "requested features that exist in the frame, before the NaN policy and constant columns removed any.",
+      "source_sha256": "f5b81801cfbf2bcfb2206c19f46461980d15e3e3a23f9a6126e8869552340e4d",
+      "context": "requested features that exist in the frame, before the NaN policy and constant columns removed any.",
+      "translation": "caractéristiques demandées qui existent dans le cadre, avant que la politique NaN et les colonnes constantes n’en retirent.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#14",
+      "source": "the scaling mode used, one of :data:`SCALE_MODES`.",
+      "source_sha256": "b0cf7aebae049873c202b80cedf810fcac8bf63e338a2aed4b2066f5f30b0c6a",
+      "context": "the scaling mode used, one of :data:`SCALE_MODES`.",
+      "translation": "le mode de mise à l’échelle utilisé, l’un des :data:`SCALE_MODES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#15",
+      "source": "the missing-value policy used, one of :data:`NAN_POLICIES`.",
+      "source_sha256": "f0b7592e7e840771bc8f5c1aafabfd779d9c8db628706c0414042a412f874f87",
+      "context": "the missing-value policy used, one of :data:`NAN_POLICIES`.",
+      "translation": "la politique de valeurs manquantes utilisée, l’une des :data:`NAN_POLICIES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#20",
+      "source": "plain-language notes on what the analysis did, e.g. rank deficiency.",
+      "source_sha256": "ba4729d4acc9e6834dea8fb20a65b448695db96840d89ef448f57e2a0c6d451c",
+      "context": "plain-language notes on what the analysis did, e.g. rank deficiency.",
+      "translation": "notes en langage clair sur ce qu’a fait l’analyse, p. ex. un déficit de rang.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#8",
+      "source": "the analysed matrix's total variance, summed over all components (not only the ones returned), in its own units.",
+      "source_sha256": "e1a7878abefbffaa6567304656554f0d3fb47d881dc405be3b50169d93e3dad2",
+      "context": "the analysed matrix's total variance, summed over all components (not only the ones returned), in its own units.",
+      "translation": "la variance totale de la matrice analysée, sommée sur toutes les composantes (pas seulement celles renvoyées), dans ses propres unités.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult#9",
+      "source": "per feature, the mean subtracted before the decomposition, aligned with ``features``.",
+      "source_sha256": "5048da7b82c35edc622089a6ebb4dfbf18bcbeba3a41959566084b0eda6bdef0",
+      "context": "per feature, the mean subtracted before the decomposition, aligned with ``features``.",
+      "translation": "par caractéristique, la moyenne soustraite avant la décomposition, alignée sur ``features``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult.scores_frame#2",
+      "source": "the same frame :func:`pca` was given; its surviving rows are taken by position.",
+      "source_sha256": "1f346199ed58bec20917fcc5a98a50f695bbe095d55a1fcd582d110343a6d25f",
+      "context": "the same frame :func:`pca` was given; its surviving rows are taken by position.",
+      "translation": "le même cadre que celui fourni à :func:`pca` ; ses lignes restantes sont prises par position.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult.scores_frame#3",
+      "source": "how many ``PC`` columns to add; ``None`` adds all, and other values are clamped between 1 and :attr:`n_components`.",
+      "source_sha256": "55cab1d576b99c1da5fb589a5c1cc90cffe4601fac3cc96ee7c06c99e17e0dca",
+      "context": "how many ``PC`` columns to add; ``None`` adds all, and other values are clamped between 1 and :attr:`n_components`.",
+      "translation": "nombre de colonnes ``PC`` à ajouter ; ``None`` les ajoute toutes, et les autres valeurs sont bornées entre 1 et :attr:`n_components`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCASpec.from_dict#1",
+      "source": "a mapping as :meth:`to_dict` writes it; ``features``, ``n_components``, ``scaling``, ``nan_policy`` and ``structural_missing`` are read and any other key is ignored.",
+      "source_sha256": "ccd99ce83e870eb97050a45e1d83ea71c68024eadf31a7d0575f397337e79c0e",
+      "context": "a mapping as :meth:`to_dict` writes it; ``features``, ``n_components``, ``scaling``, ``nan_policy`` and ``structural_missing`` are read and any other structured-data name is ignored.",
+      "translation": "un dictionnaire tel que l’écrit :meth:`to_dict` ; ``features``, ``n_components``, ``scaling``, ``nan_policy`` et ``structural_missing`` sont lus, et toute autre clé est ignorée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.candidate_features#3",
+      "source": "the measurement table whose columns are classified.",
+      "source_sha256": "4d0064c4ad96a5a08354c3d5e7a4f3f4b53b14b39fa8c233f8296ca6468124e7",
+      "context": "the measurement table whose columns are classified.",
+      "translation": "la table de mesures dont les colonnes sont classées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.component_index#1",
+      "source": "a column name such as ``\"PC1\"``; stripped and matched case-insensitively.",
+      "source_sha256": "7397766cd2711503503c2eaa63a5b36ac59f2edb0a9f14aacdb9d87c8d51ead6",
+      "context": "a column name such as ``\"PC1\"``; stripped and matched case-insensitively.",
+      "translation": "un nom de colonne tel que ``\"PC1\"`` ; débarrassé des espaces et comparé sans tenir compte de la casse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.component_name#1",
+      "source": "the 0-based component index; converted to ``int``.",
+      "source_sha256": "3f83ab86a40021f44b6dbece20599baba3b5bfaabc4c550f40b4730a9125d52e",
+      "context": "the 0-based component index; converted to ``int``.",
+      "translation": "l’index de composante, à partir de 0 ; converti en ``int``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.pca#2",
+      "source": "the measurement table; the features are read from its columns and coerced to numbers, with ±inf treated as missing.",
+      "source_sha256": "78aa36e7aea7c0475b44aa1313e9a5d2e38d791d9e54bdbc4b9a6f99e05734bd",
+      "context": "the measurement table; the features are read from its columns and coerced to numbers, with ±inf treated as missing.",
+      "translation": "la table de mesures ; les caractéristiques sont lues dans ses colonnes et converties en nombres, ±inf étant traité comme manquant.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.pca#3",
+      "source": "what to decompose and how; ``None`` uses a default :class:`PCASpec` (every candidate feature, z-scored).",
+      "source_sha256": "121e369c415ab921e0eddf53c9593759e0f2055af9c2a284f8d2c754d13d8502",
+      "context": "what to decompose and how; ``None`` uses a default :class:`PCASpec` (every candidate feature, z-scored).",
+      "translation": "ce qu’il faut décomposer et comment ; ``None`` utilise un :class:`PCASpec` par défaut (toutes les caractéristiques candidates, en z-score).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.FeaturePicker.set_frame#1",
+      "source": "the table whose continuous columns are offered, or None to offer none.",
+      "source_sha256": "085ffd605e1a15145c58310ededc473572b12a26197c48411433608a1a0831f8",
+      "context": "the table whose continuous columns are offered, or None to offer none.",
+      "translation": "la table dont les colonnes continues sont proposées, ou None pour n’en proposer aucune.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAPanel.closeEvent#2",
+      "source": "the close event, passed to the base class after the fit runner is shut down and the canvas closed.",
+      "source_sha256": "cd12337847e84a8ea7e02a47ddeb9a74f914cac7d6af0dea46ad4bb0acc2115e",
+      "context": "the close event, passed to the base class after the fit runner is shut down and the canvas closed.",
+      "translation": "l’événement de fermeture, transmis à la classe de base après l’arrêt de l’exécuteur d’ajustement et la fermeture du canevas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAPanel.set_frame#1",
+      "source": "the table to decompose, or None; its columns also fill the colour-by list.",
+      "source_sha256": "de1a3b30ebf2a595d816909ada5e03a224844ff2c60c9a442e01a2166d7c291d",
+      "context": "the table to decompose, or None; its columns also fill the colour-by list.",
+      "translation": "la table à décomposer, ou None ; ses colonnes remplissent aussi la liste de coloration.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAScoresCanvas.set_biplot#2",
+      "source": "whether to draw the loading arrows; converted to bool.",
+      "source_sha256": "7d692b1bae8055fb86fe277ff0f1e632cedb34b38e4b11a4a5545118eed091e8",
+      "context": "whether to draw the loading arrows; converted to bool.",
+      "translation": "s’il faut dessiner les flèches des chargements ; converti en booléen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAScoresCanvas.set_result#2",
+      "source": "the decomposition whose loadings are drawn, or None.",
+      "source_sha256": "892c8230fe25ef05d53d43b07e7f732ef48fb8d3546b8907158261e312c5c1e9",
+      "context": "the decomposition whose loadings are drawn, or None.",
+      "translation": "la décomposition dont les chargements sont dessinés, ou None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAScoresCanvas.set_result#3",
+      "source": "the scores frame from the same decomposition, or None.",
+      "source_sha256": "be4abfd8c6d01d05f2da973c5e3e333e4e2f1936a91f1f39cb2346b96a00e08e",
+      "context": "the scores frame from the same decomposition, or None.",
+      "translation": "le cadre des scores issu de la même décomposition, ou None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.arrow_scale#3",
+      "source": "the decomposition whose feature correlations are drawn.",
+      "source_sha256": "2574721d1ba7b27f515be77cc0dc7a2a046f0b970ad6ab0c83d958b45f91d00a",
+      "context": "the decomposition whose feature correlations are drawn.",
+      "translation": "la décomposition dont les corrélations des caractéristiques sont dessinées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.arrow_scale#4",
+      "source": "zero-based index of the component on the x axis.",
+      "source_sha256": "eb6867152872eba6f91318547461399afa6ac8edf31fdd3cc38515ecfd18028c",
+      "context": "zero-based index of the component on the x axis.",
+      "translation": "index, à partir de zéro, de la composante sur l’axe x.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.arrow_scale#5",
+      "source": "zero-based index of the component on the y axis.",
+      "source_sha256": "bc25831933f8d733a64b5a09956aa989cde4ccf17db4ca0ab5aeac3fea198b8b",
+      "context": "zero-based index of the component on the y axis.",
+      "translation": "index, à partir de zéro, de la composante sur l’axe y.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.arrow_scale#6",
+      "source": "``(low, high)`` of the drawn x axis.",
+      "source_sha256": "52aa5833ecc291a2e7e5cb056c372edd93dc34dde1bc5a71a6e05a5af1d611c5",
+      "context": "``(low, high)`` of the drawn x axis.",
+      "translation": "``(low, high)`` de l’axe x dessiné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.arrow_scale#7",
+      "source": "``(low, high)`` of the drawn y axis.",
+      "source_sha256": "627aaa5a4faade245bbd20c1ad60f10e479ca3e15d210c75c5200c6e8bf28a8c",
+      "context": "``(low, high)`` of the drawn y axis.",
+      "translation": "``(low, high)`` de l’axe y dessiné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
+      "context": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "translation": "Clic droit sur une image pour l’enregistrer, en PNG ou en PDF.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
+      "source_sha256": "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
+      "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
+      "translation": "« ici l’utilisateur devrait pouvoir faire un clic droit sur les images pour les enregistrer en png ou en pdf » -- le mainteneur, 2026-09-24 (point 505)",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
+      "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "translation": "Une image affichée à l’écran est souvent ce que quelqu’un veut mettre dans une diapositive une heure plus tard, et le moyen d’y parvenir était une capture d’écran d’une fenêtre, à la résolution de la fenêtre, avec l’habillage environnant. Ceci enregistre L’IMAGE, à la résolution à laquelle elle a été rendue plutôt qu’à la taille à laquelle elle se trouve affichée, dans un fichier choisi par l’utilisateur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
+      "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "translation": "DEUX FORMATS, ET LE PDF N’EST PAS UN PNG AVEC UNE AUTRE EXTENSION. Une image matricielle déposée dans un PDF ne satisfait que le nom du fichier ; un panneau de figure est une page, et une page a une taille en millimètres. :func:`save_picture` donne au PDF une page ayant la forme propre de l’image et indique au rédacteur la résolution que porte Preferences, de sorte que l’image s’affiche à la taille à laquelle elle a été mesurée et s’imprime à cette résolution.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#4",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
+      "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "translation": "La résolution et le format par défaut sont ceux que possèdent déjà les préférences Figures -- :func:`spacr.qt.preferences.get_figure_png_dpi` et :func:`spacr.qt.preferences.get_figure_format` -- de sorte qu’un utilisateur qui a déjà dit \"300 DPI, PDF\" ne se le voit pas redemander en d’autres termes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.as_image#0",
+      "source": "Whatever was handed over, as a :class:`QImage`, or ``None``.",
+      "source_sha256": "798425a6676514d97c76c6474868a9d460e8905eec5a26d9e9ba186310003a6a",
+      "context": "Whatever was handed over, as a :class:`QImage`, or ``None``.",
+      "translation": "Ce qui a été fourni, sous forme de :class:`QImage`, ou ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.as_image#1",
+      "source": "A caller may hold a ``QPixmap`` (what a view shows), a ``QImage`` (what a renderer produced) or nothing at all yet.",
+      "source_sha256": "f94930b0d10e83b2af762c0130146d9c6b21861e1c3706bcf570e74fcf1740db",
+      "context": "A caller may hold a ``QPixmap`` (what a view shows), a ``QImage`` (what a renderer produced) or nothing at all yet.",
+      "translation": "Un appelant peut détenir un ``QPixmap`` (ce qu’affiche une vue), un ``QImage`` (ce qu’a produit un rendu) ou encore rien du tout.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.as_image#2",
+      "source": "a ``QPixmap``, a ``QImage`` or ``None``; a null image or any other type also gives ``None``.",
+      "source_sha256": "17e5adb43e779269ad138446409bc1d00b3bccd7046a01d8e2a84a0e99236628",
+      "context": "a ``QPixmap``, a ``QImage`` or ``None``; a null image or any other type also gives ``None``.",
+      "translation": "un ``QPixmap``, un ``QImage`` ou ``None`` ; une image nulle ou tout autre type donne aussi ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
+      "context": "Ask for a path. ``\"\"`` when the user walked away.",
+      "translation": "Demande un chemin. ``\"\"`` lorsque l’utilisateur a abandonné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
+      "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "translation": "LE SUFFIXE EST RÉTABLI SI L’UTILISATEUR L’OMET. Un nom saisi sans suffixe serait sinon écrit en PNG quel que soit le filtre sélectionné, et c’est ainsi que \"save as PDF\" produit discrètement une image matricielle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#2",
+      "source": "the widget the save dialog is parented to.",
+      "source_sha256": "e175adca6ea08d81b58e711b99e753b361c04d1455b2a7349e342e757ed2ba3d",
+      "context": "the widget the save dialog is parented to.",
+      "translation": "le widget auquel est rattachée la boîte de dialogue d’enregistrement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#3",
+      "source": "the file name offered, without a suffix; cleaned by :func:`suggested_name`.",
+      "source_sha256": "0b061d8659b19ef97e93a58012aceb5a4dafc2b4534ffdb7ac0a5df49c840dbe",
+      "context": "the file name offered, without a suffix; cleaned by :func:`suggested_name`.",
+      "translation": "le nom de fichier proposé, sans suffixe ; nettoyé par :func:`suggested_name`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.build_menu#0",
+      "source": "The right-click menu: save as PNG, save as PDF.",
+      "source_sha256": "4473a95ad4df42cc5b46bb51f4b7d9e9ed206f18c43f2ac1f55aba167376eb61",
+      "context": "The right-click menu: save as PNG, save as PDF.",
+      "translation": "Le menu contextuel : enregistrer en PNG, enregistrer en PDF.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.build_menu#1",
+      "source": "Each action carries its suffix as its ``data``, so the caller reads the choice off the action rather than comparing it against two references it had to keep.",
+      "source_sha256": "c5049050f015ea5d52fbf2b67ea9883b858c7fad5c8459a610a9adc0d7826ed6",
+      "context": "Each action carries its suffix as its ``data``, so the caller reads the choice off the action rather than comparing it against two references it had to keep.",
+      "translation": "Chaque action porte son suffixe comme ``data``, de sorte que l’appelant lit le choix sur l’action au lieu de le comparer à deux références qu’il aurait dû conserver.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.build_menu#2",
+      "source": "the widget that owns the menu.",
+      "source_sha256": "fdfdcd672b03ab92397410777c995126a3e052e9b106ba29ffff2c1b6388c8a2",
+      "context": "the widget that owns the menu.",
+      "translation": "le widget propriétaire du menu.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.build_menu#3",
+      "source": "``False`` when there is no picture yet. The actions are SHOWN AND GREYED rather than left out, and a line underneath says why: a menu that is empty on one field and full on the next reads as a bug, not as a state.",
+      "source_sha256": "da545c2c4b5182a20e67e10cb3a6637dd733a9f5fc9c8e3646b790e29873372a",
+      "context": "``False`` when there is no picture yet. The actions are shown and greyed rather than left out, and a line underneath says why: a menu that is empty on one field and full on the next reads as a bug, not as a state.",
+      "translation": "``False`` lorsqu’il n’y a pas encore d’image. Les actions sont AFFICHÉES ET GRISÉES plutôt qu’omises, et une ligne en dessous indique pourquoi : un menu vide sur un champ et plein sur le suivant se lit comme un bogue, pas comme un état.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.choose_format#0",
+      "source": "Pop the menu at ``point`` and return the chosen suffix, or ``\"\"``.",
+      "source_sha256": "58a30f0515153d936829d7b72b4268cada35c56d4ef9428de9b066857a3e39ca",
+      "context": "Pop the menu at ``point`` and return the chosen suffix, or ``\"\"``.",
+      "translation": "Fait apparaître le menu à ``point`` et renvoie le suffixe choisi, ou ``\"\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.choose_format#1",
+      "source": "THE MODAL CALL IS ALONE IN HERE so everything around it can be driven by a test. ``QMenu.exec`` spins an event loop of its own, and a test that reached it would hang rather than fail; substituting this one function is how the rest of the gesture is checked at all.",
+      "source_sha256": "4a3272e14b5022a74babeef26e8602239d33b018696d4f0064297af67b8cc495",
+      "context": "The modal call is alone in here so everything around it can be driven by a test. ``QMenu.exec`` spins an event loop of its own, and a test that reached it would hang rather than fail; substituting this one function is how the rest of the gesture is checked at all.",
+      "translation": "L’APPEL MODAL EST ISOLÉ ICI afin que tout ce qui l’entoure puisse être piloté par un test. ``QMenu.exec`` fait tourner sa propre boucle d’événements, et un test qui l’atteindrait se bloquerait au lieu d’échouer ; substituer cette seule fonction est le seul moyen de vérifier le reste du geste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.choose_format#2",
+      "source": "the widget the menu belongs to; ``point`` is mapped to global coordinates through it.",
+      "source_sha256": "3483878482e8c2ceb534a0930e1e4ef5aeb84ca74e382007ba5afe1399f3fd93",
+      "context": "the widget the menu belongs to; ``point`` is mapped to global coordinates through it.",
+      "translation": "le widget auquel appartient le menu ; ``point`` est converti en coordonnées globales par son intermédiaire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.choose_format#3",
+      "source": "where the right-click happened, in ``view`` coordinates.",
+      "source_sha256": "6a04576da1ba9ce6f6ad6334ef1c570288cd8fd76a36f89e5c4c6d0bb6ca8388",
+      "context": "where the right-click happened, in ``view`` coordinates.",
+      "translation": "l’endroit du clic droit, en coordonnées de ``view``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.choose_format#4",
+      "source": "``False`` greys out the save actions, as in :func:`build_menu`.",
+      "source_sha256": "31754e4f5a7f11a30393b5c63e48d46a95faab550144d43559fc4cf6660684c2",
+      "context": "``False`` greys out the save actions, as in :func:`build_menu`.",
+      "translation": "``False`` grise les actions d’enregistrement, comme dans :func:`build_menu`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#0",
+      "source": "Give ``view`` a right-click menu that saves what it is showing.",
+      "source_sha256": "8b5861219280651cceec81a976745180d537938171b370bc5a6d28a0391f2ed7",
+      "context": "Give ``view`` a right-click menu that saves what it is showing.",
+      "translation": "Donne à ``view`` un menu contextuel qui enregistre ce qu’elle affiche.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#1",
+      "source": "the widget the user right-clicks.",
+      "source_sha256": "f31cbdfee2ec61110b20536bb1bd9e3f33c53c02c78b4b6025786d2ca047d33b",
+      "context": "the widget the user right-clicks.",
+      "translation": "le widget sur lequel l’utilisateur fait un clic droit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
+      "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
+      "translation": "appelé lorsque le menu est utilisé ; renvoie le ``QPixmap`` ou ``QImage`` à écrire. Appelé AU MOMENT DE L’ENREGISTREMENT et non maintenant, de sorte que le menu écrit toujours l’image actuellement affichée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
+      "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "translation": "le nom de fichier proposé, sans suffixe. Un appelable est interrogé au moment de l’enregistrement, de sorte qu’une vue dont le contenu change -- Overlay à un moment, Flows au suivant -- propose le nom de ce qu’elle affiche à cet instant.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}

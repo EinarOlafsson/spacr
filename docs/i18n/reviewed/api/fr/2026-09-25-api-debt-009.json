@@ -5,6 +5,238 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.widgets.fast_plots.InfluencePlot.set_influence#4",
+      "source": "Cook's distance per well; wells above ``4 / n`` (``n`` the number plotted) are drawn larger in the influential colour.",
+      "source_sha256": "0d42f39562c11d19be6050615cc1239de6612ba57b41a823e16659f19d87c149",
+      "context": "Cook's distance per microplate sample position; microplate sample positions above ``4 / n`` (``n`` the number plotted) are drawn larger in the influential colour.",
+      "translation": "distance de Cook par puits ; les puits au-dessus de ``4 / n`` (``n`` étant le nombre de puits tracés) sont dessinés plus gros dans la couleur des points influents.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.key_for_row#1",
+      "source": "zero-based position in the frame (not the sorted table); its key-column value is returned as ``str``.",
+      "source_sha256": "d2e8ad2c63f3861cd4bf17bdd998ccec7f6c4c342536f8dc32a9bef919b99f09",
+      "context": "zero-based position in the frame (not the sorted table); its structured-data name-column value is returned as ``str``.",
+      "translation": "position, indexée à partir de zéro, dans le tableau (et non dans la table triée) ; sa valeur dans la colonne de clé est renvoyée sous forme de ``str``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.select_frame_row#2",
+      "source": "zero-based position in the frame; the table row is found wherever sorting has put it.",
+      "source_sha256": "0f87f0985696dd6e311b205dc99602fa46b06f835029b93ef3043d40d1ffbb30",
+      "context": "zero-based position in the frame; the table row is found wherever sorting has put it.",
+      "translation": "position, indexée à partir de zéro, dans le tableau ; la ligne de la table est retrouvée où que le tri l’ait placée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.select_key#3",
+      "source": "the identifier, compared as ``str`` with the text of the key column's cells.",
+      "source_sha256": "f35f2551774d38bb45c122ba25c9a6177383c571cd2f3afc05901908513f297d",
+      "context": "the identifier, compared as ``str`` with the text of the identifier column's cells.",
+      "translation": "l’identifiant, comparé en tant que ``str`` au texte des cellules de la colonne de clé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.set_frame#1",
+      "source": "the results table, one table row per frame row and one column per frame column; ``None`` or an empty frame shows \"Nothing to show.\"",
+      "source_sha256": "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854",
+      "context": "the results table, one table row per frame row and one column per frame column; ``None`` or an empty frame shows \"Nothing to show.\"",
+      "translation": "la table des résultats, une ligne de table par ligne du tableau et une colonne par colonne du tableau ; ``None`` ou un tableau vide affiche \"Nothing to show.\"",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.show_keys#2",
+      "source": "identifiers to keep visible, compared as ``str`` against the key column; ``None`` removes the restriction.",
+      "source_sha256": "7c9718add23690e9eea74b34f377186f691c834884ae086c21dac890fb64337c",
+      "context": "identifiers to keep visible, compared as ``str`` against the identifier column; ``None`` removes the restriction.",
+      "translation": "identifiants à garder visibles, comparés en tant que ``str`` à la colonne de clé ; ``None`` supprime la restriction.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_correction#1",
+      "source": "a multiple-testing method name or alias accepted by :func:`spacr.multiple_testing.canonical_method`, or ``None``; an unknown name raises :class:`ValueError`. Choosing ``\"none\"`` moves an adjusted p axis back to raw.",
+      "source_sha256": "55ad730f42ff3345443e2921c8c508e96c4ea261ad158bae17ab638bda35615f",
+      "context": "a multiple-testing method name or alias accepted by :func:`spacr.multiple_testing.canonical_method`, or ``None``; an unknown name throws :class:`ValueError`. Choosing ``\"none\"`` moves an adjusted p axis back to raw.",
+      "translation": "un nom de méthode de tests multiples ou un alias accepté par :func:`spacr.multiple_testing.canonical_method`, ou ``None`` ; un nom inconnu lève :class:`ValueError`. Choisir ``\"none\"`` ramène un axe de p ajustée à la valeur brute.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_p_axis#2",
+      "source": "``\"raw\"``, ``\"adjusted\"`` or ``\"lfdr\"`` (see :attr:`P_AXES`); anything else raises :class:`ValueError`, and ``\"adjusted\"`` falls back to ``\"raw\"`` while no correction is in force.",
+      "source_sha256": "5b522caf88f1a3924f643a926c9b601a7aaf99c7afc2d141eb15004af481c360",
+      "context": "``\"raw\"``, ``\"adjusted\"`` or ``\"lfdr\"`` (see :attr:`P_AXES`); anything else raises :class:`ValueError`, and ``\"adjusted\"`` falls back to ``\"raw\"`` while no correction is in force.",
+      "translation": "``\"raw\"``, ``\"adjusted\"`` ou ``\"lfdr\"`` (voir :attr:`P_AXES`) ; toute autre valeur lève :class:`ValueError`, et ``\"adjusted\"`` se rabat sur ``\"raw\"`` tant qu’aucune correction n’est en vigueur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_q_colour#3",
+      "source": "``\"call\"`` (binary significance colour) or ``\"ramp\"`` (continuous over q); anything else raises :class:`ValueError`.",
+      "source_sha256": "4fd88c092f5d3fb5104bc41e0f734927b83810e723a7d4c89710a4e435a90d55",
+      "context": "``\"call\"`` (binary significance colour) or ``\"ramp\"`` (continuous over q); anything else raises :class:`ValueError`.",
+      "translation": "``\"call\"`` (couleur binaire de significativité) ou ``\"ramp\"`` (continue selon q) ; toute autre valeur lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_q_mark#3",
+      "source": "``\"none\"``, ``\"size\"`` or ``\"opacity\"``; anything else raises :class:`ValueError`.",
+      "source_sha256": "436a11c08f608597f9d76f0ebfd2efb52331e34c372daebfd85f9c8626c5f0fe",
+      "context": "``\"none\"``, ``\"size\"`` or ``\"opacity\"``; anything else raises :class:`ValueError`.",
+      "translation": "``\"none\"``, ``\"size\"`` ou ``\"opacity\"`` ; toute autre valeur lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_default_style#2",
+      "source": "the style dataclass instance to update in place; the default saved in preferences for its :func:`style_kind` is applied.",
+      "source_sha256": "b50eceb2a6929219e4d3764f3a0154c5865d33d2bfb32063338e017aae996600",
+      "context": "the style dataclass instance to update in place; the default saved in preferences for its :func:`style_kind` is applied.",
+      "translation": "l’instance de dataclass de style à mettre à jour sur place ; la valeur par défaut enregistrée dans les préférences pour son :func:`style_kind` est appliquée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_style_dict#3",
+      "source": "the style dataclass instance, modified in place.",
+      "source_sha256": "f72e8ca329002e1fe6e1c83e2d2f86f09cbcd2b0f6d9bbc11aeecea1500beea2",
+      "context": "the style dataclass instance, modified in place.",
+      "translation": "l’instance de dataclass de style, modifiée sur place.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_style_dict#4",
+      "source": "mapping of field name to value; ``None`` applies nothing, and a list is turned into a tuple where the field currently holds a tuple.",
+      "source_sha256": "310b97bdd3589f8e788cacd74d53be5fef2c1043fcac97c33a2a6d5ee7e38bbf",
+      "context": "mapping of field name to value; ``None`` applies nothing, and a list is turned into a tuple where the field currently holds a tuple.",
+      "translation": "mappage du nom de champ vers la valeur ; ``None`` n’applique rien, et une liste est convertie en tuple lorsque le champ contient actuellement un tuple.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.colour_for#1",
+      "source": "category number; wraps around the length of :data:`PALETTE`.",
+      "source_sha256": "3d3e79be17739aea5681466782ff492da55716fb991cc2f9a86b8bfc3cc56f0a",
+      "context": "category number; wraps around the length of :data:`PALETTE`.",
+      "translation": "numéro de catégorie ; reboucle sur la longueur de :data:`PALETTE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.load_style#1",
+      "source": "the style dataclass instance to update in place.",
+      "source_sha256": "622d61f56a43afb58b33d2e0c5814e2bde37356781802027d83dd0d33c7ed2f4",
+      "context": "the style dataclass instance to update in place.",
+      "translation": "l’instance de dataclass de style à mettre à jour sur place.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.load_style#2",
+      "source": "a JSON style file written by :func:`save_style`.",
+      "source_sha256": "e81823f609dca06489d9354ee73e52c9f42b2a7eeb4963e939719bee4676e2d2",
+      "context": "a JSON style file written by :func:`save_style`.",
+      "translation": "un fichier de style JSON écrit par :func:`save_style`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.pick_colour#3",
+      "source": "the dialog's parent widget, or ``None``.",
+      "source_sha256": "750608cc6a7c4f9b70b3329cef3e0d2279de775985ba59e1019aa657b1edb551",
+      "context": "the dialog's parent widget, or ``None``.",
+      "translation": "le widget parent de la boîte de dialogue, ou ``None``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.save_style#2",
+      "source": "the style dataclass instance to save, together with its :func:`style_kind`.",
+      "source_sha256": "f91b9b00491430673663f31e2eedaea360c2e393d41404b0224e3e3e6acb4e15",
+      "context": "the style dataclass instance to save, together with its :func:`style_kind`.",
+      "translation": "l’instance de dataclass de style à enregistrer, avec son :func:`style_kind`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.save_style#3",
+      "source": "destination file; ``.json`` is appended when it has no suffix, and an existing file is overwritten.",
+      "source_sha256": "2e096cef0a4b8ecde85129e486ac4af025172f0e53e909db094402f08ca7f827",
+      "context": "destination file; ``.json`` is appended when it has no suffix, and an existing file is overwritten.",
+      "translation": "fichier de destination ; ``.json`` est ajouté s’il n’a pas de suffixe, et un fichier existant est écrasé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_as_dict#2",
+      "source": "the style dataclass instance to convert with ``dataclasses.asdict``.",
+      "source_sha256": "e5aff92f5aca90a30f5320b25441b34bf906d0823c15023cc657253209dd2e8c",
+      "context": "the style dataclass instance to convert with ``dataclasses.asdict``.",
+      "translation": "l’instance de dataclass de style à convertir avec ``dataclasses.asdict``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_choices#2",
+      "source": "the style dataclass instance whose field metadata and class ``CHOICES`` are consulted.",
+      "source_sha256": "83fec54c14e4aa3dc7e0ef6bd263ada28477394b373f3d750a496136f6743d53",
+      "context": "the style dataclass instance whose field metadata and class ``CHOICES`` are consulted.",
+      "translation": "l’instance de dataclass de style dont les métadonnées de champ et le ``CHOICES`` de classe sont consultés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_choices#3",
+      "source": "the field's name.",
+      "source_sha256": "1f7b57374c1c64294e84b7a9d48772c30867a86868c0eefb806eb4f2ef7b7293",
+      "context": "the field's name.",
+      "translation": "le nom du champ.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_group#1",
+      "source": "a style field name; the first group (Data, Axes, Size) with a fragment found in it, case-insensitively, wins, and anything else is ``\"Appearance\"``.",
+      "source_sha256": "11fe3ffe6fa3ef5156a0236e08e93b9f5b02bf2634dd7dfeca0b8a30160818bc",
+      "context": "a style field name; the first group (Data, Axes, Size) with a fragment found in it, case-insensitively, wins, and anything else is ``\"Appearance\"``.",
+      "translation": "un nom de champ de style ; le premier groupe (Data, Axes, Size) dont un fragment s’y trouve, sans tenir compte de la casse, l’emporte, et tout le reste va dans ``\"Appearance\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#2",
+      "source": "the field name; underscores become spaces and the first letter is capitalised.",
+      "source_sha256": "f1802f17c9de59ac7bb490c448149ce9276bbf38410e942c54ca9247db799138",
+      "context": "the field name; underscores become spaces and the first letter is capitalised.",
+      "translation": "le nom du champ ; les tirets bas deviennent des espaces et la première lettre est mise en majuscule.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#3",
+      "source": "the field's current value, shown after the name; ``None`` reads as \"automatic\".",
+      "source_sha256": "caf222ea2b9324bafd0a2f090f68d60abd8e269f8af1342955b0c885eba2f779",
+      "context": "the field's current value, shown after the name; ``None`` reads as \"automatic\".",
+      "translation": "la valeur actuelle du champ, affichée après le nom ; ``None`` se lit \"automatic\".",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#4",
+      "source": "the editor kind from :func:`style_field_kind`; ``\"flag\"`` and ``\"unsupported\"`` show the name alone, ``\"multi\"`` lists the chosen items and ``\"pair\"`` and ``\"number\"`` format with ``:g``.",
+      "source_sha256": "1c100042be2fac01c3546e122745934518415767a1b2ae2edb70b09b41016d01",
+      "context": "the editor kind from :func:`style_field_kind`; ``\"flag\"`` and ``\"unsupported\"`` show the name alone, ``\"multi\"`` lists the chosen items and ``\"pair\"`` and ``\"number\"`` format with ``:g``.",
+      "translation": "le type d’éditeur issu de :func:`style_field_kind` ; ``\"flag\"`` et ``\"unsupported\"`` affichent le nom seul, ``\"multi\"`` liste les éléments choisis, et ``\"pair\"`` et ``\"number\"`` sont formatés avec ``:g``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_kind#2",
+      "source": "a style instance; its class name, less a ``Style`` suffix, is converted to snake case (``\"figure\"`` if nothing is left).",
+      "source_sha256": "11582f9f07660f81c506548826022007398bb146215d75bf2d18981f0fae8f74",
+      "context": "a style instance; its class name, less a ``Style`` suffix, is converted to snake case (``\"figure\"`` if nothing is left).",
+      "translation": "une instance de style ; son nom de classe, privé d’un suffixe ``Style``, est converti en snake case (``\"figure\"`` s’il ne reste rien).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryDialog.show_column#1",
+      "source": "the measurement column name to explain, passed to :meth:`FeatureDictionaryPanel.show_column`.",
+      "source_sha256": "5f064413133e3009360e09baac6f194e37584af1977baf9de9c1556cf8993438",
+      "context": "the measurement column name to explain, passed to :meth:`FeatureDictionaryPanel.show_column`.",
+      "translation": "le nom de la colonne de mesure à expliquer, transmis à :meth:`FeatureDictionaryPanel.show_column`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryPanel.set_query#1",
+      "source": "the search text; ``None`` is read as empty. Any column pinned by :meth:`show_column` is released.",
+      "source_sha256": "4be11b81bb3149cb27c202097345f21aee664eba965957d6344455046073a0c1",
+      "context": "the search text; ``None`` is read as empty. Any column pinned by :meth:`show_column` is released.",
+      "translation": "le texte de recherche ; ``None`` est lu comme vide. Toute colonne épinglée par :meth:`show_column` est libérée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
       "label": "spacr.qt.widgets.plaque_preview.detector_choices#1",
       "source": "zoo entries; the zoo's own listing when None.",
       "source_sha256": "5bbebd1383d3cbe26d63addd105d519a26d151ab42cb804d058723427fa082a0",
