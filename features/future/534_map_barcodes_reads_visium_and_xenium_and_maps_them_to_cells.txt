@@ -1,0 +1,53 @@
+MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Related: Map Barcodes (spacr/qt/screens/map_barcodes.py and
+the barcode mapping it drives), OPS (spacr/ops_engine.py: reads assigned to
+segmented nuclei by position), Measure (per-object tables), image UMAP.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features, a submodules in map barcodes to analyze vision
+    and xenium sequencing data and relate it to coordinates"
+
+("vision" read as 10x Genomics Visium, the spot-based spatial transcriptomics
+platform, alongside 10x Xenium, the in-situ imaging platform. Correct this
+line if another platform was meant.)
+
+WHAT TO BUILD
+  1. A Spatial transcriptomics submodule under Map Barcodes with two readers:
+     * Visium / Visium HD: the Space Ranger output (filtered feature-barcode
+       matrix .h5, spatial/tissue_positions(.csv|.parquet),
+       scalefactors_json.json, the H&E or IF image at full and hires scale;
+       Visium HD's binned outputs at 2/8/16 um).
+     * Xenium: the Xenium Ranger/onboard output bundle (transcripts.parquet
+       with x/y/z and QV, cells.parquet, cell_boundaries / nucleus_boundaries,
+       cell_feature_matrix, morphology.ome.tif / morphology_focus, and the
+       experiment.xenium metadata with the pixel size).
+     Read through existing libraries where they fit (spatialdata /
+     spatialdata-io, scanpy/anndata) rather than hand-written parsers, loaded
+     lazily so spaCR's start-up cost does not grow.
+  2. REGISTRATION TO spaCR's IMAGES: put the sequencing coordinates into the
+     pixel frame of the images spaCR segments: Visium spots via the
+     scalefactors; Xenium microns via the morphology image's pixel size; and
+     an affine (landmark or intensity-based) registration when the user's own
+     microscope image of the same section is used instead of the platform's
+     image. Show the overlay (spots or transcripts over the image, coloured by
+     gene) in the Map Barcodes preview so the fit can be checked by eye.
+  3. RELATE READS TO spaCR OBJECTS: assign each Xenium transcript to the
+     spaCR cell / nucleus / pathogen / vacuole it falls in (the same
+     point-in-mask logic OPS uses for reads), and each Visium spot to the
+     objects it covers (with the fraction of the spot each object occupies).
+     Write per-object gene counts next to the existing per-object
+     measurements (same database, keyed by the object id), so morphology,
+     infection state and expression sit in one table.
+  4. ANALYSIS: per-object and per-region expression summaries, genes
+     enriched in infected vs uninfected host cells, expression vs distance to
+     the nearest parasite/vacuole, and export to AnnData (with spatial
+     coordinates and spaCR's measurements in .obs) for scanpy/squidpy.
+
+DONE WHEN
+Public Visium and Xenium example datasets (10x's own downloads) load, register
+onto their images with the overlay checked by eye, transcripts/spots are
+assigned to spaCR-segmented cells with counts written to the measurement
+database, and an infected-vs-uninfected comparison runs on a dataset that has
+both (or a documented stand-in if no public infection dataset exists).

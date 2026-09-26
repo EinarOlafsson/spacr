@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-503 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
+503 in features/new, 23 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -108,6 +108,9 @@ FUTURE FEATURES
 
   501  EXPERIMENTAL PLAQUE GROWTH TIME AND SCALE ESTIMATES
        501_calibrated_plaque_growth_estimates.txt
+
+  534  MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
+       534_map_barcodes_reads_visium_and_xenium_and_maps_them_to_cells.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
