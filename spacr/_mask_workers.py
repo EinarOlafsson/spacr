@@ -681,7 +681,7 @@ def _progress_line(object_type, state):
     """Format one stdout line carrying overall and per-GPU archive counts.
 
     ``spacr.qt.bridge`` reads the ``Progress: done/total`` part for the run bar
-    and :func:`spacr.qt.bridge.mask_gpu_progress` reads the per-GPU part.
+    and :func:`spacr.qt.bridge._mask_gpu_progress` reads the per-GPU part.
     """
     parts = ''.join(
         f' | GPU {device} {worker["state"]} {worker["completed"]}/{worker["total"]}'

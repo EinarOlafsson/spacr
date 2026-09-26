@@ -466,7 +466,7 @@ _MASK_GPU_RE = re.compile(
 _MASK_GPU_WORKER_RE = re.compile(r"GPU (\S+) (\w+) (\d+)/(\d+)")
 
 
-def mask_gpu_progress(text: str) -> Optional[dict]:
+def _mask_gpu_progress(text: str) -> Optional[dict]:
     """Read the newest parallel mask progress line in ``text``, if any.
 
     ``spacr._mask_workers._progress_line`` writes the line; this returns the

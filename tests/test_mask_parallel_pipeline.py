@@ -173,8 +173,8 @@ def test_parallel_batches_match_the_serial_run_and_write_each_field_once(
     assert ledger['status'] == 'finalized' and len(ledger['completed']) == 4
     assert settings['src'] == str(masks) and settings['cellpose_cell_channel'] == 0
     lines = [line for line in capsys.readouterr().out.splitlines() if line.startswith('[mask GPUs]')]
-    from spacr.qt.bridge import _PROGRESS_RE, mask_gpu_progress
-    final = mask_gpu_progress(lines[-1])
+    from spacr.qt.bridge import _PROGRESS_RE, _mask_gpu_progress
+    final = _mask_gpu_progress(lines[-1])
     assert final['done'] == final['total'] == 4 and final['failed'] == 0
     assert sorted(device for device, *_ in final['workers']) == ['0', '1']
     assert all(state == 'success' and done == total == 2

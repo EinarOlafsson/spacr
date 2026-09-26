@@ -4410,10 +4410,10 @@ class AppScreen(QWidget):
         :param chunk: worker output; lines without a parallel mask progress
             report leave the label unchanged.
         """
-        from ..bridge import mask_gpu_progress
+        from ..bridge import _mask_gpu_progress
         from ..i18n import tr
 
-        report = mask_gpu_progress(chunk)
+        report = _mask_gpu_progress(chunk)
         if report is None:
             return
         states = {"starting": tr("starting"), "running": tr("running"),
