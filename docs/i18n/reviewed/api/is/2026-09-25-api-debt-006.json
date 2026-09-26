@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.utils.measure_test_mode#2",
+      "source": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a field. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which plane is which, and a ``test/merged`` without it is read as a legacy folder, against the default plane order.",
+      "source_sha256": "a2d5c1b9d11d5a9d6577513db0262d1fd5101ac12e26bd74ef1e43e1b4efeade",
+      "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",
+      "translation": "Aðeins sýnileg ``.npy`` fylki eru tekin í úrtak, svo macOS ``._`` fylgiskrá er aldrei mæld í stað sjónsviðs. ``.spacr_plane_layout.json`` möppunnar er einnig afrituð yfir þegar hún er til: hún segir hvaða myndlag er hvað, og ``test/merged`` án hennar er lesin sem eldri mappa, eftir sjálfgefinni röð myndlaga.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#14",
+      "source": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "source_sha256": "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
+      "context": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "translation": "færslur hlutasíu (hvaða regionprop-kvarðaeiginleiki sem er, með lágmarki og hámarki), metnar ásamt mörkunum hér að ofan í einni umferð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.preprocess_data#7",
+      "source": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "source_sha256": "a9f96a9d58b325a2d70df263552d73dd8c68dfdba5be167f70e0dcd418571ecf",
+      "context": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "translation": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` eða ``combat``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#10",
+      "source": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "source_sha256": "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb",
+      "context": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "translation": "ef samsvarandi frumu- eða kjarnagrímuskrá vantar, eða grímuskrá geymir hluti raðgreinda með pickle: grímur eru venjuleg fylki, og ekkert er afraðgreint með pickle.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#3",
+      "source": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a run killed during the write leaves the previous whole mask, never a truncated one.",
+      "source_sha256": "40d7b307f3b754fd749a196f732cca4b0ebdfbed5a27dae5238e1a060c132a31",
+      "context": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a processing session killed during the write leaves the previous whole mask, never a truncated one.",
+      "translation": "mappa með frumugrímum (yfirskrifaðar á staðnum). Aðlagaða gríman kemur í stað þeirrar gömlu í einni atómískri aðgerð, svo keyrsla sem er stöðvuð á meðan skrifað er skilur eftir fyrri heilu grímuna, aldrei stýfða.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#8",
+      "source": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "source_sha256": "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
+      "context": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "translation": "valfrjáls sérstakur áfangastaður fyrir aðlagaðar grímur. None heldur aðlögun á staðnum. Tilgreindur áfangastaður verður að vera frábrugðinn hverri upprunagrímumöppu, líka í gegnum táknræna tengla á möppur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "translation": "``'dbscan'`` eða ``'kmeans'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#8",
+      "source": "``'umap'`` or ``'tsne'``.",
+      "source_sha256": "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
+      "context": "``'umap'`` or ``'tsne'``.",
+      "translation": "``'umap'`` eða ``'tsne'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.validate.validate_settings#1",
+      "source": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is run.",
+      "source_sha256": "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
+      "context": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is executed.",
+      "translation": "Myndgögn eru athuguð í gegnum hausa og möppulista. Virkt PSF hleður einnig stærðartakmörkuðum kjarna sínum til að staðfesta kvörðun og gildi; engin myndvinnsla eða GPU-ályktun er keyrð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.workspace.save#4",
+      "source": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "source_sha256": "a346a4ae4445c5dc4561ae4ad35ae319000466eb9c1891dca8984101a62ce716",
+      "context": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "translation": "``'off'``, ``'reference'`` eða ``'copy'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#2",
+      "source": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "source_sha256": "b1cd5d7b1f5318210eed9d03ee95f35b395bf4ad0eaf117296a216030c7f9e2b",
+      "context": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "translation": "``(Z, Y, X)`` eða ``(Z, Y, X, C)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes_4d#4",
+      "source": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "source_sha256": "fde87c2383a2d70fb2c91dde4d3faa2d1ceb0b76201245a613cfe1e501a11f75",
+      "context": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "translation": "``(T, Z, Y, X)`` eða ``(T, Z, Y, X, C)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.zstack.format_4d#2",
+      "source": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "source_sha256": "cdea53d430d950ea001e7e755164a8faffff42e026296f0452b52aacfaa161b4",
+      "context": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "translation": ":class:`TStackResult` eða :class:`TrackResult`.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
