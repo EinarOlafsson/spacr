@@ -3241,7 +3241,9 @@ def _read_confluency(db_path):
             (_CONFLUENCY_TABLE,)).fetchone()
         if not present:
             return pd.DataFrame()
-        return pd.read_sql_query(f'SELECT * FROM {_CONFLUENCY_TABLE}', conn)
+        from .tabular import _read_query
+        return _read_query(conn, f'SELECT * FROM {_CONFLUENCY_TABLE}',
+                           canonicalise=False)
     finally:
         conn.close()
 
@@ -3312,18 +3314,13 @@ def _aggregate_confluency_by_well(db_path, qc_threshold=None):
         field was written with.
     :returns: the per-well frame written, empty when there were no fields.
     """
-    from .database_concurrency import connect, transaction
+    from .tabular import write_database
 
     wells = _confluency_by_well(_read_confluency(db_path), qc_threshold)
     if wells.empty:
         return wells
-    conn = connect(db_path, timeout=30)
-    try:
-        with transaction(conn, attempts=8, busy_timeout=30):
-            conn.execute(f'DROP TABLE IF EXISTS {_CONFLUENCY_WELL_TABLE}')
-            wells.to_sql(_CONFLUENCY_WELL_TABLE, conn, index=False)
-    finally:
-        conn.close()
+    write_database(wells, db_path, _CONFLUENCY_WELL_TABLE,
+                   if_exists='replace', canonicalise=False)
     return wells
 
 
@@ -3344,8 +3341,10 @@ def _read_confluency_wells(source):
         tables = {row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
         if _CONFLUENCY_WELL_TABLE in tables:
-            return pd.read_sql_query(
-                f'SELECT * FROM {_CONFLUENCY_WELL_TABLE}', conn)
+            from .tabular import _read_query
+            return _read_query(
+                conn, f'SELECT * FROM {_CONFLUENCY_WELL_TABLE}',
+                canonicalise=False)
     finally:
         conn.close()
     return _confluency_by_well(_read_confluency(source))
