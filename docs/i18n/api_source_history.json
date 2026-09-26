@@ -273,6 +273,21 @@
       "source_sha256": "0560aab2c1fdbfa2d28c38691bc9ad83f9d8381d5eecfeccf742e1448cbc39b0",
       "text": "Switch a dimension's settings on or off.\n\nDriven through the toggle where there is one, so the switch never\nshows a state the form does not have; a screen built without the\naction row still moves, which is what lets the settings panel be\ngated before the row that gates it exists."
     },
+    "0565272664b0ad9f44d087abbfbcb7722ce6ebc261abc35ebc1c7db82efd67cf": {
+      "source_blocks_sha256": [
+        "29bdecffef2326504e3fc74a160825ba893c841440d41e7734c132013924c6b9",
+        "8b71a2bd8d4efe9b87a0ce0501eca64494d0ba77d510047b8fe9930bd2307c60",
+        "784b315f366bcb6ee28a2b26f83d3aa709059ffdd162825378419c18319e4471",
+        "e6248160b723e450b1fbf0f206430751312f47e3d8ae7525685eda3f69275cca",
+        "73516460d4197f2ee3e421915b6c01bd71ebb4e883e9d25ba347fc601dcf9996",
+        "204a5eb2cd28bcfdf3be9f8c765948e9e831609e3c57048cdbd6b8a94cf49126",
+        "735429e35254bebd90cdf07bb9272653b2245e3a2db040ff67631e39ee93d0f2",
+        "53df9769877c6e275ed8dfb1beb00e5298f62f4fde377c9905b382b3cd3d61c9",
+        "f8a92915fb8b0b0cfa638e744f9ce8dde871b97f6283174665b5bc477ecaaac0"
+      ],
+      "source_sha256": "0565272664b0ad9f44d087abbfbcb7722ce6ebc261abc35ebc1c7db82efd67cf",
+      "text": "What spaCR already knows about your data, on screen before you press Run.\n\nTwo things the pipeline computes, has always computed, and nobody has ever\nseen — because both of them print to a terminal that has since scrolled, or\nlive in a module nothing calls:\n\n* **The segmentation verdict.**  :mod:`spacr.seg_qc` scores every mask the\n  moment it is written and files\n  ``<plate>/qc/segmentation_qc_<object>.csv``.  Measure then spends hours\n  cropping and measuring those masks without anyone having read it.  The\n  banner this module puts on the Measure screen reads that card back and says\n  what it says, naming the plate, the wells and the likely cause — a verdict\n  a user can act on, not a count of failures.\n\n* **The diameter.**  :mod:`spacr.diameter` measures characteristic object size\n  from a handful of the user's own fields, without loading Cellpose or torch.\n  ``diameter`` is the single most consequential Cellpose 4 setting spaCR\n  exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by\n  ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is\n  the one users guess at.  The panel this module puts on the Mask screen turns\n  the guess into a measurement, per object type, and shows how many objects it\n  measured so the number can be disbelieved.\n\n**Neither one blocks anything.**  The banner is advisory by construction: it\nnever touches the Run button, never disables it, never intercepts the click.\nA plate that failed QC is still a plate its owner may have every reason to\nmeasure, and a quality report that stops people is a quality report they\nswitch off.  :data:`BLOCKS_RUN` is False, ``tests/qt/test_prerun.py`` asserts\nit against the real screen, and there is no code path here that could change\nit.\n\nCost\n----\nThe banner **reads** a verdict; it does not compute one.  Opening a plate's\nmasks costs seconds to minutes, and a screen that pays that on every visit is\na screen nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs\nthe mask run already wrote, dates each one against its mask stack, and reports\na card older than its masks as OUT OF DATE rather than believing it.  Only the\n*Score the masks now* button scores anything, only when pressed, and it does\nit on a worker thread and writes the card so the next open is cheap again.\n\nNeither half of that runs on the GUI thread any more.  The *read* moved onto a\nworker on 2026-09-04, when a single ``os.path.exists`` under a sleeping\n``autofs`` mount was measured not returning for twenty seconds while\n``install_qc_banner`` was doing it inside ``MainWindow._build_screen`` --\ncheap is not the same as free, and only free may run where the frames are\npainted.  See :meth:`SegQCBanner.refresh`.\n\nInstallation goes through the seams that already exist rather than through the\nshared screen: :data:`spacr.qt.app.APP_FACTORIES`, consulted by\n``MainWindow._build_screen``, and :func:`spacr.qt.theme.register_widget_qss`\nfor the colours.  ``AppScreen`` is untouched.  A factory already registered\nfor one of these keys — :mod:`spacr.qt.chaining` registers one for every\nmodule that declares ports — is kept and delegated to, so installing this\nnever costs a screen the strip it already had, in either registration order."
+    },
     "0577028e4cb0218a92f424ebc9eae2597e80988841c3dab740f6112161493945": {
       "source_blocks_sha256": [
         "0577028e4cb0218a92f424ebc9eae2597e80988841c3dab740f6112161493945"
@@ -1151,6 +1166,13 @@
       "source_sha256": "167005891cf9e42275c61a7c0b1cbd764a7f3cd5c3951df121c7ab2d78547696",
       "text": "Is the null calibrated, and how much of the family is non-null?\n\nA well-behaved screen gives a flat P-value histogram with a spike at zero.\nA histogram that slopes or humps in the middle means the test is\nmis-calibrated, and no correction repairs that."
     },
+    "16e9bda966ea1bbd71d8d1e79fa5ecf892d0f44b8b701938155e6d382e72f0b8": {
+      "source_blocks_sha256": [
+        "16e9bda966ea1bbd71d8d1e79fa5ecf892d0f44b8b701938155e6d382e72f0b8"
+      ],
+      "source_sha256": "16e9bda966ea1bbd71d8d1e79fa5ecf892d0f44b8b701938155e6d382e72f0b8",
+      "text": "Install whichever of the two belongs on ``screen``."
+    },
     "177cf5c81b78256c55e0d90ebad20a91290a2d0e635f7c5c1b2158bffb2ce338": {
       "source_blocks_sha256": [
         "177cf5c81b78256c55e0d90ebad20a91290a2d0e635f7c5c1b2158bffb2ce338"
@@ -1432,6 +1454,13 @@
       "source_sha256": "1c744e8a1dc2b388fb14aa4654c197a7de5121d3f94901779485bc2b48190e3b",
       "text": "Render a starfield as an (height, width, 3) float32 HDR buffer."
     },
+    "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb": {
+      "source_blocks_sha256": [
+        "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb"
+      ],
+      "source_sha256": "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb",
+      "text": "The form that collects a shared model's scorecard before it is uploaded."
+    },
     "1c983ffbc4d9c3abf004635ee03ab5cd9b4f7815c6be22d46a430bb3a4c13ad4": {
       "source_blocks_sha256": [
         "1c983ffbc4d9c3abf004635ee03ab5cd9b4f7815c6be22d46a430bb3a4c13ad4"
@@ -1695,6 +1724,16 @@
       "source_sha256": "22582b33f25c045e8307a1edb1b8d5aa3e578ad043f7fcfe8bed5e59e65650f2",
       "text": "Return recrop-archive records in chronological order."
     },
+    "2259dd9455ddc70f65a85890e5327944c652459e957836dcfcd00a9e65b6c83b": {
+      "source_blocks_sha256": [
+        "21da281f6e96afa0d94a3d63aab3566d5b48ccdfc4462bb2d4394cceda549823",
+        "1ee1e7ad4879577818e90a7937796cec5d14725ad06cc526967835446152f2c7",
+        "9aadff613fc2590770343ada1c4c206509d2829ef31b23ead8274a99855ef695",
+        "2a36ae6517ce98315a1ad2b89e5b64752d18ae2b7571a889f4adc10c27ec1497"
+      ],
+      "source_sha256": "2259dd9455ddc70f65a85890e5327944c652459e957836dcfcd00a9e65b6c83b",
+      "text": "Put a :class:`DiameterPanel` above ``screen``'s Run row.\n\n:param screen: an ``AppScreen``.\n:param estimator: diameter estimator, for tests.\n:returns: the panel, or None when this screen cannot carry one."
+    },
     "2266c99a1d92ffdb410124016674cc1637caf8e87aad23ba78da4cff8a951425": {
       "source_blocks_sha256": [
         "2266c99a1d92ffdb410124016674cc1637caf8e87aad23ba78da4cff8a951425"
@@ -1910,6 +1949,16 @@
       ],
       "source_sha256": "26b7a250e212db8f800729768f25166d311305c127ebd22acbd05764c1925a62",
       "text": "Accepted and does nothing: there are no folded child rows.\n\nThe second level was removed on request. This remains so the callers\nthat opened a host on navigation do not have to know that, and\nbecause a method that quietly disappeared would fail at the call\nsite rather than here, where the reason is written down."
+    },
+    "26eacff7dba6ad65e1d9e3727b756bf4108ac1bcb700b16f07867b2d2e05f916": {
+      "source_blocks_sha256": [
+        "7581bc369b1769c0b2e88efac8441b3866028ddc48c2b792093f628ae8c85861",
+        "da412602aed1243f188c988ed1a74748a9f581ddeffd7247561d24c1c5180139",
+        "eeb9e6ee0c8626608523ed7097dc32757b5dcf306eb0ece84cbb53abc49274a9",
+        "ff85a1dea339da5e3a8df5cee2b105d8928112a28ff2ffd70ce48644eb734bd1"
+      ],
+      "source_sha256": "26eacff7dba6ad65e1d9e3727b756bf4108ac1bcb700b16f07867b2d2e05f916",
+      "text": "The CPU side of the flight, driven exactly like the other engines.\n\n:param thread_count: worker threads numba may use.\n\nThe widget builds and calls every pattern engine the same way, so this\ntakes the same arguments even where the scene has no use for one. A\npattern that needed a different call would put a branch in the one place\nall three are meant to look alike.\nCreate the space renderer and cap numba's thread pool to match.\n\n:param thread_count: worker threads to render with; clamped to at least\n    one. A numba that cannot be configured is tolerated -- the renderer\n    still works, it just shares the default pool."
     },
     "26ec373fffa831e32c3c7c9f5714bb90f4140a2c77c711677518c5b4d9995f37": {
       "source_blocks_sha256": [
@@ -2968,6 +3017,20 @@
       "source_sha256": "36f9cdde48a2faf9475fdb44337e587a5527a376609b84c2d478fd49efb2616d",
       "text": "Image dataset backed by a tar archive, decoded on demand.\n\nA tar written by :func:`generate_dataset` from on-demand crops carries a\n``.spacr_crop_format.json`` member -- the same marker\n:mod:`spacr.crops` writes into a crop folder, travelling with the bytes it\ndescribes. It is **not** an image, so it is excluded from the sample list\nand surfaced as :attr:`crop_format` instead; an archive without one\nreports None, which is every tar written before this existed.\n\nThe pixels are handed over exactly as they are stored. A legacy archive is\nNOT silently un-reversed here: a model's weights are tied to the channel\norder it was trained on, so correcting the order at inference time would\nquietly invalidate every model trained before the fix. :attr:`crop_format`\nis what lets a caller notice.\n\n:param tar_path: Path to the tar archive.\n:param transform: Optional callable applied to each PIL image.\nEnumerate archive members without extracting."
     },
+    "36fbc93be34762e146405eea808ac1b3773b81a5bcec19a68d865ac9604b9ccf": {
+      "source_blocks_sha256": [
+        "b9691596771738efebce468ca7bc5793983570cc7a5dc65c135e6eddb01e1ebd",
+        "d08dec6b9280add32b01688e42b96282754265b4c26c19181379f0c49b327efe",
+        "b9131751cfd7140e5d5404b098c24e796d34a48bfab23ec0388c4c2cda57e642",
+        "5e778737440c14785c5d3b421decc1f4b00f8a6b3c4baa27329baf675b0b84b4",
+        "70b3bff17ffe5a3738c9a3c7d1b1fc91ee534a53d8ef037579c74745d4ee0aae",
+        "e99f4b4814612c024d181444d0f69f67057d61cf85a633a5961fd4705f8f96f7",
+        "508b8b71df40f7f5d16e36abd6fe3c8948f64c4a25007ce3e0b5379b538b7e40",
+        "f2c34727cb7db7e6c22a664b8bcad2dad6719db2b93a999c3e3a425d9a5a0c4a"
+      ],
+      "source_sha256": "36fbc93be34762e146405eea808ac1b3773b81a5bcec19a68d865ac9604b9ccf",
+      "text": "One registered attribution method.\n\n:param name: registry key callers pass as ``method=``.\n:param family: method family—``\"cam\"``, ``\"gradient\"``,\n    ``\"perturbation\"``, or ``\"attention\"``.\n:param backend: implementation provider—``\"torchcam\"``, ``\"captum\"``, or\n    ``\"spacr\"``.\n:param fn: adapter callable that computes this method's attribution.\n:param needs_layer: whether the method requires a spatial target layer.\n:param smoothed: whether the Captum adapter wraps the base attributor in a\n    SmoothGrad noise tunnel.\n:param description: concise user-facing explanation suitable for method\n    selectors."
+    },
     "36fffc47f5ebe1b9dcbd7e9e8d3039492175d2a1a689e8b86516474e4d39e44e": {
       "source_blocks_sha256": [
         "63e6a06225456770b4c93f3b3e09af12b1b1ce04c004d2651bb5ee09574985a2",
@@ -3711,6 +3774,17 @@
       "source_sha256": "4076e570ec527d3bc4d7167d3cb1432cb9184e25b7283675de431bebe96a9980",
       "text": "Persist one of :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`.\n\n:raises ValueError: if ``name`` is not one of them."
     },
+    "4078c807e53ec279d32ebb7c956f4353056bcbec0143a6c3c776050e244f739b": {
+      "source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880",
+        "8fbf1322600af7a4b746e49e95174442821677b6f2cb5acf5f310770e4431841",
+        "07d29f0a8455396f52f90633b2eb53ce4197ae88bdbfa818e326087c6aa66471",
+        "87f08e8ba581c753be81e54a41aedb0446e304ff6e278245c7751928a93cb970"
+      ],
+      "source_sha256": "4078c807e53ec279d32ebb7c956f4353056bcbec0143a6c3c776050e244f739b",
+      "text": "The four-frame temporal window, and nothing else.\n\nHolds no keyframes: the only state is the ring of the last four jitter\nphases, which is what the antialiasing needs and all it needs.\n\n:param thread_count: worker threads to render with. Clamped to at least\n    one, so a caller that computed zero from an unavailable CPU count\n    still renders.\nCreate the orbit engine without allocating its buffers yet.\n\n:param thread_count: worker threads to render with; clamped to at\n    least one."
+    },
     "407c3572c5df65954884a325564e0c528e584aef272ff73a424e4a77a6fe4bf6": {
       "source_blocks_sha256": [
         "3b17e321fc07fa17b8a1723113cc2e2e71add005209ae86795f10280789aafb9",
@@ -3775,6 +3849,23 @@
       ],
       "source_sha256": "40eeeb78cad9ad25f6887b3c258aa27ce291e6429f79585d5a6a74442cba006a",
       "text": "Swallow tooltip requests. THIS BAR IS THE TOOLTIP.\n\nA popup appearing over this bar is a bug, and not one this bar\ncauses: nothing here asks for one -- the bar sets no tooltip\non itself or on anything in it. Qt PROPAGATES an unhandled\n``QEvent.ToolTip`` up the parent chain, and\n:func:`spacr.qt.module_hints.install_module_hints` filters the whole\napplication, so the request walked up from this label to an ancestor\ncarrying ``moduleAppKey`` and that ancestor's popup appeared over the\nstrip that exists to replace popups.\n\nAccepting the event here stops the walk at the bar. The strip keeps\nits own behaviour -- it is still written by every hover elsewhere,\nand its API and tutorial links still work -- but hovering the strip\nitself now shows nothing, which is what it already looked like it\npromised."
+    },
+    "40f13290b1c34dc5bda5da953ab14216fa5b5d3e2a9c7cbe4a898607c0825ef0": {
+      "source_blocks_sha256": [
+        "3c7397c0509947f9e564897ac079f99c504b49a69bc1a996a285007f786717ab",
+        "fdc88f023e7bd455438c7feb2dd3d98383426ac47a1ec0aa817f5797e371b351",
+        "00f8b63c36518d1012a6e4edc923cf3727753566fa17cc7a38d66c95e19aae39",
+        "92e5ed94d9025a62e4bd9ed80a21186677fe6a23270f72ccba3a4492c3863ea8",
+        "82e8c0a60ab687e01a549b036a18219df679bfa1631ee9bb0fb65ea7c090a554",
+        "dd5b2c9f79a3cdc58da40d0b5806dc16dbe78bb872f22fa1e4a7d1056bcc3b32",
+        "c737d278afb2c628e989eb472f4a35fecf1d4fd704ffbf4afff273c0d7ad1ad8",
+        "4686652f125c39b8be700a95f338c52f79fd8e24df978e2d72360b2d7adbead3",
+        "10a17f5535ed2c455a45aefeef69ebd12144e82b65b68328f06b90ddd8e64c99",
+        "e49e3123debd0b4c02456cd576a501fdee481cb6fee83b5180b001f9efca1de1",
+        "263930fb34161fdb34c5390ea06e130e2d16b191357b801674a4027669bfc4da"
+      ],
+      "source_sha256": "40f13290b1c34dc5bda5da953ab14216fa5b5d3e2a9c7cbe4a898607c0825ef0",
+      "text": "Attribution — what a trained classifier attends to, and whether that means anything.\n\nspaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``,\n``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This\nmodule is the library those two were the first entries in: the CAM family\n(Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), the gradient\nfamily (saliency, integrated gradients, guided backprop, input×gradient,\nDeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family\n(occlusion, feature ablation) and attention rollout for transformer backbones\nthat have no convolution for a CAM to hook.\n\nAlmost none of it is written here. The CAM variants come from the optional\n**torchcam** attribution extra, while the gradient and perturbation methods\ncome from the core **captum** dependency. What is written here is the part no\nlibrary can supply: the\nadapters that make every method agree on one output shape, the handling of\nspaCR's two classifier head shapes, and — the reason this module exists — the\nanalyses in the second half.\n\n**An attribution map is not an explanation.** It is a number per pixel produced\nby a procedure. It does not show what the model \"looked at\", it does not\nestablish that the highlighted pixels caused the prediction, and it will render\na confident, beautiful, plausible picture for a model with random weights. Four\nchecks stand between a map and wishful thinking, and they are the point of this\nmodule:\n\n* :func:`deletion_curve` / :func:`insertion_curve` — remove (or add) the pixels\n  the map ranks highest and watch the score. A map whose deletion curve is flat\n  is not describing what the model uses, however good it looks.\n* :func:`pointing_game` — does the map's peak land inside the object at all?\n  spaCR has the object masks already (``merged/*.npy``), so this costs nothing.\n* :func:`randomization_sanity_check` — Adebayo et al. 2018. Randomise the\n  model's weights layer by layer and attribute again. Several popular methods\n  return a nearly identical map for a randomised model, which means they are\n  edge detectors that happen to be plotted over a classifier. This is the single\n  most informative check here and the one most often skipped.\n* :func:`method_agreement` — rank correlation between methods on the same image.\n  Agreement is weak evidence. Disagreement is strong evidence that no single map\n  should be trusted.\n\nEvery criterion measures a *different* property and they routinely disagree.\nNone of them is ground truth, because for attribution there is none.\n\n**Two head shapes, one contract.** A spaCR classifier's head emits either one\nlogit (binary; class 1 when the logit is positive) or ``C`` logits. Code that\nassumes one shape is wrong for the other, and silently so: attributing the raw\nlogit of a single-logit head always explains *class 1*, so for an image the model\ncalled class 0 the map you get is the map for the class it rejected — the\nnegation of what you asked for. Every method here goes through\n:class:`ClassScoreModel`, which presents a single logit ``z`` as the two-column\nview ``[-z, +z]``. Both classes then have a real gradient, ``target`` means the\nsame thing for both head shapes, and no caller has to know which head it has.\n\n:author: spaCR"
     },
     "41080792b9e0709a7fbd16c2a8104649dcccc3242b63b2d2162b235e644dd6a4": {
       "source_blocks_sha256": [
@@ -5158,6 +5249,17 @@
       ],
       "source_sha256": "5722433e286f9dc52e65c06908627d582431e6a27697c4ee6a8fc9118b4416b0",
       "text": "Load one evaluation bundle for the Qt workbench."
+    },
+    "577bfb5f13700b6d0a74fae81b6d83ebd38921046bcdea9b5a23578327717cae": {
+      "source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741",
+        "8fbf1322600af7a4b746e49e95174442821677b6f2cb5acf5f310770e4431841",
+        "93918d7d108ae9af94773fc0df4ddd4a48a36373303ed27f93229c370b4eb42d",
+        "87f08e8ba581c753be81e54a41aedb0446e304ff6e278245c7751928a93cb970"
+      ],
+      "source_sha256": "577bfb5f13700b6d0a74fae81b6d83ebd38921046bcdea9b5a23578327717cae",
+      "text": "One supersampled buffer. NO temporal history at all.\n\nThe orbit pattern keeps a four-frame ring because its antialiasing walks\nthe sub-pixel grid over time. This one takes all four samples inside a\nsingle frame, so there is nothing to remember between frames -- which is\nalso why pausing and resuming it cannot show a seam.\n\n:param thread_count: worker threads to render with. Clamped to at least\n    one, so a caller that computed zero from an unavailable CPU count\n    still renders.\nCreate the cascade engine without allocating its buffer yet.\n\n:param thread_count: worker threads to render with; clamped to at least\n    one."
     },
     "577c37b1ca3d97148f34c21f546377760adcaee6252499c685d37fe653679f6f": {
       "source_blocks_sha256": [
@@ -6737,6 +6839,14 @@
       "source_sha256": "6f5b5b61ebee7b92a466d95545114550d58fe04af2e94cb2edd185dbb20790d3",
       "text": "Whether ``key`` should appear in module navigation.\n\nPreferences are imported lazily so this registry remains safe for\npackaging and headless callers. If preferences cannot be read, preserve\nthe historical all-modules-visible behaviour.\n\nNOT A TILE CHECK. This answers \"is the user allowed to reach this\nmodule\", which is the maturity preference and nothing else. A folded\nmodule is still reachable -- from its host's button, from Help, and\nfrom the command palette -- so it is still VISIBLE; it just has no\ntile. Use :func:`tiled_apps` for the tile question.\n\nThis function did briefly answer both, and the command palette is\nwhat caught it: filtering :data:`TILELESS_APPS` out here took nine\nmodules out of Ctrl+K, so the folds removed a door instead of moving\none. Two questions, two functions."
     },
+    "6f757c3332b2308287f372c85b9f108da2547e4c625606a9057694ac66ecbfa7": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693"
+      ],
+      "source_sha256": "6f757c3332b2308287f372c85b9f108da2547e4c625606a9057694ac66ecbfa7",
+      "text": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.\n\nEach record supplies a display name, description, biology source URL, bundled\ndiagram filename and diagram note. ``sections`` contains heading, prose and\nlinked assay-key triples; ``links`` contains display-label and URL pairs.\n``modules`` contains route-key, title, description and icon-key tuples. A\n``None`` route denotes a planned assay whose tile cannot start an analysis.\n``starplast`` launches an external app from the Toxoplasma page; it is not\na spaCR analysis registry key or segmentation backend.\nDisplay prose is translated at use; route keys, URLs and asset names stay fixed."
+    },
     "6f9a9e6bd1bc4c2172683dd4eb3269f3e1b4b344b4d273ab079959385b505650": {
       "source_blocks_sha256": [
         "6f9a9e6bd1bc4c2172683dd4eb3269f3e1b4b344b4d273ab079959385b505650"
@@ -7137,6 +7247,14 @@
       ],
       "source_sha256": "768565fbd4c0d5e9640b6aaeb7509b92acde2e2b1f247f8bdf33af3755e595d8",
       "text": "Select ``table`` and reload its numeric columns."
+    },
+    "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "Sourced organism introductions and image-analysis module proposals.\n\nThe assay keys are existing pipeline identifiers. A proposal has no route,\nso the organism pages cannot accidentally run an unimplemented analysis.\nArtwork provenance, licences and checksums ship in organism_sources.json."
     },
     "76ea9e2578328f53eb31250930953f55bb6310a12d8cf7aa28b389e7399abc98": {
       "source_blocks_sha256": [
@@ -8679,6 +8797,18 @@
       "source_sha256": "931e51d6ad41bc5d933433bf23b9050ff24c8cd2805d7a1d54d13801e0279d8f",
       "text": "Flip DEBUG ↔ INFO on every attached spaCR logger + handlers.\n\nThe user reaches this via the Preferences dialog. It's idempotent\nand cheap — safe to call on every dialog save. Also ensures the\nrotating file handler is attached so bug reports always have a\ntrail on disk regardless of verbose state."
     },
+    "932ea9ced0cbb2778724f2b2290b5a887ed20f3f7271c68db21de5a0d04b3ca8": {
+      "source_blocks_sha256": [
+        "1c2878ec63f4aae9b495b029f5eb8e25a0b218f9decfdf9e55e1c5384f8f1d11",
+        "ff625291e5665dc110df034f115238f6be01ebf35150c9e6e2b2bd124e195cea",
+        "44e5b5a94ff82c03a7b8f579d52e6741268ef61ee9db713b13e0cffdea28d58f",
+        "5453d28c602dab904a8f247bf7daba25b69a7f796b4d45f3c4e78756377a69f7",
+        "4b7e58ef2c4367489240ced945bfb69a1b7dbfe358ad1b3282e23b290dd65ab6",
+        "2242c602fcb52068bdffbc72ee323855e0cda8290bf17310ba161b5ed6461962"
+      ],
+      "source_sha256": "932ea9ced0cbb2778724f2b2290b5a887ed20f3f7271c68db21de5a0d04b3ca8",
+      "text": "Read a run's primary table, and any LEVEL it left in a sibling file.\n\n``results.csv`` is meant to hold every level a run produced -- a fitted\nrun at ``level='both'`` writes its guide and gene rows into one table and\nthe panel filters them apart by the ``level`` column.\n\nTHE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected\nthem as their own family, wrote them to ``results_gene.csv``, and left\n``results.csv`` holding guides alone -- so a reader who asked for genes\nwas shown nothing while the rows sat in a file nothing opened. The writer\nis fixed, and this reads the older runs too, because a folder on disk\ndoes not update itself.\n\nA sibling is merged only when it brings a level the primary table does\nNOT already carry, so a run that already holds both is untouched and\nnothing is ever counted twice.\n\n:param tables: candidate paths, primary first, as\n    :func:`find_results_tables` returns them.\n:returns: ``(frame, found, merged)`` -- the table, the path it came from,\n    and the sibling paths folded into it."
+    },
     "93333e5d6c5f5e2a2ce13bdcd54a0a8581a48ae509ace324ea501ec71be85b86": {
       "source_blocks_sha256": [
         "1d436079eeb10a98902bafde83df7c55783a27cd0b753956a690c031dd6b6bbd",
@@ -8749,6 +8879,18 @@
       ],
       "source_sha256": "94daf6ee57ae3fb2b2a351243da8bfbb23d5dad3b07773f92e0e98b440a4c8a3",
       "text": "Thinnest the Home pane may be painted and stay readable.\n\nAn image theme is judged against :func:`scrim_under`, the brightest\nthing its wallpaper can put behind the panel. Everything else is\njudged against its own flat window colour, which is where the answer\ngoes to (near) zero: a dark panel fading into a dark window cannot\nmake white text harder to read, so those themes let the user take\nthe box away entirely."
+    },
+    "9539c3ac202a2db37eb00c64114d7841c992304a4e75c39cc6d829f838ecd999": {
+      "source_blocks_sha256": [
+        "5beaa346a85721b47e6e4c4fb865810ac54ace9bc0048d9ad30a2c2c8bdeae7d",
+        "185517367eb59c74123daeb43fe99b78cd1e278059aa10ed4f2f81c1005acd87",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "1b5521de059c1bbe9ac6d46b709ecc0d4bdabff3049f9b3bb937fa208f913f6d",
+        "07129152938ef3bab1b22a0e895220a971f3e9cbe5ad568bf3a1566672ec36ea",
+        "6971fc7d42d3eb1d69c0f5c8e30880aed8d9f4a07ff5d0e2f21b8b634a58b1d1"
+      ],
+      "source_sha256": "9539c3ac202a2db37eb00c64114d7841c992304a4e75c39cc6d829f838ecd999",
+      "text": "Run the surrogate explanation and render it.\n\nSEPARATE FROM :meth:`run` so the analysis can be driven without the\nform -- a test, or another screen handing over inputs it already has.\n\n:param database: the measurements database.\n:param predictions: the model's predictions.\n:param path_column: which column joins predictions to objects.\n:param prediction_column: which column holds the prediction."
     },
     "9555d6e239a51a3fc99dfcc2192b7075989b70ed9bc8baf2693e0aecf2a5aa3d": {
       "source_blocks_sha256": [
@@ -9677,6 +9819,16 @@
       "source_sha256": "a5849a9c399b71e02aee44a92f0c7aa486a046594da8857cfb4a2b463e32bd93",
       "text": "Read one recipe file.\n\n:raises ValueError: on anything that is not a readable recipe."
     },
+    "a5c091d887be12a316fa801197be19022a702b42787cccd21f724204efb13920": {
+      "source_blocks_sha256": [
+        "57266aaec57809133a509a1a8184a3714b268998db9fec87455272cd74548d47",
+        "1a68487ac9cab3b80b99507fc8e97035b6a6cd45da96673ebc52500b633e88eb",
+        "c223127218fa67a406def1894b74f63999f9e1435cb108819dcabfd12193ba7e",
+        "fa3ba9cc88ac4f479176905a4f402eb0598a675c244c71117dca86251187d523"
+      ],
+      "source_sha256": "a5c091d887be12a316fa801197be19022a702b42787cccd21f724204efb13920",
+      "text": "Push the saved settings into every running backdrop.\n\n:returns: how many were updated.\n\nTHE BACKDROP KEEPS THE CONTROLS IT WAS BUILT WITH. Saving Preferences\nwrites new values to the store, but an existing `RuntimeControls` object\notherwise continues holding its old values. This function synchronises\nevery live object so changes take effect immediately.\n\nEverything that can change while a backdrop is on screen is pushed here.\nWhat cannot -- the pattern, the backend, the shader -- still needs the\nbackdrop rebuilding, which is what changing a screen does anyway."
+    },
     "a5d53168422fbe0295c3e3c8a15f2979d70fb236a0f1f6c120bf9fb7824cdfe8": {
       "source_blocks_sha256": [
         "cf6b4be3a6efaa51c8650e246a5076399933dc16478ca807b38940df31706d96",
@@ -10235,6 +10387,13 @@
       "source_sha256": "ae411dba866ee7e7daa5b9ac60264254626e5257b82271ea070a23e78171432f",
       "text": "Offer this table's columns."
     },
+    "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38": {
+      "source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ],
+      "source_sha256": "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38",
+      "text": "What the picture is made of. Every field is a Preferences row."
+    },
     "ae6785e4dc6dfaedc1be3eccb07bc6107256ae8ab7316cb7aa0240e7ce9d4614": {
       "source_blocks_sha256": [
         "ab9aaef36efee71ed5b68725000e22f8e423854d7fe9a4c72941b61ad6e7f9b6",
@@ -10302,6 +10461,21 @@
       ],
       "source_sha256": "af4469c47ca841ad25c7bcd18fc0c36fa89761e5687ce241ef1f354ed631b92d",
       "text": "Take rows off the table. THE FOLDERS ON DISK ARE UNTOUCHED.\n\nThe safe half, and the default gesture. It needs no confirmation\nbecause it is recoverable -- :meth:`reload` reads the folder again --\nand the status line says exactly that rather than leaving the user to\ndiscover it.\n\n:returns: how many rows left the table."
+    },
+    "af4f6309b50cf3c7380898008c2309e54fa57cc789a4d3a1c655f7d2c8fbbd62": {
+      "source_blocks_sha256": [
+        "43931543a8fff5327cd6b2d31adda5e3fe197bcef28f0038a84ca857c32cd7b9",
+        "94e261f6206c0a3aa86a0f673289a861b7a84cae2b83be7500b2a53958761499",
+        "a7ee24a2df5687f3742bb0efa3d2f5aaf0202f734e2e857711fe38f4f5dbf301",
+        "5df9b858bbbde495e1aee1c0b4e5bbfdec68de5693d767181306a61a15d4d154",
+        "0fc6bdfd319cb3d1eb5e893f0aa7366609f5287e7429505edf8a1c5edfd2f697",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
+        "bc463ac676c6e77112e3461631e86c0fa289598671e00d76fe9aeb002d0161c8",
+        "920c18d762b8df1b8ef9e3f5b652977e6820cc3f84c160b11a5700bf19ff8494",
+        "48b17e25276a2d94e909b462d5a094c965adb453e19386ad3c5d9600018a5ef3"
+      ],
+      "source_sha256": "af4f6309b50cf3c7380898008c2309e54fa57cc789a4d3a1c655f7d2c8fbbd62",
+      "text": "Compare measurements between selected cell groups and a reference.\nBuild the comparison panel: the pickers, the plot and the statistics.\n\nThe join runs off the GUI thread. It reads every object table out of\nevery attached database and joins them onto the crop rows -- measured at\n3.2 s for one plate's 553 objects, so a four-plate screen of 60,000 is\nminutes with the window frozen solid, which is what \"pressing join the\nmeasurements table makes spaCR unresponsive\" was.\n\nThe well selection is held as ``None`` for \"all of them\" rather than as\nthe full list: a well that appears after a re-run should be included,\nand a stored full list would silently exclude it.\n\n:param objects: the object rows for the montage and the contrasts.\n:param groups: selected group names mapped to object-index values.\n:param parent: parent widget, or ``None``.\n:param settings: run settings, saved alongside exported results.\n:param databases: measurement databases available for widening the\n    object table.\n:param counts: per-well counts, used to resolve control wells."
     },
     "af6193dad6d7051563a40fed0c81748d5a071d77fa336c898b287b1adb3738d1": {
       "source_blocks_sha256": [
@@ -11475,6 +11649,24 @@
       "source_sha256": "c05fd5fbc22bb097c3b4d3c25dde16791235a73a3fcf6968418035f19b433448",
       "text": "Make ``key`` the loaded run. ``key`` is a folder or a run name.\n\n:returns: True when a row matched. False rather than a blank mark for\n    a run this table does not hold -- a tick against nothing is worse\n    than none, because it reads as an answer."
     },
+    "c0a90c19ac1c6fecbc58842b4d376be326fc984f469c685f6d8ec3d6267671f1": {
+      "source_blocks_sha256": [
+        "e926bc157766dc6bcec8f3b8440019ec7abf86c8a91fd68c2d5486fee2f19861",
+        "94a39498c388d5a3d7dc7500042f778b8021e18ec8a28af8d5133268dda7b8f7",
+        "118903640585e4e01414d89a68a3bf83a11cb229aafe73b12df992daeb1a9a9f",
+        "7be8b301d7cc8dcb65282f59f8ace6e8f055f62c7a0665bff77c5157c3da1f6a",
+        "3df8410b5f39ce0a6a1b357be595029f62d8baa99998ce44d322620bddb4174c",
+        "a7a8d418f530da2404989b8a333804fb6edd2f611f20ec9f8076872dcdb6fcdd",
+        "ae01b62e23bd5f359006a6ea973de383a2d7754ddb566677063a6d0fc2cb69a7",
+        "9f24db0713dfa3024f6b85512ab88bc4ca2a988e759a59da822b7f5bea30c274",
+        "00f62b41fa128e31b7a2e44d351a0d72460f782c220850009fc3fbf6aea26cf3",
+        "0d6784f95db212b9d1411066aa856f5aa3e3e900adb246d7b69f3724b4df56f9",
+        "1ab1c1adf3f8aa43f6494f33954d84aa9276ff13289935b2856e123cd0eb1f47",
+        "acb8461aea290e4cd8c4bd360b58349a18a8a418734acc3ddd40d8d74ef700a0"
+      ],
+      "source_sha256": "c0a90c19ac1c6fecbc58842b4d376be326fc984f469c685f6d8ec3d6267671f1",
+      "text": "Fit a surrogate to ``frame['cv_prediction']`` and rank the features.\n\n:param frame: as :func:`build_surrogate_frame` returns.\n:param test_size: held-out fraction. Fidelity and permutation importance\n    are both measured on it, never on the training rows.\n:param n_estimators: trees in the surrogate.\n:param random_seed: fixed, so a reported ranking can be reproduced.\n:param n_repeats: permutation repeats per feature.\n:param shap_max_samples: SHAP is O(rows); this caps the explained sample\n    and the cap is REPORTED rather than applied silently.\n:param exclude: extra feature columns to drop.\n:param split_by: acquisition unit held intact between surrogate fitting\n    and fidelity measurement. Default ``'well'``.\n:param verbose: print the summary when done.\n:returns: a :class:`SurrogateResult`.\n:raises SurrogateError: too few objects or classes to fit anything."
+    },
     "c0e1d182b4ff61d4c49d83ea3555b2af1a455384c4915c75966feaede04a59ac": {
       "source_blocks_sha256": [
         "c0e1d182b4ff61d4c49d83ea3555b2af1a455384c4915c75966feaede04a59ac"
@@ -11706,6 +11898,13 @@
       ],
       "source_sha256": "c354589d5d8755b9901a6276ea18827c017552d4ef5ea9e22e45b2f459e7d973",
       "text": "Combined interface for fine-tuning and applying Cellpose models.\n\nThe workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows\nas Train and Apply tabs, each backed by its own\n:class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads\n``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints\nbeneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its\nindependent source directory and writes masks to ``<src>/masks``.\n\nWhen the active tab changes, settings named by the ``cellpose_masks``\npropagation map in :mod:`spacr.qt.preview_registry` are copied to the\ndestination tab when that tab exposes the corresponding setting. ``src`` and\n``model_name`` are not copied. On entry to Apply, the workbench searches\n``<train-src>/models/cellpose_model/models`` for checkpoints whose names begin\nwith the Train tab's ``model_name``. It prefers completed checkpoints over\nperiodic ``_epoch_`` checkpoints and selects the most recently modified\ncandidate from the preferred group. If found, that path is assigned to\n``custom_model``, which\n:func:`spacr.spacr_cellpose.identify_masks_finetune` resolves before\n``model_name``; otherwise, Apply retains its current model selection.\n\nEach tab retains its own settings model, console, Run action, drop handling,\nand any registered preview. Search, recipe, and preview integrations are\ninstalled directly because embedded tabs do not become the current page in\nthe main-window stack.\n\nThe combined screen changes only GUI registration. The ``train_cellpose`` and\n``cellpose_masks`` pipeline keys, command-line entry points, and settings-file\nformats remain available."
+    },
+    "c36b8f2598b4fe16ad77bead07469c44b6d308bad36b4d8de0980468edd7cbc1": {
+      "source_blocks_sha256": [
+        "535da8bfb518184f087232c2cc2e8a86cfdbfa5315ab6a04a1e21e182fefaa98"
+      ],
+      "source_sha256": "c36b8f2598b4fe16ad77bead07469c44b6d308bad36b4d8de0980468edd7cbc1",
+      "text": "Cheap runtime check — decorated functions call this on entry so\nthey emit NOTHING when verbose mode is off."
     },
     "c3774298b9d6aea5dea6b1d35f3432a73747c164650b5ac4a79b220b44615dc6": {
       "source_blocks_sha256": [
@@ -12914,6 +13113,15 @@
       "source_sha256": "d677d0b2255d896f657e2fc781357f383d0d6b7af5c23289988690ff0f2fc63a",
       "text": "The cached answer for ``path``, or ``None`` when it is not known yet."
     },
+    "d6d84a41e210087b4ae22d7b4da2c5e6c928df931912e6376c399ae2da007b3b": {
+      "source_blocks_sha256": [
+        "0f3ace26c508e3ce172585d8e2c9aa923a2e6a0d27174ae0fdad9a25f95cd5ab",
+        "8700f1c7317f63b9b0c913986563259329242edc1f98fa2101ee8845a8b21db1",
+        "df5e371e9aba24ad6599ddc85779be09e6b809929e56746bf9a4ee86be3b1179"
+      ],
+      "source_sha256": "d6d84a41e210087b4ae22d7b4da2c5e6c928df931912e6376c399ae2da007b3b",
+      "text": "Install the banner and the panel on their screens. Idempotent.\n\nCalled by :func:`spacr.qt.register_self_registering_modules` after\n``app.py`` has finished importing and before the first window is built.\n\n:returns: True when anything was registered."
+    },
     "d6e0069316fd0074a671d8ed27c5d3ff53bb196946528072a26d4b7f009d03d9": {
       "source_blocks_sha256": [
         "7139196ce727725a3f08c488cacfeb6d35a849a8c60bf32e9c59fb2a0ebb201b",
@@ -13686,6 +13894,22 @@
       "source_sha256": "e2782bb5437f555ce9b914dd425050d466a7c5d86a68fac6ad6544f9e6403b36",
       "text": "Flip the toggle on left-click; forward other buttons to Qt."
     },
+    "e2c551e75c147619db5fd5dc84f712b6e4e16bf5fa110ebe4a03af900fe4f87d": {
+      "source_blocks_sha256": [
+        "5f191dbfb3579d006c424dcc6efe66e51ba83b975b7012b53ae3710f228be7f5",
+        "ea288fa9ace6f51357c8a5a41ae4738467f4514dd3c94e5facd3216736a05ecf",
+        "c368e4a0c35165e4f133750239000371cb746a5f5a97640b235b66733a97bc46",
+        "be6de994e9d9701e9dd148bfbf774c45d776a061f7b619b7cbab2986bf445737",
+        "b04c671a11adf1e1e263faaaaa3cc98173757d7b871d68f0c24bb1365db6156a",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "fbeb3e00a66b447d117fd93f4b9a7cc0c867ffe6af2cce625e7002593c2490d2",
+        "13cfaf4ce9c46eb04cfacf4168300afc98c46055d8e64b8f355879b91a3b2db1",
+        "349601e362f89890d82f3f214c159f6287a178f89ae8c893336b62815afb5874",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ],
+      "source_sha256": "e2c551e75c147619db5fd5dc84f712b6e4e16bf5fa110ebe4a03af900fe4f87d",
+      "text": "A measured Cellpose ``diameter``, per object type, from the user's own fields.\n\n``CellposeModel.eval(diameter=...)`` under Cellpose 4 rescales the input\nby ``30/diameter`` so objects land near the size ``cpsam`` works at, which\nmakes a two-fold error in this one number a two-fold error in every mask,\ncount and measurement downstream. :mod:`spacr.diameter` measures it from a\nhandful of sampled fields — no Cellpose, no torch — and this panel is\nwhere that measurement reaches the settings form.\n\nEvery row carries its evidence: the value, the 10th-90th percentile range,\nhow many objects it was pooled from, how many fields contributed, how it\nwas measured and how much to trust it. A proposal without those is just a\ndifferent guess.\n\n:param screen: the ``AppScreen`` it belongs to.\n:param estimator: what to call to estimate, for tests. Defaults to\n    :func:`spacr.diameter.estimate_diameters`.\n:param parent: parent widget; ownership only.\nBuild the diameter estimator's panel.\n\n:param screen: the screen this panel advises.\n:param estimator: how to measure the diameters.\n:param parent: parent widget."
+    },
     "e2da20e4d42016586c51a36024b882013e3dad9141d736a442abe334ba30cfa3": {
       "source_blocks_sha256": [
         "5289e7faec83a6c889701bc5f663abd27b3b59fbff15dff1427efd3e6d69b0de",
@@ -13709,6 +13933,18 @@
       ],
       "source_sha256": "e2e6dcfaafcef9eabd1cce1942fea88bcce4eff9b6230f46a167ec7e4101af23",
       "text": "Fill the Summary tab from the fitted model.\n\n:returns: True when a summary was rendered.\n\nRendered from `model.summary()` verbatim rather than rebuilt: the\npoint of asking for the statsmodels summary is to get the statsmodels\nsummary, and a re-implementation would differ from every textbook and\nevery other tool the reader compares it against."
+    },
+    "e304c7ed63295b70ef39eb6f4c0bfd705064f27dda78f1bdbbcce1c28981f8b9": {
+      "source_blocks_sha256": [
+        "747fc0e0009dd2656e7e716535dc4bb6a43bd0c66fe002706ba1247a457f8e12",
+        "da4c3f1e6117fb401e7a79341c10d66d1609ee9f5fcc94333d6ad5670affc410",
+        "dc8fc1ce4c7669ec0d69517a68af91b9b17955464cc8373d62acebb345209fa2",
+        "117d897dd3adeaa7e7221d6e0b9ffc754ea7615390925186d404a3b83c99af38",
+        "71278574628d4785df1662c4da0a4b1acaa6d5217090d9434ea49cf494811e8a",
+        "385fa8ff62dad1e8b4c8ca4310e6ff6d2c2494443f339fe0f4e82def7f542ef4"
+      ],
+      "source_sha256": "e304c7ed63295b70ef39eb6f4c0bfd705064f27dda78f1bdbbcce1c28981f8b9",
+      "text": "Write the current graph to a PNG or PDF.\n\nThe format comes from the figure-format PREFERENCE rather than from\na setting of this screen's own; the design is explicit that a\nsecond place to answer \"am I making PDFs\" is one too many. The file\ndialog still lets a single save differ, because \"save as\" is when a\nuser thinks about format.\n\nRendering goes through `render_figure_to_png`, the same helper the\nfigure queue uses, rather than `savefig`: it applies the figure\ncolour, line and text-size preferences, caps the display raster,\nand in PDF mode writes a genuine vector page beside the PNG with\nits fonts embedded as TrueType. Calling matplotlib directly would\ngive none of that.\n\nWHAT IT DOES NOT DO IS RESTYLE FOR PRINT. The colours it applies\nare the ones the preferences resolve to, and the \"auto\" halves\nfollow the app theme -- so under a dark theme the text is white on\na transparent page, which disappears on paper. That is deliberate\nwhere it is decided (`_export_vector_pdf` explains why the export\nand the on-screen refinement have to agree), and the way to get a\nprint-ready file is to set the figure background and text colours\nexplicitly rather than leaving them on \"follow the theme\".\n\n:param path: destination. Empty opens a file dialog.\n:returns: the path written, or \"\" when cancelled or nothing is\n    drawn."
     },
     "e32e58937ae1990ac587e4003017c5c18c7f419246f9239748658f91e1650233": {
       "source_blocks_sha256": [
@@ -13765,12 +14001,35 @@
       "source_sha256": "e3c45eb015847acc0082ba05b48045ba79c7b7ed30f92384e2020cd49beb56b4",
       "text": "Render *graph* as a standalone SVG string with editable text."
     },
+    "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Keep a line in image pixels and paint it through the host's transform.\n\n:param parent: owning image canvas or view; defaults to None.\n\nHosts pass their widget-to-image mapping to :meth:`handle` and inverse\nmapping to :meth:`paint`. Zoom and pan never change the measured length.\nPixel units are always shown. Physical units require explicit, validated\ncalibration through :meth:`set_spacing`; camera magnification is never\nguessed. Right-click clears while the tool is active.\nStart with no line, no calibration and drawing disabled."
+    },
     "e3df10e47af162ffe7ddc7e1735506d7f3ad7e0378e0e036b81214632c70a733": {
       "source_blocks_sha256": [
         "e3df10e47af162ffe7ddc7e1735506d7f3ad7e0378e0e036b81214632c70a733"
       ],
       "source_sha256": "e3df10e47af162ffe7ddc7e1735506d7f3ad7e0378e0e036b81214632c70a733",
       "text": "Choose refuse-or-rename for colliding targets."
+    },
+    "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611": {
+      "source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ],
+      "source_sha256": "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611",
+      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\nSlice-mask filenames are ignored and duplicate frame numbers are rejected.\nWith ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``.\nA source whose next-frame marker lacks an unambiguous full mask is\ncensored for that pair, rather than labelled as a disappearance.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:param segmentation: ``'ST'`` for silver masks (the training default), or\n    ``'GT'`` for supplied ground-truth full masks during validation.\n:returns: the pairs, in time order.\n:raises ValueError: sequence/limit, duplicate frame identities or annotation\n    arrays are invalid."
     },
     "e40f547e79f5b15445d970009ed620cb1bc226541e31a5232382fd17e27445a4": {
       "source_blocks_sha256": [
@@ -15431,6 +15690,19 @@
       ],
       "source_sha256": "ff12fc89865c2cd995d4ae70684e3681fd45939fe62fab391afc1b0103a29a70",
       "text": "Share of the square the content spans, on its longer axis.\n\nThis is *the* number the 70-80 % requirement is stated in, and the same\nfunction measures the source and the zoomed result — a target the\ntransform is checked against rather than one it defines for itself."
+    },
+    "ff5471868a97d650a3b6993b594b6d23c544e6c36d07e83c902553f3de7ec0b9": {
+      "source_blocks_sha256": [
+        "264bf9f477fa7875114bf23ed91f1dcfd1bd392622af4f39e8cd0e4b13ab63c2",
+        "ca57b4e755766f4f39c5574a937179114c9ce400c1eb4c2a473664e521980d9e",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "ae6481b9d5437eb31ce783512478cf0899252a880c4bbdcb9029cd262ed810a8",
+        "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+        "680de80eb4908c0585b17f463e72ef4e5956b487d327de76e6415f4df6bb252c",
+        "82986ecf462dfdfd667469595eb6a45fe45d1f0be644eb6a8d98b7d38ba92de9"
+      ],
+      "source_sha256": "ff5471868a97d650a3b6993b594b6d23c544e6c36d07e83c902553f3de7ec0b9",
+      "text": "Read the last retrain's probabilities and propose a label for each crop.\n\nReads rather than re-fits, so the suggestion a reviewer sees and the\nranking the queue uses come from ONE model. A second fit here would drift\nfrom it and there would be no way to tell which was right.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column holding the labels.\n:param png_table: the crop table.\n:param classes: the class value each score column stands for. Defaults to\n    the values already present in the annotation column, in order, which\n    is what the retrain encoded them from.\n:returns: a :class:`Suggestions`; its frame is empty when nothing has been\n    scored, and ``note`` says why."
     },
     "ff76a76eac402305bd0af8c3b4f5d7f86c49741d43dfbb1c0dff4b704e730346": {
       "source_blocks_sha256": [
