@@ -1,32 +1,35 @@
 {
   "lesson": "55_image_scatter",
-  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "de",
-  "title": "Image Scatter: echte Messwerte und das Bild hinter jedem Punkt",
-  "description": "Image Scatter innerhalb von Image UMAP mit heruntergeladenen Zellmessungen, geprüften Vorschaubildern und der exakten Übergabe einer Zelle an Annotate.",
+  "title": "Image Scatter: Messwerte und ihre Ausschnitte prüfen",
+  "description": "Stellen Sie zwei Messspalten dar, zeigen Sie Objektausschnitte in der Vorschau an und senden Sie ein ausgewähltes Objekt an Annotate.",
   "objectives": [
-    "Image Scatter in Image UMAP finden und die richtige cell-Tabelle laden.",
-    "Rohe Messwertpaare sowie fehlende und konstante Koordinaten verstehen.",
-    "Einen Punkt seinem Zellbild zuordnen, ohne Labels oder Quelldaten zu ändern."
+    "Messwerte laden und Achsen wählen.",
+    "Den Ausschnitt hinter einem Punkt prüfen.",
+    "Ein ausgewähltes Objekt an Annotate senden."
   ],
-  "prerequisite": "Das herunterladbare Annotate-Beispiel mit Messdatenbank, Zellausschnitten und Bildformat-Markierungen wiederverwenden. Die private, bytegleiche Kopie enthält 2.341 Zellen und alle 2.341 PNGs. Unabhängige SQLite-Prüfungen erfassen jeden Quellwert, die vollständige Zellidentität samt Bildfeld und jeden Bildpfad; Bildschirmkoordinaten und RGB-Vorschaubilder werden ebenfalls geprüft. Nur Zellbilder sind validiert, nicht Kern- oder Pathogenbilder. Ein auffälliger Punkt belegt weder Phänotyp, Infektion, Behandlung noch Segmentierungsgenauigkeit. Kein UMAP-Fit, Training, GPU-Lauf, Export oder Labelwechsel. Es gibt keinen eigenen Download, Bildspaltenwähler, Farb-/Gruppenregler, keine Achsentransformation, Exportfunktion oder KI-Konsole. Plot lädt die Tabelle, Achsenwechsel zeichnen sie neu. Die Grenze von 200.000 Zeilen ist weder Zufallsstichprobe noch Garantie gegen Informationsverlust. Gemeinsame Filter sind hier nicht validiert. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame und ScatterCanvas.point_position.",
+  "prerequisite": "Verwenden Sie eine spaCR-Messdatenbank mit passenden Objektausschnitten und Ausschnittformat-Dateien. Das herunterladbare Annotate-Beispiel liefert diese Eingaben.",
   "scenes": [
-    "Öffnen Sie Image UMAP über Home und wählen Sie Image Scatter. Diese verschachtelte Ansicht zeichnet zwei vorhandene Messwerte; sie berechnet keine UMAP-Einbettung. Wir verwenden das echte herunterladbare Annotate-Beispiel und bewahren Messdatenbank und Zellbilder zusammen auf. Das Annotate-Tutorial zeigt, wo Sie es erhalten.",
-    "Wählen Sie Browse und öffnen Sie die kopierte Messdatenbank. Beim Verschieben eines Projekts müssen der Ordner data und die Bildformat-Markierungen mitkommen: Eine Tabelle allein enthält keine Bilder. Dieses Beispiel arbeitet mit privaten Kopien; ursprüngliche Messwerte und Bildpixel bleiben unverändert.",
-    "Wählen Sie cell in der Tabellenliste und anschließend Plot. Plot liest die Tabelle, es startet weder Segmentierung noch Training. Das Beispiel enthält 2.341 Zellen mit passenden Zellausschnitten. Nach Auswahl einer anderen Tabelle müssen Sie erneut Plot wählen; die Auswahl allein lädt deren Zeilen nicht.",
-    "Setzen Sie x auf cell_area und y auf cell_channel_1_mean_intensity. Achsenwechsel zeichnen die geladenen Zeilen sofort neu. Dies sind Rohmesswerte, keine transformierten Einbettungskoordinaten. Punkte stehen für einzelne Zellen, nicht für unabhängige experimentelle Wiederholungen; ein sichtbares Muster ist kein statistischer Test.",
-    "Lassen Sie den Zeiger auf der Zelle ganz rechts ruhen. Daneben erscheinen ihr Bild und die vollständige Identität aus Platte, Zeile, Spalte, Bildfeld und Zelle. Dies ist ein gespeicherter Ausschnitt, nicht das gesamte Mikroskopbild oder eine neue Segmentierung. Ein ungewöhnliches Aussehen allein belegt keinen Phänotyp.",
-    "Bewegen Sie den Zeiger aus der Zeichenfläche: Die vorübergehende Vorschau verschwindet. Kehren Sie zum selben Punkt zurück, erscheint das zwischengespeicherte Bild ohne erneutes Dekodieren. Hover dient nur der vorübergehenden Bildinspektion, nicht der Annotation oder dauerhaften Auswahl. Kein Quelllabel wird verändert.",
-    "Vertauschen Sie die beiden Messwerte zwischen x und y. Trotz neuer Bildschirmposition behält dieselbe Zelle ihre Identität und ihr Bild. Wählen Sie sinnvolle Achsen statt automatisch die ersten numerischen Spalten; auch numerische Kennungen und Aufnahmemetadaten werden hier angeboten.",
-    "Stellen Sie x wieder auf cell_area und wählen Sie cell_channel_0_homogeneity_distance_32 für y. Sieben Zellen fehlt dieser Messwert, daher sind nur 2.334 Koordinatenpaare darstellbar. Die Anzeige geladener Zeilen bleibt bei 2.341. Fehlende Werte sind keine Nullen, und nicht gezeichnete Koordinaten nummerieren die Objektidentitäten nicht um.",
-    "Wählen Sie measurement_ndim für y. Alle Zeilen haben den Wert zwei, daher liegen die Punkte auf einer horizontalen Linie. Das ist eine konstante Metadatenspalte, keine biologische Übereinstimmung. Stellen Sie cell_channel_1_mean_intensity wieder her, bevor Sie eine weitere Zelle betrachten.",
-    "Um einen angeklickten Ausschnitt in Annotate zu untersuchen, öffnen Sie zunächst Annotate und laden dasselbe kopierte Projekt. Kehren Sie über Home, Image UMAP und den vorhandenen Image-Scatter-Tab zurück. Die Annotationsseite muss das richtige Projekt kennen; ein Plot und ein fremder Datensatz ergeben keine gültige Übergabe.",
-    "Klicken Sie auf den Punkt selbst und wechseln Sie danach zu Annotate. Hover allein zeigt nur die Vorschau. Der Klick übergibt den exakten Zellschlüssel und beide Achsennamen an die Annotationsansicht. Er wechselt nicht automatisch die Seite, vergibt kein Label und beweist nicht, dass das Objekt ein Ausreißer ist.",
-    "Annotate zeigt jetzt genau die angeklickte Zelle mit demselben gespeicherten Bild. Prüfen Sie es, bevor Sie annotieren; diese Demonstration lässt alle Labels unverändert. Image Scatter hat keinen eigenen Plot- oder Auswahlexport. Nutzen Sie Database Browser für Tabellenexporte oder das PCA-Tutorial für Hauptkomponenten und die dort beschriebenen CSV-Ausgaben."
+    "Öffnen Sie Image UMAP und dann Image Scatter, um zwei vorhandene Messgrößen darzustellen. Üben Sie mit der Datenbank aus dem Annotate-Beispiel und den passenden Zellausschnitten.",
+    "Klicken Sie auf Browse und öffnen Sie measurements.db. Halten Sie den Ordner data des Projekts und die Ausschnittformat-Dateien bei der Datenbank, damit die Miniaturen gefunden werden.",
+    "Wählen Sie cell in der Tabellenauswahl und klicken Sie auf Plot. Wenn Sie zu einer anderen Tabelle wechseln, klicken Sie erneut auf Plot, um deren Zeilen zu laden.",
+    "Setzen Sie x auf die Zellfläche und y auf die mittlere Intensität von Kanal 1 der Zelle. Die Achsenauswahl zeichnet die geladenen Zeilen sofort neu.",
+    "Bewegen Sie den Zeiger über einen Punkt, um seinen gespeicherten Ausschnitt und die vollständige Objektkennung zu sehen. Verstehen Sie anhand des Bildes die Messung hinter dem Punkt.",
+    "Bewegen Sie den Zeiger weg, um die vorübergehende Vorschau zu entfernen, und fahren Sie dann über einen anderen Punkt, um ihn zu prüfen.",
+    "Vertauschen Sie die Messgrößen für x und y, um den Zusammenhang aus einer anderen Sicht zu betrachten. Wählen Sie aussagekräftige Merkmale und prüfen Sie ihre Einheiten.",
+    "Wählen Sie eine andere Messgröße, etwa das Homogenitätsmerkmal. Zeilen ohne Koordinaten werden nicht dargestellt; die Zahl der Punkte kann daher von der Zahl der geladenen Zeilen abweichen.",
+    "Eine konstante Spalte, wie die Messdimension in diesem Beispiel, legt die Punkte auf eine Linie. Kehren Sie für die Objektprüfung zu einem Merkmal mit nützlicher Streuung zurück.",
+    "Um einen ausgewählten Ausschnitt in Annotate zu prüfen, öffnen Sie zuerst Annotate und laden dasselbe Projekt. Kehren Sie dann zur vorhandenen Image-Scatter-Ansicht zurück.",
+    "Klicken Sie auf den Punkt selbst, um seine Objektkennung an Annotate zu senden, und wechseln Sie dann zu dieser Seite. Das Überfahren zeigt nur eine Vorschau des Ausschnitts.",
+    "Prüfen Sie das ausgewählte Objekt in Annotate, bevor Sie ein Label vergeben. Verwenden Sie Database Browser für Tabellenexporte oder PCA für die Komponentenanalyse."
   ]
 }

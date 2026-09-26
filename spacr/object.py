@@ -1224,13 +1224,13 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 )
                 if filter_by_raw_intensity or object_filters:
                     from .utils import _filter_objects
+                    planes = (filter_images if filter_images is not None
+                              else [None] * len(masks))
                     masks = [_filter_objects(
                         np.asarray(mask).copy(), plane,
                         min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
                         filters=object_filters)
-                        for mask, plane in zip(
-                            masks, filter_images if filter_images is not None
-                            else [None] * len(masks))]
+                        for mask, plane in zip(masks, planes)]
             
             if timelapse:
                 if settings['plot']:

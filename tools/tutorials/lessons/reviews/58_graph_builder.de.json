@@ -1,31 +1,35 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "de",
-  "title": "Graph Builder: echte Messwerte, Live-Filter und eine Übergabegrenze",
-  "description": "Messspalten zu Diagrammen zusammenstellen, nach Aufnahmemetadaten aufteilen und den aktuellen Fehler bei der Übergabe an Annotate erkennen.",
+  "title": "Graph Builder: Messwerte darstellen und Objekte filtern",
+  "description": "Laden Sie eine Messtabelle, weisen Sie Diagrammachsen zu, vergleichen Sie Gruppen und filtern Sie die angezeigten Objekte.",
   "objectives": [
-    "Die echte Beispieldatenbank und cell öffnen.",
-    "Histogramm, Streudiagramm, Farben und Zeilenfacetten erstellen.",
-    "Gefilterte und wiederhergestellte Populationen prüfen.",
-    "Interne Veröffentlichung einer Auswahl von funktionierender Übergabe unterscheiden."
+    "Eine Beispiel-Messtabelle laden.",
+    "Ein Histogramm, ein Streudiagramm und gruppierte Panels erstellen.",
+    "Objekte filtern und eine Folgeansicht wählen."
   ],
-  "prerequisite": "Verknüpfte Messdatenbank herunterladen und entpacken oder das heruntergeladene Annotate-Beispiel verwenden. Das Archiv enthält Messwerte, keine Bildausschnitte; kein neuer Modelllauf ist nötig.",
+  "prerequisite": "Laden Sie Graph_Builder_real_measurements.zip herunter und entpacken Sie es. Es enthält measurements.db. Um später Bildausschnitte zu prüfen, halten Sie auch das passende Annotate-Projekt und seine Bilder bereit.",
   "scenes": [
-    "Graph Builder untersucht eine vorhandene Tabelle. Öffnen Sie es über Home. Es ist ein Hauptmodul mit den untergeordneten Werkzeugen Plate Viewer und Small Multiples. Wir verwenden echte Beispielmesswerte, trainieren kein Modell und lassen keinen KI-Dienst Ergebnisse erzeugen.",
-    "Wählen Sie Load table und öffnen Sie measurements.db aus dem verknüpften Archiv oder dem heruntergeladenen Annotate-Beispiel. Wählen Sie cell: 2.341 Zeilen. Das Archiv enthält die aufgezeichnete Datenbank unverändert, nicht aber die Bilder, auf die andere Tabellen verweisen.",
-    "Suchen Sie cell_area und ziehen Sie die Spalte auf X. Die automatische Darstellung erzeugt ein Histogramm mit 30 Klassen. Jeder Balken zählt Zellzeilen in einem Flächenintervall; dies ist weder ein Behandlungsvergleich noch ein Signifikanztest. Gespeicherte Einheiten bleiben ohne neue physikalische Kalibrierung erhalten.",
-    "Ziehen Sie cell_channel_1_mean_intensity auf Y. Jeder Punkt zeigt Zellfläche und mittlere Intensität in Kanal eins. Überlagerte Punkte können sich verdecken, obwohl hier alle Zeilen vertreten sind. Prüfen Sie den Zeilenhinweis; große Datensätze können anders dargestellt werden.",
-    "Legen Sie columnID auf Colour und lesen Sie die Legende. Farben unterscheiden Aufnahmespalten, keine vorhergesagten Klassen oder bekannten Behandlungen. Eine sichtbare Trennung ist beschreibend und beweist keinen Effekt. Koordinaten und Farbzuordnungen wurden mit den Quellzeilen verglichen.",
-    "Legen Sie rowID auf den Facettenkanal mit dem Abwärtspfeil. Die Plattenzeilen erscheinen in getrennten Feldern mit 1.140 und 1.201 Zellen. Gemeinsame Achsen erleichtern den Vergleich, aber Zellen desselben Wells sind keine unabhängigen experimentellen Wiederholungen.",
-    "Fügen Sie rechts im Filter cell_area hinzu und setzen Sie das Minimum auf 21.925. Das Diagramm zeigt sofort 1.171 Zeilen. Der aufgerundete Median demonstriert den Filter und ist kein empfohlener biologischer Grenzwert. Auch die Achsengrenzen ändern sich.",
-    "Clear all im Filter stellt alle 2.341 Zellen wieder her. Das ist nicht Clear all channels links: Letzteres entfernt die Spaltenzuordnungen des Diagramms. Prüfen Sie Anzahl und Achsen erneut. Eine andere Population ist keine neue Messung.",
-    "Entfernen Sie die Zeilenfacette mit ihrem kleinen Kreuz und ziehen Sie ein Rechteck im Streudiagramm. Diese Version hat einen Fehler: Die aufgezeichnete Geste veröffentlicht intern 653 Objektschlüssel, zeigt aber null ausgewählte Objekte und lässt Open selection in Annotate deaktiviert. Nehmen Sie nicht an, dass Annotationen geöffnet oder erstellt wurden.",
-    "Ein einfacher Klick löscht auch diese interne Auswahl. Das Tutorial prüft die Rückkehr, repariert aber die Übergabe nicht. Filtern und auf Objekte zeigen sind verschiedene Vorgänge; andere Ansichten können ihren Zustand teilen. Prüfen Sie die aktive Population, statt jedes Diagramm automatisch als ganze Datenbank zu lesen.",
-    "Über die Kopfzeile erreichen Sie Plate Viewer und Small Multiples; eigene Tutorials erklären diese Unterwerkzeuge. Hier gibt es keine Schaltfläche zum Export von Diagramm oder Spezifikation. Das Datenbankarchiv ist ein externer Tutorial-Download, kein Export von Graph Builder.",
-    "In Python lädt read_table die Daten, GraphSpec beschreibt Kanäle und Facetten, und die Auswahl-API trennt Filter von expliziten Objektschlüsseln. Bewahren Sie Quelle, Einstellungen und Version mit Ihrer Interpretation auf. Diese APIs validieren keine biologische Schlussfolgerung und reparieren keine Annotate-Übergabe."
+    "Öffnen Sie Graph Builder von Home aus, um eine Messtabelle zu erkunden. Beginnen Sie mit der verlinkten Beispieldatenbank und wiederholen Sie die Schritte dann mit Ihrem eigenen gemessenen Projekt.",
+    "Klicken Sie auf Load table und öffnen Sie measurements.db aus dem entpackten Archiv. Wählen Sie die Tabelle cell. Dieses Beispiel enthält 2.341 gemessene Zellen.",
+    "Suchen Sie cell_area in der Spaltenliste und ziehen Sie sie auf X. Das automatische Diagramm wird zu einem Histogramm: Jeder Balken zählt die Zellen in einem Flächenintervall. Prüfen Sie die Messeinheiten, bevor Sie die Achse deuten.",
+    "Ziehen Sie cell_channel_1_mean_intensity auf Y, um ein Streudiagramm zu erstellen. Jeder Punkt platziert eine Zelle nach ihrer Fläche und der mittleren Intensität von Kanal 1. Lesen Sie bei größeren Tabellen den Hinweis zur Zeilenzahl.",
+    "Ziehen Sie columnID auf Colour, um die Plattenspalten zu unterscheiden. Ordnen Sie über die Legende die Farben den erfassten Spaltenlabels zu und suchen Sie nach Gruppen, die genauer geprüft werden sollten.",
+    "Ziehen Sie rowID auf den nach unten gerichteten Facettenkanal, um für jede Plattenzeile ein Panel zu erzeugen. Vergleichen Sie die Panels anhand ihrer gemeinsamen Achsen. Verwenden Sie für statistische Vergleiche zwischen Bedingungen unabhängige Wells.",
+    "Fügen Sie im Filterbereich rechts cell_area hinzu und geben Sie ein Minimum ein. Das Beispiel verwendet 21.925, wodurch 1.171 Zeilen übrig bleiben. Wählen Sie für Ihre eigenen Messwerte passende Schwellen und beobachten Sie, wie sich dargestellte Anzahl und Achsen ändern.",
+    "Klicken Sie im Filterbereich auf Clear all, um die vollständige Tabelle wiederherzustellen. Verwenden Sie links Clear all channels, wenn Sie die Diagrammzuordnungen entfernen und ein anderes Diagramm beginnen möchten.",
+    "Entfernen Sie eine Facette über ihr kleines Kreuz, um zu einem einzelnen Streudiagramm zurückzukehren. Ziehen Sie ein Rechteck um Objekte, um einen Bereich auszuwählen. Ist Open selection in Annotate nicht verfügbar, öffnen Sie Annotate separat mit dem passenden Projekt und prüfen Sie die Objekte dort.",
+    "Klicken Sie auf eine leere Stelle des Diagramms, um die Auswahl aufzuheben. Prüfen Sie aktive Filter und angezeigte Anzahl, bevor Sie eine andere Objektgruppe erkunden.",
+    "Öffnen Sie über die Verknüpfungen in der Kopfzeile Plate Viewer für Well-Heatmaps oder Small Multiples für wiederholte Diagramme. Bewahren Sie Quelldatenbank, gewählte Spalten und Filter auf, damit Sie die Ansicht reproduzieren können.",
+    "Der aktuelle Bildschirm zeigt Diagramme ohne Exportschaltfläche. Verwenden Sie die Graph-Builder-API für skriptgesteuerte Diagramme oder Database Browser, um eine Tabelle für ein anderes Diagrammwerkzeug zu exportieren."
   ]
 }

@@ -1,0 +1,256 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.pipeline_graph.to_dot#2",
+      "source": "the pipeline graph to render. Each node is labelled with its module, kind and path basename and filled by state; dangling edges are drawn dashed red.",
+      "source_sha256": "74ab5c1394f888384bf100ea232de79dfc1c5069bc41652339f49be0163df880",
+      "context": "the workflow graph to render. Each node is labelled with its module, kind and path basename and filled by state; dangling edges are drawn dashed red.",
+      "translation": "der zu rendernde Pipeline-Graph. Jeder Knoten wird mit seinem Modul, seiner Art und dem Basisnamen seines Pfads beschriftet und nach Zustand eingefärbt; verwaiste Kanten werden rot gestrichelt gezeichnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
+      "source": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels depend on PSF processing.",
+      "source_sha256": "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
+      "context": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
+      "translation": "optionale erfasste PSF-Sitzung. Verarbeitet ausgewählte Intensitäten nach der Beleuchtungskorrektur und vor Normalisierung, Padding oder Cellpose. Gespeicherte Bildkanäle bleiben roh; nur die angehängten Labels hängen von der PSF-Verarbeitung ab.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque.detect_wells#1",
+      "source": "the field, as an ``H x W x 3`` array in **RGB** channel order -- what :func:`cellpose.io.imread` returns for a colour image. It is converted to BGR here, because that is the order ultralytics reads an array in and therefore the order these detectors were trained in. A greyscale or otherwise non-three-channel array is passed through untouched, and so is a file path, which ultralytics decodes itself.",
+      "source_sha256": "777215af6def59557036109addcc321ba273230d561c8754b082e7162b478b82",
+      "context": "the microscope field of view, as an ``H x W x 3`` array in **RGB** image data channel order -- what :func:`cellpose.io.imread` returns for a colour image. It is converted to BGR here, because that is the order ultralytics reads an array in and therefore the order these detectors were trained in. A greyscale or otherwise non-three-image data channel array is passed through untouched, and so is a file path, which ultralytics decodes itself.",
+      "translation": "das Sichtfeld als ``H x W x 3``-Array in **RGB**-Kanalreihenfolge -- das, was :func:`cellpose.io.imread` für ein Farbbild zurückgibt. Es wird hier in BGR umgewandelt, weil ultralytics ein Array in dieser Reihenfolge liest und diese Detektoren daher in dieser Reihenfolge trainiert wurden. Ein Graustufen- oder anderes Nicht-Dreikanal-Array wird unverändert durchgereicht, ebenso ein Dateipfad, den ultralytics selbst dekodiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#0",
+      "source": "Segment one plaque image the way both Plaque mode's preview and run do.",
+      "source_sha256": "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
+      "context": "Segment one plaque image the way both Plaque mode's preview and run do.",
+      "translation": "Segmentiert ein Plaque-Bild so, wie es sowohl die Vorschau als auch der Lauf des Plaque-Modus tun.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#1",
+      "source": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit crop that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
+      "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
+      "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
+      "translation": "Das Bild geht unverändert an Cellpose, RGB oder grau, und Cellpose normalisiert es. Es wird NICHT durch den historischen Loader des Laufs geschickt (``_load_normalized_images_and_labels`` mit ``background=200``): Bei einem 8-Bit-Bildausschnitt hat dieser Loader jedes Pixel auf 1.0 gesättigt -- gemessen an ``malnio__2.tif``, min = max = 1.0 in jedem Kanal --, sodass der Lauf keine Plaques fand, während die Vorschau, die das Bild unverändert liest, 67 fand. Eine einzige Funktion für beide verhindert, dass sie wieder voneinander abweichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#5",
+      "source": "also hand back what the live preview's Flows and Cell probability tabs show, from the same call.",
+      "source_sha256": "9f364a4ce8a85d0ebbf9eb1e40525c6fea103df12d16f13e1dc19b66e654af2b",
+      "context": "also hand back what the live preview's Flows and Cell probability tabs show, from the same call.",
+      "translation": "zusätzlich zurückgeben, was die Registerkarten Flows und Cell probability der Live-Vorschau zeigen, aus demselben Aufruf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "das Labelbild; mit ``return_flows`` ``(labels, flows)``, wobei ``flows`` :func:`plaque_flow_outputs` ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth#0",
+      "source": "Experimental plaque growth approximations with explicit provenance.",
+      "source_sha256": "04721d324e41d5f042490dc25892e3b168d5d610c311a5bead38d6ef59cfe36d",
+      "context": "Experimental plaque growth approximations with explicit provenance.",
+      "translation": "Experimentelle Näherungen des Plaque-Wachstums mit expliziter Herkunftsangabe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth#1",
+      "source": "The anchor is the median, across three independent RH/HFF vehicle-control experiments, of the median equivalent diameter of the largest quarter of plaques. Kelsen et al. (2023), PLOS Biology 21(5): e3002110, S20 Data, CC BY. https://doi.org/10.1371/journal.pbio.3002110",
+      "source_sha256": "a7a18d6d4170e73768cc23a3bb51adb80d3cef3fe60e21159e6185bfaa80ff2e",
+      "context": "The anchor is the median, across three independent RH/HFF vehicle-control experiments, of the median equivalent diameter of the largest quarter of plaques. Kelsen et al. (2023), PLOS Biology 21(5): e3002110, S20 Data, CC BY. https://doi.org/10.1371/journal.pbio.3002110",
+      "translation": "Der Anker ist der Median, über drei unabhängige Vehikelkontroll-Experimente mit RH/HFF, des medianen äquivalenten Durchmessers des größten Viertels der Plaques. Kelsen et al. (2023), PLOS Biology 21(5): e3002110, S20 Data, CC BY. https://doi.org/10.1371/journal.pbio.3002110",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_growth#2",
+      "source": "528 measured plaques support a seven-day size anchor, not a temporal growth curve. Linear diameter growth through zero is an assumption. Leave-one- experiment-out endpoint time error averages 39.73 hours (range 29.69–54.34). The reproducible extraction and assessment live in tools/build_plaque_growth_reference.py.",
+      "source_sha256": "8065d949ae8c812f5a92c59757a09a06bd8d1477c25259cca1f2418399a42178",
+      "context": "528 measured plaques support a seven-day size anchor, not a temporal growth curve. Linear diameter growth through zero is an assumption. Leave-one- experiment-out endpoint time error averages 39.73 hours (range 29.69–54.34). The reproducible extraction and assessment live in tools/build_plaque_growth_reference.py.",
+      "translation": "528 gemessene Plaques stützen einen Größenanker nach sieben Tagen, keine zeitliche Wachstumskurve. Lineares Durchmesserwachstum durch den Nullpunkt ist eine Annahme. Bei Auslassen je eines Experiments beträgt der Fehler der Endpunktzeit im Mittel 39.73 Stunden (Bereich 29.69–54.34). Die reproduzierbare Extraktion und Bewertung liegen in tools/build_plaque_growth_reference.py.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_growth.estimate_page#0",
+      "source": "Suggest missing scale/time using an explicitly assumed growth relation.",
+      "source_sha256": "d06db38d8cc9c72ad953fbddefc9d1616b72a2e6b7387a428d125e6f9181b6c1",
+      "context": "Suggest missing scale/time using an explicitly assumed growth relation.",
+      "translation": "Schlägt fehlende Skala/Zeit anhand einer explizit angenommenen Wachstumsbeziehung vor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimate_page#1",
+      "source": "mappings with unique ``well`` identifiers, ``areas_px`` and optional measured ``pixels_per_um`` and ``formation_hours``. A scale must be positive; time may be zero. Do not pass earlier estimates as measured input. Different resolutions are converted before pooling.",
+      "source_sha256": "45d5a3e612cea87d1040994ac6a410ef62d1b9ea3f479412453f23e627f018e2",
+      "context": "mappings with unique ``well`` identifiers, ``areas_px`` and optional measured ``pixels_per_um`` and ``formation_hours``. A scale must be positive; time may be zero. Do not pass earlier estimates as measured input. Different resolutions are converted before pooling.",
+      "translation": "Mappings mit eindeutigen ``well``-Kennungen, ``areas_px`` und optional gemessenem ``pixels_per_um`` und ``formation_hours``. Eine Skala muss positiv sein; die Zeit darf null sein. Übergeben Sie keine früheren Schätzungen als gemessene Eingabe. Unterschiedliche Auflösungen werden vor dem Zusammenfassen umgerechnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimate_page#2",
+      "source": "largest-quarter reference diameter in µm.",
+      "source_sha256": "21a76fc929b5c95548bf51fb23784c2ca1f2c74be7a8d98aa1fe031172263ded",
+      "context": "largest-quarter reference diameter in µm.",
+      "translation": "Referenzdurchmesser des größten Viertels in µm.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimate_page#3",
+      "source": "its positive elapsed time in hours.",
+      "source_sha256": "383f06411f07c985b1565a6c0fbb304b9a58963ff3edd57291906022fc6746c8",
+      "context": "its positive elapsed time in hours.",
+      "translation": "seine positive verstrichene Zeit in Stunden.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimate_page#4",
+      "source": "report with per-well ``estimated_*`` values, sources, counts, observed page descriptor and assumptions. Measured inputs are never overwritten. With neither scale nor time, reference duration is an explicitly labelled assumption; pixel scale follows from that choice.",
+      "source_sha256": "dcfeb6e2c32efb1d978f41916cce391a12e6c6d1b04ef0ebfc5052c8c008d3cb",
+      "context": "report with per-microplate sample position ``estimated_*`` values, sources, counts, observed page descriptor and assumptions. Measured inputs are never overwritten. With neither scale nor time, reference duration is an explicitly labelled assumption; pixel scale follows from that choice.",
+      "translation": "Bericht mit ``estimated_*``-Werten pro Well, Quellen, Anzahlen, beobachtetem Seitendeskriptor und Annahmen. Gemessene Eingaben werden nie überschrieben. Ohne Skala und ohne Zeit ist die Referenzdauer eine explizit gekennzeichnete Annahme; die Pixelskala folgt aus dieser Wahl.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimate_page#5",
+      "source": "The whole-page descriptor assumes a common formation time. Conflicting known times disable page pooling; each calibrated well is then evaluated separately. Unknown-scale wells use their own pixel descriptor. Physical measurements are never computed from these suggestions automatically.",
+      "source_sha256": "8bc2e910c2f9254f352e0a9980b10fea3438497e070a0adf2db92773b49fb782",
+      "context": "The whole-page descriptor assumes a common formation time. Conflicting known times disable page pooling; each calibrated well is then evaluated separately. Unknown-scale microplate sample positions use their own pixel descriptor. Physical measurements are never computed from these suggestions automatically.",
+      "translation": "Der Deskriptor für die ganze Seite setzt eine gemeinsame Entstehungszeit voraus. Widersprüchliche bekannte Zeiten deaktivieren das Zusammenfassen über die Seite; jedes kalibrierte Well wird dann separat ausgewertet. Wells mit unbekannter Skala verwenden ihren eigenen Pixeldeskriptor. Physikalische Messwerte werden nie automatisch aus diesen Vorschlägen berechnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimates_from_settings#0",
+      "source": "Return per-well suggestions and complete JSON provenance when enabled.",
+      "source_sha256": "9f499b1eab475128b832d020e0c203b7961e6ec203bc3bf368446419039206a2",
+      "context": "Return per-microplate sample position suggestions and complete JSON provenance when enabled.",
+      "translation": "Gibt Vorschläge pro Well und die vollständige JSON-Herkunftsangabe zurück, wenn aktiviert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimates_from_settings#1",
+      "source": ":func:`estimate_page` input mappings.",
+      "source_sha256": "41e0b7dd6937a5dbdf7c9ba9f9bf4e4e0e8df3fe682a15713a226517fc06caa7",
+      "context": ":func:`estimate_page` input mappings.",
+      "translation": "Eingabe-Mappings für :func:`estimate_page`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimates_from_settings#2",
+      "source": "``plaque_estimate_growth`` (default False), optional ``plaque_growth_reference_um`` and ``plaque_growth_reference_hours``.",
+      "source_sha256": "1cfc49f9ef9d524a385589e1153334ec987ad5aac87e4c5f87f2f6e2211c20ed",
+      "context": "``plaque_estimate_growth`` (default False), optional ``plaque_growth_reference_um`` and ``plaque_growth_reference_hours``.",
+      "translation": "``plaque_estimate_growth`` (Standard False), optional ``plaque_growth_reference_um`` und ``plaque_growth_reference_hours``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.estimates_from_settings#3",
+      "source": "mapping by well identifier. Empty when estimation is disabled.",
+      "source_sha256": "4c59723e47ea4b5d5a3cf690f5125c32c54791ddaecc8da618ec2c29ec54cc6c",
+      "context": "mapping by microplate sample position identifier. Empty when estimation is disabled.",
+      "translation": "Mapping nach Well-Kennung. Leer, wenn die Schätzung deaktiviert ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.largest_quarter#0",
+      "source": "Median equivalent diameter of the largest ceil(N/4) positive areas.",
+      "source_sha256": "2400ae0c5a25da75770e394c915fddf157beb306386e8c7902de190e6ecfa2fe",
+      "context": "Median equivalent diameter of the largest ceil(N/4) positive areas.",
+      "translation": "Median des äquivalenten Durchmessers der größten ceil(N/4) positiven Flächen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.largest_quarter#1",
+      "source": "finite positive plaque areas, all in the same squared unit.",
+      "source_sha256": "3531c6699e6839fdafc3f7eed59bbb343e1f613e66a350952d8a0769d04de343",
+      "context": "finite positive plaque areas, all in the same squared unit.",
+      "translation": "endliche positive Plaqueflächen, alle in derselben quadrierten Einheit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_growth.largest_quarter#2",
+      "source": "diameter, total count and selected count; diameter is None for fewer than four plaques. Invalid/nonpositive areas raise ValueError.",
+      "source_sha256": "2be294bab2b2bc97b184ac29f58b19e86d6ae1da8b39890144069a3b48a7eacb",
+      "context": "diameter, total count and selected count; diameter is None for fewer than four plaques. Invalid/nonpositive areas throw ValueError.",
+      "translation": "Durchmesser, Gesamtanzahl und ausgewählte Anzahl; der Durchmesser ist None bei weniger als vier Plaques. Ungültige/nicht positive Flächen lösen ValueError aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#0",
+      "source": "Plaque measurements from published papers: a DOI, PMID or PDF in, rows out.",
+      "source_sha256": "cae956d93d5c0fd843478c1d5102da1bc0af01d5a94e011196dbe50cb4cb8ca3",
+      "context": "Plaque measurements from published papers: a DOI, PMID or PDF in, rows out.",
+      "translation": "Plaque-Messungen aus veröffentlichten Artikeln: eine DOI, PMID oder PDF hinein, Zeilen heraus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#1",
+      "source": "Given a paper, this module finds its figures, finds the plaque images inside them with the zoo's well detector, reads the text printed around each image, works out which condition each image shows, segments and measures the plaques, and writes everything to a SQLite database together with where every value came from.",
+      "source_sha256": "f7ae14b0fa3da67c714aefcf3abd224af6bd45869f28349e76597a58f9e97b0d",
+      "context": "Given a paper, this module finds its figures, finds the plaque images inside them with the zoo's well detector, reads the text printed around each image, works out which condition each image shows, segments and measures the plaques, and writes everything to a SQLite database together with where every value came from.",
+      "translation": "Zu einem Artikel findet dieses Modul seine Abbildungen, findet darin die Plaque-Bilder mit dem Well-Detektor des Zoos, liest den um jedes Bild gedruckten Text, ermittelt, welche Bedingung jedes Bild zeigt, segmentiert und misst die Plaques und schreibt alles zusammen mit der Herkunft jedes Werts in eine SQLite-Datenbank.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#2",
+      "source": "THE CONDITION IS THE HARD PART, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
+      "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
+      "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
+      "translation": "DIE BEDINGUNG IST DER SCHWIERIGE TEIL, und sie wird auf zwei unabhängige Arten gelesen, immer auf beide, denn zwei übereinstimmende Lesarten sind ein Beleg und eine allein ist eine Vermutung:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#3",
+      "source": "**the label** -- the text nearest the image inside the figure: the column header above it, the row label beside it, anything printed beneath it. A figure that prints ``TATi | iGAPDH2`` over two columns and ``-ATc | +ATc`` beside two rows gives each of its four crops two words, and those two words are the condition.",
+      "source_sha256": "2cc5377ca34ef958fa31479efaeb34277ff6a80ca49cc443611a3129b0874a8c",
+      "context": "**the label** -- the text nearest the image inside the figure: the column header above it, the row label beside it, anything printed beneath it. A figure that prints ``TATi | iGAPDH2`` over two columns and ``-ATc | +ATc`` beside two rows gives each of its four extracted image regions two words, and those two words are the condition.",
+      "translation": "**das Label** -- der Text, der dem Bild innerhalb der Abbildung am nächsten ist: die Spaltenüberschrift darüber, die Zeilenbeschriftung daneben, alles, was darunter gedruckt ist. Eine Abbildung, die ``TATi | iGAPDH2`` über zwei Spalten und ``-ATc | +ATc`` neben zwei Zeilen druckt, gibt jedem ihrer vier Bildausschnitte zwei Wörter, und diese beiden Wörter sind die Bedingung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#4",
+      "source": "**the legend** -- the panel letter nearest the image keys into the figure legend, which is fetched from Europe PMC, read from the PDF, or pasted by the user when neither has it.",
+      "source_sha256": "7d883a26dc9b7a2f8a408c76a4e9ea598305c631610ea7ca382d249dd1383c38",
+      "context": "**the legend** -- the panel letter nearest the image keys into the figure legend, which is fetched from Europe PMC, read from the PDF, or pasted by the user when neither has it.",
+      "translation": "**die Legende** -- der Panelbuchstabe, der dem Bild am nächsten ist, verweist in die Abbildungslegende, die von Europe PMC abgerufen, aus dem PDF gelesen oder vom Benutzer eingefügt wird, wenn keines von beiden sie hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#5",
+      "source": "When both are present they are both kept; a label whose words the legend also uses is ``strong``, one the legend does not echo is ``medium`` -- a legend that says \"under indicated conditions\" is not a disagreement. They DISAGREE when the panel's legend passage names conditions this figure prints on its other images and none of this image's own: that sets ``conflict``, with the words that caused it, and the row is kept for a person to settle rather than one reading being preferred. When neither is present the image is named by its figure and its row and column in the panel, and marked ``weak`` so a dataset can leave those rows out.",
+      "source_sha256": "f5b5cb2c199bda34654cabbee2f9f637f30bb8a07479452daa64f9735a4f136d",
+      "context": "When both are present they are both kept; a label whose words the legend also uses is ``strong``, one the legend does not echo is ``medium`` -- a legend that says \"under indicated conditions\" is not a disagreement. They DISAGREE when the panel's legend passage names conditions this figure prints on its other images and none of this image's own: that sets ``conflict``, with the words that caused it, and the row is kept for a person to settle rather than one reading being preferred. When neither is present the image is named by its figure and its row and column in the panel, and marked ``weak`` so a dataset can leave those rows out.",
+      "translation": "Wenn beide vorhanden sind, werden beide beibehalten; ein Label, dessen Wörter auch die Legende verwendet, ist ``strong``, eines, das die Legende nicht aufgreift, ist ``medium`` -- eine Legende, die \"under indicated conditions\" sagt, ist kein Widerspruch. Sie WIDERSPRECHEN SICH, wenn der Legendenabschnitt des Panels Bedingungen nennt, die diese Abbildung auf ihren anderen Bildern druckt, und keine der eigenen Bedingungen dieses Bildes: Das setzt ``conflict`` mit den Wörtern, die es verursacht haben, und die Zeile wird beibehalten, damit eine Person sie klärt, statt eine Lesart zu bevorzugen. Wenn keines von beiden vorhanden ist, wird das Bild nach seiner Abbildung und seiner Zeile und Spalte im Panel benannt und als ``weak`` markiert, damit ein Datensatz diese Zeilen auslassen kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#6",
+      "source": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole well of a plate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
+      "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
+      "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
+      "translation": "GRÖSSEN. Eine Plaquefläche in Pixeln hängt vom Druck des Artikels ab, daher trägt jede Plaque auch ihre Fläche relativ zur Median-Plaque im selben Panel, und eine Fläche in mm^2 nur dann, wenn es einen Maßstab gibt: eine im oder unter dem Bild gelesene Maßstabsleiste (ihre Länge aus der Beschriftung daneben oder aus der Angabe \"scale bar, 1 mm\" in der Legende) oder ein ganzes Well eines Plattenformats, das die Einstellungen oder die Legende angeben. Eine angegebene Vergrößerung wird aufgezeichnet, ist aber nie ein Maßstab, weil eine gedruckte Abbildung seit der Aufnahme neu skaliert wurde. Zeilen ohne Maßstab geben an, dass ihre Größen in Pixeln sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.plaque_papers#7",
+      "source": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
+      "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
+      "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
+      "translation": "DUPLIKATE. Eine Abbildung wird durch ihren Artikel (die DOI, sofern vorhanden) und ihren Bild-Hash identifiziert. Dasselbe Bild, erneut gesehen -- dieselben Bytes oder dieselben Pixel in einem anderen Dateiformat, unter einem anderen Namen oder in einem anderen Artikel, etwa ein Preprint und seine veröffentlichte Version --, wird einmal gemessen und in der Tabelle ``duplicates`` mit Verweis auf die gemessene Kopie aufgezeichnet. Ein Artikel, der bereits aus einer Quelle (Europe PMC) gemessen wurde, wird nicht erneut aus einer anderen (seinem PDF) gemessen. Ein Bild, das nur gleich AUSSIEHT (ein nahezu identischer perzeptueller Hash, wie ihn eine neu kodierte oder in der Größe geänderte Kopie hätte), wird als mögliches Duplikat aufgezeichnet und trotzdem gemessen, weil das bei Abbildungen eine Ähnlichkeit ist, kein Beweis.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}

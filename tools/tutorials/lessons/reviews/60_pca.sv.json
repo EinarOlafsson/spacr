@@ -1,37 +1,39 @@
 {
   "lesson": "60_pca",
-  "english_sha256": "f295718c295b040c75a11a245ef79b086bb19375b109fcd741ddbbc33b19d402",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently checked real PCA populations, covariance eigenvalue comparison, live native controls and all CSV cells; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "sv",
-  "title": "PCA: verkliga mätningar, direkt omberäkning och saknade värden",
-  "description": "Utforska PCA i Image UMAP med verkliga nedladdade celldata, kontrollerade poäng, återställbara filter, tydliga regler för saknade värden och tre CSV-exporter.",
+  "title": "PCA: utforska mätningar och exportera komponenter",
+  "description": "Läs in uppmätta objekt, välj egenskaper, jämför huvudkomponenter och exportera poäng, laddningar och förklarad varians.",
   "objectives": [
-    "Hitta PCA i Image UMAP och välj mätvariabler uttryckligen.",
-    "Läs förklarad varians och korrelationspilar utan att hävda biologisk separation.",
-    "Jämför standardisering, omberäkning efter filtrering och fyra regler för saknade värden.",
-    "Exportera objektpoäng, variabelladdningar och komponentvarians utan att ändra källan."
+    "Läsa in en mätdatabas eller CSV och välja egenskaper.",
+    "Välja skalning, hantering av saknade värden och filter.",
+    "Granska komponentpoäng och laddningar och sedan exportera tre resultattabeller."
   ],
-  "prerequisite": "Använd en byte-identisk privat kopia av det nedladdningsbara Annotate-exemplet: 2 341 cellrader, 276 ursprungliga kolumner och fyra brunnar. Först används cell_area, cell_channel_1_mean_intensity och cell_perimeter, sedan tillkommer cell_channel_0_homogeneity_distance_32 med sju faktiskt saknade värden. Orsaken till bortfallet och behandlingsidentiteterna är inte fastställda. En oberoende egenvärdesuppdelning av kovariansen kontrollerar appens SVD, bevarade radpositioner, poäng, laddningar, korrelationer och varianser; även ritade koordinater och varje exporterad ursprunglig datacell kontrolleras. Beviset gäller enbart dessa icke-degenererade anpassningar med full rang och tre eller fyra variabler, inte alla automatiskt valda variabler, pilarnas pixelgeometri, indata med bristande rang, bildkopplat urval eller biologiska slutsatser. NumPy-PCA på CPU är skilt från UMAP och dess GPU-val. Ingen egen nedladdning, bildförhandsvisning, AI-konsol eller övergripande Plot-omkopplare. De tre CSV-filerna är varken ett anpassat modellpaket, sparade inställningar eller en exporterad figur. API: spacr.qt.widgets.pca_model.pca och PCASpec; PCAResult.scores_frame, loadings_frame och variance_frame.",
+  "prerequisite": "Hämta exemplet från Annotate-handledningen och arbeta med en kopia av measurements.db. Genomgången använder dess tabell cell, med 2 341 uppmätta objekt från fyra brunnar. Behåll originaldatabasen och anteckna din egenskapslista, filter, skalning och policy för saknade värden.",
   "scenes": [
-    "Öppna Image UMAP från Home och välj den inbäddade PCA-knappen. PCA sammanfattar mätningar linjärt; det är inte ännu en UMAP-inbäddning. Vi återanvänder det verkliga nedladdningsbara Annotate-exemplet i en privat kopia. Annotate-handledningen visar hur du hämtar data.",
-    "Använd Load table vid PCA-rubriken, välj den kopierade mätdatabasen och sedan cell. Den innehåller 2 341 objekt från fyra brunnar. Skärmen kan också läsa en CSV med mätningar. En tidigare inläst sökväg i huvudmodulen bevisar inte att rätt tabell är öppen.",
-    "Rensa variabelsökningen innan du väljer None: knappen avmarkerar bara variablerna som visas för tillfället. Sök och markera cell_area, cell_channel_1_mean_intensity och cell_perimeter. Rensa sökningen igen, sätt Components till 3 och välj Run PCA. Sökningen begränsar variabellistan, inte cellpopulationen.",
-    "Behåll Standardise och läs scree-diagrammet. Första komponenten förklarar cirka 65,7 % av dessa tre variablers standardiserade varians, den andra 31,7 %. Punkterna är enskilda uppmätta celler, inte oberoende experimentella upprepningar. Förklarad varians är inte klassificeringsnoggrannhet.",
-    "Välj rowID i Colour, sedan PC3 på X och PC1 på Y. Kontrollerna ritar om den befintliga uppdelningen utan ny anpassning. Färgerna identifierar rumsliga rader, inte fastställda behandlingar. Ett till synes separerat punktmoln uppmanar till granskning av mätningar och störfaktorer; det bevisar inte en biologisk effekt.",
-    "Gå tillbaka till PC1 och PC2. Stäng av och slå på Loadings biplot. Pilarna visar variablernas korrelationer med de två komponenterna; den absoluta längden skalas för visningen och den streckade cirkeln är måttstock. Närliggande pilriktningar fastställer inte orsakssamband.",
-    "Ändra Scale till Centre only. Första komponenten förklarar nu cirka 90,1 %, eftersom de ursprungliga mätskalorna ändrar analysen. Den högre andelen gör inte modellen bättre. Återställ Standardise innan du fortsätter: varje variabel centreras och delas med sin stickprovsstandardavvikelse.",
-    "Lägg till cell_area i filtret till höger och sätt minimum till 21 925. Anpassningen använder nu 1 171 celler. Det är en direkt omberäkning: populationens medelvärden, skalor och komponentriktningar ändras. Det handlar inte bara om att dölja punkter på de gamla axlarna.",
-    "Välj Clear all i filtret. Alla 2 341 celler och den ursprungliga uppdelningen kommer tillbaka. Filtrering tar aldrig bort databasrader. Kontrollera population och rapport efter varje ändring: poäng från separat anpassade populationer delar inte automatiskt samma koordinatsystem.",
-    "Sök nu efter cell_channel_0_homogeneity_distance_32 och markera den. Resultatet innehåller fortfarande tre variabler tills du väljer Run PCA. Denna texturvariabel har sju faktiskt saknade värden. Orsaken är okänd; vi får inte kalla cellerna oinfekterade eller ersätta saknade mätningar med noll.",
-    "Kör med Auto. Alla fyra variabler behålls, men sju celler tas bort så att 2 334 återstår. Auto tar bort variabler som saknas i mer än 2 % av raderna och därefter de återstående ofullständiga raderna. De tre begärda komponenterna fångar cirka 98,6 %; en fjärde riktning finns fortfarande.",
-    "Välj Drop features i NaN. Alla 2 341 celler behålls, men texturvariabeln utesluts ur anpassningen. Fyra rutor kan vara markerade trots att bara tre variabler faktiskt analyseras. Läs resultatet och meddelandet om uteslutning, inte bara de begärda valen.",
-    "Välj Mean-impute. Alla celler och fyra variabler behålls; sju värden ersätts med variabelns medelvärde i beräkningen. Det är påhittade värden, inte återfunna mätningar. Rapporten anger antalet ersättningar. Redovisa imputationen när resultatet presenteras; källdatabasen har inte skrivits om.",
-    "Välj Complete cases. De fyra valda variablerna behålls och samma sju ofullständiga celler tas bort i exemplet. Överensstämmelsen med Auto gäller just dessa data. Återgå till Auto, avmarkera texturvariabeln, rensa sökningen, välj Run PCA och ställ tillbaka Colour till none.",
-    "Välj Export och spara ett basnamn som pca_example. Tre CSV-filer skrivs: poäng för varje analyserat objekt, laddningar och korrelationer för varje variabel samt varians för varje komponent. Poängfilen behåller också de ursprungliga mätkolumnerna; den innehåller inte bara tre koordinatkolumner.",
-    "Exporterna bevarar 2 341 objektrader och lämnar båda databaserna oförändrade. Anteckna variabler, filter, skalning och regler för saknade värden separat: knappen sparar varken inställningar eller ett anpassat modellpaket. I kod används pca och PCASpec i spaCR:s Qt-modul pca_model. Denna CPU-tabellvy är skild från bildförhandsvisningar, GPU-analys och spaCR AI."
+    "Från Home öppnar du Image UMAP och väljer sedan PCA. Använd PCA för att sammanfatta flera mätkolumner som huvudkomponenter. Börja med mätdatabasen från det länkade Annotate-exemplet.",
+    "Klicka på Load table bredvid rubriken PCA. Öppna measurements.db och välj cell. Kontrollera den visade tabellen och antalet objekt. Du kan också läsa in en CSV med mätkolumner.",
+    "Rensa egenskapssökningen och klicka på None för att avmarkera alla synliga egenskaper. Välj cell_area, cell_channel_1_mean_intensity och cell_perimeter. Rensa sökningen igen, ställ Components på 3 och klicka på Run PCA.",
+    "Låt Scale stå på Standardise för att centrera varje egenskap och dela med dess standardavvikelse i urvalet. Läs scree-diagrammet: de två första komponenterna förklarar ungefär 65,7 % och 31,7 % av de valda egenskapernas varians.",
+    "Välj rowID i Colour, PC 3 på X och PC 1 på Y. Kontrollerna ritar om det anpassade resultatet. Varje punkt är en cell; i exemplet anger rowID en rumslig rad.",
+    "Gå tillbaka till PC 1 och PC 2. Slå av och på Loadings biplot för att visa eller dölja egenskapspilarna. Pilarna visar korrelationer med de visade komponenterna; använd deras riktningar och den streckade referenscirkeln för att jämföra egenskaper.",
+    "Välj Centre only för att anpassa med de ursprungliga mätskalorna. Den första komponenten förklarar nu ungefär 90,1 %. Skalningen ändrar frågan som sammanfattas. Återställ Standardise för att jämföra egenskaper på en gemensam skala.",
+    "I filtret till höger lägger du till cell_area och ställer minimum på 21 925. Panelen anpassar PCA på nytt till de återstående 1 171 cellerna, så både populationen och komponenternas riktningar ändras.",
+    "Klicka på Clear all i filtret för att återställa hela populationen. Kontrollera antalet objekt efter filtreringen. Källdatabasen är oförändrad; det visade resultatet beräknas om för den valda populationen.",
+    "Välj cell_channel_0_homogeneity_distance_32 som fjärde egenskap. Klicka på Run PCA för att ta med den i resultatet. Exemplet har sju saknade mätningar i kolumnen; använd NaN för att välja hur anpassningen hanterar dem.",
+    "Med Auto tas egenskaper bort som saknas i mer än 2 % av raderna, och därefter utesluts ofullständiga rader. Här behålls alla fyra egenskaper och sju celler utesluts. Läs rapporten för att se vilka egenskaper och objekt som faktiskt analyserades.",
+    "Välj Drop features för att ta bort alla valda egenskaper som innehåller saknade värden. I exemplet tas texturegenskapen bort och alla celler behålls. Resultatmeddelandet visar vilka egenskaper som uteslöts, även om deras kryssrutor fortfarande är markerade.",
+    "Välj Mean-impute för att behålla alla celler och egenskaper genom att saknade värden ersätts med egenskapens observerade medelvärde under beräkningen. Här ersätts sju värden. Notera valet när du presenterar resultatet; ersättningarna är skattningar.",
+    "Välj Complete cases för att behålla de valda egenskaperna och utesluta ofullständiga rader. För att gå tillbaka till originalexemplet väljer du Auto, avmarkerar texturegenskapen, rensar sökningen, klickar på Run PCA och ställer Colour på none.",
+    "Klicka på Export och välj ett basnamn, till exempel pca_example. Panelen skriver tre CSV-filer: poäng för analyserade objekt, laddningar och korrelationer för egenskaper samt förklarad varians för komponenter. Poängtabellen innehåller även källans mätkolumner.",
+    "Öppna de exporterade tabellerna och behåll dem med din egenskapslista, dina filter och analysinställningar. Behandla cellerna som observationer inom sina brunnar när du tolkar en separation. För en upprepbar Python-analys använder du pca och PCASpec från spacr.qt.widgets.pca_model."
   ]
 }

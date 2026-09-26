@@ -3809,6 +3809,9 @@ class MainWindow(QMainWindow):
         """
         from .preferences import get_refresh_news
 
+        if self._closing:
+            LOG.debug("Not refreshing the news for a window that is closing")
+            return
         if not get_refresh_news():
             LOG.debug("News refresh is switched off in Preferences")
             return
@@ -4204,18 +4207,39 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
-        for attribute in ("_update_worker", "_news_worker"):
-            worker = getattr(self, attribute, None)
-            if worker is not None:
-                try:
-                    worker.wait(5000)
-                except RuntimeError:
-                    pass
+        self._release_update_workers()
         super().closeEvent(event)
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
                 app.quit()
+
+    _UPDATE_WORKER_WAIT_MS = 5000
+
+    def _release_update_workers(self) -> None:
+        """Wait for the updater threads, and detach any that will not stop.
+
+        Both workers are children of this window, and Qt aborts the whole
+        process when a running QThread is destroyed with its parent. A news
+        fetch has no overall deadline (the socket timeout does not cover name
+        resolution), so it can outlast the wait. A worker still running after
+        it is taken off the window and parked by :func:`bridge.drain_thread`,
+        which keeps it alive until it returns instead of terminating it.
+        The wait is :attr:`_UPDATE_WORKER_WAIT_MS` per worker.
+        """
+        from .bridge import drain_thread
+
+        for attribute in ("_update_worker", "_news_worker"):
+            worker = getattr(self, attribute, None)
+            if worker is None:
+                continue
+            try:
+                if worker.wait(self._UPDATE_WORKER_WAIT_MS):
+                    continue
+                worker.setParent(None)
+            except RuntimeError:
+                continue
+            drain_thread(worker, timeout_ms=0)
 
     def dock_mode(self) -> str:
         """The user's dock preference — ``auto`` / ``locked`` / ``hidden``.
