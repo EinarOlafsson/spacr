@@ -108,7 +108,9 @@ def _read_results(results: Any) -> Optional[pd.DataFrame]:
     if not path or not os.path.isfile(path):
         return None
     try:
-        return pd.read_csv(path)
+        from .tabular import read_table
+
+        return read_table(path, report=None)
     except Exception:
         LOG.debug("could not read results %s", path, exc_info=True)
         return None
