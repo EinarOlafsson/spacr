@@ -1074,7 +1074,9 @@
       "source_sha256": "c5612469082f8c5f4d1c921458f8ba1f61dbef7958af69e2578f8e2bacd5553f",
       "context": "screen — the two operating systems whose own folders have spaces in them. A UNC path was not a path at all: nothing here started at ``\\\\``. What is left is the tail of the LAST component of an unquoted path, since only a separator can prove that a space is inside the path rather than after it; a quoted path is taken whole, and the title and every ``repr``-ed settings value are quoted.",
       "translation": "स्क्रीनिंग का नाम बनाए रखा — वे दो ऑपरेटिंग सिस्टम जिनके अपने फ़ोल्डरों के नामों में रिक्त स्थान होते हैं। UNC पथ को पथ माना ही नहीं जाता था: यहाँ कुछ भी ``\\\\`` से शुरू नहीं होता था। अब बिना उद्धरण वाले पथ के अंतिम घटक का शेष भाग ही बचता है, क्योंकि केवल विभाजक ही सिद्ध कर सकता है कि रिक्त स्थान पथ के भीतर है, उसके बाद नहीं; उद्धृत पथ पूरा लिया जाता है, और शीर्षक तथा ``repr`` किया गया हर सेटिंग मान उद्धृत होता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#5",
@@ -4218,7 +4220,9 @@
       "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "यह प्लाक छवियाँ, उनके फ़ोल्डर, दोनों मिश्रित, और Figure मोड में किसी शोधपत्र की PDF लेता है। इस हैंडलर से पहले Plaque Assay को Make Masks की नीति दी गई थी, जो ऐसे फ़ोल्डर को, जिसका वह उपयोग नहीं कर सकती थी, Make Masks के वाक्य के साथ अस्वीकार करती थी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
@@ -4274,7 +4278,9 @@
       "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
       "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
       "translation": "एक प्लाक छवि, एक PDF, या प्लाक छवियों या PDFs वाला फ़ोल्डर।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",

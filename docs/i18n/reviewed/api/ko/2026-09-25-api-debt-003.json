@@ -1578,7 +1578,9 @@
       "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "플라크 이미지, 그 폴더, 둘이 섞인 것, 그리고 Figure 모드에서는 논문의 PDF 를 받습니다. 이 핸들러가 생기기 전에는 Plaque Assay 에 Make Masks 의 정책이 적용되어, 사용할 수 없는 폴더를 Make Masks 의 문구로 거부했습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
@@ -1634,7 +1636,9 @@
       "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
       "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
       "translation": "플라크 이미지, PDF, 또는 플라크 이미지나 PDFs 가 들어 있는 폴더입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",
@@ -4674,7 +4678,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "조정된 마스크를 위한 선택적 별도 폴더입니다. None 이면 기존의 제자리 수정 동작을 유지합니다. 별도 폴더를 사용하면 모든 원본 마스크가 바이트 단위로 동일하게 유지되며, 선택된 모든 현미경 시야를 호출할 때마다 원본에서 다시 생성합니다. 작업이 중단된 뒤에도 마찬가지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",

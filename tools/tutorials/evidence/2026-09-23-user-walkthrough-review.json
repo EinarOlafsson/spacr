@@ -375,21 +375,7 @@
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
-      "incompatible_translation_reviews": [
-        "da",
-        "de",
-        "es",
-        "fr",
-        "hi",
-        "is",
-        "it",
-        "ja",
-        "ko",
-        "nb",
-        "pt-BR",
-        "sv",
-        "zh-CN"
-      ],
+      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
