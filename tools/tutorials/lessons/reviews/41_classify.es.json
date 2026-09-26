@@ -1,37 +1,34 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "f850fcd6fab59c25c9da166dec05eb31b52df98d17248b6d9dbf154bc436c2d1",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "es",
-  "title": "Classify: el módulo principal y sus herramientas anidadas",
-  "description": "Elija clasificación por imágenes o mediciones, use ejemplos descargables, examine resultados reales y encuentre las cinco herramientas integradas en Classify.",
-  "objectives": [
-    "Elegir la familia de clasificación desde el módulo unificado de Home.",
-    "Usar las lecciones de CV y datos tabulares con datos reales y límites explícitos.",
-    "Encontrar Classifier Evaluation, Explain CV, Activation, Training Runs y Feature Explorer dentro de Classify.",
-    "Conservar pruebas guardadas y distinguir asistencia AI de análisis verificado."
-  ],
-  "prerequisite": "Grabado con spaCR 1.5.0.8. Este resumen está en módulos principales; las lecciones especializadas y anidadas quedan bajo Classify en submódulos. Reutiliza grabaciones reales verificadas de CV y ML sin volver a entrenar. Usan etiquetas y subconjuntos DIFERENTES: NO son una comparación directa. Ejemplo tabular: Load test data → Load, células medidas, clases columnID=c1/c2, bosque aleatorio, Plot activado, 2153 objetos puntuados y 188 sin puntuar por falta de datos nucleares; pocillos de prueba separados en una misma placa. Ejemplo CV: preparación explícita de 64 recortes anotados e intactos con nombres canónicos de base, Generate training dataset desactivado, ResNet18 una época, 16 entrenamiento/16 validación/32 prueba, pocillos distintos de una placa, exactitud 0.5 igual al valor mayoritario. Consulte ajustes, rutas y límites en las lecciones especializadas. Rutas: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV ajusta mediciones a predicciones CV existentes; no prueba causalidad. Activation visualiza respuestas del modelo de imágenes. Sin pregunta AI enviada, nueva afirmación de calidad, validación biológica ni comparación directa entre familias. API: spacr.classify.classify → spacr.deep_spacr.train_test_model o spacr.ml.generate_ml_scores según classifier_family.",
-  "scenes": [
-    "Classify es uno de los módulos principales de Home. Ábralo aquí y elija dentro la familia de clasificación. El reproductor de tutoriales sigue la misma estructura: este resumen pertenece a módulos principales; los flujos especializados y las herramientas anidadas se agrupan bajo Classify en la sección de submódulos.",
-    "Computer Vision usa imágenes de objetos; Tabular Machine Learning utiliza mediciones guardadas. Elija según sus datos y pregunta científica, no por el nombre que parezca más potente. Cambiar de familia no repite la segmentación. Las lecciones enlazadas de Mask y Measure explican sus propios controles de imágenes y recortes en vivo.",
-    "Para el ejemplo tabular, pulse Load test data y elija Load, no Stream. Conserve juntos el proyecto descargado y la base de mediciones. Para imágenes propias, complete primero las mediciones. La lección tabular detallada registra la carga del ejemplo y la confirmación de la fuente de datos, etiquetas, ajustes y ejecución completa del bosque aleatorio.",
-    "Este es el mapa de calor de la placa de esa ejecución real, con Plot activado. El panel de figuras está ampliado para mostrar el gráfico completo. Las etiquetas didácticas son columnas de placa, no fenotipos validados independientemente. Los objetos sin datos nucleares requeridos quedan sin puntuar, no negativos. Revise predicciones guardadas y pocillos reservados; una figura colorida no demuestra generalización a otro experimento.",
-    "La lección separada de visión por computador usa una preparación alternativa explícita de nombres y sesenta y cuatro recortes descargados sin modificar. Su modelo de una época solo alcanza la referencia mayoritaria. Los dos ejemplos usan etiquetas y subconjuntos diferentes: no compare sus exactitudes como un benchmark. Siga la lección antes de preparar su partición.",
-    "Los iconos superiores derechos abren herramientas anidadas, no mosaicos separados en Home. Pase el cursor para identificarlos. Classifier Evaluation inspecciona un paquete de evaluación guardado, con predicciones e información de fuga. Su lección explica los archivos necesarios y por qué una métrica visible sigue necesitando un diseño de validación sólido.",
-    "Explain CV usa mediciones para modelar predicciones existentes de visión por computador. Es un modelo explicativo separado, no la red de imágenes original ni una explicación causal. Su tutorial muestra la entrada de predicciones correcta y los resultados disponibles. No suponga que las salidas del clasificador tabular cumplen ese requisito.",
-    "Activation abre la interpretación del modelo de imágenes. Use el punto de control, canales y preprocesamiento correspondientes. La lección enlazada demuestra mapas de saliencia reales guardados y explica la alternativa con visor externo. Una región resaltada no prueba un mecanismo biológico ni un clasificador de buen rendimiento.",
-    "Training Runs compara historiales de entrenamiento y ajustes guardados. Poner dos curvas juntas no crea evidencia independiente. Conserve ejecuciones en directorios separados y preservados, comparando métricas y particiones compatibles. Su tutorial específico explica los controles sin repetirlos en este resumen del módulo principal.",
-    "Feature Explorer se abre desde el último icono. Puede ordenar características medidas para una comparación elegida antes de entrenar un clasificador. Su lección usa mediciones descargadas reales y filtros en vivo. Compruebe de nuevo la comparación tras filtrar: una clasificación de rasgos no es causalidad ni un modelo de imágenes entrenado.",
-    "La consola ofrece además asistencia opcional de spaCR AI. Aquí la pregunta no se envía; no se demuestra respuesta de proveedor ni resultado analítico. Conserve salidas, ajustes y pruebas de la partición, y contraste los consejos. En Python, classify dirige a la implementación de imágenes o tabular según la familia elegida."
-  ],
+  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: bind current Classify overview; scene 3 names example loading and source confirmation, scene 4 describes the expanded plate heatmap. Nine narration scenes retain their accepted text. Prerequisites match spaCR 1.5.0.8 and remove the obsolete parser sentence; descriptions refer to the current module only."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Classify: elegir un modelo y explorar sus resultados",
+  "description": "Elige la clasificación por imágenes o por características, carga datos de ejemplo, revisa los resultados de predicción y abre las herramientas relacionadas dentro de Classify.",
+  "objectives": [
+    "Elegir Computer Vision para imágenes o Tabular Machine Learning para mediciones.",
+    "Empezar con datos de prueba y seguir el recorrido de entrenamiento correspondiente.",
+    "Revisar las predicciones y abrir las herramientas de evaluación, características y entrenamiento."
+  ],
+  "prerequisite": "Abre Classify desde Home. Usa Load test data para un proyecto de ejemplo. Para tu propio proyecto, prepara recortes de objetos o características medidas, y etiquetas de clase procedentes de anotaciones o de metadatos experimentales.",
+  "scenes": [
+    "Abre Classify desde Home. Empieza eligiendo la familia de clasificadores. Las lecciones de imágenes y tabular enlazadas aquí recorren cada una un ejemplo completo.",
+    "Elige Computer Vision para aprender de imágenes de objetos. Elige Tabular Machine Learning para aprender de columnas de características medidas. Measure proporciona estas entradas, y Annotate te permite añadir etiquetas a los objetos.",
+    "Para el ejemplo tabular, haz clic en Load test data y elige Load. Selecciona las etiquetas de clase y los ajustes de características, y sigue la lección tabular para entrenar el modelo y guardar las predicciones.",
+    "Después de la ejecución tabular, revisa el mapa de calor de predicciones y las puntuaciones guardadas por objeto. Los objetos a los que les faltan mediciones necesarias pueden quedar sin puntuación. Revisa los resultados de evaluación para decidir si cambias las etiquetas, las características o los ajustes del modelo.",
+    "Para la clasificación de imágenes, sigue la lección de Computer Vision para preparar recortes etiquetados, elegir un modelo y fijar las divisiones de entrenamiento, validación y prueba. Después del entrenamiento, revisa las figuras de evaluación y las predicciones guardadas.",
+    "Abre Classifier Evaluation desde las herramientas de arriba a la derecha. Selecciona un paquete de evaluación guardado para revisar las predicciones, las métricas y la división de los datos.",
+    "Abre Explain CV para relacionar las predicciones de un clasificador de imágenes con las características medidas. Aporta los resultados de predicción de imágenes y las mediciones correspondientes, y revisa qué características explican las puntuaciones.",
+    "Abre Activation para ver qué regiones de la imagen influyen en las respuestas del modelo. Selecciona el punto de control entrenado y usa los mismos canales de imagen y el mismo preprocesamiento que en el entrenamiento.",
+    "Abre Training Runs para comparar historiales de entrenamiento guardados. Selecciona ejecuciones con métricas y divisiones de datos compatibles, y revisa sus curvas de aprendizaje y sus ajustes.",
+    "Abre Feature Explorer para comparar características medidas entre grupos seleccionados. Elige los grupos y los filtros, y revisa la clasificación de características y los gráficos.",
+    "Guarda el modelo entrenado, las predicciones y los resultados de evaluación en la carpeta de la ejecución. Puedes usar las puntuaciones por objeto en Regression junto con los recuentos de guías correspondientes. Las lecciones de módulos enlazadas muestran los siguientes pasos."
+  ]
 }
