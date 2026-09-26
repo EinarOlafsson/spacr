@@ -858,11 +858,14 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     `ChannelMappingWidget.set_value` accepts the list form directly, so no
     value conversion is needed here -- only the name.
 
-    ONE SEMANTIC FOLD RUNS HERE TOO: the retired `Toxoplasma` / `toxo`
+    TWO SEMANTIC FOLDS RUN HERE TOO: the retired `Toxoplasma` / `toxo`
     switch, through `spacr.settings._fold_toxoplasma`. The form has no
     widget for the switch, so without it a file saying `Toxoplasma=False`
     would load with the annotation field still on its default and the run
-    would annotate what the file had turned off.
+    would annotate what the file had turned off. And Mask's retired
+    `{object}_min_area`, `_max_area`, `_min_intensity` and `_max_intensity`
+    bounds, through `spacr.settings._fold_object_bounds`, which turns them
+    into `object_filters` rows so the form's filter list shows them.
 
     AND ONE SEED: a file written before `image_source` existed carries
     `crop_source` alone, and the run seeds the one from the other
@@ -886,11 +889,12 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
         for name in ((replacement,) if isinstance(replacement, str)
                      else tuple(replacement)):
             out.setdefault(name, value)
-    from spacr.settings import _fold_toxoplasma
+    from spacr.settings import _fold_object_bounds, _fold_toxoplasma
 
     from .settings_model import _image_source_seeded_from_crop_source
 
-    return _image_source_seeded_from_crop_source(_fold_toxoplasma(out))
+    return _image_source_seeded_from_crop_source(
+        _fold_object_bounds(_fold_toxoplasma(out)))
 
 
 def _surviving_name_of(key: str):

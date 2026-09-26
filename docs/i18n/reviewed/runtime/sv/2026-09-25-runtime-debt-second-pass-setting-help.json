@@ -181,13 +181,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "object_filters",
-      "source": "Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
-      "source_sha256": "9d212036814768ba9e81034cb7fb7633b5b4e8db2b20e22381c3201ecbc2ff01",
-      "translation": "Extra objektfilter på valfri skalär regionprop från scikit-image, listade per objekttyp, till exempel {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. Ett objekt behålls när min <= value <= max, och en sida som saknas är avstängd. Intensitetsegenskaper läser objektets egen råkanal. Tillämpas tillsammans med yt- och intensitetsgränserna i Mask-körningar och i direktförhandsvisningen, i samma form som Skapa masker (Make Masks) registrerar sin filterlista. Standard {}."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "ops_spot_detector",
       "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
       "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",

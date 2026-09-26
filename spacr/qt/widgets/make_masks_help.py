@@ -9,7 +9,7 @@ ANIMATIONS = {
     '_norm_hi': 'normalization_percentiles',
     '_detect_normalized': 'normalization_percentiles',
     '_cp_normalize': 'normalization_percentiles',
-    '_min_area': 'cell_min_area',
+    '_min_area': 'object_filters',
     '_otsu_fill_holes': 'organelle_fill_holes',
     '_secondary_fill_holes': 'organelle_fill_holes',
     '_otsu_split': 'organelle_watershed_spots',

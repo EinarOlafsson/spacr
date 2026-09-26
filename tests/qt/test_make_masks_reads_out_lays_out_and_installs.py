@@ -279,7 +279,7 @@ def test_the_masthead_carries_no_sentence_beside_the_name(screen):
 
 def test_the_settings_toggle_sits_directly_right_of_the_magnifier(
         screen, qtbot):
-    row = screen._tool_row_layout
+    row = screen._tool_pin_layout
     magnifier = row.indexOf(screen._btn_magnifier)
     assert magnifier >= 0
     assert row.indexOf(screen._btn_settings) == magnifier + 1
@@ -296,9 +296,10 @@ def test_the_settings_toggle_sits_directly_right_of_the_magnifier(
 def test_an_action_added_later_does_not_come_between_the_pair(screen):
     from PySide6.QtWidgets import QPushButton
 
-    row = screen._tool_row_layout
+    row = screen._tool_pin_layout
     added = screen.add_toolbar_action(QPushButton("Another action"))
-    assert row.indexOf(added) < row.indexOf(screen._btn_magnifier)
+    assert row.indexOf(added) < 0
+    assert screen._tool_row_layout.indexOf(added) >= 0
     assert row.indexOf(screen._btn_settings) == \
         row.indexOf(screen._btn_magnifier) + 1
 

@@ -40,8 +40,14 @@ def test_the_request_carries_the_channel_the_user_set(lp, qapp, obj, attr,
         assert request.channels.get(obj) == channel, (
             f"{obj} segmented channel {request.channels.get(obj)}; a missing "
             f"entry falls back to 0, which is the cell channel")
-        assert request.postprocess_settings[f"{obj}_min_intensity"] == 1.25
-        assert request.postprocess_settings[f"{obj}_max_intensity"] == 3.5
+        post = request.postprocess_settings
+        if obj == "organelle":
+            assert post[f"{obj}_min_intensity"] == 1.25
+            assert post[f"{obj}_max_intensity"] == 3.5
+        else:
+            # Item 511: a Cellpose object's bounds are object_filters rows.
+            assert lp._bound_from_filters(post, obj, "min_intensity") == 1.25
+            assert lp._bound_from_filters(post, obj, "max_intensity") == 3.5
     finally:
         panel.deleteLater()
 

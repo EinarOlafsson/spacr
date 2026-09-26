@@ -8151,14 +8151,21 @@ class MakeMasksScreen(QWidget):
         method. Actions that are not modes come in through
         :meth:`add_toolbar_action` and land in the same row.
 
-        The row ends with the Magnifier and, directly right of it, the
-        settings toggle, which is checkable because it reports a state
-        rather than firing an action: it stays lit for as long as the
-        settings are on screen. A stretch after the toggle keeps the row
-        against the left edge, above the settings it hides.
+        The Magnifier and, directly right of it, the settings toggle are
+        PINNED at the right end, outside the part that scrolls. The
+        toggle is checkable because it reports a state rather than firing
+        an action: it stays lit for as long as the settings are on
+        screen. The tools wider than the window scroll; the pair does
+        not, so the way back to the settings is never scrolled out of
+        sight (item 419, the maintainer's choice of 2026-09-25). A
+        stretch after the last tool keeps the tools against the left
+        edge, above the settings they sit over.
+
+        :returns: The strip that holds the scrolling tools and the pinned
+            pair, kept as ``self._tool_row``.
         """
         bar = QWidget()
-        bar.setObjectName("MakeMasksToolRow")
+        bar.setObjectName("MakeMasksToolTools")
         row = QHBoxLayout(bar)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -8236,8 +8243,16 @@ class MakeMasksScreen(QWidget):
             "up.")
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
-        row.addWidget(self._btn_settings)
         row.addStretch(1)
+
+        pinned = QWidget()
+        pinned.setObjectName("MakeMasksToolPin")
+        pin = QHBoxLayout(pinned)
+        pin.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        pin.setSpacing(SPACING["sm"])
+        pin.addWidget(self._btn_settings)
+        self._tool_pin_layout = pin
+        self._tool_pin = pinned
 
         scroller = QScrollArea()
         scroller.setObjectName("MakeMasksToolScroll")
@@ -8250,7 +8265,17 @@ class MakeMasksScreen(QWidget):
             bar.sizeHint().height()
             + scroller.horizontalScrollBar().sizeHint().height())
         scroller.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        return scroller
+        self._tool_scroll = scroller
+
+        strip = QWidget()
+        strip.setObjectName("MakeMasksToolRow")
+        line = QHBoxLayout(strip)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setSpacing(0)
+        line.addWidget(scroller, 1)
+        line.addWidget(pinned, 0, Qt.AlignTop)
+        strip.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        return strip
 
     def _on_open_features(self, _checked: bool = False):
         """Open the measurement-input window on the folder being drawn in.
@@ -8386,18 +8411,16 @@ class MakeMasksScreen(QWidget):
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
         """Insert a non-mode action into the editor toolbar.
 
-        The button is placed with the other actions, before the Magnifier and
-        the settings toggle, so that pair stays together at the end of the
-        row whatever is added after them.
+        The button is placed after the other actions in the part of the row
+        that scrolls. The Magnifier and the settings toggle are pinned
+        outside it, so nothing added here can come between them or push
+        them out of sight.
 
         :param button: Action button to insert.
         :returns: The same button.
         """
         row = self._tool_row_layout
-        anchor = getattr(self, "_btn_magnifier", None)
-        if anchor is None or row.indexOf(anchor) < 0:
-            anchor = self._btn_settings
-        row.insertWidget(row.indexOf(anchor), button)
+        row.insertWidget(row.count() - 1, button)
         return button
 
     def _sync_tool_row_visibility(self, *_args) -> None:
@@ -12276,8 +12299,8 @@ class MakeMasksScreen(QWidget):
             "clicked — one undo step per click. While it is on, the mouse "
             "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
-        row = self._tool_row_layout
-        row.insertWidget(row.indexOf(self._btn_settings), self._btn_magnifier)
+        pin = self._tool_pin_layout
+        pin.insertWidget(pin.indexOf(self._btn_settings), self._btn_magnifier)
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:

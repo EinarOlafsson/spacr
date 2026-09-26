@@ -760,11 +760,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert item_503 <= compared_pairs
     # 741 -> 742 on 2026-09-25, item 511: object_filters states "Default {}."
     assert any(key == "object_filters" for _app, key in compared_pairs)
-    assert comparisons == 742
+    # 742 -> 734 on 2026-09-25, -8/+0, item 511 again: the maintainer retired
+    # Mask's per-object {obj}_min_area, _max_area, _min_intensity and
+    # _max_intensity into object_filters rows, and eight of those twelve
+    # tooltips stated a parseable default. None of the twelve may remain.
+    from spacr.settings import RETIRED_OBJECT_BOUNDS
+    assert not {key for _app, key in compared_pairs} & set(RETIRED_OBJECT_BOUNDS)
+    assert comparisons == 734
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
-    assert census_508['comparisons_after'] + len(item_503) + 1 == comparisons
+    assert census_508['comparisons_after'] + len(item_503) + 1 - 8 == comparisons
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
@@ -785,7 +791,9 @@ def test_real_default_claims_have_no_unrecorded_drift():
         assert ("analyze_plaques", key) in compared_pairs
     for role in ("cell", "nucleus", "pathogen", "organelle"):
         for suffix in ("min_intensity", "max_intensity"):
-            assert ("mask", f"{role}_{suffix}") in compared_pairs
+            # Item 511: only organelle keeps its own mean-bound settings.
+            assert (("mask", f"{role}_{suffix}") in compared_pairs) == (
+                role == "organelle")
         for suffix in ("minimum_area_to_split", "min_watershed_distance",
                        "intensity_threshold", "intensity_merge", "intensity_split"):
             assert ("mask", f"{role}_{suffix}") not in compared_pairs

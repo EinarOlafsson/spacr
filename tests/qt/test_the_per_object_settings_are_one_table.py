@@ -131,11 +131,11 @@ def test_nothing_the_table_drops_is_lost(grid, mask_settings):
 def test_an_edited_value_keeps_the_type_it_had(grid):
     """A table hands back strings. Writing "12" where 12 was is a settings
     file that has quietly changed meaning."""
-    assert grid.set_value("min_area", "cell", "42") is True
+    assert grid.set_value("background", "cell", "42") is True
 
     out = grid.settings()
-    assert out["cell_min_area"] == 42
-    assert type(out["cell_min_area"]) is int
+    assert out["cell_background"] == 42
+    assert type(out["cell_background"]) is int
 
 
 def test_a_float_setting_does_not_become_an_int(grid):
@@ -152,9 +152,9 @@ def test_clearing_a_cell_restores_auto_rather_than_an_empty_string(grid):
     """`None` means "work it out" -- a diameter of None is Cellpose
     estimating it. An empty string is not the same claim, and is not a
     number the pipeline can use."""
-    grid.set_value("min_area", "cell", "7")
-    assert grid.set_value("min_area", "cell", "") is True
-    assert grid.settings()["cell_min_area"] is None
+    grid.set_value("background", "cell", "7")
+    assert grid.set_value("background", "cell", "") is True
+    assert grid.settings()["cell_background"] is None
 
 
 def test_an_unset_value_reads_as_auto_and_not_as_blank(grid):

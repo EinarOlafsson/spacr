@@ -236,6 +236,7 @@ def preprocess_generate_masks(settings):
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
+    from .qt.mask_engine import object_filter_area_floor
     from .cancellation import checkpoint as cancellation_checkpoint
 
     reset_cellpose_model_reports()
@@ -279,7 +280,7 @@ def preprocess_generate_masks(settings):
                 keep_npz=bool(settings.get('keep_npz', False)),
                 cellprob_threshold=float(settings.get('cell_cellprob_threshold', 0.0)),
                 flow_threshold=float(settings.get('cell_flow_threshold', 0.4)),
-                min_size=int(settings.get('cell_min_area', 0)),
+                min_size=object_filter_area_floor(settings, 'cell'),
                 resample=True,
                 postprocess_settings=settings,
                 object_type='cell',

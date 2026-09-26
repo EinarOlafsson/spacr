@@ -30,7 +30,13 @@ def test_registry_has_complete_unique_exact_key_mapping():
     # settings, and eight animations documented them: the dim/bright
     # intensity-percentile pair at four object roles. An animation for a
     # setting that no longer exists is a docs row pointing at nothing.
-    assert len(animations) == 87
+    # 87 -> 78 animations and 107 -> 96 keys on 2026-09-25, item 511: the
+    # maintainer retired Mask's {cell,nucleus,pathogen}_{min,max}_
+    # {area,intensity} into object_filters rows. The nine max-area and
+    # mean-bound animations of those objects had no live key left and
+    # went; the three min-area ones keep `*_min_size`, and cell's also
+    # carries `object_filters` (-12 + 1 keys).
+    assert len(animations) == 78
     # 143 before 2026-08-11. Six alias entries pointed at settings
     # that were RETIRED that day (all_to_mip, pick_slice and the four
     # remove_border_* spellings); each animation still carries the
@@ -56,8 +62,8 @@ def test_registry_has_complete_unique_exact_key_mapping():
     # bright halves of the intensity-percentile band, at four roles.
     # 418 replaces eight merge/split animations (20 keys) with eight
     # absolute mean-bound animations (8 keys): 86 animations, 106 keys.
-    assert len(by_setting) == 107
-    assert len({animation.slug for animation in animations}) == 87
+    assert len(by_setting) == 96
+    assert len({animation.slug for animation in animations}) == 78
     assert animation_for_setting("merge_edge_pathogen_cells").slug == (
         "merge_edge_pathogen_cells"
     )
@@ -68,12 +74,12 @@ def test_registry_has_complete_unique_exact_key_mapping():
 
 def test_every_asset_is_square_animated_and_matches_manifest_hash():
     summary = validate_setting_animation_assets(check_hashes=True)
-    assert summary["animations"] == 87
+    assert summary["animations"] == 78
     # 135 -> 134 on 2026-09-09: `normalize_plots` left the
     # `normalization_percentiles` spec when it was retired (357-Q4).
     # Nothing read it, so an animation offered under its name illustrated
     # a control the run does not have.
-    assert summary["setting_keys"] == 107
+    assert summary["setting_keys"] == 96
     assert summary["bytes"] > 0
 
     for animation in setting_animations():
@@ -105,7 +111,7 @@ def test_an_exact_numbered_slot_mapping_takes_precedence(monkeypatch):
     from spacr import setting_animations as registry
 
     primary = animation_for_setting("organelle_min_intensity")
-    exact = animation_for_setting("cell_min_intensity")
+    exact = animation_for_setting("organelle_max_intensity")
     assert primary is not None and exact is not None and exact is not primary
     monkeypatch.setattr(registry, "animations_by_setting", lambda: {
         "organelle_min_intensity": primary, "organelleb_min_intensity": exact,

@@ -63,6 +63,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import os
 from collections import deque
 from typing import Dict, List, NamedTuple, Optional, Tuple
@@ -1783,23 +1784,19 @@ def legacy_filters(min_area=0, max_area=0, min_intensity=0.0,
     return out
 
 
-def settings_filters(settings, object_type: str) -> List[dict]:
-    """The ``object_filters`` list a Mask run applies to ``object_type``.
+def parse_object_filters(raw) -> dict:
+    """The ``object_filters`` setting as a dict of object type to rows.
 
-    ``object_filters`` maps an object type (``cell``, ``nucleus``,
-    ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so
-    each object type is filtered on its own properties. A missing or empty
-    setting is no filters. The legacy ``{object}_min_area`` family is
-    migrated by :func:`legacy_filters` where it is read, not here.
+    A settings file stores the mapping as JSON or Python-literal text; the
+    form and a script hand over the dict. ``None`` or blank text is an
+    empty mapping. The rows are returned as given; :func:`settings_filters`
+    checks them.
 
-    :param settings: the Mask run's settings; ``None`` is no filters.
-    :param object_type: the object type whose list is wanted.
-    :raises ValueError: when the setting is not a mapping, names an object
-        type spaCR does not segment, or holds an invalid filter.
+    :param raw: the setting's value.
+    :raises ValueError: when the value is not a mapping.
     """
-    raw = (settings or {}).get("object_filters")
     if raw is None or (isinstance(raw, str) and not raw.strip()):
-        return []
+        return {}
     if isinstance(raw, str):
         try:
             raw = json.loads(raw)
@@ -1810,6 +1807,27 @@ def settings_filters(settings, object_type: str) -> List[dict]:
         raise ValueError(
             "object_filters maps each object type to its filter list, for "
             "example {'cell': [{'property': 'solidity', 'min': 0.9}]}.")
+    return {str(key): value for key, value in raw.items()}
+
+
+def settings_filters(settings, object_type: str) -> List[dict]:
+    """The ``object_filters`` list a Mask run applies to ``object_type``.
+
+    ``object_filters`` maps an object type (``cell``, ``nucleus``,
+    ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so
+    each object type is filtered on its own properties. A missing or empty
+    setting is no filters. The retired ``{object}_min_area`` family of a
+    saved settings file is folded into this mapping when the file is
+    loaded (:func:`spacr.settings._fold_object_bounds`).
+
+    :param settings: the Mask run's settings; ``None`` is no filters.
+    :param object_type: the object type whose list is wanted.
+    :raises ValueError: when the setting is not a mapping, names an object
+        type spaCR does not segment, or holds an invalid filter.
+    """
+    raw = parse_object_filters((settings or {}).get("object_filters"))
+    if not raw:
+        return []
     from ..object_settings_table import OBJECT_ORDER
 
     unknown = sorted(str(key) for key in raw if str(key) not in OBJECT_ORDER)
@@ -1818,6 +1836,21 @@ def settings_filters(settings, object_type: str) -> List[dict]:
             f"object_filters names {', '.join(unknown)}, which is not an "
             f"object type. Use one of: {', '.join(OBJECT_ORDER)}.")
     return normalise_filters(raw.get(object_type))
+
+
+def object_filter_area_floor(settings, object_type: str) -> int:
+    """The smallest area ``object_filters`` keeps for ``object_type``.
+
+    Segmentation drops masks under this area as it makes them (Cellpose's
+    ``min_size``), as the retired ``{object}_min_area`` did; the filter
+    pass judges the rest. 0 when no ``area`` row sets a minimum.
+
+    :param settings: the Mask run's settings.
+    :param object_type: ``cell``, ``nucleus`` or ``pathogen``.
+    """
+    floors = [entry["min"] for entry in settings_filters(settings, object_type)
+              if entry["property"] == "area" and entry["min"] is not None]
+    return int(math.ceil(max(floors))) if floors else 0
 
 
 def filters_need_intensity(filters) -> bool:

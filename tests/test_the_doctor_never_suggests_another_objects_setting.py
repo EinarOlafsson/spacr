@@ -76,7 +76,7 @@ def test_the_historical_cross_role_suggestion_cannot_come_back():
 
 
 @pytest.mark.parametrize("typo,expected", [
-    ("cell_min_are", "cell_min_area"),
+    ("cell_backgrond", "cell_background"),
     ("nucleus_diamter", "nucleus_diameter"),
     ("organelle_diamter", "organelle_diameter"),
     # the role-at-the-end shape must still be helped WITHIN its own role
