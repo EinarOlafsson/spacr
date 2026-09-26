@@ -7647,6 +7647,7 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(install_test_data_button(self))
         from ..make_masks_datasets import install_dataset_button
         nav_row.addWidget(install_dataset_button(self))
+        nav_row.addWidget(self._build_contribute_button())
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -7989,6 +7990,83 @@ class MakeMasksScreen(QWidget):
         Cellpose.
         """
         screen._on_run()
+
+    def _build_contribute_button(self) -> QPushButton:
+        """The "Contribute images and masks…" button beside the datasets one."""
+        from ..i18n import tr
+        from ..widgets.model_share_dialog import contribute_masks_tooltip
+
+        button = QPushButton(tr("Contribute images and masks…"), self)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(contribute_masks_tooltip())
+        button.clicked.connect(
+            lambda _checked=False: self.contribute_images_and_masks())
+        self._btn_contribute = button
+        return button
+
+    def _contribution_sources(self) -> tuple:
+        """The image on screen and the folder's curated images, as items.
+
+        :returns: ``(current, curated)`` for
+            :class:`~spacr.qt.widgets.model_share_dialog.ContributeMasksDialog`:
+            ``current`` is the field on screen with the mask being edited,
+            ``curated`` every field with a saved mask (the one on screen
+            with the mask on screen). Both ``None`` when no folder is open;
+            Cellpose ``_seg.npy`` bundles are left out, having no image file
+            of their own to send.
+        """
+        files = list(getattr(self, "_image_files", None) or [])
+        if not files:
+            return None, None
+        index = getattr(self, "_current_index", 0)
+        current = None
+        curated = []
+        for i, filename in enumerate(files):
+            if engine.is_seg_bundle(filename):
+                continue
+            folder = (self._field_folders[i] if self._field_folders
+                      else self._folder)
+            source = os.path.join(folder, filename)
+            if i == index:
+                labels = getattr(self._canvas, "mask", None)
+                current = {"name": filename, "source": source,
+                           "labels": None if labels is None
+                           else np.array(labels, copy=True)}
+                if labels is not None and np.any(labels):
+                    curated.append(dict(current))
+                continue
+            mask = engine.mask_save_path(folder, filename,
+                                         **self._layout_kwargs())
+            if os.path.isfile(mask):
+                curated.append({"name": filename, "source": source,
+                                "mask": mask})
+        return current, curated
+
+    def contribute_images_and_masks(self, *, show: bool = True,
+                                    upload=None, threaded: bool = True):
+        """Open the dialog that sends images and masks to a community dataset.
+
+        One click from curation: the dialog opens on the image on screen
+        and its mask, with every curated image of the folder one choice
+        away, and an images folder plus a masks folder as the third way in.
+
+        :param show: show the dialog; False only builds it (tests).
+        :param upload: ``fn(folder, target) -> url`` in place of the real
+            upload (tests).
+        :param threaded: send on a worker thread.
+        :returns: the dialog.
+        """
+        from ..widgets.model_share_dialog import ContributeMasksDialog
+
+        current, curated = self._contribution_sources()
+        dialog = ContributeMasksDialog(
+            current=current, curated=curated, upload=upload,
+            threaded=threaded, parent=self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, show)
+        self._contribute_dialog = dialog
+        if show:
+            dialog.show()
+        return dialog
 
     def save_curated_mask(self) -> str:
         """Write the labels Curate corrected back to the mask file.

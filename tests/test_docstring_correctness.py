@@ -2149,7 +2149,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # community_consented, ask_community_consent and upload_with_own_login;
     # plaque_preview's ContributeDialog and its editors, seed_well_boxes and
     # PlaquePreviewPanel.contribute_training_data.
-    assert len(callables) == len(by_symbol) == 9_721
+    # 9,721 -> 9,732 on 2026-09-25, item 528 (images and masks from Make
+    # Masks): model_share's masks_dataset_target, pair_images_and_masks,
+    # pairs_match and read_label_mask; model_share_dialog's
+    # contribute_masks_tooltip and ContributeMasksDialog (constructor, use,
+    # source, target, upload); MakeMasksScreen.contribute_images_and_masks.
+    assert len(callables) == len(by_symbol) == 9_732
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2213,13 +2218,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Then +6 function, +3 method, +1 constructor with the rebase's ten,
         # and +17 function, +23 method, +1 constructor, +2 inherited, +4
         # namedtuple with the 47 from 03a02c3b8.
-        "function": 4_336,
+        # Item 528: +5 function, +5 method, +1 constructor.
+        "function": 4_341,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_199,
+        "method": 4_204,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 448,
+        "constructor": 449,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
@@ -2268,7 +2274,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
         # 9,522 -> 9,630 -> 9,640 -> 9,687 on 2026-09-25, as the total.
-        "autoapi": 9_716,
+        # 9,716 -> 9,727 with item 528's eleven, as the total.
+        "autoapi": 9_727,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2315,7 +2322,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
     # 9,534 -> 9,642 -> 9,652 -> 9,699 on 2026-09-25: +108, +10, +47.
-    assert sum(item.variant_count for item in callables) == 9_728
+    # 9,728 -> 9,739 with item 528's eleven, one prose variant each.
+    assert sum(item.variant_count for item in callables) == 9_739
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2328,7 +2336,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
         # 9,520 -> 9,628 -> 9,638 -> 9,685 on 2026-09-25, as the sum above.
-        1: 9_714,
+        1: 9_725,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2371,13 +2379,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 439 -> 443 on 2026-09-25: ProgressLine, MaskComparisonDialog,
     # PictureCanvas and SegmentationViews; 444 with SpotDetectorCombo; 445
     # with ObjectFilterList; 447 with ContributeDialog and ConsentDialog (523);
-    # after merging nightly (503/507/525/526), 448.
+    # after merging nightly (503/507/525/526), 448; 449 with
+    # ContributeMasksDialog (528).
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 448
+    ) == 449
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 448
+    ) == 449
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2524,7 +2533,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # keywords on existing rows (named at the digest below).
     # 19,194 -> 19,260 and 9,896 -> 9,929 required on 2026-09-25: item 523
     # plus nightly b315c0342's unpinned rows.
-    assert sum(len(item.parameters) for item in callables) == 19_260
+    # 19,260 -> 19,279 with item 528: its eleven callables' parameters plus
+    # write_contribution's optional `notes`.
+    assert sum(len(item.parameters) for item in callables) == 19_279
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2557,7 +2568,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # eight changed rows gained optional keywords only. 9,833 -> 9,840 after
     # the rebase, +7, all from the ten new callables.
     # 9,840 -> 9,896, +56, all from the 47 new callables.
-    assert sum(len(item.required_parameters) for item in callables) == 9_929
+    # 9,929 -> 9,935 with item 528: masks_dataset_target's name,
+    # pair_images_and_masks' two folders, pairs_match's report,
+    # read_label_mask's path and ContributeMasksDialog.use's source.
+    assert sum(len(item.required_parameters) for item in callables) == 9_935
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2665,7 +2679,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Item 523 on 2026-09-25, measured after merging nightly b315c0342 (whose
     # 503/507/525/526 rows were unpinned there): dropping those rows and
     # 523's returns ac7eb37a....
-) == "79352d366c5c76dc0054e54f5d1ab492e6f5dcbfd37e9015e5cf516dfd9a013a"
+    # Item 528 on 2026-09-25 (was 79352d36...): its eleven new rows and
+    # write_contribution's optional `notes`.
+) == "1623279dca91344116af6a48892ea14c8ac9ceb855862d8e2b98686298c7ebaa"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3162,7 +3178,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 11,710 -> 11,746 on 2026-09-25: item 523's community-contribution
     # callables, classes and constants, measured after merging nightly
     # b315c0342, whose 503/507/525/526 additions were unpinned there.
-    assert len(docs) == 11_746
+    # 11,746 -> 11,758 on 2026-09-25: item 528's eleven callables (named at
+    # the callable inventory) and the ContributeMasksDialog class.
+    assert len(docs) == 11_758
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3424,11 +3442,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                  "spacr.qt.app.demo_label_for_app",
                  "spacr.qt.widgets.plaque_preview.render_cellprob"}
     # 9,442 -> 9,471 on 2026-09-25: item 523 plus nightly b315c0342's rows.
-    assert len(prior - pipeline_callables) == 9_471
-    assert len(prior - pipeline_callables - validation_functions) == 9_465
+    # 9,471 -> 9,482 with item 528's eleven.
+    assert len(prior - pipeline_callables) == 9_482
+    assert len(prior - pipeline_callables - validation_functions) == 9_476
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
-    assert len(rendered_documented_callables) == 9_716
+    # 9,727 with item 528's eleven.
+    assert len(rendered_documented_callables) == 9_727
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

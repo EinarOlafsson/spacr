@@ -577,9 +577,125 @@ def _has_annotation(layout: str, item: Dict[str, Any]) -> bool:
     return labels is not None and bool(np.asarray(labels).any())
 
 
+PAIR_IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+PAIR_MASK_EXTS = PAIR_IMAGE_EXTS + (".npy",)
+
+
+def masks_dataset_target(name: str) -> str:
+    """The community target a user-named image-and-mask dataset goes to.
+
+    Always ``community_<name>``, so a dataset the user calls "figures" or
+    "plaques" never lands in Plaque Assay's two collections by accident.
+
+    :param name: what the user calls it, e.g. ``"Toxoplasma vacuoles GFP"``.
+    :returns: a target :func:`community_repo` maps to
+        ``einarolafsson/community_<name>``.
+    :raises ValueError: when ``name`` has no letters or digits.
+    """
+    slug = community_name(name)
+    return slug if slug.startswith("community_") else "community_" + slug
+
+
+def _files_by_stem(folder: Any, exts: Tuple[str, ...]) -> Dict[str, list]:
+    """Every file in ``folder`` ending in one of ``exts``, grouped by stem."""
+    out: Dict[str, list] = {}
+    for entry in sorted(Path(folder).iterdir()):
+        if entry.is_file() and entry.name.lower().endswith(exts):
+            out.setdefault(entry.stem, []).append(entry)
+    return out
+
+
+def pair_images_and_masks(images_dir: Any, masks_dir: Any) -> Dict[str, Any]:
+    """Match an images folder to a masks folder by file name.
+
+    An image and a mask belong together when their names match without the
+    extension, so ``a.png`` pairs with ``a.tif``. Nothing is read but the
+    folder listings.
+
+    :param images_dir: the folder of images.
+    :param masks_dir: the folder of label masks.
+    :returns: ``pairs`` (``(image, mask)`` paths, in name order),
+        ``images`` and ``masks`` (the counts), ``no_mask`` (images with no
+        mask of the same name), ``no_image`` (masks with no image),
+        ``duplicates`` (names that match more than one file on one side),
+        and ``problem`` (why the folders cannot be read, else empty). The
+        folders match when ``problem``, ``no_mask``, ``no_image`` and
+        ``duplicates`` are all empty and there is at least one pair.
+    """
+    report: Dict[str, Any] = {"pairs": [], "images": 0, "masks": 0,
+                              "no_mask": [], "no_image": [],
+                              "duplicates": [], "problem": ""}
+    images_dir = str(images_dir or "").strip()
+    masks_dir = str(masks_dir or "").strip()
+    if not images_dir or not masks_dir:
+        report["problem"] = "choose both folders"
+        return report
+    for folder in (images_dir, masks_dir):
+        if not Path(folder).is_dir():
+            report["problem"] = f"{folder} is not a folder"
+            return report
+    if Path(images_dir).resolve() == Path(masks_dir).resolve():
+        report["problem"] = "the images and the masks are the same folder"
+        return report
+    images = _files_by_stem(images_dir, PAIR_IMAGE_EXTS)
+    masks = _files_by_stem(masks_dir, PAIR_MASK_EXTS)
+    report["images"] = sum(len(v) for v in images.values())
+    report["masks"] = sum(len(v) for v in masks.values())
+    for side in (images, masks):
+        report["duplicates"].extend(
+            p.name for v in side.values() if len(v) > 1 for p in v)
+    report["no_mask"] = [p.name for stem, v in images.items()
+                         if stem not in masks for p in v]
+    report["no_image"] = [p.name for stem, v in masks.items()
+                          if stem not in images for p in v]
+    report["pairs"] = [(images[stem][0], masks[stem][0])
+                       for stem in images
+                       if stem in masks and len(images[stem]) == 1
+                       and len(masks[stem]) == 1]
+    return report
+
+
+def pairs_match(report: Dict[str, Any]) -> bool:
+    """Whether a :func:`pair_images_and_masks` report may be uploaded.
+
+    :param report: the report.
+    :returns: True when every image has exactly one mask of the same name,
+        every mask one image, and there is at least one pair.
+    """
+    return bool(report["pairs"]) and not (
+        report["problem"] or report["no_mask"] or report["no_image"]
+        or report["duplicates"]) and report["images"] == report["masks"]
+
+
+def read_label_mask(path: Any) -> Any:
+    """A label mask file as a 2-D array.
+
+    :param path: a ``.tif``/``.tiff``, ``.npy`` or ordinary image file.
+    :returns: the labels; a colour image keeps its first channel.
+    """
+    import numpy as np
+
+    path = Path(path)
+    suffix = path.suffix.lower()
+    if suffix == ".npy":
+        labels = np.load(path, allow_pickle=False)
+    elif suffix in (".tif", ".tiff"):
+        import tifffile
+
+        labels = tifffile.imread(str(path))
+    else:
+        import imageio.v2 as imageio
+
+        labels = imageio.imread(str(path))
+    labels = np.squeeze(np.asarray(labels))
+    if labels.ndim == 3 and labels.shape[-1] in (3, 4):
+        labels = labels[..., 0]
+    return labels
+
+
 def write_contribution(target: str, items: Any, dest: Any, *,
                        consent: Dict[str, Any],
-                       contribution_id: str = "") -> Path:
+                       contribution_id: str = "", notes: str = "") -> Path:
     """Lay a contribution out on disk exactly as the dataset README describes.
 
     Refuses the whole contribution when any image has no annotation: an
@@ -601,6 +717,8 @@ def write_contribution(target: str, items: Any, dest: Any, *,
         ``contribution.json``.
     :param contribution_id: the folder name; a date and a random suffix when
         empty.
+    :param notes: the contributor's own words about the images, recorded in
+        ``contribution.json`` when given.
     :returns: the contribution folder.
     """
     import datetime
@@ -672,13 +790,17 @@ def write_contribution(target: str, items: Any, dest: Any, *,
             count += objects
         (root / "meta" / f"{stem}.json").write_text(
             json.dumps(meta, indent=2), encoding="utf-8")
-    (root / "contribution.json").write_text(json.dumps({
+    record = {
         "id": ident, "target": str(target), "layout": layout, "repo": repo_id,
         "licence": COMMUNITY_LICENCE, "consent": dict(consent),
         "created": stamp.isoformat(), "spacr_version": version,
         "images": len(items),
         ("boxes" if layout == BOXES_LAYOUT else "objects"): count,
-    }, indent=2), encoding="utf-8")
+    }
+    if str(notes or "").strip():
+        record["notes"] = str(notes).strip()
+    (root / "contribution.json").write_text(json.dumps(record, indent=2),
+                                            encoding="utf-8")
     return root
 
 
