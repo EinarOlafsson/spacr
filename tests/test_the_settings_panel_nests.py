@@ -162,7 +162,17 @@ def test_each_family_splits_into_a_sub_section_per_object(mask_tree):
         *(organelle_slot_label(role)
           for role in organelle_roles(PANEL_ORGANELLE_SLOTS)),
     ]
-    assert filtration.own_rows == []
+    # The family heading owns exactly the settings that apply to EVERY
+    # object at once. `object_filters` is one mapping holding each object
+    # type's filter list, so it has no object prefix and no sub-heading can
+    # own it; it sits once on the family, beside the per-object bounds it
+    # extends. Anything else on the family itself would be a row a
+    # sub-heading should have taken.
+    from spacr.settings import _FAMILY_SHARED_KEYS
+
+    assert sorted(widget.property("settingKey")
+                  for _label, widget in filtration.own_rows) == sorted(
+        _FAMILY_SHARED_KEYS["Object filtration"])
     for child in filtration.children:
         assert child.children == ()
         assert child.own_rows, f"{child.title} sub-section is empty"
