@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.updater.launch_updated_app#1",
+      "source": "process identifier of the detached replacement application.",
+      "source_sha256": "df7bffe98977459e3629ebbd6df90bf7b5a73b2f150eb0f13c1399867f7646e4",
+      "context": "process identifier of the detached replacement application.",
+      "translation": "분리되어 실행되는 대체 애플리케이션의 프로세스 식별자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#2",
+      "source": "the replacement could not be started.",
+      "source_sha256": "c1bc615c92ef69f5875a3aacdfa3c47b58cb0e8561a586baa8e7151397d4806d",
+      "context": "the replacement could not be started.",
+      "translation": "대체 애플리케이션을 시작할 수 없는 경우입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.news_cache_path#0",
+      "source": "Where the fetched release list is remembered between launches.",
+      "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
+      "context": "Where the fetched release list is remembered between launches.",
+      "translation": "가져온 릴리스 목록을 실행 간에 기억해 두는 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.run_pip_upgrade#2",
+      "source": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "source_sha256": "0d823b21391fd6e582c7f79a809383d7870af304a14633c0cd3a95dab6e867eb",
+      "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "translation": "제공된 바로 이 버전을 설치하고, 성공을 보고하기 전에 새 프로세스에서 검증합니다. None 이면 버전을 고정하지 않은 업그레이드를 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#0",
+      "source": "Upgrade this interpreter, optionally to the exact version offered.",
+      "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
+      "context": "Upgrade this interpreter, optionally to the exact version offered.",
+      "translation": "이 인터프리터를 업그레이드하며, 선택적으로 제공된 정확한 버전으로 업그레이드합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "allow prerelease packages.",
+      "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+      "context": "allow prerelease packages.",
+      "translation": "사전 릴리스 패키지를 허용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#2",
+      "source": "explicit version selected by the update check.",
+      "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
+      "context": "explicit version selected by the update check.",
+      "translation": "업데이트 확인에서 선택된 명시적 버전입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.ResNet.initialize_base#4",
+      "source": "``'imagenet'`` or ``'none'``.",
+      "source_sha256": "96f001c0da20357e41ea89d5767ceb0cebd011f10fee5ccfb7e63b904bf5d433",
+      "context": "``'imagenet'`` or ``'none'``.",
+      "translation": "``'imagenet'`` 또는 ``'none'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#10",
+      "source": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every field finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected field set.",
+      "source_sha256": "0b483d7e974fd7bf8fed14df4cbebc83f61407b8f7b7e074e855fc405e605482",
+      "context": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every microscope field of view finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected microscope field of view set.",
+      "translation": "세 폴더의 파일 수가 다르거나 파일 이름이 일치하지 않는 경우, 또는 마스크가 잘렸거나 숫자가 아니거나 비어 있거나 이차원이 아니거나 짝을 이루는 마스크와 크기가 다른 경우입니다. 사용 가능한 소기관 마스크도 검사합니다. 모든 현미경 시야에 대한 헤더 전용 검증은 어떤 마스크를 변경하거나 작업자를 시작하기 전에 끝납니다. 명시적 출력 폴더는 모든 원본 폴더와 달라야 하며, 선택된 현미경 시야 집합 밖의 마스크를 포함해서는 안 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#8",
+      "source": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected field is rebuilt from its source on each invocation, including after interrupted work.",
+      "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
+      "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
+      "translation": "조정된 마스크를 위한 선택적 별도 폴더입니다. None 이면 기존의 제자리 수정 동작을 유지합니다. 별도 폴더를 사용하면 모든 원본 마스크가 바이트 단위로 동일하게 유지되며, 선택된 모든 현미경 시야를 호출할 때마다 원본에서 다시 생성합니다. 작업이 중단된 뒤에도 마찬가지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#3",
+      "source": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "source_sha256": "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
+      "context": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "translation": "이 인수를 전달하는 호출자를 위해 허용됩니다. 설정 여부와 관계없이 구조적으로 완전한 마스크 배열만 계산하므로, 중단된 처리 세션이 남긴 비어 있거나 잘린 배열은 다시 대기열에 추가됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#4",
+      "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
+      "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
+      "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
+      "translation": "마스크 폴더가 없거나 예상되는 스택 파일 이름 중 하나라도 완전한 마스크가 없으면 ``True`` 입니다. 관련 없는 마스크는 누락된 현미경 시야를 대신할 수 없으며, 완전한 현미경 시야를 다시 실행하게 만들지도 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.lasso_reg#3",
+      "source": "``'lasso'`` or ``'ridge'``.",
+      "source_sha256": "d87fa963235100757ae8ed6593bae68208f8fc409a82246858a5a52fddf2f82d",
+      "context": "``'lasso'`` or ``'ridge'``.",
+      "translation": "``'lasso'`` 또는 ``'ridge'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.measure_test_mode#2",
+      "source": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a field. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which plane is which, and a ``test/merged`` without it is read as a legacy folder, against the default plane order.",
+      "source_sha256": "a2d5c1b9d11d5a9d6577513db0262d1fd5101ac12e26bd74ef1e43e1b4efeade",
+      "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",
+      "translation": "보이는 ``.npy`` 배열만 샘플링하므로 macOS ``._`` 보조 파일이 현미경 시야 대신 측정되는 일은 없습니다. 폴더의 ``.spacr_plane_layout.json`` 도 있으면 함께 복사합니다. 이 파일은 어떤 이미지 레이어가 무엇인지 알려 주며, 이 파일이 없는 ``test/merged`` 는 레거시 폴더로 간주되어 기본 이미지 레이어 순서로 읽힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#14",
+      "source": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "source_sha256": "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
+      "context": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "translation": "객체 필터 항목(최솟값과 최댓값을 가진 임의의 스칼라 regionprop)이며, 위의 경계값과 함께 한 번에 판정됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.preprocess_data#7",
+      "source": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "source_sha256": "a9f96a9d58b325a2d70df263552d73dd8c68dfdba5be167f70e0dcd418571ecf",
+      "context": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "translation": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` 또는 ``combat`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#10",
+      "source": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "source_sha256": "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb",
+      "context": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "translation": "일치하는 세포 또는 핵 마스크 파일이 없거나 마스크 파일에 피클된 객체가 들어 있는 경우입니다. 마스크는 일반 배열이며, 어떤 것도 피클 해제하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#3",
+      "source": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a run killed during the write leaves the previous whole mask, never a truncated one.",
+      "source_sha256": "40d7b307f3b754fd749a196f732cca4b0ebdfbed5a27dae5238e1a060c132a31",
+      "context": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a processing session killed during the write leaves the previous whole mask, never a truncated one.",
+      "translation": "세포 마스크 폴더입니다(제자리에서 덮어씀). 조정된 마스크가 이전 마스크를 원자적으로 교체하므로, 쓰는 도중 처리 세션이 강제 종료되어도 잘린 마스크가 아니라 이전의 온전한 마스크가 남습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#8",
+      "source": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "source_sha256": "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
+      "context": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "translation": "조정된 마스크를 위한 선택적 별도 대상 위치입니다. None 이면 제자리 조정을 유지합니다. 명시적 대상 위치는 디렉터리 심볼릭 링크를 거친 경우를 포함하여 모든 원본 마스크 폴더와 달라야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "translation": "``'dbscan'`` 또는 ``'kmeans'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#8",
+      "source": "``'umap'`` or ``'tsne'``.",
+      "source_sha256": "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
+      "context": "``'umap'`` or ``'tsne'``.",
+      "translation": "``'umap'`` 또는 ``'tsne'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.validate.validate_settings#1",
+      "source": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is run.",
+      "source_sha256": "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
+      "context": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is executed.",
+      "translation": "이미지 데이터는 헤더와 디렉터리 목록으로 검사합니다. 활성화된 PSF 는 보정과 값을 검증하기 위해 크기가 제한된 커널도 로드합니다. 이미지 처리나 GPU 추론은 실행하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.workspace.save#4",
+      "source": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "source_sha256": "a346a4ae4445c5dc4561ae4ad35ae319000466eb9c1891dca8984101a62ce716",
+      "context": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "translation": "``'off'``, ``'reference'`` 또는 ``'copy'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#2",
+      "source": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "source_sha256": "b1cd5d7b1f5318210eed9d03ee95f35b395bf4ad0eaf117296a216030c7f9e2b",
+      "context": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "translation": "``(Z, Y, X)`` 또는 ``(Z, Y, X, C)`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes_4d#4",
+      "source": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "source_sha256": "fde87c2383a2d70fb2c91dde4d3faa2d1ceb0b76201245a613cfe1e501a11f75",
+      "context": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "translation": "``(T, Z, Y, X)`` 또는 ``(T, Z, Y, X, C)`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.zstack.format_4d#2",
+      "source": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "source_sha256": "cdea53d430d950ea001e7e755164a8faffff42e026296f0452b52aacfaa161b4",
+      "context": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "translation": ":class:`TStackResult` 또는 :class:`TrackResult` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}

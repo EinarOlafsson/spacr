@@ -4715,6 +4715,94 @@
       "context": "recorded or current Measure settings.",
       "translation": "기록되었거나 현재의 Measure 설정입니다.",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.measurement_resume_settings#2",
+      "source": "keep a recorded kernel identity without reopening its file.",
+      "source_sha256": "be572c63aff8cfd1d9607704b5487ee0ae6f0e51e7650e494f6841a618680b05",
+      "context": "keep a recorded kernel identity without reopening its file.",
+      "translation": "기록된 커널 식별 정보를 파일을 다시 열지 않고 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.measurement_resume_settings#3",
+      "source": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
+      "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
+      "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
+      "translation": "비활성 PSF 조절 항목을 제거하고 캡처된 재료 시그니처 하나를 담은 새 설정입니다. 레거시 측정의 원래 시그니처는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#0",
+      "source": "Capture a calibrated kernel only for explicitly processed measurements.",
+      "source_sha256": "784f1a0c55d4f637bc9f2613b7ca874cf3560af55044ec9b719b31e0d5e7a18d",
+      "context": "Capture a calibrated kernel only for explicitly processed measurements.",
+      "translation": "명시적으로 처리된 측정에 대해서만 보정된 커널을 캡처합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#1",
+      "source": "PSF settings plus ``psf_measurement_source``: ``original`` (default; standard Measure intensities without PSF) or ``processed``. Processed requires convolution/deconvolution and explicit YX or ZYX sampling. Original retains stored PSF parameters without applying them.",
+      "source_sha256": "9e81c642fb0f2a429400d81c83865b68e9ac85ca95f2c8f37a6e46589a0a5091",
+      "context": "PSF settings plus ``psf_measurement_source``: ``original`` (default; standard Measure intensities without PSF) or ``processed``. Processed requires convolution/deconvolution and explicit YX or ZYX sampling. Original retains stored PSF parameters without applying them.",
+      "translation": "PSF 설정과 ``psf_measurement_source`` 입니다: ``original`` (기본값, PSF 없이 표준 Measure 강도 사용) 또는 ``processed``. Processed 는 합성곱/디컨볼루션과 명시적인 YX 또는 ZYX 샘플링을 필요로 합니다. Original 은 저장된 PSF 매개변수를 적용하지 않고 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#2",
+      "source": "immutable PSFPlan or None. The caller's settings are unchanged.",
+      "source_sha256": "14bba570e8023b33456ed6c207891fc476a8793b86cc3917aeb69a3af6fd5344",
+      "context": "immutable PSFPlan or None. The caller's settings are unchanged.",
+      "translation": "변경할 수 없는 PSFPlan 또는 None 입니다. 호출자의 설정은 변경되지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#3",
+      "source": "for an invalid source, disabled processing when requested, or invalid calibrated kernel settings.",
+      "source_sha256": "eb4bda556360c7610a298ee7216bb71e19452f25589ed05fa34da2a43f947cd2",
+      "context": "for an invalid source, disabled processing when requested, or invalid calibrated kernel settings.",
+      "translation": "소스가 잘못되었거나, 요청했는데 처리가 비활성화되어 있거나, 보정된 커널 설정이 잘못되었을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#0",
+      "source": "Refuse to mix incompatible intensity sources even when resume is off.",
+      "source_sha256": "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
+      "context": "Refuse to mix incompatible intensity sources even when resume is off.",
+      "translation": "재개가 꺼져 있어도 호환되지 않는 강도 소스를 섞는 것을 거부합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#1",
+      "source": "current run settings, before its database snapshot is saved.",
+      "source_sha256": "a1335b87f8f104165b7a0c5916f7a2554d0474f73ac0d2ac3784a5078d38ac92",
+      "context": "current processing-session settings, before its database snapshot is saved.",
+      "translation": "데이터베이스 스냅숏을 저장하기 전의 현재 처리 세션 설정입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#2",
+      "source": "measurement database; absence means a new project.",
+      "source_sha256": "d988ebc6184ffafee2ca265ffefb02276a08e79b4b4d59f66324ccf1f8db9a9e",
+      "context": "measurement database; absence means a new project.",
+      "translation": "측정 데이터베이스입니다. 없으면 새 프로젝트를 뜻합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#3",
+      "source": "captured plan for this run.",
+      "source_sha256": "712e9fae80b9712a6327aeff258c1044b4a256ec279171e21af621151883ed8a",
+      "context": "captured plan for this run.",
+      "translation": "이 처리 세션에 대해 캡처된 계획입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#4",
+      "source": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
+      "source_sha256": "3d90e9593f4b403295109241dc9ed376a223bdc8cc874458554d87112bf3b125",
+      "context": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
+      "translation": "기존 측정 행이 다른 PSF 식별 정보를 사용하거나, 요청된 처리 강도를 사용한다는 것을 증명할 수 없을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }
