@@ -148,10 +148,32 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     # same conflict the code-block carve-out below already records, so it
     # is resolved the same way: measure the thing the test was written to
     # measure.
+    #
+    # THE LIST OF WORK CITING spaCR IS A REFERENCE LIST, NOT PROSE, added
+    # 2026-09-26. Its length is chosen by how many papers cite spaCR, just
+    # as the model zoo's is chosen by how many models are published: the
+    # four entries the maintainer listed on 2026-09-24 put main at 1806
+    # words, and the only way back under the ceiling would have been to
+    # delete an explanation -- or a citation. So it is measured the way the
+    # generated tables are, and the carve-out is fenced below so that it
+    # can hold references and nothing else.
+    citing = (".. spacr-citing-papers-begin", ".. spacr-citing-papers-end")
+    _, marker, rest = text.partition(citing[0])
+    assert marker, f"the README has lost its {citing[0]} marker"
+    references, marker, _ = rest.partition(citing[1])
+    assert marker, f"{citing[0]} is not closed by {citing[1]}"
+    entries = [line for line in references.splitlines() if line.strip()]
+    assert entries, "the citing-papers list is empty"
+    for line in entries:
+        assert re.fullmatch(r"\* `[^`<>]+ <https://[^\s>]+>`_", line), (
+            f"only one-line linked references belong between the "
+            f"citing-papers markers, which the prose ceiling skips; "
+            f"found {line!r}")
     generated = (
         (".. spacr-workflow-begin", ".. spacr-workflow-end"),
         (".. spacr-hardware-begin", ".. spacr-hardware-end"),
         (".. spacr-model-zoo-begin", ".. spacr-model-zoo-end"),
+        citing,
     )
     kept = text
     for begin, end in generated:
