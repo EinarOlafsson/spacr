@@ -126,7 +126,8 @@ def _application_event_hub_class():
     QT'S OWN RULES ARE KEPT: the watcher registered last is asked first,
     registering again moves it to the front, the first ``True`` ends the
     event, a watcher removed while an event is being delivered is not asked
-    about it, and a watcher whose object has been destroyed is skipped. An
+    about it, and a watcher whose object has been destroyed is skipped and
+    then dropped, as Qt drops a destroyed filter. An
     exception in one watcher goes to ``sys.excepthook``, as PySide sends an
     exception raised in an event filter, and the rest are still asked.
     """
@@ -180,7 +181,7 @@ def _application_event_hub_class():
             """The live watchers, in the order they are asked."""
             return tuple(watcher for watcher in
                          (entry[0]() for entry in self._entries)
-                         if watcher is not None)
+                         if watcher is not None and isValid(watcher))
 
         def eventFilter(self, watched, event):
             """Hand ``event`` to the watchers that asked for its type."""
@@ -190,18 +191,43 @@ def _application_event_hub_class():
                 return False
             if not chain:
                 return False
-            for entry in chain:
-                if not entry[2]:
-                    continue
+            dead = False
+            try:
+                for entry in chain:
+                    if not entry[2]:
+                        continue
+                    watcher = entry[0]()
+                    if watcher is None or not isValid(watcher):
+                        dead = True
+                        continue
+                    try:
+                        if watcher.eventFilter(watched, event):
+                            return True
+                    except Exception:
+                        sys.excepthook(*sys.exc_info())
+                return False
+            finally:
+                if dead:
+                    self._forget_the_dead()
+
+        def _forget_the_dead(self) -> None:
+            """Drop every watcher whose object is gone.
+
+            A watcher Qt held directly came off the application when its
+            object was destroyed; behind the hub it would stay in the chain,
+            skipped but still looked at on every event of its kinds -- one
+            per module screen ever built, for the life of the process.
+            """
+            kept = []
+            for entry in self._entries:
                 watcher = entry[0]()
                 if watcher is None or not isValid(watcher):
-                    continue
-                try:
-                    if watcher.eventFilter(watched, event):
-                        return True
-                except Exception:
-                    sys.excepthook(*sys.exc_info())
-            return False
+                    entry[2] = False
+                else:
+                    kept.append(entry)
+            if len(kept) != len(self._entries):
+                self._entries = kept
+                self._rebuild()
 
     _HUB_CLASS = _ApplicationEventHub
     return _HUB_CLASS

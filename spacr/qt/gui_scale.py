@@ -763,6 +763,8 @@ def _reapply_layout(layout, factor: float) -> None:
 
         wanted = scale_int(base, factor)
         try:
+            if layout.indexOf(item) < 0:
+                continue
             if horizontal:
                 item.changeSize(wanted, 0, QSizePolicy.Fixed,
                                 QSizePolicy.Minimum)
@@ -776,11 +778,40 @@ def _reapply_layout(layout, factor: float) -> None:
     if not isinstance(layout, QLayout):
         return
     layout.invalidate()
-    for index in range(layout.count()):
-        item = layout.itemAt(index)
-        child = item.layout() if item is not None else None
-        if isinstance(child, QLayout) and child is not layout:
-            _reapply_layout(child, factor)
+    for child in _child_layouts(layout):
+        _reapply_layout(child, factor)
+
+
+def _child_layouts(layout) -> list:
+    """The layouts nested directly in ``layout``, without touching its items.
+
+    NEVER BY ``itemAt``. Asking a layout for its items gives each one a
+    Python wrapper that the layout's wrapper then keeps, and a layout item
+    is not a QObject, so nothing tells the wrapper when Qt deletes the item.
+    Qt does that all the time: a ``QDialogButtonBox`` throws its items away
+    and makes new ones whenever its buttons change, and a widget deleted out
+    of a layout takes its item with it. The wrapper stays registered at the
+    freed address, and the next object Qt puts there -- a message box's
+    layout, a widget -- comes back to Python as that ``QWidgetItem``. That
+    is how a live scale change, which used to wrap every item of every
+    layout in the application, took a Qt shard down with a segfault and a
+    ``free(): invalid pointer`` (item 43). A nested layout is a QObject child
+    of the layout it sits in, so ``findChildren`` finds it without wrapping
+    anything that is not a QObject.
+
+    :param layout: the layout to look inside.
+    :returns: its directly nested layouts.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLayout
+
+    try:
+        found = layout.findChildren(QLayout, "",
+                                    Qt.FindChildOption.FindDirectChildrenOnly)
+    except (RuntimeError, TypeError):
+        return []
+    return [child for child in found
+            if isinstance(child, QLayout) and child is not layout]
 
 
 def _rescale_canvases(widgets, factor: float) -> int:
@@ -865,13 +896,16 @@ def set_gui_scale_live(scale: float) -> float:
         state["sheet"] = (record[0], scaled)
         _ORIGINAL[(QApplication, "setStyleSheet")](app, scaled)
 
-    widgets = list(app.allWidgets())
+    from PySide6.QtWidgets import QLayout, QWidget
+
+    widgets = [widget for widget in app.allWidgets()
+               if isinstance(widget, QWidget)]
     for widget in widgets:
         try:
             factor = 1.0 if _exempt(widget) else scale
             _reapply_widget(widget, factor, 1.0 if _exempt(widget) else old)
             layout = widget.layout()
-            if layout is not None:
+            if isinstance(layout, QLayout):
                 _reapply_layout(layout, factor)
             if isinstance(widget, QSplitter):
                 record = getattr(widget, "_gs_sizes", None)
