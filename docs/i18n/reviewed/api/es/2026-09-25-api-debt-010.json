@@ -1,0 +1,392 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.feature_rank.distributions#3",
+      "source": "column to histogram; values that are not numeric count as missing, and an all-missing column gives empty edges and no counts.",
+      "source_sha256": "f3810d4a0a06558cc3ccb2048d7231e0f85f25604190452f020d793e0d268690",
+      "context": "column to histogram; values that are not numeric count as missing, and an all-missing column gives empty edges and no counts.",
+      "translation": "columna de la que se hace el histograma; los valores no numéricos cuentan como ausentes, y una columna toda ausente da bordes vacíos y ningún recuento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.distributions#4",
+      "source": "class column that splits the rows; :class:`ExplorerError` is raised when it is absent or has fewer than two classes.",
+      "source_sha256": "62ecbfe0678e81e4b337b7879248a3bade18c0d19451417ffa0688682929905c",
+      "context": "class column that splits the rows; :class:`ExplorerError` is reported as an exception when it is absent or has fewer than two classes.",
+      "translation": "columna de clase que divide las filas; se lanza :class:`ExplorerError` cuando no existe o tiene menos de dos clases.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.rank_features#1",
+      "source": "measurement table, one row per object, holding the class column ``spec.label`` and the features to score.",
+      "source_sha256": "3c9158b6ec3abb5f8ffcd713b5ecfb7f63bf318a077749baee5682ab4e7989a9",
+      "context": "measurement table, one row per object, holding the class column ``spec.label`` and the features to score.",
+      "translation": "tabla de mediciones, una fila por objeto, que contiene la columna de clase ``spec.label`` y las características que se puntúan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.field_fade.fades#4",
+      "source": "the widget to test; only the field types in ``FIELD_TYPES`` that have not set the opt-out property can qualify.",
+      "source_sha256": "56c76af29061eaa2a050146725b22349e05b6ef1941d5853d4d79c8994b6149f",
+      "context": "the widget to test; only the field types in ``FIELD_TYPES`` that have not set the opt-out property can qualify.",
+      "translation": "el widget que se comprueba; solo pueden cumplir la condición los tipos de campo de ``FIELD_TYPES`` que no hayan activado la propiedad de exclusión.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.field_fade.field_fade_qss#3",
+      "source": "the theme palette passed by :func:`spacr.qt.theme.register_widget_qss`; unused.",
+      "source_sha256": "c8509ff174df02d7e16b42e3ec0d8916c4ca6ef217c232b44dce868f55362550",
+      "context": "the theme palette passed by :func:`spacr.qt.theme.register_widget_qss`; unused.",
+      "translation": "la paleta del tema que pasa :func:`spacr.qt.theme.register_widget_qss`; no se usa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.eventFilter#1",
+      "source": "the watched object; only the scroll area's viewport is acted on.",
+      "source_sha256": "ccdde71baecd2ca070979d540f5c633b16b4acc0ca3860d81fe79e0fcc637b31",
+      "context": "the watched object; only the scroll area's viewport is acted on.",
+      "translation": "el objeto observado; solo se actúa sobre la ventana de visualización del área de desplazamiento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.eventFilter#2",
+      "source": "the filtered event; a ``Resize`` restarts the reflow timer, and every event is passed on to the base class.",
+      "source_sha256": "d28b99b06c8a75988feca44870c91ad3adb2b8cf7789f09065b77d8ba7046fab",
+      "context": "the filtered event; a ``Resize`` restarts the reflow timer, and every event is passed on to the base class.",
+      "translation": "el evento filtrado; un ``Resize`` reinicia el temporizador de recolocación, y todo evento se pasa a la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.figure_path#2",
+      "source": "zero-based cell index in arrival order; out of range gives ``\"\"``.",
+      "source_sha256": "bbb32af78e671c4bd9c1d2a9e406afd4916ce2936eb17a2a2ceb9d18cf8cdfa6",
+      "context": "zero-based cell index in arrival order; out of range gives ``\"\"``.",
+      "translation": "índice de celda, contando desde cero, en orden de llegada; fuera de rango da ``\"\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.set_parameters#1",
+      "source": "the searched parameter names, in the order that decides the axes; empty lays the figures out in arrival order.",
+      "source_sha256": "54892417dadd29c3a039caec856764f4437f618750fe314fb2697cfe89691c86",
+      "context": "the searched parameter names, in the order that decides the axes; empty lays the figures out in arrival order.",
+      "translation": "los nombres de parámetros buscados, en el orden que decide los ejes; vacío dispone las figuras en orden de llegada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.cell_caption#1",
+      "source": "parameter name to value for the figure; floats are formatted with ``:g``.",
+      "source_sha256": "dd8577a658684cc61c561b8b6c4a917b2d06f76b9e10bcfcfc5199e678d8224d",
+      "context": "parameter name to value for the figure; floats are formatted with ``:g``.",
+      "translation": "nombre de parámetro a valor para la figura; los float se formatean con ``:g``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.cell_caption#2",
+      "source": "the names to include, in caption order; names missing from ``coordinate`` are skipped.",
+      "source_sha256": "3832789756af4a8e7226b1aa463aa05d723425a37b0e08f3a76b9a08193cd14a",
+      "context": "the names to include, in caption order; names missing from ``coordinate`` are skipped.",
+      "translation": "los nombres que se incluyen, en el orden del título; los nombres que faltan en ``coordinate`` se omiten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.apply_workspace_state#1",
+      "source": "dict as :meth:`workspace_state` returns it, with ``\"collapsed\"`` (list of ``[label, start]`` section keys) and ``\"cell_width\"`` (pixels); a non-dict applies nothing.",
+      "source_sha256": "887d6d95aff6fbf5822021eb52364326cda0f4437ef2251a1aa52704fc75c2d7",
+      "context": "key-value mapping as :meth:`workspace_state` returns it, with ``\"collapsed\"`` (list of ``[label, start]`` section structured-data names) and ``\"cell_width\"`` (pixels); a non-key-value mapping applies nothing.",
+      "translation": "dict tal como lo devuelve :meth:`workspace_state`, con ``\"collapsed\"`` (lista de claves de sección ``[label, start]``) y ``\"cell_width\"`` (píxeles); algo que no sea un dict no aplica nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.is_section_collapsed#1",
+      "source": "the run's section heading text.",
+      "source_sha256": "14519d4ad16c9f4d6dc192fd102d13c9cd1c1b38e6b7d5abb00a8b2f794b9aed",
+      "context": "the run's section heading text.",
+      "translation": "el texto del encabezado de la sección de la ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.is_section_collapsed#2",
+      "source": "index of the run's first figure; with ``label`` it identifies the section.",
+      "source_sha256": "29055069f45b8e76ede1c49549cc313a78ee2e1126caab00d297e1ab7ddf6253",
+      "context": "index of the run's first figure; with ``label`` it identifies the section.",
+      "translation": "índice de la primera figura de la ejecución; junto con ``label`` identifica la sección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.set_pinned#4",
+      "source": "snapshot ``QPixmap`` of the regression graph; ``None`` or a null pixmap removes the pinned tile.",
+      "source_sha256": "100f226f7e84763c82a6f2716c6d21157eabf3c382201d64089b3c73a8b32514",
+      "context": "snapshot ``QPixmap`` of the regression graph; ``None`` or a null pixmap removes the pinned tile.",
+      "translation": "instantánea ``QPixmap`` del gráfico de regresión; ``None`` o un pixmap nulo elimina la tesela fijada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.set_target_cell_width#1",
+      "source": "target width in pixels, clamped to :data:`MIN_CELL_PX`-:data:`MAX_CELL_PX`.",
+      "source_sha256": "3f24fb3fc561fd2eed7d1384630aa936e5f381da9697c31bd3dd2ca5d1802d1e",
+      "context": "target width in pixels, clamped to :data:`MIN_CELL_PX`-:data:`MAX_CELL_PX`.",
+      "translation": "ancho objetivo en píxeles, limitado a :data:`MIN_CELL_PX`-:data:`MAX_CELL_PX`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.toggle_section#2",
+      "source": "the clicked section heading; its ``section_key`` names the section. A header without one does nothing and returns ``True``.",
+      "source_sha256": "017f599f0ca5aad61b240248666b5b129b7ccfbc600fcf748dd902c129344030",
+      "context": "the clicked section heading; its ``section_key`` names the section. A header without one does nothing and returns ``True``.",
+      "translation": "el encabezado de sección pulsado; su ``section_key`` nombra la sección. Un encabezado sin él no hace nada y devuelve ``True``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid_view.cells_across#2",
+      "source": "available width in pixels; the result is between 1 and 6, and 1 for a width of 0 or less.",
+      "source_sha256": "68492342602e59cc22e0c5d3c61ca5cd22f7985027fd086dee04378886ea4b3d",
+      "context": "available width in pixels; the result is between 1 and 6, and 1 for a width of 0 or less.",
+      "translation": "ancho disponible en píxeles; el resultado está entre 1 y 6, y es 1 para un ancho de 0 o menos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.add_figure#2",
+      "source": "the Matplotlib figure to append; recognised by object identity, so the same object is never queued twice.",
+      "source_sha256": "4e020fabd6b9dedefa9ea1fe2c8bdcc78c17c1c4924434e30655b8ea5328001f",
+      "context": "the Matplotlib figure to append; recognised by object identity, so the same object is never queued twice.",
+      "translation": "la figura de Matplotlib que se añade; se reconoce por la identidad del objeto, de modo que el mismo objeto nunca entra dos veces en la cola.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.drop_cache_budget_entry#1",
+      "source": "``(kind, index)`` pair, where kind is ``\"figure\"`` (a live Figure, spilled to disk) or ``\"pixmap\"`` (a cached raster); the figure on screen, or a figure while a render is running, is never evicted.",
+      "source_sha256": "f6afb4a616caba2d77d6fdbd4eeafac5862026ba22a484fdd03a773ea6ab9f35",
+      "context": "``(kind, index)`` pair, where kind is ``\"figure\"`` (a live Figure, spilled to disk) or ``\"pixmap\"`` (a cached raster); the figure on application view, or a figure while a render is running, is never evicted.",
+      "translation": "par ``(kind, index)``, donde kind es ``\"figure\"`` (una Figure activa, volcada a disco) o ``\"pixmap\"`` (un ráster en caché); la figura que está en pantalla, o una figura mientras se está renderizando, nunca se desaloja.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.eventFilter#1",
+      "source": "the watched object; only the figure view is acted on.",
+      "source_sha256": "054558d31f083765ef2f5c4aecd186135fb9b1e725c4c7697f4880351429e8f7",
+      "context": "the watched object; only the figure view is acted on.",
+      "translation": "el objeto observado; solo se actúa sobre la vista de la figura.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.eventFilter#2",
+      "source": "the filtered event; a ``Resize`` of the view restarts the resize timer, and every event is passed on to the base class.",
+      "source_sha256": "f56b265bea21f3807439e45301c761e8f2c914357921f23a5e482a65fc617f5d",
+      "context": "the filtered event; a ``Resize`` of the view restarts the resize timer, and every event is passed on to the base class.",
+      "translation": "el evento filtrado; un ``Resize`` de la vista reinicia el temporizador de redimensionado, y todo evento se pasa a la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.figure_for#2",
+      "source": "zero-based figure index in the queue.",
+      "source_sha256": "e194304830357f914f9b496d232e610ec85e0300c006f32705e0214ccb1b0ff1",
+      "context": "zero-based figure index in the work list.",
+      "translation": "índice de la figura en la cola, contando desde cero.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.is_restorable#1",
+      "source": "zero-based figure index; true when it is live or its pickled spill file exists.",
+      "source_sha256": "6abb5ac0f13816121db2295df1bb505f74a0c4ee91f653e4e3a64db01f0d50f6",
+      "context": "zero-based figure index; true when it is live or its pickled spill file exists.",
+      "translation": "índice de la figura, contando desde cero; verdadero cuando está activa o existe su archivo volcado con pickle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.refresh_figure#3",
+      "source": "zero-based figure index in the queue; the figure on screen is refreshed through :meth:`refresh_current_figure`.",
+      "source_sha256": "2f980b320156ba64f46af8ce1fb8959e7766db4fb9382c46b62fc71a19f03c8f",
+      "context": "zero-based figure index in the work list; the figure on application view is refreshed through :meth:`refresh_current_figure`.",
+      "translation": "índice de la figura en la cola, contando desde cero; la figura en pantalla se actualiza mediante :meth:`refresh_current_figure`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.replace_figure#2",
+      "source": "zero-based index of an existing figure in the queue; out of range swaps nothing.",
+      "source_sha256": "01036da4f77c3a712d970a0f7adabd6a4011b086f1225236df9be5e1165a4c69",
+      "context": "zero-based index of an existing figure in the work list; out of range swaps nothing.",
+      "translation": "índice, contando desde cero, de una figura existente en la cola; fuera de rango no sustituye nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.replace_figure#3",
+      "source": "the new Matplotlib figure; ``None`` swaps nothing.",
+      "source_sha256": "83c4dcf589662fa14c52a942e91ba9f60b7e7c712332ca73f498fef8767d8384",
+      "context": "the new Matplotlib figure; ``None`` swaps nothing.",
+      "translation": "la nueva figura de Matplotlib; ``None`` no sustituye nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.set_live_canvas_enabled#2",
+      "source": "``False`` switches the view to the raster at once; ``True`` allows the live canvas for the next figure shown.",
+      "source_sha256": "b3642628cbbd3f6a206a68886a2d7d1eb74a6f0d163797123f6356cdd925a64b",
+      "context": "``False`` switches the view to the raster at once; ``True`` allows the live canvas for the next figure shown.",
+      "translation": "``False`` pasa la vista al ráster de inmediato; ``True`` permite el lienzo activo para la siguiente figura que se muestre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.set_propagate_callback#2",
+      "source": "called with a dict of setting key to value when the figure settings window's Propagate is pressed; ``None`` (or any non-callable) leaves Propagate with nothing to call.",
+      "source_sha256": "50e3a8b25a1aaab5df6f71c36aa18a090d25a992502414aa58e3474199bf3225",
+      "context": "called with a key-value mapping of setting name to value when the figure settings window's Propagate is pressed; ``None`` (or any non-callable) leaves Propagate with nothing to call.",
+      "translation": "se llama con un dict de clave de ajuste a valor cuando se pulsa Propagate en la ventana de ajustes de la figura; ``None`` (o cualquier cosa no invocable) deja Propagate sin nada que llamar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
+      "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",
+      "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
+      "translation": "la figura de Matplotlib que se incrusta en un lienzo de Qt con su barra de herramientas de navegación; si el lienzo ya la muestra, solo se vuelve a dibujar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.figure_text_size_override#1",
+      "source": "a Matplotlib figure; the size is read from an attribute set by :func:`set_figure_text_size_override`, and a missing or unreadable value gives 0.",
+      "source_sha256": "959c497123c0abfd19f9bffe1a4453db65cbfacb5067d2188c0b9ed27c718860",
+      "context": "a Matplotlib figure; the size is read from an attribute set by :func:`set_figure_text_size_override`, and a missing or unreadable value gives 0.",
+      "translation": "una figura de Matplotlib; el tamaño se lee de un atributo establecido por :func:`set_figure_text_size_override`, y un valor ausente o ilegible da 0.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#3",
+      "source": "the Matplotlib figure; it is restyled in place with the theme's colours and text size before saving.",
+      "source_sha256": "c3f69bd210e14ed2ebfbda8758f91e13e88fa6d2201b75f0e704a04dd63e243d",
+      "context": "the Matplotlib figure; it is restyled in place with the theme's colours and text size before saving.",
+      "translation": "la figura de Matplotlib; se reestiliza en su sitio con los colores y el tamaño de texto del tema antes de guardarla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#4",
+      "source": "destination PNG path; in PDF mode the ``.pdf`` is written beside it with the same stem.",
+      "source_sha256": "fc70ad517442d7a52ce370574a7e4698d168194694ffb3a275490139495168df",
+      "context": "destination PNG path; in PDF mode the ``.pdf`` is written beside it with the same stem.",
+      "translation": "ruta PNG de destino; en modo PDF, el ``.pdf`` se escribe a su lado con la misma raíz de nombre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_pdf_to_image#6",
+      "source": "path to the PDF; only its first page is rendered, scaled so its longer side is ``max_px`` pixels.",
+      "source_sha256": "57e9e9c521c643c51784a2ef3f0e5784f7a30faf8f4b0cc8e6d654bee77a0edc",
+      "context": "path to the PDF; only its first page is rendered, scaled so its longer side is ``max_px`` pixels.",
+      "translation": "ruta al PDF; solo se renderiza su primera página, escalada para que su lado más largo mida ``max_px`` píxeles.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.set_figure_text_size_override#2",
+      "source": "the Matplotlib figure to tag; a figure that refuses the attribute is logged and left alone.",
+      "source_sha256": "78b3bacdd482566f297c1695fb297298cdec8ea888357822d54f5104e6afa11a",
+      "context": "the Matplotlib figure to tag; a figure that refuses the attribute is logged and left alone.",
+      "translation": "la figura de Matplotlib que se etiqueta; una figura que rechaza el atributo se registra y se deja tal cual.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.set_figure_text_size_override#3",
+      "source": "text size in points; ``0`` (or a negative value) clears the override.",
+      "source_sha256": "b8efef529374b3a3fe3a3b9a8cc6caacb96a9e25e3883b82a3983edccc73d5e5",
+      "context": "text size in points; ``0`` (or a negative value) clears the override.",
+      "translation": "tamaño del texto en puntos; ``0`` (o un valor negativo) borra la sustitución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget.add_paths#2",
+      "source": "paths to add, as strings or path-like objects; a bare string counts as one path, and placeholders and None entries are skipped. Each is made absolute, a folder contributes its matching files one level down, and a single-file widget keeps only the last.",
+      "source_sha256": "52188ab067930932480435fa83d965d3a35a01a1b67078d3885ec7b6c82ea278",
+      "context": "paths to add, as strings or path-like objects; a bare string counts as one path, and placeholders and None entries are skipped. Each is made absolute, a folder contributes its matching files one level down, and a single-file widget keeps only the last.",
+      "translation": "rutas que se añaden, como cadenas u objetos tipo ruta; una cadena suelta cuenta como una ruta, y se omiten los marcadores de posición y las entradas None. Cada una se hace absoluta, una carpeta aporta sus archivos coincidentes un nivel por debajo, y un widget de un solo archivo conserva solo el último.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget.set_value#2",
+      "source": "None, one path as a string or path-like object, or an iterable of paths; surrounding quotes and placeholder values are dropped.",
+      "source_sha256": "aa701b068ab544df5f03e5b2ef87f2d4077f01f8e78b25d133d2323cf73a936c",
+      "context": "None, one path as a string or path-like object, or an iterable of paths; surrounding quotes and placeholder values are dropped.",
+      "translation": "None, una ruta como cadena u objeto tipo ruta, o un iterable de rutas; se quitan las comillas de alrededor y se descartan los valores de marcador de posición.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database#4",
+      "source": "path to the measurements database, as a string or path-like object; an empty path raises :class:`ValueError`.",
+      "source_sha256": "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5",
+      "context": "path to the measurements database, as a string or path-like object; an empty path raises :class:`ValueError`.",
+      "translation": "ruta a la base de datos de mediciones, como cadena u objeto tipo ruta; una ruta vacía lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent#3",
+      "source": "the drop event; its local file URLs and drop position are read, and it is ignored when it carries no usable paths.",
+      "source_sha256": "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda",
+      "context": "the drop event; its local file URLs and drop position are read, and it is ignored when it carries no usable paths.",
+      "translation": "el evento de soltar; se leen sus URL de archivos locales y la posición donde se soltó, y se ignora cuando no lleva rutas utilizables.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent#3",
+      "source": "the show event; it is not inspected, only passed on to the base class first.",
+      "source_sha256": "bf306e216bd3b660f9af566aba75da0859175a23590034ca8d1078a3f6e05404",
+      "context": "the show event; it is not inspected, only passed on to the base class first.",
+      "translation": "el evento de mostrar; no se inspecciona, solo se pasa primero a la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.is_database_path#2",
+      "source": "file path as a string or path-like object; its extension is compared, case-insensitively, with ``DATABASE_EXTENSIONS``.",
+      "source_sha256": "94abf1f669c59642e4ac5ed93ee20fc8be8b808ef2aec529daceb74423c8b898",
+      "context": "file path as a string or path-like object; its extension is compared, case-insensitively, with ``DATABASE_EXTENSIONS``.",
+      "translation": "ruta de archivo como cadena u objeto tipo ruta; su extensión se compara, sin distinguir mayúsculas, con ``DATABASE_EXTENSIONS``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.side_for_header#3",
+      "source": "CSV file whose first row is read as the header; a file that cannot be read counts as a score file.",
+      "source_sha256": "8f1a811b2503e633c0e7d0a0ca93fe86f79f31f0edb54ea62eab6dd0d658f46d",
+      "context": "CSV file whose first row is read as the header; a file that cannot be read counts as a score file.",
+      "translation": "archivo CSV cuya primera fila se lee como encabezado; un archivo que no se puede leer cuenta como archivo de puntuaciones.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#3",
+      "source": "score CSV paths; each starts a row, in the order given.",
+      "source_sha256": "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
+      "context": "score CSV paths; each starts a row, in the order given.",
+      "translation": "rutas de CSV de puntuaciones; cada una inicia una fila, en el orden indicado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
+      "context": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "translation": "rutas de CSV de recuentos; cada una se empareja con la puntuación con cuyos tokens de nombre de archivo coincide mejor de forma única, las que no coinciden rellenan las filas de puntuaciones que aún no tienen recuento, y las que sobran reciben filas propias.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowHost.heightForWidth#1",
+      "source": "available width in pixels, passed to the layout; without a layout the base class answers.",
+      "source_sha256": "5c0a22d1bb0ab85979c184a0a66526e59acb38a2bad6f8e154849e29a4d47425",
+      "context": "available width in pixels, passed to the layout; without a layout the base class answers.",
+      "translation": "ancho disponible en píxeles, que se pasa a la disposición; sin disposición responde la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowLayout.addItem#1",
+      "source": "the :class:`QLayoutItem` to append after the existing items.",
+      "source_sha256": "765170fe5d81c143e088a96ddce2a3d209435f3f22e3cd7db9f8d47c48cd1a71",
+      "context": "the :class:`QLayoutItem` to append after the existing items.",
+      "translation": "el :class:`QLayoutItem` que se añade después de los elementos existentes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowLayout.heightForWidth#1",
+      "source": "available width in pixels; the items are wrapped into it without being moved.",
+      "source_sha256": "fb4b9245c4ae6cd70f8929c99317b47fd171ace056bf3610fca2588ca8f9a905",
+      "context": "available width in pixels; the items are wrapped into it without being moved.",
+      "translation": "ancho disponible en píxeles; los elementos se reparten en líneas dentro de él sin moverlos.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}

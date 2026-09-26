@@ -2683,6 +2683,2126 @@
       "context": "the key event; Escape hides the popover and is accepted, any other key goes to the base class.",
       "translation": "el evento de teclado; Escape oculta el popover y se acepta, cualquier otra tecla va a la clase base.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.mousePressEvent#2",
+      "source": "the mouse press; its local and global positions decide whether it landed outside the popover on the anchor button.",
+      "source_sha256": "59e2335624c438598e09a8363f0a3b3469f898bf942c91bf7e0ea950df5b3706",
+      "context": "the mouse press; its local and global positions decide whether it landed outside the popover on the anchor button.",
+      "translation": "la pulsación del ratón; sus posiciones local y global deciden si cayó fuera del popover, sobre el botón de anclaje.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.open_near#1",
+      "source": "the widget the popover is positioned against, above it or else below it.",
+      "source_sha256": "035c3892306774fbe2830af126700974cf9fe308f20bbef1eec9ce8aa2a3d02d",
+      "context": "the widget the popover is positioned against, above it or else below it.",
+      "translation": "el widget respecto al que se coloca el popover, encima de él o, si no, debajo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaSettingsButton.hideEvent#2",
+      "source": "the hide event; it is passed on to the base class after the popover is hidden.",
+      "source_sha256": "184b675aa83257c5790861d87061c023727aa9292bfb0adff9b6ae27ea48623c",
+      "context": "the hide event; it is passed on to the base class after the popover is hidden.",
+      "translation": "el evento de ocultar; se pasa a la clase base después de ocultar el popover.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.eventFilter#3",
+      "source": "the object the event is for; only a :class:`SectionHeader` is handled here.",
+      "source_sha256": "403be759794ee708b771d60a678e0e45ebb2d7fbd5e3aaea47cc4f29f39e5977",
+      "context": "the object the event is for; only a :class:`SectionHeader` is handled here.",
+      "translation": "el objeto al que va dirigido el evento; aquí solo se gestiona un :class:`SectionHeader`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.eventFilter#4",
+      "source": "the event; Enter and Leave set the header's ``hovered`` property, and a left-button release toggles its section.",
+      "source_sha256": "adddf40b6972f9ef685699a11724c64133bde04ff347e45482269fc7c13d8493",
+      "context": "the event; Enter and Leave set the header's ``hovered`` property, and a left-button release toggles its section.",
+      "translation": "el evento; Enter y Leave establecen la propiedad ``hovered`` del encabezado, y soltar el botón izquierdo alterna su sección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.expand_host#2",
+      "source": "the app key of the host; ignored.",
+      "source_sha256": "9c6eb8a59aea7900eee77fcf8bdb96c43bfa9487a65673bc33d48d6a6e9edf85",
+      "context": "the app key of the host; ignored.",
+      "translation": "la clave de aplicación del anfitrión; se ignora.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.leaveEvent#2",
+      "source": "the leave event, passed to the base class after every row is unlit.",
+      "source_sha256": "c9bbb4b57c3a845071bd771461c06ea60c606a56ff6b082cb865ef5a45990b5e",
+      "context": "the leave event, passed to the base class after every row is unlit.",
+      "translation": "el evento de salida, que se pasa a la clase base después de apagar el resaltado de todas las filas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.refresh_icons#1",
+      "source": "A QIcon bakes its pixmap when it is built, so re-applying the stylesheet does not recolour icons that already exist.",
+      "source_sha256": "a386ae91c78d0734021fd702b311e7daefb3b28a6cf45e174fd92e336fdc918a",
+      "context": "A QIcon bakes its pixmap when it is built, so re-applying the stylesheet does not recolour icons that already exist.",
+      "translation": "Un QIcon fija su pixmap al construirse, así que volver a aplicar la hoja de estilos no vuelve a colorear los iconos que ya existen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.refresh_icons#2",
+      "source": "THE SIZE IS FIXED PER SCALE, NOT PER ROW STATE. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
+      "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
+      "context": "The size is fixed per scale, not per row state. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
+      "translation": "EL TAMAÑO ES FIJO POR ESCALA, NO POR ESTADO DE LA FILA. El dock antiguo agrandaba y encogía un icono al pasar el cursor, lo que volvía a disponer toda la columna bajo el puntero; que :data:`ICON_PX` sea un único número es lo que lo impide. Aun así tiene que seguir la escala de la interfaz, así que la base se registra en cada fila y se vuelve a derivar desde ahí -- véase :func:`spacr.qt.preferences._set_scaled_icon_size` para saber por qué nunca se recalcula a partir del tamaño que ya tiene la fila.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.section_is_open#1",
+      "source": "the category name.",
+      "source_sha256": "de5fa62ac7ef73f4fb6e5b73cd179883426f368bd8cd92787546a09ecccafae9",
+      "context": "the category name.",
+      "translation": "el nombre de la categoría.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.toggle_section#1",
+      "source": "the category name to open or close.",
+      "source_sha256": "ba7b85eca8425ffc942eda915809ca708eac94eb6150037ce7e7fcd36cbbc98e",
+      "context": "the category name to open or close.",
+      "translation": "el nombre de la categoría que se abre o se cierra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#24",
+      "source": "Two models, and why the second one is offered rather than chosen",
+      "source_sha256": "bb2d7154d332b928860452e2282e140524fbe5b7a2849152788ceea57be27014",
+      "context": "Two models, and why the second one is offered rather than chosen",
+      "translation": "Dos modelos, y por qué el segundo se ofrece en lugar de elegirse",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#25",
+      "source": ":data:`MODEL_5PL` fits :func:`five_parameter_logistic`, a 4PL with one more parameter that lets the curve approach its two plateaus at different rates. Real dose–responses are asymmetric — receptor occupancy with cooperativity, anything read through a saturating stain — and **a 4PL fitted to an asymmetric curve does not fail, it moves the EC50**: on the calibration series in ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` a symmetric fit to a curve whose true EC50 is 1.0 reports 0.67, with a tight interval and an R² of 0.997.",
+      "source_sha256": "f6b969469d1494fdf1db6b9d64e6806d412ffec9c6cc890cdefd19b7ebb320e2",
+      "context": ":data:`MODEL_5PL` fits :func:`five_parameter_logistic`, a 4PL with one more parameter that lets the curve approach its two plateaus at different rates. Real dose–responses are asymmetric — receptor occupancy with cooperativity, anything read through a saturating stain — and **a 4PL fitted to an asymmetric curve does not fail, it moves the EC50**: on the calibration series in ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` a symmetric fit to a curve whose true EC50 is 1.0 reports 0.67, with a tight interval and an R² of 0.997.",
+      "translation": ":data:`MODEL_5PL` ajusta :func:`five_parameter_logistic`, un 4PL con un parámetro más que permite a la curva acercarse a sus dos mesetas a velocidades distintas. Las respuestas a dosis reales son asimétricas — ocupación de receptores con cooperatividad, cualquier cosa leída a través de una tinción que se satura — y **un 4PL ajustado a una curva asimétrica no falla, desplaza la EC50**: en la serie de calibración de ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py``, un ajuste simétrico a una curva cuya EC50 real es 1.0 da 0.67, con un intervalo estrecho y un R² de 0.997.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#26",
+      "source": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
+      "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
+      "context": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
+      "translation": "Aun así **no es el predeterminado**, y es una decisión y no un descuido. El quinto parámetro se compensa con la pendiente de Hill — muchos pares (pendiente, asimetría) dibujan casi la misma curva —, así que con las ocho o diez concentraciones que lleva realmente una placa está débilmente identificado, y el intervalo de perfil que produce es correspondientemente más ancho. Por eso el módulo lo ofrece, lo ajusta **a partir de la solución 4PL** para que la búsqueda asimétrica empiece en la respuesta simétrica, e informa de una prueba F de suma de cuadrados adicional del único parámetro añadido en :attr:`DoseResponseResult.asymmetry_p`, para que el lector pueda ver si la asimetría compensó lo que costó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#27",
+      "source": "The parameterisation is the EC50-preserving one: ``log10_ec50`` means the same thing under both models, so every rule in this file — boundedness, profiling, the back-transformed reporting — reads one number and not two. :func:`five_parameter_logistic` explains why that needs a constant in the denominator and what goes wrong without it.",
+      "source_sha256": "9cc4c9873f8e07fdde5c8e1c1d93ac1a8252216db19e71352063f3e46f121aa8",
+      "context": "The parameterisation is the EC50-preserving one: ``log10_ec50`` means the same thing under both models, so every rule in this file — boundedness, profiling, the back-transformed reporting — reads one number and not two. :func:`five_parameter_logistic` explains why that needs a constant in the denominator and what goes wrong without it.",
+      "translation": "La parametrización es la que conserva la EC50: ``log10_ec50`` significa lo mismo en ambos modelos, de modo que todas las reglas de este archivo — acotación, perfilado, el informe retrotransformado — leen un número y no dos. :func:`five_parameter_logistic` explica por qué eso necesita una constante en el denominador y qué falla sin ella.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#28",
+      "source": "Hormesis, which is the other reason a curve turns around",
+      "source_sha256": "0408c578fc21e1d7c8c066c03ad6a6e8cb29822e6cfe6ae785679cdff2869819",
+      "context": "Hormesis, which is the other reason a curve turns around",
+      "translation": "La hormesis, que es la otra razón por la que una curva cambia de sentido",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#29",
+      "source": ":func:`monotonicity` can see that a series reverses. It cannot say which reversal it is, and the two mean opposite things:",
+      "source_sha256": "07786e75529e3fb728a8384726d07c4393dae1bf01bab72141caf1c586984787",
+      "context": ":func:`monotonicity` can see that a series reverses. It cannot say which reversal it is, and the two mean opposite things:",
+      "translation": ":func:`monotonicity` puede ver que una serie se invierte. No puede decir qué inversión es, y las dos significan cosas opuestas:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#30",
+      "source": "the response **collapses at the top dose** — usually the compound killing whatever was being counted. The advice is to drop that dose;",
+      "source_sha256": "f44be244fc24184170eb920e845072f2e5c2cd37620f54d319f7405eea4db865",
+      "context": "the response **collapses at the top dose** — usually the compound killing whatever was being counted. The advice is to drop that dose;",
+      "translation": "la respuesta **se desploma en la dosis más alta** — normalmente el compuesto mata lo que se estaba contando. El consejo es eliminar esa dosis;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#31",
+      "source": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
+      "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
+      "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
+      "translation": "la respuesta **sube en la dosis más baja** antes de caer — hormesis. El consejo es rotundamente no eliminar esas dosis, porque la subida es el hallazgo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#32",
+      "source": ":func:`hormesis` tells them apart by fitting :func:`brain_cousens` — the 4PL with a low-dose stimulation term, which is the 4PL exactly when that term is zero — and comparing the two nested fits by an extra-sum-of-squares F test (the likelihood-ratio test, under this module's Gaussian errors), a small-sample-corrected AIC, and a **minimum-effect threshold**. All three, plus a positive coefficient, or the answer is no. The threshold is there because a tight assay will reach p < 0.001 on a hump worth 2% of the response span, and 2% is not a biological claim.",
+      "source_sha256": "db4ba29e8488f8caab3c698e218e2d0c5861f330e6db7fc40934678294ebafca",
+      "context": ":func:`hormesis` tells them apart by fitting :func:`brain_cousens` — the 4PL with a low-dose stimulation term, which is the 4PL exactly when that term is zero — and comparing the two nested fits by an extra-sum-of-squares F test (the likelihood-ratio test, under this module's Gaussian errors), a small-sample-corrected AIC, and a **minimum-effect threshold**. All three, plus a positive coefficient, or the answer is no. The threshold is there because a tight assay will reach p < 0.001 on a hump worth 2% of the response span, and 2% is not a biological claim.",
+      "translation": ":func:`hormesis` los distingue ajustando :func:`brain_cousens` — el 4PL con un término de estimulación a dosis bajas, que es exactamente el 4PL cuando ese término es cero — y comparando los dos ajustes anidados mediante una prueba F de suma de cuadrados adicional (la prueba de razón de verosimilitudes, con los errores gaussianos de este módulo), un AIC corregido para muestras pequeñas y un **umbral de efecto mínimo**. Los tres, más un coeficiente positivo, o la respuesta es no. El umbral está ahí porque un ensayo preciso alcanzará p < 0.001 con una joroba que vale el 2% del intervalo de respuesta, y un 2% no es una afirmación biológica.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#33",
+      "source": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
+      "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
+      "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
+      "translation": "La prueba se ejecuta sobre cualquier serie cuyo extremo de dosis bajas se aparte del control en contra de la tendencia, no solo sobre las que rechaza :func:`monotonicity` — **una joroba puede ocupar una quinta parte del intervalo de respuesta y seguir quedando dentro de** :data:`MAX_REVERSAL`, en cuyo caso el ajuste actual tiene éxito, cita una EC50 desplazada por la joroba y no dice nada. Esos ajustes llevan ahora el hallazgo en :attr:`DoseResponseResult.hormesis` y en sus advertencias.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
+      "source": "residual degrees of freedom — ``n_obs`` less the model's parameter count, so ``n_obs - 4`` for a 4PL and ``n_obs - 5`` for a 5PL.",
+      "source_sha256": "7cf55fb2e77ce8b5c3163f1ac8894fdd303361c0d199e2c1c3ecfd65219e47f8",
+      "context": "residual degrees of freedom — ``n_obs`` less the model's parameter count, so ``n_obs - 4`` for a 4PL and ``n_obs - 5`` for a 5PL.",
+      "translation": "grados de libertad residuales — ``n_obs`` menos el número de parámetros del modelo, así que ``n_obs - 4`` para un 4PL y ``n_obs - 5`` para un 5PL.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#22",
+      "source": "lowest distinct positive concentration fitted.",
+      "source_sha256": "6c1340e6b62ef92da67c469b16f44852ca6e54bb57d02f74166d21c658ee9f0d",
+      "context": "lowest distinct positive concentration fitted.",
+      "translation": "concentración positiva distinta más baja ajustada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#23",
+      "source": "highest distinct positive concentration fitted.",
+      "source_sha256": "74ff0fc5f6490a593cf484149bf433ad432f5638c529a925317dd0c37678acf5",
+      "context": "highest distinct positive concentration fitted.",
+      "translation": "concentración positiva distinta más alta ajustada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#24",
+      "source": "residual sum of squares of the fitted curve.",
+      "source_sha256": "ff3fc4ae29c8108f42e42bffcb5da08aa126e8813bba2485c92d526d8aeef4d6",
+      "context": "residual sum of squares of the fitted curve.",
+      "translation": "suma de cuadrados residual de la curva ajustada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#37",
+      "source": ":data:`MODEL_4PL` or :data:`MODEL_5PL` — which curve these parameters belong to.",
+      "source_sha256": "b017b8e8a5f6b29e0a38256beb86eb546abd86fe4ac0e29a7b96738b851c9490",
+      "context": ":data:`MODEL_4PL` or :data:`MODEL_5PL` — which curve these parameters belong to.",
+      "translation": ":data:`MODEL_4PL` o :data:`MODEL_5PL` — a qué curva pertenecen estos parámetros.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#38",
+      "source": "the 5PL exponent. Exactly ``1.0`` under :data:`MODEL_4PL`, where it is not a parameter at all.",
+      "source_sha256": "5caa69012f1bb1cc6d4c8b7569ba4f4379799a4c8bd0475078724da717b21cd8",
+      "context": "the 5PL exponent. Exactly ``1.0`` under :data:`MODEL_4PL`, where it is not a parameter at all.",
+      "translation": "el exponente del 5PL. Exactamente ``1.0`` con :data:`MODEL_4PL`, donde no es un parámetro en absoluto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#39",
+      "source": "its Wald interval, or ``(None, None)``.",
+      "source_sha256": "a987fe02bbae2b6a633f4b17bd14ee444ff5417fd31cee385e0141eeb8a04c5f",
+      "context": "its Wald interval, or ``(None, None)``.",
+      "translation": "su intervalo de Wald, o ``(None, None)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#40",
+      "source": "extra-sum-of-squares F of the 5PL against the 4PL on the same points, or ``None`` under :data:`MODEL_4PL`.",
+      "source_sha256": "d5d962957f536f72e7e11c1a6dd4aca883c9e90d3fa9770715d2e687b5d80351",
+      "context": "extra-sum-of-squares F of the 5PL against the 4PL on the same points, or ``None`` under :data:`MODEL_4PL`.",
+      "translation": "F de suma de cuadrados adicional del 5PL frente al 4PL en los mismos puntos, o ``None`` con :data:`MODEL_4PL`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#41",
+      "source": "its p value. **A large p is the interesting case**: it says the asymmetry the 5PL fitted is inside what the noise would produce, and the symmetric fit is the one to quote.",
+      "source_sha256": "ae7fd5b534c86997daad80198c2cb7dc1ae6454ddbd4b0647948b05a3cc83b6a",
+      "context": "its p value. **A large p is the interesting case**: it says the asymmetry the 5PL fitted is inside what the noise would produce, and the symmetric fit is the one to quote.",
+      "translation": "su valor p. **Un p grande es el caso interesante**: dice que la asimetría que ajustó el 5PL está dentro de lo que produciría el ruido, y el ajuste simétrico es el que hay que citar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#42",
+      "source": "the :class:`HormesisCheck` when the low-dose end of the series was worth testing, else ``None``. A fit can be perfectly monotone by :func:`monotonicity` and still carry a hormetic hump that displaces its EC50, so this is reported beside a successful fit and not only inside a refusal.",
+      "source_sha256": "ea1ec3b2db8f155966301e9629d029634a8fa1b0ad18c050766f719745d76270",
+      "context": "the :class:`HormesisCheck` when the low-dose end of the series was worth testing, else ``None``. A fit can be perfectly monotone by :func:`monotonicity` and still carry a hormetic hump that displaces its EC50, so this is reported beside a successful fit and not only inside a refusal.",
+      "translation": "el :class:`HormesisCheck` cuando merecía la pena probar el extremo de dosis bajas de la serie; si no, ``None``. Un ajuste puede ser perfectamente monótono según :func:`monotonicity` y aun así tener una joroba hormética que desplace su EC50, por lo que esto se informa junto a un ajuste correcto y no solo dentro de un rechazo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#9",
+      "source": "whether the data bound the EC50: it lies inside the tested range, the curve's midpoint is within the observed responses, both plateaus are reached and the interval is closed on both sides. :attr:`ec50` is ``None`` unless it is ``True``.",
+      "source_sha256": "8baac7bdd85a3b273277122639cf4d3acf0f04232d8b1f757d101f9dfcffbcc5",
+      "context": "whether the data bound the EC50: it lies inside the tested range, the curve's midpoint is within the observed responses, both plateaus are reached and the interval is closed on both sides. :attr:`ec50` is ``None`` unless it is ``True``.",
+      "translation": "si los datos acotaron la EC50: está dentro del intervalo probado, el punto medio de la curva está dentro de las respuestas observadas, se alcanzan ambas mesetas y el intervalo está cerrado por ambos lados. :attr:`ec50` es ``None`` salvo que esto sea ``True``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.parameters#0",
+      "source": "The vector this result's model takes.",
+      "source_sha256": "912c5280c480ed0f0224cbacf98ac7992dff865cca3b68992d7e3389ba116f2a",
+      "context": "The vector this result's model takes.",
+      "translation": "El vector que recibe el modelo de este resultado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.parameters#1",
+      "source": "``(bottom, top, log10_ec50, hill)`` under :data:`MODEL_4PL` and that with ``asymmetry`` appended under :data:`MODEL_5PL` — in both cases exactly what :attr:`model_function` expects, so ``predict`` is one line and no caller has to know which model it is holding.",
+      "source_sha256": "429917bc980059fc1237c063a4de6d10e6a47910487cf5e5594619660fa66ff6",
+      "context": "``(bottom, top, log10_ec50, hill)`` under :data:`MODEL_4PL` and that with ``asymmetry`` appended under :data:`MODEL_5PL` — in both cases exactly what :attr:`model_function` expects, so ``predict`` is one line and no caller has to know which model it is holding.",
+      "translation": "``(bottom, top, log10_ec50, hill)`` con :data:`MODEL_4PL` y lo mismo con ``asymmetry`` añadido con :data:`MODEL_5PL` — en ambos casos exactamente lo que espera :attr:`model_function`, de modo que ``predict`` es una línea y ningún llamador tiene que saber qué modelo tiene.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.predict#1",
+      "source": "concentration(s), in the fitted units; evaluated with this result's model and parameters.",
+      "source_sha256": "faa584b1697261dc92ec6fc6d777f2a0591a2cc811ed7f429df84d032fb5123b",
+      "context": "concentration(s), in the fitted units; evaluated with this result's model and parameters.",
+      "translation": "concentración o concentraciones, en las unidades ajustadas; se evalúan con el modelo y los parámetros de este resultado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.status#0",
+      "source": ":data:`STATUS_FITTED` or :data:`STATUS_UNBOUNDED`.",
+      "source_sha256": "7b27bb44526ffb56231cf6533848a7caa7be3e54a34245af11006fcf6f21ad92",
+      "context": ":data:`STATUS_FITTED` or :data:`STATUS_UNBOUNDED`.",
+      "translation": ":data:`STATUS_FITTED` o :data:`STATUS_UNBOUNDED`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSet.get#1",
+      "source": "the level name to look up, as stored in :attr:`GroupFit.group` (``\"\"`` for an ungrouped fit).",
+      "source_sha256": "44a142de643cf1b0933276ac217608780437018a1d74e4c4a37d0afb1309ca63",
+      "context": "the level name to look up, as stored in :attr:`GroupFit.group` (``\"\"`` for an ungrouped fit).",
+      "translation": "el nombre del nivel que se busca, tal como se guarda en :attr:`GroupFit.group` (``\"\"`` para un ajuste sin agrupar).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#11",
+      "source": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
+      "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
+      "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
+      "translation": ":data:`MODEL_4PL` (predeterminado) o :data:`MODEL_5PL`. El modelo asimétrico es una elección que hace el usuario y nunca una que los datos hagan por él: se ofrece porque la asimetría real existe y un 4PL la absorbe en una EC50 desplazada, y no es el predeterminado porque el quinto parámetro está débilmente identificado con las ocho o diez concentraciones que lleva realmente una placa. Un ajuste que eligió 5PL informa de si el parámetro adicional estaba justificado — véase :attr:`DoseResponseResult.asymmetry_p`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
+      "source": "on an unknown method, direction or model, or a confidence outside (0, 1) — at the point the spec is built, not halfway through a plate.",
+      "source_sha256": "2f52c10dbb620c1ce404ab6a9eb85e6b045c072df1706859c6bf7b32f891ccc2",
+      "context": "on an unknown method, direction or model, or a confidence outside (0, 1) — at the point the spec is built, not halfway through a plate.",
+      "translation": "ante un método, dirección o modelo desconocido, o una confianza fuera de (0, 1) — en el momento en que se construye la especificación, no a mitad de una placa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.__post_init__#1",
+      "source": "if ``ci_method``, ``direction`` or ``model`` is not one this module offers; if ``confidence`` is not strictly between 0 and 1 -- it is a coverage probability, so a 95% interval is 0.95 and not 95; or if ``max_reversal`` is not a fraction of the response span in ``(0, 1]``.",
+      "source_sha256": "f00ed0839170ac9f4902dcdce1cbc07e9dde8ce970a928d476a658ad5b2d8270",
+      "context": "if ``ci_method``, ``direction`` or ``model`` is not one this module offers; if ``confidence`` is not strictly between 0 and 1 -- it is a coverage probability, so a 95% interval is 0.95 and not 95; or if ``max_reversal`` is not a fraction of the response span in ``(0, 1]``.",
+      "translation": "si ``ci_method``, ``direction`` o ``model`` no es uno de los que ofrece este módulo; si ``confidence`` no está estrictamente entre 0 y 1 -- es una probabilidad de cobertura, así que un intervalo del 95% es 0.95 y no 95 --; o si ``max_reversal`` no es una fracción del intervalo de respuesta en ``(0, 1]``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.from_dict#2",
+      "source": "mapping as written by :meth:`to_dict`; only the spec's own field names are used.",
+      "source_sha256": "1de9292805aa1245530114d08f111e18c5ecd10a3dbe4a30d8932f9c801d5b98",
+      "context": "mapping as written by :meth:`to_dict`; only the spec's own field names are used.",
+      "translation": "mapeo tal como lo escribe :meth:`to_dict`; solo se usan los nombres de campo propios de la especificación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.from_json#1",
+      "source": "JSON text as written by :meth:`to_json`.",
+      "source_sha256": "44351042c2a452c20bbe79417e5beae106578d8b5e904f16d86c0391b77669ec",
+      "context": "JSON text as written by :meth:`to_json`.",
+      "translation": "texto JSON tal como lo escribe :meth:`to_json`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_ci_method#1",
+      "source": ":data:`CI_PROFILE` or :data:`CI_WALD`; any other value raises :class:`DoseResponseError`.",
+      "source_sha256": "346edb0195cdbc15ca0a1ce63ced5dc99a60554f559a3adcbff7f4ab788ecaf4",
+      "context": ":data:`CI_PROFILE` or :data:`CI_WALD`; any other value raises :class:`DoseResponseError`.",
+      "translation": ":data:`CI_PROFILE` o :data:`CI_WALD`; cualquier otro valor lanza :class:`DoseResponseError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_columns#0",
+      "source": "A copy pointed at different columns.",
+      "source_sha256": "bc01b3abc04c332863e3d481610868aaae884aed6bccb5c5f2e33acfed7123bc",
+      "context": "A copy pointed at different columns.",
+      "translation": "Una copia que apunta a columnas distintas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_columns#1",
+      "source": "column holding the dose.",
+      "source_sha256": "acd3bcadc70ac4ddbbee0df487fae28e09d61c3bf2a0b552e8ea7740f0215d00",
+      "context": "column holding the dose.",
+      "translation": "columna que contiene la dosis.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_columns#2",
+      "source": "column holding the measured response.",
+      "source_sha256": "2b4c456e4b21f10d21910d70214c37f5de4a437fa1e1ac52571307e9b815e600",
+      "context": "column holding the measured response.",
+      "translation": "columna que contiene la respuesta medida.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_unit#1",
+      "source": "concentration unit for the sentences; surrounding whitespace is stripped.",
+      "source_sha256": "efb3a1afdff677e472ea963aef1412672884307efeca281981074f35f1da6da5",
+      "context": "concentration unit for the sentences; surrounding whitespace is stripped.",
+      "translation": "unidad de concentración para las frases; se quitan los espacios en blanco de alrededor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.GroupFit.status#0",
+      "source": ":data:`STATUS_REFUSED`, :data:`STATUS_UNBOUNDED` or :data:`STATUS_FITTED`.",
+      "source_sha256": "0434d4c308510610dc050461cc99aafffd3a40e1d4b50720e07e945ffb32ea3c",
+      "context": ":data:`STATUS_REFUSED`, :data:`STATUS_UNBOUNDED` or :data:`STATUS_FITTED`.",
+      "translation": ":data:`STATUS_REFUSED`, :data:`STATUS_UNBOUNDED` o :data:`STATUS_FITTED`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#0",
+      "source": "Whether the low-dose end of the series is stimulated, and by how much.",
+      "source_sha256": "475931ffd5ac04fe8392a30a7c188fd030f5efb25b3b2f11a9176bae2fc4d091",
+      "context": "Whether the low-dose end of the series is stimulated, and by how much.",
+      "translation": "Si el extremo de dosis bajas de la serie está estimulado, y cuánto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#1",
+      "source": ":func:`monotonicity` can see that a series turns around. It cannot say *which* turn it is, and the two turns a concentration series produces mean opposite things: a collapse at the top dose is usually the compound killing whatever was being counted, and the fix is to drop that dose, while a hump at the bottom is hormesis, and dropping doses there throws the finding away. This check names which one it is by fitting the model that has a hump in it and asking whether the hump paid for itself.",
+      "source_sha256": "d40ef19cc2cd95ac970f96b23ea79dece85500555b8eb2025b75f1b699b24365",
+      "context": ":func:`monotonicity` can see that a series turns around. It cannot say *which* turn it is, and the two turns a concentration series produces mean opposite things: a collapse at the top dose is usually the compound killing whatever was being counted, and the fix is to drop that dose, while a hump at the bottom is hormesis, and dropping doses there throws the finding away. This check names which one it is by fitting the model that has a hump in it and asking whether the hump paid for itself.",
+      "translation": ":func:`monotonicity` puede ver que una serie cambia de sentido. No puede decir *qué* cambio es, y los dos cambios que produce una serie de concentraciones significan cosas opuestas: un desplome en la dosis más alta suele ser el compuesto matando lo que se estaba contando, y la solución es eliminar esa dosis, mientras que una joroba en la parte baja es hormesis, y eliminar dosis ahí tira el hallazgo. Esta comprobación indica cuál es ajustando el modelo que tiene una joroba y preguntando si la joroba compensa su coste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#10",
+      "source": "residual sum of squares of the 4PL.",
+      "source_sha256": "9ccb6a94c07caab94bc0450662d0732cc508e350c4c762128a598d6979e1d076",
+      "context": "residual sum of squares of the 4PL.",
+      "translation": "suma de cuadrados residual del 4PL.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#11",
+      "source": "residual sum of squares of the Brain–Cousens fit.",
+      "source_sha256": "93cfa3e2cc95fe15bbfe789f7820bd366b86c14dccf1aae2ed452dd21fc6dbc9",
+      "context": "residual sum of squares of the Brain–Cousens fit.",
+      "translation": "suma de cuadrados residual del ajuste de Brain–Cousens.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#12",
+      "source": "observations both models were fitted on.",
+      "source_sha256": "96ed714d3cce2565b68ccc973eaf13eba6a221525b18c1418afd0b9b4e617648",
+      "context": "observations both models were fitted on.",
+      "translation": "observaciones con las que se ajustaron ambos modelos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#13",
+      "source": "residual degrees of freedom of the hormetic fit, ``n - 5``.",
+      "source_sha256": "c324ec40938d59bf3e026d3780e2720899b9659047a461dae8cbad8f653e3c54",
+      "context": "residual degrees of freedom of the hormetic fit, ``n - 5``.",
+      "translation": "grados de libertad residuales del ajuste hormético, ``n - 5``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#14",
+      "source": "the EC50 the monotone fit reports, so the cost of ignoring the hump is visible as a number rather than an argument.",
+      "source_sha256": "7c7cea07f1216975678a62251343a97877b9aa6ce9f38471c7ea8d68c7bab4d0",
+      "context": "the EC50 the monotone fit reports, so the cost of ignoring the hump is visible as a number rather than an argument.",
+      "translation": "la EC50 que indica el ajuste monótono, de modo que el coste de ignorar la joroba se ve como un número y no como un argumento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#15",
+      "source": "the EC50 the hormetic fit reports.",
+      "source_sha256": "352d02f1908b34ab0dabe4d422c1346468cc11d4161db66aebeaa450a17834ec",
+      "context": "the EC50 the hormetic fit reports.",
+      "translation": "la EC50 que indica el ajuste hormético.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#16",
+      "source": "the :data:`HORMESIS_MIN_EFFECT` this used.",
+      "source_sha256": "2698bf2d38979e7b438a12ee1c49425841a427dd9d033ac4f72edc14f15986e0",
+      "context": "the :data:`HORMESIS_MIN_EFFECT` this used.",
+      "translation": "el :data:`HORMESIS_MIN_EFFECT` que se usó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#17",
+      "source": "the :data:`HORMESIS_ALPHA` this used.",
+      "source_sha256": "bed2f1224230d2ad9df18839954eecbb0503a59f1f962fbb63abe3470a819b45",
+      "context": "the :data:`HORMESIS_ALPHA` this used.",
+      "translation": "el :data:`HORMESIS_ALPHA` que se usó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#18",
+      "source": "the :data:`HORMESIS_MIN_AIC` this used.",
+      "source_sha256": "cb0d76a2488084cf57d96a0a716c44e85fc827aa57df7db0510e881e757abd06",
+      "context": "the :data:`HORMESIS_MIN_AIC` this used.",
+      "translation": "el :data:`HORMESIS_MIN_AIC` que se usó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#19",
+      "source": "why the verdict is what it is — the first criterion that failed, or the caveat that survives a positive verdict.",
+      "source_sha256": "b98c0e771011cae41a03938308a2d309e361e88b3b22260f82ef5143c81349eb",
+      "context": "why the verdict is what it is — the first criterion that failed, or the caveat that survives a positive verdict.",
+      "translation": "por qué el veredicto es el que es — el primer criterio que no se cumplió, o la advertencia que sobrevive a un veredicto positivo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#2",
+      "source": "the verdict, and it needs all four criteria below.",
+      "source_sha256": "47630260220cc00bdc7a9a649263bfd9624e7213859a9384bffc8c042aa1fff6",
+      "context": "the verdict, and it needs all four criteria below.",
+      "translation": "el veredicto, que necesita los cuatro criterios siguientes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#3",
+      "source": "the fitted Brain–Cousens coefficient, in response units per concentration unit. Positive is a hump.",
+      "source_sha256": "7231b4b34756b6d5cb6e9a17d343133dc918d4008d444e51e027f5a781975130",
+      "context": "the fitted Brain–Cousens coefficient, in response units per concentration unit. Positive is a hump.",
+      "translation": "el coeficiente de Brain–Cousens ajustado, en unidades de respuesta por unidad de concentración. Positivo es una joroba.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#4",
+      "source": "the largest departure from the control plateau the fitted hormetic curve reaches inside the tested range, in response units.",
+      "source_sha256": "122016fb67cd43173d827285ea89993c3b6c02875c8ec538a63478b62b5ee095",
+      "context": "the largest departure from the control plateau the fitted hormetic curve reaches inside the tested range, in response units.",
+      "translation": "el mayor alejamiento de la meseta de control que alcanza la curva hormética ajustada dentro del intervalo probado, en unidades de respuesta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#5",
+      "source": "that departure over the fitted curve's response span — the number the minimum-effect threshold is applied to.",
+      "source_sha256": "f56910bf74a9da661da8baf4cf9eb5a5fdbd2f6d7845b03b2c614970c85e5ad4",
+      "context": "that departure over the fitted curve's response span — the number the minimum-effect threshold is applied to.",
+      "translation": "ese alejamiento dividido por el intervalo de respuesta de la curva ajustada — el número al que se aplica el umbral de efecto mínimo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#6",
+      "source": "where that maximum sits, or ``None`` when there is no fitted curve to read it off.",
+      "source_sha256": "671f21f6cfce9106946ea956dd6da4e38fb232b4e90bb7f60377682c70d3d816",
+      "context": "where that maximum sits, or ``None`` when there is no fitted curve to read it off.",
+      "translation": "dónde está ese máximo, o ``None`` cuando no hay curva ajustada de la que leerlo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#7",
+      "source": "extra-sum-of-squares F for the one added parameter.",
+      "source_sha256": "2231059c2670650c5e77d073eb9b7e750ec1cf65e8d3eb0924a7c545022fc0fe",
+      "context": "extra-sum-of-squares F for the one added parameter.",
+      "translation": "F de suma de cuadrados adicional para el único parámetro añadido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#8",
+      "source": "its p value, on 1 and ``dof`` degrees of freedom.",
+      "source_sha256": "82ae97ad35f1165bbd9ba5ac692432e982a4357b1616d223fbfc387aed432479",
+      "context": "its p value, on 1 and ``dof`` degrees of freedom.",
+      "translation": "su valor p, con 1 y ``dof`` grados de libertad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#9",
+      "source": "corrected AIC of the monotone fit minus that of the hormetic fit. Positive favours hormesis.",
+      "source_sha256": "fbb9b6b9f7ba90a6b4584c1fb6e8a183871fdc39da916d05fc5c580ab64c03fe",
+      "context": "corrected AIC of the monotone fit minus that of the hormetic fit. Positive favours hormesis.",
+      "translation": "AIC corregido del ajuste monótono menos el del ajuste hormético. Positivo favorece la hormesis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.InteractionSurface#3",
+      "source": ":data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.",
+      "source_sha256": "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+      "context": ":data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.",
+      "translation": ":data:`SYNERGY_BLISS` o :data:`SYNERGY_LOEWE`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#0",
+      "source": "The Brain–Cousens hormesis model: a 4PL with a low-dose hump on it.",
+      "source_sha256": "ad1e01814bd21fbad6f01910d1ed58d80987e891cec5a42ae8531ef5f0ce47c2",
+      "context": "The Brain–Cousens hormesis model: a 4PL with a low-dose hump on it.",
+      "translation": "El modelo de hormesis de Brain–Cousens: un 4PL con una joroba a dosis bajas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#1",
+      "source": "``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)`` with ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, the weight that is 1 at zero dose, ½ at the EC50 and 0 above it.",
+      "source_sha256": "951933d1b39167ef3dd70dad48c093ab2e4772ca5bdc7c1be32f1f25205160e6",
+      "context": "``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)`` with ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, the weight that is 1 at zero dose, ½ at the EC50 and 0 above it.",
+      "translation": "``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)`` con ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, el peso que vale 1 a dosis cero, ½ en la EC50 y 0 por encima.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#10",
+      "source": "the modelled response, same shape as ``x``.",
+      "source_sha256": "b108add4d625f24ebe4ab73ba065fdbe104ed3e65dd0ca2672105e39548b48c1",
+      "context": "the modelled response, same shape as ``x``.",
+      "translation": "la respuesta modelada, con la misma forma que ``x``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#2",
+      "source": "For an inhibition curve (``hill < 0``) that is the published model (Brain & Cousens, *Weed Research* 29, 1989) written in this module's parameterisation: ``w`` is then exactly the 4PL's own sigmoid factor, and the expression collapses to ``bottom + (top - bottom + f·x)·w``, which is Brain–Cousens term for term. For an activation curve it is that model reflected, because hormesis is a departure from the control *against* the direction the compound eventually pushes the readout, and on an activation series that is a low-dose dip rather than a low-dose rise. Writing it as one function with the sign taken from the Hill slope means the same hypothesis test covers both, instead of a second model nobody would remember to run.",
+      "source_sha256": "6a3ebe9a36a6accd06589b270439abcc67ae97dc14bc32dc36e79e94a4543655",
+      "context": "For an inhibition curve (``hill < 0``) that is the published model (Brain & Cousens, *Weed Research* 29, 1989) written in this module's parameterisation: ``w`` is then exactly the 4PL's own sigmoid factor, and the expression collapses to ``bottom + (top - bottom + f·x)·w``, which is Brain–Cousens term for term. For an activation curve it is that model reflected, because hormesis is a departure from the control *against* the direction the compound eventually pushes the readout, and on an activation series that is a low-dose dip rather than a low-dose rise. Writing it as one function with the sign taken from the Hill slope means the same hypothesis test covers both, instead of a second model nobody would remember to execute.",
+      "translation": "Para una curva de inhibición (``hill < 0``) es el modelo publicado (Brain & Cousens, *Weed Research* 29, 1989) escrito en la parametrización de este módulo: ``w`` es entonces exactamente el propio factor sigmoide del 4PL, y la expresión se reduce a ``bottom + (top - bottom + f·x)·w``, que es Brain–Cousens término a término. Para una curva de activación es ese modelo reflejado, porque la hormesis es un alejamiento del control *en contra* de la dirección en la que el compuesto acaba llevando la lectura, y en una serie de activación eso es un descenso a dosis bajas y no una subida. Escribirlo como una sola función con el signo tomado de la pendiente de Hill hace que la misma prueba de hipótesis cubra ambos casos, en lugar de un segundo modelo que nadie se acordaría de ejecutar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#3",
+      "source": "``stimulation == 0`` is the 4PL exactly, which is what makes the pair nested and :func:`hormesis`' F test a one-parameter test.",
+      "source_sha256": "12b4158d0517f5bde63224873ec4f5bfa0aff01f66602ee139c7d4e6ab93b146",
+      "context": "``stimulation == 0`` is the 4PL exactly, which is what makes the pair nested and :func:`hormesis`' F test a one-parameter test.",
+      "translation": "``stimulation == 0`` es exactamente el 4PL, que es lo que hace que el par esté anidado y que la prueba F de :func:`hormesis` sea una prueba de un parámetro.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#4",
+      "source": "concentration(s).",
+      "source_sha256": "137e8c97e609243d4b957d357d92fd7de59b87a5f690aafc2720912a1ab6d94e",
+      "context": "concentration(s).",
+      "translation": "concentración o concentraciones.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#5",
+      "source": "the smaller plateau of the underlying 4PL.",
+      "source_sha256": "41aaff90e831a8e9bc28cec18c358723ba70f2db80ba5e70adfcb3b51c1160b9",
+      "context": "the smaller plateau of the underlying 4PL.",
+      "translation": "la meseta menor del 4PL subyacente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#6",
+      "source": "the larger plateau of the underlying 4PL.",
+      "source_sha256": "8fe00f1ad8a8a12e17d4e3c925041d6ff56467c2c8236364a2335ffb646f9725",
+      "context": "the larger plateau of the underlying 4PL.",
+      "translation": "la meseta mayor del 4PL subyacente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#7",
+      "source": "base-10 log of the underlying 4PL's EC50.",
+      "source_sha256": "8de16ef98d97a33e53dcfb3dea8eb5f55919a0f0a5b13d2c88a23be97064f757",
+      "context": "base-10 log of the underlying 4PL's EC50.",
+      "translation": "logaritmo en base 10 de la EC50 del 4PL subyacente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#8",
+      "source": "slope; its sign carries the direction, as everywhere here.",
+      "source_sha256": "fbb23241816a99ecc0c7a3882a5808f3dd8beacb6a04c00ac68634aa01a44546",
+      "context": "slope; its sign carries the direction, as everywhere here.",
+      "translation": "pendiente; su signo indica la dirección, como en todo este módulo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#9",
+      "source": "the hormesis term's coefficient, in response units per concentration unit. Positive is hormesis; zero is no hormesis; negative is a curve that leaves the control plateau *faster* than a 4PL, which is a shape correction and is never called hormesis.",
+      "source_sha256": "fce5025bc25ed8d1e6dd67d023e9afa6daa3a7afa7fdfbcdfb2106fa6f0fea20",
+      "context": "the hormesis term's coefficient, in response units per concentration unit. Positive is hormesis; zero is no hormesis; negative is a curve that leaves the control plateau *faster* than a 4PL, which is a shape correction and is never called hormesis.",
+      "translation": "el coeficiente del término de hormesis, en unidades de respuesta por unidad de concentración. Positivo es hormesis; cero es ausencia de hormesis; negativo es una curva que abandona la meseta de control *más deprisa* que un 4PL, lo cual es una corrección de forma y nunca se llama hormesis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.candidate_concentration_columns#3",
+      "source": "the table whose columns are screened; they are returned in sorted name order.",
+      "source_sha256": "99495f3fdb0646243631435b4dc1dc22d582d892029bd50918d8ee7a51566246",
+      "context": "the table whose columns are screened; they are returned in sorted name order.",
+      "translation": "la tabla cuyas columnas se examinan; se devuelven ordenadas por nombre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.candidate_response_columns#2",
+      "source": "the table whose columns are classified; the continuous ones are returned in sorted name order.",
+      "source_sha256": "d3dc145384b4a2247884721b82f754f3c26693cb478eaee344093d27663991c4",
+      "context": "the table whose columns are classified; the continuous ones are returned in sorted name order.",
+      "translation": "la tabla cuyas columnas se clasifican; las continuas se devuelven ordenadas por nombre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#2",
+      "source": "Two things happen here that the model choice does not change. **A series whose low-dose end rises against the trend is tested for hormesis** (:func:`hormesis`) whether or not it also fails the monotonicity check, because a hump can be worth a fifth of the response span and still be inside :data:`MAX_REVERSAL`. A hormetic series that fails the monotonicity check is refused *as hormesis* rather than as the cytotoxicity a bell shape usually is — a different sentence, a different thing to do next. A hormetic series that passes it is fitted, and carries the finding as a caveat and as :attr:`DoseResponseResult.hormesis`.",
+      "source_sha256": "bd3872fff0a1836de6bf5e6b95e45f64bdae2ecc899c1f259d1cbbab2d600e0a",
+      "context": "Two things happen here that the model choice does not change. **A series whose low-dose end rises against the trend is tested for hormesis** (:func:`hormesis`) whether or not it also fails the monotonicity check, because a hump can be worth a fifth of the response span and still be inside :data:`MAX_REVERSAL`. A hormetic series that fails the monotonicity check is refused *as hormesis* rather than as the cytotoxicity a bell shape usually is — a different sentence, a different thing to do next. A hormetic series that passes it is fitted, and carries the finding as a caveat and as :attr:`DoseResponseResult.hormesis`.",
+      "translation": "Aquí ocurren dos cosas que la elección del modelo no cambia. **Una serie cuyo extremo de dosis bajas sube en contra de la tendencia se prueba para hormesis** (:func:`hormesis`) falle o no la comprobación de monotonía, porque una joroba puede valer una quinta parte del intervalo de respuesta y seguir dentro de :data:`MAX_REVERSAL`. Una serie hormética que no pasa la comprobación de monotonía se rechaza *como hormesis* y no como la citotoxicidad que suele ser una forma de campana — una frase distinta, otra cosa que hacer después. Una serie hormética que la pasa se ajusta, y lleva el hallazgo como advertencia y como :attr:`DoseResponseResult.hormesis`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#3",
+      "source": "**The 5PL is fitted from the 4PL solution**, so the asymmetric fit starts at the symmetric answer and can only leave it for something better; the improvement is then reported as an F test on the one extra parameter.",
+      "source_sha256": "3804e68137aa3563f6c0359f5102afbd887c8301615f11f00d2386fb2b8c5491",
+      "context": "**The 5PL is fitted from the 4PL solution**, so the asymmetric fit starts at the symmetric answer and can only leave it for something better; the improvement is then reported as an F test on the one extra parameter.",
+      "translation": "**El 5PL se ajusta a partir de la solución 4PL**, de modo que el ajuste asimétrico empieza en la respuesta simétrica y solo puede abandonarla por algo mejor; la mejora se informa después como una prueba F sobre el único parámetro adicional.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#6",
+      "source": "a :class:`DoseResponseSpec`. Only its policy fields matter here — including ``model``; the column names are for :func:`fit_frame`.",
+      "source_sha256": "caae5df2071cbfb532945c8f9c30937b921517c5dad60300c7b7f6e6ffb68c5c",
+      "context": "a :class:`DoseResponseSpec`. Only its policy fields matter here — including ``model``; the column names are for :func:`fit_frame`.",
+      "translation": "un :class:`DoseResponseSpec`. Aquí solo importan sus campos de política — incluido ``model``; los nombres de columna son para :func:`fit_frame`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#8",
+      "source": "for every series that cannot carry the chosen model — too few concentrations, a flat response, a negative concentration, a bell shape, a hormetic curve, or an optimiser that never converged. The message says which and what to do about it.",
+      "source_sha256": "b2569f037da71ac3c4a03d2ec4d7863acc3e31b76c3bf490e0d0d66afa0ad12f",
+      "context": "for every series that cannot carry the chosen model — too few concentrations, a flat response, a negative concentration, a bell shape, a hormetic curve, or an optimiser that never converged. The message says which and what to do about it.",
+      "translation": "para toda serie que no puede sostener el modelo elegido — muy pocas concentraciones, una respuesta plana, una concentración negativa, una forma de campana, una curva hormética o un optimizador que nunca convergió. El mensaje dice cuál y qué hacer al respecto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_frame#2",
+      "source": "the table holding the concentration, response and optional grouping columns named by ``spec``.",
+      "source_sha256": "a3108e15a504b2994904d686ffb45d0aba404edbc9f99a92d56c0250e0a33047",
+      "context": "the table holding the concentration, response and optional grouping columns named by ``spec``.",
+      "translation": "la tabla que contiene las columnas de concentración, respuesta y agrupación opcional que nombra ``spec``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_frame#3",
+      "source": "the columns to fit and the fitting policy; with a ``group`` column, one curve is fitted per level.",
+      "source_sha256": "bfdf8a7d03ea752c633756009125d5bb6c7c57ac43375f89d3d7e0f2889cb6e4",
+      "context": "the columns to fit and the fitting policy; with a ``group`` column, one curve is fitted per level.",
+      "translation": "las columnas que se ajustan y la política de ajuste; con una columna ``group``, se ajusta una curva por nivel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#0",
+      "source": "The 5PL curve, parameterised so ``log10_ec50`` is still the EC50.",
+      "source_sha256": "e159543150bb61bae4c1b6cd19eeebddc659361e12edac2c082252031417286f",
+      "context": "The 5PL curve, parameterised so ``log10_ec50`` is still the EC50.",
+      "translation": "La curva 5PL, parametrizada para que ``log10_ec50`` siga siendo la EC50.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#1",
+      "source": "``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) * hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.",
+      "source_sha256": "94f56af32d96e6f342f6a14b81fb9c20dd04cf349088f8eaf06a1f5aecd495f7",
+      "context": "``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) * hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.",
+      "translation": "``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) * hill)) ** asymmetry``, con ``a = 2 ** (1 / asymmetry) - 1``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#10",
+      "source": "slope. Negative is inhibition, positive is activation.",
+      "source_sha256": "fd80341b192f2c2311a4cb0dca4857fbfa4cb74bbf6ae842a4e149f205eb0eaf",
+      "context": "slope. Negative is inhibition, positive is activation.",
+      "translation": "pendiente. Negativa es inhibición, positiva es activación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#11",
+      "source": "the exponent. ``1`` is the symmetric 4PL; below 1 the curve leaves the low-dose plateau slowly and reaches the high-dose one abruptly, above 1 the reverse.",
+      "source_sha256": "50f859b92ffd5d23b54968aa6ee0cf864d6233f5ebb72c256128f81d4e0f2c40",
+      "context": "the exponent. ``1`` is the symmetric 4PL; below 1 the curve leaves the low-dose plateau slowly and reaches the high-dose one abruptly, above 1 the reverse.",
+      "translation": "el exponente. ``1`` es el 4PL simétrico; por debajo de 1 la curva abandona despacio la meseta de dosis bajas y alcanza bruscamente la de dosis altas; por encima de 1, al revés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#13",
+      "source": "if ``asymmetry`` is not strictly positive — the exponent of a nonneg quantity cannot be zero or negative here, and returning ``nan`` would let the optimiser wander into it.",
+      "source_sha256": "083008228b436a20e82bd3529bbe67b07788ada9366cad4c88167deb9ccfa441",
+      "context": "if ``asymmetry`` is not strictly positive — the exponent of a nonneg quantity cannot be zero or negative here, and returning ``nan`` would let the optimiser wander into it.",
+      "translation": "si ``asymmetry`` no es estrictamente positivo — el exponente de una cantidad no negativa no puede ser cero ni negativo aquí, y devolver ``nan`` dejaría que el optimizador se metiera ahí.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#2",
+      "source": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
+      "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
+      "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
+      "translation": "**Ese factor de escala es todo el sentido de esta función.** Escrito como suele escribirse el 5PL —",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#3",
+      "source": "— the parameter ``c`` is *not* the half-maximal concentration once ``s != 1``: at ``x = 10**c`` the response is ``bottom + (top - bottom) / 2**s``, which for ``s = 3`` is an eighth of the way up rather than half. A 5PL reported as if ``c`` were the EC50 is wrong by a factor that grows with the asymmetry, and it is a published mistake often enough to have its own literature (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005). Scaling the exponential by ``2 ** (1 / s) - 1`` moves the half-maximal point back to ``x = EC50`` exactly, so:",
+      "source_sha256": "abb5f59c9fe33b64c56fab381928f546b95aad7e45e79633690a130d67cb358a",
+      "context": "— the parameter ``c`` is *not* the half-maximal concentration once ``s != 1``: at ``x = 10**c`` the response is ``bottom + (top - bottom) / 2**s``, which for ``s = 3`` is an eighth of the way up rather than half. A 5PL reported as if ``c`` were the EC50 is wrong by a factor that grows with the asymmetry, and it is a published mistake often enough to have its own literature (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005). Scaling the exponential by ``2 ** (1 / s) - 1`` moves the half-maximal point back to ``x = EC50`` exactly, so:",
+      "translation": "— el parámetro ``c`` *no* es la concentración semimáxima en cuanto ``s != 1``: en ``x = 10**c`` la respuesta es ``bottom + (top - bottom) / 2**s``, que para ``s = 3`` es un octavo del recorrido y no la mitad. Un 5PL presentado como si ``c`` fuera la EC50 se equivoca en un factor que crece con la asimetría, y es un error publicado con la frecuencia suficiente como para tener su propia bibliografía (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005). Escalar la exponencial por ``2 ** (1 / s) - 1`` devuelve el punto semimáximo exactamente a ``x = EC50``, así que:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#4",
+      "source": "``asymmetry == 1`` reproduces :func:`four_parameter_logistic` term for term, which is what makes the two models nested and the F test in :func:`fit_dose_response` legitimate;",
+      "source_sha256": "b7b493ccdc1e075cf644ae1a845f82e94fe2867d8e6614237fe728b97fc5c2be",
+      "context": "``asymmetry == 1`` reproduces :func:`four_parameter_logistic` term for term, which is what makes the two models nested and the F test in :func:`fit_dose_response` legitimate;",
+      "translation": "``asymmetry == 1`` reproduce :func:`four_parameter_logistic` término a término, que es lo que hace que los dos modelos estén anidados y que la prueba F de :func:`fit_dose_response` sea legítima;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#5",
+      "source": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
+      "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
+      "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
+      "translation": "todas las reglas posteriores de este módulo — las pruebas de acotación, el intervalo de perfil, el informe retrotransformado — siguen leyendo ``log10_ec50`` como la misma magnitud en ambos modelos, y ninguna tuvo que aprender un segundo significado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
+      "source": "concentration(s). ``0`` evaluates to the low-dose plateau, as in :func:`four_parameter_logistic`.",
+      "source_sha256": "a10a897e2aa6ce1747ac392da3b4195d8e45335a49f49feb3ae03740c715d589",
+      "context": "concentration(s). ``0`` evaluates to the low-dose plateau, as in :func:`four_parameter_logistic`.",
+      "translation": "concentración o concentraciones. ``0`` da la meseta de dosis bajas, como en :func:`four_parameter_logistic`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#7",
+      "source": "the smaller plateau.",
+      "source_sha256": "62366e09548a73fc80e160070cfd1ddc1249d72156f3be38ccaff07c44a953e1",
+      "context": "the smaller plateau.",
+      "translation": "la meseta menor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#8",
+      "source": "the larger plateau.",
+      "source_sha256": "4fb45bdbc4254999af9367efccaebfafcae58dc138005824c6827d94537104b3",
+      "context": "the larger plateau.",
+      "translation": "la meseta mayor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#9",
+      "source": "base-10 log of the half-maximal concentration. It is the EC50 here, not the inflection parameter.",
+      "source_sha256": "7256704f2ef895d873a15fa5f01c0a219e369ac747fbde3b2d8080377fa38355",
+      "context": "base-10 log of the half-maximal concentration. It is the EC50 here, not the inflection parameter.",
+      "translation": "logaritmo en base 10 de la concentración semimáxima. Aquí es la EC50, no el parámetro de inflexión.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#0",
+      "source": "Is the low-dose end of this series stimulated, or is it noise?",
+      "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
+      "context": "Is the low-dose end of this series stimulated, or is it noise?",
+      "translation": "¿Está estimulado el extremo de dosis bajas de esta serie, o es ruido?",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#1",
+      "source": "Fits a 4PL and a Brain–Cousens curve (:func:`brain_cousens`) to the same points and compares them. The two models are nested — Brain–Cousens *is* the 4PL at ``stimulation = 0`` — so the comparison is the classical extra-sum-of-squares F test on one degree of freedom, which under Gaussian errors is the likelihood-ratio test written in the units this module already reports. It is required to agree with a corrected AIC, and both are required to agree with a minimum effect size.",
+      "source_sha256": "df8e80a3611edb274ad2df6d608ae15ba338476066cbca9eb266d37df914039f",
+      "context": "Fits a 4PL and a Brain–Cousens curve (:func:`brain_cousens`) to the same points and compares them. The two models are nested — Brain–Cousens *is* the 4PL at ``stimulation = 0`` — so the comparison is the classical extra-sum-of-squares F test on one degree of freedom, which under Gaussian errors is the likelihood-ratio test written in the units this module already reports. It is required to agree with a corrected AIC, and both are required to agree with a minimum effect size.",
+      "translation": "Ajusta un 4PL y una curva de Brain–Cousens (:func:`brain_cousens`) a los mismos puntos y los compara. Los dos modelos están anidados — Brain–Cousens *es* el 4PL con ``stimulation = 0`` —, así que la comparación es la clásica prueba F de suma de cuadrados adicional con un grado de libertad, que con errores gaussianos es la prueba de razón de verosimilitudes escrita en las unidades que este módulo ya utiliza. Se exige que coincida con un AIC corregido, y que ambas coincidan con un tamaño de efecto mínimo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#10",
+      "source": "significance the F test has to reach.",
+      "source_sha256": "2945712d32148ae92ae3418e53cc67f357da5309f606ffc5e9b9000f20a92495",
+      "context": "significance the F test has to reach.",
+      "translation": "significación que tiene que alcanzar la prueba F.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#11",
+      "source": "corrected-AIC gap the hormetic fit has to win by.",
+      "source_sha256": "0140818a4ce71f857ca5b6ff20442ba15e99ead31a1684d653a804d45a6e5869",
+      "context": "corrected-AIC gap the hormetic fit has to win by.",
+      "translation": "diferencia de AIC corregido por la que tiene que ganar el ajuste hormético.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#12",
+      "source": "a :class:`HormesisCheck`. Read :attr:`~HormesisCheck.is_hormetic`; when it is ``False`` the :attr:`~HormesisCheck.note` says which criterion failed.",
+      "source_sha256": "bfb18e45fd55f76d29fce03336d1a0df0e623ed39b852cb35b76f71d4f13106a",
+      "context": "a :class:`HormesisCheck`. Read :attr:`~HormesisCheck.is_hormetic`; when it is ``False`` the :attr:`~HormesisCheck.note` says which criterion failed.",
+      "translation": "un :class:`HormesisCheck`. Lea :attr:`~HormesisCheck.is_hormetic`; cuando es ``False``, :attr:`~HormesisCheck.note` dice qué criterio no se cumplió.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#13",
+      "source": "only for data that cannot be read at all — a negative concentration, or a concentration and response column of different lengths. Too few points to test is a ``False`` verdict with a note, not an exception: \"we could not test this\" is an answer.",
+      "source_sha256": "a5fe694c116671ce2c4462c29f9e2419ab652eb920b1297a0f6c5cdc6f3bcf0c",
+      "context": "only for data that cannot be read at all — a negative concentration, or a concentration and response column of different lengths. Too few points to test is a ``False`` verdict with a note, not an exception: \"we could not test this\" is an answer.",
+      "translation": "solo para datos que no se pueden leer en absoluto — una concentración negativa, o columnas de concentración y respuesta de longitudes distintas. Tener muy pocos puntos para la prueba es un veredicto ``False`` con una nota, no una excepción: \"we could not test this\" es una respuesta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#2",
+      "source": "**Four criteria, and all four have to hold.** Any one of them alone is a way to be wrong:",
+      "source_sha256": "0384d0567033fb7580d0a21a4e2b53c4527e7899e9f76fb3b3b6f9b4dbbe6811",
+      "context": "**Four criteria, and all four have to hold.** Any one of them alone is a way to be wrong:",
+      "translation": "**Cuatro criterios, y tienen que cumplirse los cuatro.** Cualquiera de ellos por sí solo es una forma de equivocarse:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#3",
+      "source": "1. the fitted ``stimulation`` is positive — a negative coefficient makes the curve leave the control plateau faster, which is a 4PL that does not quite fit rather than a compound that stimulates; 2. ``p < alpha`` on the F test; 3. ``ΔAICc >= min_delta_aic``, computed with the small-sample correction because these are five- and six-parameter models on twenty-odd wells; 4. the hump reaches ``min_effect`` of the fitted response span — the minimum-effect threshold, without which a very tight assay reports hormesis at 2% and a reader acts on it.",
+      "source_sha256": "48b2e61422288653716cb676bee8b63df03dbd3694b0feacb9bddabf3d245431",
+      "context": "1. the fitted ``stimulation`` is positive — a negative coefficient makes the curve leave the control plateau faster, which is a 4PL that does not quite fit rather than a compound that stimulates; 2. ``p < alpha`` on the F test; 3. ``ΔAICc >= min_delta_aic``, computed with the small-sample correction because these are five- and six-parameter models on twenty-odd microplate sample positions; 4. the hump reaches ``min_effect`` of the fitted response span — the minimum-effect threshold, without which a very tight assay reports hormesis at 2% and a reader acts on it.",
+      "translation": "1. el ``stimulation`` ajustado es positivo — un coeficiente negativo hace que la curva abandone antes la meseta de control, lo cual es un 4PL que no acaba de ajustar y no un compuesto que estimula; 2. ``p < alpha`` en la prueba F; 3. ``ΔAICc >= min_delta_aic``, calculado con la corrección para muestras pequeñas porque son modelos de cinco y seis parámetros sobre una veintena de pocillos; 4. la joroba alcanza ``min_effect`` del intervalo de respuesta ajustado — el umbral de efecto mínimo, sin el cual un ensayo muy preciso informa de hormesis al 2% y un lector actúa en consecuencia.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#4",
+      "source": "**Why the effect is measured against the response span** and not as a percentage of the control, which is the convention in the hormesis literature: this module normalises plates to percent inhibition, where the control is 0 by construction and a percentage of it is either infinite or meaningless. The span is the window the curve moves through under either scaling.",
+      "source_sha256": "2adb022436ab7f841e6b012501ef485c49153bc787b37f21b5f134ec5cc747c3",
+      "context": "**Why the effect is measured against the response span** and not as a percentage of the control, which is the convention in the hormesis literature: this module normalises plates to percent inhibition, where the control is 0 by construction and a percentage of it is either infinite or meaningless. The span is the window the curve moves through under either scaling.",
+      "translation": "**Por qué el efecto se mide respecto al intervalo de respuesta** y no como porcentaje del control, que es la convención en la bibliografía sobre hormesis: este módulo normaliza las placas a porcentaje de inhibición, donde el control es 0 por construcción y un porcentaje de él es infinito o carece de sentido. El intervalo es la ventana que recorre la curva con cualquiera de las dos escalas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#5",
+      "source": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
+      "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
+      "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
+      "translation": "**La prueba F es bilateral y la hipótesis es unilateral**, ya que solo una estimulación positiva es hormesis. El criterio 1 resuelve la parte unilateral por inspección en lugar de dividir el valor p entre dos, así que el p indicado es conservador en un factor de aproximadamente dos. Se declara en lugar de corregirse: un p conservador en una pantalla que ya rechaza estos datos es la dirección correcta en la que equivocarse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#6",
+      "source": "concentrations, one per observation. Zeros are vehicle controls and are dropped, as everywhere in this module.",
+      "source_sha256": "b0c13d88182a2d698b76ecc12b649bdf71e8b187c93f64d58578130bbd14a384",
+      "context": "concentrations, one per observation. Zeros are vehicle controls and are dropped, as everywhere in this module.",
+      "translation": "concentraciones, una por observación. Los ceros son controles de vehículo y se descartan, como en todo este módulo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#7",
+      "source": "the matching responses.",
+      "source_sha256": "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
+      "context": "the matching responses.",
+      "translation": "las respuestas correspondientes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#8",
+      "source": ":data:`DIRECTION_AUTO` or a pinned direction. It sets which way \"stimulated\" points — for an inhibition series hormesis is a rise above control, for an activation series a dip below it.",
+      "source_sha256": "4b567a19d13bfc0a37df0ed22c384cbdbfeb2af76fe2adf93872104f60c2bf98",
+      "context": ":data:`DIRECTION_AUTO` or a pinned direction. It sets which way \"stimulated\" points — for an inhibition series hormesis is a rise above control, for an activation series a dip below it.",
+      "translation": ":data:`DIRECTION_AUTO` o una dirección fijada. Determina hacia dónde apunta \"stimulated\" — para una serie de inhibición, la hormesis es una subida por encima del control; para una serie de activación, un descenso por debajo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#9",
+      "source": "the minimum-effect threshold, as a fraction of the fitted response span. See :data:`HORMESIS_MIN_EFFECT`.",
+      "source_sha256": "be89c41de9d30457ef16027f8f64ee8ff96404c40bf068480d8ca3d0a02bc834",
+      "context": "the minimum-effect threshold, as a fraction of the fitted response span. See :data:`HORMESIS_MIN_EFFECT`.",
+      "translation": "el umbral de efecto mínimo, como fracción del intervalo de respuesta ajustado. Véase :data:`HORMESIS_MIN_EFFECT`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dot_link.DotLink.paintEvent#1",
+      "source": "the paint event; unused, since the dot is redrawn whole from the button's enabled, pressed and hover state.",
+      "source_sha256": "7d4c96edbe84cdab84edfb25e1706521baf6948cca2f07e67a72e61c23bf5b71",
+      "context": "the paint event; unused, since the dot is redrawn whole from the button's enabled, pressed and hover state.",
+      "translation": "el evento de pintado; no se usa, ya que el punto se vuelve a dibujar entero a partir de los estados activado, pulsado y de cursor encima del botón.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.drawer.EdgeDrawer.adopt#2",
+      "source": "the panel widget to re-parent into the drawer; it is moved to the top-left, sized to the drawer's width and height and shown.",
+      "source_sha256": "c695cf902e2fb125da5f3bcefe04017e796e22550f2408ef7cb1ae770ea3cfb3",
+      "context": "the panel widget to re-parent into the drawer; it is moved to the top-left, sized to the drawer's width and height and shown.",
+      "translation": "el widget del panel que pasa a tener el cajón como padre; se mueve a la esquina superior izquierda, se ajusta al ancho y la altura del cajón y se muestra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.drawer.EdgeDrawer.set_enabled#3",
+      "source": "truthy to arm the reveal, falsy to hide the hot strip and stop the open and close timers.",
+      "source_sha256": "f6baddbb3d645053018de66785cdcd8857590d8da60daeed512ba6d3effe267c",
+      "context": "truthy to arm the reveal, falsy to hide the hot strip and stop the open and close timers.",
+      "translation": "verdadero para activar la revelación, falso para ocultar la franja sensible y detener los temporizadores de apertura y cierre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#10",
+      "source": "The widget answers the parts of ``QProgressBar``'s API the call sites use (``setRange``, ``setValue``, ``setFormat`` with ``%p``/``%v``/``%m``, ``setTextVisible``, ``format``, ``value`` ...), so swapping one in for a bar changes one line at each site.",
+      "source_sha256": "736c77b30164b7ef9fbb042adb1e5c05357c838cb7eea65beb733f7cade810b7",
+      "context": "The widget answers the parts of ``QProgressBar``'s API the call sites use (``setRange``, ``setValue``, ``setFormat`` with ``%p``/``%v``/``%m``, ``setTextVisible``, ``format``, ``value`` ...), so swapping one in for a bar changes one line at each site.",
+      "translation": "El widget responde a las partes de la API de ``QProgressBar`` que usan los puntos de llamada (``setRange``, ``setValue``, ``setFormat`` con ``%p``/``%v``/``%m``, ``setTextVisible``, ``format``, ``value`` ...), de modo que sustituir una barra por él cambia una línea en cada punto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#2",
+      "source": "PROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
+      "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
+      "context": "Progress line. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
+      "translation": "LÍNEA DE PROGRESO. :class:`ProgressLine` es una barra de progreso delgada cuyos números van a su lado, donde nada puede cortarlos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#3",
+      "source": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the screen, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
+      "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
+      "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
+      "translation": "POR QUÉ (elemento 502). El tema dibuja cada ``QProgressBar`` como una pista de 8 px (``height: 8px; max-height: 8px`` en :mod:`spacr.qt.theme`). Una barra que además pinta su propio texto -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- dibuja un texto de 13 px dentro de esos 8 px, así que solo la mitad superior de cada glifo llega a la pantalla, y con la escala de la GUI al 50 % la pista mide 4 px y no llega casi nada. El informe del responsable era \"the text e.g. step 1 of 3 or 10% is cut off\".",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#4",
+      "source": "THE DESIGN the maintainer chose is \"thin bar + label\":",
+      "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
+      "context": "The design the maintainer chose is \"thin bar + label\":",
+      "translation": "EL DISEÑO que eligió el responsable es \"barra delgada + etiqueta\":",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#5",
+      "source": "[████████░░░░░░░░░░░░]  step 2 of 3 · 45% Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left",
+      "source_sha256": "cc28e8f95696103a39adcc4f2f1b66f5dd30fdb1ce5dd1e940aec3240deca4de",
+      "context": "[████████░░░░░░░░░░░░]  step 2 of 3 · 45% Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left",
+      "translation": "[████████░░░░░░░░░░░░]  paso 2 de 3 · 45% Descargando torch… 312 MB de 690 MB · 4.2 MB/s · quedan 1 min 30 s",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#6",
+      "source": "the bar paints no text at all and stays the slim track the theme draws;",
+      "source_sha256": "e1936aa309118d0cd97be24eb39b34e074fcc576db25d3f96a1e042c2ba0c520",
+      "context": "the bar paints no text at all and stays the slim track the theme draws;",
+      "translation": "la barra no pinta ningún texto y sigue siendo la pista delgada que dibuja el tema;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#7",
+      "source": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
+      "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
+      "context": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
+      "translation": "el RECUENTO a su lado (el paso y el porcentaje, los números que mira una persona) es una etiqueta simple que nunca se abrevia -- su política de tamaño horizontal es ``Minimum``, así que una disposición no puede darle menos de lo que necesita su texto;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#8",
+      "source": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
+      "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
+      "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
+      "translation": "una línea de DETALLE opcional debajo lleva la parte que cambia y puede ser larga (un nombre de archivo, una velocidad, un tiempo restante); esa parte se abrevia con puntos suspensivos, y :meth:`ProgressLine.displayed_text` indica lo que realmente se pinta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#9",
+      "source": "No size here is computed from font metrics and then handed to a size setter, so the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the label follows the scaled font, the spacing follows the scaled layout.",
+      "source_sha256": "59ce0c0db0bdd5a2b4ef5510a642294bee7a60fdaf767ea2583da93579b51eff",
+      "context": "No size here is computed from font metrics and then handed to a size setter, so the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the label follows the scaled font, the spacing follows the scaled layout.",
+      "translation": "Aquí ningún tamaño se calcula a partir de métricas de fuente para pasarlo luego a un setter de tamaño, así que la capa de escala de la GUI (:mod:`spacr.qt.gui_scale`) escala cada tamaño una sola vez: la etiqueta sigue a la fuente escalada, el espaciado sigue a la disposición escalada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ElidingLabel.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the text is then re-fitted to the label's new width.",
+      "source_sha256": "14e8a7d1e2cf2960242a9c7387b7f5a8302eba57b942328e8d51cba8df5121df",
+      "context": "the resize event, passed to the base class; the text is then re-fitted to the label's new width.",
+      "translation": "el evento de redimensionado, que se pasa a la clase base; después el texto se reajusta al nuevo ancho de la etiqueta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ElidingLabel.setText#1",
+      "source": "the full label text; ``None`` is treated as ``\"\"``. When it has to be elided, the full text becomes the tooltip.",
+      "source_sha256": "a27ab202ac98842a1b91b90f05f5abb439f79feb7d129b7c4b0a9c7f4e089713",
+      "context": "the full label text; ``None`` is treated as ``\"\"``. When it has to be elided, the full text becomes the tooltip.",
+      "translation": "el texto completo de la etiqueta; ``None`` se trata como ``\"\"``. Cuando hay que abreviarlo, el texto completo pasa a ser la información emergente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ElidingPushButton.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the label is then re-fitted to the button's new width.",
+      "source_sha256": "ca8b2f88e9a581badbaf20582ad5f889fdc43df6724653d85fbf279fc7be637c",
+      "context": "the resize event, passed to the base class; the label is then re-fitted to the button's new width.",
+      "translation": "el evento de redimensionado, que se pasa a la clase base; después la etiqueta se reajusta al nuevo ancho del botón.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ElidingPushButton.setText#1",
+      "source": "the full button label; ``None`` is treated as ``\"\"``.",
+      "source_sha256": "14c678957aa8b7a9fd6a3683820f03384a52743bfd43946aa97b0e4184c7cd21",
+      "context": "the full button label; ``None`` is treated as ``\"\"``.",
+      "translation": "la etiqueta completa del botón; ``None`` se trata como ``\"\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine#0",
+      "source": "A thin bar with its count beside it and an optional detail line below.",
+      "source_sha256": "e1cfb622c1bc59396b80c1a184521c0d115dfebf1d8b2f6a6acd8cb4781abbce",
+      "context": "A thin bar with its count beside it and an optional detail line below.",
+      "translation": "Una barra delgada con su recuento al lado y una línea de detalle opcional debajo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine#2",
+      "source": "whether to build the eliding detail line under the bar.",
+      "source_sha256": "7f1f64840c97f97980b2fe4cba950568c135230e9bfad46102b8403000b52740",
+      "context": "whether to build the eliding detail line under the bar.",
+      "translation": "si se construye la línea de detalle abreviable bajo la barra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine#3",
+      "source": "put the count on its own line under the bar, at the left, instead of beside it -- for a side panel whose content can be wider than the pane, where the right end of a row is scrolled away.",
+      "source_sha256": "13c8adeee5883b70d8f15e297a345c1e0d9310a28c2dfadc96d4e1af19312901",
+      "context": "put the count on its own line under the bar, at the left, instead of beside it -- for a side panel whose content can be wider than the pane, where the right end of a row is scrolled away.",
+      "translation": "pone el recuento en su propia línea bajo la barra, a la izquierda, en lugar de a su lado -- para un panel lateral cuyo contenido puede ser más ancho que el panel, donde el extremo derecho de una fila queda fuera de la vista al desplazarse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine#4",
+      "source": "Build the bar, the count label and, if asked, the detail line.",
+      "source_sha256": "ef3368170d6d186b0210df46542a8f537ca5619db30b8b20bc27037941ad9d13",
+      "context": "Build the bar, the count label and, if asked, the detail line.",
+      "translation": "Construye la barra, la etiqueta de recuento y, si se pide, la línea de detalle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine#6",
+      "source": "build the detail line under the bar.",
+      "source_sha256": "289da869930d10433c158c904f41ea7df6223eb4c1e491f8d86c6d13f9ebf9c5",
+      "context": "build the detail line under the bar.",
+      "translation": "construye la línea de detalle bajo la barra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine#7",
+      "source": "the count under the bar instead of beside it.",
+      "source_sha256": "02f3d4cab37e4ae0d2a8e968101b49b0c1e23fe1b4df1164572d017c2144996e",
+      "context": "the count under the bar instead of beside it.",
+      "translation": "el recuento bajo la barra en lugar de a su lado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.count_text#0",
+      "source": "The count as it is written beside the bar (never elided).",
+      "source_sha256": "92824a04e02e8fa2e78c7d808e5bd6bcff922e60f2fd5fb60ff62e030531ef1e",
+      "context": "The count as it is written beside the bar (never elided).",
+      "translation": "El recuento tal como está escrito junto a la barra (nunca se abrevia).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.detail_text#0",
+      "source": "The full detail line, before any eliding.",
+      "source_sha256": "5d7df6a5dd3842aec0ed4791b258bd224f9de506e06c7b4211ada54c08d4639a",
+      "context": "The full detail line, before any eliding.",
+      "translation": "La línea de detalle completa, antes de cualquier abreviación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#0",
+      "source": "What is really painted: the count, then the detail as elided.",
+      "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
+      "context": "What is really painted: the count, then the detail as elided.",
+      "translation": "Lo que realmente se pinta: el recuento, y luego el detalle tal como quedó abreviado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#1",
+      "source": "Hidden parts are left out, so a test compares against the screen.",
+      "source_sha256": "e1a17b7b4e0624060f5eead3ae65a21c8ec2533ba1d8bfcaead97dd5d80135a7",
+      "context": "Hidden parts are left out, so a test compares against the screen.",
+      "translation": "Las partes ocultas se omiten, de modo que una prueba compara con lo que hay en pantalla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.format#0",
+      "source": "The count template last handed to :meth:`setFormat`.",
+      "source_sha256": "08d97d7cf27e7fda3667c085e2444e4415c8a0e642ae44c6a274f2fc9dcb43aa",
+      "context": "The count template last handed to :meth:`setFormat`.",
+      "translation": "La plantilla de recuento que se pasó por última vez a :meth:`setFormat`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.isTextVisible#0",
+      "source": "Whether the count beside the bar is shown.",
+      "source_sha256": "74a4d43fc98b66201569cb44abc8578d69c3ec78c38d706219680aa412bc8616",
+      "context": "Whether the count beside the bar is shown.",
+      "translation": "Si se muestra el recuento junto a la barra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.maximum#0",
+      "source": "The value at a full bar.",
+      "source_sha256": "12af52e7246c6a43426931a0be11db6657ee8f2470e7bde416308fd4f2a18223",
+      "context": "The value at a full bar.",
+      "translation": "El valor con la barra llena.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.minimum#0",
+      "source": "The value at an empty bar.",
+      "source_sha256": "214d58552b177ec7e59139517b09ef9050c455f87e35e3b83b9207a9fa2d0f24",
+      "context": "The value at an empty bar.",
+      "translation": "El valor con la barra vacía.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.percent#0",
+      "source": "The whole percentage the bar shows, or ``None`` while busy.",
+      "source_sha256": "06f06f263da8552a09e50281a8d2fb90d46565b06b4e207aede23befaf2e38e7",
+      "context": "The whole percentage the bar shows, or ``None`` while busy.",
+      "translation": "El porcentaje entero que muestra la barra, o ``None`` mientras está ocupada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.reset#0",
+      "source": "Empty the bar the way ``QProgressBar.reset`` does.",
+      "source_sha256": "fef7124416a6d4e242e3f33db6f9eebc9cfed93893b9a07f1cb58818b2af9f61",
+      "context": "Empty the bar the way ``QProgressBar.reset`` does.",
+      "translation": "Vacía la barra igual que ``QProgressBar.reset``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setFormat#0",
+      "source": "Set the count template, with ``QProgressBar``'s ``%p %v %m``.",
+      "source_sha256": "2bcf0d6417b7b971af7f41d17cb8a6fdba25998faba83e22c34b5442374e427a",
+      "context": "Set the count template, with ``QProgressBar``'s ``%p %v %m``.",
+      "translation": "Establece la plantilla de recuento, con los marcadores de ``QProgressBar``: ``%p %v %m``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setFormat#1",
+      "source": "A template with no ``%p`` gets the percentage appended after a separator whenever the bar has a range, so the number is never lost.",
+      "source_sha256": "72c73a40899624e3059ddf4530201ab06f45929f152df7c3b638001f5172bcd3",
+      "context": "A template with no ``%p`` gets the percentage appended after a separator whenever the bar has a range, so the number is never lost.",
+      "translation": "A una plantilla sin ``%p`` se le añade el porcentaje tras un separador siempre que la barra tenga un rango, así que el número nunca se pierde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setFormat#2",
+      "source": "the template, e.g. ``\"step 2 of 3\"`` or ``\"%v / %m jobs\"``.",
+      "source_sha256": "836ee39ef68aa4b154fa3a442552cdd6bea5438758e3041b77aa5efa49c3fe1e",
+      "context": "the template, e.g. ``\"step 2 of 3\"`` or ``\"%v / %m jobs\"``.",
+      "translation": "la plantilla, p. ej. ``\"step 2 of 3\"`` o ``\"%v / %m jobs\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setMaximum#0",
+      "source": "Set the value at a full bar.",
+      "source_sha256": "d01222a83a98bee0de9df9673c8e80d1f34ed4e0b34e71f095b18042b8e70b5d",
+      "context": "Set the value at a full bar.",
+      "translation": "Establece el valor con la barra llena.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setMaximum#1",
+      "source": "the new maximum.",
+      "source_sha256": "e05cbce8756474bcf68c5c19141c74b77804e9d75e914c6889f826df2af461b8",
+      "context": "the new maximum.",
+      "translation": "el nuevo máximo.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setMinimum#0",
+      "source": "Set the value at an empty bar.",
+      "source_sha256": "2013fbd8cf05c8383621c5756796eb2f11607591329219be84ba65a76532d693",
+      "context": "Set the value at an empty bar.",
+      "translation": "Establece el valor con la barra vacía.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setMinimum#1",
+      "source": "the new minimum.",
+      "source_sha256": "fa641e8be53857ea205af4c1d4f16ae7d6f282ca470454b7da6cf0abc74dc7db",
+      "context": "the new minimum.",
+      "translation": "el nuevo mínimo.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setRange#0",
+      "source": "Set the bar's range; ``(0, 0)`` is the busy state with no number.",
+      "source_sha256": "a761f092ff5520b69dabc4e4f9d5766adb158149e66c520bb42f3038e4396ec7",
+      "context": "Set the bar's range; ``(0, 0)`` is the busy state with no number.",
+      "translation": "Establece el rango de la barra; ``(0, 0)`` es el estado ocupado sin número.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setRange#1",
+      "source": "the value at an empty bar.",
+      "source_sha256": "92dc79c5a4d20ee9c7acfa09031555103dd8e7def3ad5ae6fa475e93dda27641",
+      "context": "the value at an empty bar.",
+      "translation": "el valor con la barra vacía.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setRange#2",
+      "source": "the value at a full bar.",
+      "source_sha256": "7d00aedb82977aa3391c7a8fa1629bb6ae3117bff9de94a51b95fd4f83483d99",
+      "context": "the value at a full bar.",
+      "translation": "el valor con la barra llena.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setTextVisible#0",
+      "source": "Show or hide the count beside the bar; the bar never paints text.",
+      "source_sha256": "1ce207092b20d86dd5281f8f3eeaf3addfa9de5a6ade5b90c280b31f82c954ab",
+      "context": "Show or hide the count beside the bar; the bar never paints text.",
+      "translation": "Muestra u oculta el recuento junto a la barra; la barra nunca pinta texto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setTextVisible#1",
+      "source": "whether the count label is shown.",
+      "source_sha256": "654afebc606c5f800050a3d0433da04985d0e9c60c876d3ecb0915ea74d5deeb",
+      "context": "whether the count label is shown.",
+      "translation": "si se muestra la etiqueta de recuento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setValue#0",
+      "source": "Move the bar and the numbers beside it.",
+      "source_sha256": "03fc5fb9ad5fb65e9e57494b20e870a2f34f775ea3fd0faaeb925a5d30401b29",
+      "context": "Move the bar and the numbers beside it.",
+      "translation": "Mueve la barra y los números de su lado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.setValue#1",
+      "source": "the new value, clamped by the bar to its range.",
+      "source_sha256": "f0f63d604ddc3625e5e90c52b3ef463828cf9920d98a4fcc5e6b505f63ecf388",
+      "context": "the new value, clamped by the bar to its range.",
+      "translation": "el nuevo valor, que la barra limita a su rango.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.set_detail#0",
+      "source": "Set the line under the bar; it elides when the window is narrow.",
+      "source_sha256": "102daa6f9d4342845d65692bd23636583efc3796b5c2ff62fc424c0173c09db9",
+      "context": "Set the line under the bar; it elides when the window is narrow.",
+      "translation": "Establece la línea bajo la barra; se abrevia cuando la ventana es estrecha.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.set_detail#1",
+      "source": "the changing part -- a file name, a speed, a time left.",
+      "source_sha256": "d0ab5b4c2953c9960f6448e5b33ddd326961c1f08d6c8cfba924f9b91fa0dec7",
+      "context": "the changing part -- a file name, a speed, a time left.",
+      "translation": "la parte que cambia -- un nombre de archivo, una velocidad, un tiempo restante.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.text#0",
+      "source": "The count as it is written beside the bar.",
+      "source_sha256": "fcf89982bd55afde0308ea5599942ccdbc9fba3230162dc22fcbf4de1fdc96ad",
+      "context": "The count as it is written beside the bar.",
+      "translation": "El recuento tal como está escrito junto a la barra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding.ProgressLine.value#0",
+      "source": "The bar's current value.",
+      "source_sha256": "d40ff5279b3d6968486188fca5c72420a1019a78d04dbb043882dec58c5c9bfc",
+      "context": "The bar's current value.",
+      "translation": "El valor actual de la barra.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.add_paths#1",
+      "source": "dropped or picked files and folders, grouped by :func:`spacr.external_masks.detect_inputs`. A group already held gains the new paths and keeps the lower confidence.",
+      "source_sha256": "97abc6881721352cadafe9b9814005c5e3d87e3a4958bc2cba2276b1a5f67a9f",
+      "context": "dropped or picked files and folders, grouped by :func:`spacr.external_masks.detect_inputs`. A group already held gains the new paths and keeps the lower confidence.",
+      "translation": "archivos y carpetas soltados o elegidos, agrupados por :func:`spacr.external_masks.detect_inputs`. Un grupo que ya existe recibe las nuevas rutas y conserva la confianza más baja.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.BinnedPlot.bin_at#1",
+      "source": "position on the x axis in data units (not view units on a log axis); outside the outer bin edges gives ``None``.",
+      "source_sha256": "9485e776f67a937b13d12b51a3cd832ba194c699ee4fc4f3f56ca4327717e5ec",
+      "context": "position on the x axis in data units (not view units on a log axis); outside the outer bin edges gives ``None``.",
+      "translation": "posición en el eje x en unidades de datos (no en unidades de vista en un eje logarítmico); fuera de los bordes exteriores de los intervalos da ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.BinnedPlot.highlight_bin#1",
+      "source": "zero-based bar number; out of range (or no histogram drawn yet) gives ``False``.",
+      "source_sha256": "3c65d0d98c9387a1ff6a99f3b40353aae09e9193a68cab893f4e369700cf4342",
+      "context": "zero-based bar number; out of range (or no histogram drawn yet) gives ``False``.",
+      "translation": "número de barra, contando desde cero; fuera de rango (o si aún no se ha dibujado ningún histograma) da ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.BinnedPlot.keys_in_bin#1",
+      "source": "zero-based bar number; out of range gives ``[]``, and rows without an identifier are left out.",
+      "source_sha256": "2e89e9a05cfd539ef7ed766ea1773b4b19260e913944c5661edbef864b256469",
+      "context": "zero-based bar number; out of range gives ``[]``, and rows without an identifier are left out.",
+      "translation": "número de barra, contando desde cero; fuera de rango da ``[]``, y las filas sin identificador se omiten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.BinnedPlot.select_bin#2",
+      "source": "zero-based bar number; out of range selects nothing.",
+      "source_sha256": "b8e817c3866522f1cee78d0cd6a87a7ee1ad43ac465c17fea1c26632b3871a6e",
+      "context": "zero-based bar number; out of range selects nothing.",
+      "translation": "número de barra, contando desde cero; fuera de rango no selecciona nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ControlSeparation.group_of#1",
+      "source": "zero-based position in the flat sequence of all groups' values, in the order the groups were given; ``None`` is returned for a row in no group.",
+      "source_sha256": "3874e8eca202501af22e1fbac7d921a2f4be8968fc24ed0b560ae01455ff4131",
+      "context": "zero-based position in the flat sequence of all groups' values, in the order the groups were given; ``None`` is returned for a row in no group.",
+      "translation": "posición, contando desde cero, en la secuencia plana de los valores de todos los grupos, en el orden en que se dieron los grupos; se devuelve ``None`` para una fila que no está en ningún grupo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.add_smoother#1",
+      "source": "predictor values, one per point, in data units of the x axis; passed to :func:`spacr.nonparametric_fits.smooth`.",
+      "source_sha256": "d13685e5f6efa36831c6224065a8bc0ff286901e9f89dc6acae659e2c06c7408",
+      "context": "predictor values, one per point, in data units of the x axis; passed to :func:`spacr.nonparametric_fits.smooth`.",
+      "translation": "valores del predictor, uno por punto, en unidades de datos del eje x; se pasan a :func:`spacr.nonparametric_fits.smooth`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.add_smoother#2",
+      "source": "response values aligned one-to-one with ``x``.",
+      "source_sha256": "fd82e16fb9217a4df92e6be02c4dbda35d273c41a3b07958f4ea5ed65193f516",
+      "context": "response values aligned one-to-one with ``x``.",
+      "translation": "valores de respuesta alineados uno a uno con ``x``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.closeEvent#1",
+      "source": "the close event; passed to the base class once the menus are retired.",
+      "source_sha256": "6207f2b8af19048578a4c84238ade4f716ad73ef15c5aacc67a186350e20046c",
+      "context": "the close event; passed to the base class once the menus are retired.",
+      "translation": "el evento de cierre; se pasa a la clase base una vez retirados los menús.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.colour_by_column#2",
+      "source": "a continuous (numeric) column of the plotted table.",
+      "source_sha256": "0ddd2149e294c64d7fad5e9c211621d19dd4fc6f8bb072f72a8484b1ea340d59",
+      "context": "a continuous (numeric) column of the plotted table.",
+      "translation": "una columna continua (numérica) de la tabla representada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.export_styled#2",
+      "source": "destination file; its extension picks the format (PDF, SVG or PNG), as for :meth:`export`.",
+      "source_sha256": "1b01d33d5e28d6c2a433fb6171aaaf85a3c11737bca1d15c570a744d716b9087",
+      "context": "destination file; its extension picks the format (PDF, SVG or PNG), as for :meth:`export`.",
+      "translation": "archivo de destino; su extensión elige el formato (PDF, SVG o PNG), como con :meth:`export`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.highlight_key#2",
+      "source": "the row identifier to select, compared as ``str``; ``None`` clears the selection and the ring.",
+      "source_sha256": "d3e265447f07fa6bd8f0766b4176ce8a1c86035bf6a4a6314f39f31e464a2f12",
+      "context": "the row identifier to select, compared as ``str``; ``None`` clears the selection and the ring.",
+      "translation": "el identificador de fila que se selecciona, comparado como ``str``; ``None`` borra la selección y el anillo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.highlight_keys#2",
+      "source": "the identifiers to select, in pick order; compared as ``str``, duplicates dropped, and the last one is the current selection. ``None`` or empty clears the selection.",
+      "source_sha256": "116d239a38ef10b742206b88d2cdcb5f1398f20564cdce330ba126a8bc3d6c1a",
+      "context": "the identifiers to select, in pick order; compared as ``str``, duplicates dropped, and the last one is the current selection. ``None`` or empty clears the selection.",
+      "translation": "los identificadores que se seleccionan, en el orden de selección; se comparan como ``str``, se descartan los duplicados, y el último es la selección actual. ``None`` o vacío borra la selección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.key_for_row#1",
+      "source": "zero-based frame position; out of range gives ``None``.",
+      "source_sha256": "7ce1abab5f99336595ae6c945a7c3e3424fb5c5f5fa1ea20a82bee60668c0bea",
+      "context": "zero-based frame position; out of range gives ``None``.",
+      "translation": "posición en el marco, contando desde cero; fuera de rango da ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.log_reason#2",
+      "source": "``\"x\"`` or ``\"y\"``.",
+      "source_sha256": "463b77563412fe2381777180a453dff0f585a7695600625b8b58d1477efd75c1",
+      "context": "``\"x\"`` or ``\"y\"``.",
+      "translation": "``\"x\"`` o ``\"y\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.raster_pixels#2",
+      "source": "width of the source scene rectangle in pixels; values below 1 are treated as 1.",
+      "source_sha256": "d2e61bc82cb2270b9e58ac3be684d6aa58ce88a145632ee7354a3b732c59302a",
+      "context": "width of the source scene rectangle in pixels; values below 1 are treated as 1.",
+      "translation": "ancho del rectángulo de la escena de origen en píxeles; los valores por debajo de 1 se tratan como 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.raster_pixels#3",
+      "source": "height of the source scene rectangle in pixels; values below 1 are treated as 1.",
+      "source_sha256": "a97afc1202d31015b6b25a2a0b249ffbe5683330735c5f9d2d6472ee727f1956",
+      "context": "height of the source scene rectangle in pixels; values below 1 are treated as 1.",
+      "translation": "altura del rectángulo de la escena de origen en píxeles; los valores por debajo de 1 se tratan como 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.resizeEvent#1",
+      "source": "the resize event; passed to the base class, and the new size is read back from the widget itself.",
+      "source_sha256": "a5a92e0981c5198d98762059a52eefd2dd25ba2a753b3dc1753757b4dd47d02f",
+      "context": "the resize event; passed to the base class, and the new size is read back from the widget itself.",
+      "translation": "el evento de redimensionado; se pasa a la clase base, y el nuevo tamaño se vuelve a leer del propio widget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_canvas_shape#2",
+      "source": "``\"square\"``, ``\"wide\"``, ``\"tall\"`` or ``\"free\"`` (see :data:`CANVAS_SHAPES`); any other name raises :class:`ValueError`.",
+      "source_sha256": "766d99d3daeea798fba0d7cd0bf15cbd425e543a5fd0d8129a1645618c714b7e",
+      "context": "``\"square\"``, ``\"wide\"``, ``\"tall\"`` or ``\"free\"`` (see :data:`CANVAS_SHAPES`); any other name raises :class:`ValueError`.",
+      "translation": "``\"square\"``, ``\"wide\"``, ``\"tall\"`` o ``\"free\"`` (véase :data:`CANVAS_SHAPES`); cualquier otro nombre lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_font_colour#2",
+      "source": "anything ``QColor`` accepts (a name, ``\"#rrggbb\"`` or a ``QColor``); ``None`` makes the text follow the theme again.",
+      "source_sha256": "c833dcccca9cd48d2b3b2b5bd755bc505e9ef3916e2a782bccd47ce5d1d20292",
+      "context": "anything ``QColor`` accepts (a name, ``\"#rrggbb\"`` or a ``QColor``); ``None`` makes the text follow the theme again.",
+      "translation": "cualquier cosa que acepte ``QColor`` (un nombre, ``\"#rrggbb\"`` o un ``QColor``); ``None`` hace que el texto vuelva a seguir el tema.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_font_size#2",
+      "source": "font size in points, converted to ``int``.",
+      "source_sha256": "c0e6a2bdd26e5ad929dedf69d964a1bf50e166e799e48bfbdc34870249396225",
+      "context": "font size in points, converted to ``int``.",
+      "translation": "tamaño de fuente en puntos, convertido a ``int``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_grid#1",
+      "source": "``True`` shows the x and y grid lines, ``False`` hides them.",
+      "source_sha256": "796b8bb5b80a5a0a853dee0695fe2d28dadc5fa49ac9ab117868a95e4af1c4df",
+      "context": "``True`` shows the x and y grid lines, ``False`` hides them.",
+      "translation": "``True`` muestra las líneas de cuadrícula x e y, ``False`` las oculta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_keys#3",
+      "source": "one identifier per frame row, in row order; each is stored as ``str``, and ``None`` or NaN marks a row without one.",
+      "source_sha256": "e5b7fe2e8f23c2379e8b5d245937552e2062581545d2efcdfef04c4b53b4cb5e",
+      "context": "one identifier per frame row, in row order; each is stored as ``str``, and ``None`` or NaN marks a row without one.",
+      "translation": "un identificador por fila del marco, en el orden de las filas; cada uno se guarda como ``str``, y ``None`` o NaN marca una fila sin identificador.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_line_colour#2",
+      "source": "anything ``QColor`` accepts, or ``None`` to follow the theme.",
+      "source_sha256": "77b085aac4119e7f1e95f1e6409e4dfa5097680f4f79eb2b677bccd036acb88a",
+      "context": "anything ``QColor`` accepts, or ``None`` to follow the theme.",
+      "translation": "cualquier cosa que acepte ``QColor``, o ``None`` para seguir el tema.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_screen_size#2",
+      "source": "fixed width in pixels, converted to ``int``.",
+      "source_sha256": "5dbaae160ac1ab7775b966abd672bb7c47ea80f0e0f0f6f049791f8ec3f2a1e4",
+      "context": "fixed width in pixels, converted to ``int``.",
+      "translation": "ancho fijo en píxeles, convertido a ``int``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_screen_size#3",
+      "source": "fixed height in pixels, converted to ``int``.",
+      "source_sha256": "6806a7f1075162e81c972260e118017417a8a8e2ba07e7183946091734bb4425",
+      "context": "fixed height in pixels, converted to ``int``.",
+      "translation": "altura fija en píxeles, convertida a ``int``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_status#1",
+      "source": "the headline sentence; the status line is rewritten from it, the level note and the style note.",
+      "source_sha256": "fd95e259a1e637012f6ba7c45722eb44ac536f2fd97e31121ea329a7cd6c2f4d",
+      "context": "the headline sentence; the status line is rewritten from it, the level note and the style note.",
+      "translation": "la frase principal; la línea de estado se reescribe a partir de ella, de la nota de nivel y de la nota de estilo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_status_note#2",
+      "source": "the sentence about the clicked item, shown last; an empty string removes it.",
+      "source_sha256": "744dafe85b22e23ee01739f83b404d7c572591fc46860987d0d399953f97f134",
+      "context": "the sentence about the clicked item, shown last; an empty string removes it.",
+      "translation": "la frase sobre el elemento en el que se hizo clic, que se muestra al final; una cadena vacía la elimina.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.set_style_note#2",
+      "source": "the restyle's sentence, e.g. a colour scale's range; an empty string removes it.",
+      "source_sha256": "a5b29c82e69f300dcea724caf600a6950e4b94267469f6654830b0e60607b886",
+      "context": "the restyle's sentence, e.g. a colour scale's range; an empty string removes it.",
+      "translation": "la frase del reestilizado, p. ej. el intervalo de una escala de colores; una cadena vacía la elimina.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.shape_by_column#1",
+      "source": "a column of the plotted table; its values are compared as strings, and each distinct one gets its own marker.",
+      "source_sha256": "59818b877a4205f11f044bb1749bc18c4af1536d9a603b53a5c5e09905df3d6f",
+      "context": "a column of the plotted table; its values are compared as strings, and each distinct one gets its own marker.",
+      "translation": "una columna de la tabla representada; sus valores se comparan como cadenas, y cada valor distinto recibe su propio marcador.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.toggle_key#2",
+      "source": "the row identifier, compared as ``str``; ``None`` leaves the selection unchanged.",
+      "source_sha256": "dd0b5e79de8fe3499b695fa3c8809204f8af28993d09b9b8a8aa1faa6d1ae8c4",
+      "context": "the row identifier, compared as ``str``; ``None`` leaves the selection unchanged.",
+      "translation": "el identificador de fila, comparado como ``str``; ``None`` deja la selección sin cambios.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.y_split_reason#3",
+      "source": "bottom of the band to hide, in y data units.",
+      "source_sha256": "f5215b8c7215e67109b6d6f5fac8e3e3fb70825b2e847d04c539c58eb6fbaea4",
+      "context": "bottom of the band to hide, in y data units.",
+      "translation": "parte inferior de la banda que se oculta, en unidades de datos de y.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.y_split_reason#4",
+      "source": "top of the band to hide, in y data units; it must be above ``low``, and both must be finite (and positive on a log axis).",
+      "source_sha256": "8c84e4844fa41d7576e27dd9271df488534f6739b9d9d61cee06d086a79967f6",
+      "context": "top of the band to hide, in y data units; it must be above ``low``, and both must be finite (and positive on a log axis).",
+      "translation": "parte superior de la banda que se oculta, en unidades de datos de y; debe estar por encima de ``low``, y ambas deben ser finitas (y positivas en un eje logarítmico).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.GroupedPlot.set_mark#1",
+      "source": "a mark key from :data:`MARK_TYPES`, e.g. ``\"points\"``, ``\"bar\"``, ``\"box\"`` or ``\"violin\"``; it becomes the user's choice, so later redraws keep it.",
+      "source_sha256": "a8f594f0e76300d135f7f44839e3749854c068a56f69bb69df26cfb604f8a29d",
+      "context": "a mark key from :data:`MARK_TYPES`, e.g. ``\"points\"``, ``\"bar\"``, ``\"box\"`` or ``\"violin\"``; it becomes the user's choice, so later redraws keep it.",
+      "translation": "una clave de marca de :data:`MARK_TYPES`, p. ej. ``\"points\"``, ``\"bar\"``, ``\"box\"`` o ``\"violin\"``; pasa a ser la elección del usuario, así que los redibujados posteriores la conservan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.InfluencePlot.set_influence#2",
+      "source": "hat value per well, the x coordinate; aligned with the other two arrays.",
+      "source_sha256": "47d015bf1562fd64e8eb753c27f02cefcb73fa6341eac472864aaf995842a5ef",
+      "context": "hat value per microplate sample position, the x coordinate; aligned with the other two arrays.",
+      "translation": "valor de la matriz sombrero por pocillo, la coordenada x; alineado con las otras dos matrices.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.InfluencePlot.set_influence#3",
+      "source": "standardised residual per well, the y coordinate; wells where it or the leverage is not finite are not drawn.",
+      "source_sha256": "7993d9edcf73a3090fa06e2e04b82f0db2784ea1eae1166bead09bb46fcb9dc5",
+      "context": "standardised residual per microplate sample position, the y coordinate; microplate sample positions where it or the leverage is not finite are not drawn.",
+      "translation": "residuo estandarizado por pocillo, la coordenada y; los pocillos en los que este o el apalancamiento no son finitos no se dibujan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.InfluencePlot.set_influence#4",
+      "source": "Cook's distance per well; wells above ``4 / n`` (``n`` the number plotted) are drawn larger in the influential colour.",
+      "source_sha256": "0d42f39562c11d19be6050615cc1239de6612ba57b41a823e16659f19d87c149",
+      "context": "Cook's distance per microplate sample position; microplate sample positions above ``4 / n`` (``n`` the number plotted) are drawn larger in the influential colour.",
+      "translation": "distancia de Cook por pocillo; los pocillos por encima de ``4 / n`` (con ``n`` el número representado) se dibujan más grandes en el color de influyentes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.key_for_row#1",
+      "source": "zero-based position in the frame (not the sorted table); its key-column value is returned as ``str``.",
+      "source_sha256": "d2e8ad2c63f3861cd4bf17bdd998ccec7f6c4c342536f8dc32a9bef919b99f09",
+      "context": "zero-based position in the frame (not the sorted table); its structured-data name-column value is returned as ``str``.",
+      "translation": "posición en el marco contando desde cero (no en la tabla ordenada); su valor en la columna de claves se devuelve como ``str``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.select_frame_row#2",
+      "source": "zero-based position in the frame; the table row is found wherever sorting has put it.",
+      "source_sha256": "0f87f0985696dd6e311b205dc99602fa46b06f835029b93ef3043d40d1ffbb30",
+      "context": "zero-based position in the frame; the table row is found wherever sorting has put it.",
+      "translation": "posición en el marco contando desde cero; la fila de la tabla se encuentra dondequiera que la haya puesto la ordenación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.select_key#3",
+      "source": "the identifier, compared as ``str`` with the text of the key column's cells.",
+      "source_sha256": "f35f2551774d38bb45c122ba25c9a6177383c571cd2f3afc05901908513f297d",
+      "context": "the identifier, compared as ``str`` with the text of the identifier column's cells.",
+      "translation": "el identificador, comparado como ``str`` con el texto de las celdas de la columna de claves.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.set_frame#1",
+      "source": "the results table, one table row per frame row and one column per frame column; ``None`` or an empty frame shows \"Nothing to show.\"",
+      "source_sha256": "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854",
+      "context": "the results table, one table row per frame row and one column per frame column; ``None`` or an empty frame shows \"Nothing to show.\"",
+      "translation": "la tabla de resultados, una fila de tabla por fila del marco y una columna por columna del marco; ``None`` o un marco vacío muestra \"Nothing to show.\"",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.show_keys#2",
+      "source": "identifiers to keep visible, compared as ``str`` against the key column; ``None`` removes the restriction.",
+      "source_sha256": "7c9718add23690e9eea74b34f377186f691c834884ae086c21dac890fb64337c",
+      "context": "identifiers to keep visible, compared as ``str`` against the identifier column; ``None`` removes the restriction.",
+      "translation": "identificadores que se mantienen visibles, comparados como ``str`` con la columna de claves; ``None`` elimina la restricción.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_correction#1",
+      "source": "a multiple-testing method name or alias accepted by :func:`spacr.multiple_testing.canonical_method`, or ``None``; an unknown name raises :class:`ValueError`. Choosing ``\"none\"`` moves an adjusted p axis back to raw.",
+      "source_sha256": "55ad730f42ff3345443e2921c8c508e96c4ea261ad158bae17ab638bda35615f",
+      "context": "a multiple-testing method name or alias accepted by :func:`spacr.multiple_testing.canonical_method`, or ``None``; an unknown name throws :class:`ValueError`. Choosing ``\"none\"`` moves an adjusted p axis back to raw.",
+      "translation": "un nombre o alias de método de pruebas múltiples que acepte :func:`spacr.multiple_testing.canonical_method`, o ``None``; un nombre desconocido lanza :class:`ValueError`. Elegir ``\"none\"`` devuelve a valores brutos un eje p ajustado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_p_axis#2",
+      "source": "``\"raw\"``, ``\"adjusted\"`` or ``\"lfdr\"`` (see :attr:`P_AXES`); anything else raises :class:`ValueError`, and ``\"adjusted\"`` falls back to ``\"raw\"`` while no correction is in force.",
+      "source_sha256": "5b522caf88f1a3924f643a926c9b601a7aaf99c7afc2d141eb15004af481c360",
+      "context": "``\"raw\"``, ``\"adjusted\"`` or ``\"lfdr\"`` (see :attr:`P_AXES`); anything else raises :class:`ValueError`, and ``\"adjusted\"`` falls back to ``\"raw\"`` while no correction is in force.",
+      "translation": "``\"raw\"``, ``\"adjusted\"`` o ``\"lfdr\"`` (véase :attr:`P_AXES`); cualquier otra cosa lanza :class:`ValueError`, y ``\"adjusted\"`` recurre a ``\"raw\"`` mientras no haya ninguna corrección en vigor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_q_colour#3",
+      "source": "``\"call\"`` (binary significance colour) or ``\"ramp\"`` (continuous over q); anything else raises :class:`ValueError`.",
+      "source_sha256": "4fd88c092f5d3fb5104bc41e0f734927b83810e723a7d4c89710a4e435a90d55",
+      "context": "``\"call\"`` (binary significance colour) or ``\"ramp\"`` (continuous over q); anything else raises :class:`ValueError`.",
+      "translation": "``\"call\"`` (color binario de significación) o ``\"ramp\"`` (continuo según q); cualquier otra cosa lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_q_mark#3",
+      "source": "``\"none\"``, ``\"size\"`` or ``\"opacity\"``; anything else raises :class:`ValueError`.",
+      "source_sha256": "436a11c08f608597f9d76f0ebfd2efb52331e34c372daebfd85f9c8626c5f0fe",
+      "context": "``\"none\"``, ``\"size\"`` or ``\"opacity\"``; anything else raises :class:`ValueError`.",
+      "translation": "``\"none\"``, ``\"size\"`` o ``\"opacity\"``; cualquier otra cosa lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_default_style#2",
+      "source": "the style dataclass instance to update in place; the default saved in preferences for its :func:`style_kind` is applied.",
+      "source_sha256": "b50eceb2a6929219e4d3764f3a0154c5865d33d2bfb32063338e017aae996600",
+      "context": "the style dataclass instance to update in place; the default saved in preferences for its :func:`style_kind` is applied.",
+      "translation": "la instancia de la dataclass de estilo que se actualiza en su sitio; se aplica el valor predeterminado guardado en las preferencias para su :func:`style_kind`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_style_dict#3",
+      "source": "the style dataclass instance, modified in place.",
+      "source_sha256": "f72e8ca329002e1fe6e1c83e2d2f86f09cbcd2b0f6d9bbc11aeecea1500beea2",
+      "context": "the style dataclass instance, modified in place.",
+      "translation": "la instancia de la dataclass de estilo, modificada en su sitio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_style_dict#4",
+      "source": "mapping of field name to value; ``None`` applies nothing, and a list is turned into a tuple where the field currently holds a tuple.",
+      "source_sha256": "310b97bdd3589f8e788cacd74d53be5fef2c1043fcac97c33a2a6d5ee7e38bbf",
+      "context": "mapping of field name to value; ``None`` applies nothing, and a list is turned into a tuple where the field currently holds a tuple.",
+      "translation": "asignación de nombre de campo a valor; ``None`` no aplica nada, y una lista se convierte en tupla cuando el campo contiene actualmente una tupla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.colour_for#1",
+      "source": "category number; wraps around the length of :data:`PALETTE`.",
+      "source_sha256": "3d3e79be17739aea5681466782ff492da55716fb991cc2f9a86b8bfc3cc56f0a",
+      "context": "category number; wraps around the length of :data:`PALETTE`.",
+      "translation": "número de categoría; da la vuelta según la longitud de :data:`PALETTE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.load_style#1",
+      "source": "the style dataclass instance to update in place.",
+      "source_sha256": "622d61f56a43afb58b33d2e0c5814e2bde37356781802027d83dd0d33c7ed2f4",
+      "context": "the style dataclass instance to update in place.",
+      "translation": "la instancia de la dataclass de estilo que se actualiza en su sitio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.load_style#2",
+      "source": "a JSON style file written by :func:`save_style`.",
+      "source_sha256": "e81823f609dca06489d9354ee73e52c9f42b2a7eeb4963e939719bee4676e2d2",
+      "context": "a JSON style file written by :func:`save_style`.",
+      "translation": "un archivo de estilo JSON escrito por :func:`save_style`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.pick_colour#3",
+      "source": "the dialog's parent widget, or ``None``.",
+      "source_sha256": "750608cc6a7c4f9b70b3329cef3e0d2279de775985ba59e1019aa657b1edb551",
+      "context": "the dialog's parent widget, or ``None``.",
+      "translation": "el widget padre del diálogo, o ``None``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.save_style#2",
+      "source": "the style dataclass instance to save, together with its :func:`style_kind`.",
+      "source_sha256": "f91b9b00491430673663f31e2eedaea360c2e393d41404b0224e3e3e6acb4e15",
+      "context": "the style dataclass instance to save, together with its :func:`style_kind`.",
+      "translation": "la instancia de la dataclass de estilo que se guarda, junto con su :func:`style_kind`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.save_style#3",
+      "source": "destination file; ``.json`` is appended when it has no suffix, and an existing file is overwritten.",
+      "source_sha256": "2e096cef0a4b8ecde85129e486ac4af025172f0e53e909db094402f08ca7f827",
+      "context": "destination file; ``.json`` is appended when it has no suffix, and an existing file is overwritten.",
+      "translation": "archivo de destino; se añade ``.json`` cuando no tiene sufijo, y un archivo existente se sobrescribe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_as_dict#2",
+      "source": "the style dataclass instance to convert with ``dataclasses.asdict``.",
+      "source_sha256": "e5aff92f5aca90a30f5320b25441b34bf906d0823c15023cc657253209dd2e8c",
+      "context": "the style dataclass instance to convert with ``dataclasses.asdict``.",
+      "translation": "la instancia de la dataclass de estilo que se convierte con ``dataclasses.asdict``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_choices#2",
+      "source": "the style dataclass instance whose field metadata and class ``CHOICES`` are consulted.",
+      "source_sha256": "83fec54c14e4aa3dc7e0ef6bd263ada28477394b373f3d750a496136f6743d53",
+      "context": "the style dataclass instance whose field metadata and class ``CHOICES`` are consulted.",
+      "translation": "la instancia de la dataclass de estilo cuyos metadatos de campo y cuyo ``CHOICES`` de clase se consultan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_choices#3",
+      "source": "the field's name.",
+      "source_sha256": "1f7b57374c1c64294e84b7a9d48772c30867a86868c0eefb806eb4f2ef7b7293",
+      "context": "the field's name.",
+      "translation": "el nombre del campo.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_group#1",
+      "source": "a style field name; the first group (Data, Axes, Size) with a fragment found in it, case-insensitively, wins, and anything else is ``\"Appearance\"``.",
+      "source_sha256": "11fe3ffe6fa3ef5156a0236e08e93b9f5b02bf2634dd7dfeca0b8a30160818bc",
+      "context": "a style field name; the first group (Data, Axes, Size) with a fragment found in it, case-insensitively, wins, and anything else is ``\"Appearance\"``.",
+      "translation": "un nombre de campo de estilo; gana el primer grupo (Data, Axes, Size) con un fragmento que aparezca en él, sin distinguir mayúsculas, y cualquier otra cosa es ``\"Appearance\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#2",
+      "source": "the field name; underscores become spaces and the first letter is capitalised.",
+      "source_sha256": "f1802f17c9de59ac7bb490c448149ce9276bbf38410e942c54ca9247db799138",
+      "context": "the field name; underscores become spaces and the first letter is capitalised.",
+      "translation": "el nombre del campo; los guiones bajos pasan a ser espacios y la primera letra se pone en mayúscula.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#3",
+      "source": "the field's current value, shown after the name; ``None`` reads as \"automatic\".",
+      "source_sha256": "caf222ea2b9324bafd0a2f090f68d60abd8e269f8af1342955b0c885eba2f779",
+      "context": "the field's current value, shown after the name; ``None`` reads as \"automatic\".",
+      "translation": "el valor actual del campo, que se muestra tras el nombre; ``None`` se lee como \"automatic\".",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#4",
+      "source": "the editor kind from :func:`style_field_kind`; ``\"flag\"`` and ``\"unsupported\"`` show the name alone, ``\"multi\"`` lists the chosen items and ``\"pair\"`` and ``\"number\"`` format with ``:g``.",
+      "source_sha256": "1c100042be2fac01c3546e122745934518415767a1b2ae2edb70b09b41016d01",
+      "context": "the editor kind from :func:`style_field_kind`; ``\"flag\"`` and ``\"unsupported\"`` show the name alone, ``\"multi\"`` lists the chosen items and ``\"pair\"`` and ``\"number\"`` format with ``:g``.",
+      "translation": "el tipo de editor de :func:`style_field_kind`; ``\"flag\"`` y ``\"unsupported\"`` muestran solo el nombre, ``\"multi\"`` enumera los elementos elegidos y ``\"pair\"`` y ``\"number\"`` se formatean con ``:g``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_kind#2",
+      "source": "a style instance; its class name, less a ``Style`` suffix, is converted to snake case (``\"figure\"`` if nothing is left).",
+      "source_sha256": "11582f9f07660f81c506548826022007398bb146215d75bf2d18981f0fae8f74",
+      "context": "a style instance; its class name, less a ``Style`` suffix, is converted to snake case (``\"figure\"`` if nothing is left).",
+      "translation": "una instancia de estilo; su nombre de clase, sin un sufijo ``Style``, se convierte a snake case (``\"figure\"`` si no queda nada).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryDialog.show_column#1",
+      "source": "the measurement column name to explain, passed to :meth:`FeatureDictionaryPanel.show_column`.",
+      "source_sha256": "5f064413133e3009360e09baac6f194e37584af1977baf9de9c1556cf8993438",
+      "context": "the measurement column name to explain, passed to :meth:`FeatureDictionaryPanel.show_column`.",
+      "translation": "el nombre de la columna de medición que se explica, que se pasa a :meth:`FeatureDictionaryPanel.show_column`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryPanel.set_query#1",
+      "source": "the search text; ``None`` is read as empty. Any column pinned by :meth:`show_column` is released.",
+      "source_sha256": "4be11b81bb3149cb27c202097345f21aee664eba965957d6344455046073a0c1",
+      "context": "the search text; ``None`` is read as empty. Any column pinned by :meth:`show_column` is released.",
+      "translation": "el texto de búsqueda; ``None`` se lee como vacío. Se libera cualquier columna fijada por :meth:`show_column`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryPanel.show_column#3",
+      "source": "the measurement column name, e.g. as it appears in a table header; stripped, and ``None`` or empty is reported as not in the dictionary.",
+      "source_sha256": "d560deb6dd222dfdb33b47142e9aa1dc61a5581acb1eba639dcc9617133810e1",
+      "context": "the measurement column name, e.g. as it appears in a table header; stripped, and ``None`` or empty is reported as not in the key-value mapping.",
+      "translation": "el nombre de la columna de medición, p. ej. tal como aparece en el encabezado de una tabla; se le quitan los espacios, y ``None`` o vacío se indica como que no está en el diccionario.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#0",
+      "source": "Watch the widgets this filter is installed on.",
+      "source_sha256": "1b4beaadd943ccea9a259c41141ff5d6c11aece455dc4f143cb72ed2369884ef",
+      "context": "Watch the widgets this filter is installed on.",
+      "translation": "Observa los widgets en los que está instalado este filtro.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#1",
+      "source": "THE EVENT TYPE IS READ FIRST, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to run for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
+      "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
+      "context": "The event type is read first, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to execute for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
+      "translation": "EL TIPO DE EVENTO SE LEE PRIMERO, y las comprobaciones de que el objeto sigue vivo van después. Este filtro está en la QApplication, así que antes las dos llamadas a `_still_alive` se ejecutaban para cada evento del proceso -- 94,431 durante una sola apertura de Regression, y un perfil contó el par en 839,906 llamadas en una apertura de Mask. Leer el tipo de un objeto cuya mitad C++ ya no existe lanza una excepción, que el `except` de abajo ya responde con el mismo `False`, así que el orden no cuesta nada y las comprobaciones ahora solo se ejecutan para un menú contextual.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#4",
+      "source": "True to stop the event going further.",
+      "source_sha256": "35ae9a3e190eb544530b096d46b44a16bb33a1f0d404797927edf562febd6c43",
+      "context": "True to stop the event going further.",
+      "translation": "True para que el evento no siga propagándose.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.column_name_at#2",
+      "source": "the widget the right-click landed on: a horizontal ``QHeaderView``, an item view, or an item view's viewport. Anything else gives ``None``.",
+      "source_sha256": "5ab9caab23c1cf2f022f1438e9f6ede07e138c3cb23e8b2aee6752af1d85b74e",
+      "context": "the widget the right-click landed on: a horizontal ``QHeaderView``, an item view, or an item view's viewport. Anything else gives ``None``.",
+      "translation": "el widget sobre el que cayó el clic derecho: un ``QHeaderView`` horizontal, una vista de elementos o la ventana de visualización de una vista de elementos. Cualquier otra cosa da ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.column_name_at#3",
+      "source": "the click position as a ``QPoint`` in ``widget``'s own coordinates.",
+      "source_sha256": "0e86d58f187468219972197a0124278e38f4891a12dbf993d997d32268b89a68",
+      "context": "the click position as a ``QPoint`` in ``widget``'s own coordinates.",
+      "translation": "la posición del clic como ``QPoint`` en las coordenadas propias de ``widget``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.install_help_action#2",
+      "source": "the main window whose **Help** menu gets the action; the action is inserted before the menu's first separator, or appended when it has none.",
+      "source_sha256": "8c728d2fd3c46df43a1b2b9d972b683b34bb6993212135e783d7127122fc0202",
+      "context": "the main window whose **Help** menu gets the action; the action is inserted before the menu's first separator, or appended when it has none.",
+      "translation": "la ventana principal cuyo menú **Help** recibe la acción; la acción se inserta antes del primer separador del menú, o se añade al final cuando no tiene ninguno.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.install_window_hooks#2",
+      "source": "the main window; its Help menu gets the dictionary action, and the process-wide context-menu filter is installed.",
+      "source_sha256": "1649289824ff8afb4d549e985199c300bff9f2009e926f4f61e3c8ff6467d82d",
+      "context": "the main window; its Help menu gets the key-value mapping action, and the process-wide context-menu filter is installed.",
+      "translation": "la ventana principal; su menú Ayuda recibe la acción del diccionario, y se instala el filtro de menús contextuales para todo el proceso.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.set_menu_runner#1",
+      "source": "a callable ``runner(menu, global_pos)`` that shows the ``QMenu`` at that global position, or ``None`` for the default, which calls ``menu.exec``.",
+      "source_sha256": "eea3c994d563f731e3fc41af64883578fdda934ebd497bbe8a3c4d82e01e5d7a",
+      "context": "a callable ``runner(menu, global_pos)`` that shows the ``QMenu`` at that global position, or ``None`` for the default, which calls ``menu.exec``.",
+      "translation": "un invocable ``runner(menu, global_pos)`` que muestra el ``QMenu`` en esa posición global, o ``None`` para el predeterminado, que llama a ``menu.exec``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.set_frame#1",
+      "source": "the object table, or ``None`` to empty the class picker. Its :func:`~spacr.qt.widgets.feature_rank.candidate_labels` are offered, keeping the previous choice when it is still there, and the ranking reruns.",
+      "source_sha256": "7e942b205b6739147d6e5dabb7cd3992e9fa53b9b82953480358fc2b31c6fc20",
+      "context": "the object table, or ``None`` to empty the class picker. Its :func:`~spacr.qt.widgets.feature_rank.candidate_labels` are offered, keeping the previous choice when it is still there, and the ranking reruns.",
+      "translation": "la tabla de objetos, o ``None`` para vaciar el selector de clases. Se ofrecen sus :func:`~spacr.qt.widgets.feature_rank.candidate_labels`, conservando la elección anterior cuando sigue ahí, y la clasificación se vuelve a ejecutar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.set_spec#1",
+      "source": "the :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec` to adopt; its label, statistic, top count and whether a permutation null is on are shown in the controls, and the ranking reruns.",
+      "source_sha256": "9b24d4961ed0523763ead93117b3d1aa584a77a92ee4621373eecadc3c33091f",
+      "context": "the :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec` to adopt; its label, statistic, top count and whether a permutation null is on are shown in the controls, and the ranking reruns.",
+      "translation": "el :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec` que se adopta; su etiqueta, su estadístico, su número de primeros y si está activado un nulo por permutación se muestran en los controles, y la clasificación se vuelve a ejecutar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#1",
+      "source": "the class name.",
+      "source_sha256": "3505af0357a59373cd42e2df07ad5c21ad92845b58705bd1d17b4cf2698c146c",
+      "context": "the class name.",
+      "translation": "el nombre de la clase.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#2",
+      "source": "how many objects of that class have a value; 0 makes every statistic below NaN.",
+      "source_sha256": "c361a60ca1cab68ab686fb334d7df94d8db394d931476d257a0395b76b256e0e",
+      "context": "how many objects of that class have a value; 0 makes every statistic below NaN.",
+      "translation": "cuántos objetos de esa clase tienen un valor; 0 hace que todos los estadísticos siguientes sean NaN.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#3",
+      "source": "median of the class's values.",
+      "source_sha256": "11100a3204708c295b5169fecc5e09b40391575c5714d22b1b151675e0f4b7f8",
+      "context": "median of the class's values.",
+      "translation": "mediana de los valores de la clase.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#4",
+      "source": "25th percentile of the class's values.",
+      "source_sha256": "b78ccbeb16e964272263baff4166a08b1ac7bbcbe2c607fa3b520590eb7f2581",
+      "context": "25th percentile of the class's values.",
+      "translation": "percentil 25 de los valores de la clase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#5",
+      "source": "75th percentile of the class's values.",
+      "source_sha256": "b7e88ed40ce55ebfd8c37c723f93971f7577be2d69746ded6013b3778bbea5cb",
+      "context": "75th percentile of the class's values.",
+      "translation": "percentil 75 de los valores de la clase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#6",
+      "source": "smallest value in the class.",
+      "source_sha256": "15e8f736fd38c10833db754cf61fd5e3037432ed43caee1005687cee5ce472da",
+      "context": "smallest value in the class.",
+      "translation": "valor más pequeño de la clase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#7",
+      "source": "largest value in the class.",
+      "source_sha256": "bd8d5c8662a45e1bef699400ffb988a90f3cbe676f00bf73fa79e8c58405d284",
+      "context": "largest value in the class.",
+      "translation": "valor más grande de la clase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#1",
+      "source": "the :class:`ExplorerSpec` the ranking was made with.",
+      "source_sha256": "5925bc74954dcd40d989a23d0054e83bd472038b46672342b59a746979d2c8c5",
+      "context": "the :class:`ExplorerSpec` the ranking was made with.",
+      "translation": "el :class:`ExplorerSpec` con el que se hizo la clasificación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#2",
+      "source": "the class column the features were ranked against.",
+      "source_sha256": "0d7ed40cb81df4b84335c4d302a56dc5a7d128438c05aeef1f7c445481b3a76f",
+      "context": "the class column the features were ranked against.",
+      "translation": "la columna de clase respecto a la que se clasificaron las características.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#3",
+      "source": "the class levels found in that column, sorted.",
+      "source_sha256": "a08cd436b73af63055fc399622b54621c3b070309a346e6f6133cc10427a279c",
+      "context": "the class levels found in that column, sorted.",
+      "translation": "los niveles de clase encontrados en esa columna, ordenados.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#5",
+      "source": "number of rows in the table that was ranked, before any row was dropped.",
+      "source_sha256": "3c1307330f415fe1ba796be1bb9e565f4b9bab49ebbeb01f1307c29ce58dc592",
+      "context": "number of rows in the table that was ranked, before any row was dropped.",
+      "translation": "número de filas de la tabla clasificada, antes de descartar ninguna fila.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#1",
+      "source": "the column that was scored.",
+      "source_sha256": "e3dacc7be7f0717d103f8776f76c8ab0b3dcd52d115405097001b4d41432b148",
+      "context": "the column that was scored.",
+      "translation": "la columna que se puntuó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#10",
+      "source": "number of scored objects in each class level.",
+      "source_sha256": "9ff1488e1d2bf73d4652e2fe36ef9542e98c9d05dc14503390f539ba873cf909",
+      "context": "number of scored objects in each class level.",
+      "translation": "número de objetos puntuados en cada nivel de clase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#2",
+      "source": "the ranking statistic used, one of :data:`STATISTICS`.",
+      "source_sha256": "b62865c89c838079f47b1f98f5352502449d72f99106c752b67fbede9f71418a",
+      "context": "the ranking statistic used, one of :data:`STATISTICS`.",
+      "translation": "el estadístico de clasificación usado, uno de :data:`STATISTICS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#5",
+      "source": "Cohen's d of the comparison that separated best, positive when the compared class has the larger mean.",
+      "source_sha256": "0a23f2af19187510b2364662114736b6c3e6185bd5d0f11781953a2be0d6fb80",
+      "context": "Cohen's d of the comparison that separated best, positive when the compared class has the larger mean.",
+      "translation": "d de Cohen de la comparación que mejor separó, positiva cuando la clase comparada tiene la media mayor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#6",
+      "source": "Kolmogorov–Smirnov distance between the two compared groups, in ``[0, 1]``.",
+      "source_sha256": "a42136e1db62601052287db8f93243c7be69204f5c3352249dc820c5dac9beb7",
+      "context": "Kolmogorov–Smirnov distance between the two compared groups, in ``[0, 1]``.",
+      "translation": "distancia de Kolmogorov–Smirnov entre los dos grupos comparados, en ``[0, 1]``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#7",
+      "source": "binned mutual information of that comparison, normalised by the class entropy, in ``[0, 1]``.",
+      "source_sha256": "069fb829ea03815e0952a46335a8d0e0072d452642385d37cf432ca84b8e265c",
+      "context": "binned mutual information of that comparison, normalised by the class entropy, in ``[0, 1]``.",
+      "translation": "información mutua por intervalos de esa comparación, normalizada por la entropía de clase, en ``[0, 1]``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#8",
+      "source": "the side of the comparison whose values run higher: the compared class when :attr:`auc` is at least 0.5, otherwise :attr:`against`.",
+      "source_sha256": "5d61ed86d7ffd955c21a5003b6a0338133ea67d976b7a598258c109f0e405975",
+      "context": "the side of the comparison whose values run higher: the compared class when :attr:`auc` is at least 0.5, otherwise :attr:`against`.",
+      "translation": "el lado de la comparación cuyos valores son más altos: la clase comparada cuando :attr:`auc` es al menos 0.5; si no, :attr:`against`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#9",
+      "source": "what the best-separated class was compared with: the other class when there are two, ``\"rest\"`` when there are more.",
+      "source_sha256": "521ed7a6e8458693f23232fd67c550be97af78eca7089dd2d8771455942507b0",
+      "context": "what the best-separated class was compared with: the other class when there are two, ``\"rest\"`` when there are more.",
+      "translation": "con qué se comparó la clase mejor separada: la otra clase cuando hay dos, ``\"rest\"`` cuando hay más.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.auc_of#2",
+      "source": "1-D array of the reference group's values; an empty array gives NaN.",
+      "source_sha256": "733725f401fcd1b804b270ba2933e0afd59be26c5f30c2985772e5c576b9e7d8",
+      "context": "1-D array of the reference group's values; an empty array gives NaN.",
+      "translation": "matriz 1-D de los valores del grupo de referencia; una matriz vacía da NaN.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.auc_of#3",
+      "source": "1-D array of the compared group's values; an empty array gives NaN.",
+      "source_sha256": "63dfc6b1818eb26a90264b7940c48bde87c69c649ef7a83acf00a4463f4c20da",
+      "context": "1-D array of the compared group's values; an empty array gives NaN.",
+      "translation": "matriz 1-D de los valores del grupo comparado; una matriz vacía da NaN.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.candidate_features#4",
+      "source": "measurement table whose columns are screened.",
+      "source_sha256": "4c7583bc081cf7611a9f1e92b1240cea92f6b32551e09a120e5c17064c916b4d",
+      "context": "measurement table whose columns are screened.",
+      "translation": "tabla de mediciones cuyas columnas se examinan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.cohen_d_of#1",
+      "source": "1-D array of the reference group's values.",
+      "source_sha256": "41833ac84168cc915d83c8c5d7e8f1aa1432d3ce7a9600b1d1be3efebad020fe",
+      "context": "1-D array of the reference group's values.",
+      "translation": "matriz 1-D de los valores del grupo de referencia.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.cohen_d_of#2",
+      "source": "1-D array of the compared group's values.",
+      "source_sha256": "944f0a7885532055e6d0b3bbab5624c76af6d9aa77a35c5a4220a766c601655a",
+      "context": "1-D array of the compared group's values.",
+      "translation": "matriz 1-D de los valores del grupo comparado.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
