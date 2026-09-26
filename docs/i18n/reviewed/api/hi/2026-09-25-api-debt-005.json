@@ -3259,6 +3259,1550 @@
       "context": "Its actions are at the bottom right, in the order every spaCR dialog uses: the thing you came to do in the accent colour (Measure, ``PrimaryButton``), and the way out in red beside it (Close, ``DangerButton``). Escape is the other way out, and closes rather than hides -- see :meth:`reject`.",
       "translation": "इसकी क्रियाएँ नीचे दाईं ओर हैं, उसी क्रम में जिसका हर spaCR डायलॉग उपयोग करता है: जो काम करने आप आए वह एक्सेंट रंग में (Measure, ``PrimaryButton``), और बाहर निकलने का रास्ता उसके बगल में लाल में (Close, ``DangerButton``)। Escape बाहर निकलने का दूसरा रास्ता है, और छिपाने के बजाय बंद करता है -- :meth:`reject` देखें।",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs#5",
+      "source": "THE SETTINGS THE TABLE DECIDES ARE SHOWN AND DISABLED rather than hidden. ``cell_mask_dim`` is not a question once the table says which column holds the cell masks, but a user who has read the Measure documentation comes here looking for it, and a control that is missing reads as a feature that is missing. Shown, filled in, and not editable says the table already answered it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and it is derived from the plane order rather than written out again here.",
+      "source_sha256": "5e3814c4025a3b17e8b89ca036e3cf49aba6a8e9396e0f98b227048ce87482d8",
+      "context": "The settings the table decides are shown and disabled rather than hidden. ``cell_mask_dim`` is not a question once the table says which column holds the cell masks, but a user who has read the Measure documentation comes here looking for it, and a control that is missing reads as a feature that is missing. Shown, filled in, and not editable says the table already answered it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and it is derived from the image layer order rather than written out again here.",
+      "translation": "तालिका जो सेटिंग्स तय करती है वे छिपाई नहीं जातीं, बल्कि दिखाई और अक्षम की जाती हैं। जब तालिका बता देती है कि कौन-सा स्तंभ कोशिका मास्क रखता है तो ``cell_mask_dim`` प्रश्न नहीं रहता, पर Measure दस्तावेज़ पढ़ चुका उपयोगकर्ता इसे खोजते हुए यहाँ आता है, और अनुपस्थित नियंत्रण अनुपस्थित सुविधा जैसा लगता है। दिखाया गया, भरा हुआ और संपादन-योग्य न होना बताता है कि तालिका इसका उत्तर पहले ही दे चुकी है। :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` वह सूची है, और यह यहाँ दोबारा लिखे जाने के बजाय समतल क्रम से निकाली जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen#0",
+      "source": "Table, Measure's settings, and a Run that goes through Measure.",
+      "source_sha256": "a90faf68fad87cd5792a0eef394e5e685064753cc14b48a19e775c45603fc291",
+      "context": "Table, Measure's settings, and a processing session that goes through Measure.",
+      "translation": "तालिका, Measure की सेटिंग्स, और एक Run जो Measure से होकर जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen#1",
+      "source": "parent widget, or ``None``.",
+      "source_sha256": "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
+      "context": "parent widget, or ``None``.",
+      "translation": "पैरेंट विजेट, या ``None``।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen#2",
+      "source": "``False`` runs the measurement inline, emitting the same signals in the same order, so a test can drive the whole window synchronously without the behaviour diverging.",
+      "source_sha256": "8311c89345930b36419e1f7a482eb8db27599c71da7f54cae62440ef79bb85ad",
+      "context": "``False`` runs the measurement inline, emitting the same signals in the same order, so a test can drive the whole window synchronously without the behaviour diverging.",
+      "translation": "``False`` मापन को उसी प्रवाह में चलाता है, वही सिग्नल उसी क्रम में emit करते हुए, ताकि परीक्षण व्यवहार के भिन्न हुए बिना पूरी विंडो को तुल्यकालिक रूप से चला सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen#3",
+      "source": "emitted with the result dict when a run completes, or with ``None`` when it failed.",
+      "source_sha256": "bb2e36eaeb33f8af3a7c26910d1c733d07f28d5db6221471e7317cc2ba4147c8",
+      "context": "emitted with the result key-value mapping when a processing session completes, or with ``None`` when it failed.",
+      "translation": "रन पूरा होने पर परिणाम dict के साथ, या विफल होने पर ``None`` के साथ emit होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen#4",
+      "source": "Build the window and its three parts.",
+      "source_sha256": "f9275fe9271b0c05a0d0a595b42419550f329d04da775e2911d67ac6496be503",
+      "context": "Build the window and its three parts.",
+      "translation": "विंडो और उसके तीन भाग बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.apply_settings_dict#0",
+      "source": "Write ``settings`` into the panel's controls.",
+      "source_sha256": "a92bb42caa6ef74e38c20d867c65c675d7584d805bcfff5b586ceca83729c98f",
+      "context": "Write ``settings`` into the panel's controls.",
+      "translation": "``settings`` को पैनल के नियंत्रणों में लिखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.apply_settings_dict#1",
+      "source": "The same contract :meth:`spacr.qt.screens.app_screen.AppScreen.apply_settings_dict` has, so a settings pack saved from the Measure screen loads here.",
+      "source_sha256": "7347cbd04fbd812dcdc0ff0dafa9d945bfc14dd7fa426266da677dbd0220e7f9",
+      "context": "The same contract :meth:`spacr.qt.screens.app_screen.AppScreen.apply_settings_dict` has, so a settings pack saved from the Measure application view loads here.",
+      "translation": "वही अनुबंध जो :meth:`spacr.qt.screens.app_screen.AppScreen.apply_settings_dict` का है, ताकि Measure पेज से सहेजा गया सेटिंग्स पैक यहाँ लोड हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.apply_settings_dict#2",
+      "source": "the values to write. Keys with no control are ignored.",
+      "source_sha256": "dd0d4843e4f188297599b208464afbecbd1c9cdaa96a7b2a4fbbc870e9e6aae1",
+      "context": "the values to write. Structured-data names with no control are ignored.",
+      "translation": "लिखे जाने वाले मान। बिना नियंत्रण वाली कुंजियाँ अनदेखी की जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.apply_settings_dict#3",
+      "source": "how many controls took a value.",
+      "source_sha256": "1e09ec8f99b9bb70b8974b1a677f92c7df68f75afd1f009f7df74940d53b8f2a",
+      "context": "how many controls took a value.",
+      "translation": "कितने नियंत्रणों ने मान लिया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.closeEvent#0",
+      "source": "Stop the run's threads before Qt destroys the widgets.",
+      "source_sha256": "ec82ca6896aeab0a5f8317add70cb8a65a5145742d1a281483882408ab7fdd69",
+      "context": "Stop the run's independent execution paths before Qt destroys the widgets.",
+      "translation": "Qt के विजेट नष्ट करने से पहले रन के थ्रेड रोकें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.closeEvent#1",
+      "source": "Qt ABORTS THE PROCESS if a running ``QThread`` is destroyed, and this window is closable while a measure run -- minutes of work -- is in flight. :func:`spacr.qt.job_runner.shutdown_all` covers the application quitting; it does not cover one window being closed.",
+      "source_sha256": "066f94a545e8a5d4f0dad71984e3916d729a5017dab57df2239e57ae4ce7b7dd",
+      "context": "Qt aborts the process if an executing ``QThread`` is destroyed, and this window is closable while a measure run -- minutes of work -- is in flight. :func:`spacr.qt.job_runner.shutdown_all` covers the application quitting; it does not cover one window being closed.",
+      "translation": "यदि चल रहा ``QThread`` नष्ट हो जाए तो Qt प्रक्रिया को निरस्त कर देता है, और यह विंडो मापन रन -- मिनटों का काम -- चलते समय भी बंद की जा सकती है। :func:`spacr.qt.job_runner.shutdown_all` एप्लिकेशन के बंद होने को कवर करता है; यह किसी एक विंडो के बंद होने को कवर नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.closeEvent#2",
+      "source": "the Qt close event.",
+      "source_sha256": "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70",
+      "context": "the Qt close event.",
+      "translation": "Qt क्लोज़ इवेंट।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.derived_settings#0",
+      "source": "The settings a run would use: the panel's, over-written by the table.",
+      "source_sha256": "e5bb03827526977a6071c697a5fe3d10de7612d480a0c74bb88a108fe092b91b",
+      "context": "The settings a processing session would use: the panel's, over-written by the table.",
+      "translation": "वे सेटिंग्स जिनका रन उपयोग करेगा: पैनल की, तालिका द्वारा अधिलेखित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.derived_settings#1",
+      "source": "The same call the run makes, so what this returns is what would happen rather than a second opinion about it.",
+      "source_sha256": "712188e34a5efaa50140f29a2986190b51cef69e2e20377e1da3211fb7db6cb1",
+      "context": "The same call the run makes, so what this returns is what would happen rather than a second opinion about it.",
+      "translation": "वही कॉल जो रन करता है, इसलिए यह जो लौटाता है वही होगा, उसके बारे में कोई दूसरी राय नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.destination#0",
+      "source": "Where the next run would write, as far as this window knows.",
+      "source_sha256": "01c2a68a48eed544818f183dbcbb0032db4d7fb37379827af62ca1c6f510fb9c",
+      "context": "Where the next run would write, as far as this window knows.",
+      "translation": "अगला रन कहाँ लिखेगा, जहाँ तक यह विंडो जानती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.done#0",
+      "source": "Stop the run whichever way the window is dismissed.",
+      "source_sha256": "0a4c8da477d18e61c5016e29bfd60f364568046fb4694a7daf72cd1a0aefc614",
+      "context": "Stop the run whichever way the window is dismissed.",
+      "translation": "विंडो जिस भी तरह हटाई जाए, रन रोकें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.done#1",
+      "source": "THE HOOK IS ``done`` AND NOT ``reject``, and not ``closeEvent`` alone. Escape reaches ``reject``, which hides the window WITHOUT a close event, and that would leave a measure run -- minutes of work, on a thread -- going behind a window nobody can see; a running ``QThread`` destroyed at exit aborts the process. Overriding ``reject`` to close instead looks like the fix and is a loop: ``QDialog.closeEvent`` itself calls ``reject``.",
+      "source_sha256": "33a5fc7e3409b4e4f15a0b8d6c615c56c77d2569ed4bfe8060f6783f3e5e41c9",
+      "context": "The hook is ``done`` AND NOT ``reject``, and not ``closeEvent`` alone. Escape reaches ``reject``, which hides the window WITHOUT a close event, and that would leave a measure run -- minutes of work, on an independent execution path -- going behind a window nobody can see; an executing ``QThread`` destroyed at exit aborts the process. Overriding ``reject`` to close instead looks like the fix and is a loop: ``QDialog.closeEvent`` itself calls ``reject``.",
+      "translation": "हुक ``done`` है, ``reject`` नहीं, और अकेला ``closeEvent`` भी नहीं। Escape ``reject`` तक पहुँचता है, जो विंडो को क्लोज़ इवेंट के बिना छिपाता है, और इससे मापन रन -- मिनटों का काम, एक थ्रेड पर -- ऐसी विंडो के पीछे चलता रहता जिसे कोई नहीं देख सकता; निकास पर नष्ट हुआ चल रहा ``QThread`` प्रक्रिया को निरस्त कर देता है। बंद करने के लिए ``reject`` को ओवरराइड करना समाधान लगता है पर एक लूप है: ``QDialog.closeEvent`` स्वयं ``reject`` को कॉल करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.done#2",
+      "source": "Qt's dialog code, passed straight on.",
+      "source_sha256": "f322ffc6b20780a1ea63f41d1c7d77540f1a1807eed66110c39a66f9bcd6ae14",
+      "context": "Qt's dialog code, passed straight on.",
+      "translation": "Qt का डायलॉग कोड, सीधे आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.result#0",
+      "source": "What the last run returned, or ``None`` if none has finished.",
+      "source_sha256": "06d176dee0e87ac58c0fa754d6dd6198de796bb4dd71246838b39a3c37e8215e",
+      "context": "What the last run returned, or ``None`` if none has finished.",
+      "translation": "पिछले रन ने क्या लौटाया, या कोई समाप्त न हुआ हो तो ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.run#0",
+      "source": "Measure the table, off the GUI thread.",
+      "source_sha256": "0fa1d09b8b3ea256b50bd143f7ac0ee5b769dbc3ad0eed00827662600a30e3c8",
+      "context": "Measure the table, off the main GUI execution path.",
+      "translation": "GUI थ्रेड से बाहर, तालिका मापें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.run#1",
+      "source": "whether a run was started. A table with problems in it starts nothing and says what they are.",
+      "source_sha256": "aa47097fb42092c08862cb2ef12f098b4837750189560d59128f649e94504d52",
+      "context": "whether a run was started. A table with problems in it starts nothing and says what they are.",
+      "translation": "क्या कोई रन शुरू हुआ। समस्याओं वाली तालिका कुछ शुरू नहीं करती और बताती है कि वे क्या हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.set_destination#0",
+      "source": "Where the project is written. ``None`` puts it beside the files.",
+      "source_sha256": "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee",
+      "context": "Where the project is written. ``None`` puts it beside the files.",
+      "translation": "परियोजना कहाँ लिखी जाती है। ``None`` इसे फ़ाइलों के बगल में रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.set_destination#1",
+      "source": "folder the project is written to, stored as a string; any falsy value (None or an empty string) puts it beside the input files.",
+      "source_sha256": "d799e34cb604983be135881f6f7ef69e90669851ccdf589d8a81efd8554e64ff",
+      "context": "folder the project is written to, stored as a string; any falsy value (None or an empty string) puts it beside the input files.",
+      "translation": "वह फ़ोल्डर जिसमें परियोजना लिखी जाती है, स्ट्रिंग के रूप में संग्रहीत; कोई भी असत्य मान (None या खाली स्ट्रिंग) इसे इनपुट फ़ाइलों के बगल में रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.stop_the_runners#0",
+      "source": "Shut down the measure worker and the folder scanner, if any.",
+      "source_sha256": "65c4cb9898158d13171726a7fa16edef2023dbae812c692a4b17dc2b88e7386d",
+      "context": "Shut down the measure worker and the folder scanner, if any.",
+      "translation": "मापन वर्कर और फ़ोल्डर स्कैनर, यदि हों, बंद करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#0",
+      "source": "Open the FEATURES window, owned by ``owner``'s window.",
+      "source_sha256": "c1131268b02ce3dd9971b2d8e60ac523fd1937d927ed4a35f6a2122a055de437",
+      "context": "Open the FEATURES window, owned by ``owner``'s window.",
+      "translation": "FEATURES विंडो खोलें, ``owner`` की विंडो के स्वामित्व में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#1",
+      "source": "the screen the button is on, so Qt keeps the window alive for as long as that screen is and closes it with the application.",
+      "source_sha256": "c29ff92d23bbc40ad329db94993b5491bab4647be7fa2c9e29bb63970d4ba289",
+      "context": "the application view the button is on, so Qt keeps the window alive for as long as that application view is and closes it with the application.",
+      "translation": "वह पेज जिस पर बटन है, ताकि Qt विंडो को तब तक जीवित रखे जब तक वह पेज है, और एप्लिकेशन के साथ उसे बंद करे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#2",
+      "source": "the folder the user is drawing in. Its files are offered to the table straight away, because a user who pressed FEATURES from an open folder means that folder.",
+      "source_sha256": "f37d1528c89f841d2b11cd7bbe2a32981d7d94f6c46413e658a46c12ba19e89e",
+      "context": "the folder the user is drawing in. Its files are offered to the table straight away, because a user who pressed FEATURES from an open folder means that folder.",
+      "translation": "वह फ़ोल्डर जिसमें उपयोगकर्ता चित्र बना रहा है। इसकी फ़ाइलें तुरंत तालिका को प्रस्तुत की जाती हैं, क्योंकि खुले फ़ोल्डर से FEATURES दबाने वाले उपयोगकर्ता का आशय वही फ़ोल्डर है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#3",
+      "source": "``False`` runs the measurement and the folder walk inline; for tests.",
+      "source_sha256": "cda5df05c9d51d9e42b59b4b38e07e1e08ea647eef9e7e626f5c0d02f6f0e144",
+      "context": "``False`` runs the measurement and the folder walk inline; for tests.",
+      "translation": "``False`` मापन और फ़ोल्डर भ्रमण को उसी प्रवाह में चलाता है; परीक्षणों के लिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#4",
+      "source": "the window, already shown.",
+      "source_sha256": "8efec856ccb8cf76d4b7456f29ab62e8d3353d1079289e1e37d585efecc0a012",
+      "context": "the window, already shown.",
+      "translation": "विंडो, पहले से दिखाई गई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#5",
+      "source": "THE FOLDER IS NOT READ HERE. This runs in the Make Masks button handler, on the GUI thread, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
+      "source_sha256": "0245540ddf0fa85b0368b85b0be0fd1f4df470512e2ea1cdef054850a1dfa2e1",
+      "context": "The folder is not read here. This executes in the Make Masks button handler, on the main GUI execution path, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
+      "translation": "फ़ोल्डर यहाँ नहीं पढ़ा जाता। यह Make Masks बटन हैंडलर में, GUI थ्रेड पर चलता है, और ``folder`` उपयोगकर्ता द्वारा चुना गया पथ है -- माइक्रोस्कोप रिग पर, वह साझा ड्राइव जहाँ छवियाँ हैं। पहले यह इस पर ``isdir`` और ``listdir`` चलाता था और विंडो दिखने से पहले ही हर प्रविष्टि का stat करता था, इसलिए सोए हुए automount पर स्थित फ़ोल्डर पर FEATURES दबाने से एप्लिकेशन बिना traceback के जम जाता था। भ्रमण :meth:`MeasureInputTable.add_dropped` का है, एक वर्कर पर, और तालिका एक पल बाद भरती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#0",
+      "source": "Write one value into whichever kind of control holds it.",
+      "source_sha256": "8f5f134b5331a7ad9abf0e981c9bc9e3828be4da81c47e383ae03714bfba71c1",
+      "context": "Write one value into whichever kind of control holds it.",
+      "translation": "एक मान उस नियंत्रण में लिखें जो उसे रखता है, वह जिस भी प्रकार का हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#1",
+      "source": "THE TRAP THIS EXISTS FOR: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A run configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
+      "source_sha256": "838af7f7634f688891241ed5aa3b2db8f48a6f6f8ec4588a4098e3d940b24e15",
+      "context": "The trap this exists for: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A processing session configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
+      "translation": "जिस जाल के लिए यह मौजूद है: केवल कुछ सेटिंग्स नियंत्रणों में ``set_value`` मेथड होती है। ``cell_min_size`` एक सादा ``QSpinBox`` है, और ``hasattr(widget, 'set_value')`` जाँचने वाला लेखक इसे छोड़ देता है -- चुपचाप, डिफ़ॉल्ट 8000 को वहीं छोड़ते हुए। इस तरह कॉन्फ़िगर किया गया रन कुछ नहीं मापता और सफलता रिपोर्ट करता है, क्योंकि हर ऑब्जेक्ट उस न्यूनतम से छोटा था जिसे किसी ने नहीं चुना।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#2",
+      "source": "The coercions are the ones :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept in step with it by hand. They are not shared yet because that method is bound to a screen this window is not one of; if a third caller appears, move it rather than copying it again.",
+      "source_sha256": "0c13d5ad70212e61cd850a263def550bfbab6f63ee787d1642f39ee2e4ab0804",
+      "context": "The coercions are the ones :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept in step with it by hand. They are not shared yet because that method is bound to an application view this window is not one of; if a third caller appears, move it rather than copying it again.",
+      "translation": "रूपांतरण वही हैं जो :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` करता है, जिन्हें हाथ से उसके साथ तालमेल में रखा गया है। वे अभी साझा नहीं हैं क्योंकि वह मेथड ऐसे पेज से बँधी है जो यह विंडो नहीं है; यदि तीसरा कॉलर आए, तो इसे फिर से कॉपी करने के बजाय स्थानांतरित करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#3",
+      "source": "the control to write into.",
+      "source_sha256": "56d8dced6e57cef91cf48b2d9426c29edf0a346148b210c5c6b6e27c5f106d40",
+      "context": "the control to write into.",
+      "translation": "वह नियंत्रण जिसमें लिखना है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#4",
+      "source": "the value, coerced to the control's own type and left alone when it cannot be.",
+      "source_sha256": "6363d099a89225c9714196aa291f5796e520ea26e857ce28e5ccd1415fa21a49",
+      "context": "the value, coerced to the control's own type and left alone when it cannot be.",
+      "translation": "मान, नियंत्रण के अपने प्रकार में रूपांतरित, और न हो सके तो जैसा है वैसा छोड़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#5",
+      "source": "whether the control took it.",
+      "source_sha256": "096c9d78c04a9204869f8450b06d7925f7a8c3f7e4ad93b0c256b1e8c7bf1335",
+      "context": "whether the control took it.",
+      "translation": "क्या नियंत्रण ने इसे लिया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.methods_export.MethodsExportScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class once the drafting job has been shut down.",
+      "source_sha256": "8d609d346e19b09225fedc68f01cca70e0c8ab109a2c1c7497f66e3a64e0e141",
+      "context": "the close event, passed on to the base class once the drafting job has been shut down.",
+      "translation": "क्लोज़ इवेंट, ड्राफ़्ट जॉब बंद होने के बाद बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.methods_export.MethodsExportScreen.provenance_message#2",
+      "source": "the :class:`spacr.qt.ai.manuscript.ManuscriptDraft` just produced. When ``ok``, its provider and the counts of checked numbers are quoted; otherwise its ``problems`` are listed one per line.",
+      "source_sha256": "6d4788e469e41f231a9c0fe8eb6e59cdeb36a59dc3f25ece4d3925f9a75785b4",
+      "context": "the :class:`spacr.qt.ai.manuscript.ManuscriptDraft` just produced. When ``ok``, its provider and the counts of checked numbers are quoted; otherwise its ``problems`` are listed one per line.",
+      "translation": "अभी बना :class:`spacr.qt.ai.manuscript.ManuscriptDraft`। ``ok`` होने पर इसका प्रदाता और जाँची गई संख्याओं की गिनती उद्धृत की जाती है; अन्यथा इसकी ``problems`` प्रति पंक्ति एक सूचीबद्ध की जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_compare.ModelCompareScreen.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after running threads are asked to quit and waited on for up to 5 s each.",
+      "source_sha256": "aac6ad9998e729864eca8242297eedbb0b1ab4cf567ef1fc628b82454426fba4",
+      "context": "the close event; it is passed on to the base class after running threads are asked to quit and waited on for up to 5 s each.",
+      "translation": "क्लोज़ इवेंट; चल रहे थ्रेड से बंद होने को कहने और हर एक के लिए 5 s तक प्रतीक्षा करने के बाद इसे बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_compare.ModelCompareScreen.set_segment_fn#2",
+      "source": "``fn(images, config) -> masks``, or None.",
+      "source_sha256": "bdaf14922118a94789961920be1e138e08842aa7752245d3d9e1a8d4246450c9",
+      "context": "``fn(images, config) -> masks``, or None.",
+      "translation": "``fn(images, config) -> masks``, या None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis#10",
+      "source": "the regression results folder the hit came from, passed as ``results_folder``; outputs are written below it.",
+      "source_sha256": "e5c71a98790dfb71fe2cfb43e3825eb41b551d03ab5585a1712cdc10e2c6acfb",
+      "context": "the regression results folder the hit came from, passed as ``results_folder``; outputs are written below it.",
+      "translation": "वह रिग्रेशन परिणाम फ़ोल्डर जिससे हिट आया, ``results_folder`` के रूप में दिया जाता है; आउटपुट इसके नीचे लिखे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis#8",
+      "source": "``'positive'`` or ``'negative'``: whether larger or smaller scores rank first, passed as ``hit_direction``.",
+      "source_sha256": "eea1d3c42770e6306857391a3ffeb28acc56b014fa4fad68c04466df9b42375c",
+      "context": "``'positive'`` or ``'negative'``: whether larger or smaller scores rank first, passed as ``hit_direction``.",
+      "translation": "``'positive'`` या ``'negative'``: बड़े या छोटे स्कोर पहले रैंक होते हैं, ``hit_direction`` के रूप में दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis#9",
+      "source": "measured feature columns for the attribution model, passed as ``hit_feature_columns``; empty lets the investigation choose numeric features itself.",
+      "source_sha256": "d21413b6c3e4da01743bee875fe0d1a2797373aa24a05b69f3383b5051909684",
+      "context": "measured feature columns for the attribution model, passed as ``hit_feature_columns``; empty lets the investigation choose numeric features itself.",
+      "translation": "attribution मॉडल के लिए मापे गए फ़ीचर स्तंभ, ``hit_feature_columns`` के रूप में दिए जाते हैं; खाली होने पर जाँच स्वयं संख्यात्मक फ़ीचर चुनती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitScreen.apply_seed#1",
+      "source": "hand-off settings from the hit list. ``results_folder``, ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``, ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` and ``hit_well_support`` are read, each with a fallback when missing.",
+      "source_sha256": "3ad11e56a05723525982042fc30e480c63ee559a065ea45bebbe4d91ac0a1578",
+      "context": "hand-off settings from the hit list. ``results_folder``, ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``, ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` and ``hit_well_support`` are read, each with a fallback when missing.",
+      "translation": "हिट सूची से हस्तांतरण सेटिंग्स। ``results_folder``, ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``, ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` और ``hit_well_support`` पढ़े जाते हैं, हर एक अनुपस्थित होने पर फ़ॉलबैक के साथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.chosen_entry#0",
+      "source": "The entry a row currently stands for, honouring its version pick.",
+      "source_sha256": "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016",
+      "context": "The entry a row currently stands for, honouring its version pick.",
+      "translation": "कोई पंक्ति अभी जिस प्रविष्टि का प्रतिनिधित्व करती है, उसके संस्करण चयन का सम्मान करते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.chosen_entry#1",
+      "source": "index into the grouped listing, i.e. the model family in the order :meth:`set_entries` laid the rows out.",
+      "source_sha256": "26898f92961f2abdc30f32d1cdbd230da1c2b20c57748912b89cfe94d9deb24e",
+      "context": "index into the grouped listing, i.e. the model family in the order :meth:`set_entries` laid the rows out.",
+      "translation": "समूहित सूची में सूचकांक, यानी मॉडल परिवार उस क्रम में जिसमें :meth:`set_entries` ने पंक्तियाँ रखीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.closeEvent#2",
+      "source": "the close event, passed on to the base class after running jobs are cancelled and waited on (up to five seconds each).",
+      "source_sha256": "27774b0a361791b8996dc92d6518dae5975092a32c0b966041a8ac8e636252d4",
+      "context": "the close event, passed on to the base class after executing jobs are cancelled and waited on (up to five seconds each).",
+      "translation": "क्लोज़ इवेंट, चल रहे जॉब रद्द करने और उनकी प्रतीक्षा करने (हर एक के लिए अधिकतम पाँच सेकंड) के बाद बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.set_entries#1",
+      "source": "One row per model family. The version column is a combo box, so a model with several versions is one row the user opens rather than several rows they have to tell apart by suffix.",
+      "source_sha256": "531db2896a022ced7f3c9b631dc30deff8693df864326f2ccc9e28c3c8226795",
+      "context": "One row per model family. The version column is a combo box, so a model with several versions is one row the user opens rather than several rows they have to tell apart by suffix.",
+      "translation": "प्रति मॉडल परिवार एक पंक्ति। संस्करण स्तंभ एक combo box है, इसलिए कई संस्करणों वाला मॉडल एक पंक्ति है जिसे उपयोगकर्ता खोलता है, न कि कई पंक्तियाँ जिन्हें प्रत्यय से अलग पहचानना पड़े।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.set_entries#2",
+      "source": "iterable of :class:`spacr.model_zoo.ModelEntry`; grouped into families by key, newest version first.",
+      "source_sha256": "51360537d7aee28660b48f7f807736c8e494206b1cb996c88214124afde375e4",
+      "context": "iterable of :class:`spacr.model_zoo.ModelEntry`; grouped into families by key, newest version first.",
+      "translation": ":class:`spacr.model_zoo.ModelEntry` का इटरेबल; कुंजी के अनुसार परिवारों में समूहित, नवीनतम संस्करण पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.set_opener#2",
+      "source": "callable of that form, or ``None``.",
+      "source_sha256": "9f72c00e249a067d14ea9a50db1fd1db173fbc7b7542b5e2f4452a97f3ae7c88",
+      "context": "callable of that form, or ``None``.",
+      "translation": "उस रूप का कॉल करने योग्य ऑब्जेक्ट, या ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.uninstall_selected#0",
+      "source": "Remove the selected backend's environment, after asking.",
+      "source_sha256": "ff064a7779788b565d4426057e843f878088bf0c55b12ccc06b288cec8db5a3c",
+      "context": "Remove the selected backend's environment, after asking.",
+      "translation": "पूछने के बाद, चुने गए बैकएंड का एनवायरनमेंट हटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.uninstall_selected#1",
+      "source": "whether it was removed.",
+      "source_sha256": "6eb48017b1c19f7907d39df6b0c936824844c1503fd7ae65b01908c54cc2bb70",
+      "context": "whether it was removed.",
+      "translation": "क्या इसे हटाया गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.group_entries#0",
+      "source": "Collapse a listing to one row per model family, newest version first.",
+      "source_sha256": "9701c443122b8620472e133ae3ae338e8b054800e5217350a19a678f0118dfc1",
+      "context": "Collapse a listing to one row per model family, newest version first.",
+      "translation": "सूची को प्रति मॉडल परिवार एक पंक्ति तक समेटें, नवीनतम संस्करण पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.group_entries#1",
+      "source": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
+      "source_sha256": "60937aa50d32a4631226239f7dd53def42dee5504af026e672f1aac1e14e99dc",
+      "context": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
+      "translation": "zoo पहले प्रति चेकपॉइंट एक पंक्ति दिखाता था, इसलिए तीन संस्करणों वाला मॉडल दो असंबंधित मॉडलों को दृश्य से बाहर धकेल देता था। समूहन से पंक्ति एक मॉडल बनती है और संस्करण उसके भीतर एक विकल्प।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#0",
+      "source": "Explore organism guides and open the available image-analysis modules.",
+      "source_sha256": "16b23bf825a6dddbe7fed8a730ad1fb22ac92a24bd33e231101c96026e518850",
+      "context": "Explore organism guides and open the available image-analysis modules.",
+      "translation": "जीव गाइड देखें और उपलब्ध छवि-विश्लेषण मॉड्यूल खोलें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#1",
+      "source": "From Home, choose an organism to read its introduction, explore the cell diagram and browse its assay tiles. These guide pages require no input files and produce no analysis files. Drag the divider to give the information or module pane more space; each pane scrolls independently. Hover over a diagram component to read its description, select several components to keep them highlighted, and use Clear components to reset the selection.",
+      "source_sha256": "3118d2e8276129f10ee74636bcdb2192718366011aca521ca285e57d59657888",
+      "context": "From Home, choose an organism to read its introduction, explore the cell diagram and browse its assay tiles. These guide pages require no input files and produce no analysis files. Drag the divider to give the information or module pane more space; each pane scrolls independently. Hover over a diagram component to read its description, select several components to keep them highlighted, and use Clear components to reset the selection.",
+      "translation": "Home से कोई जीव चुनें ताकि उसका परिचय पढ़ सकें, कोशिका आरेख देख सकें और उसकी परख टाइलें ब्राउज़ कर सकें। इन गाइड पेजों के लिए किसी इनपुट फ़ाइल की आवश्यकता नहीं होती और ये कोई विश्लेषण फ़ाइल नहीं बनाते। जानकारी या मॉड्यूल पैन को अधिक जगह देने के लिए विभाजक खींचें; हर पैन स्वतंत्र रूप से स्क्रॉल होता है। किसी आरेख घटक का विवरण पढ़ने के लिए उस पर होवर करें, कई घटकों को हाइलाइट रखने के लिए उन्हें चुनें, और चयन रीसेट करने के लिए Clear components का उपयोग करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#3",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "translation": "Home > Toxoplasma खोलें और Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay या Replication Assay चुनें। चुना गया मॉड्यूल अपने इनपुट चयनकर्ता, सेटिंग्स, पूर्वावलोकन और Run नियंत्रण देता है। उदाहरण उपलब्ध होने पर उसके Test data नियंत्रण का उपयोग करें। Plaque Assay छवियों से शुरू होता है; बाकी परख संबंधित मापन तालिकाओं और ऑब्जेक्ट संबंधों का उपयोग करती हैं। चलाने से पहले हर मॉड्यूल की इनपुट सहायता का पालन करें, फिर उसके चुने गए आउटपुट फ़ोल्डर में परिणाम खोलें। Starplast Toxoplasma ज्ञान मानचित्र देखने के लिए एक अलग एप्लिकेशन खोलता है; इसका पहला लॉन्च इंस्टॉलेशन की पेशकश करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#4",
+      "source": "Plasmodium",
+      "source_sha256": "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
+      "context": "Plasmodium",
+      "translation": "प्लाज़्मोडियम (Plasmodium)",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#5",
+      "source": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, channels and masks for your experiment.",
+      "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
+      "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
+      "translation": "रक्त-अवस्था, यकृत-अवस्था, गतिशीलता और यौगिक-प्रतिक्रिया विषयों को ब्राउज़ करने के लिए Home > Plasmodium खोलें। एपिकॉम्प्लेक्सन आरेख देखें और जीव-विशिष्ट जानकारी के लिए PlasmoDB या UniProt लिंक का अनुसरण करें। परख टाइलों पर अभी Coming soon लिखा है और वे अक्षम हैं; इस पेज पर कोई चलाने योग्य Plasmodium-विशिष्ट विश्लेषण नहीं है और यह कोई परिणाम नहीं लिखता। अभी छवियों के साथ काम करने के लिए, Home पर लौटें और अपने प्रयोग के लिए उपयुक्त छवियों, चैनलों और मास्क के साथ सामान्य सेगमेंटेशन और मापन मॉड्यूल का उपयोग करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#6",
+      "source": "Candida",
+      "source_sha256": "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
+      "context": "Candida",
+      "translation": "कैंडिडा (Candida)",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#7",
+      "source": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging channels suited to your species and experimental readout.",
+      "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
+      "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
+      "translation": "आकृति-विज्ञान, तंतु-निर्माण, बायोफ़िल्म और मेज़बान-कोशिका अंतःक्रिया विषयों को ब्राउज़ करने के लिए Home > Candida खोलें। budding-yeast आरेख देखें और जीन व प्रोटीन जानकारी के लिए Candida Genome Database या UniProt लिंक का अनुसरण करें। परख टाइलों पर अभी Coming soon लिखा है और वे अक्षम हैं; इस पेज को किसी डेटा की आवश्यकता नहीं और यह कोई विश्लेषण फ़ाइल नहीं लिखता। उपलब्ध छवि कार्यप्रवाह के लिए, Home पर लौटें और सामान्य सेगमेंटेशन और मापन मॉड्यूल चुनें, अपनी प्रजाति और प्रयोगात्मक रीडआउट के अनुरूप मास्क और इमेजिंग चैनल चुनते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep.sweepable#2",
+      "source": "the module's registry key; only ``\"regression\"`` gives ``True``.",
+      "source_sha256": "4cf4f6a7489f2e6790f1e108451c8b0ba891b9b8ea7d6f3b4c79bbe0f094ec74",
+      "context": "the module's registry key; only ``\"regression\"`` gives ``True``.",
+      "translation": "मॉड्यूल की रजिस्ट्री कुंजी; केवल ``\"regression\"`` ``True`` देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pca.PCAScreen.load_path#3",
+      "source": "CSV, TSV or TXT file, or a SQLite measurement database whose table names fill the table picker.",
+      "source_sha256": "ec7e390faad8096574d5b683d417556b244c49657d302f27ae4d47ef9b44d97e",
+      "context": "CSV, TSV or TXT file, or a SQLite measurement database whose table names fill the table picker.",
+      "translation": "CSV, TSV या TXT फ़ाइल, या SQLite मापन डेटाबेस जिसके तालिका नाम तालिका चयनकर्ता भरते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pca.PCAScreen.set_frame#1",
+      "source": "measurement table, one row per object; it is passed through the screen's filters before the decomposition.",
+      "source_sha256": "ec133ee886d039504266d6f419547e0612d4b4f9a0eec4adbf5ad27b0a4772b2",
+      "context": "measurement table, one row per object; it is passed through the screen's filters before the decomposition.",
+      "translation": "मापन तालिका, प्रति ऑब्जेक्ट एक पंक्ति; अपघटन से पहले इसे पेज के फ़िल्टरों से गुज़ारा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.mousePressEvent#1",
+      "source": "the mouse press; its ``position()`` picks the box, and it is then passed on to the base-class handler.",
+      "source_sha256": "87615214eab51830d3c142c57c7e8b2f0648d9f9f95946f018567a5f93da227e",
+      "context": "the mouse press; its ``position()`` picks the box, and it is then passed on to the base-class handler.",
+      "translation": "माउस दबाना; इसका ``position()`` बॉक्स चुनता है, और फिर इसे बेस-क्लास हैंडलर को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.paintEvent#1",
+      "source": "the paint event; not read, the whole canvas is repainted.",
+      "source_sha256": "e6ee697baa00fc9c2a6d746f19379686885d75368af730b308276a26643c6dd1",
+      "context": "the paint event; not read, the whole canvas is repainted.",
+      "translation": "पेंट इवेंट; पढ़ा नहीं जाता, पूरा कैनवास फिर से पेंट होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.select#1",
+      "source": "the artifact to select; an id that is not drawn clears the selection.",
+      "source_sha256": "5bb243b38d55cb31e4560d7d77e8b3a8436fcfd122281110e36d7bc0ccee9973",
+      "context": "the artifact to select; an id that is not drawn clears the selection.",
+      "translation": "चुना जाने वाला आर्टिफ़ैक्ट; जो id बनाई नहीं गई वह चयन साफ़ करती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.set_graph#1",
+      "source": "the pipeline graph to lay out and draw, or ``None`` for an empty canvas.",
+      "source_sha256": "a2cb51492808c2313ab82ebc3bdde6b57974ecd04ffe2d2424dca783dc22a6e5",
+      "context": "the workflow graph to lay out and draw, or ``None`` for an empty canvas.",
+      "translation": "लेआउट करके बनाया जाने वाला पाइपलाइन ग्राफ़, या खाली कैनवास के लिए ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.set_graph#2",
+      "source": "artifact ids to draw; ``None`` draws every node, and ids not in the graph are ignored.",
+      "source_sha256": "0b45a4612559d1e4b9aee7164cacd52a5a114d417413ef832cb286034717027b",
+      "context": "artifact ids to draw; ``None`` draws every node, and ids not in the graph are ignored.",
+      "translation": "बनाई जाने वाली आर्टिफ़ैक्ट id; ``None`` हर नोड बनाता है, और ग्राफ़ में न होने वाली id अनदेखी की जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.PipelineGraphScreen.closeEvent#1",
+      "source": "the close event; passed on unchanged to the base class.",
+      "source_sha256": "b9eb123ca96c52b521d76de3ff058530c59881d3bd133709c7462cff19968c75",
+      "context": "the close event; passed on unchanged to the base class.",
+      "translation": "क्लोज़ इवेंट; बिना बदलाव के बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.PipelineGraphScreen.describe#2",
+      "source": "the artifact to describe; an empty or unknown id, or no graph loaded, gives ``\"\"``.",
+      "source_sha256": "8713a75b15647f8295cdf4c4faae7c7ab8d079d1f31fb486ea9fea57891b3e40",
+      "context": "the artifact to describe; an empty or unknown id, or no graph loaded, gives ``\"\"``.",
+      "translation": "वर्णित किया जाने वाला आर्टिफ़ैक्ट; खाली या अज्ञात id, या कोई ग्राफ़ लोड न होने पर, ``\"\"`` देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.PipelineGraphScreen.load_project#2",
+      "source": "the spaCR project folder; stripped, and an empty value only asks for a folder.",
+      "source_sha256": "26a9bc01227996ec3e6a17bd2190d68067a2cdfb697365b1ee4e32b468def0ff",
+      "context": "the spaCR project folder; stripped, and an empty value only asks for a folder.",
+      "translation": "spaCR परियोजना फ़ोल्डर; रिक्त स्थान हटाकर, और खाली मान केवल फ़ोल्डर माँगता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.cell_rect#2",
+      "source": "1-based plate row.",
+      "source_sha256": "f9bb7af3fb5e5ccd971f31291744947aa0f1749615b4cfb7968c44f2f9c0fe4e",
+      "context": "1-based laboratory microplate row.",
+      "translation": "1-आधारित प्लेट पंक्ति।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.cell_rect#3",
+      "source": "1-based plate column.",
+      "source_sha256": "f6da487df6704eadc8b58f803fbf05fc37c6a56fd1317016320750fe0cb40a3e",
+      "context": "1-based laboratory microplate column.",
+      "translation": "1-आधारित प्लेट स्तंभ।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.select#1",
+      "source": "1-based plate row, or ``None`` to clear.",
+      "source_sha256": "c5ae54aaff04d47f15c7687efe965af1fb1b457731447c47b0098cd037204ef6",
+      "context": "1-based laboratory microplate row, or ``None`` to clear.",
+      "translation": "1-आधारित प्लेट पंक्ति, या साफ़ करने के लिए ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.select#2",
+      "source": "1-based plate column; ``None`` also clears.",
+      "source_sha256": "29037e0304a68b01296dc65e442f7da3cb90707ebc2d87fd18abfac10ab6bad7",
+      "context": "1-based laboratory microplate column; ``None`` also clears.",
+      "translation": "1-आधारित प्लेट स्तंभ; ``None`` भी साफ़ करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.set_placeholder#1",
+      "source": "the message painted in place of the grid.",
+      "source_sha256": "17df43cb93a66402f4c4d4b1d4e56b1dccb4a585c725e91a44f4c3911a5cc741",
+      "context": "the message painted in place of the grid.",
+      "translation": "ग्रिड की जगह पेंट किया जाने वाला संदेश।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.on_linked_filter_changed#2",
+      "source": "the filter that was published; not read here, as the redraw reads the link's current filter itself.",
+      "source_sha256": "662cfe3ef1e103e60a6f8500633d2358090fe465c2215d9cdf65dd42b2947b01",
+      "context": "the filter that was published; not read here, as the redraw reads the link's current filter itself.",
+      "translation": "प्रकाशित किया गया फ़िल्टर; यहाँ पढ़ा नहीं जाता, क्योंकि फिर से बनाने की प्रक्रिया लिंक का वर्तमान फ़िल्टर स्वयं पढ़ती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.set_table#1",
+      "source": "name of a table in the table box, converted with ``str``.",
+      "source_sha256": "dc32a4e63d6cf3eeba536262a410488cbf3dbc6509cd9b63934f5f1a41b676ca",
+      "context": "name of a table in the table box, converted with ``str``.",
+      "translation": "तालिका बॉक्स में किसी तालिका का नाम, ``str`` से रूपांतरित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.set_value_column#2",
+      "source": "the measurement column name, converted with ``str``.",
+      "source_sha256": "b3b06556e423e775c2473d6f46a3e6c561821cc90ef80fbdd4f5557c529272d5",
+      "context": "the measurement column name, converted with ``str``.",
+      "translation": "मापन स्तंभ का नाम, ``str`` से रूपांतरित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.power.PowerScreen.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after the sweep is cancelled and running threads are waited on for up to 10 s each.",
+      "source_sha256": "a12c7c2b553bc2e9ed6764b77396af69a694a63fa14a4bb2dc20cde0d52a2b5b",
+      "context": "the close event; it is passed on to the base class after the sweep is cancelled and executing threads are waited on for up to 10 s each.",
+      "translation": "क्लोज़ इवेंट; sweep रद्द करने और चल रहे थ्रेड की हर एक के लिए 10 s तक प्रतीक्षा करने के बाद इसे बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.power.PowerScreen.set_spec#2",
+      "source": "the design to load; its shown fields fill the form and the fields the form does not show are kept for :meth:`spec` to return.",
+      "source_sha256": "705e92404cc7adfa030c53bcafa298cf92a77dbb1adaec5dfee93848e626360d",
+      "context": "the design to load; its shown fields fill the form and the fields the form does not show are kept for :meth:`spec` to return.",
+      "translation": "लोड किया जाने वाला डिज़ाइन; इसके दिखाए गए फ़ील्ड फ़ॉर्म भरते हैं और जो फ़ील्ड फ़ॉर्म नहीं दिखाता वे :meth:`spec` के लौटाने के लिए रखे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.CurveCanvas.paintEvent#1",
+      "source": "the paint event; not read, since the whole canvas is redrawn every time.",
+      "source_sha256": "54c5ad0d39266f3a4071ee9886d76518a98920cc66a9283ec49ea2f1a8967820",
+      "context": "the paint event; not read, since the whole canvas is redrawn every time.",
+      "translation": "पेंट इवेंट; पढ़ा नहीं जाता, क्योंकि पूरा कैनवास हर बार फिर से बनता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.CurveCanvas.set_curve#1",
+      "source": "the :class:`~spacr.profiler.Profile` to draw, or ``None``; a profile with fewer than two points also shows the message.",
+      "source_sha256": "330dff5eb0aa398c70459e6b72c4a1b9f3e4dc60a79ab2fed25d5e90dcd77222",
+      "context": "the :class:`~spacr.profiler.Profile` to draw, or ``None``; a profile with fewer than two points also shows the message.",
+      "translation": "बनाया जाने वाला :class:`~spacr.profiler.Profile`, या ``None``; दो से कम बिंदुओं वाली प्रोफ़ाइल भी संदेश दिखाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.ProfilerScreen.closeEvent#1",
+      "source": "the close event; passed to the base class after the worker threads are shut down.",
+      "source_sha256": "1c890fbdce68dcec917beccbca81380cdf33f87c3388b626523938715f12dc27",
+      "context": "the close event; passed to the base class after the background execution units are shut down.",
+      "translation": "क्लोज़ इवेंट; वर्कर थ्रेड बंद होने के बाद बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.ProfilerScreen.load_coefficients#1",
+      "source": "CSV file with ``feature`` and ``coefficient`` columns; read on a worker thread and rebuilt with the chosen link. An empty path only asks for a table.",
+      "source_sha256": "af0f1e880f393df455edade026ce2a11609ea7ce9308e84c61392d13eaa4bc79",
+      "context": "CSV file with ``feature`` and ``coefficient`` columns; read on a background execution unit and rebuilt with the chosen link. An empty path only asks for a table.",
+      "translation": "``feature`` और ``coefficient`` स्तंभों वाली CSV फ़ाइल; वर्कर थ्रेड पर पढ़ी जाती है और चुने गए लिंक के साथ फिर से बनाई जाती है। खाली पथ केवल तालिका माँगता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.ProfilerScreen.set_design#1",
+      "source": "the design matrix the model was fitted on, one column per input; ``None`` or an empty frame falls back to a synthetic design. A loaded model is re-profiled at once.",
+      "source_sha256": "68ea732448c4548bf1c9730455139036ee8bf68f2a337be261f599df2ccdd87d",
+      "context": "the design matrix the model was fitted on, one column per input; ``None`` or an empty frame falls back to a synthetic design. A loaded model is re-profiled at once.",
+      "translation": "वह डिज़ाइन मैट्रिक्स जिस पर मॉडल फ़िट हुआ, प्रति इनपुट एक स्तंभ; ``None`` या खाली फ़्रेम कृत्रिम डिज़ाइन पर लौटता है। लोड किया गया मॉडल तुरंत फिर से प्रोफ़ाइल होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.ProfilerScreen.set_held#1",
+      "source": "the input to hold; it must have a held-value slider or :class:`KeyError` is raised.",
+      "source_sha256": "c02095a14c23640f555961cb7c1987718e327db1b5a1eff06a8be0e176930fe4",
+      "context": "the input to hold; it must have a held-value slider or :class:`KeyError` is raised.",
+      "translation": "स्थिर रखा जाने वाला इनपुट; इसमें स्थिर-मान स्लाइडर होना चाहिए, अन्यथा :class:`KeyError` उठाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.ProfilerScreen.set_held#2",
+      "source": "the value to hold it at, clamped to the slider's range and snapped to its nearest step.",
+      "source_sha256": "67aeb117fae372d056bf1afd31c0cc0ff63285b55357864392749d8c0e38e8ca",
+      "context": "the value to hold it at, clamped to the slider's range and snapped to its nearest step.",
+      "translation": "वह मान जिस पर इसे रखना है, स्लाइडर की सीमा तक सीमित और उसके निकटतम चरण पर समायोजित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.profiler.ProfilerScreen.set_model#1",
+      "source": "a fitted object :func:`spacr.profiler.predict` accepts (a statsmodels result, a scikit-learn estimator, anything with ``params`` or ``coef_``, or a :class:`~spacr.profiler.FittedLinear`); ``None`` reports that the model could not be read.",
+      "source_sha256": "e00c156eeb14870477dc6cd9398ec5a7019fd0826ce96ca7f8b99717ada3fa4b",
+      "context": "a fitted object :func:`spacr.profiler.predict` accepts (a statsmodels result, a scikit-learn estimator, anything with ``params`` or ``coef_``, or a :class:`~spacr.profiler.FittedLinear`); ``None`` reports that the model could not be read.",
+      "translation": "फ़िट किया गया ऑब्जेक्ट जिसे :func:`spacr.profiler.predict` स्वीकार करता है (statsmodels परिणाम, scikit-learn एस्टिमेटर, ``params`` या ``coef_`` वाली कोई भी चीज़, या :class:`~spacr.profiler.FittedLinear`); ``None`` रिपोर्ट करता है कि मॉडल पढ़ा नहीं जा सका।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen#5",
+      "source": "Item 471: the project table (\"Projects\") and the detail pane (\"Project details\") fold by their headings and share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
+      "source_sha256": "5abd53dda9ed73cf906787d8657cb5e81a52b4d607c3e83dfc94cbb0a9ff0e8b",
+      "context": "Item 471: the project table (\"Projects\") and the detail pane (\"Project details\") fold by their headings and share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
+      "translation": "आइटम 471: परियोजना तालिका (\"Projects\") और विवरण पैन (\"Project details\") अपने शीर्षकों से मुड़ते हैं और :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` में खींचने योग्य किनारा साझा करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen.add_root#1",
+      "source": "folder to add; ``~`` is expanded and the path made absolute. It is also recorded as a recent folder.",
+      "source_sha256": "912807b30ffe1466e44489d55cfa79d36dc9f499e64e5228d82121428666d4b0",
+      "context": "folder to add; ``~`` is expanded and the path made absolute. It is also recorded as a recent folder.",
+      "translation": "जोड़ा जाने वाला फ़ोल्डर; ``~`` का विस्तार किया जाता है और पथ निरपेक्ष बनाया जाता है। इसे हाल के फ़ोल्डर के रूप में भी दर्ज किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen.show_detail#1",
+      "source": "absolute project root as listed; a root with no listed summary clears the pane and returns ``\"\"``.",
+      "source_sha256": "26855f8d36572ba14a87b9145e308dae8a1ae1ca168975afcc4b482378e8e701",
+      "context": "absolute project root as listed; a root with no listed summary clears the pane and returns ``\"\"``.",
+      "translation": "सूचीबद्ध निरपेक्ष परियोजना रूट; बिना सूचीबद्ध सारांश वाला रूट पैन साफ़ करता है और ``\"\"`` लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen.summary_for#1",
+      "source": "absolute project root, compared exactly with each summary's ``root``.",
+      "source_sha256": "9e6d9a4be9fa9af17e17caf45473a2622332c013e74a635421079d03eecd9da9",
+      "context": "absolute project root, compared exactly with each summary's ``root``.",
+      "translation": "निरपेक्ष परियोजना रूट, हर सारांश के ``root`` से ठीक-ठीक तुलना की जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.qc_dashboard.QCDashboardScreen.set_source#1",
+      "source": "the project folder; its string form is put in the folder field and the verdicts are re-read with :meth:`refresh`.",
+      "source_sha256": "382194e8ccbcb4ad809e237fe495d5c71c7c29f6b8f132af5dbcb7caa21cd6e5",
+      "context": "the project folder; its string form is put in the folder field and the verdicts are re-read with :meth:`refresh`.",
+      "translation": "परियोजना फ़ोल्डर; इसका स्ट्रिंग रूप फ़ोल्डर फ़ील्ड में रखा जाता है और निर्णय :meth:`refresh` से फिर से पढ़े जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.queue.QueueScreen.closeEvent#2",
+      "source": "the close event; it is passed on to the base class once the queue runner has been aborted and drained.",
+      "source_sha256": "06cf09b1e3884c8144b152d25b85df40d755fcf8c1e4ff3da5e963dc2480d8c4",
+      "context": "the close event; it is passed on to the base class once the software job list runner has been aborted and drained.",
+      "translation": "क्लोज़ इवेंट; कतार रनर निरस्त और खाली होने के बाद इसे बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.queue.QueueScreen.wire_add_current#2",
+      "source": "a no-argument callable returning ``(app_key, settings_dict)``. It is called on every click; an exception it raises, or a settings dict without ``src``, is shown in a message box instead of adding an item.",
+      "source_sha256": "5db5851523a6501d44ce29f27b0a64e29241caeda1541160a39291931cd3c021",
+      "context": "a no-argument callable returning ``(app_key, settings_dict)``. It is called on every click; an exception it raises, or a settings key-value mapping without ``src``, is shown in a message box instead of adding an item.",
+      "translation": "बिना तर्क वाला कॉल करने योग्य ऑब्जेक्ट जो ``(app_key, settings_dict)`` लौटाता है। इसे हर क्लिक पर कॉल किया जाता है; इसके द्वारा उठाया गया अपवाद, या ``src`` के बिना सेटिंग्स dict, आइटम जोड़ने के बजाय संदेश बॉक्स में दिखाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_extras#2",
+      "source": "A screen that builds its results panel on first use runs this when the panel is built rather than building it here, so the extras arrive with the panel and a screen nobody has run yet does not pay for either. The Hit List module is still imported here, at the open, so the widget block it registers joins every sheet from then on exactly as it did.",
+      "source_sha256": "c1483175ac4b8fb511d9c6a0758ecf5dc07d57f81585f22e29063a2ce2233109",
+      "context": "An application view that builds its results panel on first use runs this when the panel is built rather than building it here, so the extras arrive with the panel and an application view nobody has run yet does not pay for either. The Hit List module is still imported here, at the open, so the widget block it registers joins every sheet from then on exactly as it did.",
+      "translation": "जो पेज अपना परिणाम पैनल पहली बार उपयोग पर बनाता है, वह इसे यहाँ बनाने के बजाय पैनल बनने पर चलाता है, ताकि अतिरिक्त सुविधाएँ पैनल के साथ आएँ और जिस पेज को किसी ने अभी चलाया नहीं वह दोनों में से किसी की कीमत न चुकाए। Hit List मॉड्यूल फिर भी यहीं, खुलते समय, आयात होता है, ताकि यह जो विजेट ब्लॉक पंजीकृत करता है वह तब से हर शीट में ठीक वैसे ही जुड़े जैसे पहले जुड़ता था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_extras#3",
+      "source": "app screen to prepare; anything whose ``app_key`` is not ``\"regression\"`` is left alone and False is returned.",
+      "source_sha256": "a0eff5a53a5bd35f4f7a03f8ba1bba4028bf91210611c54791dad2a3a43227aa",
+      "context": "app application view to prepare; anything whose ``app_key`` is not ``\"regression\"`` is left alone and False is returned.",
+      "translation": "तैयार किया जाने वाला ऐप पेज; जिस किसी का ``app_key`` ``\"regression\"`` नहीं है उसे अछूता छोड़ा जाता है और False लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_folds#3",
+      "source": "app screen whose masthead receives the strip; it must have ``app_key`` ``\"regression\"`` and a ``_header`` with ``add_trailing``.",
+      "source_sha256": "b026b25bd9151c17ca13d9a8731cd3ab370570923b454ae53d35d975e8d59f9f",
+      "context": "app application view whose masthead receives the strip; it must have ``app_key`` ``\"regression\"`` and a ``_header`` with ``add_trailing``.",
+      "translation": "वह ऐप पेज जिसके मास्टहेड को पट्टी मिलती है; इसका ``app_key`` ``\"regression\"`` होना चाहिए और इसमें ``_header`` होना चाहिए जिसमें ``add_trailing`` हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_publication_figure#4",
+      "source": "regression results panel; its ``volcano`` plot, if any, gets the menu entry, and None is accepted.",
+      "source_sha256": "ad55dce8a399bde4bebb6df7c4a6eeb9a7449152d59b0e5ce516146900b2abd1",
+      "context": "regression results panel; its ``volcano`` plot, if any, gets the menu entry, and None is accepted.",
+      "translation": "रिग्रेशन परिणाम पैनल; इसके ``volcano`` प्लॉट को, यदि हो, मेनू प्रविष्टि मिलती है, और None स्वीकार्य है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_publication_figure#5",
+      "source": "zero-argument callable run when the menu entry is chosen; its return value is ignored.",
+      "source_sha256": "bafad690543bc5a424f208fe2d370beadc9dbcb8e86f53fae146ea9e892f2247",
+      "context": "zero-argument callable run when the menu entry is chosen; its return value is ignored.",
+      "translation": "मेनू प्रविष्टि चुने जाने पर चलने वाला बिना तर्क का कॉल करने योग्य ऑब्जेक्ट; इसका लौटाया मान अनदेखा किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.raise_hits_tab#1",
+      "source": "regression results panel carrying ``hits`` and ``tabs`` attributes; None, or a panel missing either, returns False.",
+      "source_sha256": "18afb93ceec20db5c1ac73b450244b8a0e9b1c7f917b5b9c4d0dbc870000d734",
+      "context": "regression results panel carrying ``hits`` and ``tabs`` attributes; None, or a panel missing either, returns False.",
+      "translation": "``hits`` और ``tabs`` गुणों वाला रिग्रेशन परिणाम पैनल; None, या इनमें से कोई न रखने वाला पैनल, False लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.regression.results_panel#1",
+      "source": "app screen whose ``_results_panel`` attribute is returned; None is accepted.",
+      "source_sha256": "40af2be92b209c5c5e43878547b31689ff8110969af4149b9fea06701ceb3c91",
+      "context": "app application view whose ``_results_panel`` attribute is returned; None is accepted.",
+      "translation": "वह ऐप पेज जिसका ``_results_panel`` गुण लौटाया जाता है; None स्वीकार्य है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.report.ReportScreen.output_format#0",
+      "source": "``\"html\"``, ``\"pdf\"`` or ``\"both\"``.",
+      "source_sha256": "60ad3c2a9e79820e1ceeafce8c5124e48d62b369a3c5617e5f4b56449be10635",
+      "context": "``\"html\"``, ``\"pdf\"`` or ``\"both\"``.",
+      "translation": "``\"html\"``, ``\"pdf\"`` या ``\"both\"``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.report.ReportScreen.set_format#1",
+      "source": "a key from :data:`FORMATS` (``\"html\"``, ``\"pdf\"`` or ``\"both\"``); an unknown key leaves the current choice unchanged.",
+      "source_sha256": "08a6ca5c732303aa468e7b49b6c591dde00fad73c7989bf8b7735b5c8ad167a6",
+      "context": "a key from :data:`FORMATS` (``\"html\"``, ``\"pdf\"`` or ``\"both\"``); an unknown key leaves the current choice unchanged.",
+      "translation": ":data:`FORMATS` की एक कुंजी (``\"html\"``, ``\"pdf\"`` या ``\"both\"``); अज्ञात कुंजी वर्तमान चुनाव को अपरिवर्तित छोड़ती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.report.ReportScreen.set_output#1",
+      "source": "output location shown in the output box; None or an empty value clears it.",
+      "source_sha256": "c0033eaa23ac7b9002070c93b5fde3acead5a2759cdd6fc037865b00983aa5ba",
+      "context": "output location shown in the output box; None or an empty value clears it.",
+      "translation": "आउटपुट बॉक्स में दिखाया जाने वाला आउटपुट स्थान; None या खाली मान इसे साफ़ करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.report.ReportScreen.set_source#1",
+      "source": "run folder shown in the source box; None or an empty value clears it.",
+      "source_sha256": "f02061ab68bdebd60dbf04789a037f7f79f70d58a9557862cdff0d76bd55e66c",
+      "context": "processing-session folder shown in the source box; None or an empty value clears it.",
+      "translation": "स्रोत बॉक्स में दिखाया जाने वाला रन फ़ोल्डर; None या खाली मान इसे साफ़ करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.run_history.RunHistoryScreen.closeEvent#2",
+      "source": "the close event; passed to the base class once every history job has been cancelled and drained (up to three seconds each).",
+      "source_sha256": "5916ab31615bc5dbc42ef266fcc30261689d4f3c14e11cbf741c40136f46b7f6",
+      "context": "the close event; passed to the base class once every history job has been cancelled and drained (up to three seconds each).",
+      "translation": "क्लोज़ इवेंट; हर इतिहास जॉब के रद्द और खाली होने (हर एक के लिए अधिकतम तीन सेकंड) के बाद बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.run_history.RunHistoryScreen.showEvent#1",
+      "source": "the show event; passed to the base class and otherwise not read.",
+      "source_sha256": "563b424965a2c375b06b9759d517071ff85ba344bdf62c94e81ca7342c892f99",
+      "context": "the show event; passed to the base class and otherwise not read.",
+      "translation": "show इवेंट; बेस क्लास को दिया जाता है और अन्यथा पढ़ा नहीं जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping#2",
+      "source": "imported settings mapping; its keys decide which organelle slots are affected, and a slot's recommended values are applied only to keys it does not supply with a non-``None`` value.",
+      "source_sha256": "10c13e884ab30debbbb34f808d8db133e127f493ea20e477d665aafa9c66cf50",
+      "context": "imported settings mapping; its structured-data names decide which organelle slots are affected, and a slot's recommended values are applied only to structured-data names it does not supply with a non-``None`` value.",
+      "translation": "आयातित सेटिंग्स मैपिंग; इसकी कुंजियाँ तय करती हैं कि कौन-से कोशिकांग स्लॉट प्रभावित होते हैं, और किसी स्लॉट के अनुशंसित मान केवल उन कुंजियों पर लागू होते हैं जिनके लिए यह गैर-``None`` मान नहीं देता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.collect#1",
+      "source": "A control still waiting for its category to be opened is read without being built; see :meth:`_read_value`.",
+      "source_sha256": "748e0346f0c790b883bdfb413c04d67f07034edeb4acd9ae87a1ae10795ee77c",
+      "context": "A control still waiting for its category to be opened is read without being built; see :meth:`_read_value`.",
+      "translation": "जो नियंत्रण अभी अपनी श्रेणी खुलने की प्रतीक्षा में है उसे बनाए बिना पढ़ा जाता है; :meth:`_read_value` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.essential_keys#2",
+      "source": "On Mask and Timelapse, each object's segmentation settings are added for every object whose channel names a plane, so setting a pathogen channel brings the Pathogen Segmentation rows into Essentials as well as into All settings. See :meth:`_essentials_that_follow_their_object`.",
+      "source_sha256": "2c0f7a83222586d004617eb5049bd62c4bf87331a3808504a21cbecbb6d6a2f0",
+      "context": "On Mask and Timelapse, each object's segmentation settings are added for every object whose image data channel names an image layer, so setting a pathogen image data channel brings the Pathogen Segmentation rows into Essentials as well as into All settings. See :meth:`_essentials_that_follow_their_object`.",
+      "translation": "Mask और Timelapse पर, हर उस ऑब्जेक्ट की सेगमेंटेशन सेटिंग्स जोड़ी जाती हैं जिसका चैनल किसी समतल का नाम देता है, इसलिए रोगजनक चैनल सेट करने से Pathogen Segmentation पंक्तियाँ All settings के साथ Essentials में भी आती हैं। :meth:`_essentials_that_follow_their_object` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.essential_keys#3",
+      "source": "The module's layout part is computed once per set of settings: it rebuilds the module's whole category layout, 16 ms on Regression, and the search strip asks on every pass of the object rule.",
+      "source_sha256": "32c084a020ef1f9bc635ea532479f3b5fb5a61f3b7c187e4cddf88bbe74bc550",
+      "context": "The module's layout part is computed once per set of settings: it rebuilds the module's whole category layout, 16 ms on Regression, and the search strip asks on every pass of the object rule.",
+      "translation": "मॉड्यूल का लेआउट भाग प्रति सेटिंग्स सेट एक बार गणना होता है: यह मॉड्यूल का पूरा श्रेणी लेआउट फिर से बनाता है, Regression पर 16 ms, और खोज पट्टी ऑब्जेक्ट नियम के हर पास पर पूछती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.hide_the_rows_the_mode_leaves_out#0",
+      "source": "Take ``keys`` off the form because the module's mode does not read them.",
+      "source_sha256": "c9d607f9fd64e8cc9e538c5c73e6ddbfd5069a466161991d6161925ddde2de1b",
+      "context": "Take ``keys`` off the form because the module's mode does not read them.",
+      "translation": "``keys`` को फ़ॉर्म से हटाएँ क्योंकि मॉड्यूल का मोड उन्हें नहीं पढ़ता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.hide_the_rows_the_mode_leaves_out#1",
+      "source": "Plaque Assay's Plaque and Figure modes read different settings. The widgets stay, holding their values, exactly as for :meth:`hide_the_rows_the_grid_speaks_for`; only the rows go.",
+      "source_sha256": "6e17c94d84ec5447381c4ebdf7c0a910a5a68008b203d528ade1f4408b1a03ab",
+      "context": "Plaque Assay's Plaque and Figure modes read different settings. The widgets stay, holding their values, exactly as for :meth:`hide_the_rows_the_grid_speaks_for`; only the rows go.",
+      "translation": "Plaque Assay के Plaque और Figure मोड अलग-अलग सेटिंग्स पढ़ते हैं। विजेट अपने मान रखते हुए बने रहते हैं, ठीक वैसे ही जैसे :meth:`hide_the_rows_the_grid_speaks_for` के लिए; केवल पंक्तियाँ जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.hide_the_rows_the_mode_leaves_out#2",
+      "source": "the setting keys the current mode does not read.",
+      "source_sha256": "498c8404100238ec65ccc65b799b7b3874ef343615f8cea6dae775d0c445f331",
+      "context": "the setting names the current mode does not read.",
+      "translation": "वे सेटिंग कुंजियाँ जिन्हें वर्तमान मोड नहीं पढ़ता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.plain_tooltip_for#1",
+      "source": "setting key whose description is looked up; an unknown key gets the generic fallback text.",
+      "source_sha256": "3d18bce9c7815d4cc03301f23000081e878dac926536804b88a1242b67d958e3",
+      "context": "setting name whose description is looked up; an unknown structured-data name gets the generic fallback text.",
+      "translation": "वह सेटिंग कुंजी जिसका विवरण खोजा जाता है; अज्ञात कुंजी को सामान्य फ़ॉलबैक पाठ मिलता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.refresh_object_visibility#3",
+      "source": "EACH ROW IS SET ONCE. The rows the screen's filters hide anyway -- everything under the Essentials view that is not essential, the rows of a switched-off dimension -- are left hidden here instead of being shown and then hidden again by the filter that runs next (``rows_the_screen_hides``). The rows end where they always ended; what goes is the round trip. Measured on Regression under Essentials, showing and re-hiding 145 rows was 68 ms of a 90 ms pass, run twice every time a category was built.",
+      "source_sha256": "87c485a7212f41e4b28a67516997b559bf33d53ac96bf22819ca3c77fd4db9ab",
+      "context": "Each row is set once. The rows the screening experiment's filters hide anyway -- everything under the Essentials view that is not essential, the rows of a switched-off dimension -- are left hidden here instead of being shown and then hidden again by the filter that runs next (``rows_the_screen_hides``). The rows end where they always ended; what goes is the round trip. Measured on Regression under Essentials, showing and re-hiding 145 rows was 68 ms of a 90 ms pass, run twice every time a category was built.",
+      "translation": "हर पंक्ति एक बार सेट होती है। जिन पंक्तियों को पेज के फ़िल्टर वैसे भी छिपाते हैं -- Essentials दृश्य के अंतर्गत जो कुछ आवश्यक नहीं, बंद आयाम की पंक्तियाँ -- उन्हें यहाँ दिखाकर अगले चलने वाले फ़िल्टर द्वारा फिर छिपाए जाने के बजाय छिपा ही छोड़ा जाता है (``rows_the_screen_hides``)। पंक्तियाँ वहीं समाप्त होती हैं जहाँ हमेशा होती थीं; जो हटता है वह आना-जाना है। Essentials के अंतर्गत Regression पर मापा गया, 145 पंक्तियाँ दिखाकर फिर छिपाना 90 ms के पास का 68 ms था, जो हर बार श्रेणी बनने पर दो बार चलता था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.refresh_object_visibility#4",
+      "source": "The pass ends by calling ``rows_are_filtered_by`` when the screen has set it. This pass shows every row its objects allow, so the settings search, which also decides rows, has to be applied after it; without that, a channel committed in Essentials put non-essential rows back on the form and left a newly relevant heading off it.",
+      "source_sha256": "d4702b02a79784257aba3a24c4607f54d522bc93688992a34c265e747795a8ce",
+      "context": "The pass ends by calling ``rows_are_filtered_by`` when the screen has set it. This pass shows every row its objects allow, so the settings search, which also decides rows, has to be applied after it; without that, a channel committed in Essentials put non-essential rows back on the form and left a newly relevant heading off it.",
+      "translation": "पास अंत में ``rows_are_filtered_by`` को कॉल करता है, जब पेज ने इसे सेट किया हो। यह पास हर वह पंक्ति दिखाता है जिसकी उसके ऑब्जेक्ट अनुमति देते हैं, इसलिए सेटिंग्स खोज, जो पंक्तियाँ भी तय करती है, उसके बाद लागू होनी चाहिए; इसके बिना Essentials में स्वीकृत चैनल गैर-आवश्यक पंक्तियों को फ़ॉर्म पर वापस रख देता था और नए प्रासंगिक शीर्षक को बाहर छोड़ देता था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+      "source": "setting key; it must already be a run setting, or an organelle-slot key declared in ``expected_types`` when this form owns the organelle count, otherwise ``False`` is returned.",
+      "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+      "context": "setting name; it must already be a processing session setting, or an organelle-slot structured-data name declared in ``expected_types`` when this form owns the organelle count, otherwise ``False`` is returned.",
+      "translation": "सेटिंग कुंजी; यह पहले से रन सेटिंग होनी चाहिए, या ``expected_types`` में घोषित कोशिकांग-स्लॉट कुंजी जब यह फ़ॉर्म कोशिकांग संख्या का स्वामी हो, अन्यथा ``False`` लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#5",
+      "source": "new value, coerced to the setting's expected type before it is stored.",
+      "source_sha256": "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1",
+      "context": "new value, coerced to the setting's expected type before it is stored.",
+      "translation": "नया मान, संग्रहीत होने से पहले सेटिंग के अपेक्षित प्रकार में रूपांतरित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key#2",
+      "source": "setting key whose widget is updated; ``False`` is returned when no widget is bound to it.",
+      "source_sha256": "13e3c7017fae298f5c8b9f893e067ac234bb6c4f3afab185652fe15f54aa8838",
+      "context": "setting name whose widget is updated; ``False`` is returned when no widget is bound to it.",
+      "translation": "वह सेटिंग कुंजी जिसका विजेट अद्यतन होता है; इससे कोई विजेट न बँधा हो तो ``False`` लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key#3",
+      "source": "new value, converted to what the widget takes (``bool`` for a check box, ``int`` or ``float`` for a spin box, item data or text for a combo box, text for a line edit).",
+      "source_sha256": "b706cc464c50012e238fbe1c6a97c270df1224f2383858f8a8dc84c992e9dfa6",
+      "context": "new value, converted to what the widget takes (``bool`` for a check box, ``int`` or ``float`` for a spin box, item data or text for a combo box, text for a line edit).",
+      "translation": "नया मान, उस रूप में रूपांतरित जो विजेट लेता है (चेक बॉक्स के लिए ``bool``, स्पिन बॉक्स के लिए ``int`` या ``float``, combo box के लिए आइटम डेटा या पाठ, line edit के लिए पाठ)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.api_docs_url#2",
+      "source": "application key; a plugin's own ``docs_url`` wins, otherwise it selects the module page when ``key`` does not.",
+      "source_sha256": "84fb4269d197e30dcc8513939958e6162060f4b20532e7343ff5556850724bb9",
+      "context": "application key; a plugin's own ``docs_url`` wins, otherwise it selects the module page when ``key`` does not.",
+      "translation": "एप्लिकेशन कुंजी; प्लगइन का अपना ``docs_url`` जीतता है, अन्यथा यह मॉड्यूल पेज चुनती है जब ``key`` नहीं चुनता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.attach_api_tooltip#1",
+      "source": "the setting widget that receives the tooltip and its ``settingsAppKey``/``settingKey``/``apiTooltip*`` properties.",
+      "source_sha256": "7eafe3253bdef5e5b82156b11326aa923bdf0fad94fd81b3aafd56afda489acc",
+      "context": "the setting widget that receives the tooltip and its ``settingsAppKey``/``settingKey``/``apiTooltip*`` properties.",
+      "translation": "वह सेटिंग विजेट जिसे टूलटिप और उसकी ``settingsAppKey``/``settingKey``/``apiTooltip*`` प्रॉपर्टी मिलती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.attach_api_tooltip#2",
+      "source": "application key of the module whose settings are shown; it selects the API documentation link.",
+      "source_sha256": "589ac0bb471a4b1da6b08d5b9cbda39601cbd303c51e6b236b0b4ebf7a4838c1",
+      "context": "application structured-data name of the module whose settings are shown; it selects the API documentation link.",
+      "translation": "उस मॉड्यूल की एप्लिकेशन कुंजी जिसकी सेटिंग्स दिखाई जाती हैं; यह API दस्तावेज़ लिंक चुनती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.attach_api_tooltip#3",
+      "source": "setting key whose description, name and type hint are shown.",
+      "source_sha256": "d921a4e50cbed1dd38c4fcf543dd290ccb28430aa79f1cd55862439b50b8a25e",
+      "context": "setting name whose description, name and type hint are shown.",
+      "translation": "वह सेटिंग कुंजी जिसका विवरण, नाम और प्रकार संकेत दिखाए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.categories_for_app#2",
+      "source": "application key of the module whose settings are shown; a plugin's own categories replace ``categories`` entirely, and some built-in modules relocate keys.",
+      "source_sha256": "ca31e5aa4ac2a6ba59a07fdca7b4d69107957d16e7c09e1ad492d5c3383572ef",
+      "context": "application structured-data name of the module whose settings are shown; a plugin's own categories replace ``categories`` entirely, and some built-in modules relocate structured-data names.",
+      "translation": "उस मॉड्यूल की एप्लिकेशन कुंजी जिसकी सेटिंग्स दिखाई जाती हैं; प्लगइन की अपनी श्रेणियाँ ``categories`` को पूरी तरह बदल देती हैं, और कुछ अंतर्निहित मॉड्यूल कुंजियों को स्थानांतरित करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.categories_for_app#3",
+      "source": "category title to ordered setting keys; it is copied, not modified.",
+      "source_sha256": "e83a077c26852c1a87c8be3ac85ecafff32568602cbf547ea87223b637fb0a82",
+      "context": "category title to ordered setting names; it is copied, not modified.",
+      "translation": "श्रेणी शीर्षक से क्रमबद्ध सेटिंग कुंजियाँ; इसे कॉपी किया जाता है, संशोधित नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.category_tooltip_is_curated#2",
+      "source": "application key of the module whose settings are shown.",
+      "source_sha256": "0a4dbd6d7818d86a175f1ab54ee3aa0b43d81f8fbe03f9a366aae64b091271a9",
+      "context": "application structured-data name of the module whose settings are shown.",
+      "translation": "उस मॉड्यूल की एप्लिकेशन कुंजी जिसकी सेटिंग्स दिखाई जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.category_tooltip_is_curated#3",
+      "source": "category (section) title looked up for a written blurb.",
+      "source_sha256": "7177ca1df6f92970f1b2b15088291ae1af6fe69d61bfc0425552ae33ed8f8c33",
+      "context": "category (section) title looked up for a written blurb.",
+      "translation": "श्रेणी (खंड) शीर्षक, जिसके लिए लिखित विवरण खोजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.explainer_width#1",
+      "source": "The width is derived from the longest unbreakable formula. Prose remains free to wrap to the available panel width. Computed once per UI language.",
+      "source_sha256": "aead09040f518353a174a937899b39cd9513b8dffb5f6d9996dd7f0d628381f2",
+      "context": "The width is derived from the longest unbreakable formula. Prose remains free to wrap to the available panel width. Computed once per UI language.",
+      "translation": "चौड़ाई सबसे लंबे अविभाज्य सूत्र से निकाली जाती है। गद्य उपलब्ध पैनल चौड़ाई तक लपेटने के लिए स्वतंत्र रहता है। प्रति UI भाषा एक बार गणना होती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.format_tooltip#1",
+      "source": "description of the setting; an empty value becomes a generic \"Controls ...\" sentence.",
+      "source_sha256": "147fd57d5ce6246e4643b20b97301aefd1e4e7b9363b9e44000b3ee3746c1879",
+      "context": "description of the setting; an empty value becomes a generic \"Controls ...\" sentence.",
+      "translation": "सेटिंग का विवरण; खाली मान एक सामान्य \"Controls ...\" वाक्य बन जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.has_csv_column_picker#2",
+      "source": "application key looked up in ``CSV_COLUMN_SOURCES``.",
+      "source_sha256": "5cf1c18a7899d6023c4780124a383d9e03bf855bd69a04368a8392883a2a5feb",
+      "context": "application key looked up in ``CSV_COLUMN_SOURCES``.",
+      "translation": "``CSV_COLUMN_SOURCES`` में खोजी जाने वाली एप्लिकेशन कुंजी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.has_csv_column_picker#3",
+      "source": "setting key checked against that module's CSV column sources.",
+      "source_sha256": "7201b2a19be237e4091f9001971a49dbfc339840be857ebc089f666113dfd4ce",
+      "context": "setting name checked against that module's CSV column sources.",
+      "translation": "सेटिंग कुंजी, जिसे उस मॉड्यूल के CSV स्तंभ स्रोतों के विरुद्ध जाँचा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.has_section_explainer#1",
+      "source": "application key looked up in ``SECTION_EXPLAINERS``.",
+      "source_sha256": "3c12cac1df150eda5d2d1a9848436408142dda97d466294451f73bdc36d6ee2a",
+      "context": "application key looked up in ``SECTION_EXPLAINERS``.",
+      "translation": "``SECTION_EXPLAINERS`` में खोजी जाने वाली एप्लिकेशन कुंजी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.has_section_explainer#2",
+      "source": "settings section title checked against that module's explainer sections.",
+      "source_sha256": "c329160972ae294cfc09a7bc91a52d98142698c512cced595caa21d6a766b606",
+      "context": "settings section title checked against that module's explainer sections.",
+      "translation": "सेटिंग्स खंड का शीर्षक, जिसे उस मॉड्यूल के व्याख्या खंडों के विरुद्ध जाँचा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.install_api_tooltips#3",
+      "source": "the form widget whose children carrying a ``settingKey`` property get tooltips; it also owns the shared tooltip event filter.",
+      "source_sha256": "1b057526db5af34e03337b1cfc56f6f78a69d182a9d2b0562cca9dc73c5b5166",
+      "context": "the form widget whose children carrying a ``settingKey`` property get tooltips; it also owns the shared tooltip event filter.",
+      "translation": "वह फ़ॉर्म विजेट जिसके ``settingKey`` प्रॉपर्टी वाले चाइल्ड को टूलटिप मिलते हैं; यह साझा टूलटिप इवेंट फ़िल्टर का भी स्वामी है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.install_api_tooltips#4",
+      "source": "application key of the module whose settings are shown; it selects the API documentation links.",
+      "source_sha256": "04c5b9492476bc48dfa20ddc3f54bf7c56942231447e8d59bc157f145221e765",
+      "context": "application structured-data name of the module whose settings are shown; it selects the API documentation links.",
+      "translation": "उस मॉड्यूल की एप्लिकेशन कुंजी जिसकी सेटिंग्स दिखाई जाती हैं; यह API दस्तावेज़ लिंक चुनती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.keys_hidden_by_their_object#4",
+      "source": "the slot's type puts it in one morphology and the setting belongs to a different one -- a punctate organelle has no ridge filter;",
+      "source_sha256": "289ed9cf958fbd14a0f59194babfeae9b3b3c3f662599a08488bc33d2a99a1e4",
+      "context": "the slot's type puts it in one morphology and the setting belongs to a different one -- a punctate organelle has no ridge filter;",
+      "translation": "स्लॉट का प्रकार उसे एक आकृति में रखता है और सेटिंग किसी दूसरी की है -- बिंदुनुमा कोशिकांग में कोई ridge फ़िल्टर नहीं होता;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.keys_hidden_by_their_object#5",
+      "source": "it is a legacy Cellpose 3 setting and no object is segmented by a Cellpose 3 model (:func:`_cellpose3_rows_to_hide`).",
+      "source_sha256": "a2b5952c4f03422e0507e8d75c4c60e4c143d12a775a72e32f70f6c585efb466",
+      "context": "it is a legacy Cellpose 3 setting and no object is segmented by a Cellpose 3 model (:func:`_cellpose3_rows_to_hide`).",
+      "translation": "यह पुरानी Cellpose 3 सेटिंग है और कोई भी ऑब्जेक्ट Cellpose 3 मॉडल से सेगमेंट नहीं होता (:func:`_cellpose3_rows_to_hide`)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.list_shape_for#5",
+      "source": "setting key; its declared type in ``spacr.settings.expected_types`` is consulted.",
+      "source_sha256": "e1492ca29a0cdcd2cd4a2fa030c816c4bf2a44b790088537eb65a19080012dee",
+      "context": "setting name; its declared type in ``spacr.settings.expected_types`` is consulted.",
+      "translation": "सेटिंग कुंजी; ``spacr.settings.expected_types`` में इसका घोषित प्रकार देखा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.list_shape_for#6",
+      "source": "the setting's default value; a list or tuple (or ``None`` for a list-only declared type) qualifies, and its elements decide the element type.",
+      "source_sha256": "95e50d995aa0669ee125c0f4f20e551acde1d41dc067badba63d36e9bc10fd6c",
+      "context": "the setting's default value; a list or tuple (or ``None`` for a list-only declared type) qualifies, and its elements decide the element type.",
+      "translation": "सेटिंग का डिफ़ॉल्ट मान; सूची या टपल (या केवल-सूची घोषित प्रकार के लिए ``None``) योग्य है, और इसके तत्व तत्व प्रकार तय करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.maths_for#2",
+      "source": "``'grna'``, ``'gene'`` or ``'mixed'``.",
+      "source_sha256": "4dede55302620de310ae58fc07239d92c4f33f84cdc6f9646a21a64efa9870fb",
+      "context": "``'grna'``, ``'gene'`` or ``'mixed'``.",
+      "translation": "``'grna'``, ``'gene'`` या ``'mixed'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.normalise_regression_level#2",
+      "source": "saved level, compared case-insensitively after stripping; ``'both'``, ``'grna'`` and ``'gene'`` are kept and anything else becomes ``'both'``.",
+      "source_sha256": "11aed59a6e64263694b828933001d743c25be1286173a5d690175d2ae5aa2de8",
+      "context": "saved level, compared case-insensitively after stripping; ``'both'``, ``'grna'`` and ``'gene'`` are kept and anything else becomes ``'both'``.",
+      "translation": "सहेजा गया स्तर, रिक्त स्थान हटाने के बाद बड़े-छोटे अक्षरों का भेद किए बिना तुलना की जाती है; ``'both'``, ``'grna'`` और ``'gene'`` रखे जाते हैं और बाकी सब ``'both'`` बन जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.object_of_setting#3",
+      "source": "setting key; an organelle-slot prefix, or a ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.",
+      "source_sha256": "0b565c3eb5a366e7a84c889fd0f0eaf3d3df2f66b13adf2d520c8a5795e60310",
+      "context": "setting name; an organelle-slot prefix, or a ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.",
+      "translation": "सेटिंग कुंजी; कोशिकांग-स्लॉट उपसर्ग, या ``cell``/``nucleus``/``pathogen`` उपसर्ग या प्रत्यय, इसके ऑब्जेक्ट का नाम देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.object_switch_keys#1",
+      "source": "object name, such as ``'cell'`` or an organelle slot; the keys are ``<role>_channel`` and ``<role>_mask_dim``.",
+      "source_sha256": "86fa548ade25e134747f3250e2d1d94805d888285c64dbb66943a1d42110ad92",
+      "context": "object name, such as ``'cell'`` or an organelle slot; the keys are ``<role>_channel`` and ``<role>_mask_dim``.",
+      "translation": "ऑब्जेक्ट का नाम, जैसे ``'cell'`` या कोई कोशिकांग स्लॉट; कुंजियाँ ``<role>_channel`` और ``<role>_mask_dim`` हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.refresh_api_tooltips#1",
+      "source": "Canonical English prose is retained in ``apiTooltipDescriptionSource``; only the presentation HTML/plain accessibility chrome is regenerated. A label showing why its setting is greyed keeps that reason after the regenerated help (``_LABEL_NOTE_PROPERTY``); before, the language pass dropped it, so a greyed row's name never said why. Field widgets marked ``metadata`` stay quiet because their visible label owns hover help. API-dot destinations carry the selected documentation language while retaining the same module page.",
+      "source_sha256": "62c24ef430f57a0b9c54b986dc8a891edc980d7b0d3270b2c95cbe4c200c27b6",
+      "context": "Canonical English prose is retained in ``apiTooltipDescriptionSource``; only the presentation HTML/plain accessibility chrome is regenerated. A label showing why its setting is greyed keeps that reason after the regenerated help (``_LABEL_NOTE_PROPERTY``); before, the language pass dropped it, so a greyed row's name never said why. Field widgets marked ``metadata`` stay quiet because their visible label owns hover help. API-dot destinations carry the selected documentation language while retaining the same module page.",
+      "translation": "मानक अंग्रेज़ी गद्य ``apiTooltipDescriptionSource`` में रखा जाता है; केवल प्रस्तुति HTML/सादा सुलभता सजावट फिर से बनाई जाती है। जो लेबल दिखाता है कि उसकी सेटिंग धूसर क्यों है, वह फिर से बनी सहायता के बाद वह कारण बनाए रखता है (``_LABEL_NOTE_PROPERTY``); पहले भाषा पास इसे हटा देता था, इसलिए धूसर पंक्ति का नाम कभी नहीं बताता था कि क्यों। ``metadata`` चिह्नित फ़ील्ड विजेट मौन रहते हैं क्योंकि उनका दिखाई देने वाला लेबल होवर सहायता का स्वामी है। API-बिंदु गंतव्य चुनी गई दस्तावेज़ भाषा ले जाते हैं, वही मॉड्यूल पेज बनाए रखते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.refresh_api_tooltips#2",
+      "source": "widget whose own and descendant setting widgets (those with ``settingsAppKey`` and ``settingKey`` properties) are refreshed; ``None`` does nothing.",
+      "source_sha256": "35b124e48c495946ecdb79693d066dbd2b5603657225f6dc3124914653e11749",
+      "context": "widget whose own and descendant setting widgets (those with ``settingsAppKey`` and ``settingKey`` properties) are refreshed; ``None`` does nothing.",
+      "translation": "वह विजेट जिसके अपने और वंशज सेटिंग विजेट (``settingsAppKey`` और ``settingKey`` प्रॉपर्टी वाले) ताज़ा किए जाते हैं; ``None`` कुछ नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#4",
+      "source": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
+      "source_sha256": "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+      "context": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
+      "translation": "रिग्रेशन सेटिंग्स; sgRNA गिनती CSVs ``count`` प्रविष्टियों से ली जाती हैं, जो ``paired_data`` की हैं, या कोई न होने पर पुराने ``count_data`` से।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.resolve_default_settings#1",
+      "source": "application key; a registered plugin's defaults are used first, then the registered or built-in defaults for that key, and an unknown key gets a minimal ``{'src': ...}`` dict.",
+      "source_sha256": "d65fdf31e839f53f35b32b7b7d6861260a15bb5d4ea8214a59c4d62627e09a2d",
+      "context": "application structured-data name; a registered plugin's defaults are used first, then the registered or built-in defaults for that structured-data name, and an unknown structured-data name gets a minimal ``{'src': ...}`` key-value mapping.",
+      "translation": "एप्लिकेशन कुंजी; पहले पंजीकृत प्लगइन के डिफ़ॉल्ट उपयोग होते हैं, फिर उस कुंजी के पंजीकृत या अंतर्निहित डिफ़ॉल्ट, और अज्ञात कुंजी को न्यूनतम ``{'src': ...}`` dict मिलती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.section_tooltip_is_curated#2",
+      "source": "tree heading: an object with ``title`` and ``path`` attributes, a tuple whose first item is the title, or anything converted to a title with ``str()``.",
+      "source_sha256": "e8b7e53513cf777bcfc4b8c3ea40388c49838ba7b126bb7c6fa0eb915874e1a1",
+      "context": "tree heading: an object with ``title`` and ``path`` attributes, a tuple whose first item is the title, or anything converted to a title with ``str()``.",
+      "translation": "ट्री शीर्षक: ``title`` और ``path`` गुणों वाला ऑब्जेक्ट, टपल जिसका पहला आइटम शीर्षक है, या कुछ भी जो ``str()`` से शीर्षक में बदला जाए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.TabulateScreen#5",
+      "source": "Item 471: the pivot, the graph and the filter are sections of :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` panes -- each folds by its heading and each shared edge drags.",
+      "source_sha256": "e6eb3db85c0f1da124d205e48574c7972d13bf01cd26ba9b3890acb8c5b50468",
+      "context": "Item 471: the pivot, the graph and the filter are sections of :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` panes -- each folds by its heading and each shared edge drags.",
+      "translation": "आइटम 471: pivot, ग्राफ़ और फ़िल्टर :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` पैन के खंड हैं -- हर एक अपने शीर्षक से मुड़ता है और हर साझा किनारा खींचा जा सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.TabulateScreen.load_path#3",
+      "source": "a ``.csv``, ``.tsv`` or ``.txt`` file, or any other suffix as a SQLite database whose table names fill the table picker. A database that cannot be listed is reported in the source line and nothing is read.",
+      "source_sha256": "1a3ed596103cceb0a19836c3fab1336eaab13c6856f0b256980076271947840c",
+      "context": "a ``.csv``, ``.tsv`` or ``.txt`` file, or any other suffix as a SQLite database whose table names fill the table picker. A database that cannot be listed is reported in the source line and nothing is read.",
+      "translation": "``.csv``, ``.tsv`` या ``.txt`` फ़ाइल, या किसी अन्य प्रत्यय वाली फ़ाइल SQLite डेटाबेस के रूप में, जिसके तालिका नाम तालिका चयनकर्ता भरते हैं। जो डेटाबेस सूचीबद्ध नहीं हो सकता वह स्रोत पंक्ति में रिपोर्ट होता है और कुछ नहीं पढ़ा जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.TabulateScreen.set_frame#1",
+      "source": "the table to filter and pivot; it replaces the current one.",
+      "source_sha256": "8e77edd55b85bac5616acf17ab0cf91cecfbd309ef5e1f7eb3763963b74b8bfb",
+      "context": "the table to filter and pivot; it replaces the current one.",
+      "translation": "फ़िल्टर और pivot की जाने वाली तालिका; यह वर्तमान तालिका की जगह लेती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose#1",
+      "source": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``.",
+      "source_sha256": "ac8bcef40aacf7ca6b8bde21f784089a606672b2f3e8641ab937b94bd8cf41a9",
+      "context": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``.",
+      "translation": "वर्कबेंच ``train_cellpose`` और ``cellpose_masks`` कार्यप्रवाहों को Train और Apply टैब के रूप में शामिल करता है, हर एक अपने :class:`~spacr.qt.screens.app_screen.AppScreen` द्वारा समर्थित। Train टैब ``src`` और ``mask_src`` (डिफ़ॉल्ट ``<src>/masks``) पढ़ता है और मॉडल चेकपॉइंट ``<src>/models`` के नीचे लिखता है। Apply टैब अपनी स्वतंत्र स्रोत निर्देशिका से ``<src>/*.tif`` पढ़ता है और मास्क ``<src>/masks`` में लिखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.apply_seed#1",
+      "source": "settings name to value, passed unchanged to :meth:`apply_settings_dict`.",
+      "source_sha256": "71e66ee25bab4b6b7091b9ce8f5176495139e2969f19e7d8a7f5a9b35a1991e0",
+      "context": "settings name to value, passed unchanged to :meth:`apply_settings_dict`.",
+      "translation": "सेटिंग्स नाम से मान, बिना बदलाव के :meth:`apply_settings_dict` को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent#0",
+      "source": "Close both module pages before their owning workbench is destroyed.",
+      "source_sha256": "39978af95b31704b6afa7e2cf74917594ee71025b507895a7571b3c9a223d393",
+      "context": "Close both module pages before their owning workbench is destroyed.",
+      "translation": "दोनों मॉड्यूल पेजों को, उनके स्वामी वर्कबेंच के नष्ट होने से पहले, बंद करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent#1",
+      "source": "Qt close event; ignored when a page is finishing a write.",
+      "source_sha256": "a872c9477219a4a627e81da1575725204e8313e16eafa2eeaaa43a3173520b64",
+      "context": "Qt close event; ignored when a page is finishing a write.",
+      "translation": "Qt क्लोज़ इवेंट; जब कोई पेज लेखन समाप्त कर रहा हो तो अनदेखा किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.screen_for#1",
+      "source": "the app key to find, compared as a string with each tab's ``app_key``.",
+      "source_sha256": "a1ecdb10693044f6e15d4fc89063df1aca492b741f9f81932e9207356f4c696c",
+      "context": "the app key to find, compared as a string with each tab's ``app_key``.",
+      "translation": "खोजी जाने वाली ऐप कुंजी, जिसकी स्ट्रिंग के रूप में हर टैब के ``app_key`` से तुलना की जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.trained_checkpoint#1",
+      "source": "Found by looking, not by rebuilding the file name: the training module stamps the architecture and epoch count into what it saves, and a second copy of that formula here would go stale the first time it changed. Everything under the training output folder whose name starts with the model name counts; a finished run's save is preferred over the periodic ones it made on the way, and among equals the most recently written wins.",
+      "source_sha256": "b0fd3dd089ff0975c5fe72e962635661207d1ceed1e9c7c515ed46be58a2a349",
+      "context": "Found by looking, not by rebuilding the file name: the training module stamps the architecture and epoch count into what it saves, and a second copy of that formula here would go stale the first time it changed. Everything under the training output folder whose name starts with the model name counts; a finished processing session's save is preferred over the periodic ones it made on the way, and among equals the most recently written wins.",
+      "translation": "फ़ाइल नाम फिर से बनाकर नहीं, बल्कि देखकर खोजा जाता है: प्रशिक्षण मॉड्यूल जो सहेजता है उसमें आर्किटेक्चर और epoch गिनती अंकित करता है, और यहाँ उस सूत्र की दूसरी प्रति पहली बार बदलने पर ही पुरानी पड़ जाती। प्रशिक्षण आउटपुट फ़ोल्डर के नीचे हर वह चीज़ गिनी जाती है जिसका नाम मॉडल नाम से शुरू होता है; पूरे हुए रन का सहेजना रास्ते में किए गए आवधिक सहेजनों पर प्राथमिकता पाता है, और बराबर वालों में सबसे हाल में लिखा गया जीतता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_compare.TrainCompareScreen.identify_series#1",
+      "source": "legend label of a plotted series, looked up in the figure's ``spacr_series_by_label`` mapping.",
+      "source_sha256": "9aba14a9c426ca729e6566c3530ac87140b8e760489a08afd869aef692023f50",
+      "context": "legend label of a plotted series, looked up in the figure's ``spacr_series_by_label`` mapping.",
+      "translation": "प्लॉट की गई श्रृंखला का लेजेंड लेबल, चित्र की ``spacr_series_by_label`` मैपिंग में खोजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_compare.TrainCompareScreen.select_runs#1",
+      "source": "run ids to tick; every other run is unticked. Ids that match no listed run are reported and make the call return ``False``.",
+      "source_sha256": "2942f956d7be5ffd88652181a587e7e2bf9d0971ae6039c7691769ae0cf383ab",
+      "context": "run ids to tick; every other run is unticked. Ids that match no listed run are reported and make the call return ``False``.",
+      "translation": "चिह्नित की जाने वाली रन id; हर अन्य रन अचिह्नित होता है। जो id किसी सूचीबद्ध रन से मेल नहीं खातीं वे रिपोर्ट होती हैं और कॉल को ``False`` लौटाने पर मजबूर करती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.train_compare.TrainCompareScreen.set_metric#1",
+      "source": "metric name; it must be one of :meth:`available_metrics`, otherwise an error is shown and ``False`` returned.",
+      "source_sha256": "d7c2bd5ea3c4b7ce29864bfcea9b03b9b5a7d36f9d6395dc0eecfa681ecde8fe",
+      "context": "metric name; it must be one of :meth:`available_metrics`, otherwise an error is shown and ``False`` returned.",
+      "translation": "मेट्रिक नाम; यह :meth:`available_metrics` में से एक होना चाहिए, अन्यथा त्रुटि दिखाई जाती है और ``False`` लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.trellis.TrellisScreen#5",
+      "source": "Item 471: the panel and the side tabs share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), and the side tabs fold by their heading.",
+      "source_sha256": "2f01d370fd44d96dca57de576c67a3658dedb1280f016214abac3fb54c1a3665",
+      "context": "Item 471: the panel and the side tabs share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), and the side tabs fold by their heading.",
+      "translation": "आइटम 471: पैनल और साइड टैब :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``) में खींचने योग्य किनारा साझा करते हैं, और साइड टैब अपने शीर्षक से मुड़ते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.trellis.TrellisScreen.set_frame#1",
+      "source": "the table to plot; it is also handed to the formula panel.",
+      "source_sha256": "6d61e61e45a3f368e29e4cd394a18a7757ef3aba144fdaadaf3661f54d4b4e19",
+      "context": "the table to plot; it is also handed to the formula panel.",
+      "translation": "प्लॉट की जाने वाली तालिका; यह सूत्र पैनल को भी दी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.trellis.TrellisScreen.set_frame#2",
+      "source": "source caption; empty shows the row and column counts.",
+      "source_sha256": "d72860bf3f1b83e9dcc1d45c485ee346579307af43265c69d2427a15c17d3e7a",
+      "context": "source caption; empty shows the row and column counts.",
+      "translation": "स्रोत कैप्शन; खाली होने पर पंक्ति और स्तंभ गिनती दिखती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.volcano.find_results_table#2",
+      "source": "a results CSV, a regression output folder, or a folder searched recursively for one; ``~`` is expanded.",
+      "source_sha256": "6e5e7b2fdb58dcf189d3da8e4c111ee48117608734a96b44555cfee38577fac5",
+      "context": "a results CSV, a regression output folder, or a folder searched recursively for one; ``~`` is expanded.",
+      "translation": "परिणाम CSV, रिग्रेशन आउटपुट फ़ोल्डर, या उसके लिए पुनरावर्ती रूप से खोजा जाने वाला फ़ोल्डर; ``~`` का विस्तार किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screensaver.Screensaver.closeEvent#2",
+      "source": "the close event, passed on to the base class after the backdrop is paused.",
+      "source_sha256": "4af3ade59d97c5510ddcbe41e00275c4075e9af16cf79cf3839e54e8fe2d535e",
+      "context": "the close event, passed on to the base class after the backdrop is paused.",
+      "translation": "क्लोज़ इवेंट, पृष्ठभूमि रुकने के बाद बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screensaver.Screensaver.paintEvent#1",
+      "source": "the paint event; not read, the whole window is filled.",
+      "source_sha256": "93ebf1dcecd5c65d050f543d9908725d190c36aae8f6df9a7a2f1ce28b6abf09",
+      "context": "the paint event; not read, the whole window is filled.",
+      "translation": "पेंट इवेंट; पढ़ा नहीं जाता, पूरी विंडो भरी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks#0",
+      "source": "Pair a read-only primary mask with one editable secondary-mask field.",
+      "source_sha256": "9ad5db4a17e7171ea4241b72527948b2a35df0ca7fcdd8ae75ba10bf9442e671",
+      "context": "Pair a read-only primary mask with one editable secondary-mask microscope field of view.",
+      "translation": "केवल-पठन प्राथमिक मास्क को एक संपादन योग्य द्वितीयक-मास्क फ़ील्ड के साथ जोड़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks#1",
+      "source": "Folder sources match the image's stem. Explicit files are bound to one image so moving through a queue cannot accidentally reuse yesterday's nuclei on a same-sized new field. The immutable snapshot records class names and the source checksum; neither loading nor validation writes a primary mask.",
+      "source_sha256": "a506ba90d2ad07901d1245fd2402cb7a5039c3596466d08b4edf82d28802b824",
+      "context": "Folder sources match the image's stem. Explicit files are bound to one image so moving through a work list cannot accidentally reuse yesterday's nuclei on a same-sized new microscope field of view. The immutable snapshot records class names and the source checksum; neither loading nor validation writes a primary mask.",
+      "translation": "फ़ोल्डर स्रोत छवि के स्टेम से मेल खाते हैं। स्पष्ट फ़ाइलें एक छवि से बँधी होती हैं ताकि कतार में आगे बढ़ते हुए उसी आकार के नए फ़ील्ड पर गलती से कल के नाभिक दोबारा उपयोग न हों। अपरिवर्तनीय स्नैपशॉट वर्ग नाम और स्रोत चेकसम दर्ज करता है; न लोड करना और न सत्यापन कोई प्राथमिक मास्क लिखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#0",
+      "source": "A validated primary mask and the field and object classes it belongs to.",
+      "source_sha256": "8dddc592375886a56c868e915a71225aace1b864a5ee8c6b6b82d0b47d7955da",
+      "context": "A validated primary mask and the microscope field of view and object classes it belongs to.",
+      "translation": "सत्यापित प्राथमिक मास्क और वह फ़ील्ड और ऑब्जेक्ट वर्ग जिनसे वह संबंधित है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#1",
+      "source": "resolved source-mask path.",
+      "source_sha256": "582017a07f05da52061659ef478b1eb68dde6673993bdc9c0f75c6e4e81ce69c",
+      "context": "resolved source-mask path.",
+      "translation": "हल किया गया स्रोत-मास्क पथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#2",
+      "source": "resolved image path identifying this field.",
+      "source_sha256": "1f45b085dd204ba8e7821114aef25297438f42ee56868d78f7d36fb5f8f0cfe2",
+      "context": "resolved image path identifying this microscope field of view.",
+      "translation": "इस फ़ील्ड की पहचान करने वाला हल किया गया छवि पथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#3",
+      "source": "primary object class, for example ``nucleus``.",
+      "source_sha256": "eac44c506be7687fc66eb632fad327ee21992b96bb98e0765c9b12248ec98649",
+      "context": "primary object class, for example ``nucleus``.",
+      "translation": "प्राथमिक ऑब्जेक्ट वर्ग, उदाहरण के लिए ``nucleus``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#4",
+      "source": "distinct output object class, for example ``cell``.",
+      "source_sha256": "8ce7d6eca232caacef3173948d05adca298ca2218cbb8477c94cc25f83a10dc4",
+      "context": "distinct output object class, for example ``cell``.",
+      "translation": "अलग आउटपुट ऑब्जेक्ट वर्ग, उदाहरण के लिए ``cell``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#5",
+      "source": "checksum of the source file actually read.",
+      "source_sha256": "7bf4c9d63a975eede710f5542f0f5adf6420754f94491ca9a410ab873af7681b",
+      "context": "checksum of the source file actually read.",
+      "translation": "वास्तव में पढ़ी गई स्रोत फ़ाइल का चेकसम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource#6",
+      "source": "owned, read-only uint16 primary labels matching the image.",
+      "source_sha256": "9fc02241f56ebf9550a815e313b2dc20af21cfb6c4193976e28c561f2fcc91df",
+      "context": "owned, read-only uint16 primary labels matching the image.",
+      "translation": "छवि से मेल खाते, स्वामित्व वाले, केवल-पठन uint16 प्राथमिक लेबल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#0",
+      "source": "Copy primary labels inside a rectangle for a worker request.",
+      "source_sha256": "0bdfd8f1669372a2147b7f0c0da1bb7dafb66118f4203303b1fde9a611e23bbf",
+      "context": "Copy primary labels inside a rectangle for a worker request.",
+      "translation": "वर्कर अनुरोध के लिए एक आयत के भीतर के प्राथमिक लेबल कॉपी करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#1",
+      "source": "``(x0,y0,x1,y1)`` pixel bounds, with exclusive upper bounds.",
+      "source_sha256": "f08b6880604b5334d248ca18a8f1ea8bb993ac20fc03735be5d6c1c44da784fb",
+      "context": "``(x0,y0,x1,y1)`` pixel bounds, with exclusive upper bounds.",
+      "translation": "``(x0,y0,x1,y1)`` पिक्सेल सीमाएँ, अनन्य ऊपरी सीमाओं के साथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#2",
+      "source": "independent label array preserving the source object IDs.",
+      "source_sha256": "d77ea86ac68313a9dcd9e5d8089d257bd2fe5517d7a11a564593aab01db55405",
+      "context": "independent label array preserving the source object IDs.",
+      "translation": "स्रोत ऑब्जेक्ट ID बनाए रखने वाला स्वतंत्र लेबल ऐरे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.crop#3",
+      "source": "the rectangle is empty or extends outside the image.",
+      "source_sha256": "9d7d83b37d547827a1079cce3ddbb4c127c68526c2c3b95b571629a160e3a338",
+      "context": "the rectangle is empty or extends outside the image.",
+      "translation": "आयत खाली है या छवि के बाहर तक फैला है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.identity#0",
+      "source": "Hashable field/source/class token for asynchronous request keys.",
+      "source_sha256": "9fcffdd55fa67ca842c84e956c598437f238db275b1ccf4b36c6094788143255",
+      "context": "Hashable field/source/class token for asynchronous request structured-data names.",
+      "translation": "अतुल्यकालिक अनुरोध कुंजियों के लिए हैश करने योग्य फ़ील्ड/स्रोत/वर्ग टोकन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.provenance#0",
+      "source": "Return JSON-safe source identity for the mask's curation ledger.",
+      "source_sha256": "3db33f6c2c3dc24af266213322b4c6b4037713d73314ef47f6caaa9af281c753",
+      "context": "Return JSON-safe source identity for the mask's curation ledger.",
+      "translation": "मास्क के क्यूरेशन लेजर के लिए JSON-सुरक्षित स्रोत पहचान लौटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination#0",
+      "source": "Refuse any output that would overwrite the primary, including aliases.",
+      "source_sha256": "de33f453e5429defd3781bd68e731a6fe5a856e3bb6398b4949f6733d6f62542",
+      "context": "Refuse any output that would overwrite the primary, including aliases.",
+      "translation": "ऐसे किसी भी आउटपुट को अस्वीकार करें जो प्राथमिक को अधिलेखित करेगा, उपनामों सहित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination#1",
+      "source": "proposed secondary-mask destination, as a string or path.",
+      "source_sha256": "9525845618e8016e4e95687d93eda0b093f596a2ee8fd08759b33957def8a548",
+      "context": "proposed secondary-mask destination, as a string or path.",
+      "translation": "प्रस्तावित द्वितीयक-मास्क गंतव्य, स्ट्रिंग या पथ के रूप में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination#2",
+      "source": "the destination is the primary file, a symbolic link to it or an existing hard link to it.",
+      "source_sha256": "f315809757f3a47542d4ad4f047a7e208ad76b9ec100b56a2f35307843a76750",
+      "context": "the destination is the primary file, a symbolic link to it or an existing hard link to it.",
+      "translation": "गंतव्य प्राथमिक फ़ाइल है, उसका प्रतीकात्मक लिंक है या उसका मौजूदा हार्ड लिंक है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#0",
+      "source": "Load a field's primary labels without modifying either mask file.",
+      "source_sha256": "386f1b94dbe36dce1a42e4c721aabaa5e8b0319320929f289a19857b2b958bca",
+      "context": "Load a microscope field of view's primary labels without modifying either mask file.",
+      "translation": "किसी भी मास्क फ़ाइल को संशोधित किए बिना किसी फ़ील्ड के प्राथमिक लेबल लोड करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#1",
+      "source": "one TIFF/PNG/NPY/Cellpose bundle or a folder containing a matching ``<image stem>`` mask. Multiple matching files are refused.",
+      "source_sha256": "5e3769be7f753877e597081531682a4ed71a6798714187165b26aac5979577df",
+      "context": "one TIFF/PNG/NPY/Cellpose bundle or a folder containing a matching ``<image stem>`` mask. Multiple matching files are refused.",
+      "translation": "एक TIFF/PNG/NPY/Cellpose बंडल या मेल खाते ``<image stem>`` मास्क वाला फ़ोल्डर। कई मेल खाती फ़ाइलें अस्वीकार की जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.secondary_masks.read_primary_source#2",
+      "source": "image currently being edited; field identity is its path.",
+      "source_sha256": "0319e3749b4ce4932b3579d4f99816940ee277fa9b061353f5c8d5f7c6725cf9",
+      "context": "image currently being edited; microscope field of view identity is its path.",
+      "translation": "अभी संपादित की जा रही छवि; फ़ील्ड की पहचान इसका पथ है।",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }

@@ -1,0 +1,400 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#0",
+      "source": "Read a label stack from a file or a folder of frames.",
+      "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
+      "context": "Read a label stack from a file or a folder of frames.",
+      "translation": "किसी फ़ाइल या फ़्रेमों के फ़ोल्डर से लेबल स्टैक पढ़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#1",
+      "source": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "source_sha256": "7c1049011d7348f225794f7036a8746f04e2b2a08a27444793a106753b22b15e",
+      "context": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "translation": "``.npy`` फ़ाइल, ``.tif``/``.tiff`` फ़ाइल, या प्रति फ़्रेम एक फ़ाइल वाला फ़ोल्डर, जिसे नामों के क्रमबद्ध क्रम में पढ़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#2",
+      "source": "``(T, Y, X)`` integer array.",
+      "source_sha256": "bbd223fe617db5d8c97f14a5c4f5ce36d5e8f12ab99030ac871ce0236281d03f",
+      "context": "``(T, Y, X)`` integer array.",
+      "translation": "``(T, Y, X)`` पूर्णांक ऐरे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#3",
+      "source": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "source_sha256": "2c99e07ce0cfbe7a3b80d84b5acbc08c820d560b9b0eedd91f06185cf3ad45f7",
+      "context": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "translation": "जब फ़ोल्डर में पढ़ने योग्य कुछ न हो, या प्रत्यय ऊपर के तीनों में से कोई न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#0",
+      "source": "Run the QC over one or more label stacks and print the table.",
+      "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
+      "context": "Run the QC over one or more label stacks and print the table.",
+      "translation": "एक या अधिक लेबल स्टैक पर QC चलाएँ और तालिका प्रिंट करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#1",
+      "source": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "source_sha256": "a6bb0bb1668e347e033a2bc7a19927342d952fb8b8c62135b53e513e4bb5ccba",
+      "context": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "translation": "कमांड लाइन आर्ग्युमेंट; ``sys.argv[1:]``, जब ``None`` हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#2",
+      "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
+      "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "translation": "कोई जाँच विफल न होने पर ``0``, और किसी के विफल होने पर ``1``। यहाँ विफलता एनोटेशन के बारे में कथन है, इस प्रोग्राम के बारे में नहीं: इसका अर्थ है कि डेटा वह समर्थन नहीं करता जो timeflows योजना उसके बारे में मानकर चलती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#0",
+      "source": "List every label that disappears and comes back, and judge each one.",
+      "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
+      "context": "List every label that disappears and comes back, and judge each one.",
+      "translation": "हर उस लेबल की सूची बनाएँ जो गायब होकर लौट आता है, और हर एक का मूल्यांकन करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#1",
+      "source": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "source_sha256": "c1baf2ba619a070b8a036b9c4e851c5944b6ba9cbd3df487d2faeb53c57e8a6f",
+      "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "translation": "पुनः उपयोग की गई id -- वही संख्या जो पहले ऑब्जेक्ट के जाने के बाद किसी असंबंधित ऑब्जेक्ट को दे दी गई -- वह दोष है जिसके प्रति पूरी योजना असुरक्षित है, और यह एक फ़्रेम के ट्रैकिंग गैप जैसी ही दिखती है। दोनों को दूरी अलग करती है: एक फ़्रेम के लिए छूटा वास्तविक ऑब्जेक्ट अपने पिछले स्थान के पास फिर मिलता है, और आमतौर पर अब भी अपने ही मास्क से ओवरलैप करता है। इसलिए हर गैप के साथ प्रति अनुपस्थित फ़्रेम तय की गई दूरी, गैप से पहले और बाद के मास्क के बीच का ओवरलैप, और उसी डेटा में एक निरंतर ऑब्जेक्ट द्वारा एक फ़्रेम में तय की गई दूरी दर्ज की जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#3",
+      "source": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "source_sha256": "a37a91151f2c9e8cdb75d2ceb12e52596b7b35f2a1378bf7b171bbaa26c012cd",
+      "context": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "translation": "वह तालिका जो :func:`label_frames` लौटाता है, जब उसे पहले ही मापा जा चुका हो। ``None`` होने पर यहीं मापी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#4",
+      "source": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "source_sha256": "a9077fc5c166b691a4775d18b8fc343f6d49625da56001ab10051db081a4d052",
+      "context": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "translation": "प्रति अनुपस्थित फ़्रेम दूरी, पिक्सेल में, जिससे ऊपर गैप को पुनः उपयोग माना जाता है। ``None`` होने पर इसे डेटा से मापा जाता है: निरंतर प्रति-फ़्रेम विस्थापन के 95वें पर्सेंटाइल का :data:`REUSE_DISPLACEMENT_FACTOR` गुना, और जब स्टैक में कुछ भी अगले फ़्रेम तक नहीं बचता, तब इसके स्थान पर माध्यिका ऑब्जेक्ट व्यास का उपयोग होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#5",
+      "source": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "source_sha256": "826d4e20a58bc4247ec0b1e1b919f6b4668201552844dbca4e3f6f323f2db3b7",
+      "context": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "translation": "प्रति गैप एक पंक्ति वाला ``DataFrame``: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` और ``verdict`` (``'gap'`` या ``'reuse-suspected'``)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#2",
+      "source": "dict of assay settings; see ``get_automated_motility_assay_default_settings`` for keys including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "source_sha256": "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
+      "context": "key-value mapping of assay settings; see ``get_automated_motility_assay_default_settings`` for structured-data names including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "translation": "परख (assay) सेटिंग्स का dict; कुंजियों के लिए ``get_automated_motility_assay_default_settings`` देखें, जिनमें ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim`` और ``reuse_existing_measurements`` शामिल हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.uniprot.Resolution#1",
+      "source": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "source_sha256": "87346797c09dc811073f7e2efb9ff89bc954c2d6f4c027567c6d94037f26da5a",
+      "context": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "translation": "``'bundled'``, ``'accession'``, ``'organism'`` या ``'unknown'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater#5",
+      "source": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "source_sha256": "0e7dc016793ee4ca9c3efac211012bb100c2424a61828b5b80dd3417f193c667",
+      "context": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "translation": "यह :func:`fetch_release_notes` के माध्यम से Home के News पैनल को भी उत्तर देता है: प्रकाशित रिलीज़, एक दिन के लिए कैश की गई, ताकि चल रही प्रति अपने ही wheel में बंडल की गई रिलीज़ से नई रिलीज़ दिखा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.PackageChange.describe#0",
+      "source": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
+      "context": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "translation": "``'numpy 1.26.4 -> 2.2.6'`` या ``'cuml-cu12 26.8.0 (new)'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#0",
+      "source": "The repository's releases, newest first, or ``[]``.",
+      "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
+      "context": "The repository's releases, newest first, or ``[]``.",
+      "translation": "रिपॉज़िटरी की रिलीज़, सबसे नई पहले, या ``[]``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#1",
+      "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
+      "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "translation": "इसे GUI थ्रेड पर कभी भी कॉल न करें। यह एक सॉकेट खोलता है। Home का News पैनल इसे उसी :class:`_UpdateWorker` के माध्यम से माँगता है जिस पर मैनुअल अपडेट जाँच चलती है, पेज दिखाए जाने के बाद।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#2",
+      "source": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "source_sha256": "9c8f9d735106e346dcb83b0bdd2b598bca41999abde8f32fc6bc56166655395f",
+      "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "translation": "बिना प्रमाणीकरण के, क्योंकि विकल्प एक ऐसा टोकन है जो उपयोगकर्ता के पास नहीं है। इसका अर्थ है साझा, प्रति-पते की दर सीमा, और इसी कारण उत्तर एक दिन के लिए कैश किया जाता है और हर विफलता मौन रहती है: बंडल की गई ``spacr/resources/release_notes.json`` ऑफ़लाइन सत्य का स्रोत बनी रहती है, और खाली सूची उसे बस अपरिवर्तित छोड़ देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#3",
+      "source": "request timeout in seconds. Short on purpose.",
+      "source_sha256": "683518d92d4d70fc6ea8b92a696d78f230cda680870e99eec4cc2dfa61b68c30",
+      "context": "request timeout in seconds. Short on purpose.",
+      "translation": "अनुरोध का टाइमआउट, सेकंड में। जानबूझकर छोटा रखा गया है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#4",
+      "source": "how old a cached answer may be before it is asked again, in seconds.",
+      "source_sha256": "9b0b3f334aeb242980613aa333fbc09ab61078ae0ed1724ad3401262b7ffa1ec",
+      "context": "how old a cached answer may be before it is asked again, in seconds.",
+      "translation": "कैश किया गया उत्तर अधिकतम कितना पुराना हो सकता है, इससे पहले कि उसे फिर से माँगा जाए, सेकंड में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#5",
+      "source": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "source_sha256": "b6df52cba5b0cb072e39cd81c374730d8a36e4857495705144f09ff1fdec9b26",
+      "context": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "translation": "बंडल किए गए संसाधन जैसी संरचना वाले रिलीज़ रिकॉर्ड, या किसी भी कारण से उत्तर उपलब्ध न होने पर खाली सूची।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#0",
+      "source": "Launch the updated Qt application after the old event loop has stopped.",
+      "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
+      "context": "Launch the updated Qt application after the old event loop has stopped.",
+      "translation": "पुराना इवेंट लूप रुकने के बाद अद्यतन Qt एप्लिकेशन लॉन्च करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#1",
+      "source": "process identifier of the detached replacement application.",
+      "source_sha256": "df7bffe98977459e3629ebbd6df90bf7b5a73b2f150eb0f13c1399867f7646e4",
+      "context": "process identifier of the detached replacement application.",
+      "translation": "अलग (detached) चलाए गए प्रतिस्थापन एप्लिकेशन की प्रोसेस आईडी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#2",
+      "source": "the replacement could not be started.",
+      "source_sha256": "c1bc615c92ef69f5875a3aacdfa3c47b58cb0e8561a586baa8e7151397d4806d",
+      "context": "the replacement could not be started.",
+      "translation": "प्रतिस्थापन एप्लिकेशन शुरू नहीं किया जा सका।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.news_cache_path#0",
+      "source": "Where the fetched release list is remembered between launches.",
+      "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
+      "context": "Where the fetched release list is remembered between launches.",
+      "translation": "वह स्थान जहाँ प्राप्त की गई रिलीज़ सूची लॉन्चों के बीच याद रखी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.run_pip_upgrade#2",
+      "source": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "source_sha256": "0d823b21391fd6e582c7f79a809383d7870af304a14633c0cd3a95dab6e867eb",
+      "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "translation": "प्रस्तावित यही सटीक संस्करण इंस्टॉल करें और सफलता की सूचना देने से पहले उसे एक नई प्रोसेस में सत्यापित करें। None बिना पिन किया अपग्रेड बनाए रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#0",
+      "source": "Upgrade this interpreter, optionally to the exact version offered.",
+      "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
+      "context": "Upgrade this interpreter, optionally to the exact version offered.",
+      "translation": "इस इंटरप्रेटर को अपग्रेड करें, वैकल्पिक रूप से ठीक उसी संस्करण पर जो प्रस्तावित है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "allow prerelease packages.",
+      "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+      "context": "allow prerelease packages.",
+      "translation": "प्री-रिलीज़ पैकेजों की अनुमति दें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#2",
+      "source": "explicit version selected by the update check.",
+      "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
+      "context": "explicit version selected by the update check.",
+      "translation": "अपडेट जाँच द्वारा चुना गया स्पष्ट संस्करण।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.ResNet.initialize_base#4",
+      "source": "``'imagenet'`` or ``'none'``.",
+      "source_sha256": "96f001c0da20357e41ea89d5767ceb0cebd011f10fee5ccfb7e63b904bf5d433",
+      "context": "``'imagenet'`` or ``'none'``.",
+      "translation": "``'imagenet'`` या ``'none'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#10",
+      "source": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every field finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected field set.",
+      "source_sha256": "0b483d7e974fd7bf8fed14df4cbebc83f61407b8f7b7e074e855fc405e605482",
+      "context": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every microscope field of view finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected microscope field of view set.",
+      "translation": "यदि तीनों फ़ोल्डरों में फ़ाइलों की संख्या अलग हो या फ़ाइल नाम मेल न खाएँ, या कोई मास्क कटा हुआ (truncated), गैर-संख्यात्मक, खाली या द्वि-आयामी न हो, या उसके आयाम उसके साथी मास्क से अलग हों। उपलब्ध ऑर्गेनेल मास्क भी जाँचे जाते हैं। हर फ़ील्ड का केवल-हेडर सत्यापन किसी भी मास्क के बदले जाने या वर्कर शुरू होने से पहले पूरा हो जाता है। स्पष्ट आउटपुट फ़ोल्डर हर स्रोत फ़ोल्डर से अलग होना चाहिए और उसमें चयनित फ़ील्ड समूह के बाहर के मास्क नहीं होने चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#8",
+      "source": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected field is rebuilt from its source on each invocation, including after interrupted work.",
+      "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
+      "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
+      "translation": "समायोजित मास्क के लिए वैकल्पिक अलग फ़ोल्डर। None पुराना स्थान-पर (in-place) व्यवहार बनाए रखता है। अलग फ़ोल्डर सभी स्रोत मास्क को बाइट-दर-बाइट अपरिवर्तित रखता है, और हर चयनित फ़ील्ड हर बार बुलाए जाने पर अपने स्रोत से फिर से बनाया जाता है, बाधित कार्य के बाद भी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#3",
+      "source": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "source_sha256": "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
+      "context": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "translation": "जो कॉलर इसे पास करते हैं उनके लिए स्वीकार किया जाता है। यह सेट हो या न हो, केवल संरचनात्मक रूप से पूर्ण मास्क ऐरे गिने जाते हैं, इसलिए बाधित रन द्वारा छोड़ा गया खाली या कटा हुआ ऐरे फिर से कतार में डाला जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#4",
+      "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
+      "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
+      "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
+      "translation": "``True`` जब मास्क फ़ोल्डर अनुपस्थित हो या किसी अपेक्षित स्टैक फ़ाइल नाम का पूर्ण मास्क न हो। असंबंधित मास्क किसी अनुपस्थित फ़ील्ड का स्थान नहीं ले सकते और पूर्ण फ़ील्डों को फिर से संसाधित करने के लिए बाध्य नहीं करते।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.lasso_reg#3",
+      "source": "``'lasso'`` or ``'ridge'``.",
+      "source_sha256": "d87fa963235100757ae8ed6593bae68208f8fc409a82246858a5a52fddf2f82d",
+      "context": "``'lasso'`` or ``'ridge'``.",
+      "translation": "``'lasso'`` या ``'ridge'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.measure_test_mode#2",
+      "source": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a field. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which plane is which, and a ``test/merged`` without it is read as a legacy folder, against the default plane order.",
+      "source_sha256": "a2d5c1b9d11d5a9d6577513db0262d1fd5101ac12e26bd74ef1e43e1b4efeade",
+      "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",
+      "translation": "केवल दिखाई देने वाले ``.npy`` ऐरे का नमूना लिया जाता है, इसलिए macOS की ``._`` साइडकार फ़ाइल कभी किसी फ़ील्ड के स्थान पर नहीं मापी जाती। फ़ोल्डर की ``.spacr_plane_layout.json`` मौजूद होने पर वह भी साथ कॉपी की जाती है: वही बताती है कि कौन-सा प्लेन कौन-सा है, और उसके बिना ``test/merged`` को पुराने (legacy) फ़ोल्डर के रूप में, डिफ़ॉल्ट प्लेन क्रम के आधार पर पढ़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#14",
+      "source": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "source_sha256": "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
+      "context": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "translation": "ऑब्जेक्ट फ़िल्टर प्रविष्टियाँ (न्यूनतम और अधिकतम वाला कोई भी अदिश regionprop), जिन्हें ऊपर की सीमाओं के साथ एक ही पास में परखा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.preprocess_data#7",
+      "source": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "source_sha256": "a9f96a9d58b325a2d70df263552d73dd8c68dfdba5be167f70e0dcd418571ecf",
+      "context": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "translation": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` या ``combat``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#10",
+      "source": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "source_sha256": "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb",
+      "context": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "translation": "यदि मेल खाने वाली सेल या नाभिक मास्क फ़ाइल अनुपस्थित हो, या कोई मास्क फ़ाइल pickled ऑब्जेक्ट रखती हो: मास्क सामान्य ऐरे हैं, और कुछ भी unpickle नहीं किया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#3",
+      "source": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a run killed during the write leaves the previous whole mask, never a truncated one.",
+      "source_sha256": "40d7b307f3b754fd749a196f732cca4b0ebdfbed5a27dae5238e1a060c132a31",
+      "context": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a processing session killed during the write leaves the previous whole mask, never a truncated one.",
+      "translation": "सेल मास्क का फ़ोल्डर (स्थान पर ही अधिलेखित)। समायोजित मास्क पुराने मास्क को परमाणु रूप से बदलता है, इसलिए लेखन के दौरान रोका गया रन पिछला पूरा मास्क छोड़ता है, कभी कटा हुआ नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#8",
+      "source": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "source_sha256": "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
+      "context": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "translation": "समायोजित मास्क के लिए वैकल्पिक अलग गंतव्य। None स्थान-पर समायोजन बनाए रखता है। स्पष्ट गंतव्य हर स्रोत मास्क फ़ोल्डर से अलग होना चाहिए, डायरेक्टरी सिमलिंक के माध्यम से भी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "translation": "``'dbscan'`` या ``'kmeans'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#8",
+      "source": "``'umap'`` or ``'tsne'``.",
+      "source_sha256": "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
+      "context": "``'umap'`` or ``'tsne'``.",
+      "translation": "``'umap'`` या ``'tsne'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.validate.validate_settings#1",
+      "source": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is run.",
+      "source_sha256": "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
+      "context": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is executed.",
+      "translation": "छवि डेटा हेडर और डायरेक्टरी सूचियों के माध्यम से जाँचा जाता है। सक्षम PSF कैलिब्रेशन और मानों को सत्यापित करने के लिए अपना आकार-सीमित कर्नेल भी लोड करता है; कोई छवि प्रसंस्करण या GPU अनुमान (inference) नहीं चलाया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.workspace.save#4",
+      "source": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "source_sha256": "a346a4ae4445c5dc4561ae4ad35ae319000466eb9c1891dca8984101a62ce716",
+      "context": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "translation": "``'off'``, ``'reference'`` या ``'copy'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#2",
+      "source": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "source_sha256": "b1cd5d7b1f5318210eed9d03ee95f35b395bf4ad0eaf117296a216030c7f9e2b",
+      "context": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "translation": "``(Z, Y, X)`` या ``(Z, Y, X, C)``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes_4d#4",
+      "source": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "source_sha256": "fde87c2383a2d70fb2c91dde4d3faa2d1ceb0b76201245a613cfe1e501a11f75",
+      "context": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "translation": "``(T, Z, Y, X)`` या ``(T, Z, Y, X, C)``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.format_4d#2",
+      "source": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "source_sha256": "cdea53d430d950ea001e7e755164a8faffff42e026296f0452b52aacfaa161b4",
+      "context": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "translation": "एक :class:`TStackResult` या एक :class:`TrackResult`।",
+      "review_basis": "MT draft kept after AI review"
+    }
+  ]
+}
