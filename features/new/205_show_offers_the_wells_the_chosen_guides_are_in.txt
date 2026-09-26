@@ -2,7 +2,7 @@
 "SHOW" OFFERS THE WELLS THE CHOSEN GUIDES ARE IN
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-09-25 -- opens on the top hits (decision); see the closing section.
 Requested: 2026-08-21 -- "for the sow option in the cell table graphs, i
            whould be able to gRNAs, gRNAs + other datapoints in selected
            wells, and All datapoints. presently i cannot pick gRNAs + other
@@ -119,3 +119,47 @@ default belong together:
   * what the scope defaults to before any guide is chosen;
   * where the derived well set is SHOWN, since the file's own section B says
     a set the user cannot see is a set they cannot narrow.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECIDED AND BUILT: THE COMPARE PANEL OPENS ON THE TOP HITS
+--------------------------------------------------------------------------------
+
+Maintainer decision (2026-09-25): "the regression Compare panel opens with
+the TOP HITS pre-selected (top significant guides/genes and the wells that
+carry them; user can change it) -- wire scoped_objects/set_selected_guides
+and show the well set."
+
+This answers the three open questions of the 2026-08-26 re-audit:
+
+  * WHO SETS THE GUIDES: the panel itself, on opening. The montage view
+    passes its run's results path (`results=self._results_path()`);
+    `spacr.well_scope._top_hits` reads the coefficient table (a CSV, or a
+    run folder's results.csv / results_grna.csv / results_gene.csv), keeps
+    terms with p <= 0.05, ranks by p and takes the top TOP_HITS = 5 hits
+    that the object table actually carries. A guide-level term contributes
+    its guide; a gene-level term every guide of that gene. With no results
+    table the guides of the montage's own groups are the selection
+    (`well_scope._guides_at`).
+  * THE DEFAULT SCOPE: "gRNAs + other datapoints in selected wells" when
+    anything is selected -- the comparison section A calls the one that
+    matters -- and "All datapoints" when nothing is, so a panel with no
+    guides draws exactly what it drew before rather than nothing.
+  * WHERE THE WELL SET IS SHOWN: a muted line under the contrast row lists
+    the gRNAs and the selected wells (first 6 / 8, with counts) and the
+    well_scope description of the drawn population.
+
+USER CAN CHANGE IT: "gRNAs…" opens a checklist of every guide in the table
+(`_choose_guides` -> `set_selected_guides`, wells re-derived) and "selected
+wells…" narrows the derived wells (`_choose_selected_wells` ->
+`set_selected_wells`). The population box still switches scope.
+
+`refresh` NOW DRAWS `scoped_objects()`. One exception, stated on screen:
+the "against the controls" and "against every other well" contrasts need
+rows outside the selected wells, so for those two the population box is set
+aside and the whole table is used.
+
+Tests: tests/test_show_offers_the_wells_the_guides_are_in.py gains
+TestTheTopHits (ranking, alpha, gene terms, folder input, missing table) and
+TestThePanelOpensOnTheTopHits (hits + wells selected, scope "wells", well set
+shown, drawn population is the scoped one and narrows, groups fallback,
+nothing-to-select stays on "all", user changes the guides).
