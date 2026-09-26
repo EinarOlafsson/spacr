@@ -364,21 +364,25 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not sample_sources & scientific_sources
     older_sources = reviewed.keys() - scientific_sources - sample_sources
     # Four retired chrome/template sources are preserved in the September 23 archive.
-    assert len(older_sources - added_sources - background_sources) == 313
+    # 313 -> 306 on 2026-09-25, item 511: the maintainer retired the cell,
+    # nucleus and pathogen mean-bound settings into object_filters rows, and
+    # the seven sv records of their labels and tooltips were deleted from
+    # 2026-09-15-mask-mean-bounds.json (the English is gone).
+    assert len(older_sources - added_sources - background_sources) == 306
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(older_sources - background_sources) == 320
-    assert len(older_sources) == 328
-    assert len(reviewed.keys() - sample_sources) == 367  # +39 scientific sources.
-    assert len(reviewed) == 370  # Features, Controls and Quality use compact rows.
+    assert len(older_sources - background_sources) == 313  # Item 511 retirement (2026-09-25): -7.
+    assert len(older_sources) == 321  # Item 511 retirement (2026-09-25): -7.
+    assert len(reviewed.keys() - sample_sources) == 360  # +39 scientific sources. Item 511 retirement (2026-09-25): -7.
+    assert len(reviewed) == 363  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -7.
     # The new panel cohort also reuses the earlier whole-field model tooltip.
     # 316 (71071b6c6) retired 17 setup and sign-in captions to _ROWS: -17 below;
     # the total also loses its sign-in-status record and a superseded psf-help record.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 608  # Item 511 retired four filter captions.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 615  # Item 511 retired four filter captions.
-    assert len(older_all_sources - normalized_sources) == 620
-    assert len(older_all_sources) == 625
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 636  # Item 511 retired four filter captions.
-    assert len(all_reviewed.keys() - debt_sources) == 1675  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1).
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 601  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 608  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.
+    assert len(older_all_sources - normalized_sources) == 613  # Item 511 retirement (2026-09-25): -7.
+    assert len(older_all_sources) == 618  # Item 511 retirement (2026-09-25): -7.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 629  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.
+    assert len(all_reviewed.keys() - debt_sources) == 1668  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -7.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -601,18 +605,21 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert sample_sources <= reviewed.keys()
     assert not sample_sources & (added_sources | background_sources)
     # Three retired chrome/template sources are preserved in the September 23 archive.
-    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 305
+    # 305 -> 293 on 2026-09-25, item 511: the twelve fr records of the
+    # retired cell, nucleus and pathogen mean bounds were deleted from
+    # 2026-09-15-mask-mean-bounds.json (the English is gone).
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 293
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources - sample_sources) == 312
-    assert len(reviewed.keys() - sample_sources) == 320
-    assert len(reviewed) == 323  # Features, Controls and Quality use compact rows.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 330
-    assert len(older_all_sources - normalized_sources) == 335
-    assert len(older_all_sources) == 340
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 351
+    assert len(reviewed.keys() - background_sources - sample_sources) == 300  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed.keys() - sample_sources) == 308  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed) == 311  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 318  # Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources - normalized_sources) == 323  # Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources) == 328  # Item 511 retirement (2026-09-25): -12.
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 339  # Item 511 retirement (2026-09-25): -12.
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 633  # Item 511 retired four filter captions.
-    assert len(all_reviewed.keys() - debt_sources) == 1671  # 926 - 9 - 3 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1).
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 621  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -12.
+    assert len(all_reviewed.keys() - debt_sources) == 1659  # 926 - 9 - 3 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -12.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

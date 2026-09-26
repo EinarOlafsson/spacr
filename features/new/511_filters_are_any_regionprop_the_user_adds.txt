@@ -219,3 +219,9 @@ RESULTS, one capped offscreen CPU process, 80 files:
 LEFT: the EN catalog rows (and nine languages' catalog rows) for the twelve
 keys are the translation lane's to drop; whether the organelle bounds should
 be retired the same way is the maintainer's call.
+AFTER MERGING NIGHTLY (ab5ce88d7): nightly had meanwhile added reviewed
+translations of object_filters' OLD tooltip (*/2026-09-25-runtime-debt-
+second-pass-setting-help.json); the rewrite above makes them stale, so the
+nine records were deleted as tools/check_reviewed_runtime_evidence.py
+directs. tests/test_runtime_i18n_syntax.py's sv/fr source pins moved by the
+deleted mask-mean-bounds sources (-7 sv, -12 fr), each marked in place.
