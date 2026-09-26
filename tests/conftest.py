@@ -70,6 +70,56 @@ pytest_plugins = ["tools.pytest_translation_compatibility"]
 #: for a run that genuinely needs more.
 _MEMORY_CEILING_GB = float(os.environ.get("SPACR_TEST_MEMORY_GB", "6"))
 
+#: The pytest capture manager, kept by ``pytest_configure`` so the guard can
+#: take fd 2 back from it before writing why the process is ending.
+_CAPTURE = None
+
+
+def _cgroup_memory_limit():
+    """The kernel memory cap on this process's cgroup, in bytes, or None.
+
+    Instruction 47, 2026-09-26: a full SERIAL ``pytest tests/qt`` run under
+    ``tools/run_capped.sh 16G`` was ended at 28% by the 6 GB ceiling below,
+    with 10 GB of its own kernel cap unused. The ceiling is about
+    CONCURRENCY -- a dozen uncapped processes at once -- and a process the
+    kernel already caps cannot be one of the dozen that take the machine
+    down. So under a cap the guard fires just below THAT, where it can still
+    say why, instead of at a number meant for uncapped runs.
+    """
+    try:
+        with open(os.path.join("/proc", "self", "cgroup"),
+                  encoding="ascii") as handle:
+            lines = handle.read().splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        parts = line.split(":", 2)
+        if len(parts) != 3 or parts[0] != "0":
+            continue
+        limit = os.path.join("/sys", "fs", "cgroup", parts[2].lstrip("/"),
+                             "memory.max")
+        try:
+            with open(limit, encoding="ascii") as handle:
+                text = handle.read().strip()
+        except OSError:
+            return None
+        return int(text) if text.isdigit() else None
+    return None
+
+
+def _memory_ceiling_bytes() -> float:
+    """The RSS at which the guard ends this pytest.
+
+    ``SPACR_TEST_MEMORY_GB`` wins when it is set. Otherwise 90% of a kernel
+    cap on this process's cgroup when there is one, else the 6 GB default.
+    """
+    if "SPACR_TEST_MEMORY_GB" in os.environ:
+        return _MEMORY_CEILING_GB * 1024 ** 3
+    capped = _cgroup_memory_limit()
+    if capped:
+        return 0.9 * capped
+    return _MEMORY_CEILING_GB * 1024 ** 3
+
 
 def _stop_before_the_machine_does() -> None:
     """End this pytest if its own RSS passes the ceiling."""
@@ -77,6 +127,7 @@ def _stop_before_the_machine_does() -> None:
 
     if _MEMORY_CEILING_GB <= 0:            # explicitly disabled
         return
+    ceiling = _memory_ceiling_bytes()
 
     def watch() -> None:
         import time
@@ -86,7 +137,6 @@ def _stop_before_the_machine_does() -> None:
         # test_conftest_hard_codes_no_absolute_path_at_all as a hard-coded
         # absolute path that is not a kernel interface.
         statm = os.path.join("/proc", str(os.getpid()), "statm")
-        ceiling = _MEMORY_CEILING_GB * 1024 ** 3
         while True:
             time.sleep(2.0)
             try:
@@ -104,10 +154,19 @@ def _stop_before_the_machine_does() -> None:
             message = (
                 f"\n\nspaCR test guard: this pytest reached "
                 f"{rss / 1024 ** 3:.1f} GB, over the "
-                f"{_MEMORY_CEILING_GB:.0f} GB ceiling, and is being ended "
+                f"{ceiling / 1024 ** 3:.1f} GB ceiling, and is being ended "
                 f"before it takes the machine with it.\n"
                 f"Raise it deliberately with SPACR_TEST_MEMORY_GB=<n> if a "
                 f"run genuinely needs more.\n\n")
+            # FD 2 IS NOT THE TERMINAL WHILE A TEST RUNS: pytest's fd capture
+            # has pointed it at a temporary file, so the first serial run of
+            # instruction 47 exited 3 with nothing in its log. The capture is
+            # suspended first, which gives fd 2 back.
+            try:
+                if _CAPTURE is not None:
+                    _CAPTURE.suspend_global_capture(in_=False)
+            except Exception:              # noqa: BLE001 - exiting anyway
+                pass
             try:
                 os.write(2, message.encode("utf-8", "replace"))
             except OSError:
@@ -380,6 +439,8 @@ def pytest_configure(config):
     is collected, and a conftest hook only reaches nodes at or below its own
     directory, which is one level too late to keep ``tests`` itself stable.
     """
+    global _CAPTURE
+    _CAPTURE = config.pluginmanager.getplugin("capturemanager")
     # SettingWithCopyWarning, ONLY WHERE IT STILL EXISTS. Writing through a
     # slice is a real bug and this suite promotes it to an error -- but
     # pandas 3 DELETED the class, because copy-on-write made the warning
