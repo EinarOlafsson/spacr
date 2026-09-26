@@ -5,6 +5,158 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr._starplast.check_starplast_update#2",
+      "source": "optional cancellation event for subprocesses.",
+      "source_sha256": "2a6038ff6c10abd2e914afb14d3270a32aed55b6bf50fbd0ab73dadcd74a5664",
+      "context": "optional cancellation event for subprocesses.",
+      "translation": "evento opcional de cancelación para los subprocesos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#4",
+      "source": "optional subprocess cancellation event.",
+      "source_sha256": "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
+      "context": "optional subprocess cancellation event.",
+      "translation": "evento opcional de cancelación del subproceso.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.example_archives.example_set_folder#2",
+      "source": "``~/.cache/spacr/example_data/<folder>``. Not created here.",
+      "source_sha256": "3a458a252220826bea4c4ac3e522688ff201248d0f304650d12b93e91eac3eef",
+      "context": "``~/.cache/spacr/example_data/<folder>``. Not created here.",
+      "translation": "``~/.cache/spacr/example_data/<folder>``. No se crea aquí.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.example_archives.example_set_folder#3",
+      "source": "as :func:`example_set` does.",
+      "source_sha256": "ff1b6b38baf10d0bfbde7e2e02e4b72f59e78de426583603cb88bcb449c22922",
+      "context": "as :func:`example_set` does.",
+      "translation": "igual que hace :func:`example_set`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.import_examples.import_example_folder#2",
+      "source": "``<plate folder>/import_example``. Not created here.",
+      "source_sha256": "77c7435604a4540c3e50e9e18d3c24f4a088ef9fa264c8eb9bf3533f9d825a69",
+      "context": "``<plate folder>/import_example``. Not created here.",
+      "translation": "``<plate folder>/import_example``. No se crea aquí.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#3",
+      "source": "tta_* options and optional binary score_threshold.",
+      "source_sha256": "17ef291cd3ef464aa5a41dce708bfa5d0ea8ba455cc7293137893bb439d44834",
+      "context": "tta_* options and optional binary score_threshold.",
+      "translation": "opciones tta_* y score_threshold binario opcional.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#4",
+      "source": "``diameter``, ``flow_threshold`` and ``CP_prob``.",
+      "source_sha256": "2fb9fc9640c7040a9ae2f57f4aaf78809c09f02f4d24ec87b21d183eb27b797a",
+      "context": "``diameter``, ``flow_threshold`` and ``CP_prob``.",
+      "translation": "``diameter``, ``flow_threshold`` y ``CP_prob``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.figures_from_pdf#6",
+      "source": "``fn(path) -> pdfplumber-like document``; defaults to :func:`pdfplumber.open`.",
+      "source_sha256": "ba738ba0e0c527729507f5f12e86e8b60631bed3018f3dc41d42400cc78585a4",
+      "context": "``fn(path) -> pdfplumber-like document``; defaults to :func:`pdfplumber.open`.",
+      "translation": "``fn(path) -> pdfplumber-like document``; por defecto, :func:`pdfplumber.open`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.main#1",
+      "source": "arguments; defaults to ``sys.argv[1:]``.",
+      "source_sha256": "19a7c594ce78b4a79d0f2018ac5dc7a01797d66d4a7ec453e7ad0c57dbcbfa5c",
+      "context": "arguments; defaults to ``sys.argv[1:]``.",
+      "translation": "argumentos; por defecto, ``sys.argv[1:]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.point_spread#4",
+      "source": "References: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html and https://scikit-image.org/docs/stable/api/skimage.restoration.html#skimage.restoration.richardson_lucy",
+      "source_sha256": "80fa3ceaa2d10a19bfbebda326c0fd945cdd74a15e293d5ad9e1e5c29e74d1ad",
+      "context": "References: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html and https://scikit-image.org/docs/stable/api/skimage.restoration.html#skimage.restoration.richardson_lucy",
+      "translation": "Referencias: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html y https://scikit-image.org/docs/stable/api/skimage.restoration.html#skimage.restoration.richardson_lucy",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.send#0",
+      "source": "Type ``text`` and press Enter.",
+      "source_sha256": "584bf2ccdedf0f028a012550b94aa0de758908641fbbd2eafe481cc6f251382e",
+      "context": "Type ``text`` and press Enter.",
+      "translation": "Escribe ``text`` y pulsa Intro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ai.pty_sign_in.pty_available#1",
+      "source": "True on Linux and macOS.",
+      "source_sha256": "34ba5ed6f3e7550c6fbc2ab57dc195afb0db64f776938149a103de7f26cb8d0f",
+      "context": "True on Linux and macOS.",
+      "translation": "True en Linux y macOS.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#6",
+      "source": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` and :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "source_sha256": "4224be5ec808175fe7cb890b5673844999be3a7736b54139eef0f47c822c184e",
+      "context": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` and :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "translation": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` y :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#2",
+      "source": "``fn(repo, filename) -> local path``; defaults to :func:`huggingface_hub.hf_hub_download`.",
+      "source_sha256": "06b565b74c71ad59d4a06c2bfe2d1945df0cbafce5d90fdd74d26d78e1163a16",
+      "context": "``fn(repo, filename) -> local path``; defaults to :func:`huggingface_hub.hf_hub_download`.",
+      "translation": "``fn(repo, filename) -> local path``; por defecto, :func:`huggingface_hub.hf_hub_download`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#3",
+      "source": "``fn(repo, folder) -> [(path, size)]``; defaults to :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "source_sha256": "cd46649aeffaaa3f1e319276b2435d83b483832a460235923e988a37a4c54713",
+      "context": "``fn(repo, folder) -> [(path, size)]``; defaults to :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "translation": "``fn(repo, folder) -> [(path, size)]``; por defecto, :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#4",
+      "source": "IDs present in both masks.",
+      "source_sha256": "c1c9c0dde21553cbd88840d5805514974a77a61314ff01039b192f8335195979",
+      "context": "IDs present in both masks.",
+      "translation": "Identificadores presentes en ambas máscaras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#3",
+      "source": "``(x, y, brightness)`` in plate units, x and y in 0..1.",
+      "source_sha256": "3f3bde981785cd7aed6dbaaea8957c1a9e258fbc483f4d2c28c39fec595dc9fa",
+      "context": "``(x, y, brightness)`` in plate units, x and y in 0..1.",
+      "translation": "``(x, y, brightness)`` en unidades de placa, con x e y en 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.distributions#2",
+      "source": "measurement table holding both columns.",
+      "source_sha256": "329062f67350a704d0b5e8b4a49e3415143ebc31ec0abea323cce89bb6d50f9a",
+      "context": "measurement table holding both columns.",
+      "translation": "tabla de mediciones que contiene ambas columnas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#3",
+      "source": "parent widget; ownership only.",
+      "source_sha256": "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+      "context": "parent widget; ownership only.",
+      "translation": "widget padre; solo determina la propiedad del objeto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.widgets.measurements_example.install_test_data_button#2",
       "source": "the box layout the button goes into, normally the row that holds the screen's own source field.",
       "source_sha256": "69cc8ac4df27a3a0113a64d5a2efab09c4a157933fd6720899e6c8becc751062",
@@ -427,6 +579,14 @@
       "context": "the close event; passed on to the base class after any download is stopped.",
       "translation": "el evento de cierre; se pasa a la clase base después de detener cualquier descarga.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done#0",
+      "source": "Retire catalogue callbacks and probe polling on every dialog exit.",
+      "source_sha256": "5603745bad4bbf31c8003ab69b664cb242c75fb30fc3475ad860291f0b7a52af",
+      "context": "Retire catalogue callbacks and probe polling on every dialog exit.",
+      "translation": "Retira los callbacks del catálogo y el sondeo periódico de la comprobación en cada salida del diálogo.",
+      "review_basis": "written from the English (no current MT draft)"
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done#1",
@@ -859,6 +1019,54 @@
       "context": "straightness threshold of the current settings; not drawn.",
       "translation": "umbral de rectitud de los ajustes actuales; no se dibuja.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.annotate_figure#1",
+      "source": "a :func:`figure_pass` result.",
+      "source_sha256": "07ce7006b1e8ab9d9a963d94debea9a7d0286be61f772babb91baa5729124311",
+      "context": "a :func:`figure_pass` result.",
+      "translation": "un resultado de :func:`figure_pass`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#5",
+      "source": "layout margins and spacing;",
+      "source_sha256": "254b7b020e247ced41b54bac7f7df1b9db376971f386660312cf11ce9f72a234",
+      "context": "layout margins and spacing;",
+      "translation": "márgenes y espaciado de la disposición;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.bind_field#2",
+      "source": "image height and width.",
+      "source_sha256": "0bca9d9fa815a93aeef452716f017dd2b5d58c2a4525c485b16c228ab687715b",
+      "context": "image height and width.",
+      "translation": "alto y ancho de la imagen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.edge_description#0",
+      "source": "Explain a connection and link both endpoint APIs.",
+      "source_sha256": "42105762a77705c0d215c0623c11fc792a4e4a60659cb65ed62bcf4578222791",
+      "context": "Explain a connection and link both endpoint APIs.",
+      "translation": "Explica una conexión y enlaza las APIs de ambos extremos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.object_centroids#0",
+      "source": "``label -> (y, x, equivalent diameter)`` for every object.",
+      "source_sha256": "9884387c2ec92487fb0fa7d30a24c829aca348e556764007d11220e55e9ab88e",
+      "context": "``label -> (y, x, equivalent diameter)`` for every object.",
+      "translation": "``label -> (y, x, equivalent diameter)`` para cada objeto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_frames#0",
+      "source": "Measure every labelled object in every frame.",
+      "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
+      "context": "Measure every labelled object in every frame.",
+      "translation": "Mide cada objeto etiquetado en cada fotograma.",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }

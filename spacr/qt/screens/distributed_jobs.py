@@ -14,6 +14,7 @@ from PySide6.QtCore import Qt, QTimer, QUrl
 from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -535,6 +536,18 @@ class DistributedJobsScreen(QWidget):
         job_row.addWidget(browse)
         job_row.addWidget(self._submit)
         submit_card.body_layout.addLayout(job_row)
+        self._allocated_gpus = QCheckBox(
+            tr("Mask generation: segment batches on every GPU allocated to the job"),
+            self)
+        self._allocated_gpus.setObjectName("DistributedAllocatedGpus")
+        self._allocated_gpus.setToolTip(tr(
+            "Submits mask_parallel on with a blank mask_gpu_indices, so the "
+            "job uses exactly the GPUs its scheduler allocates, one model per "
+            "GPU. Request them in the execution profile, for example "
+            "--gres=gpu:2. A job given one GPU runs on that one."))
+        submit_card.body_layout.addWidget(self._allocated_gpus)
+        self._module.currentIndexChanged.connect(self._sync_allocated_gpus)
+        self._sync_allocated_gpus()
         outer.addWidget(submit_card)
 
         actions = QHBoxLayout()
@@ -607,6 +620,11 @@ class DistributedJobsScreen(QWidget):
         self._set_status(
             tr("Choose an execution profile, then Submit.")
         )
+
+    def _sync_allocated_gpus(self, *_args) -> None:
+        """Offer allocated-GPU mask batches only for the mask module."""
+        self._allocated_gpus.setEnabled(
+            str(self._module.currentData() or "") == "mask")
 
     def _clear_settings_snapshot(self, _text: str = "") -> None:
         """Switch back to file mode when the user edits the path field."""
@@ -812,6 +830,8 @@ class DistributedJobsScreen(QWidget):
             dict(self._settings_snapshot)
             if self._settings_snapshot is not None else None
         )
+        use_allocated_gpus = (module_name == "mask"
+                              and self._allocated_gpus.isChecked())
 
         def _submit():
             """Resolve the module and its settings, then submit. Off-thread."""
@@ -826,6 +846,9 @@ class DistributedJobsScreen(QWidget):
                 if settings_snapshot is not None
                 else resolve_settings(module, settings_path, [])
             )
+            if use_allocated_gpus:
+                settings = dict(settings, mask_parallel=True,
+                                mask_gpu_indices="")
             return self.manager.submit(module.key, settings, profile_name)
 
         def _done(job: RemoteJob):

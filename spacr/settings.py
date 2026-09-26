@@ -1122,6 +1122,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
     settings.setdefault('adjust_cells', True)
+    settings.setdefault('mask_parallel', False)
+    settings.setdefault('mask_gpu_indices', '')
 
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
@@ -3278,6 +3280,8 @@ expected_types = {
     "save_original_images": bool,
     "keep_intermediate": bool,
     "keep_original_images": bool,
+    "mask_parallel": bool,
+    "mask_gpu_indices": str,
     "save": bool,
     "plot": bool,
     "tensorboard": bool,
@@ -4074,7 +4078,7 @@ tooltips = {
     'enhance_log': "(bool) - Logarithmic transform on 0..1, log(1 + gain x) / log(1 + gain), applied after gamma. It compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1 does. Default False.",
     'enhance_log_gain': "(float) - Factor the unit-interval intensities are multiplied by before the logarithm, above 0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity. Unused unless enhance_log is on. Default 10.0.",
     'enhance_sqrt': "(bool) - Square-root transform on 0..1, applied after the logarithm: the curve a gamma of 0.5 draws, offered by name. It lifts the dim end of every selected channel before detection. Default False.",
-    'enhance_clahe': "(bool) - Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+    'enhance_clahe': "(bool) - Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
     'enhance_clahe_tile': "(int) - Side of one CLAHE tile in pixels, at least 8. Make it larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself. Default 64.",
     'enhance_clahe_clip': "(float) - CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
     'enhance_equalize': "(bool) - Global histogram equalisation of each selected channel plane, the strongest of the contrast curves. A field that is mostly background has its background stretched across half the range. Default False.",
@@ -4419,6 +4423,8 @@ tooltips = {
     "t_project_for_tracking": "(bool) - Collapse each timepoint's z-stack to one plane before linking, so tracking uses the projection while segmentation uses the volume. Enable this setting when volumetric linking is too slow or anisotropy is uncertain. Objects at the same lateral position but different z positions then merge in the projection and cannot be distinguished downstream. This setting does not enable backends that do not support volumetric data. Default False.",
     "save_original_images": "(bool) - After each batch is MIP-projected and merged into stack/, either move the raw input images into src/orig/ (True) or delete them so the pixels live only in stack/ (False). Set False on large screens where the duplicate raw copy will not fit on disk; the deletion is not reversible. Default True.",
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
+    "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+    "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
@@ -4687,7 +4693,7 @@ tooltips = {
     "pathogen_model": "(str or None) - Path to a custom Cellpose checkpoint used to detect pathogen objects, overriding pathogen_model_name when set. It must be a CPSAM-architecture checkpoint (one your own Train Cellpose run produced); a Cellpose-3 CPnet file cannot load into Cellpose 4. A path that does not exist stops the run rather than falling back to the stock weights silently. Default None.",
     "timelapse_displacement": "(int or None) - Maximum distance in pixels an object may travel between consecutive frames when linking: trackpy's search_range, or btrack's max search radius. Too small fragments tracks, too large causes identity swaps and SubnetOversize failures. None auto-searches downward from 500 for trackpy and falls back to 100 for btrack. Default None.",
     "timelapse_memory": "(int) - Number of consecutive frames an object may vanish (e.g. missed by segmentation) and still be re-linked to the same track by trackpy. Raise it when tracks fragment because objects blink out; too high risks merging two different objects into one track. Not used by the btrack mode. Default 3.",
-    "timelapse_mode": "(str) - Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+    "timelapse_mode": "(str) - Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
     "trackastra_model": "(str) - Pretrained Trackastra checkpoint used for frame linking. 'general_2d' is the general-purpose two-dimensional model for live-cell data. This setting is used only when timelapse_mode='trackastra'. Select a different checkpoint only when it was trained for substantially different image characteristics. Default 'general_2d'.",
     "trackastra_linking": "(str) - How Trackastra turns predicted association scores into tracks: 'greedy' takes the best match per object and is fast, 'ilp' solves the assignment globally and is more accurate on crowded or dividing populations but needs the trackastra ilp extra and considerably more time. Default 'greedy'.",
     "ultrack_max_distance": "(float) - The largest jump in pixels Ultrack will consider when linking an object in one frame to a candidate in the next; anything further apart is never joined, so the track breaks instead. Raise it for fast-moving or sparsely sampled cells, lower it on crowded fields where a generous radius invites identity swaps. Only consulted when timelapse_mode='ultrack'. Default 25.0.",
@@ -5221,7 +5227,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -6751,3 +6757,77 @@ tooltips.update({
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
+
+
+ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models')
+
+
+ALPHA_FEATURES = {
+    426: {
+        'settings': ('timeflows_model',),
+        'choices': {'timelapse_mode': ('timeflows',)},
+    },
+    493: {
+        'settings': ('mask_parallel', 'mask_gpu_indices'),
+        'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
+    },
+}
+
+
+def _alpha_names(kind):
+    """Every name registered as alpha under ``kind``, across all items.
+
+    ``ALPHA_FEATURES`` is the one registry of everything built from
+    ``features/future`` that ships as an alpha feature (see
+    ``features/README.md``): hidden unless Preferences -> Show alpha
+    features is on. Each entry is keyed by the item
+    number and lists what that item adds under the kinds in ``ALPHA_KINDS``:
+    ``settings`` (settings keys, hidden from the form, the settings search
+    and its counts), ``choices`` (``{key: (dropdown values,)}``), ``widgets``
+    (Qt object names of buttons, checkboxes, labels, menu actions or
+    panels), ``apps`` (module keys: tile, sidebar, menu and palette together)
+    and ``models`` (Model Zoo keys, names or family stems). A feature is
+    marked in this one place and promoted out of alpha by deleting its entry.
+
+    Hiding is a display decision only: a saved or typed alpha setting still
+    reaches the run, and headless and command-line runs never consult the
+    registry.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :returns: a frozenset of names; for ``choices`` the settings keys that
+        carry alpha entries.
+    :raises ValueError: for a kind that is not in ``ALPHA_KINDS``.
+    """
+    if kind not in ALPHA_KINDS:
+        raise ValueError(
+            f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
+    names = set()
+    for entry in ALPHA_FEATURES.values():
+        names.update(entry.get(kind, ()) or ())
+    return frozenset(str(name) for name in names)
+
+
+def _alpha_choices(key):
+    """The dropdown entries of settings ``key`` that are alpha.
+
+    :param key: a settings key, such as ``'timelapse_mode'``.
+    :returns: a frozenset of the entries' values, empty when none are alpha.
+    """
+    values = set()
+    for entry in ALPHA_FEATURES.values():
+        values.update((entry.get('choices') or {}).get(str(key), ()) or ())
+    return frozenset(str(value) for value in values)
+
+
+def _is_alpha(kind, name, choice=None):
+    """Whether ``name`` of ``kind`` is registered with the alpha gate.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :param name: the settings key, object name, module key or model key.
+    :param choice: with ``kind='choices'``, the dropdown entry asked about;
+        without it the question is whether ``name`` has any alpha entry.
+    :returns: True when registered.
+    """
+    if kind == 'choices' and choice is not None:
+        return str(choice) in _alpha_choices(name)
+    return str(name) in _alpha_names(kind)

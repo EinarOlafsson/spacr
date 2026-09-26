@@ -1,0 +1,20 @@
+A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/errors-of-technical-and-biological-rpelicates/21802
+
+WHAT TO BUILD
+    Plan fields per well, wells per condition and biological replicates for
+    a target effect size and power, using variance components estimated from
+    a pilot plate (cells within fields, fields within wells, wells within
+    replicates); today's power analysis covers pooled screens only.
+
+DONE WHEN
+    On a pilot plate, the planner's recommendations match a simulation of
+    the same design.

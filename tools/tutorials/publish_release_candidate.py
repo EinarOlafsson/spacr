@@ -305,12 +305,14 @@ def pages(root, key):
     attributes = ('audio-root', 'video4k-root') + (('web-root',) if 'data-web-root=' in index else ())
     for attribute in attributes:
         index = replace(rf'data-{attribute}="\.\./media_host"', f'data-{attribute}="{receipt["media_root"]}"', index)
+    versions = {}
     for name in VERSIONED:
         if name in unchanged:
             match = re.search(re.escape(name) + r'\?v=([^"\s]+)', previous)
             version = match.group(1) if match else key
         else:
             version = key
+        versions[name] = version
         index = replace(re.escape(name) + r'(?:\?v=[^"\s]+)?(?=")', f'{name}?v={version}', index)
     index = replace(r'0 of \d+ complete', f'0 of {ready} complete', index)
     index = replace(r'(id="available-count">)\d+', rf'\g<1>{ready}', index)
@@ -333,6 +335,7 @@ def pages(root, key):
                         'index_sha256': digest(PAGES / 'index.html'),
                         'candidate_index_sha256': web['index.html']['sha256'],
                         'cache_key': key, 'unchanged_versioned_assets': sorted(unchanged),
+                        'versioned_assets': versions,
                         'hosted_web_copies': len(hosted), 'removed_local_web_copies': superseded,
                         'ready': ready, 'routes': len(catalog)}
     write(root / RECEIPT, receipt)

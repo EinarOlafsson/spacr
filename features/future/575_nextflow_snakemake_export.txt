@@ -1,0 +1,19 @@
+EXPORT A RECORDED RUN AS A NEXTFLOW OR SNAKEMAKE WORKFLOW
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/challenging-nextflow-script-for-cellpose-need-help/107842
+
+WHAT TO BUILD
+    Turn a run recorded in spaCR's run journal into a Nextflow (and/or
+    Snakemake) workflow that runs the same steps per plate/well on an HPC
+    cluster or cloud, using spaCR's CLI and the Docker/Apptainer images.
+
+DONE WHEN
+    An exported workflow run on a small plate reproduces the GUI run's
+    outputs.

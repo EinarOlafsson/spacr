@@ -1,0 +1,23 @@
+SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/need-assistance-into-issue-with-denoising-using-careamics-noise2void/112159
+
+WHAT TO BUILD
+    Train a Noise2Void/N2V2 (CAREamics) denoiser on the user's own noisy
+    images with no clean targets, then apply it as a step of the enhancement
+    chain in Make Masks and Mask generation (item 508). Own environment;
+    training on the GPU through gpu_turn.sh.
+
+DONE WHEN
+    On a low-light dataset, denoised images raise segmentation F1 (item 532
+    method) against the same pipeline without denoising, with the training
+    recorded in provenance.

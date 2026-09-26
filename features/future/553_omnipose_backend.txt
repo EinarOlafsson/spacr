@@ -1,0 +1,25 @@
+OMNIPOSE AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/omnipose-over-segmenting-filamentous-bacteria/63560
+
+WHAT TO BUILD
+    Add Omnipose (bacteria, elongated and filamentous shapes; its
+    bact_phase/bact_fluor models). Installed as a backend in an environment
+    of its own, exactly like Cellpose 3 (item 446/503): spaCR's installer,
+    the Model Zoo row, 507's install feedback, the out-of-process worker,
+    and objects choosing it through their model setting with a prefix (as
+    cellpose3:/cellpose_dino: do), so nothing is added to spaCR's own
+    environment.
+
+DONE WHEN
+    Installs for real; segments an elongated-bacteria field; scored against
+    Cellpose on it.

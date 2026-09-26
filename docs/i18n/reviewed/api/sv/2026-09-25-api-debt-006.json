@@ -2538,7 +2538,9 @@
       "source_sha256": "40374c0333bcf5d0c12d6cd6f4418a7e2cf844bd649a11bd9829ee9554176695",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has its first PDF read the way a dropped one is, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "Frågas en gång per källa och läge, och bara medan programvyn visas på skärmen. En ``src`` som namnger en PDF, eller en mapp med PDFs, i figurläget -- redan, eller efter att svaret bytte till det -- får sin första PDF läst på samma sätt som en släppt fil, så att förhandsvisningen och körningen får artikelns figurmapp i stället för en PDF som de inte kan öppna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.check_the_src#3",
@@ -2754,7 +2756,9 @@
       "source_sha256": "2b7407611fc209fb0443dac29a62c5dafbe648ac0402c0045057d5ae4cc12929",
       "context": "image paths sorted by name; empty when there are none.",
       "translation": "bildsökvägar sorterade efter namn; tom när det inte finns några.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_box#0",

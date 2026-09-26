@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-503 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
+505 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -43,10 +43,6 @@ FUTURE FEATURES
    59  PUBLISH spaCR ON CONDA-FORGE
        [DONE -- published on conda-forge since 2026-08-27, and its autotick bot keeps it current]
        59_publish_spacr_on_conda_forge.txt
-
-  288  288 CI triage, 2026-09-25
-       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues]
-       288_ci_triage_2026-09-25.txt
 
   288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 90% PER-MODULE COVERAGE
        [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues]
@@ -108,6 +104,165 @@ FUTURE FEATURES
 
   501  EXPERIMENTAL PLAQUE GROWTH TIME AND SCALE ESTIMATES
        501_calibrated_plaque_growth_estimates.txt
+
+  534  MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
+       534_map_barcodes_reads_visium_and_xenium_and_maps_them_to_cells.txt
+
+  535  CELL-CYCLE PHASE CLASSIFICATION: A TORCH, AN XGBOOST AND A MEASUREMENTS VERSION
+       535_cell_cycle_phase_classification_three_ways.txt
+
+  536  SCRATCH / WOUND-CLOSURE ASSAY
+       536_scratch_wound_closure_assay.txt
+
+  537  LINEAGE TREES FROM TRACKS
+       537_lineage_trees_from_tracks.txt
+
+  538  SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
+       538_spectral_unmixing_and_bleed_through_correction.txt
+
+  539  PHOTOBLEACHING CORRECTION FOR EVERY TIMELAPSE
+       539_photobleaching_correction_for_every_timelapse.txt
+
+  540  LIVE/DEAD VIABILITY AND HOST CYTOTOXICITY INDEX
+       540_live_dead_viability_and_cytotoxicity.txt
+
+  541  CONFLUENCY IN MEASURE, FOR ANY CHANNEL
+       541_confluency_in_measure.txt
+
+  542  COLONY / CFU COUNTING
+       542_colony_cfu_counting.txt
+
+  543  IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
+       543_import_vendor_flat_field_profiles.txt
+
+  544  BLIND-SCORING MODE
+       544_blind_scoring_mode.txt
+
+  545  MASKS AND ROIS IN AND OUT: QUPATH GEOJSON, IMAGEJ ROISET, COCO
+       545_roi_export_import_geojson_imagej_coco.txt
+
+  546  RUN CELLPROFILER .cppipe PIPELINES AS A spaCR STEP
+       546_run_cellprofiler_pipelines_as_a_step.txt
+
+  547  IMAGE-BASED PROFILING: NORMALISE, SELECT, CONSENSUS, mAP
+       547_image_based_profiling.txt
+
+  548  WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
+       548_watch_a_folder_and_analyse_incoming_images.txt
+
+  549  SMART MICROSCOPY: SEND HITS BACK FOR RE-IMAGING
+       549_smart_microscopy_feedback.txt
+
+  550  LOAD AND SAVE DATA ON CLOUD STORAGE (S3 AND OTHERS)
+       550_cloud_storage_access.txt
+
+  551  STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+       551_stardist_backend.txt
+
+  552  INSTANSEG AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+       552_instanseg_backend.txt
+
+  553  OMNIPOSE AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+       553_omnipose_backend.txt
+
+  554  SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
+       554_spotiflow_spot_detection.txt
+
+  555  CLICK- AND BOX-PROMPTED SEGMENTATION (micro-SAM) IN MAKE MASKS
+       555_prompt_based_sam_in_make_masks.txt
+
+  556  SAM2 VIDEO PROPAGATION: SEGMENT ONCE, FOLLOW EACH OBJECT OVER FRAMES
+       556_sam2_timelapse_propagation.txt
+
+  557  SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
+       557_self_supervised_denoising.txt
+
+  558  VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
+       558_virtual_staining.txt
+
+  559  DEEP-LEARNING IMAGE QC: OUT-OF-FOCUS, SATURATION, DEBRIS, EMPTY FIELDS
+       559_deep_learning_image_qc.txt
+
+  560  FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
+       560_foundation_model_embeddings.txt
+
+  561  SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
+       561_dino_pretraining_on_own_crops.txt
+
+  562  WEAKLY SUPERVISED MULTIPLE-INSTANCE LEARNING: WELL LABELS -> WHICH CELLS RESPOND
+       562_multiple_instance_learning.txt
+
+  563  ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
+       563_anomaly_detection_vs_controls.txt
+
+  564  GENERATIVE COUNTERFACTUALS: MORPH A CONTROL CELL TOWARD A HIT PHENOTYPE
+       564_generative_counterfactuals.txt
+
+  565  GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
+       565_similarity_search_find_cells_like_this.txt
+
+  566  GPU MEASUREMENT: cuCIM REGIONPROPS, HARALICK ON CuPy
+       566_gpu_measurement.txt
+
+  567  DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
+       567_deep_event_detection_on_tracks.txt
+
+  568  SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
+       568_segmentation_uncertainty_maps.txt
+
+  570  ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
+       570_arrayed_screen_hit_statistics.txt
+
+  571  TIME-TO-EVENT ANALYSIS: KAPLAN-MEIER AND COX FOR EGRESS, LYSIS, HOST DEATH
+       571_time_to_event_analysis.txt
+
+  572  FIGURE-INTEGRITY GUARD: DISPLAY RANGES, SATURATION, LOSSY FORMATS, PROVENANCE
+       572_figure_integrity_guard.txt
+
+  573  PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
+       573_preregistered_analysis_lock.txt
+
+  574  METADATA AND ARCHIVE PACKAGES: MIHCSME/REMBI, IDR AND BIOIMAGE ARCHIVE
+       574_mihcsme_rembi_metadata_and_archive_packages.txt
+
+  575  EXPORT A RECORDED RUN AS A NEXTFLOW OR SNAKEMAKE WORKFLOW
+       575_nextflow_snakemake_export.txt
+
+  576  A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
+       576_postgres_duckdb_parquet_backend.txt
+
+  577  RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY
+       577_run_finished_notifications.txt
+
+  578  SEGMENTATION PARAMETER-ROBUSTNESS REPORT
+       578_segmentation_robustness_report.txt
+
+  579  ONE-CLICK ZENODO ARCHIVE OF A RUN, WITH A DOI
+       579_one_click_zenodo_archive_of_a_run.txt
+
+  580  CROSS-SESSION INTENSITY CALIBRATION FROM BEADS OR REFERENCE WELLS
+       580_cross_session_intensity_calibration.txt
+
+  581  EXPORT FOR R (SingleCellExperiment) AND TIDY PARQUET
+       581_r_and_parquet_export.txt
+
+  582  A PLUGIN AND RECIPE CATALOGUE BROWSER
+       582_plugin_and_recipe_catalogue.txt
+
+  583  LIMS / PLATE-BARCODE LINKAGE
+       583_lims_plate_barcode_linkage.txt
+
+  584  A CHEMISTRY-AWARE HIT VIEW: SMILES, RDKIT CLUSTERING, SAR TABLES
+       584_chemistry_aware_hit_view.txt
+
+  585  A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
+       585_sample_size_planner_for_arrayed_assays.txt
+
+  586  APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
+       586_apptainer_singularity_images.txt
+
+  587  AN OFFLINE / AIR-GAPPED INSTALLER
+       587_offline_air_gapped_installer.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -616,3 +771,5 @@ NEW FEATURES
   531  SPACEOUT: THE FRACTAL SUPERSAMPLING SETTING DOES SOMETHING
   532  HOW GOOD EACH SEGMENTATION STRATEGY IS
   533  THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
+  569  A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST
+  588  FILLING HOLES MERGES TOUCHING CELLS, AND APPLY'S DEFAULT CHANNELS/PERCENTILES FAIL

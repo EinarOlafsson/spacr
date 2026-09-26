@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "surrogate_importance_methods",
+      "source": "Surrogate importance methods",
+      "source_sha256": "8efbb90c0553818acbc79f9fde59d2b8d65eeca3f0443cdf2e15d119add82651",
+      "translation": "Wichtigkeitsmaße des Surrogats"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_shap_explainer",
+      "source": "Surrogate shap explainer",
+      "source_sha256": "93b555c093502957002f6d6a02316f1e5d92a3410e917f204413f93eef89716a",
+      "translation": "shap-Erklärer des Surrogats"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timeflows_model",
+      "source": "Timeflows model",
+      "source_sha256": "6fc5d13d49cb85b694ebcf7233354eb625afb5c9ca78243af2812c9da67dafd8",
+      "translation": "Timeflows-Modell"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+SMART MICROSCOPY: SEND HITS BACK FOR RE-IMAGING
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/application-smart-microscopy-guided-acquistion-with-rare-event-detection/119806
+
+WHAT TO BUILD
+    From live analysis (item 548), send positions of hit wells or rare
+    events (egress, invasion) to the microscope for higher-resolution or
+    timelapse re-imaging via Micro-Manager/pycro-manager (and vendor APIs
+    where available), with a simulation mode for testing without a
+    microscope.
+
+DONE WHEN
+    In simulation, detected events produce correctly transformed stage
+    positions; on a Micro-Manager demo config, positions are queued and
+    acquired.

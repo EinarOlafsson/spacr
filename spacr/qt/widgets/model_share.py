@@ -856,14 +856,14 @@ def write_contribution(target: str, items: Any, dest: Any, *,
                         provenance=dict(item.get("provenance") or {}))
             count += len(lines)
         else:
-            import tifffile
+            from ...tiff_io import write_tiff
 
             source = Path(str(item["source"]))
             suffix = source.suffix.lower() or ".tif"
             shutil.copyfile(source, root / "images" / f"{stem}{suffix}")
             labels = np.asarray(item["labels"])
-            tifffile.imwrite(str(root / marks / f"{stem}.tif"),
-                             labels.astype(np.uint16))
+            write_tiff(str(root / marks / f"{stem}.tif"),
+                       labels.astype(np.uint16))
             objects = int(len([v for v in np.unique(labels) if v]))
             meta.update(height=int(labels.shape[0]), width=int(labels.shape[1]),
                         objects=objects,

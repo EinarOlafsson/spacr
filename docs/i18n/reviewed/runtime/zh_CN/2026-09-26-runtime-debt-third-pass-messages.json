@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source_sha256": "ae96f6c340ecf326902a20474c8af68b7c6d712eb18ce210e0a787597356ca3d",
+      "translation": "“黏附”会打开 Invasion Assay，其附着和侵入计数给出结合在宿主细胞单层上的真菌细胞。计划中的“生物膜”模块将关注群体生长，包括覆盖面积，以及在采集含深度信息时的厚度。单个二维视野可以描述表面覆盖率，但仅凭它无法确定生物膜厚度。请根据终点选择单平面或体成像。"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source_sha256": "3d9219554981a2ff84a21cab785f893bef104ec1c3adb6aacc5df3e8a8e7aaa2",
+      "translation": "为 spaCR 的社区训练数据标注此图像，并将其发送到 Hugging Face。图模式：框出每个孔，用于孔检测器。空斑模式：绘制每个空斑，用于下一个空斑模型。"
+    },
+    {
+      "table": "ui",
+      "key": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source_sha256": "ac08f28c2446f47dbfb46bf1ef2d92557b06e0257b77114af27f1bc9553d8777",
+      "translation": "“抗真菌药物反应”会打开剂量–反应，将真菌生长或形态得分与药物浓度进行拟合。将其与“形态”或“生物膜”结合，有助于描述处理过程中哪些图像特征发生了变化。“丝状生长”、“芽管形成”、“生物膜”和“形态”处于计划阶段，其图块标记为“即将推出”。Candida Genome Database 和 UniProt 提供基因和蛋白质注释，以支持标记选择和结果解释。"
+    },
+    {
+      "table": "ui",
+      "key": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source_sha256": "c63ebc1be0895171fbd2cf1fce44ee4d41bbd8a9557ccd755cd77777659dac32",
+      "translation": "任何有帮助的信息：显微镜、放大倍数、细胞系、什么算作一个对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source_sha256": "9bdfa0d5fb3e4935d33bd97a181bb044a6e8a48610fe56e0960a76d9cb655fee",
+      "translation": "选择图表所针对的 gRNAs。图表打开时显示回归中最显著的候选命中；每当 gRNAs 变化时，所选孔都会重新从中推导。"
+    },
+    {
+      "table": "ui",
+      "key": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source_sha256": "ebdaade8df046600bf5f54f550a6fec649e3c0b09a7cde20bae6678c55b4d3f6",
+      "translation": "单击对象可将其整体删除。Backspace 撤销上一次删除。按“画笔”可重新绘制。"
+    },
+    {
+      "table": "ui",
+      "key": "DOI or citation of the paper these figures come from",
+      "source": "DOI or citation of the paper these figures come from",
+      "source_sha256": "a0c02cbfd7fa7c1923d69390b5cc21ba32f21a76811a3c1a0417d7b449d709c3",
+      "translation": "这些图所出自论文的 DOI 或引用"
+    },
+    {
+      "table": "ui",
+      "key": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source_sha256": "9162528a420515355c60cc7e740a53774c6f34874d643d7b8924e92831d0d65b",
+      "translation": "拖动可加宽或缩窄停靠面板。双击可使其重新适应名称宽度。"
+    },
+    {
+      "table": "ui",
+      "key": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source_sha256": "4ba7f62b5b0bd3823c61f41f7ddcd5e9ce157703a7f00ef1806c3b952c48206a",
+      "translation": "在每一页上为每个孔画框：在页面上拖动可添加一个框，拖动框或其角可修正，右键单击或按 Delete 可删除。橙色框是您尚未修改的 spaCR 猜测。"
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source_sha256": "5cc5f3c3d05c7cd3122f9068b826dce76f8eb383dffcaeb465ccbcbe3158143a",
+      "translation": "“上皮侵入”会打开 Invasion Assay，以区分胞外真菌与被上皮细胞内化的真菌。“吞噬作用”会打开宿主–病原体分析，以测量吞噬细胞的摄取。两者都需要一种区分接触与内化的方法，例如适当的差异标记或空间信息。请将宿主细胞群体和真菌形态与摄取读出一并报告。"
+    },
+    {
+      "table": "ui",
+      "key": "Every curated image here with its saved mask ({n})",
+      "source": "Every curated image here with its saved mask ({n})",
+      "source_sha256": "b47221bdf5af704d3b6e8cdad993eebd1e68f87b54c6406a451bd8bffe31edab",
+      "translation": "此处所有已校正的图像及其已保存的掩膜（{n}）"
+    },
+    {
+      "table": "ui",
+      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source_sha256": "e1e8d450cec728bc4555e897e8ee360c90908b2198f083ea3f3d87572c2b6878",
+      "translation": "“配子体成熟度”是一个拟议的工作流程，用于在有合适标记和参考标注时分析与发育阶段和性别相关的图像特征。“药物反应成像”会打开剂量–反应，将图像读出与浓度进行拟合。请与这些测量一起记录物种、起始阶段和暴露时长：否则阶段组成的变化可能被误认为寄生虫数量的变化。"
+    },
+    {
+      "table": "ui",
+      "key": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source_sha256": "eaa362c830a87873d1e978e3e54d7371552dcc7b32ea679c7389820dc1ef9c55",
+      "translation": "“滑行运动”会打开运动性分析，以测量胞外寄生虫轨迹的速度和直线度。计划中的“逸出”模块将关注空泡破裂和寄生虫逸出。“缓殖子转化”将研究阶段标记和包囊壁读出，而“宿主细胞损伤”将描述单层的损失。这三项是拟议的工作流程，因此其图块标记为“即将推出”。固定图像、时间序列和阶段特异性标记回答的是不同问题，应根据预期读出进行选择。"
+    },
+    {
+      "table": "ui",
+      "key": "I agree that they and my annotations are shared under {licence}.",
+      "source": "I agree that they and my annotations are shared under {licence}.",
+      "source_sha256": "63704987226e07b44c211bf5e59f55b464e7b1f7ca2f18b07d98313096673e5a",
+      "translation": "我同意这些图像及我的标注以 {licence} 共享。"
+    },
+    {
+      "table": "ui",
+      "key": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source_sha256": "cdc60c0c66ae010869b9f431d23d6a2128164f7aa3c4184cbb1ad0c735c5c9c7",
+      "translation": "我有权共享这些图像：图像由我制作，或其来源（对于论文中的图，即该论文的许可协议）允许共享。"
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source_sha256": "2dcc3cac08ea898d9e7d4050969a1b7d9c15a54f134739e7e4cd102cfe3eef9e",
+      "translation": "如果您无法自行训练模型，请在此上传您的图像和掩膜，我们会为您训练一个。可以发送界面上的图像及其掩膜、您在此处校正过的所有图像，或一个图像文件夹加一个包含同名掩膜的掩膜文件夹。说明它们显示的内容（生物、对象类型、染色），它们就会以拉取请求的形式进入 Hugging Face 上各自的社区数据集，维护者会在用其训练任何模型之前进行审核。它们以 {licence} 共享，因此请只发送您有权共享的图像。精细的掩膜才能造就好模型：每个对象都要紧贴其边缘。"
+    },
+    {
+      "table": "ui",
+      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source_sha256": "77891ddcc4abedd6f302f9317ab6c44fd8994662a20c74d1da14e51b9ca31850",
+      "translation": "“肝期生长”计划测量肝细胞内寄生虫的数量和大小。“子孢子运动性”会打开运动性分析以获取滑行轨迹，而“细胞穿越”将研究寄生虫路径上的宿主细胞损伤。穿越、有效侵入和随后的生长是不同的结果：它们的图像标记、观察时间和分母需要分别定义。"
+    },
+    {
+      "table": "ui",
+      "key": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source_sha256": "68de5ea04ce2ee379cf82fe8750b6df72be35bc5356f3fb2a9404f382c405e94",
+      "translation": "从您自己图像的几个视野中测量细胞、细胞核和病原体的直径，并将其写入掩膜生成的设置。API：spacr.qt.prerun.DiameterDialog。"
+    },
+    {
+      "table": "ui",
+      "key": "More than one file with the same name: {names}",
+      "source": "More than one file with the same name: {names}",
+      "source_sha256": "dff5f9843ea09ac77ba2711bbed729091cf036714bb7354855574445bb1ce6b2",
+      "translation": "多个文件同名：{names}"
+    },
+    {
+      "table": "ui",
+      "key": "Name the dataset: what the images show, and how.",
+      "source": "Name the dataset: what the images show, and how.",
+      "source_sha256": "e2c45f1f71e9d3b7a4036ec7a3aecafceb81402783dc314f91141ce140f4e66f",
+      "translation": "为数据集命名：图像显示什么，以及如何获得。"
+    },
+    {
+      "table": "ui",
+      "key": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source_sha256": "240e7802f023577209d60dff4928bca21c21802a2e5689a0827c842b6652af35",
+      "translation": "缩小含有所选 gRNAs 的孔的范围。只有这些孔中的对象会绘制在 'gRNAs + other datapoints in selected wells' 下。"
+    },
+    {
+      "table": "ui",
+      "key": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source_sha256": "0d6e22361af52f71df779f30e844ecec8fff3a2119fb5766dbba03024cdafd6b",
+      "translation": "没有孔含有所选 gRNAs，因此没有可缩小范围的孔。"
+    },
+    {
+      "table": "ui",
+      "key": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source_sha256": "305fc7f2f8cb876d3bebdf3b2fc6880a86ee7a7b59dfa372bc470161c98dda34",
+      "translation": "未发送。每张图像至少需要一个标注，而以下图像一个都没有：{names}。请标注它们或将其排除。"
+    },
+    {
+      "table": "ui",
+      "key": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source_sha256": "a8bfc10e57969087291efc5b7ab73641bb6669b530a3ba84edceff756d1fffca",
+      "translation": "生物、对象类型、染色：例如 toxoplasma 空泡 GFP"
+    },
+    {
+      "table": "ui",
+      "key": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source_sha256": "a20a756945ebcbd39623440d4d894a9312b8675200017b667c4f84960c8801c6",
+      "translation": "在每张图像上绘制每个空斑：左键拖动在“标签”中绘制空斑，右键拖动擦除，“新”开始另一个空斑，[ 和 ] 更改画笔大小。spaCR 自己识别的空斑已绘制好，供您修正。"
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source_sha256": "ed3602a7e637989141e3f56afaba27c555c783d7c48cc476061313aacd678e40",
+      "translation": "“寄生虫血症”会打开宿主–病原体分析，报告受感染红细胞占全部已测量红细胞的比例。“血期分期”将区分环状体、滋养体和裂殖体，以便将阶段组成的变化与感染频率一并考察。“裂殖子侵入”将关注进入红细胞的过程。这些读出结合起来，有助于区分新感染细胞减少与已在细胞内的寄生虫发育改变。"
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source_sha256": "e35d6c43c0728a7e9533b5b4190cc731f2d9e9120919b5d42b5613c2ea2e482f",
+      "translation": "“寄生虫血症”、“子孢子运动性”和“药物反应成像”会打开现有的 spaCR 模块；其余五个图块处于计划阶段，标记为“即将推出”。其描述定义的是预期读出，而非可用的分析流程。PlasmoDB 和 UniProt 提供基因组和蛋白质背景，用于选择标记和解释结果。顶复门寄生虫示意图有助于讨论与弓形虫共有的区室，但并不能证明某个蛋白在两种生物中定位相同。"
+    },
+    {
+      "table": "ui",
+      "key": "Ready: {n} images, each with its saved mask.",
+      "source": "Ready: {n} images, each with its saved mask.",
+      "source_sha256": "056a9b63f868dd702ef265095660b53b3cb2605f65796c0fa3c9d6948c724fb3",
+      "translation": "就绪：{n} 张图像，每张都有已保存的掩膜。"
+    },
+    {
+      "table": "ui",
+      "key": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source_sha256": "fac0ad5eb6ef563e67e269af1e894be31d2f9d75738a790a54c50bbeb83f0625",
+      "translation": "将此视野记录为无法校正，并转到下一个。它会以 skip 写入本次会话的 curate_status.csv，因此下次会话不会再提供它。不会写出任何掩膜。"
+    },
+    {
+      "table": "ui",
+      "key": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source_sha256": "b35ab80d1bc1fd9db9c8f12bc9287e50370d4a9c36ca1651e490b48779e976ec",
+      "translation": "将图像及您的标注发送到 Hugging Face 上的 {repo}，作为由维护者审核的贡献。"
+    },
+    {
+      "table": "ui",
+      "key": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source_sha256": "a0be2790879872838f7d28af1006cfbb6ec1c1ae9b98c1b337db7b8a9b4b436d",
+      "translation": "发送这些图像和掩膜以供审核。数据集已命名且每张图像都有掩膜时启用。"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source_sha256": "74bc0acdd3935d06075e3a38a9ad3d5560880d70150f704d817729b086c8a2df",
+      "translation": "第 {step} 步，共 {steps} 步：正在为 {rows} 行构建表格、图表和诊断信息…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source_sha256": "42418dfe804f71cd428d9135722d6d4994986fa237b6d2f02bb5d970aca47451",
+      "translation": "第 {step} 步，共 {steps} 步：正在读取 {name}（第 {done} 个文件，共 {total} 个）…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source_sha256": "aa95e2d3cd55ceb4c99da8b437327013c3d97ffd8d5ea9c8c15b2ade6b20a375",
+      "translation": "第 {step} 步，共 {steps} 步：正在 {folder} 中查找结果表…"
+    },
+    {
+      "table": "ui",
+      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
+      "translation": "谢谢。您的贡献正在等待审核：<a href=\"{url}\">{url}</a>"
+    },
+    {
+      "table": "ui",
+      "key": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source_sha256": "eb58f954e410e3b478d7ec8c08b8db73fc55c006a28c8e0a01900acfae41f3a5",
+      "translation": "界面上的图像还没有掩膜：请先分割或绘制。没有掩膜就无法上传。"
+    },
+    {
+      "table": "ui",
+      "key": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source_sha256": "07cd4d6a46e7a390862a1c4632c94c1039347b31c96a040868502ef306f1830b",
+      "translation": "图表打开时显示回归中排名靠前的候选命中。所选孔随此处勾选的 gRNAs 变化。"
+    },
+    {
+      "table": "ui",
+      "key": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source_sha256": "a864a1cb68f85250f6e1bb6f03bce04fa73901c8f7235931905c322ba52d7559",
+      "translation": "此对比不使用总体框：它与所选范围之外的孔进行比较。"
+    },
+    {
+      "table": "ui",
+      "key": "There are no image and mask pairs to send.",
+      "source": "There are no image and mask pairs to send.",
+      "source_sha256": "51cc61e84b3cca124889c7d288b9e054c61e9927d64e4681a0302758d9111daf",
+      "translation": "没有可发送的图像与掩膜对。"
+    },
+    {
+      "table": "ui",
+      "key": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source_sha256": "c540a28d31709383834c8b8c0658bab88d117707a0fbce6348ab9cb7300f17fc",
+      "translation": "这些对象行未注明任何 gRNA，因此无可选择。"
+    },
+    {
+      "table": "ui",
+      "key": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source_sha256": "595a466c304d33341d59fde70b9338ab1952bd7360d9ac7bf4e1ab9aebe8480d",
+      "translation": "这些孔含有所选 gRNAs。未选中的孔完全不会绘制。"
+    },
+    {
+      "table": "ui",
+      "key": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source_sha256": "4be7dd89a68d982cab8a14924a1f0c33909df81757c465276431e8d58039470e",
+      "translation": "您贡献的内容会在 Hugging Face 上公开发布，任何人都可以用它训练和检验模型。使用前会经过审核。"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source_sha256": "f3a52d7250b2367f7c3e58211de91905aebcfcc63607aef277cddddcc4d91f60",
+      "translation": "[issue] 最多等待 {seconds} 秒获取 spaCR AI 的回答，以便报告中包含该回答…"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source_sha256": "9025c7719f41b2188891be974bb96e3ea8e8be5d2311f7686c526582208d0de9",
+      "translation": "spaCR 无法为 {name} 生成初步猜测（{why}）；请从头开始标注。"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source_sha256": "cdb18c94628a9f493d899699da86cf92e919d0306fff8e40e10fab078f49cef9",
+      "translation": "spaCR 的上传服务无法接收它（{why}）。您可以改用免费的 Hugging Face 登录来发送：运行 'huggingface-cli login'，或设置 HF_TOKEN，然后再次按“上传”。此窗口打开期间，您的标注会一直保留。"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source_sha256": "9a339dbd721a8cf3b636822897b91e9ab9ffd6112c9bdb44225e4ee65a26c10c",
+      "translation": "已跳过 {judged}，之后不会再提供  —  当前为 {now}"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source_sha256": "32fc57fd8fa98d4693f0060276e0925fe61578f093fbef44806877ed20c14859",
+      "translation": "已跳过 {judged}，之后不会再提供  —  这是本次会话中的最后一个视野"
+    }
+  ]
+}

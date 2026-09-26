@@ -855,6 +855,29 @@ def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
     return result
 
 
+def _fill_cellpose_channel_positions(settings):
+    """Record each role's dense archive channel as ``cellpose_<role>_channel``.
+
+    Explicit values are kept. Shared by the Cellpose-SAM generator and the
+    parallel coordinator, so a run records the same settings on either path.
+    """
+    from .utils import dense_mask_channel_positions
+
+    dense = dense_mask_channel_positions(settings)
+    for role in ('nucleus', 'cell', 'pathogen', 'organelle'):
+        if settings.get(f'cellpose_{role}_channel') is not None:
+            continue
+        raw = settings.get(f'{role}_channel')
+        if raw is None:
+            continue
+        try:
+            raw = int(raw)
+        except (TypeError, ValueError):
+            continue
+        settings[f'cellpose_{role}_channel'] = dense[raw]
+    return settings
+
+
 def _assigned_mask_archives(src, batch_paths):
     """Validate an explicit worker assignment without changing output roots."""
     if isinstance(batch_paths, (str, bytes, os.PathLike)):
@@ -993,20 +1016,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     else:
         beta_mode = None
 
-    from .utils import dense_mask_channel_positions
-
-    _dense = dense_mask_channel_positions(settings)
-    for _role in ('nucleus', 'cell', 'pathogen', 'organelle'):
-        if settings.get(f'cellpose_{_role}_channel') is not None:
-            continue
-        _raw = settings.get(f'{_role}_channel')
-        if _raw is None:
-            continue
-        try:
-            _raw = int(_raw)
-        except (TypeError, ValueError):
-            continue
-        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+    _fill_cellpose_channel_positions(settings)
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])

@@ -1,0 +1,21 @@
+ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/hcs-z-score-with-respect-to-negative-control/52891
+
+WHAT TO BUILD
+    Per-well hit scoring for arrayed screens: SSMD and robust z (median/MAD)
+    against negative controls, B-score for row/column plate effects, per-
+    plate and pooled, with hit calls at chosen thresholds and plate
+    heatmaps; complements the existing Z' chart and plate QC.
+
+DONE WHEN
+    On a public arrayed screen with known hits, hit rankings match reference
+    implementations (e.g. cellHTS2 / pycytominer) and plots render per
+    plate.

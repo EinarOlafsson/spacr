@@ -1,0 +1,20 @@
+PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Let a user lock an analysis before unblinding (with item 544's blind
+    scoring): the settings, gates, models and thresholds are hashed and
+    timestamped into the run journal; any change after unblinding is shown
+    as post-hoc in reports and exports.
+
+DONE WHEN
+    A locked analysis re-run unchanged verifies against its hash; a post-hoc
+    change is flagged in the report.

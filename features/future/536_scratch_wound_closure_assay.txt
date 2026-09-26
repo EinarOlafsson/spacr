@@ -1,0 +1,25 @@
+SCRATCH / WOUND-CLOSURE ASSAY
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/need-automated-scratch-width-and-area-in-scratch-wound-healing-assay/89278
+
+WHAT TO BUILD
+    Measure the open wound area, mean and minimum width and closure rate
+    over a timelapse (brightfield or fluorescence), per well, with the wound
+    edge overlaid in the preview and the closure curve and half-closure time
+    per condition.
+
+DONE WHEN
+    A public scratch-assay timelapse gives closure curves matching hand
+    measurements within 5 %.

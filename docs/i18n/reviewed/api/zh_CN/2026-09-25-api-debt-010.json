@@ -1450,7 +1450,9 @@
       "source_sha256": "28aeefdb811ae70f189dee69d6e8fcf4688b426e67235601a9d0c5f3e567652b",
       "context": "The button is placed with the other actions, before the Magnifier and the settings toggle, so that pair stays together at the end of the row whatever is added after them.",
       "translation": "该按钮与其他动作放在一起，位于放大镜和设置开关之前，这样无论之后添加什么，这两者都会一起保持在该行的末尾。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#0",
@@ -1986,7 +1988,9 @@
       "source_sha256": "da7ed3a577519a636daa1c049ec9a397e29f7f6452c19eb74bb9093e94f41618",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it.",
       "translation": "``cellpose3:<name or path>`` 模型——Cellpose 3 自带模型或 bioimage.io 上的 Cellpose 3 检查点——根本不是 Cellpose 4 模型：Cellpose 4 会加载这样的检查点，并用它分割出毫无意义的结果。它会由 :func:`_backend_model` 在 Cellpose 3 后端自己的环境中加载，与掩膜生成加载它的方式相同。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.load_cellpose_model#4",
@@ -2658,7 +2662,9 @@
       "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
       "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
       "translation": "打开 Home > Toxoplasma，然后选择 Plaque Assay、Recruitment、Host–Pathogen、Invasion Assay 或 Replication Assay。所选模块提供其输入选择器、设置、预览和 Run 控件。有示例可用时，请使用其测试数据控件。Plaque Assay 从图像开始；其他检测实验使用相应的测量表和对象关系。运行前请按照每个模块的输入帮助操作，然后在其所选的输出文件夹中打开结果。Starplast 会打开一个独立的应用程序，用于浏览弓形虫知识图谱；首次启动时会提示安装。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#4",
@@ -2674,7 +2680,9 @@
       "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
       "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
       "translation": "打开 Home > Plasmodium，浏览血液期、肝脏期、运动性和化合物响应等主题。探索顶复门寄生虫示意图，并通过 PlasmoDB 或 UniProt 链接获取特定于该生物体的信息。检测实验磁贴目前显示 Coming soon 且处于禁用状态；此页面没有可运行的 Plasmodium 专用分析，也不会写出任何结果。若现在就要处理图像，请返回 Home，并针对你的实验使用合适的图像、通道和掩膜，运行通用的分割和测量模块。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#6",
@@ -2690,7 +2698,9 @@
       "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
       "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
       "translation": "打开 Home > Candida，浏览形态、丝状化、生物膜以及与宿主细胞相互作用等主题。探索出芽酵母示意图，并通过 Candida Genome Database 或 UniProt 链接获取基因和蛋白质信息。检测实验磁贴目前显示 Coming soon 且处于禁用状态；此页面不需要任何数据，也不会写出任何分析文件。若需要可用的图像工作流程，请返回 Home，选择通用的分割和测量模块，并选择适合你的物种和实验读数的掩膜和成像通道。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep.sweepable#2",

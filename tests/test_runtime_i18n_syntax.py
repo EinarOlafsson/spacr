@@ -143,6 +143,18 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     later = {record["source"] for record in second}
     assert len(second) == len(later) and not later & sources
     sources |= later
+    # The third pass (2026-09-26) covers what nightly added or reworded after
+    # the second: items 426, 474, 511, 523, 528, 529, 531 and 533, and the
+    # shortened ops_spot_detector and cam_type tooltips (the stale
+    # ops_spot_detector second-pass record was deleted, as the loader
+    # directs). It is subtracted as one more slice of the same cohort, so
+    # the older counts are unchanged; every source was pending before, so
+    # it overlaps neither earlier pass.
+    third = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-third-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest = {record["source"] for record in third}
+    assert len(third) == len(latest) and not latest & sources
+    sources |= latest
     assert sources <= reviewed.keys()
     return sources
 

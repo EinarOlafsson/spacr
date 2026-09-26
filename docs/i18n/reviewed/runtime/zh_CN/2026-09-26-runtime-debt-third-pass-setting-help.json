@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cam_type",
+      "source": "Which attribution map is computed. 'gradcam' weights target_layer feature maps by their pooled gradients; 'saliency_image' and 'saliency_channel' map the input gradient, summed or per stain. Also selectable: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) and 'chefer' (ViT relevance). Methods that do not fit model_type are greyed with the reason. Default 'gradcam'.",
+      "source_sha256": "f43fc0b7ee018dcd7bd1152e0e317849a7172e7d6a2bf82cf6a79ea96266802b",
+      "translation": "要计算的归因图。'gradcam' 用池化梯度对 target_layer 的特征图加权；'saliency_image' 和 'saliency_channel' 映射输入梯度，分别为求和或按染色通道。还可选择：'torchcam_gradcam'/'torchcam_gradcam_pp'、'hirescam'、'ablation_cam'、'gradient_shap'/'deeplift_shap'、'saliency'（SmoothGrad）和 'chefer'（ViT 相关性）。不适合 model_type 的方法会显示为灰色并注明原因。默认值 'gradcam'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_min_size",
+      "source": "(Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+      "source_sha256": "cdf0150ca36c53dbdf46818eb148c35d36d1377ba09e6c04d79b95fce47eeef7",
+      "translation": "（已弃用）测量期间应用于细胞标签的像素面积下限：任何小于该值的细胞会在提取特征之前从掩膜中删除。已由 object_filters 中针对 cell 的 'area' 行取代，后者在分割时即进行过滤，但如果设置了此项，它仍会运行。0 或 None 表示禁用。默认值 8000。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_min_size",
+      "source": "(Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
+      "source_sha256": "a0dc3a5865dc45bba0cedfb7371f47941b3c670788eeefbebe58a5169b4c905d",
+      "translation": "（已弃用）measure_crop 期间应用的最小细胞核大小（像素^2）：覆盖像素少于该值的标签会在测量任何特征之前从细胞核掩膜中删除，因此这些细胞核永远不会进入数据库。0（默认）表示禁用。建议改用 object_filters 中针对 nucleus 的 'area' 行，它在分割时进行过滤。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.",
+      "source_sha256": "b8f9bbb826555ba601874ca1633cfb8a58466e88135cd957b39d39bc8ae85a65",
+      "translation": "基于任意标量 scikit-image regionprop 的对象过滤器，按对象类型设置，例如 {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}。当 min <= value <= max 时保留对象；缺少的一侧不生效。强度属性读取对象自身的原始通道。面积最小值同时也是 Cellpose 的 min_size。加载旧文件时，其中的 cell_min_area 和其他已停用的逐对象界限会转换为此处的行。默认值 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
+      "source_sha256": "85b1f79a5061c2c21f9b914f16f97b5e47ec057e545a72eaa2ff90f02328f596",
+      "translation": "用于查找测序斑点的检测器。'native' 是 spaCR 自带的斑点评分，本流程即以其完成验证。'spotnet' 是 DeepCell 的 SpotNet，在独立环境中运行；其斑点会经过相同的碱基判读和细胞核分配，且 ops_read_threshold 不再适用。SpotNet 仅限非商业学术用途（NON-COMMERCIAL ACADEMIC USE ONLY），需从模型库安装，并需要在 ~/.spacr/deepcell_token 中提供 DeepCell 令牌。默认值 'native'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_min_size",
+      "source": "(Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
+      "source_sha256": "af4eb72511f64c614d1f1d06ec4bbe58dd30f8e22c5645814ef853e976efe3c0",
+      "translation": "（已弃用）测量期间应用的病原体对象最小面积（以平方像素计）：像素数少于该值的任何标签会在提取特征之前从病原体掩膜中删除。0（默认值）表示禁用。已由 object_filters 中针对 pathogen 的 'area' 行取代，后者改为在分割时进行过滤。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_importance_methods",
+      "source": "Feature-importance measures to report: 'gain' (the model's native split gain; not available for histogram gradient boosting), 'permutation' (held-out score drop when one feature is shuffled) and 'shap' (mean absolute SHAP; needs the optional shap package). Each is written as a column of feature_importance.csv and a panel of the ranked bar plot. Default ['gain', 'permutation', 'shap'].",
+      "source_sha256": "d99d6348318afaa8341c4caebb8446bf8698aa9374e42d09c99bd59e8b1aaf4c",
+      "translation": "要报告的特征重要性度量：'gain'（模型原生的分裂增益；不适用于直方图梯度提升）、'permutation'（打乱某个特征时留出数据上的得分下降）和 'shap'（平均绝对 SHAP 值；需要可选的 shap 包）。每种度量都写为 feature_importance.csv 中的一列，以及排序条形图中的一个面板。默认值 ['gain', 'permutation', 'shap']。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_shap_explainer",
+      "source": "How SHAP is computed: 'tree' (exact TreeSHAP for tree ensembles), 'kernel' (model-agnostic KernelSHAP against a k-means background; slow, capped at 100 explained objects) or 'auto' (TreeSHAP, falling back to KernelSHAP for a model it cannot read). Default 'auto'.",
+      "source_sha256": "375b2be9fd7cf630bc41c6d6d258264d142b7f0c93a2ba4fb62244ba402dbb2a",
+      "translation": "SHAP 的计算方式：'tree'（针对树集成模型的精确 TreeSHAP）、'kernel'（与模型无关的 KernelSHAP，以 k 均值背景为参照；速度慢，最多解释 100 个对象）或 'auto'（TreeSHAP，对无法读取的模型回退到 KernelSHAP）。默认值 'auto'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timeflows_model",
+      "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
+      "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
+      "translation": "已训练的 Timeflows 检查点路径。Timeflows 是 spaCR 的实验性时序 Cellpose，可预测每个对象的中心在下一帧中移动到何处，并据此链接掩膜。仅在 timelapse_mode='timeflows' 时使用，而这从来不是默认值：在迄今测量的留出影片上，它并不优于基于重叠的链接（'iou'）。不会下载任何检查点；除非您自己训练过一个，否则请留空。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
+      "translation": "用于在帧间链接对象的跟踪后端。'trackastra' 是预训练的 Transformer，支持感知分裂的链接；'ultrack' 联合优化分割与链接，支持密集或三维数据，但计算成本更高；'trackpy' 使用可配置的搜索半径和帧记忆；'btrack' 使用运动模型；'iou' 按重叠链接掩膜，帧间位移较大时可能失败；'timeflows' 是 spaCR 的实验性时序 Cellpose，需要在 timeflows_model 中提供已训练的检查点，且在留出影片上尚未超过 'iou'。默认值 'trackastra'。"
+    }
+  ]
+}

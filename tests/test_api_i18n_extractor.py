@@ -38,8 +38,10 @@ builder = importlib.import_module("build_documentation_i18n")
 # the implementation session's preview/segmentation work (items 502-513). The
 # digest without them returns f1da16e8..., the previous pin; no dunder moved.
 # With the two mask_engine constants of 03a02c3b8 it moved 3f293714 -> bc6cd219.
+# With live_preview.BOUND_ROWS (2026-09-26) it moved bc6cd219 -> c894d34b; the
+# previous-surface digest below, without the added set, is unchanged.
 _NEW_VISIBLE_DIGEST = (
-    "bc6cd219d30c142a73d0e8e9b527e79fd2eb94e9f638da775e1354f51191301b"
+    "c894d34b5cd1ee4d4341e82d42a1358d515f8db623a6c21fd165e5aba153fdb0"
 )
 _PREVIOUS_VISIBLE_DIGEST = (
     "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70"
@@ -57,6 +59,8 @@ _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     # Item 511's object-filter vocabulary, on nightly 03a02c3b8.
     "spacr.qt.mask_engine.FILTER_BOUNDS",
     "spacr.qt.mask_engine.FILTER_KEYS",
+    # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
+    "spacr.qt.widgets.live_preview.BOUND_ROWS",
 })
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -256,7 +260,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # by set difference against af6d77376). The historical digests below are
     # checked on the surface without them.
     # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
-    assert len(assignments) == 34
+    # 34 -> 35 on 2026-09-26 with live_preview.BOUND_ROWS (+1 / -0 against
+    # 4f6c58418).
+    assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
     assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
@@ -1280,7 +1286,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,746 -> 11,758 on 2026-09-25: item 528's images-and-masks
     # contribution from Make Masks (eleven callables, named at the callable
     # inventory in test_docstring_correctness, and ContributeMasksDialog).
-    expected = 11_758
+    # 11,758 -> 11,816 on 2026-09-26, +60 / -2 by set difference against
+    # 4f6c58418 on nightly 88a0ee002: the 59 callables named as
+    # final_pass_callables in test_docstring_correctness (items 529, 18,
+    # 533, 523, 224, 511, 474, 356, 477) and live_preview.BOUND_ROWS, less
+    # prerun.diameter_panel and install_diameter_panel (533).
+    expected = 11_816
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1323,7 +1334,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
     # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_758
+    # 11,758 -> 11,816 with `expected` above.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_816
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1737,8 +1749,9 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     # Four organism registries, Starplast's URL/package identity and the
     # Make Masks animation registry add seven to the original sixteen; the
     # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
-    # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS.
-    assert len(assignment_keys) == 34
+    # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
+    # live_preview.BOUND_ROWS (2026-09-26).
+    assert len(assignment_keys) == 35
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

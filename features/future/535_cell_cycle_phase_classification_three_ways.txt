@@ -1,0 +1,34 @@
+CELL-CYCLE PHASE CLASSIFICATION: A TORCH, AN XGBOOST AND A MEASUREMENTS VERSION
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/how-to-analyse-cell-cycle-with-dapi-intensity/19168
+
+WHAT TO BUILD
+    Call each cell's cycle phase (G1 / S / G2-M, plus mitotic sub-stages
+    where the stain allows, and FUCCI states when a FUCCI reporter is
+    imaged) in three interchangeable ways, all writing the same per-cell
+    phase column: (1) MEASUREMENTS: gating on measured nuclear DNA content
+    (integrated DAPI/Hoechst, fitted 2N/4N peaks per plate) and FUCCI
+    channel intensities, with the fitted histogram shown and editable gates;
+    (2) XGBOOST: a tabular classifier on spaCR's per-nucleus feature table,
+    trained from Annotate labels or from the measurement gates as weak
+    labels; (3) TORCH: an image classifier on nuclear crops (CNN/ViT through
+    the existing Classify training), for morphology the intensity gates miss
+    (prophase, metaphase, anaphase). Report the phase fractions per well and
+    their relation to infection.
+
+DONE WHEN
+    All three versions label the same test set; each is scored against hand-
+    labelled nuclei (accuracy / per-phase F1) and the phase fractions per
+    well agree between versions within stated tolerances.

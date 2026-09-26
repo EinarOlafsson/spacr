@@ -66,6 +66,35 @@ def test_an_unreadable_file_is_an_outcome_with_its_reason(tmp_path):
     assert reasons[2] == "has no plane 5"
 
 
+def test_a_zero_byte_tiff_raises_an_error_that_is_not_value_error(tmp_path):
+    """372, 2026-09-26: well B3 died on c4/10X_c4_B3_CY3_Site-59.tif, 0 bytes.
+
+    tifffile's TiffFileError derives from Exception alone, so the ValueError
+    rule that covers a truncated file does not cover an empty one.
+    """
+    path = tmp_path / "10X_c4_B3_CY3_Site-59.tif"
+    path.write_bytes(b"")
+    with pytest.raises(Exception) as caught:
+        tifffile.TiffFile(str(path))
+    assert "not a TIFF file" in str(caught.value)
+    assert not isinstance(caught.value, (ValueError, OSError, IndexError))
+
+
+def test_a_zero_byte_or_non_tiff_file_is_unreadable_with_its_reason(tmp_path):
+    """Empty and not-a-TIFF are both "no image here", never a raised error."""
+    empty = tmp_path / "10X_c4_B3_CY3_Site-59.tif"
+    empty.write_bytes(b"")
+    text = tmp_path / "10X_c4_B3_CY5_Site-59.tif"
+    text.write_bytes(b"not an image at all")
+
+    unreadable = []
+    assert ops_engine._read_plane((str(empty), None), unreadable) is None
+    assert ops_engine._read_plane((str(text), 0), unreadable) is None
+    assert [path for path, _reason in unreadable] == [str(empty), str(text)]
+    assert all(reason.startswith("TiffFileError: not a TIFF file")
+               for _path, reason in unreadable)
+
+
 def test_both_file_layouts_are_indexed_by_channel(tmp_path):
     """Cycle 1 is one five-plane stack; later cycles are one file per base."""
     (tmp_path / "c1").mkdir()
@@ -140,12 +169,17 @@ def _write_field(root, site, cycles, reads, size=200, seed=0):
             tifffile.imwrite(os.path.join(folder, f"10X_c{cycle}_A1_{name}_Site-{site}.tif"), plane)
 
 
-def test_one_truncated_cycle_file_costs_that_cycle_and_not_the_field(tmp_path):
-    """Three nuclei, three reads each, cycle 3's A594 file cut short.
+@pytest.mark.parametrize("keep, reason", [(0.3, "ValueError"),
+                                           (0.0, "TiffFileError")],
+                         ids=["truncated", "zero-byte"])
+def test_one_truncated_cycle_file_costs_that_cycle_and_not_the_field(
+        tmp_path, keep, reason):
+    """Three nuclei, three reads each, cycle 3's A594 file cut short or empty.
 
     The field still decodes: the kept cycles are 1, 2 and 4, every read
     carries N for cycle 3, every nucleus gets its barcode from the reads
-    around its rim, and the library maps each one back through the N.
+    around its rim, and the library maps each one back through the N. The
+    zero-byte case is B3's Site-59 from the 2026-09-25 plate run.
     """
     codes = ["GTAC", "CATG", "AAGG"]
     centres = [(60, 60), (60, 130), (140, 90)]
@@ -155,7 +189,7 @@ def test_one_truncated_cycle_file_costs_that_cycle_and_not_the_field(tmp_path):
             reads.append((int(round(cy + 9 * math.sin(angle))),
                           int(round(cx + 9 * math.cos(angle))), code))
     _write_field(str(tmp_path), 7, 4, reads)
-    _truncate(tmp_path / "c3" / "10X_c3_A1_A594_Site-7.tif")
+    _truncate(tmp_path / "c3" / "10X_c3_A1_A594_Site-7.tif", keep=keep)
 
     index = ops_engine._index_tiles(str(tmp_path))["A1"]
     cycles = sorted(index)
@@ -173,7 +207,7 @@ def test_one_truncated_cycle_file_costs_that_cycle_and_not_the_field(tmp_path):
     assert "skipped" not in result
     assert result["kept"] == [1, 2, 4] and result["missing"] == [3]
     assert result["n_cycles"] == 3
-    assert result["unreadable"] and result["unreadable"][0][1].startswith("ValueError")
+    assert result["unreadable"] and result["unreadable"][0][1].startswith(reason)
     assert result["calls"] and all(code[2] == "N" for code in result["calls"])
 
     got = assign_reads_to_objects(result["ids"], result["calls"],

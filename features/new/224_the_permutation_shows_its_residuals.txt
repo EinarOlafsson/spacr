@@ -159,7 +159,9 @@ BUILT:
     -- the folder a parametric run writes -- holding
     `exchangeability_<outcome>.json` (report, verdict, and which nuisance
     columns were removed before residualisation) and
-    `residual_by_position_<outcome>.png`.
+    `residual_by_position_<outcome>.<format>` (2026-09-26, item 43: written
+    by `spacr.plot.save_figure`, so the format and DPI follow the figure
+    preferences like the parametric panels; it was a fixed .png at 110 DPI).
   * `permutation_qc.plot_residual_by_position`: one row per block, one
     column per position column (rowID, columnID), the permuted residual
     per well with the level means drawn through it; each panel title

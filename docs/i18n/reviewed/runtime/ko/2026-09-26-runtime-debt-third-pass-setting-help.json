@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cam_type",
+      "source": "Which attribution map is computed. 'gradcam' weights target_layer feature maps by their pooled gradients; 'saliency_image' and 'saliency_channel' map the input gradient, summed or per stain. Also selectable: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) and 'chefer' (ViT relevance). Methods that do not fit model_type are greyed with the reason. Default 'gradcam'.",
+      "source_sha256": "f43fc0b7ee018dcd7bd1152e0e317849a7172e7d6a2bf82cf6a79ea96266802b",
+      "translation": "계산할 기여도 맵입니다. 'gradcam'은 target_layer 특징 맵에 풀링된 그래디언트로 가중치를 줍니다. 'saliency_image'와 'saliency_channel'은 입력 그래디언트를 합산하거나 염색별로 매핑합니다. 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency'(SmoothGrad), 'chefer'(ViT 관련도)도 선택할 수 있습니다. model_type에 맞지 않는 방법은 이유와 함께 회색으로 표시됩니다. 기본값 'gradcam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_min_size",
+      "source": "(Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+      "source_sha256": "cdf0150ca36c53dbdf46818eb148c35d36d1377ba09e6c04d79b95fce47eeef7",
+      "translation": "(사용 중단) 측정 중 세포 라벨에 적용하는 픽셀 면적 하한입니다. 이보다 작은 세포는 특징을 추출하기 전에 마스크에서 지워집니다. object_filters의 cell에 대한 'area' 행으로 대체되었으며, 이 행은 분할 시점에 필터링하지만 이 설정을 지정하면 여전히 실행됩니다. 0 또는 None이면 비활성화됩니다. 기본값 8000."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_min_size",
+      "source": "(Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
+      "source_sha256": "a0dc3a5865dc45bba0cedfb7371f47941b3c670788eeefbebe58a5169b4c905d",
+      "translation": "(사용 중단) measure_crop 중 적용하는 최소 핵 크기(픽셀^2)입니다. 이보다 적은 픽셀을 덮는 라벨은 어떤 특징도 측정하기 전에 핵 마스크에서 지워지므로 해당 핵은 데이터베이스에 도달하지 않습니다. 0(기본값)이면 비활성화됩니다. 분할 시점에 필터링하는 object_filters의 nucleus에 대한 'area' 행을 사용하는 것이 좋습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.",
+      "source_sha256": "b8f9bbb826555ba601874ca1633cfb8a58466e88135cd957b39d39bc8ae85a65",
+      "translation": "scikit-image의 모든 스칼라 regionprop에 대한 객체 필터로, 객체 유형별로 지정합니다. 예: {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. min <= value <= max이면 객체를 유지하며, 빠진 쪽은 적용되지 않습니다. 강도 속성은 객체 자체의 원시 채널을 읽습니다. 면적 최솟값은 Cellpose의 min_size이기도 합니다. 오래된 파일을 불러오면 그 파일의 cell_min_area와 그 밖의 폐기된 객체별 경계값이 여기의 행으로 바뀝니다. 기본값 {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
+      "source_sha256": "85b1f79a5061c2c21f9b914f16f97b5e47ec057e545a72eaa2ff90f02328f596",
+      "translation": "시퀀싱 스폿을 찾는 검출기입니다. 'native'는 spaCR 자체의 스폿 점수로, 이 파이프라인을 검증할 때 사용한 검출기입니다. 'spotnet'은 DeepCell의 SpotNet으로 자체 환경에서 실행되며, 그 스폿은 동일한 염기 판정과 핵 할당을 거치고 ops_read_threshold는 더 이상 적용되지 않습니다. SpotNet은 비상업적 학술 용도로만(NON-COMMERCIAL ACADEMIC USE ONLY) 라이선스되며, 모델 라이브러리에서 설치하고 ~/.spacr/deepcell_token에 DeepCell 토큰이 있어야 합니다. 기본값 'native'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_min_size",
+      "source": "(Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
+      "source_sha256": "af4eb72511f64c614d1f1d06ec4bbe58dd30f8e22c5645814ef853e976efe3c0",
+      "translation": "(사용 중단) 측정 중 적용하는 병원체 객체의 최소 면적(제곱 픽셀)입니다. 이보다 픽셀 수가 적은 라벨은 특징을 추출하기 전에 병원체 마스크에서 지워집니다. 기본값인 0이면 비활성화됩니다. object_filters의 pathogen에 대한 'area' 행으로 대체되었으며, 이 행은 대신 분할 시점에 필터링합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_importance_methods",
+      "source": "Feature-importance measures to report: 'gain' (the model's native split gain; not available for histogram gradient boosting), 'permutation' (held-out score drop when one feature is shuffled) and 'shap' (mean absolute SHAP; needs the optional shap package). Each is written as a column of feature_importance.csv and a panel of the ranked bar plot. Default ['gain', 'permutation', 'shap'].",
+      "source_sha256": "d99d6348318afaa8341c4caebb8446bf8698aa9374e42d09c99bd59e8b1aaf4c",
+      "translation": "보고할 특징 중요도 측정값입니다. 'gain'(모델 고유의 분할 이득, 히스토그램 그래디언트 부스팅에서는 사용 불가), 'permutation'(특징 하나를 섞었을 때 보류 데이터에서의 점수 하락), 'shap'(평균 절대 SHAP, 선택 패키지 shap 필요)이 있습니다. 각각은 feature_importance.csv 파일의 열 하나와 정렬된 막대 그래프의 패널 하나로 기록됩니다. 기본값 ['gain', 'permutation', 'shap']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_shap_explainer",
+      "source": "How SHAP is computed: 'tree' (exact TreeSHAP for tree ensembles), 'kernel' (model-agnostic KernelSHAP against a k-means background; slow, capped at 100 explained objects) or 'auto' (TreeSHAP, falling back to KernelSHAP for a model it cannot read). Default 'auto'.",
+      "source_sha256": "375b2be9fd7cf630bc41c6d6d258264d142b7f0c93a2ba4fb62244ba402dbb2a",
+      "translation": "SHAP 계산 방식입니다. 'tree'(트리 앙상블용 정확한 TreeSHAP), 'kernel'(k-평균 배경에 대한 모델 독립적 KernelSHAP, 느리며 설명 객체 100개로 제한) 또는 'auto'(TreeSHAP을 쓰고, 읽을 수 없는 모델에는 KernelSHAP으로 대체)입니다. 기본값 'auto'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timeflows_model",
+      "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
+      "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
+      "translation": "학습된 Timeflows 체크포인트의 경로입니다. Timeflows는 spaCR의 실험적 시간 Cellpose로, 각 객체의 중심이 다음 프레임에서 어디로 이동하는지 예측하고 그 예측으로 마스크를 연결합니다. timelapse_mode='timeflows'일 때만 사용되며, 이는 결코 기본값이 아닙니다. 지금까지 측정한 보류 동영상에서는 겹침 기반 연결('iou')보다 낫지 않습니다. 체크포인트는 다운로드되지 않으므로, 직접 학습한 것이 없다면 비워 두세요. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
+      "translation": "프레임 사이에서 객체를 연결하는 추적 백엔드입니다. 'trackastra'는 분열을 고려한 연결을 하는 사전 학습된 트랜스포머입니다. 'ultrack'은 분할과 연결을 함께 최적화하며, 계산 비용이 늘지만 조밀하거나 3차원인 데이터를 지원합니다. 'trackpy'는 설정 가능한 검색 반경과 프레임 메모리를 사용합니다. 'btrack'은 운동 모델을 사용합니다. 'iou'는 겹침으로 마스크를 연결하며 프레임 간 변위가 크면 실패할 수 있습니다. 'timeflows'는 spaCR의 실험적 시간 Cellpose로, timeflows_model에 학습된 체크포인트가 필요하며 보류 동영상에서 아직 'iou'를 넘어서지 못했습니다. 기본값 'trackastra'."
+    }
+  ]
+}

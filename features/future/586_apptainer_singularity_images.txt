@@ -1,0 +1,19 @@
+APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/what-are-the-best-practices-for-running-cellprofiler-v4-2-1-in-headless-mode-on-a-computing-cluster/85796
+
+WHAT TO BUILD
+    Build and publish Apptainer/Singularity images (CPU and CUDA) next to
+    the Docker images (item 425), with a documented HPC recipe for batch
+    runs.
+
+DONE WHEN
+    The images build and run a small Mask + Measure job under Apptainer with
+    GPU (--nv) and CPU.

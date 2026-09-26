@@ -3482,7 +3482,9 @@
       "source_sha256": "c5612469082f8c5f4d1c921458f8ba1f61dbef7958af69e2578f8e2bacd5553f",
       "context": "screen — the two operating systems whose own folders have spaces in them. A UNC path was not a path at all: nothing here started at ``\\\\``. What is left is the tail of the LAST component of an unquoted path, since only a separator can prove that a space is inside the path rather than after it; a quoted path is taken whole, and the title and every ``repr``-ed settings value are quoted.",
       "translation": "Screening — die beiden Betriebssysteme, deren eigene Ordner Leerzeichen enthalten. Ein UNC-Pfad war überhaupt kein Pfad: Nichts hier begann bei ``\\\\``. Übrig bleibt das Ende der LETZTEN Komponente eines nicht zitierten Pfads, da nur ein Trennzeichen beweisen kann, dass ein Leerzeichen innerhalb des Pfads und nicht danach liegt; ein zitierter Pfad wird vollständig genommen, und der Titel und jeder per ``repr`` ausgegebene Einstellungswert werden zitiert.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#5",

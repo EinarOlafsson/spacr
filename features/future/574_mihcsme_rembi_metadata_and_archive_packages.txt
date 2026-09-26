@@ -1,0 +1,20 @@
+METADATA AND ARCHIVE PACKAGES: MIHCSME/REMBI, IDR AND BIOIMAGE ARCHIVE
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/sharing-the-datasets-minimal-meta-information/116212
+
+WHAT TO BUILD
+    Capture MIHCSME/REMBI metadata for a screen (assay, reagents, imaging,
+    analysis) from spaCR's settings and plate maps plus a short form, and
+    assemble a submission package (files, metadata spreadsheets, checksums)
+    for the Image Data Resource or the BioImage Archive.
+
+DONE WHEN
+    A package for an example screen validates against the IDR/BioStudies
+    templates.

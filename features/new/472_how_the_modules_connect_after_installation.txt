@@ -3,7 +3,10 @@ AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
 THAT SAY WHAT FEEDS WHAT, AND A HOME SCREEN THAT SHOWS WHERE TO START
 ================================================================================
 
-Status:    OPEN; English workflow map, guide and pathway implementation in progress.
+Status:    OPEN, re-checked 2026-09-26 (CLAUDE-DOCS). Every part is built and
+           the English is live, and issue #130 is answered and closed. The one
+           gap is that the 13-language 78-81 are committed but not yet live.
+           See "2026-09-26 — CLAUDE-DOCS: STATUS" at the end.
 Issue:     GitHub #130, "Guide what to do after installation" (momeara,
            2026-09-22).
 Owners:    CODEX -- the tutorials, walkthroughs and API prose (parts 1-4), the
@@ -554,3 +557,45 @@ The generator and translation-fallback cohort pass65focused checks.118
 retained frames match the previous valid capture content and image hashes;
 matching English narration/media are processing. No new capture claimed.
 Runtime UI sources are unchanged; stale narration reviews stay registered.
+
+2026-09-26 — CLAUDE-DOCS: STATUS
+Checked at nightly HEAD ae74da81f.
+
+DONE
+ 0. One map: spacr/resources/module_workflows.json.
+    tests/test_module_workflow_map.py passes today; it was part of a run of
+    128 passed tests.
+ 1-4. Lessons 78-81 exist. They were re-captured natively on the current GUI,
+    and their narration was rewritten from the map as the user's data journey
+    (b8a9757f6, 8aedcd1b1). They are live on nightly:
+      * features/data/358_live_recaptured_overviews_2026-09-25.json
+      * the hosted web copies in
+        features/data/358_live_hosted_web_copies_2026-09-25.json
+    Their narration and captions in all 13 languages are committed, from the
+    workflow phrase banks:
+      * es 40393fbfd, fr 439e543e6, it 32b8b9e81, pt 123d84554
+      * hi 38157ed36, ja 7ced19e6d, zh 6a6bfc46e, de 55df3a724
+      * sv 1ab632cf5, nb db2405a40, da 6ac825736, ko 6ac2c7aca, is 9319061ef
+    These are AI-reviewed, not native-speaker reviewed. Full 7-language
+    voice sets are staged (narr/fullcount.py).
+ 5. Nine pathway walkthroughs start from Home, one click away from the sample
+    project. Today these pass, 63 tests in total:
+      * tests/qt/test_pathway_walkthroughs.py
+      * test_home_starts_a_sample_project.py
+      * test_a_tile_that_cannot_open_says_so.py
+ 6. The API pages carry generated inputs, outputs and neighbours, live on
+    nightly (features/data/411_live_current_documentation_2026-09-24.json).
+ 7. tests/test_module_workflow_map.py compares the three against the map.
+ Part 5 a and b: built (CLAUDE, 09-22) and wired to all nine pathways
+ (472_home_pathway_integration_2026-09-22.json). The tests are those under 5.
+ Issue #130 has been answered with links to the tutorials and to Home's
+ Pipeline Overviews. It was closed 2026-09-23T23:17Z.
+
+REMAINS
+ a. The translated 78-81 are not live yet (owner: CLAUDE-DOCS publisher).
+    The HEAD manifest lists all 13 languages of each as english_fallback.
+    Publish the in-flight candidate (07-10 and 78-81, not yet committed) and
+    record its live receipt. Once that receipt shows 78-81 with
+    source_bound_review in all 13 languages, set Status to DONE.
+ b. Native-speaker and listening review have not happened. DONE WHEN does
+    not require them (owner: maintainer).

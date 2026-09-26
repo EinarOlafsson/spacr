@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cam_type",
+      "source": "Which attribution map is computed. 'gradcam' weights target_layer feature maps by their pooled gradients; 'saliency_image' and 'saliency_channel' map the input gradient, summed or per stain. Also selectable: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) and 'chefer' (ViT relevance). Methods that do not fit model_type are greyed with the reason. Default 'gradcam'.",
+      "source_sha256": "f43fc0b7ee018dcd7bd1152e0e317849a7172e7d6a2bf82cf6a79ea96266802b",
+      "translation": "कौन-सा एट्रिब्यूशन मानचित्र गणना किया जाता है। 'gradcam' target_layer के फ़ीचर मानचित्रों को उनके पूल किए गए ग्रेडिएंट से भारित करता है; 'saliency_image' और 'saliency_channel' इनपुट ग्रेडिएंट का मानचित्र बनाते हैं, जोड़कर या प्रति स्टेन। ये भी चुने जा सकते हैं: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) और 'chefer' (ViT प्रासंगिकता)। जो विधियाँ model_type पर लागू नहीं होतीं, वे कारण के साथ धूसर दिखती हैं। डिफ़ॉल्ट 'gradcam'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_min_size",
+      "source": "(Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+      "source_sha256": "cdf0150ca36c53dbdf46818eb148c35d36d1377ba09e6c04d79b95fce47eeef7",
+      "translation": "(अप्रचलित) मापन के दौरान कोशिका लेबलों पर लागू पिक्सेल-क्षेत्रफल की निचली सीमा: इससे छोटी कोई भी कोशिका फ़ीचर निकाले जाने से पहले मास्क से मिटा दी जाती है। इसकी जगह object_filters में cell के लिए 'area' पंक्ति ने ले ली है, जो सेगमेंटेशन के समय ही फ़िल्टर करती है, पर यदि आप इसे सेट करें तो यह अब भी चलती है। 0 या None इसे बंद करता है। डिफ़ॉल्ट 8000।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_min_size",
+      "source": "(Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
+      "source_sha256": "a0dc3a5865dc45bba0cedfb7371f47941b3c670788eeefbebe58a5169b4c905d",
+      "translation": "(अप्रचलित) measure_crop के दौरान लागू न्यूनतम नाभिक आकार, पिक्सेल^2 में: इससे कम पिक्सेल घेरने वाले लेबल किसी भी फ़ीचर के मापे जाने से पहले नाभिक मास्क से मिटा दिए जाते हैं, इसलिए वे नाभिक कभी डेटाबेस तक नहीं पहुँचते। 0 (डिफ़ॉल्ट) इसे बंद करता है। object_filters में nucleus के लिए 'area' पंक्ति को प्राथमिकता दें, जो सेगमेंटेशन के समय फ़िल्टर करती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.",
+      "source_sha256": "b8f9bbb826555ba601874ca1633cfb8a58466e88135cd957b39d39bc8ae85a65",
+      "translation": "scikit-image के किसी भी अदिश regionprop पर ऑब्जेक्ट फ़िल्टर, हर ऑब्जेक्ट प्रकार के लिए, उदाहरण के लिए {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}। कोई ऑब्जेक्ट तब रखा जाता है जब min <= value <= max हो; जो पक्ष नहीं दिया गया वह बंद रहता है। तीव्रता गुण ऑब्जेक्ट का अपना कच्चा चैनल पढ़ते हैं। क्षेत्रफल की न्यूनतम सीमा Cellpose का min_size भी है। पुरानी फ़ाइल लोड होने पर उसका cell_min_area और अन्य हटाई गई प्रति-ऑब्जेक्ट सीमाएँ यहाँ पंक्तियाँ बन जाती हैं। डिफ़ॉल्ट {}।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
+      "source_sha256": "85b1f79a5061c2c21f9b914f16f97b5e47ec057e545a72eaa2ff90f02328f596",
+      "translation": "कौन-सा डिटेक्टर सीक्वेंसिंग स्पॉट खोजता है। 'native' spaCR का अपना स्पॉट स्कोर है, जिससे यह पाइपलाइन सत्यापित हुई थी। 'spotnet' DeepCell का SpotNet है, जो अपने अलग वातावरण में चलता है; इसके स्पॉट उन्हीं बेस कॉल और नाभिकों को आवंटन से गुज़रते हैं, और ops_read_threshold अब लागू नहीं होता। SpotNet केवल गैर-व्यावसायिक शैक्षणिक उपयोग (NON-COMMERCIAL ACADEMIC USE ONLY) के लिए लाइसेंस प्राप्त है, मॉडल संग्रह से स्थापित होता है और ~/.spacr/deepcell_token में DeepCell टोकन चाहिए। डिफ़ॉल्ट 'native'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_min_size",
+      "source": "(Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
+      "source_sha256": "af4eb72511f64c614d1f1d06ec4bbe58dd30f8e22c5645814ef853e976efe3c0",
+      "translation": "(अप्रचलित) मापन के दौरान लागू रोगजनक ऑब्जेक्ट का न्यूनतम क्षेत्रफल, वर्ग पिक्सेल में: इससे कम पिक्सेल वाला कोई भी लेबल फ़ीचर निकाले जाने से पहले रोगजनक मास्क से मिटा दिया जाता है। 0, जो डिफ़ॉल्ट है, इसे बंद करता है। इसकी जगह object_filters में pathogen के लिए 'area' पंक्ति ने ले ली है, जो इसके बजाय सेगमेंटेशन के समय फ़िल्टर करती है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_importance_methods",
+      "source": "Feature-importance measures to report: 'gain' (the model's native split gain; not available for histogram gradient boosting), 'permutation' (held-out score drop when one feature is shuffled) and 'shap' (mean absolute SHAP; needs the optional shap package). Each is written as a column of feature_importance.csv and a panel of the ranked bar plot. Default ['gain', 'permutation', 'shap'].",
+      "source_sha256": "d99d6348318afaa8341c4caebb8446bf8698aa9374e42d09c99bd59e8b1aaf4c",
+      "translation": "रिपोर्ट किए जाने वाले फ़ीचर-महत्व माप: 'gain' (मॉडल का अपना स्प्लिट गेन; हिस्टोग्राम ग्रेडिएंट बूस्टिंग के लिए उपलब्ध नहीं), 'permutation' (किसी एक फ़ीचर को फेरबदल करने पर अलग रखे गए डेटा पर स्कोर में गिरावट) और 'shap' (औसत निरपेक्ष SHAP; वैकल्पिक shap पैकेज आवश्यक)। हर माप feature_importance.csv के एक कॉलम और क्रमबद्ध बार प्लॉट के एक पैनल के रूप में लिखा जाता है। डिफ़ॉल्ट ['gain', 'permutation', 'shap']।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_shap_explainer",
+      "source": "How SHAP is computed: 'tree' (exact TreeSHAP for tree ensembles), 'kernel' (model-agnostic KernelSHAP against a k-means background; slow, capped at 100 explained objects) or 'auto' (TreeSHAP, falling back to KernelSHAP for a model it cannot read). Default 'auto'.",
+      "source_sha256": "375b2be9fd7cf630bc41c6d6d258264d142b7f0c93a2ba4fb62244ba402dbb2a",
+      "translation": "SHAP की गणना कैसे होती है: 'tree' (ट्री एन्सेम्बल के लिए सटीक TreeSHAP), 'kernel' (k-means पृष्ठभूमि के विरुद्ध मॉडल-निरपेक्ष KernelSHAP; धीमा, अधिकतम 100 समझाए गए ऑब्जेक्ट तक सीमित) या 'auto' (TreeSHAP, और जिस मॉडल को वह पढ़ न सके उसके लिए KernelSHAP पर लौटना)। डिफ़ॉल्ट 'auto'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timeflows_model",
+      "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
+      "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
+      "translation": "प्रशिक्षित Timeflows चेकपॉइंट का पथ। Timeflows spaCR का प्रायोगिक कालिक Cellpose है, जो अनुमान लगाता है कि अगले फ़्रेम में हर ऑब्जेक्ट का केंद्र कहाँ जाएगा, और उन अनुमानों से मास्क जोड़ता है। इसका उपयोग केवल timelapse_mode='timeflows' होने पर होता है, जो कभी डिफ़ॉल्ट नहीं होता: अब तक मापी गई अलग रखी गई फ़िल्मों पर यह ओवरलैप से जोड़ने ('iou') से बेहतर नहीं है। कोई चेकपॉइंट डाउनलोड नहीं होता; जब तक आपने स्वयं एक प्रशिक्षित न किया हो, इसे खाली छोड़ें। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
+      "translation": "फ़्रेमों के बीच ऑब्जेक्ट जोड़ने वाला ट्रैकिंग बैकएंड। 'trackastra' विभाजन को ध्यान में रखकर जोड़ने वाला एक पूर्व-प्रशिक्षित ट्रांसफ़ॉर्मर है; 'ultrack' सेगमेंटेशन और जोड़ने को एक साथ अनुकूलित करता है और अधिक गणना लागत पर घने या त्रि-आयामी डेटा का समर्थन करता है; 'trackpy' विन्यास योग्य खोज त्रिज्या और फ़्रेम मेमोरी का उपयोग करता है; 'btrack' गति मॉडल का उपयोग करता है; 'iou' ओवरलैप से मास्क जोड़ता है और फ़्रेमों के बीच विस्थापन बड़ा होने पर विफल हो सकता है; 'timeflows' spaCR का प्रायोगिक कालिक Cellpose है, जिसे timeflows_model में प्रशिक्षित चेकपॉइंट चाहिए और जो अलग रखी गई फ़िल्मों पर अभी तक 'iou' से बेहतर नहीं हुआ है। डिफ़ॉल्ट 'trackastra'।"
+    }
+  ]
+}

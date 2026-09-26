@@ -253,12 +253,12 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     user chose, and silently substituting a smaller one is the bug this
     function is fixing.
 
-    **The background is whatever the caller passes**, and the two callers
-    pass different things on purpose. A graph the user SAVES comes through
-    :func:`render_figure_to_png` with ``for_print=True``: a detached copy is
-    restyled white-on-dark-ink first (:data:`PRINT_BACKGROUND`,
-    :data:`PRINT_INK`), so the page and every artist on it agree. The
-    gallery's own sibling page below keeps the app theme's colours, i.e. black
+    **The background is whatever the caller passes.** A graph the user SAVES
+    does not come here: :func:`render_figure_to_png` with ``for_print=True``
+    restyles a detached copy white-on-dark-ink (:data:`PRINT_BACKGROUND`,
+    :data:`PRINT_INK`) and writes it through :func:`spacr.plot.save_figure`
+    (:func:`_write_print_file`), the one writer for a file a user keeps. The
+    gallery's own sibling page written here keeps the app theme's colours, i.e. black
     under a dark theme. That looks wrong for an export and is nevertheless
     right for THAT page, because it is not an export: it :meth:`FigureQueue._request_pdf_refinement`
     rasterises this same file at 2200 px and swaps it in as the on-screen
@@ -269,7 +269,7 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     yields black panels and white-on-white text, which is worse than a
     consistent dark page. That is why the print style works on a copy and
     never on the figure the gallery or a canvas is showing: a print page is
-    written where the user asked, never beside a gallery PNG, so the pixmap
+    written to the path the user chose, never beside a gallery PNG, so the pixmap
     swap in :meth:`FigureQueue._request_pdf_refinement` can never pick one up.
 
     Returns True if the page was written.
@@ -309,6 +309,31 @@ def _retry_on_a_fresh_canvas(fig, png_path, dpi, bg) -> bool:
         return False
 
 
+def _write_print_file(figure, path, fmt: str, dpi: int) -> str:
+    """Write one print-styled file through :func:`spacr.plot.save_figure`.
+
+    A graph the user saves is a file they keep, so it goes through the one
+    writer every kept figure goes through: TrueType fonts in a PDF, the DPI
+    passed even to a vector page, and the print mode that names a data
+    colour the white page has made illegible. The format and DPI are the
+    ones this save was asked for rather than the preference's, because the
+    save dialog has already chosen them. ``figure`` is already styled white
+    with dark ink, so the print repaint finds nothing to move.
+
+    :param figure: the detached, print-styled copy (or the figure itself
+        when it could not be copied).
+    :param path: destination; ``.png`` or ``.pdf``.
+    :param fmt: ``"png"`` or ``"pdf"``.
+    :param dpi: the resolution asked for, with no display cap.
+    :returns: the path written.
+    """
+    from ...plot import save_figure
+
+    return save_figure(figure, path, fmt=fmt, dpi=dpi, save_mode="print",
+                       announce_colours=False, bbox_inches="tight",
+                       facecolor=PRINT_BACKGROUND, transparent=False)
+
+
 def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
                        write_pdf: bool, screen: tuple) -> bool:
     """Write ``fig`` to ``png_path`` (and its sibling PDF) in the print style.
@@ -331,20 +356,26 @@ def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
         _style_figure_colors(target, PRINT_BACKGROUND, PRINT_INK, text_size,
                              PRINT_INK)
         try:
-            target.savefig(png_path, dpi=dpi, bbox_inches="tight",
-                           facecolor=PRINT_BACKGROUND, transparent=False)
+            _write_print_file(target, png_path, "png", dpi)
         except Exception as exc:
             try:
                 from matplotlib.backends.backend_agg import FigureCanvasAgg
                 FigureCanvasAgg(target)
-                target.savefig(png_path, dpi=dpi, bbox_inches="tight",
-                               facecolor=PRINT_BACKGROUND, transparent=False)
+                _write_print_file(target, png_path, "png", dpi)
             except Exception:
                 LOG.info("print render failed: %s", exc)
                 return False
         if write_pdf:
-            _export_vector_pdf(target, _sibling_pdf(png_path), dpi,
-                               PRINT_BACKGROUND)
+            pdf_path = _sibling_pdf(png_path)
+            try:
+                _write_print_file(target, pdf_path, "pdf", dpi)
+            except Exception as exc:
+                LOG.warning("print PDF export failed for %s: %s",
+                            pdf_path, exc)
+                try:
+                    Path(pdf_path).unlink()
+                except OSError:
+                    pass
         return True
     finally:
         if copy is None:

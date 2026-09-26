@@ -1,0 +1,20 @@
+A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/problems-with-sqlite-database-locked/13591
+
+WHAT TO BUILD
+    Offer PostgreSQL (multi-user labs, concurrent writers) and
+    DuckDB/Parquet (very large screens, >100M objects) as alternatives to
+    SQLite for measurements, behind the same read/write layer so every
+    module works unchanged; migration tools both ways.
+
+DONE WHEN
+    The measurement, classification and regression test suites pass on each
+    backend, and a 100M-row table queries within stated times on DuckDB.

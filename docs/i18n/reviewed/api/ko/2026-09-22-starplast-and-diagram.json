@@ -368,7 +368,9 @@
       "label": "spacr.qt.organisms.ORGANISMS#1",
       "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
       "source_sha256": "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693",
-      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections``에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links``에는 표시 레이블과 URL의 쌍이 들어 있습니다. ``modules``에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 타일에서 분석을 시작할 수 없는 예정된 실험을 뜻합니다. ``starplast``는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다."
+      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections``에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links``에는 표시 레이블과 URL의 쌍이 들어 있습니다. ``modules``에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 타일에서 분석을 시작할 수 없는 예정된 실험을 뜻합니다. ``starplast``는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build upright artwork, a multi-select legend and compartment descriptions.",

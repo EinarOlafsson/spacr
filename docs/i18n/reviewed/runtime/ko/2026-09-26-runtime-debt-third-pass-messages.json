@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source_sha256": "ae96f6c340ecf326902a20474c8af68b7c6d712eb18ce210e0a787597356ca3d",
+      "translation": "부착은 Invasion Assay를 열며, 그 부착 및 침입 계수가 숙주 세포 단층에 결합한 진균 세포 수를 알려 줍니다. 계획된 바이오필름 모듈은 집단 성장에 초점을 두며, 획득 데이터에 깊이 정보가 있으면 덮인 면적과 두께도 포함합니다. 2차원 시야 하나로는 표면 피복을 설명할 수 있지만 그것만으로 바이오필름 두께를 확정할 수는 없습니다. 종점에 맞게 단일 평면 또는 부피 이미징을 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source_sha256": "3d9219554981a2ff84a21cab785f893bef104ec1c3adb6aacc5df3e8a8e7aaa2",
+      "translation": "spaCR 커뮤니티 학습 데이터용으로 이 이미지에 어노테이션하고 Hugging Face로 보냅니다. 그림 모드: 웰 검출기를 위해 모든 웰에 상자를 그립니다. 플라크 모드: 다음 플라크 모델을 위해 모든 플라크를 칠합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source_sha256": "ac08f28c2446f47dbfb46bf1ef2d92557b06e0257b77114af27f1bc9553d8777",
+      "translation": "항진균제 반응은 용량–반응을 열어 진균 성장이나 형태 점수를 약물 농도에 대해 적합합니다. 형태 또는 바이오필름과 결합하면 처리 중 어떤 이미지 특징이 변하는지 설명하는 데 도움이 됩니다. 사상체 형성, 발아관 형성, 바이오필름, 형태는 계획 단계이며 타일에 출시 예정으로 표시되어 있습니다. Candida Genome Database와 UniProt은 마커 선택과 해석을 돕는 유전자 및 단백질 주석을 제공합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source_sha256": "c63ebc1be0895171fbd2cf1fce44ee4d41bbd8a9557ccd755cd77777659dac32",
+      "translation": "도움이 되는 모든 정보: 현미경, 배율, 세포주, 무엇을 객체 하나로 보는지."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source_sha256": "9bdfa0d5fb3e4935d33bd97a181bb044a6e8a48610fe56e0960a76d9cb655fee",
+      "translation": "플롯이 다룰 gRNAs를 선택하세요. 플롯은 회귀의 유의한 상위 히트로 열리며, 선택한 웰은 gRNAs가 바뀔 때마다 다시 도출됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source_sha256": "ebdaade8df046600bf5f54f550a6fec649e3c0b09a7cde20bae6678c55b4d3f6",
+      "translation": "객체를 클릭하면 통째로 제거됩니다. Backspace는 마지막 삭제를 취소합니다. 다시 칠하려면 브러시를 누르세요."
+    },
+    {
+      "table": "ui",
+      "key": "DOI or citation of the paper these figures come from",
+      "source": "DOI or citation of the paper these figures come from",
+      "source_sha256": "a0c02cbfd7fa7c1923d69390b5cc21ba32f21a76811a3c1a0417d7b449d709c3",
+      "translation": "이 그림들의 출처 논문 DOI 또는 인용"
+    },
+    {
+      "table": "ui",
+      "key": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source_sha256": "9162528a420515355c60cc7e740a53774c6f34874d643d7b8924e92831d0d65b",
+      "translation": "끌어서 도크를 넓히거나 좁히세요. 두 번 클릭하면 다시 이름에 맞춥니다."
+    },
+    {
+      "table": "ui",
+      "key": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source_sha256": "4ba7f62b5b0bd3823c61f41f7ddcd5e9ce157703a7f00ef1806c3b952c48206a",
+      "translation": "각 페이지의 모든 웰 주위에 상자를 그리세요. 페이지를 끌면 상자가 추가되고, 상자나 그 모서리를 끌면 수정되며, 오른쪽 클릭이나 Delete로 제거합니다. 주황색 상자는 아직 손대지 않은 spaCR의 추정입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source_sha256": "5cc5f3c3d05c7cd3122f9068b826dce76f8eb383dffcaeb465ccbcbe3158143a",
+      "translation": "상피세포 침입은 Invasion Assay를 열어 세포 밖 진균과 상피세포에 내재화된 진균을 구별합니다. 식세포작용은 숙주–병원체 분석을 열어 식세포에 의한 흡수를 측정합니다. 둘 다 적절한 차등 표지나 공간 정보처럼 접촉과 내재화를 구별할 방법이 필요합니다. 흡수 판독값과 함께 숙주 세포 집단과 진균 형태를 보고하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Every curated image here with its saved mask ({n})",
+      "source": "Every curated image here with its saved mask ({n})",
+      "source_sha256": "b47221bdf5af704d3b6e8cdad993eebd1e68f87b54c6406a451bd8bffe31edab",
+      "translation": "여기서 큐레이션한 모든 이미지와 저장된 마스크({n})"
+    },
+    {
+      "table": "ui",
+      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source_sha256": "e1e8d450cec728bc4555e897e8ee360c90908b2198f083ea3f3d87572c2b6878",
+      "translation": "배우자모세포 성숙도는 적절한 마커와 참조 어노테이션이 있을 때 단계 및 성별 관련 이미지 특징을 위한 제안 워크플로입니다. 약물 반응 영상 분석은 용량–반응을 열어 이미지 판독값을 농도에 대해 적합합니다. 이 측정값과 함께 종, 시작 단계, 노출 기간을 기록하세요. 그렇지 않으면 단계 구성의 변화가 기생충 수의 변화로 오인될 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source_sha256": "eaa362c830a87873d1e978e3e54d7371552dcc7b32ea679c7389820dc1ef9c55",
+      "translation": "활주 운동성은 운동성 분석을 열어 세포 밖 기생충 궤적의 속도와 직진성을 측정합니다. 계획된 탈출 모듈은 공포 파열과 기생충의 탈출에 초점을 둘 예정입니다. 브래디조이트 전환은 단계 마커와 낭포벽 판독값을, 숙주세포 손상은 단층 소실을 다룹니다. 이 세 가지는 제안된 워크플로이므로 타일에 출시 예정으로 표시되어 있습니다. 고정 이미지, 시계열, 단계 특이 마커는 서로 다른 질문에 답하므로 의도한 판독값에 맞게 선택해야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "I agree that they and my annotations are shared under {licence}.",
+      "source": "I agree that they and my annotations are shared under {licence}.",
+      "source_sha256": "63704987226e07b44c211bf5e59f55b464e7b1f7ca2f18b07d98313096673e5a",
+      "translation": "이미지와 제 어노테이션이 {licence}에 따라 공유되는 데 동의합니다."
+    },
+    {
+      "table": "ui",
+      "key": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source_sha256": "cdc60c0c66ae010869b9f431d23d6a2128164f7aa3c4184cbb1ad0c735c5c9c7",
+      "translation": "이 이미지를 공유할 권리가 있습니다. 제가 만들었거나, 출처(논문 그림의 경우 해당 논문의 라이선스)가 허용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source_sha256": "2dcc3cac08ea898d9e7d4050969a1b7d9c15a54f134739e7e4cd102cfe3eef9e",
+      "translation": "모델을 직접 학습할 수 없다면 여기에 이미지와 마스크를 업로드하세요. 저희가 모델을 학습해 드립니다. 화면의 이미지와 그 마스크, 여기서 큐레이션한 모든 이미지, 또는 같은 이름의 마스크가 든 마스크 폴더와 이미지 폴더를 보내세요. 무엇을 보여 주는지(생물, 객체 유형, 염색) 적으면 Hugging Face의 전용 커뮤니티 데이터셋에 풀 리퀘스트로 들어가며, 관리자가 이를 검토한 뒤에야 모델 학습에 사용됩니다. {licence}에 따라 공유되므로 공유할 권리가 있는 이미지만 보내세요. 꼼꼼한 마스크가 좋은 모델을 만듭니다. 모든 객체를 경계에 딱 맞게 그리세요."
+    },
+    {
+      "table": "ui",
+      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source_sha256": "77891ddcc4abedd6f302f9317ab6c44fd8994662a20c74d1da14e51b9ca31850",
+      "translation": "간기 성장은 간세포 내 기생충의 수와 크기를 측정하도록 계획되어 있습니다. 스포로조이트 운동성은 활주 궤적을 위해 운동성 분석을 열고, 세포 통과는 기생충 경로를 따른 숙주 세포 손상을 다룰 예정입니다. 통과, 생산적 침입, 이후 성장은 서로 다른 결과이므로 이미지 마커, 관찰 시간, 분모를 따로 정의해야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source_sha256": "68de5ea04ce2ee379cf82fe8750b6df72be35bc5356f3fb2a9404f382c405e94",
+      "translation": "직접 촬영한 이미지의 몇몇 시야에서 세포, 핵, 병원체 직경을 측정하고 마스크 생성 설정에 기록합니다. API: spacr.qt.prerun.DiameterDialog."
+    },
+    {
+      "table": "ui",
+      "key": "More than one file with the same name: {names}",
+      "source": "More than one file with the same name: {names}",
+      "source_sha256": "dff5f9843ea09ac77ba2711bbed729091cf036714bb7354855574445bb1ce6b2",
+      "translation": "같은 이름의 파일이 둘 이상 있음: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Name the dataset: what the images show, and how.",
+      "source": "Name the dataset: what the images show, and how.",
+      "source_sha256": "e2c45f1f71e9d3b7a4036ec7a3aecafceb81402783dc314f91141ce140f4e66f",
+      "translation": "데이터셋 이름을 지정하세요. 이미지가 무엇을 어떻게 보여 주는지 적으세요."
+    },
+    {
+      "table": "ui",
+      "key": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source_sha256": "240e7802f023577209d60dff4928bca21c21802a2e5689a0827c842b6652af35",
+      "translation": "선택한 gRNAs를 가진 웰의 범위를 좁힙니다. 이 웰의 객체만 'gRNAs + other datapoints in selected wells' 아래에 그려집니다."
+    },
+    {
+      "table": "ui",
+      "key": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source_sha256": "0d6e22361af52f71df779f30e844ecec8fff3a2119fb5766dbba03024cdafd6b",
+      "translation": "선택한 gRNAs를 가진 웰이 없어 범위를 좁힐 웰이 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source_sha256": "305fc7f2f8cb876d3bebdf3b2fc6880a86ee7a7b59dfa372bc470161c98dda34",
+      "translation": "전송되지 않음. 모든 이미지에 어노테이션이 하나 이상 필요한데, 다음 이미지에는 없습니다: {names}. 어노테이션하거나 제외하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source_sha256": "a8bfc10e57969087291efc5b7ab73641bb6669b530a3ba84edceff756d1fffca",
+      "translation": "생물, 객체 유형, 염색: 예: toxoplasma 공포 GFP"
+    },
+    {
+      "table": "ui",
+      "key": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source_sha256": "a20a756945ebcbd39623440d4d894a9312b8675200017b667c4f84960c8801c6",
+      "translation": "각 이미지의 모든 플라크를 칠하세요. 왼쪽 끌기는 라벨에 플라크를 칠하고, 오른쪽 끌기는 지우며, 새로운은 다른 플라크를 시작하고, [ 와 ]는 브러시 크기를 바꿉니다. spaCR이 찾은 플라크는 수정할 수 있도록 이미 칠해져 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source_sha256": "ed3602a7e637989141e3f56afaba27c555c783d7c48cc476061313aacd678e40",
+      "translation": "기생충혈증은 숙주–병원체 분석을 열어, 측정한 전체 적혈구 대비 감염된 적혈구를 보고합니다. 혈액기 단계 분류는 링, 영양형, 분열체를 구분하여 단계 구성의 변화를 감염 빈도와 함께 검토할 수 있게 합니다. 메로조이트 침입은 적혈구로의 진입에 초점을 둡니다. 이 판독값들을 함께 쓰면 새로 감염된 세포가 적은 것과 이미 안에 있는 기생충의 발달이 바뀐 것을 구별하는 데 도움이 됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source_sha256": "e35d6c43c0728a7e9533b5b4190cc731f2d9e9120919b5d42b5613c2ea2e482f",
+      "translation": "기생충혈증, 스포로조이트 운동성, 약물 반응 영상 분석은 기존 spaCR 모듈을 엽니다. 나머지 타일 5개는 계획 단계이며 출시 예정으로 표시되어 있습니다. 설명은 사용 가능한 분석 파이프라인이 아니라 의도한 판독값을 정의합니다. PlasmoDB와 UniProt은 마커 선택과 결과 해석을 위한 유전체 및 단백질 맥락을 제공합니다. 정단복합체 그림은 Toxoplasma와 공유하는 구획을 논의하는 데 유용하지만, 단백질이 두 생물에서 같은 위치에 있다는 것을 입증하지는 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Ready: {n} images, each with its saved mask.",
+      "source": "Ready: {n} images, each with its saved mask.",
+      "source_sha256": "056a9b63f868dd702ef265095660b53b3cb2605f65796c0fa3c9d6948c724fb3",
+      "translation": "준비됨: 이미지 {n}개, 각각 저장된 마스크가 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source_sha256": "fac0ad5eb6ef563e67e269af1e894be31d2f9d75738a790a54c50bbeb83f0625",
+      "translation": "이 시야를 큐레이션할 수 없는 것으로 기록하고 다음으로 넘어갑니다. 세션의 curate_status.csv 파일에 skip으로 기록되므로 다음 세션에서 다시 제시되지 않습니다. 마스크는 기록되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source_sha256": "b35ab80d1bc1fd9db9c8f12bc9287e50370d4a9c36ca1651e490b48779e976ec",
+      "translation": "이미지와 어노테이션을 Hugging Face의 {repo}에 관리자가 검토하는 기여로 보냅니다."
+    },
+    {
+      "table": "ui",
+      "key": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source_sha256": "a0be2790879872838f7d28af1006cfbb6ec1c1ae9b98c1b337db7b8a9b4b436d",
+      "translation": "이 이미지와 마스크를 검토용으로 보냅니다. 데이터셋에 이름이 있고 모든 이미지에 마스크가 있으면 활성화됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source_sha256": "74bc0acdd3935d06075e3a38a9ad3d5560880d70150f704d817729b086c8a2df",
+      "translation": "{step}/{steps}단계: {rows}개 행의 표, 플롯, 진단 정보를 만드는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source_sha256": "42418dfe804f71cd428d9135722d6d4994986fa237b6d2f02bb5d970aca47451",
+      "translation": "{step}/{steps}단계: {name} 읽는 중(파일 {done}/{total})…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source_sha256": "aa95e2d3cd55ceb4c99da8b437327013c3d97ffd8d5ea9c8c15b2ade6b20a375",
+      "translation": "{step}/{steps}단계: {folder}에서 결과 표를 찾는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
+      "translation": "감사합니다. 기여가 검토를 기다리고 있습니다: <a href=\"{url}\">{url}</a>"
+    },
+    {
+      "table": "ui",
+      "key": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source_sha256": "eb58f954e410e3b478d7ec8c08b8db73fc55c006a28c8e0a01900acfae41f3a5",
+      "translation": "화면의 이미지에 아직 마스크가 없습니다. 먼저 분할하거나 칠하세요. 마스크가 없으면 업로드할 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source_sha256": "07cd4d6a46e7a390862a1c4632c94c1039347b31c96a040868502ef306f1830b",
+      "translation": "플롯은 회귀의 상위 히트로 열립니다. 선택한 웰은 여기서 체크한 gRNAs를 따릅니다."
+    },
+    {
+      "table": "ui",
+      "key": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source_sha256": "a864a1cb68f85250f6e1bb6f03bce04fa73901c8f7235931905c322ba52d7559",
+      "translation": "이 대비에서는 모집단 상자를 사용하지 않습니다. 선택 범위 밖의 웰과 비교합니다."
+    },
+    {
+      "table": "ui",
+      "key": "There are no image and mask pairs to send.",
+      "source": "There are no image and mask pairs to send.",
+      "source_sha256": "51cc61e84b3cca124889c7d288b9e054c61e9927d64e4681a0302758d9111daf",
+      "translation": "보낼 이미지와 마스크 쌍이 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source_sha256": "c540a28d31709383834c8b8c0658bab88d117707a0fbce6348ab9cb7300f17fc",
+      "translation": "이 객체 행에는 gRNA가 지정되어 있지 않아 선택할 것이 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source_sha256": "595a466c304d33341d59fde70b9338ab1952bd7360d9ac7bf4e1ab9aebe8480d",
+      "translation": "이 웰들은 선택한 gRNAs를 가지고 있습니다. 제외한 웰은 전혀 그려지지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source_sha256": "4be7dd89a68d982cab8a14924a1f0c33909df81757c465276431e8d58039470e",
+      "translation": "기여한 내용은 누구나 그것으로 모델을 학습하고 확인할 수 있도록 Hugging Face에 공개됩니다. 사용하기 전에 검토됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source_sha256": "f3a52d7250b2367f7c3e58211de91905aebcfcc63607aef277cddddcc4d91f60",
+      "translation": "[issue] 보고서에 답변이 포함되도록 spaCR AI의 답변을 최대 {seconds} s 동안 기다리는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source_sha256": "9025c7719f41b2188891be974bb96e3ea8e8be5d2311f7686c526582208d0de9",
+      "translation": "spaCR이 {name}에 대한 초기 추정을 만들지 못했습니다({why}). 처음부터 어노테이션하세요."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source_sha256": "cdb18c94628a9f493d899699da86cf92e919d0306fff8e40e10fab078f49cef9",
+      "translation": "spaCR 업로드 서비스가 이를 받지 못했습니다({why}). 대신 무료 Hugging Face 로그인으로 보낼 수 있습니다. 'huggingface-cli login'을 실행하거나 HF_TOKEN을 설정한 다음 업로드를 다시 누르세요. 이 창이 열려 있는 동안 어노테이션은 유지됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source_sha256": "9a339dbd721a8cf3b636822897b91e9ab9ffd6112c9bdb44225e4ee65a26c10c",
+      "translation": "{judged} 건너뜀, 다시 제시되지 않습니다  —  현재 {now}"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source_sha256": "32fc57fd8fa98d4693f0060276e0925fe61578f093fbef44806877ed20c14859",
+      "translation": "{judged} 건너뜀, 다시 제시되지 않습니다  —  이 세션의 마지막 시야였습니다"
+    }
+  ]
+}

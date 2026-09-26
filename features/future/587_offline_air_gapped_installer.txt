@@ -1,0 +1,19 @@
+AN OFFLINE / AIR-GAPPED INSTALLER
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    An installer bundle that installs spaCR and chosen backends and models
+    without internet access (wheels, model weights and environments packed),
+    for locked-down microscope PCs; the online installers stay the default.
+
+DONE WHEN
+    On a machine with networking disabled, the bundle installs and runs Mask
+    on the bundled test data.

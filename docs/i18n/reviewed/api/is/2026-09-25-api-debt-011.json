@@ -181,12 +181,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#4",
       "source": "the module's settings dict (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "source_sha256": "96135371fed57deda24a9362d148af2f2570a1b1dfd6da9138a9e4502a0a3e7d",
       "context": "the module's settings key-value mapping (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "translation": "stillingaorðabók einingarinnar (``None`` er meðhöndlað sem tómt); afrit er geymt fyrir Pre- og Post-leiðirnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3"
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview#0",

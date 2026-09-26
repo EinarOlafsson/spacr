@@ -1,0 +1,32 @@
+FILLING HOLES MERGES TOUCHING CELLS, AND APPLY'S DEFAULT CHANNELS/PERCENTILES FAIL
+
+Status: OPEN, filed 2026-09-26. Not started.
+Owner: unassigned. Found by the docs session while recording the Train
+Cellpose tutorial (evidence: /mnt/firecuda2/codex/scratch-docs/status/t19.md,
+/mnt/firecuda2/codex/scratch-docs/t19/gpu_run4.log).
+
+WHAT IS WRONG
+  1. spacr.utils.fill_holes_in_mask runs ndimage.label on the LABEL image, so
+     objects that touch are merged into one. Apply's fill_in defaults to
+     True, so batch masks came out as a few giant objects per field (8/4/6
+     objects where the preview showed 74 cells). Wrong numbers, silently.
+  2. Apply with DEFAULT settings (channels [0,0], percentiles None) prints
+     numpy "Mean of empty slice" warnings with site-packages paths and gives
+     5/4/7 objects against 78 in the preview; with channels [0] and
+     percentiles [2,99] it is fine.
+
+WHAT TO BUILD
+  1. Fill holes per object (each label filled on its own, e.g. binary_fill_holes
+     per label via find_objects/regionprops slices), never relabelling, so
+     touching objects keep their ids; keep it fast on large fields. Check every
+     other caller of fill_holes_in_mask / similar helpers for the same bug.
+  2. Find why Apply's defaults differ from the preview's (channel list and
+     normalisation percentiles) and make Apply use the same effective
+     settings as the preview when the user has not set them; no empty-slice
+     warnings; Apply and preview give the same object counts on the same field.
+  3. Re-check Mask generation's own post-processing for the same merge bug.
+
+DONE WHEN
+A field with touching cells keeps every object after fill_in (test with a
+synthetic two-touching-cells mask and a real field); Apply with defaults gives
+the preview's object count on the tutorial's fields; no numpy warnings.

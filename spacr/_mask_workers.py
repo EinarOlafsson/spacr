@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 import multiprocessing
 import os
 import pickle
@@ -569,3 +570,232 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
         messages.join_thread()
         if figures is not None:
             figures.cleanup()
+
+
+_PROGRESS_PREFIX = '[mask GPUs]'
+
+
+def _compatible_mask_gpus():
+    """Return the CUDA/ROCm devices this process may assign to mask workers."""
+    from . import accelerator
+
+    return tuple(accelerator._mask_devices())
+
+
+_CONTROL_GPU_COUNT = []
+
+
+def _mask_gpu_count_for_controls():
+    """Count compatible GPUs once per process for greying the settings controls."""
+    if not _CONTROL_GPU_COUNT:
+        try:
+            _CONTROL_GPU_COUNT.append(len(_compatible_mask_gpus()))
+        except Exception:
+            _CONTROL_GPU_COUNT.append(0)
+    return _CONTROL_GPU_COUNT[0]
+
+
+def _selected_gpu_indices(value):
+    """Parse ``mask_gpu_indices``: blank or ``all`` means every visible GPU.
+
+    :returns: ``None`` for every visible GPU, otherwise distinct ordinals.
+    :raises ValueError: for non-integer, negative or repeated entries.
+    """
+    if value is None or (isinstance(value, str)
+                         and value.strip().lower() in ('', 'all', 'none')):
+        return None
+    if isinstance(value, str):
+        tokens = [token for token in value.replace(';', ',').replace(' ', ',').split(',')
+                  if token]
+    elif isinstance(value, (list, tuple)):
+        tokens = list(value)
+    else:
+        tokens = [value]
+    indices = []
+    for token in tokens:
+        try:
+            if isinstance(token, bool):
+                raise ValueError
+            index = int(str(token).strip())
+        except ValueError:
+            raise ValueError(f'mask_gpu_indices must list GPU numbers, not {token!r}') from None
+        if index < 0 or index in indices:
+            raise ValueError(f'mask_gpu_indices must list distinct nonnegative GPU numbers: {value!r}')
+        indices.append(index)
+    return indices
+
+
+def _parallel_mask_plan(settings, devices=None):
+    """Choose worker GPUs for this run, or return ``None`` for the ordinary path.
+
+    ``mask_parallel`` off returns ``None`` before any device query. A blank
+    ``mask_gpu_indices`` uses every GPU this process was allocated, so a
+    cluster job uses the devices its scheduler exposed; fewer than two falls
+    back to the ordinary single-device path with a printed note. Explicit
+    indices must name at least two visible devices and are never widened.
+
+    :param settings: run settings carrying ``mask_parallel``/``mask_gpu_indices``.
+    :param devices: optional device records in ``accelerator._mask_devices`` form.
+    :returns: ``{'devices', 'environments', 'names'}`` or ``None``.
+    :raises ValueError: for timelapse/t_stack runs or an invalid selection.
+    """
+    from .resume import _TRUTHY
+
+    enabled = settings.get('mask_parallel', False)
+    if isinstance(enabled, str):
+        enabled = enabled.strip().lower() in _TRUTHY
+    if not enabled:
+        return None
+    if settings.get('timelapse') or settings.get('t_stack'):
+        raise ValueError('Parallel GPU mask batches do not support timelapse or t_stack runs; '
+                         'turn mask_parallel off.')
+    found = list(_compatible_mask_gpus() if devices is None else devices)
+    visible = {device['index']: device for device in found}
+    wanted = _selected_gpu_indices(settings.get('mask_gpu_indices'))
+    if wanted is None:
+        if len(found) < 2:
+            print(f'mask_parallel: {len(found)} compatible GPU visible; '
+                  'using the ordinary single-device mask path.')
+            return None
+        wanted = sorted(visible)
+    missing = [index for index in wanted if index not in visible]
+    if missing or len(wanted) < 2:
+        raise ValueError(f'mask_gpu_indices {wanted} must name two or more of the '
+                         f'visible GPUs {sorted(visible)}.')
+    from . import accelerator
+
+    backend = found[0]['backend']
+    environments = {index: accelerator._mask_worker_environment(
+        index, backend=backend, count=len(found)) for index in wanted}
+    return {'devices': list(wanted), 'environments': environments,
+            'names': {index: visible[index]['name'] for index in wanted}}
+
+
+def _failed_archives(state):
+    """Archives in flight on failed workers; a failure costs at most one each."""
+    return sum(1 for worker in state.get('workers', {}).values()
+               if worker['state'] == 'failed' and worker['completed'] < worker['total'])
+
+
+def _progress_line(object_type, state):
+    """Format one stdout line carrying overall and per-GPU archive counts.
+
+    ``spacr.qt.bridge`` reads the ``Progress: done/total`` part for the run bar
+    and :func:`spacr.qt.bridge._mask_gpu_progress` reads the per-GPU part.
+    """
+    parts = ''.join(
+        f' | GPU {device} {worker["state"]} {worker["completed"]}/{worker["total"]}'
+        for device, worker in sorted(state['workers'].items(), key=lambda item: str(item[0])))
+    return (f'{_PROGRESS_PREFIX} {object_type} Progress: {len(state["completed_batches"])}/'
+            f'{state["total_batches"]} archives, failed {_failed_archives(state)}{parts}')
+
+
+def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
+                                context=None, segmenter=None):
+    """Segment one role's prepared archives with one model process per GPU.
+
+    Inputs are inventoried once, partitioned by bytes and signed with the
+    resolved model before dispatch. Verified archives from an interrupted run
+    are skipped, shared QC runs once in this process, and ``settings`` gains
+    the same entries the ordinary generator records. Failures and cancellation
+    print completed/failed/unfinished counts and keep every prepared input.
+
+    :param mask_src: the run's ``masks`` folder of prepared NPZ archives.
+    :param settings: run settings; updated as the ordinary generator does.
+    :param object_type: ``cell``, ``nucleus`` or ``pathogen``.
+    :param plan: result of :func:`_parallel_mask_plan`.
+    :param context: optional multiprocessing context for tests.
+    :param segmenter: optional CPU stand-in for the Cellpose-SAM generator.
+    """
+    from .io import _mask_batch_manifest
+    from .object import _fill_cellpose_channel_positions, _run_seg_qc
+    from .settings import set_default_settings_preprocess_generate_masks
+
+    prepared, signature, identity = _prepare_mask_model(settings, object_type)
+    records = _mask_batch_manifest(mask_src)
+    ledger = _MaskBatchLedger(mask_src, records, object_type, signature,
+                              excluded_fields=settings.get('image_qc_excluded_fields') or ())
+    assignments = _partition_batches(records, plan['devices'])
+    names = ', '.join(f'GPU {device} ({plan["names"].get(device, "?")})'
+                      for device in plan['devices'])
+    print(f'Parallel {object_type} masks: {len(records)} archives on {names}; '
+          f'model {identity["path"]}')
+    last = {}
+
+    def report(state):
+        """Keep the latest snapshot for the summary and print it for the GUI."""
+        last.clear()
+        last.update(state)
+        print(_progress_line(object_type, state))
+
+    try:
+        _run_checkpointed_mask_workers(mask_src, prepared, object_type, assignments,
+            plan['environments'], ledger, on_progress=report, context=context,
+            segmenter=segmenter)
+    except BaseException:
+        done = len(ledger.verified())
+        failed = _failed_archives(last)
+        print(f'Parallel {object_type} masks stopped: {done} completed, {failed} failed, '
+              f'{len(records) - done - failed} unfinished of {len(records)} archives. '
+              'Completed masks and every prepared input are kept; '
+              'rerun with the same settings to resume.')
+        raise
+    settings['src'] = mask_src
+    set_default_settings_preprocess_generate_masks(settings)
+    _fill_cellpose_channel_positions(settings)
+    _run_seg_qc(mask_src, settings, object_type)
+    ledger.store.update(status='finalized')
+
+
+def _mask_digests(folder):
+    """SHA256 of every visible mask array in ``folder``, keyed by filename."""
+    from .io import _listdir_visible
+
+    if folder is None or not os.path.isdir(folder):
+        return {}
+    return {name: _mask_output_digest(Path(folder) / name)
+            for name in sorted(_listdir_visible(folder)) if name.endswith('.npy')}
+
+
+def _finalize_adjusted_cells(mask_src, organelle_folder=None, n_jobs=None):
+    """Write adjusted cells beside the raw worker masks, with provenance.
+
+    Raw cell, nucleus and pathogen masks stay byte-identical, so their archive
+    receipts remain valid. ``.adjusted-cell-mask-provenance.json`` binds the
+    adjusted arrays to the raw mask digests and thresholds; a rerun reuses
+    them only when both still match and rebuilds every field otherwise.
+
+    :param mask_src: the run's ``masks`` folder.
+    :param organelle_folder: optional organelle mask folder for the merger.
+    :param n_jobs: adjustment worker count.
+    :returns: the adjusted cell mask folder.
+    """
+    from . import utils
+    from .checkpoint import _atomic_json, fingerprint
+
+    root = Path(mask_src)
+    output = root / 'adjusted_cell_mask_stack'
+    record = root / '.adjusted-cell-mask-provenance.json'
+    folders = {'cell': root / 'cell_mask_stack', 'nucleus': root / 'nucleus_mask_stack',
+               'pathogen': root / 'pathogen_mask_stack'}
+    if organelle_folder is not None:
+        folders['organelle'] = Path(organelle_folder)
+    inputs = {'raw': {role: _mask_digests(folder) for role, folder in folders.items()},
+              'overlap_threshold': 5, 'perimeter_threshold': 30}
+    identity = fingerprint(inputs)
+    if record.is_file():
+        try:
+            saved = json.loads(record.read_text(encoding='utf-8'))
+            if saved.get('inputs') == identity and saved.get('outputs') == _mask_digests(output):
+                print(f'Adjusted cell masks verified against their raw masks: {output}')
+                return str(output)
+        except (OSError, ValueError):
+            pass
+        record.unlink()
+    utils.adjust_cell_masks(str(folders['pathogen']), str(folders['cell']),
+                            str(folders['nucleus']), organelle_folder,
+                            overlap_threshold=5, perimeter_threshold=30,
+                            n_jobs=n_jobs, output_folder=str(output))
+    _atomic_json(record, {'inputs': identity, 'raw_masks': inputs,
+                          'outputs': _mask_digests(output)})
+    return str(output)

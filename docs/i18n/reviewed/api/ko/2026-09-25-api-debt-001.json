@@ -562,7 +562,9 @@
       "source_sha256": "42def4f4e810fa598323cc7fdbd455915764d7944e457a30a384f482d09f80e1",
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
       "translation": "모델 설정이 ``cellpose3:<model or weights path>`` 인 객체, 또는 ``segmentation_backend`` 가 ``'cellpose3'`` 일 때의 모든 객체는 Cellpose 3 백엔드 자체 환경에서 ``_cellpose3_masks`` 로 분할됩니다. 반환된 결과는 Cellpose-SAM 결과와 같은 경로로 들어가므로, 저장되는 마스크와 데이터베이스 행이 똑같이 기록됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#6",

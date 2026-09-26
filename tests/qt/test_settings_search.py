@@ -390,6 +390,19 @@ def test_no_setting_is_hidden_in_every_state(mask_screen):
     bar.set_level(ALL)
     reached = set(bar.visible_keys())
 
+    # The legacy Cellpose 3 rows are gated on a MODEL rather than a
+    # dimension or a channel: they apply only to an object segmented by a
+    # Cellpose 3 model, and the model zoo chooses one by writing
+    # ``cellpose3:<model>`` into that object's model setting. So the second
+    # state is the first with the cell model sent to Cellpose 3, and a row is
+    # reachable when either state shows it.
+    from spacr._segmentation_backends import _cellpose3_value
+
+    mask_screen.apply_settings_dict(
+        {**announced, "cell_model_name": _cellpose3_value("cyto3")})
+    bar.set_level(ALL)
+    reached |= set(bar.visible_keys())
+
     unreachable = indexed - reached
     # What is left is gated on an organelle's TYPE -- a punctate organelle
     # does not show the ridge or ring controls -- so each remaining row is

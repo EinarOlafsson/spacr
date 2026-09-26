@@ -1,0 +1,19 @@
+EXPORT FOR R (SingleCellExperiment) AND TIDY PARQUET
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Export measurements, annotations and embeddings as a
+    SingleCellExperiment/.rds for R/Bioconductor and as tidy Parquet tables,
+    alongside the existing AnnData export.
+
+DONE WHEN
+    Exports load in R (SingleCellExperiment) and pandas/arrow with matching
+    values.

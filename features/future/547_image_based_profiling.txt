@@ -1,0 +1,25 @@
+IMAGE-BASED PROFILING: NORMALISE, SELECT, CONSENSUS, mAP
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/best-practices-for-normalizing-and-combining-plate-level-replicate-measurements-image-based-profiling/121866
+
+WHAT TO BUILD
+    pycytominer/copairs-style profiling on spaCR's measurements: per-plate
+    normalisation to negative controls, feature selection (variance,
+    correlation, outliers), aggregation to well and consensus profiles, and
+    mAP for phenotype retrieval/replicate reproducibility, with plots.
+
+DONE WHEN
+    On a public Cell Painting subset, spaCR's profiles and mAP match
+    pycytominer/copairs run directly on the same features.

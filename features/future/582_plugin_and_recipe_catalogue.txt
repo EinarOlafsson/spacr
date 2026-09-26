@@ -1,0 +1,20 @@
+A PLUGIN AND RECIPE CATALOGUE BROWSER
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Browse, install and update community plugins and assay templates
+    (recipes) from a catalogue, napari-hub style, built on spaCR's plugin
+    SDK, with versions, authors and licences shown and installs isolated
+    where plugins need their own dependencies.
+
+DONE WHEN
+    A test catalogue lists plugins and recipes; one installs, loads and
+    uninstalls cleanly.

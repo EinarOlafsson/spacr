@@ -663,9 +663,10 @@ class _MasksConsole(QWidget):
     message repeated on every mouse move reads once.
 
     STREAMED OUTPUT. A backend worker's progress bars (tqdm redrawing itself
-    with ``\r`` during Cellpose 3 restoration, segmentation or a model
-    download) and an install's pip lines arrive faster than anyone reads, on
-    threads that must not wait. :meth:`stream` keeps only the newest state
+    with a carriage return, ``\\r``, during Cellpose 3 restoration,
+    segmentation or a model download) and an install's pip lines arrive
+    faster than anyone reads, on threads that must not wait.
+    :meth:`stream` keeps only the newest state
     and draws it on the progress line at most every :attr:`STREAM_MS`
     milliseconds; a bar's finished state goes into the scrollback once. The
     console listens to every worker from the moment it is built
@@ -8193,7 +8194,7 @@ class MakeMasksScreen(QWidget):
         an action: it stays lit for as long as the settings are on
         screen. The tools wider than the window scroll; the pair does
         not, so the way back to the settings is never scrolled out of
-        sight (item 419, the maintainer's choice of 2026-09-25). A
+        sight. A
         stretch after the last tool keeps the tools against the left
         edge, above the settings they sit over.
 
@@ -11260,7 +11261,7 @@ class MakeMasksScreen(QWidget):
             "Equalise the histogram inside each tile rather than over the "
             "whole field, with a limit on how much any one level may be "
             "stretched. It is what brings out objects in a dim corner "
-            "without blowing out the bright middle. It also amplifies "
+            "without saturating the bright middle. It also amplifies "
             "noise in empty tiles, which is what the clip limit is for.")
         card.body_layout.addWidget(self._enh_clahe)
 
