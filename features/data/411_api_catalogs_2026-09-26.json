@@ -1,0 +1,432 @@
+{
+  "schema": 1,
+  "feature": 411,
+  "date": "2026-09-26",
+  "scope": "API documentation catalogs docs/source/_static/i18n/api/<lang>.json for all nine locales, written by tools/build_documentation_i18n.py --repair-api-blocks with an EMPTY model root after every locale reached 0 owed blocks: every prose block is a reviewed record (AI technical review, Claude Opus 5.5, no native-speaker signoff) or a proven existing translation; nothing was machine-decoded.",
+  "branch": "docs/i18n-api",
+  "source_commit": "a3b7d8344c7f8cca14c7ea9ad655758bfc9d882c",
+  "english_manifest": {
+    "commit": "5d41e648b",
+    "symbols_before": 11710,
+    "symbols_after": 11721,
+    "added": 11,
+    "changed": 9,
+    "removed": 0
+  },
+  "exact_identity_allowlist": {
+    "commit": "d9e316c40",
+    "constant": "API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE",
+    "blocks": [
+      "Plasmodium",
+      "Candida",
+      "Toxoplasma"
+    ],
+    "languages": [
+      "sv",
+      "de",
+      "es",
+      "pt",
+      "is",
+      "fr"
+    ],
+    "reviewed_records_only": true,
+    "records_changed": {
+      "fr": "Plasmodium, Candida added; Toxoplasme -> Toxoplasma",
+      "sv": "Organismen X -> X",
+      "de": "Organismus X -> X",
+      "pt": "Organismo X -> X",
+      "is": "Lífveran X -> X",
+      "es": "Toxoplasma gondii / Plasmodio / Cándida -> Toxoplasma / Plasmodium / Candida"
+    },
+    "unchanged": "zh_CN, hi and ko keep their own-script names (target-script gate applies)"
+  },
+  "late_blocks_translated_by_integrator": {
+    "es": 26,
+    "pt": 26,
+    "note": "blocks added to the docstrings after those locales were planned; written from the English, checked with check.py, loader-accepted"
+  },
+  "languages": [
+    {
+      "language": "sv",
+      "catalog_commit": "5e33ab99e",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38454,
+        "historical_reused_blocks": 4147,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6895,
+        "loader_accepted_reviewed_blocks": 7830
+      },
+      "full_builder_audit_failures": [
+        "sv/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "sv/README: code/link/RST roles changed",
+        "sv/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "de",
+      "catalog_commit": "f048a976f",
+      "before": {
+        "symbols": 10805,
+        "source_current_symbols": 8979,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6321,
+        "compatibility_issues_by_kind": {
+          "missing": 919,
+          "stale": 3645,
+          "translation_blocks": 1754,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38898,
+        "historical_reused_blocks": 4086,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6465,
+        "loader_accepted_reviewed_blocks": 7912
+      },
+      "full_builder_audit_failures": [
+        "de/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "de/README: code/link/RST roles changed",
+        "de/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "es",
+      "catalog_commit": "1d50a6569",
+      "before": {
+        "symbols": 10739,
+        "source_current_symbols": 8897,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6427,
+        "compatibility_issues_by_kind": {
+          "missing": 985,
+          "stale": 3677,
+          "translation_blocks": 1762,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38602,
+        "historical_reused_blocks": 4159,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6747,
+        "loader_accepted_reviewed_blocks": 7691
+      },
+      "full_builder_audit_failures": [
+        "es/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "es/README: code/link/RST roles changed",
+        "es/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "catalog_commit": "d53289826",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38478,
+        "historical_reused_blocks": 4153,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6871,
+        "loader_accepted_reviewed_blocks": 7972
+      },
+      "full_builder_audit_failures": [
+        "zh_CN/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "zh_CN/README: code/link/RST roles changed",
+        "zh_CN/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "pt",
+      "catalog_commit": "a3b7d8344",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38467,
+        "historical_reused_blocks": 4151,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6882,
+        "loader_accepted_reviewed_blocks": 7917
+      },
+      "full_builder_audit_failures": [
+        "pt/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "pt/README: code/link/RST roles changed",
+        "pt/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "hi",
+      "catalog_commit": "afc50e15c",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38469,
+        "historical_reused_blocks": 4153,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6880,
+        "loader_accepted_reviewed_blocks": 7865
+      },
+      "full_builder_audit_failures": [
+        "hi/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "hi/README: code/link/RST roles changed",
+        "hi/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "ko",
+      "catalog_commit": "0fab7c1ca",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38471,
+        "historical_reused_blocks": 4153,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6878,
+        "loader_accepted_reviewed_blocks": 7939
+      },
+      "full_builder_audit_failures": [
+        "ko/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "ko/README: code/link/RST roles changed",
+        "ko/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "is",
+      "catalog_commit": "2f807bb1a",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38457,
+        "historical_reused_blocks": 4149,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6892,
+        "loader_accepted_reviewed_blocks": 8431
+      },
+      "full_builder_audit_failures": [
+        "is/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "is/README: code/link/RST roles changed",
+        "is/README: RST link targets changed"
+      ]
+    },
+    {
+      "language": "fr",
+      "catalog_commit": "16c85a2e3",
+      "before": {
+        "symbols": 10614,
+        "source_current_symbols": 8781,
+        "symbols_identical_to_english": 15,
+        "compatibility_issues": 6525,
+        "compatibility_issues_by_kind": {
+          "missing": 1110,
+          "stale": 3659,
+          "translation_blocks": 1753,
+          "obsolete": 3
+        },
+        "source_compatible": false
+      },
+      "after": {
+        "symbols": 11721,
+        "source_current_symbols": 11721,
+        "symbols_identical_to_english": 8,
+        "compatibility_issues": 0,
+        "source_compatible": true
+      },
+      "owed_blocks_at_write": 0,
+      "builder_repair": {
+        "reused_blocks": 38452,
+        "historical_reused_blocks": 4147,
+        "generated_blocks": 0,
+        "unresolved_blocks": 0,
+        "review_recovered_blocks": 6897,
+        "loader_accepted_reviewed_blocks": 7851
+      },
+      "full_builder_audit_failures": [
+        "fr/spacr.timeflows_model.ctc_pairs: code/link/RST roles changed",
+        "fr/README: code/link/RST roles changed",
+        "fr/README: RST link targets changed"
+      ]
+    }
+  ],
+  "compatibility_report": {
+    "command": "tools/report_translation_compatibility.py --english-required",
+    "incompatible_api_locales": 0,
+    "english_api": "compatible",
+    "english_runtime": "incompatible",
+    "english_runtime_diagnostics": "en/UI_SOURCES: canonical source catalog is stale\nen/SOURCE_HASHES: canonical source catalog is stale",
+    "exit_code": 1,
+    "exit_reason": "English runtime source catalog stale (runtime lane), not API"
+  },
+  "tests": {
+    "files": [
+      "tests/test_api_i18n_extractor.py",
+      "tests/test_api_i18n_frontend.py",
+      "tests/test_documentation_i18n.py"
+    ],
+    "passed": 165,
+    "failed": 2,
+    "xfailed": 14,
+    "failures": [
+      "test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage (11721 != pinned 11710)",
+      "test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current[en] (11721 != DOCUMENTATION_API_SYMBOL_COUNT_RATCHET 11710)"
+    ],
+    "xfail_reasons": "the nine per-locale inventory tests and the browser-selector test xfail on the same 11710 pin; the four README tests are pre-existing README incompatibilities"
+  },
+  "pin_moves_needed_not_made": {
+    "from": 11710,
+    "to": 11721,
+    "sites": [
+      "tests/test_api_i18n_extractor.py:1277 expected",
+      "tests/test_api_i18n_extractor.py:1320",
+      "tests/test_api_i18n_frontend.py:127 REAL_SYMBOL_COUNT",
+      "tests/test_documentation_i18n.py:213 DOCUMENTATION_API_SYMBOL_COUNT_RATCHET",
+      "tests/test_docstring_correctness.py:3147"
+    ]
+  },
+  "known_issues": [
+    "spacr.timeflows_model.ctc_pairs fails the whole-document literal contract in all nine locales: the numpydoc-declaration protector in tools/build_i18n_catalogs.py treats \":raises ValueError: sequence/limit\" as a declaration \"ValueError: sequence\" (its lookbehinds exclude :param/:type/:return/:ivar/:cvar/:var but not :raises). Every block passes on its own. Pre-existing in the committed catalogs; fix is (?<!:raises ) in that lookbehind chain or a docstring reword.",
+    "README audit failures (code/link/RST roles, link targets) are pre-existing and outside the API catalogs.",
+    "origin/nightly (745025fd4) already carries an 11816-symbol English manifest (97 symbols added, 40 changed, 2 removed relative to this branch). After merging nightly these catalogs are stale for those symbols and need another measure/prep/review round."
+  ]
+}
