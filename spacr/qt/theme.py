@@ -5578,6 +5578,14 @@ QFrame#ConsoleBox {{
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
+/* A console that sits inside a Card (every module screen since item 515)
+   is ON a panel already. Its box then paints nothing, so the console reads
+   as the one panel the settings categories are, not two translucent greys
+   stacked. The ID + attribute selector outranks both ConsoleBox rules. */
+QFrame#ConsoleBox[spacrInCard="true"] {{
+    background: transparent;
+    border: none;
+}}
 /* The AI chat text box under the console — its own rounded field, edges flush
    with the console + system boxes. */
 QPlainTextEdit#ConsoleChatInput, QTextEdit#ConsoleChatInput {{
