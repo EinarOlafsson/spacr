@@ -956,7 +956,28 @@ class _LiveQtWidgetRef:
             import shiboken6
         except ImportError:
             return widget
-        return widget if shiboken6.isValid(widget) else None
+        try:
+            valid = shiboken6.isValid(widget)
+        except Exception:                                        # noqa: BLE001
+            return self._still_answers(widget)
+        return widget if valid else None
+
+    @staticmethod
+    def _still_answers(widget):
+        """``widget`` if its C++ side still answers a call, else ``None``.
+
+        The fallback for a ``shiboken6.isValid`` that raises. That is not
+        hypothetical: pytest-qt closes its widgets in a teardown hook that
+        runs BEFORE fixture teardown, so a test that monkeypatches
+        ``shiboken6.isValid`` to raise -- ``test_live_zoom_endings`` does,
+        to exercise exactly this fallback in ``spacr.qt.live_zoom`` -- still
+        has the patch in place when this reference is resolved.
+        """
+        try:
+            widget.objectName()
+        except RuntimeError:
+            return None
+        return widget
 
 
 @pytest.hookimpl(wrapper=True, tryfirst=True)
