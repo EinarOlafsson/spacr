@@ -87,7 +87,7 @@ def _install(tmp_path, name):
 
 @pytest.fixture
 def picker(qapp, tmp_path):
-    dialog = mzp.ModelZooPicker(kinds=model_zoo.mask_model_kinds())
+    dialog = mzp.ModelZooPicker(kinds=model_zoo._mask_model_kinds())
     dialog.folder_edit.setText(str(tmp_path / "models"))
     dialog.refresh()
     yield dialog
@@ -131,7 +131,7 @@ def test_a_missing_backend_is_said_and_install_is_offered(picker, monkeypatch,
 def test_use_writes_the_prefixed_setting(qapp, tmp_path, name):
     spec = SB._SPECS[name]
     _install(tmp_path, name)
-    dialog = mzp.ModelZooPicker(kinds=model_zoo.mask_model_kinds())
+    dialog = mzp.ModelZooPicker(kinds=model_zoo._mask_model_kinds())
     try:
         entry = _select(dialog, f"{name}_{spec.models[-1]}")
         assert not mzp._needs_install(entry)
@@ -252,14 +252,14 @@ def test_the_zoo_buttons_ask_for_the_prefixed_kinds(qapp, monkeypatch):
     monkeypatch.setattr(mzp, "choose_model", choose)
     host = types.SimpleNamespace(_model_box=QComboBox())
     LP.LivePreviewPanel._choose_a_preview_model(host)
-    assert asked == [model_zoo.mask_model_kinds()]
+    assert asked == [model_zoo._mask_model_kinds()]
     assert host._model_box.currentText() == "stardist:2D_versatile_fluo"
     stored = []
     grid = types.SimpleNamespace(
         MODEL_KINDS=ObjectSettingsGrid.MODEL_KINDS,
         set_value=lambda question, obj, value: stored.append(value) or True)
     assert ObjectSettingsGrid.choose_model_for(grid, "nucleus")
-    assert asked[-1] == model_zoo.mask_model_kinds()
+    assert asked[-1] == model_zoo._mask_model_kinds()
     assert stored == ["stardist:2D_versatile_fluo"]
 
 
@@ -283,7 +283,7 @@ def test_make_masks_labels_a_prefixed_model_from_the_zoo(qapp, monkeypatch):
     host = types.SimpleNamespace(_cp_model=combo,
                                  _fill_zoo_models=lambda: None)
     chosen = mm.MakeMasksScreen._choose_cellpose_model_from_zoo(host)
-    assert asked == [model_zoo.mask_model_kinds()]
+    assert asked == [model_zoo._mask_model_kinds()]
     assert chosen == "stardist:2D_versatile_he"
     assert combo.currentText() == "StarDist · 2D_versatile_he"
 

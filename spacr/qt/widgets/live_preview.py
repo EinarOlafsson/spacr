@@ -3531,7 +3531,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         from ... import model_zoo
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=model_zoo.mask_model_kinds())
+        path = choose_model(self, kinds=model_zoo._mask_model_kinds())
         if not path:
             return
         index = self._model_box.findText(str(path))

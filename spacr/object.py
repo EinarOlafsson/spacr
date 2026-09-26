@@ -2362,7 +2362,17 @@ def _spots_dog(img, settings, use_watershed):
 
 
 def _blobs_to_labels(blobs, img_norm, use_watershed):
-    """Convert ``(y, x, sigma)`` blob coordinates to a 2-D label image."""
+    """Convert ``(y, x, sigma)`` blob coordinates to a 2-D label image.
+
+    Without the watershed each blob is painted as a disc of radius
+    ``sigma * sqrt(2)``. With it, each blob is grown from its centre over the
+    smoothed image and kept where it stands at least half as high above the
+    local background (a white top-hat a few blob radii wide) as its own
+    centre does, so a spot is outlined at half maximum. Until 2026-09-26 the
+    watershed was bounded only by the image's 20th intensity percentile, so
+    every spot flooded out to meet its neighbours and a field of lipid
+    droplets became a mosaic tiling most of the image.
+    """
     shape = img_norm.shape
     markers = np.zeros(shape, dtype=np.int32)
     for i, (y, x, sigma) in enumerate(blobs, start=1):
@@ -2380,8 +2390,19 @@ def _blobs_to_labels(blobs, img_norm, use_watershed):
         return labeled
 
     smooth = gaussian(img_norm, sigma=1)
-    labeled = watershed(-smooth, markers, mask=(smooth > np.percentile(smooth, 20)))
-    return labeled
+    largest = max(float(np.max(blobs[:, 2])), 1.0)
+    radius = max(3, int(np.ceil(3 * largest * np.sqrt(2))))
+    foreground = white_tophat(smooth, disk(radius))
+    labeled = watershed(-smooth, markers,
+                        mask=(foreground > 0) | (markers > 0))
+    seed_height = np.zeros(len(blobs) + 1, dtype=np.float64)
+    seeded = markers > 0
+    seed_height[markers[seeded]] = foreground[seeded]
+    labeled[foreground < 0.5 * seed_height[labeled]] = 0
+    labeled[seeded] = markers[seeded]
+    pieces = sk_label(labeled, background=0, connectivity=1)
+    labeled[~np.isin(pieces, np.unique(pieces[seeded]))] = 0
+    return labeled.astype(np.int32)
 
 
 def _circle_coords(cy, cx, radius, shape):

@@ -27,6 +27,7 @@ from scipy import ndimage
 
 from spacr.qt import mask_engine as engine
 from spacr.utils import fill_holes_in_mask
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 ZIP = os.path.join(os.path.dirname(__file__), os.pardir, "docs", "source", "_extra",
                    "tutorials", "examples", "Cellpose_training_images_masks.zip")
@@ -163,8 +164,10 @@ class _RecordingModel:
     def __init__(self, *args, **kwargs):
         self.pretrained_model = kwargs.get("pretrained_model")
 
-    def eval(self, x, **kwargs):
-        _RecordingModel.calls.append((np.array(x, copy=True), kwargs))
+    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        check_cellpose_eval_call(x, channel_axis)
+        _RecordingModel.calls.append(
+            (np.array(x, copy=True), dict(kwargs, channel_axis=channel_axis)))
         mask = np.zeros(np.asarray(x).shape[:2], np.uint16)
         mask[2:10, 2:10] = 1
         mask[2:10, 10:18] = 2
