@@ -14,7 +14,9 @@ Status:    DONE 2026-09-19, on nightly. Reviewed, and the review's three
            follow-ups, the atomic adjust_cell_masks write and the
            *_mask_stack check with resume off are done in code on
            home/correctness-followups, local and NOT yet pushed (last
-           note); _run_test_mode ignoring raw images beside orig/ is owed.
+           note). 2026-09-25: the two left-overs are done too (note at the
+           foot) -- test mode samples raw images beside orig/, and a re-run
+           no longer re-adjusts cell masks it already adjusted.
 Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
            1.5.0.8, Mask module. #118 is auto-filed:
 
@@ -349,3 +351,44 @@ extra masks also no longer force complete fields back through generation.
 Three new identity regression cases fail before the fix. The complete mask
 recovery and utility cohort passes128checks in21.55s, including an interrupted
 normal Mask run. This does not infer provenance from matching filenames.
+
+2026-09-25 -- THE TWO LEFT-OVERS: TEST MODE SEES THE WHOLE PLATE, AND
+ADJUST_CELLS DOES NOT ADJUST TWICE
+
+Both in spacr/utils.py only; core.py (the adjust_cells caller) is unchanged.
+
+  * _run_test_mode lists raw images in orig/ AND in the plate folder beside
+    it -- where the full pipeline reads them from since the first note here
+    -- and copies each from the folder it was found in. A name in both is
+    taken once, from orig/. The folder-name fallback for a regex with no
+    plateID group is still the folder images are sampled from first. The
+    coverage test that pinned the old rule by calling an image beside orig/
+    "a decoy" is rewritten as a positive test; two source-text pins in
+    test_cov_r8_utils_loop_edges.py / test_cov_r6_... follow the listing's new
+    shape (the regex filter is still the only match check before the group
+    reads).
+  * adjust_cell_masks, IN PLACE ONLY, keeps `.cell_masks_adjusted.json`
+    beside the cell masks: {file name: sha256 of the adjusted file}, written
+    atomically after EACH field lands (so a killed run keeps the record of
+    what it finished; the pool path now uses ordered imap to know which field
+    each result is). A field whose cell mask still hashes to its record is
+    skipped and the run says how many were; a cell mask segmented again no
+    longer matches and is adjusted afresh. The dot-name keeps it out of every
+    _listdir_visible listing, and _invalidate_v1_object_masks removing the stack folder
+    removes the record with it. A separate output_folder is untouched: it
+    already rebuilds from source every time and writes no record.
+
+WHAT THIS DOES NOT DO. The record says a mask was adjusted, not with which
+thresholds; a re-run with different overlap/perimeter values skips the
+adjusted masks rather than re-adjusting from the raw ones, because the raw
+ones are gone once adjusted in place. Getting different thresholds applied
+means re-segmenting the cells (or using output_folder), which is also what
+it meant before -- the difference is that the run no longer silently merges
+an already merged mask a second time.
+
+Guards: test_cov_utils_cell_mask_adjust.py (a re-run does not call the merger
+and leaves the bytes identical; a re-segmented mask is adjusted again; an
+output folder writes no record) and test_cov_utils_mask_filtering.py (raw
+images beside orig/ are sampled; the orig/ copy wins a duplicate). 424 passed
+across the sixteen mask/utils test files touching either function, after the
+two pin updates (3 pin failures before them, 89 passed in those three files after).

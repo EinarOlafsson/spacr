@@ -1,0 +1,30 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Toxoplasma: udforsk siden, og vælg en analyse",
+  "description": "Åbn organismesiden, udforsk celldiagrammet, og vælg en tilgængelig analyse.",
+  "objectives": [
+    "Åbne siden fra Home og finde dens vigtigste kontroller.",
+    "Identificere tilgængelige input, handlinger og output.",
+    "Vælge den næste tilgængelige analyse eller reference."
+  ],
+  "prerequisite": "Åbn Home i spaCR. Organismeguiden kræver ingen inputfiler. Hver analyse har sine egne input og en linket gennemgang.",
+  "scenes": [
+    "Ethvert Toxoplasma-eksperiment kan begynde på én side. Fra Home vælger du Toxoplasma: organismeguiden, et celldiagram og de tilgængelige analyser står side om side, klar til at blive udforsket, før du indlæser billeder.",
+    "Begynd med introduktionen i informationsruden. Hver rude ruller for sig, og når du trækker i skillelinjen, får guiden eller analysefliserne mere plads.",
+    "Diagrammet er til at udforske. Hold markøren over en cellekomponent, så vises dens beskrivelse. Vælg flere for at holde dem fremhævet, og Clear components nulstiller billedet.",
+    "Vælg den flise, der passer til dit spørgsmål. Plaque Assay tæller plaques og måler deres areal; Invasion Assay spørger, hvor mange parasitter der kom ind. Recruitment måler, hvor meget markør der samler sig ved vakuolen, Replication Assay hvor mange parasitter hver vakuole rummer, og Host–Pathogen forbinder vakuoler med deres værtsceller. Hver har sin egen lektion.",
+    "Lad os følge en af dem. Klik på Host–Pathogen, og dens analyseskærm åbner. Load test data henter det medfølgende mikroskopieksempel, og derfra fører Host–Pathogen-vejledningen dig gennem indstillinger, forhåndsvisning og Run.",
+    "Tilbage på Toxoplasma-siden åbner Starplast et vidensatlas i sit eget program; første gang tilbyder det installationstrin at følge. Referencelinkene åbner derimod ressourcer om organismen i din browser.",
+    "Guiden skriver ingen analysefiler, så det egentlige arbejde foregår et andet sted. Hvis dine billeder stadig skal segmenteres eller måles, vender du først tilbage til Home; når billederne eller tabellerne er klar, tager analysesiderne over."
+  ]
+}

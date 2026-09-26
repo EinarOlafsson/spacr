@@ -6212,6 +6212,13 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     the point of a test run there is a complete sequence, and ten partial
     sequences test nothing.
 
+    Raw images are sampled from ``orig/`` AND from the plate folder itself,
+    which is where the full pipeline reads them from. A plate that a killed
+    run left half moved into ``orig/``, or one given new images after an
+    earlier run, holds raw images in both, and sampling only ``orig/`` tested
+    a plate the real run would not see. A name present in both is taken once,
+    from ``orig/``.
+
     :param src: the folder to sample from.
     :param regex: the filename pattern.
     :param timelapse: treat the source as a timelapse.
@@ -6228,16 +6235,24 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     os.makedirs(test_folder_path, exist_ok=True)
     regular_expression = re.compile(regex)
 
-    if os.path.exists(os.path.join(src, 'orig')):
-        src = os.path.join(src, 'orig')
-        
-    all_filenames = [filename for filename in _listdir_visible(src) if regular_expression.match(filename)]
+    folders = [src]
+    if os.path.isdir(os.path.join(src, 'orig')):
+        folders = [os.path.join(src, 'orig'), src]
+    found_in = {}
+    for folder in folders:
+        listed = [filename for filename in _listdir_visible(folder) if regular_expression.match(filename)]
+        for filename in listed:
+            if (filename not in found_in
+                    and os.path.isfile(os.path.join(folder, filename))):
+                found_in[filename] = folder
+    all_filenames = list(found_in)
     print(f'Found {len(all_filenames)} files')
     images_by_set = defaultdict(list)
+    fallback_plate = os.path.basename(folders[0])
 
     for filename in all_filenames:
         match = regular_expression.match(filename)
-        plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
+        plate = match.group('plateID') if 'plateID' in match.groupdict() else fallback_plate
         well = match.group('wellID')
         field = match.group('fieldID')
         set_identifier = (plate, well, field)
@@ -6254,7 +6269,8 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     for set_identifier in selected_sets:
         for filename in images_by_set[set_identifier]:
-            shutil.copy(os.path.join(src, filename), test_folder_path)
+            shutil.copy(os.path.join(found_in[filename], filename),
+                        test_folder_path)
 
     return test_folder_path
 
@@ -8989,6 +9005,71 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     end = time.perf_counter()
     return end - start
 
+#: The record, beside the cell masks, of which ones :func:`adjust_cell_masks`
+#: already adjusted in place, as ``{file name: sha256 of the adjusted file}``.
+ADJUSTED_CELLS_LEDGER = '.cell_masks_adjusted.json'
+
+
+def _file_sha256(path):
+    """The SHA-256 of a file's bytes, or None when it cannot be read.
+
+    :param path: the file.
+    :returns: the hex digest, or None.
+    """
+    import hashlib
+
+    digest = hashlib.sha256()
+    try:
+        with open(path, 'rb') as handle:
+            for block in iter(lambda: handle.read(1 << 20), b''):
+                digest.update(block)
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def _read_adjusted_cells(cell_folder):
+    """The in-place adjustment record for ``cell_folder``.
+
+    :param cell_folder: the folder of cell masks.
+    :returns: ``{file name: sha256}``; empty when there is no record or it
+        cannot be read, which means every mask is adjusted, as before the
+        record existed.
+    """
+    import json
+
+    path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
+    try:
+        with open(path, encoding='utf-8') as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(record, dict):
+        return {}
+    return {str(name): str(digest) for name, digest in record.items()}
+
+
+def _write_adjusted_cells(cell_folder, record):
+    """Replace the in-place adjustment record atomically.
+
+    :param cell_folder: the folder of cell masks.
+    :param record: ``{file name: sha256}`` to write.
+    """
+    import json
+    import tempfile
+
+    path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
+    fd, temporary = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.json',
+                                     dir=cell_folder)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as handle:
+            json.dump(record, handle, indent=0, sort_keys=True)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.remove(temporary)
+
+
 def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None, *, output_folder=None):
     """Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.
 
@@ -9004,6 +9085,12 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         preserves the historical in-place behavior. A separate folder keeps
         all source masks byte-identical, and every selected field is rebuilt
         from its source on each invocation, including after interrupted work.
+        In place, each adjusted mask's SHA-256 is recorded in
+        :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes
+        still match its record is left alone on the next run: adjusting an
+        adjusted mask merges it again, so a re-run used to change the result
+        every time. A cell mask segmented again no longer matches and is
+        adjusted afresh.
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files
         or mismatched filenames, or a mask is truncated, nonnumeric, empty,
@@ -9072,6 +9159,21 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                                  f'{path} has {shape}, expected {expected_shape}')
             expected_shape = shape
 
+    record = None
+    if output_folder is None:
+        record = _read_adjusted_cells(cell_folder)
+        already = {name for name in parasite_files
+                   if name in record and record[name] == _file_sha256(
+                       os.path.join(cell_folder, name))}
+        if already:
+            print(f'{len(already)} of {len(parasite_files)} cell masks were '
+                  'already adjusted by an earlier run and are left as they are.')
+        record = {name: digest for name, digest in record.items()
+                  if name in already}
+        parasite_files = [name for name in parasite_files if name not in already]
+        if not parasite_files:
+            return
+
     if n_jobs is None:
         n_jobs = max(1, cpu_count() - 2)
     else:
@@ -9090,15 +9192,21 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
 
     if n_jobs == 1:
         durations = map(process_fn, parasite_files)
-        for i, duration in enumerate(durations, 1):
+        for i, (name, duration) in enumerate(zip(parasite_files, durations), 1):
             time_ls.append(duration)
+            if record is not None:
+                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
         return
 
     with Pool(n_jobs) as pool:
-        for i, duration in enumerate(
-                pool.imap_unordered(process_fn, parasite_files), 1):
+        for i, (name, duration) in enumerate(
+                zip(parasite_files, pool.imap(process_fn, parasite_files)), 1):
             time_ls.append(duration)
+            if record is not None:
+                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls,
                            batch_size=None,
                            operation_type='adjust_cell_masks')

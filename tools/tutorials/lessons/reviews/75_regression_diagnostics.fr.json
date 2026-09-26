@@ -1,21 +1,33 @@
 {
-  "lesson": "75_regression_diagnostics", "language": "fr",
-  "english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
-  "review": {"kind": "Editorial translation checked against English, real diagnostic figures and recorded run settings", "native_speaker_signoff": false, "corrections": ["Keep identifiability, permutation inference and software completion distinct.", "Preserve all counts, the empirical p-value floor and the absence of a fitted-residual diagnostic."]},
-  "title": "Regression Diagnostics : comprendre les éléments derrière les résultats",
-  "description": "Ouvrez les diagnostics d’une véritable analyse du jeu de criblage d’exemple, distinguez les avertissements sur le plan expérimental des résultats de permutation et comprenez les limites d’une courte démonstration.",
-  "objectives": ["Ouvrir Diagnostics dans Regression et vérifier le dossier de résultats consulté.", "Interpréter l’identifiabilité, la présence des guides et l’inférence dans le contexte de l’analyse choisie.", "Reconnaître l’absence de résidus ajustés et la résolution limitée des permutations sans inventer d’ajustement de modèle."],
-  "prerequisite": "Terminez l’exemple Regression avec les quatre paires téléchargeables de tables de scores et de comptages. La vidéo examine une analyse non paramétrique limitée à 199 permutations, au moins deux puits et des résultats par guide et par gène. Elle illustre le logiciel et les diagnostics, pas une inférence définitive permettant de conclure à des découvertes.",
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Regression Diagnostics : inspecter les rapports d’analyse enregistrés",
+  "description": "Ouvrez les rapports de plan et d’inférence d’une exécution terminée, inspectez le soutien et les dépendances, et servez-vous des constats pour choisir l’analyse suivante.",
+  "objectives": [
+    "Ouvrir le dossier de diagnostic de l’exécution Regression voulue.",
+    "Lire les résumés de soutien du plan, d’identifiabilité et d’inférence.",
+    "Conserver les diagnostics avec leurs paramètres et relancer après une modification de l’analyse."
+  ],
+  "prerequisite": "Terminez l’exemple Regression avec ses quatre paires score/comptage. L’exécution par permutations illustrée utilise 199 permutations et un minimum de deux puits. Gardez ensemble ses paramètres et ses familles de résultats pour interpréter les panneaux de diagnostic.",
   "scenes": [
-    "Dans Regression, survolez Diagnostics et ouvrez-le une fois l’analyse terminée. Ce bouton lit les résultats enregistrés ; il n’ajuste pas un autre modèle. Il ouvre le dossier de diagnostics le plus récent du projet : vérifiez donc le chemin si plusieurs analyses existent.",
-    "Le gestionnaire de fichiers du système montre les vrais fichiers de l’analyse du jeu d’exemple téléchargé. Le format des figures était ici PNG. Le dossier contient l’identifiabilité du plan, ses diagnostics, les diagnostics d’inférence, une table récapitulative et une table des paires de guides colinéaires.",
-    "Le plan comporte six cent six puits, sept cent quatre-vingt-treize paramètres et un rang de cinq cent quatre-vingt-dix-neuf. Il ne permet pas d’identifier un coefficient simultané unique pour chaque guide. Cet avertissement explique notre choix des permutations ; il ne signifie pas qu’un modèle simultané a été ajusté avec succès.",
-    "La présence des guides est inégale : trois cent cinquante-cinq n’apparaissent que dans un seul puits de ce plan. Une faible présence limite ce que l’expérience peut établir. Examinez la couverture avant les effets et distinguez le plan complet de la famille filtrée de guides effectivement testés.",
-    "Le panneau du plan aide à repérer une présence insuffisante et les dépendances entre prédicteurs de guides. Des guides toujours présents ensemble sont difficiles à distinguer statistiquement. Consultez les paires précises dans la table de colinéarité plutôt que de considérer un badge d’avertissement comme une explication complète.",
-    "Le panneau d’inférence résume quatre cent trente-quatre tests de guides : distribution des valeurs p, comparaison à une loi uniforme sous l’hypothèse nulle et découvertes selon les seuils ajustés. Cette courte analyse ne trouve aucune découverte au seuil affiché. Un avertissement de calibration invite à enquêter, sans prouver un effet biologique.",
-    "Nous avons utilisé seulement cent quatre-vingt-dix-neuf permutations pour une démonstration courte. La plus petite valeur p empirique possible est donc zéro virgule zéro zéro cinq. Cette résolution peut être insuffisante après correction des tests multiples ; prévoyez un nombre adapté de permutations pour l’analyse réelle.",
-    "Cette analyse par permutation n’a pas de panneau de résidus ajustés, car elle n’a pas ajusté le modèle de régression simultané. La comparaison des valeurs p que nous venons de voir n’est pas un diagnostic des résidus. D’autres modes peuvent en produire lorsqu’ils fournissent des valeurs observées et ajustées.",
-    "Le résumé enregistre l’évaluation de chaque panneau et la plus mauvaise évaluation de l’ensemble. Lisez-les dans leur contexte plutôt que d’interpréter le badge global comme une erreur du logiciel. L’API Python des diagnostics de régression écrit les mêmes types de panneaux à partir des données reçues.",
-    "Retournez dans Regression pour examiner les entrées ou modifier volontairement un choix d’analyse. Un changement demande une nouvelle exécution et de nouveaux diagnostics ; ouvrir ce dossier n’actualise jamais les anciens résultats. Le tutoriel Regression couvre les données, la console, les résultats interactifs et l’assistance."
+    "Depuis Home, ouvrez Regression. Une fois l’analyse terminée, cliquez sur Diagnostics. Vérifiez le chemin du dossier : ce raccourci ouvre le dossier de diagnostics le plus récent qu’il trouve dans le projet.",
+    "Lisez les fichiers de diagnostic de ce dossier dans l’ordre : l’identifiabilité du plan, puis les diagnostics du plan avec les paires de guides colinéaires, puis les diagnostics d’inférence, et enfin le résumé qui les rassemble.",
+    "Commencez par Design identifiability. Comparez le nombre de puits, le nombre de paramètres et le rang du plan. Cet exemple a plus de paramètres que son rang ne le permet ; il ne peut donc pas identifier un coefficient simultané unique pour chaque guide.",
+    "Inspectez le soutien de chaque guide sur l’ensemble des puits. L’exemple comprend de nombreux guides présents dans un seul puits. Distinguez le plan complet de la famille filtrée des guides réellement testés.",
+    "Ouvrez Design diagnostics et la table des paires colinéaires. Repérez les prédicteurs qui apparaissent toujours ensemble ou qui ont un faible soutien avant de leur attribuer des effets séparés.",
+    "Ouvrez Inference diagnostics. Inspectez la distribution des valeurs P, la comparaison avec l’hypothèse nulle et les découvertes selon les seuils ajustés. Cet exemple ne compte aucune découverte au seuil affiché.",
+    "Vérifiez le nombre de permutations lorsque vous interprétez les valeurs P. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P empirique atteignable est zéro virgule zéro zéro cinq. Prévoyez la résolution nécessaire à votre correction pour tests multiples.",
+    "Une analyse par permutations ne produit pas de résidus ajustés issus d’un modèle de régression simultané. Cherchez les panneaux de résidus lorsque vous utilisez un mode qui fournit des valeurs observées et ajustées.",
+    "Lisez le résumé en parallèle des panneaux individuels. Son évaluation globale reprend la moins bonne évaluation des panneaux ; ouvrez donc le rapport correspondant pour en comprendre la raison.",
+    "Revenez à Regression pour modifier les entrées ou les paramètres d’analyse de façon réfléchie. Lancez l’analyse révisée et inspectez ses nouveaux diagnostics. Gardez les anciens dossiers de sortie séparés afin que chaque rapport reste associé à ses paramètres."
   ]
 }

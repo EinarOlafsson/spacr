@@ -428,7 +428,9 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
         ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``,
         ``flow_threshold`` and ``cellprob`` are read, each with a default.
         A ``cellpose3:...`` model is segmented in the Cellpose 3 backend by
-        :func:`spacr.object._cellpose3_masks`, as the run segments it.
+        :func:`spacr.object._cellpose3_masks`, as the run segments it, and a
+        ``cellpose_dino:<path>`` model in the Cellpose-DINO backend by
+        :func:`spacr.object._cellpose_dino_masks`.
     """
     from ...object import _prefixed_model_route
 

@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Plasmodium: 생물 가이드 둘러보기",
+  "description": "Plasmodium 가이드를 둘러보고, 세포 도식을 살펴보고, 사용할 수 있는 일반 이미지 분석 워크플로를 찾습니다.",
+  "objectives": [
+    "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
+    "사용 가능한 입력, 작업, 출력을 확인합니다.",
+    "다음으로 사용할 분석이나 참고 자료를 고릅니다."
+  ],
+  "prerequisite": "spaCR의 Home을 여세요. 가이드에는 입력 파일이 필요 없습니다. Plasmodium 전용 분석 타일에는 현재 Coming soon이 표시됩니다.",
+  "scenes": [
+    "Plasmodium에는 전용 가이드가 있습니다. Home에서 Plasmodium을 고르면 이 생물과 세포 구획, 그리고 예정된 분석을 둘러볼 수 있습니다.",
+    "정보 창은 혈액기와 간기부터 운동성까지 기생충의 이야기를 여러 부분으로 나누어 들려줍니다. 구분선을 드래그하면 모듈 타일 옆 공간을 넓힐 수 있습니다.",
+    "정단복합체문 도식에서 구획에 포인터를 올리면 그것이 무엇인지 읽을 수 있습니다. 여러 개를 선택하면 함께 강조 표시되고, Clear components를 누르면 보기가 원래대로 돌아옵니다.",
+    "분석 타일은 아직 Coming soon으로 표시되어 열 수 없지만, 설명을 보면 각각 무엇을 측정할지 알 수 있습니다. 지금 Plasmodium 이미지를 분석하려면 Home으로 돌아가 자신의 이미지와 알맞은 채널 설정으로 Mask나 Measure를 여세요.",
+    "더 자세히 알아보려면 PlasmoDB와 UniProt 링크가 브라우저에서 생물 관련 자료를 엽니다. 여기서는 데이터셋이나 Run이 필요 없고, 가이드는 파일을 쓰지 않습니다."
+  ]
+}

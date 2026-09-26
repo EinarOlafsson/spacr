@@ -2,9 +2,9 @@
 THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
 ================================================================================
 
-Status:    DONE, 2026-09-12. Both constraints removed in the proposal step;
-           the engine was already right and is untouched. Eight guards, each
-           verified to fail without its fix. Filed 2026-09-10.
+Status:    DONE, 2026-09-12; the renumber-on-move/delete remainder DONE
+           2026-09-25. Both constraints removed in the proposal step; the
+           engine was already right and is untouched. Filed 2026-09-10.
 Requested: 2026-09-10, verbatim -- "in the regression model as it is now the
            user must name their count and score csvs starting with the plate
            name. this is impractical and the user should be able to drag and
@@ -193,3 +193,30 @@ from the row-move and row-delete paths, which touches the manual-attachment
 pinning those paths already do -- worth doing, not worth conflating with
 this.
 
+2026-09-25 -- THE REMAINDER: MOVE AND DELETE RE-PROPOSE AT ONCE
+
+`_move` and `_remove` in PairedFileTableWidget now call `_repropose`, so a
+generated `plate N` is renumbered the instant a row moves or goes instead of
+on the next drop.
+
+ONE TRAP, AND WHY `_repropose` NOW TAKES THE TYPED LABELS AS AN ARGUMENT.
+Typed labels are found by comparing the table against the proposal for the
+current files. After a move, the proposal is for the NEW order, so the
+generated `plate 2` a move carried to the top no longer matches `plate 1` and
+would be mistaken for a name the user chose -- and kept. The labels are
+therefore read BEFORE the table changes (`_labels_before_a_change`) and
+passed in. The pins the delete path already drops are untouched; the
+re-proposal reapplies the ones that remain.
+
+A CONSEQUENCE WORTH KNOWING: a Remove or a move now re-pairs the table from
+filename tokens, exactly as a drop always has. A count cell the user edited
+by hand to a different pairing is re-proposed on those presses too, not only
+on the next drop. That is the same rule the add path already applies, not a
+new one.
+
+Guards (tests/qt/test_the_regression_table_names_plates_without_the_filename.py):
+a deleted first row leaves `plate 1`, a moved row is renumbered and stays
+selected, a typed label survives both a move and a delete. The existing
+move/remove/pin tests in test_cov_w3_8_file_list.py,
+test_cov_wf_qt_widgets_file_list.py and test_measurements_database_per_plate.py
+pass unchanged (248 passed across the six files).
