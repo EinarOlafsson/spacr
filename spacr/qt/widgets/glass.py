@@ -40,6 +40,9 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QDialogButtonBox, QLineEdit, QPushButton,
                                QTextEdit, QWidget)
 
+from ..gil_priority import (_stop_watching_application_events,
+                            _watch_application_events)
+
 LOG = logging.getLogger("spacr.qt.glass")
 
 #: Set on a dialog that has already been treated, so a second show is cheap
@@ -932,13 +935,15 @@ def install_glass_everywhere(application=None) -> bool:
         if _INSTALLED is not None:
             try:
                 if _INSTALLED_APP is not None:
-                    _INSTALLED_APP.removeEventFilter(_INSTALLED)
+                    _stop_watching_application_events(
+                        _INSTALLED_APP, _INSTALLED)
             except Exception:                                # noqa: BLE001
                 LOG.debug("the old glass filter would not come off",
                           exc_info=True)
 
         installed = _GlassInstaller(application)
-        application.installEventFilter(installed)
+        _watch_application_events(
+            application, installed, _GLASS_MOMENTS | _DRAG_MOMENTS)
         _INSTALLED = installed
         _INSTALLED_APP = application
         return True
@@ -972,7 +977,7 @@ def uninstall_glass_everywhere(application=None) -> bool:
 
         application = _INSTALLED_APP or application or QApplication.instance()
         if application is not None:
-            application.removeEventFilter(_INSTALLED)
+            _stop_watching_application_events(application, _INSTALLED)
     except Exception:                                        # noqa: BLE001
         LOG.debug("the glass filter would not come off", exc_info=True)
     finally:

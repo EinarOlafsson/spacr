@@ -760,6 +760,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # channel and mask-dimension keys it applies to, rather than under
     # Cell/Nucleus/Pathogen, because one value serves all three objects.
     "segmentation_backend",
+    # A NEW SETTING PAIR, not a regrouping: Make Masks splits its fields
+    # across two or more GPUs when `mask_parallel` is on, on the GPUs named
+    # by `mask_gpu_indices` (blank means every visible one). Both sit in Mask's
+    # Runtime & Reliability group beside `n_jobs` and `batch_size`.
+    "mask_parallel", "mask_gpu_indices",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

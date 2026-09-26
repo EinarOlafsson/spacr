@@ -1122,6 +1122,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
     settings.setdefault('adjust_cells', True)
+    settings.setdefault('mask_parallel', False)
+    settings.setdefault('mask_gpu_indices', '')
 
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
@@ -3278,6 +3280,8 @@ expected_types = {
     "save_original_images": bool,
     "keep_intermediate": bool,
     "keep_original_images": bool,
+    "mask_parallel": bool,
+    "mask_gpu_indices": str,
     "save": bool,
     "plot": bool,
     "tensorboard": bool,
@@ -4419,6 +4423,8 @@ tooltips = {
     "t_project_for_tracking": "(bool) - Collapse each timepoint's z-stack to one plane before linking, so tracking uses the projection while segmentation uses the volume. Enable this setting when volumetric linking is too slow or anisotropy is uncertain. Objects at the same lateral position but different z positions then merge in the projection and cannot be distinguished downstream. This setting does not enable backends that do not support volumetric data. Default False.",
     "save_original_images": "(bool) - After each batch is MIP-projected and merged into stack/, either move the raw input images into src/orig/ (True) or delete them so the pixels live only in stack/ (False). Set False on large screens where the duplicate raw copy will not fit on disk; the deletion is not reversible. Default True.",
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
+    "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+    "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
@@ -5221,7 +5227,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -6751,3 +6757,77 @@ tooltips.update({
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
+
+
+ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models')
+
+
+ALPHA_FEATURES = {
+    426: {
+        'settings': ('timeflows_model',),
+        'choices': {'timelapse_mode': ('timeflows',)},
+    },
+    493: {
+        'settings': ('mask_parallel', 'mask_gpu_indices'),
+        'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
+    },
+}
+
+
+def _alpha_names(kind):
+    """Every name registered as alpha under ``kind``, across all items.
+
+    ``ALPHA_FEATURES`` is the one registry of everything built from
+    ``features/future`` that ships as an alpha feature -- the maintainer's
+    rule of 2026-09-26 (item 569, ``features/README.md``): hidden unless
+    Preferences -> Show alpha features is on. Each entry is keyed by the item
+    number and lists what that item adds under the kinds in ``ALPHA_KINDS``:
+    ``settings`` (settings keys, hidden from the form, the settings search
+    and its counts), ``choices`` (``{key: (dropdown values,)}``), ``widgets``
+    (Qt object names of buttons, checkboxes, labels, menu actions or
+    panels), ``apps`` (module keys: tile, sidebar, menu and palette together)
+    and ``models`` (Model Zoo keys, names or family stems). A feature is
+    marked in this one place and promoted out of alpha by deleting its entry.
+
+    Hiding is a display decision only: a saved or typed alpha setting still
+    reaches the run, and headless and command-line runs never consult the
+    registry.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :returns: a frozenset of names; for ``choices`` the settings keys that
+        carry alpha entries.
+    :raises ValueError: for a kind that is not in ``ALPHA_KINDS``.
+    """
+    if kind not in ALPHA_KINDS:
+        raise ValueError(
+            f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
+    names = set()
+    for entry in ALPHA_FEATURES.values():
+        names.update(entry.get(kind, ()) or ())
+    return frozenset(str(name) for name in names)
+
+
+def _alpha_choices(key):
+    """The dropdown entries of settings ``key`` that are alpha.
+
+    :param key: a settings key, such as ``'timelapse_mode'``.
+    :returns: a frozenset of the entries' values, empty when none are alpha.
+    """
+    values = set()
+    for entry in ALPHA_FEATURES.values():
+        values.update((entry.get('choices') or {}).get(str(key), ()) or ())
+    return frozenset(str(value) for value in values)
+
+
+def _is_alpha(kind, name, choice=None):
+    """Whether ``name`` of ``kind`` is registered with the alpha gate.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :param name: the settings key, object name, module key or model key.
+    :param choice: with ``kind='choices'``, the dropdown entry asked about;
+        without it the question is whether ``name`` has any alpha entry.
+    :returns: True when registered.
+    """
+    if kind == 'choices' and choice is not None:
+        return str(choice) in _alpha_choices(name)
+    return str(name) in _alpha_names(kind)

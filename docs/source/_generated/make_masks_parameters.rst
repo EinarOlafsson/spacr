@@ -170,3 +170,30 @@ or restore values from the current session.
 
 ``psf_error`` — default ``''``
     actionable loading/validation error when no kernel is ready.
+
+``restoration`` — default ``False``
+    enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker.
+
+``restoration_plan`` — default ``None``
+    immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence.
+
+``restoration_error`` — default ``''``
+    loading error shown instead of silently using unprocessed data when restoration was explicitly requested.
+
+``percentile_clip`` — default ``False``
+    clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched.
+
+``percentile_low`` — default ``1.0``
+    the lower percentile, 0..100.
+
+``percentile_high`` — default ``99.0``
+    the upper percentile, 0..100, above the lower.
+
+``log`` — default ``False``
+    a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero.
+
+``log_gain`` — default ``10.0``
+    the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity.
+
+``sqrt`` — default ``False``
+    a square root on 0..1, the curve gamma 0.5 draws, offered by name.

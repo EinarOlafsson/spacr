@@ -4035,8 +4035,9 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
 
     if _WINDOW_SHEET_FILTER is None:
         _WINDOW_SHEET_FILTER = _SheetsEveryWindowThatAppears()
-    app.removeEventFilter(_WINDOW_SHEET_FILTER)
-    app.installEventFilter(_WINDOW_SHEET_FILTER)
+    from .gil_priority import _watch_application_events
+
+    _watch_application_events(app, _WINDOW_SHEET_FILTER, _SHEETING_MOMENTS)
 
     sheeted = 0
     for window in list(app.topLevelWidgets()):

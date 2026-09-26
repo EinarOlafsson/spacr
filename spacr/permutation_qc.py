@@ -317,6 +317,12 @@ def plot_residual_by_position(residuals: Sequence[float],
     order = sorted(set(labels.tolist()), key=_natural_key)
     if len(order) > MAX_PANEL_BLOCKS:
         def _distance(block):
+            """How far a block's Durbin-Watson sits from 2, or -1 without one.
+
+            :param block: a block label from ``labels``.
+            :returns: ``|DW - 2|``, so the most autocorrelated blocks sort
+                first; -1.0 when the report has no finite statistic.
+            """
             dw = float(per_block.get(block, {}).get("durbin_watson",
                                                     float("nan")))
             return abs(dw - 2.0) if np.isfinite(dw) else -1.0
@@ -415,6 +421,10 @@ def write_permutation_qc(destination: str,
     :returns: ``{'dir', 'report', 'figure', 'figure_error'}``. The JSON
         report is always written; ``figure`` is ``None`` and
         ``figure_error`` says why when there is nothing to draw against.
+        The panel is written by :func:`spacr.plot.save_figure`, so its
+        format and resolution follow the figure preferences as the
+        parametric panels beside it do, and ``figure`` names the file on
+        disk.
     """
     from .regression_qc import QC_DIRNAME
 
@@ -436,7 +446,8 @@ def write_permutation_qc(destination: str,
     except ValueError as error:
         manifest["figure_error"] = str(error)
         return manifest
-    figure_path = os.path.join(out_dir, f"residual_by_position_{stem}.png")
-    fig.savefig(figure_path, dpi=110)
-    manifest["figure"] = figure_path
+    from .plot import save_figure
+
+    manifest["figure"] = save_figure(
+        fig, os.path.join(out_dir, f"residual_by_position_{stem}"))
     return manifest

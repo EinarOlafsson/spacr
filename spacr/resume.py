@@ -312,7 +312,7 @@ NON_FIELD_TABLES = frozenset({
 #: worker counts, plot cosmetics, the resume flag itself. A change in one
 #: of these is reported as drift and does **not** block a resume.
 COSMETIC_SETTINGS = frozenset({
-    'src', 'resume', 'n_jobs', 'plot', 'verbose', 'progress', 'update_gui',
+    'src', 'resume', 'n_jobs', 'mask_parallel', 'mask_gpu_indices', 'plot', 'verbose', 'progress', 'update_gui',
     'test_mode', 'test_images', 'test_nr', 'random_test', 'test_size',
     'examples_to_plot', 'figuresize', 'cmap', 'save_figures', 'show',
     'dry_run', 'strict_errors', 'timestamp', 'from_scratch',

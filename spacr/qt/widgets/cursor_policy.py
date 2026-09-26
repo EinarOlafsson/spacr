@@ -5,6 +5,8 @@ from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication, QWidget
 
+from ..gil_priority import _watch_application_events
+
 
 def arrow_cursor(active=False):
     """Return the native OS arrow without customizing its artwork or size.
@@ -51,7 +53,8 @@ def install_cursor_policy(application=None):
         return False
     policy = _CursorPolicy(app)
     app._spacr_cursor_policy = policy
-    app.installEventFilter(policy)
+    _watch_application_events(app, policy, (
+        QEvent.CursorChange, QEvent.Enter, QEvent.Show, QEvent.MouseMove))
     for widget in QApplication.allWidgets():
         policy.eventFilter(widget, QEvent(QEvent.CursorChange))
     return True

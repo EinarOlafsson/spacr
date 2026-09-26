@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source_sha256": "ae96f6c340ecf326902a20474c8af68b7c6d712eb18ce210e0a787597356ca3d",
+      "translation": "Adhésion ouvre l’Invasion Assay, dont les comptages de champignons attachés et envahissants donnent les cellules fongiques liées à une monocouche de cellules hôtes. Le module Biofilm prévu portera sur la croissance collective, y compris l’aire couverte et l’épaisseur lorsque l’acquisition contient une information de profondeur. Un seul champ bidimensionnel peut décrire la couverture de surface, mais ne peut pas à lui seul établir l’épaisseur du biofilm. Choisissez une imagerie monoplan ou volumétrique adaptée au critère d’évaluation."
+    },
+    {
+      "table": "ui",
+      "key": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source_sha256": "3d9219554981a2ff84a21cab785f893bef104ec1c3adb6aacc5df3e8a8e7aaa2",
+      "translation": "Annotez cette image pour les données d’entraînement communautaires de spaCR et envoyez-la sur Hugging Face. Mode figure : encadrez chaque puits, pour le détecteur de puits. Mode plage : peignez chaque plage, pour le prochain modèle de plages."
+    },
+    {
+      "table": "ui",
+      "key": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source_sha256": "ac08f28c2446f47dbfb46bf1ef2d92557b06e0257b77114af27f1bc9553d8777",
+      "translation": "Réponse aux antifongiques ouvre Dose–réponse pour ajuster la croissance fongique ou un score de morphologie en fonction de la concentration du médicament. Le combiner avec Morphologie ou Biofilm aiderait à décrire quelles caractéristiques d’image changent pendant le traitement. Filamentation, Formation du tube germinatif, Biofilm et Morphologie sont prévus et leurs tuiles portent la mention Bientôt disponible. La Candida Genome Database et UniProt fournissent les annotations des gènes et des protéines pour guider le choix des marqueurs et l’interprétation."
+    },
+    {
+      "table": "ui",
+      "key": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source_sha256": "c63ebc1be0895171fbd2cf1fce44ee4d41bbd8a9557ccd755cd77777659dac32",
+      "translation": "Tout ce qui aide : microscope, grossissement, lignée cellulaire, ce qui compte comme un objet."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source_sha256": "9bdfa0d5fb3e4935d33bd97a181bb044a6e8a48610fe56e0960a76d9cb655fee",
+      "translation": "Choisissez les gRNAs sur lesquels porte le graphique. Il s’ouvre sur les principaux résultats significatifs de la régression ; les puits sélectionnés sont de nouveau dérivés des gRNAs chaque fois qu’ils changent."
+    },
+    {
+      "table": "ui",
+      "key": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source_sha256": "ebdaade8df046600bf5f54f550a6fec649e3c0b09a7cde20bae6678c55b4d3f6",
+      "translation": "Cliquez sur un objet pour le supprimer entièrement. Backspace annule la dernière suppression. Appuyez sur Pinceau pour peindre à nouveau."
+    },
+    {
+      "table": "ui",
+      "key": "DOI or citation of the paper these figures come from",
+      "source": "DOI or citation of the paper these figures come from",
+      "source_sha256": "a0c02cbfd7fa7c1923d69390b5cc21ba32f21a76811a3c1a0417d7b449d709c3",
+      "translation": "DOI ou référence de l’article dont proviennent ces figures"
+    },
+    {
+      "table": "ui",
+      "key": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source_sha256": "9162528a420515355c60cc7e740a53774c6f34874d643d7b8924e92831d0d65b",
+      "translation": "Faites glisser pour élargir ou rétrécir le panneau ancré. Double-cliquez pour l’ajuster de nouveau aux noms."
+    },
+    {
+      "table": "ui",
+      "key": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source_sha256": "4ba7f62b5b0bd3823c61f41f7ddcd5e9ce157703a7f00ef1806c3b952c48206a",
+      "translation": "Tracez un cadre autour de chaque puits sur chaque page : faites glisser sur la page pour en ajouter un, faites glisser un cadre ou son coin pour le corriger, clic droit ou Delete pour le supprimer. Les cadres orange sont des propositions de spaCR que vous n’avez pas encore modifiées."
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source_sha256": "5cc5f3c3d05c7cd3122f9068b826dce76f8eb383dffcaeb465ccbcbe3158143a",
+      "translation": "Invasion épithéliale ouvre l’Invasion Assay pour distinguer les champignons extracellulaires de ceux internalisés par les cellules épithéliales. Phagocytose ouvre l’Analyse hôte–pathogène pour mesurer la capture par les phagocytes. Les deux exigent un moyen de distinguer le contact de l’internalisation, comme un marquage différentiel approprié ou une information spatiale. Indiquez la population de cellules hôtes et la morphologie fongique avec la mesure de capture."
+    },
+    {
+      "table": "ui",
+      "key": "Every curated image here with its saved mask ({n})",
+      "source": "Every curated image here with its saved mask ({n})",
+      "source_sha256": "b47221bdf5af704d3b6e8cdad993eebd1e68f87b54c6406a451bd8bffe31edab",
+      "translation": "Toutes les images curées ici avec leur masque enregistré ({n})"
+    },
+    {
+      "table": "ui",
+      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source_sha256": "e1e8d450cec728bc4555e897e8ee360c90908b2198f083ea3f3d87572c2b6878",
+      "translation": "La maturité des gamétocytes est un flux de travail proposé pour les caractéristiques d’image liées au stade et au sexe, lorsque des marqueurs adaptés et des annotations de référence sont disponibles. Imagerie de la réponse aux médicaments ouvre Dose–réponse pour ajuster une mesure d’image en fonction de la concentration. Consignez l’espèce, le stade de départ et la durée d’exposition avec ces mesures : sinon, un changement de la répartition des stades peut être pris pour un changement du nombre de parasites."
+    },
+    {
+      "table": "ui",
+      "key": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source_sha256": "eaa362c830a87873d1e978e3e54d7371552dcc7b32ea679c7389820dc1ef9c55",
+      "translation": "Motilité par glissement ouvre le Test de motilité pour mesurer la vitesse et la rectitude des trajectoires des parasites extracellulaires. Le module Sortie prévu portera sur la rupture de la vacuole et la sortie des parasites. Conversion en bradyzoïtes traitera les mesures de marqueurs de stade et de paroi kystique, tandis que Lésions des cellules hôtes décrira la perte de monocouche. Ces trois flux de travail sont proposés ; leurs tuiles portent donc la mention Bientôt disponible. Images fixes, séries temporelles et marqueurs spécifiques de stade répondent à des questions différentes et doivent être choisis selon la mesure visée."
+    },
+    {
+      "table": "ui",
+      "key": "I agree that they and my annotations are shared under {licence}.",
+      "source": "I agree that they and my annotations are shared under {licence}.",
+      "source_sha256": "63704987226e07b44c211bf5e59f55b464e7b1f7ca2f18b07d98313096673e5a",
+      "translation": "J’accepte qu’elles et mes annotations soient partagées sous {licence}."
+    },
+    {
+      "table": "ui",
+      "key": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source_sha256": "cdc60c0c66ae010869b9f431d23d6a2128164f7aa3c4184cbb1ad0c735c5c9c7",
+      "translation": "J’ai le droit de partager ces images : je les ai réalisées, ou leur source (pour une figure d’article, la licence de l’article) le permet."
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source_sha256": "2dcc3cac08ea898d9e7d4050969a1b7d9c15a54f134739e7e4cd102cfe3eef9e",
+      "translation": "Si vous ne pouvez pas entraîner un modèle vous-même, téléversez ici vos images et vos masques et nous en entraînerons un pour vous. Envoyez l’image affichée avec son masque, toutes les images que vous avez curées ici, ou un dossier d’images avec un dossier de masques contenant des masques de mêmes noms. Indiquez ce qu’elles montrent (organisme, type d’objet, marquage) et elles rejoignent leur propre jeu de données communautaire sur Hugging Face sous forme de pull request, que le mainteneur examine avant tout entraînement de modèle. Elles sont partagées sous {licence} ; n’envoyez donc que des images que vous avez le droit de partager. Un masque soigné donne un bon modèle : chaque objet, épousant son contour."
+    },
+    {
+      "table": "ui",
+      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source_sha256": "77891ddcc4abedd6f302f9317ab6c44fd8994662a20c74d1da14e51b9ca31850",
+      "translation": "La croissance au stade hépatique est prévue pour mesurer le nombre et la taille des parasites dans les hépatocytes. Motilité des sporozoïtes ouvre le Test de motilité pour les trajectoires de glissement, tandis que Traversée cellulaire traitera les lésions des cellules hôtes le long du trajet des parasites. Traversée, invasion productive et croissance ultérieure sont des issues différentes : leurs marqueurs d’image, temps d’observation et dénominateurs doivent être définis séparément."
+    },
+    {
+      "table": "ui",
+      "key": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source_sha256": "68de5ea04ce2ee379cf82fe8750b6df72be35bc5356f3fb2a9404f382c405e94",
+      "translation": "Mesurez les diamètres des cellules, des noyaux et des pathogènes sur quelques champs de vos propres images, et inscrivez-les dans les paramètres de la génération de masques. API : spacr.qt.prerun.DiameterDialog."
+    },
+    {
+      "table": "ui",
+      "key": "More than one file with the same name: {names}",
+      "source": "More than one file with the same name: {names}",
+      "source_sha256": "dff5f9843ea09ac77ba2711bbed729091cf036714bb7354855574445bb1ce6b2",
+      "translation": "Plusieurs fichiers portent le même nom : {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Name the dataset: what the images show, and how.",
+      "source": "Name the dataset: what the images show, and how.",
+      "source_sha256": "e2c45f1f71e9d3b7a4036ec7a3aecafceb81402783dc314f91141ce140f4e66f",
+      "translation": "Nommez le jeu de données : ce que montrent les images, et comment."
+    },
+    {
+      "table": "ui",
+      "key": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source_sha256": "240e7802f023577209d60dff4928bca21c21802a2e5689a0827c842b6652af35",
+      "translation": "Restreignez les puits qui portent les gRNAs choisis. Seuls les objets de ces puits sont tracés sous 'gRNAs + other datapoints in selected wells'."
+    },
+    {
+      "table": "ui",
+      "key": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source_sha256": "0d6e22361af52f71df779f30e844ecec8fff3a2119fb5766dbba03024cdafd6b",
+      "translation": "Aucun puits ne porte les gRNAs choisis, il n’y a donc aucun puits à restreindre."
+    },
+    {
+      "table": "ui",
+      "key": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source_sha256": "305fc7f2f8cb876d3bebdf3b2fc6880a86ee7a7b59dfa372bc470161c98dda34",
+      "translation": "Non envoyé. Chaque image nécessite au moins une annotation, et celles-ci n’en ont aucune : {names}. Annotez-les ou écartez-les."
+    },
+    {
+      "table": "ui",
+      "key": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source_sha256": "a8bfc10e57969087291efc5b7ab73641bb6669b530a3ba84edceff756d1fffca",
+      "translation": "Organisme, type d’objet, marquage : p. ex. vacuoles de toxoplasme GFP"
+    },
+    {
+      "table": "ui",
+      "key": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source_sha256": "a20a756945ebcbd39623440d4d894a9312b8675200017b667c4f84960c8801c6",
+      "translation": "Peignez chaque plage sur chaque image : glisser avec le bouton gauche peint la plage dans Étiquette, glisser avec le bouton droit efface, Nouveau commence une autre plage, [ et ] changent la taille du pinceau. Les plages propres à spaCR sont déjà peintes pour que vous les corrigiez."
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source_sha256": "ed3602a7e637989141e3f56afaba27c555c783d7c48cc476061313aacd678e40",
+      "translation": "Parasitémie ouvre l’Analyse hôte–pathogène, qui rapporte les globules rouges infectés par rapport à l’ensemble des globules rouges mesurés. Classification des stades sanguins séparera anneaux, trophozoïtes et schizontes, afin d’examiner un changement de composition des stades en parallèle de la fréquence d’infection. Invasion des mérozoïtes portera sur l’entrée dans les globules rouges. Ensemble, ces mesures aideraient à distinguer une baisse du nombre de cellules nouvellement infectées d’un développement altéré des parasites déjà présents."
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source_sha256": "e35d6c43c0728a7e9533b5b4190cc731f2d9e9120919b5d42b5613c2ea2e482f",
+      "translation": "Parasitémie, Motilité des sporozoïtes et Imagerie de la réponse aux médicaments ouvrent des modules spaCR existants ; les cinq autres tuiles sont prévues et portent la mention Bientôt disponible. Leurs descriptions définissent des mesures envisagées plutôt que des pipelines d’analyse disponibles. PlasmoDB et UniProt fournissent le contexte génomique et protéique pour choisir les marqueurs et interpréter les résultats. L’illustration apicomplexe est utile pour discuter des compartiments communs avec Toxoplasma, mais elle n’établit pas qu’une protéine a la même localisation dans les deux organismes."
+    },
+    {
+      "table": "ui",
+      "key": "Ready: {n} images, each with its saved mask.",
+      "source": "Ready: {n} images, each with its saved mask.",
+      "source_sha256": "056a9b63f868dd702ef265095660b53b3cb2605f65796c0fa3c9d6948c724fb3",
+      "translation": "Prêt : {n} images, chacune avec son masque enregistré."
+    },
+    {
+      "table": "ui",
+      "key": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source_sha256": "fac0ad5eb6ef563e67e269af1e894be31d2f9d75738a790a54c50bbeb83f0625",
+      "translation": "Consigner ce champ comme impossible à curer et passer au suivant. Il est inscrit dans le curate_status.csv de la session comme skip, afin que la session suivante ne le propose plus. Aucun masque n’est écrit."
+    },
+    {
+      "table": "ui",
+      "key": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source_sha256": "b35ab80d1bc1fd9db9c8f12bc9287e50370d4a9c36ca1651e490b48779e976ec",
+      "translation": "Envoyez les images et vos annotations vers {repo} sur Hugging Face, sous forme de contribution que le mainteneur examine."
+    },
+    {
+      "table": "ui",
+      "key": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source_sha256": "a0be2790879872838f7d28af1006cfbb6ec1c1ae9b98c1b337db7b8a9b4b436d",
+      "translation": "Envoyez ces images et ces masques pour examen. Activé quand le jeu de données a un nom et que chaque image a un masque."
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source_sha256": "74bc0acdd3935d06075e3a38a9ad3d5560880d70150f704d817729b086c8a2df",
+      "translation": "Étape {step} sur {steps} : construction de la table, des graphiques et des diagnostics pour {rows} lignes…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source_sha256": "42418dfe804f71cd428d9135722d6d4994986fa237b6d2f02bb5d970aca47451",
+      "translation": "Étape {step} sur {steps} : lecture de {name} (fichier {done} sur {total})…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source_sha256": "aa95e2d3cd55ceb4c99da8b437327013c3d97ffd8d5ea9c8c15b2ade6b20a375",
+      "translation": "Étape {step} sur {steps} : recherche d’une table de résultats dans {folder}…"
+    },
+    {
+      "table": "ui",
+      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
+      "translation": "Merci. Votre contribution attend d’être examinée : <a href=\"{url}\">{url}</a>"
+    },
+    {
+      "table": "ui",
+      "key": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source_sha256": "eb58f954e410e3b478d7ec8c08b8db73fc55c006a28c8e0a01900acfae41f3a5",
+      "translation": "L’image affichée n’a pas encore de masque : segmentez-la ou peignez-la d’abord. Pas de masque, pas de téléversement."
+    },
+    {
+      "table": "ui",
+      "key": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source_sha256": "07cd4d6a46e7a390862a1c4632c94c1039347b31c96a040868502ef306f1830b",
+      "translation": "Le graphique s’ouvre sur les principaux résultats significatifs de la régression. Les puits sélectionnés suivent les gRNAs cochés ici."
+    },
+    {
+      "table": "ui",
+      "key": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source_sha256": "a864a1cb68f85250f6e1bb6f03bce04fa73901c8f7235931905c322ba52d7559",
+      "translation": "La case de population est mise de côté pour ce contraste : il compare avec les puits en dehors de la sélection."
+    },
+    {
+      "table": "ui",
+      "key": "There are no image and mask pairs to send.",
+      "source": "There are no image and mask pairs to send.",
+      "source_sha256": "51cc61e84b3cca124889c7d288b9e054c61e9927d64e4681a0302758d9111daf",
+      "translation": "Il n’y a aucune paire image-masque à envoyer."
+    },
+    {
+      "table": "ui",
+      "key": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source_sha256": "c540a28d31709383834c8b8c0658bab88d117707a0fbce6348ab9cb7300f17fc",
+      "translation": "Ces lignes d’objets ne nomment aucun gRNA, il n’y a donc rien à choisir."
+    },
+    {
+      "table": "ui",
+      "key": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source_sha256": "595a466c304d33341d59fde70b9338ab1952bd7360d9ac7bf4e1ab9aebe8480d",
+      "translation": "Ces puits portent les gRNAs choisis. Un puits écarté n’est pas tracé du tout."
+    },
+    {
+      "table": "ui",
+      "key": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source_sha256": "4be7dd89a68d982cab8a14924a1f0c33909df81757c465276431e8d58039470e",
+      "translation": "Ce que vous contribuez est publié ouvertement sur Hugging Face, afin que chacun puisse entraîner et vérifier un modèle avec. C’est examiné avant d’être utilisé."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source_sha256": "f3a52d7250b2367f7c3e58211de91905aebcfcc63607aef277cddddcc4d91f60",
+      "translation": "[issue] Attente de la réponse de spaCR AI pendant {seconds} s au maximum, pour que le rapport la contienne…"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source_sha256": "9025c7719f41b2188891be974bb96e3ea8e8be5d2311f7686c526582208d0de9",
+      "translation": "spaCR n’a pas pu faire de première proposition pour {name} ({why}) ; annotez-la entièrement."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source_sha256": "cdb18c94628a9f493d899699da86cf92e919d0306fff8e40e10fab078f49cef9",
+      "translation": "Le service de téléversement de spaCR n’a pas pu l’accepter ({why}). Vous pouvez plutôt l’envoyer avec une connexion gratuite à Hugging Face : exécutez 'huggingface-cli login' ou définissez HF_TOKEN, puis appuyez de nouveau sur Téléverser. Vos annotations sont conservées tant que cette fenêtre est ouverte."
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source_sha256": "9a339dbd721a8cf3b636822897b91e9ab9ffd6112c9bdb44225e4ee65a26c10c",
+      "translation": "{judged} passé, et ne sera plus proposé  —  maintenant sur {now}"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source_sha256": "32fc57fd8fa98d4693f0060276e0925fe61578f093fbef44806877ed20c14859",
+      "translation": "{judged} passé, et ne sera plus proposé  —  c’était le dernier champ de cette session"
+    }
+  ]
+}

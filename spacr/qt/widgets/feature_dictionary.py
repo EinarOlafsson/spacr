@@ -79,6 +79,8 @@ from ...feature_dict import (
 
 from ...object_roles import ORGANELLE_ROLES
 from ...schema import object_type_summary
+from ..gil_priority import (_stop_watching_application_events,
+                            _watch_application_events)
 from ..i18n import tr
 from .workflow_diagram import DiagramDialog
 
@@ -920,7 +922,7 @@ def install_context_menu_filter(app: Optional[QApplication] = None
         return None
     if _FILTER is None:
         _FILTER = FeatureHelpFilter()
-        app.installEventFilter(_FILTER)
+        _watch_application_events(app, _FILTER, (QEvent.Type.ContextMenu,))
     return _FILTER
 
 
@@ -931,7 +933,7 @@ def remove_context_menu_filter(app: Optional[QApplication] = None) -> bool:
     if _FILTER is None:
         return False
     if app is not None:
-        app.removeEventFilter(_FILTER)
+        _stop_watching_application_events(app, _FILTER)
     _FILTER = None
     return True
 

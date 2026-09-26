@@ -1,0 +1,26 @@
+LOAD AND SAVE DATA ON CLOUD STORAGE (S3 AND OTHERS)
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/should-it-be-possible-to-load-an-ome-zarr-hcs-plate-directly-from-s3/86956
+
+WHAT TO BUILD
+    General cloud access in spaCR: browse and read images, OME-Zarr plates
+    and results from AWS S3 (and S3-compatible stores, Google Cloud Storage,
+    Azure) via fsspec, with credentials from the standard profiles,
+    streamed/cached reads, and writing results back; usable wherever a local
+    folder is accepted.
+
+DONE WHEN
+    A public S3 OME-Zarr HCS plate (e.g. from IDR) opens in spaCR and runs
+    through Mask and Measure without copying the whole plate locally.

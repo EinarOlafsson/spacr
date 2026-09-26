@@ -1329,6 +1329,10 @@ CAM_TYPE_ALIASES: Dict[str, str] = {
 def resolve_cam_type(cam_type: str) -> Optional[str]:
     """The registry method a ``cam_type`` names, or None for a legacy one.
 
+    :param cam_type: a ``cam_type`` setting value: a legacy generator, a
+        :data:`CAM_TYPE_ALIASES` spelling or a key of
+        :data:`ATTRIBUTION_METHODS`.
+    :returns: the registry method name, or None for a legacy generator.
     :raises UnknownMethodError: for a name that is neither.
     """
     name = str(cam_type)
@@ -1356,6 +1360,13 @@ def cam_type_applicability(cam_type: str, *, model: Optional[nn.Module] = None,
 
     The legacy Grad-CAM generators need a spatial layer like any CAM; the
     legacy saliency maps apply to every backbone.
+
+    :param cam_type: the ``cam_type`` setting value, as
+        :func:`resolve_cam_type` accepts it.
+    :param model: the loaded model, when there is one.
+    :param model_type: the architecture name, when there is no model.
+    :returns: ``(applies, reason)``; the reason is empty when it applies.
+    :raises UnknownMethodError: for a name :func:`resolve_cam_type` refuses.
     """
     registry_name = resolve_cam_type(cam_type)
     if registry_name is not None:

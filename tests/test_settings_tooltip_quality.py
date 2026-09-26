@@ -766,11 +766,16 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # tooltips stated a parseable default. None of the twelve may remain.
     from spacr.settings import RETIRED_OBJECT_BOUNDS
     assert not {key for _app, key in compared_pairs} & set(RETIRED_OBJECT_BOUNDS)
-    assert comparisons == 734
+    # 734 -> 736 on 2026-09-26, +2/-0 (item 493): mask_parallel states
+    # "Default False." and mask_gpu_indices "Default blank.", both resolved
+    # by Mask only (Timelapse keeps them hidden and is not in APPS).
+    assert {("mask", "mask_parallel"), ("mask", "mask_gpu_indices")} <= compared_pairs
+    assert comparisons == 736
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
-    assert census_508['comparisons_after'] + len(item_503) + 1 - 8 == comparisons
+    # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above.
+    assert census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 == comparisons
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

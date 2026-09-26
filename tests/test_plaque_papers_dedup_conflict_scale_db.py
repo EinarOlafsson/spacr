@@ -420,10 +420,22 @@ def test_without_pdfplumber_here_the_reader_environment_renders_the_pdf(
                                "text": "Fig 2. Legend.A, one.",
                                "words": [["A", 1, 2, 3, 4]]}]}
 
+    from spacr import _segmentation_backends as backends
+
+    # The reader is installed in its own environment, and its install record
+    # carries every package spaCR pins for it, pdfplumber included. Item 518
+    # made the PDF route read that record before it asks the worker, so a
+    # stand-in environment with no record is (rightly) told to install.
+    record = {"requirements": list(backends._spec(pp.READER_BACKEND)
+                                   .requirements)}
+    installed = SimpleNamespace(ready=True, in_process=False,
+                                reason="in its own environment",
+                                env="/env/papers", record=record,
+                                state="installed")
     monkeypatch.setattr(pp, "_importable", lambda module: False)
-    monkeypatch.setattr(pp, "reader_environment", lambda: "/env/papers")
-    monkeypatch.setattr("spacr._segmentation_backends._worker_for",
-                        lambda name, env: Worker())
+    monkeypatch.setattr(backends, "_backend_state", lambda name: installed)
+    monkeypatch.setattr(backends, "_worker_for", lambda name, env: Worker())
+    assert pp.reader_environment() == "/env/papers"
     figures = pp.figures_from_pdf(tmp_path / "x.pdf", tmp_path / "pages")
     assert seen["read_pdf"]["dpi"] == 200
     assert figures[0].label == "Fig 2" and figures[0].words[0].text == "A"

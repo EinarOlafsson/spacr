@@ -332,6 +332,58 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
 
 
+_DATA_LIBRARIES = ("pandas",)
+_DATA_LIBRARIES_AFTER_S = 1.0
+
+_DATA_LIBRARIES_STARTED = False
+
+
+def _import_the_data_libraries_off_the_gui_thread():
+    """Import :data:`_DATA_LIBRARIES` on a worker thread, once per process.
+
+    PANDAS WAS THE LARGEST SINGLE PIECE OF A DATA SCREEN'S FIRST OPEN. It
+    was 64 % of Annotate's worst event-loop gap (item 284, 2026-09-25), and
+    once Annotate stopped importing it the next data screen paid instead --
+    Feature Explorer went from 311 to 555 ms in the same sweep. Home still
+    imports none of it (``test_a_cold_launch_does_not_import_pandas``); after
+    a module screen is on show, pandas comes in here, off the GUI thread,
+    with the interpreter's switch interval shortened as for any worker
+    (:func:`spacr.qt.gil_priority.responsive_gui`), so the data screen
+    opened next finds it imported. A screen opened while the import is still
+    running waits on Python's import lock rather than importing twice.
+
+    The libraries are :data:`_DATA_LIBRARIES`, those a data screen imports at
+    module scope. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
+    seconds after a module screen is on show, so the import does not share
+    the interpreter lock with the open that has just finished painting.
+
+    :returns: the started thread, or ``None`` when it was started before or
+        everything is imported already.
+    """
+    global _DATA_LIBRARIES_STARTED
+    if _DATA_LIBRARIES_STARTED or all(
+            name in sys.modules for name in _DATA_LIBRARIES):
+        return None
+    _DATA_LIBRARIES_STARTED = True
+
+    def _work() -> None:
+        """Import each library, logging rather than raising a failure."""
+        from .gil_priority import responsive_gui
+
+        with responsive_gui():
+            for name in _DATA_LIBRARIES:
+                try:
+                    _importlib.import_module(name)
+                except Exception:
+                    LOG.debug("could not import %s early", name,
+                              exc_info=True)
+
+    thread = threading.Thread(target=_work, name="spacr-data-libraries",
+                              daemon=True)
+    thread.start()
+    return thread
+
+
 class _PipelinePreloader:
     """Import pipeline modules on a worker thread.
 
@@ -1340,8 +1392,9 @@ def app_is_visible(key: str) -> bool:
         preference.
     """
     try:
-        from .preferences import maturity_is_visible
-        return maturity_is_visible(app_stage(key))
+        from .preferences import _is_alpha_visible, maturity_is_visible
+        return (maturity_is_visible(app_stage(key))
+                and _is_alpha_visible("apps", key))
     except Exception:
         return True
 
@@ -3687,6 +3740,13 @@ class MainWindow(QMainWindow):
                     refresh()
                 except Exception:
                     pass
+            refresh = getattr(screen, "_refresh_alpha_visibility", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:
+                    LOG.debug("could not apply the alpha gate",
+                              exc_info=True)
             try:
                 self._drop_a_redundant_screen_backdrop(screen)
             except Exception:
@@ -3704,6 +3764,12 @@ class MainWindow(QMainWindow):
             self._sidebar.refresh_visibility()
         except Exception:
             pass
+        try:
+            from .preferences import _apply_alpha_widgets
+
+            _apply_alpha_widgets(self)
+        except Exception:
+            LOG.debug("could not apply the alpha gate", exc_info=True)
 
     def refresh_language(self) -> None:
         """Apply the persisted language to existing static UI text."""
@@ -5004,6 +5070,11 @@ class MainWindow(QMainWindow):
             started_at=interaction_started,
             budget_s=_timing.MODULE_BUDGET_S,
         )
+        if built_now and not _DATA_LIBRARIES_STARTED:
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
+                              _import_the_data_libraries_off_the_gui_thread)
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
@@ -5315,6 +5386,13 @@ class MainWindow(QMainWindow):
             _install_settings_search(page)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not install the settings search strip early",
+                      exc_info=True)
+        try:
+            from .preferences import _apply_alpha_widgets
+
+            _apply_alpha_widgets(page)
+        except Exception:
+            LOG.debug("could not apply the alpha gate to a new page",
                       exc_info=True)
 
     def stylesheet_roots(self):

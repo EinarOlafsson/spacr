@@ -549,6 +549,16 @@ class PlateMapPicker(QDialog):
         band = max(8, well_side())
 
         def _axis(value, low, high, bar):
+            """The signed scroll step along one axis.
+
+            :param value: the pointer coordinate on this axis.
+            :param low: the viewport's low edge on this axis.
+            :param high: the viewport's high edge on this axis.
+            :param bar: the scroll bar for this axis.
+            :returns: 0 outside the edge band or when ``bar`` cannot scroll;
+                otherwise a step toward the edge, capped at
+                :data:`AUTOSCROLL_MAX_STEP`.
+            """
             if bar.maximum() <= bar.minimum():
                 return 0
             depth = 0

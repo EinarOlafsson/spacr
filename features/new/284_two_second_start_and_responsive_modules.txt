@@ -4,17 +4,19 @@ HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
 
 Status:    OPEN ON THE 500 ms STALL CEILING AND NOTHING ELSE, filed
            2026-08-27. HIGH PRIORITY. The 5 s and 10 s budgets have been met
-           since 2026-09-15. 2026-09-25: a module open now breathes between
-           its steps and no longer styles Make Masks three times or
-           Preferences twice; at load 37-53 on 32 cores the intervals over
-           500 ms fell from 35-42 to 19-23 of 51, and their total from
-           38.7-48.4 s to 14.0-16.8 s (four alternating pairs; xvfb agrees).
-           Still over at that load: Preferences, Mask, Make Masks,
-           Regression, Annotate, the organism pages and about a dozen more.
-           What is left is one indivisible Qt call per screen -- its first
-           stylesheet -- plus Annotate's pandas import and Preferences'
-           synchronous build; see the 2026-09-25 note. The machine never
-           dropped below load 30 today, so the quiet-machine, real-display
+           since 2026-09-15. 2026-09-26: MET AT LOAD 11-13, NOT ABOVE IT.
+           The application-wide event filters now share one hub that calls
+           a filter only for the event types it acts on; that was most of
+           each screen's "indivisible" first stylesheet. Annotate no longer
+           imports pandas, and pandas comes in on a worker after the first
+           module screen. At load 11-13 on 32 cores, 0 of 51 intervals over
+           500 ms in all six runs of this branch (4 offscreen, 2 xvfb),
+           against 1-3 per run on nightly; worst Preferences 414-424 ms. At
+           load 15-21 Preferences is still 516-560 ms, and at load ~60 six
+           to ten intervals remain over (from 22-25 on nightly). What is
+           left is Preferences' show (sheet, glass, resize, retranslation
+           of ~755 widgets in one Polish/Show; lazy tab pages are the fix)
+           and load. See the 2026-09-26 note. Quiet-machine, real-display
            and macOS/Windows answers are still owed.
 Owner:     spacr/qt startup, application registration, module factories,
            optional-dependency boundaries, preload policy, and timing.
@@ -1720,3 +1722,118 @@ fail on nightly (11,724 vs 11,710 reviewed); this change adds no public
 symbol (the new helpers are private for that reason).
 IS 284 DONE? NO. The ceiling is still breached on this machine, and what
 remains is the list above, not something only another platform can answer.
+
+2026-09-26 — THE "INDIVISIBLE" STYLESHEET WAS MOSTLY PYTHON EVENT FILTERS
+Second pass on the list the 2026-09-25 note left: each screen's first
+setStyleSheet, Annotate's pandas import, Preferences' build, the plaque card.
+Commits 1ebf51e59, 22908ffcf, 94904dcb7. Receipts:
+features/data/284_event_hub_2026-09-26.json.
+
+HOW THE SHEET WAS TAKEN APART. In the real window, with the module open, the
+screen root's sheet was cleared and put back and the one setStyleSheet timed
+in thread CPU, three repeats, in the same process. Make Masks (841 widgets,
+260 rules, 59 KB) at load ~50: the full sheet 712 ms, ONE trivial rule 356 ms;
+dropping any one group of rules (descendant, child, universal, QWidget,
+QFrame selectors, or any eighth of the sheet) saved at most ~120 ms. So the
+rules were half and the other half was paid whatever the sheet said. Counting
+events during the call answered it: 6,288 events for 841 widgets (PaletteChange
+2,563, FontChange 1,344, StyleChange 1,107, DynamicPropertyChange 779), and
+every one of them went through each of the ~13 Python filters spaCR installs
+on the QApplication -- each a C++ -> Python crossing with the lock and two
+wrappers, before the filter's first line says "not mine". With those filters
+lifted for the measurement the same call cost 262 ms (Make Masks) and 306 ms
+(Regression, from 1,993).
+
+WHAT CHANGED (1ebf51e59). spacr.qt.gil_priority gains a private hub: ONE
+Python filter on the application that reads the event type once and calls
+only the watchers that named it. The thirteen application-wide filters
+(button roles, dialog detacher, dialog translation, column text scale, live
+zoom, module hints, idle prebuild, window sheets, tooltip policy, cursor
+policy, feature-dictionary menu, field fade, glass) and the two occasional
+ones (input sound, availability panel) register through it with their event
+types. Qt's own rules are kept -- newest asked first, re-registering moves to
+the front, True ends the event, a watcher removed mid-event is not asked, a
+destroyed one is skipped, an exception goes to sys.excepthook and the rest
+are still asked -- and a stand-in application (a test double, not a
+QCoreApplication) still gets the filter installed directly. The Make Masks
+magnifier's filter is left on Qt: it chains to its base class for events the
+hub would not show it. None of the watchers names PaletteChange, FontChange,
+DynamicPropertyChange, Resize, Move or ChildAdded, so the restyle storm
+reaches none of them.
+  Sheet thread CPU, same screen, same process, load 90-100:
+      make_masks 648-791 -> 251-278   regression 616-813 -> 276-312
+      mask       566-640 -> 215-251   preferences 721-1140 -> 200-269
+  Benchmark, 2 alternating pairs at load ~60: intervals over 500 ms 25/22 ->
+  10/6, their total 19.6/16.3 s -> 6.1/4.2 s.
+
+ANNOTATE AND PANDAS (22908ffcf, 94904dcb7). The import came from two module
+scopes, spacr.selection (through the object-opener registration) and
+spacr.suggest (for one constant); both now get pandas on first use through a
+small placeholder that replaces itself with the module, and linked_selection
+imports it for annotations only. Opening Annotate imports no pandas at all
+(cold process and real window). The next data screen then paid instead --
+Feature Explorer 311 -> 555 ms -- so one second after a first module screen
+is on show, a worker thread imports pandas with the responsive switch
+interval; Home still imports none of it. Four pairs against 22908ffcf at load
+15-21: Feature Explorer 537 -> 236 ms, nothing else moved by more than noise.
+
+RESULTS, medians, nightly f046bcc36 -> this branch, stall/open in ms.
+Offscreen, 4 alternating pairs, load 10.9-12.9; last column the stall under
+xvfb-run (real xcb windows), 2 pairs, load 12.0-12.7:
+
+    module              stall            open              xvfb stall
+    __preferences__      995 ->  414     1062 ->  471      1027 ->  424
+    mask                 372 ->  269     1253 ->  750       393 ->  280
+    annotate             372 ->  142      539 ->  145       403 ->  144
+    map_barcodes         336 ->  253      675 ->  407       304 ->  249
+    regression           369 ->  236     1589 ->  693       406 ->  308
+    experiment_design    471 ->  224      588 ->  264       228 ->  238
+    tabulate             332 ->  199      448 ->  199       335 ->  200
+    dose_response        373 ->  275      683 ->  451       369 ->  287
+    make_masks           526 ->  317     1322 ->  591       512 ->  309
+    investigate_hit      332 ->  147      336 ->  148       389 ->  149
+    gate_editor          397 ->  258      601 ->  259       438 ->  279
+    toxoplasma           448 ->  225      651 ->  348       478 ->  321
+    analyze_plaques      431 ->  199      822 ->  430       455 ->  197
+    (every other row is under 330 ms on both arms)
+    runs with an interval over 500 ms: nightly 6 of 6 (1-3 intervals each),
+    this branch 0 of 6. Opens got shorter too, not only smoother: Regression
+    1.6 -> 0.7 s, Make Masks 1.3 -> 0.6 s, Mask 1.25 -> 0.75 s.
+
+WHAT IS STILL OVER, AND WHERE. Under load the margin goes: at load 15-21
+Preferences is 516-560 ms, and at load ~60 six to ten intervals remain over
+(Preferences, Mask, Annotate before the pandas change, Make Masks, the
+organism pages). Preferences is the one that is over at a load a user's
+machine can have. Its construction is only 80-150 ms; the freeze is the
+show, one Polish and one Show on ~755 widgets: the window sheet 150-230 ms,
+glass 200-280 (the frameless setWindowFlags repolishes the tree; card and
+backdrop), make_the_window_resizable 90-120 (polishes everything and
+activates the layout), the first-show retranslation ~66. Three attempts were
+measured and NOT kept: breaths inside the build (no step is ever 150 ms
+long, so none is due); the sheet put on the empty dialog (4 process pairs x 6
+opens, median 553 -> 574 ms, no gain -- the polish it saved is paid a moment
+later); glassing and polishing as separate steps with a breath between (the
+frameless flag change posts a PolishRequest that the breath runs before any
+timer, so the freeze does not split). The fix that would work is building
+only the first tab at open and the rest on first view, which means breaking
+a 2,800-line builder whose closures share every page's widgets with Save; not
+attempted in this pass. The plaque preview card needed nothing: after the hub
+Analyze Plaques is 197-199 ms.
+
+TESTS. 1,625 of the related Qt tests pass (the 52 files of the first pass
+plus selection, suggest, linked views and the launch-import guards); the five
+failures and two errors in that run fail identically on nightly in the same
+order (setting tooltip footer, three sound audio-thread tests, tooltip linger;
+two live-zoom errors). New: the hub's contract (kinds only, order, True ends
+the event, removal mid-event, destroyed and failing watchers, a stand-in
+application, every spaCR filter behind it and none hearing a restyle), opening
+Annotate imports no pandas, the pandas worker runs once. Tests that took the
+detacher, the glass filter, field fade, live zoom, module hints or dialog
+translation off with QApplication.removeEventFilter now use the hub's
+functions, since Qt's call no longer reaches them -- which also stops those
+tests leaving a filter behind for the next file (the glass card-rule test
+failed from exactly that leak until they did).
+
+IS 284 DONE? NO. Every module is under the ceiling at load 11-13, offscreen
+and under xvfb, but Preferences is over it at load 15-21, and the
+quiet-machine, real-display and macOS/Windows answers are still owed.

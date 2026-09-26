@@ -1,0 +1,23 @@
+COLONY / CFU COUNTING
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/bacterial-colony-counting/14616
+
+WHAT TO BUILD
+    Count bacterial/fungal colonies on plates (CFU), reusing the plaque
+    assay's well/plate detection and scale, with touching-colony splitting
+    and size distributions.
+
+DONE WHEN
+    Counts on public plate photos match hand counts within 5 %.

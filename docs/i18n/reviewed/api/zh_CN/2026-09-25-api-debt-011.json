@@ -1,0 +1,2072 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.sound.shutdown_sound#0",
+      "source": "Stop the process's engine, if there is one, and forget it.",
+      "source_sha256": "ecd914bfe0be6d182477326149283c862291a33c5e044b8859aa7a98fc9093d1",
+      "context": "Stop the process's engine, if there is one, and forget it.",
+      "translation": "停止进程的声音引擎（如果有），并将其忘记。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.shutdown_sound#1",
+      "source": "how long to wait for the audio thread.",
+      "source_sha256": "02fa5a871f5cb7c2a75f6dd6aedac4c228d7692d00e56cc7542f8df8a32e3b61",
+      "context": "how long to wait for the audio thread.",
+      "translation": "等待音频线程的时长。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.shutdown_sound#2",
+      "source": "True when nothing is left running.",
+      "source_sha256": "0c5d0023fc4a57148a4988cca153a3dc2565138d088cc7948315f8bdab5afeeb",
+      "context": "True when nothing is left running.",
+      "translation": "没有任何内容仍在运行时为 True。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.sound_engine#0",
+      "source": "The running engine, or ``None`` when sound was never switched on.",
+      "source_sha256": "8bec1e2e5dc671f28c0f4a30a87286a5d2c463e6a5b823ae6f37e4388fa9e698",
+      "context": "The running engine, or ``None`` when sound was never switched on.",
+      "translation": "正在运行的声音引擎；从未开启过声音时为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.stop_sound_preview#0",
+      "source": "End any preview and return to the stored settings.",
+      "source_sha256": "7b5e7c7582e8216e2799e1ee30fcd602a6e60e5ea90971ea6bdd4c9adec6e893",
+      "context": "End any preview and return to the stored settings.",
+      "translation": "结束任何预览，恢复到已存储的设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.wav_seconds#0",
+      "source": "How long a WAV is, from its header alone.",
+      "source_sha256": "ffba325683a9408f315d8084293f00262ca553b710be1e51f1a63b19f681c8b4",
+      "context": "How long a WAV is, from its header alone.",
+      "translation": "仅根据文件头判断 WAV 的时长。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.wav_seconds#1",
+      "source": "The Resonance backdrop needs the loop's length to work out where in it the playback is, and the header is the cheapest true answer -- no samples are read. A file that cannot be opened is reported as zero seconds, which reads downstream as \"nothing is playing\".",
+      "source_sha256": "b5589bea9f97ec3a260f9f5bdbe12187b6e02dd1acbf437d933bedc1ee6dbce7",
+      "context": "The Resonance backdrop needs the loop's length to work out where in it the playback is, and the header is the cheapest true answer -- no samples are read. A file that cannot be opened is reported as zero seconds, which reads downstream as \"nothing is playing\".",
+      "translation": "Resonance 背景动画需要知道循环的长度，才能算出播放进行到其中的哪个位置，而文件头是最省事的准确答案——不读取任何样本。无法打开的文件报告为零秒，下游会将其理解为 \"nothing is playing\"。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound.wav_seconds#3",
+      "source": "seconds, or 0.0.",
+      "source_sha256": "4afd5697766dab482ba7806d2e4661532c9f500cbb405d4619220113dd525e0e",
+      "context": "seconds, or 0.0.",
+      "translation": "秒数，或 0.0。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences#0",
+      "source": "The Sound tab of Preferences: every switch off until somebody asks.",
+      "source_sha256": "37d179c2439b4c6a9df3629b102faaf788fa34d229fb50fadb65d2d9020202ac",
+      "context": "The Sound tab of Preferences: every switch off until somebody asks.",
+      "translation": "“首选项”中的 Sound 选项卡：在有人要求之前，所有开关都是关闭的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences#1",
+      "source": "Built into the dialog by :class:`spacr.qt.preferences.PreferencesDialog` as its LAST tab -- it is the least important thing in Preferences -- and kept in its own module so the dialog only has to create the page, save it and reset it. Built ONLY IN SPACEOUT MODE since 2026-09-21: ordinary spaCR has no Sound tab and plays nothing (see :func:`spacr.qt.preferences.sound_is_offered`).",
+      "source_sha256": "b9d058e998c3c301f68c075d94b7c157ecbfef845144e436cd428a4bf0a4963d",
+      "context": "Built into the dialog by :class:`spacr.qt.preferences.PreferencesDialog` as its LAST tab -- it is the least important thing in Preferences -- and kept in its own module so the dialog only has to create the page, save it and reset it. Built only in spaceout mode since 2026-09-21: ordinary spaCR has no Sound tab and plays nothing (see :func:`spacr.qt.preferences.sound_is_offered`).",
+      "translation": "由 :class:`spacr.qt.preferences.PreferencesDialog` 作为其“最后一个”选项卡构建到对话框中——它是“首选项”中最不重要的部分——并单独放在自己的模块中，这样对话框只需创建、保存和重置该页面。自 2026-09-21 起“只在 spaceout 模式下”构建：普通的 spaCR 没有 Sound 选项卡，也不播放任何声音（参见 :func:`spacr.qt.preferences.sound_is_offered`）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences#2",
+      "source": "Every event has its own switch and a Preview button beside it. The switches, the volume, the sound set and the Previews are all disabled while the master switch is off, so nothing on this page can make a sound until the user has turned sound on; a Preview is the user asking to hear one.",
+      "source_sha256": "5a409cfc88626ca26a3f0c78d3066560de45f7a2e777d052639b757deb2596db",
+      "context": "Every event has its own switch and a Preview button beside it. The switches, the volume, the sound set and the Previews are all disabled while the master switch is off, so nothing on this page can make a sound until the user has turned sound on; a Preview is the user asking to hear one.",
+      "translation": "每个事件都有自己的开关，旁边有一个 Preview 按钮。当总开关关闭时，这些开关、音量、声音集和各个 Preview 都处于禁用状态，因此在用户开启声音之前，此页面上的任何内容都无法发出声音；Preview 则是用户主动要求试听。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences#3",
+      "source": "Every caption is a literal at the line that shows it, rather than a row in a table handed to a helper: the translation extractor reads literals at the calls it knows, and a caption routed through a helper's parameter is a caption it never sees (``tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py``).",
+      "source_sha256": "1412bd403f4f47965b94756428900dfe45811fa8f1a4ff7eed4c80b22fdf3077",
+      "context": "Every caption is a literal at the line that shows it, rather than a row in a table handed to a helper: the translation extractor reads literals at the calls it knows, and a caption routed through a helper's parameter is a caption it never sees (``tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py``).",
+      "translation": "每个标题都是显示它的那一行中的字面量，而不是交给某个辅助函数的表格中的一行：翻译提取器会在它认识的调用处读取字面量，而经由辅助函数参数传递的标题是它永远看不到的（``tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py``）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage#0",
+      "source": "The Sound tab's controls, and the two things the dialog asks of them.",
+      "source_sha256": "7c72889598bff2237e7fc2343d49e36362dce9cca288c204036f52551697a341",
+      "context": "The Sound tab's controls, and the two things the dialog asks of them.",
+      "translation": "Sound 选项卡的控件，以及对话框对它们提出的两项要求。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage#1",
+      "source": "the tab's form layout, from the dialog's ``_page``.",
+      "source_sha256": "0ca6d14b40213ae5a830cfab1f1a9bd0a74ca435dd4aab0cfccd7846c67722bb",
+      "context": "the tab's form layout, from the dialog's ``_page``.",
+      "translation": "该选项卡的表单布局，来自对话框的 ``_page``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage#2",
+      "source": "the Preferences dialog; closing it ends any preview.",
+      "source_sha256": "3aa4a5dd14e8705d44a98dcaa9b7407882999c20a5a11cf572a60b457076b8dc",
+      "context": "the Preferences dialog; closing it ends any preview.",
+      "translation": "“首选项”对话框；关闭它会结束任何预览。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage#3",
+      "source": "Build every row, reading the stored values.",
+      "source_sha256": "31ee2f1dc915abef4ffca3bb2c88f4f5527da1cedcf8da57c80f1a7f351723ff",
+      "context": "Build every row, reading the stored values.",
+      "translation": "构建每一行，并读取已存储的值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage.reset#0",
+      "source": "Show what a fresh install has.",
+      "source_sha256": "f5192fdf2087c0036fd381ed927819a3f235405440e5c5617a18c42fbfcd7a2f",
+      "context": "Show what a fresh install has.",
+      "translation": "显示全新安装时的状态。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage.reset#1",
+      "source": "Called while the dialog has swapped in its empty defaults store, so every getter answers with its default.",
+      "source_sha256": "9fa7ca198420b052b302d3ce1779bb3cee64d6e7422f4a4244d8439a4b4d1592",
+      "context": "Called while the dialog has swapped in its empty defaults store, so every getter answers with its default.",
+      "translation": "在对话框换入其空的默认值存储时调用，因此每个获取函数都返回其默认值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage.save#0",
+      "source": "Write every control on the page to the preference store.",
+      "source_sha256": "5526559d3ab50abbcfb0e257fee30355674248b4911f64830fa4f7e97ac9adcf",
+      "context": "Write every control on the page to the preference store.",
+      "translation": "将页面上的每个控件写入首选项存储。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage.select_theme#0",
+      "source": "Show ``key`` in the Sound set control, without saving anything.",
+      "source_sha256": "3af00000361643d8d8d9b8a31463f1393f7690970e10200c9a09a23f23e89e5c",
+      "context": "Show ``key`` in the Sound set control, without saving anything.",
+      "translation": "在 Sound set 控件中显示 ``key``，但不保存任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage.select_theme#1",
+      "source": "The Appearance tab calls this when one of the ten night themes is chosen, so the sound set that goes with the colours is visible on the Sound tab before Save is pressed rather than appearing there afterwards. It moves one combo box and nothing else: the master switch, the volume and the per-event switches are the user's and are not touched, so a theme can never turn sound on.",
+      "source_sha256": "90dc5d4674cee1ec2766376d2ef8657bf14da4460ff9c88bd8041f2ffde6f371",
+      "context": "The Appearance tab calls this when one of the ten night themes is chosen, so the sound set that goes with the colours is visible on the Sound tab before Save is pressed rather than appearing there afterwards. It moves one combo box and nothing else: the master switch, the volume and the per-event switches are the user's and are not touched, so a theme can never turn sound on.",
+      "translation": "当选择十个夜间主题之一时，Appearance 选项卡会调用此方法，使与该配色相配的声音集在按下 Save 之前就显示在 Sound 选项卡上，而不是之后才出现。它只改变一个组合框，别无其他：总开关、音量和各事件开关都由用户决定，不会被改动，因此主题永远无法开启声音。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_preferences.SoundPage.select_theme#3",
+      "source": "whether a set of that name was found and selected.",
+      "source_sha256": "d18460e81967710d7ba6c6306b17885c302ab5fcfa040206cfd3a9e431255cca",
+      "context": "whether a set of that name was found and selected.",
+      "translation": "是否找到并选中了该名称的声音集。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth#0",
+      "source": "Synthesize spaCR's interface sounds and music bed with numpy.",
+      "source_sha256": "7d208baaefb9edb2ac09480f8fd338d794e03e52155a9a1960e5e9c427b44921",
+      "context": "Synthesize spaCR's interface sounds and music bed with numpy.",
+      "translation": "使用 numpy 合成 spaCR 的界面音效和背景音乐。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth#1",
+      "source": "Every sound spaCR can play is made here, in code, from a :class:`SoundTheme`: nothing is recorded, sampled or downloaded, so no sound carries a licence question. A theme is a key, a scale, a tempo, a chord progression and a handful of timbre numbers; the same theme always renders the same samples, because every random choice is drawn from a generator seeded by the theme itself.",
+      "source_sha256": "ea320bf2026d6d8b87dd0753bf9373f6213b49aa6ebd52fdd7b3d4dd978aaae2",
+      "context": "Every sound spaCR can play is made here, in code, from a :class:`SoundTheme`: nothing is recorded, sampled or downloaded, so no sound carries a licence question. A theme is a key, a scale, a tempo, a chord progression and a handful of timbre numbers; the same theme always renders the same samples, because every random choice is drawn from a generator seeded by the theme itself.",
+      "translation": "spaCR 能够播放的每一个声音都在这里由代码根据 :class:`SoundTheme` 生成：没有任何录音、采样或下载，因此不存在任何声音的许可问题。一个主题包括调性、音阶、节奏、和弦进行以及少量音色参数；同一主题总是渲染出相同的样本，因为每个随机选择都来自以主题本身为种子的生成器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth#2",
+      "source": "The reference theme, :data:`ORBIT`, is melodic space house in A minor: warm detuned-saw pads, plucked arpeggio notes with a dotted-eighth ping-pong delay, a soft sub, a long dark reverb, and — in the music bed alone, never in an interface sound — a quiet four-on-the-floor kick and an eighth-note shaker that come and go with the arrangement. Clicks and hovers are short plucks on notes of the scale, a finished run is an arpeggio rising through the seventh chord into the tonic under a pad swell, and a failed run is a slower falling figure over the minor fourth.",
+      "source_sha256": "2bb5a3e49adf821ddcb547cb5bf7fd2bcb02c65bd81ba36d20e6b2952dffe97a",
+      "context": "The reference theme, :data:`ORBIT`, is melodic space house in A minor: warm detuned-saw pads, plucked arpeggio notes with a dotted-eighth ping-pong delay, a soft sub, a long dark reverb, and — in the music bed alone, never in an interface sound — a quiet four-on-the-floor kick and an eighth-note shaker that come and go with the arrangement. Clicks and hovers are short plucks on notes of the scale, a finished processing session is an arpeggio rising through the seventh chord into the tonic under a pad swell, and a failed processing session is a slower falling figure over the minor fourth.",
+      "translation": "参考主题 :data:`ORBIT` 是 A 小调的旋律性太空浩室音乐：温暖的失谐锯齿波铺底，带附点八分音符乒乓延迟的拨奏琶音，柔和的超低音，悠长幽暗的混响，以及——仅在背景音乐中，绝不出现在界面音效中——随编排出现和消失的轻柔四四拍底鼓和八分音符沙锤。点击和悬停是音阶音符上的短促拨奏，运行完成是一段穿过七和弦上行至主音的琶音，下方伴有铺底渐强，运行失败则是在小四度上较慢的下行音型。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth#3",
+      "source": "This module is Qt-free on purpose. It writes 16-bit PCM WAV files, which is all :class:`PySide6.QtMultimedia.QSoundEffect` needs, into a cache under the spaCR data directory (:func:`sound_cache_root`), one folder per theme and fingerprint so a changed theme or a new synthesiser version can never be answered from a stale file. :mod:`spacr.qt.sound` renders through :func:`ensure_rendered` on its own audio thread and never on the GUI thread.",
+      "source_sha256": "4176b80d075f26fe314567cf34b52b8233d515e1bfb7adaca77e68547fad6dfb",
+      "context": "This module is Qt-free on purpose. It writes 16-bit PCM WAV files, which is all :class:`PySide6.QtMultimedia.QSoundEffect` needs, into a cache under the spaCR data directory (:func:`sound_cache_root`), one folder per theme and fingerprint so a changed theme or a new synthesiser version can never be answered from a stale file. :mod:`spacr.qt.sound` renders through :func:`ensure_rendered` on its own audio independent execution path and never on the main GUI execution path.",
+      "translation": "本模块特意不依赖 Qt。它写出 16-bit PCM WAV 文件——这就是 :class:`PySide6.QtMultimedia.QSoundEffect` 所需的全部——到 spaCR 数据目录下的缓存中（:func:`sound_cache_root`），每个主题和指纹一个文件夹，因此更改过的主题或新版本的合成器永远不会用过期的文件作答。:mod:`spacr.qt.sound` 在其自己的音频线程上通过 :func:`ensure_rendered` 进行渲染，绝不在 GUI 线程上进行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#0",
+      "source": "How loudly each part plays in one bar of the music bed.",
+      "source_sha256": "4e19d78f84cecd6dbbd38f6bddc47d3270eceff0a6a43a8a52b05c8d3d7285b4",
+      "context": "How loudly each part plays in one bar of the music bed.",
+      "translation": "背景音乐某一小节中每个声部的演奏音量。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#1",
+      "source": "which entry of :data:`BED_SECTIONS` this bar is in.",
+      "source_sha256": "b284dbe73318b3e8458c1ae8b365c552d24d390a8a8f0313a23dbaaeed0b50ef",
+      "context": "which entry of :data:`BED_SECTIONS` this bar is in.",
+      "translation": "该小节所属的 :data:`BED_SECTIONS` 条目。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#2",
+      "source": "arpeggio level, 0 to 1.",
+      "source_sha256": "064548d911256d0ac39a31f3f47ee302d16a3a8642e725ca5258c39768dc7464",
+      "context": "arpeggio level, 0 to 1.",
+      "translation": "琶音电平，0 到 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#3",
+      "source": "kick level, 0 to 1, before the theme's ``kick_level``.",
+      "source_sha256": "69eb5d986c402c9b8aad3318712f4638c3749477d458fe829f306a2b8a913e90",
+      "context": "kick level, 0 to 1, before the theme's ``kick_level``.",
+      "translation": "底鼓电平，0 到 1，在应用主题的 ``kick_level`` 之前。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#4",
+      "source": "shaker level, 0 to 1, before ``shaker_level``.",
+      "source_sha256": "4fae5f7121922f7f261fcbcbc658e37e0d9b5e08542bdc80217202505eded3a1",
+      "context": "shaker level, 0 to 1, before ``shaker_level``.",
+      "translation": "沙锤电平，0 到 1，在应用 ``shaker_level`` 之前。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#5",
+      "source": "sub level, 0 to 1.",
+      "source_sha256": "08b3e079aebe17a729125fb6acfcc588de34e3e62454104ecc0da7a288cbee3d",
+      "context": "sub level, 0 to 1.",
+      "translation": "超低音电平，0 到 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#6",
+      "source": "semitones the arpeggio rises by in this bar's second half.",
+      "source_sha256": "1aff345735bbca7d6fc83b7beb2be9b576480d813344bf1450c53abca05747cc",
+      "context": "semitones the arpeggio rises by in this bar's second half.",
+      "translation": "琶音在该小节后半部分升高的半音数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.BedBar#7",
+      "source": "melody level, 0 to 1, before the theme's ``lead_level``. Last, because this is a public tuple and a field added anywhere but the end changes what every position after it means.",
+      "source_sha256": "e57a842eae91fb010128e45b9abcb78374183b0bcf5dfc1d899053d333545c59",
+      "context": "melody level, 0 to 1, before the theme's ``lead_level``. Last, because this is a public tuple and a field added anywhere but the end changes what every position after it means.",
+      "translation": "旋律电平，0 到 1，在应用主题的 ``lead_level`` 之前。放在最后，因为这是一个公开的元组，在末尾以外的任何位置添加字段都会改变其后每个位置的含义。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.Rendered#0",
+      "source": "One rendered sound and the notes it was made from.",
+      "source_sha256": "5307bd3143290a985bfd2cf55d380c799213b886d1c5bf93b077fd2032b86ab2",
+      "context": "One rendered sound and the notes it was made from.",
+      "translation": "一个渲染好的声音以及生成它所用的音符。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.Rendered#1",
+      "source": "the sound's file stem, for example ``\"click-2\"``.",
+      "source_sha256": "f890a123afb8c45f951a53da6d3ce48ff42786cae2d69f6b79cc41d40d0c94c8",
+      "context": "the sound's file stem, for example ``\"click-2\"``.",
+      "translation": "声音的文件主干名，例如 ``\"click-2\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.Rendered#2",
+      "source": "float samples, shape ``(2, n)``, peak at most 1.",
+      "source_sha256": "ecfcd62bfed7ff44dd524775dd6dcf9d10518ecc083214e5f565f94b4f134d72",
+      "context": "float samples, shape ``(2, n)``, peak at most 1.",
+      "translation": "浮点样本，形状为 ``(2, n)``，峰值至多为 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.Rendered#3",
+      "source": "``(onset seconds, MIDI note, part)`` for every note played, in onset order. ``part`` is ``\"pluck\"``, ``\"pad\"`` or ``\"sub\"``. The schedule is what a test reads to check a figure rises or falls without having to transcribe the audio.",
+      "source_sha256": "2a2e35124f0c7f3e992fcb9194f0f8b7b465d32d24de0d251783d20510234037",
+      "context": "``(onset seconds, MIDI note, part)`` for every note played, in onset order. ``part`` is ``\"pluck\"``, ``\"pad\"`` or ``\"sub\"``. The schedule is what a test reads to check a figure rises or falls without having to transcribe the audio.",
+      "translation": "每个演奏音符的 ``(onset seconds, MIDI note, part)``，按起音顺序排列。``part`` 为 ``\"pluck\"``、``\"pad\"`` 或 ``\"sub\"``。测试通过读取这个时间表来检查音型是上行还是下行，而无需对音频进行记谱。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.Rendered#4",
+      "source": "whether the sound is meant to repeat seamlessly.",
+      "source_sha256": "2d9e49d3a1a569ee91ab6cb0f3684def09745b6cf6ab18526865afcb6ac87a7e",
+      "context": "whether the sound is meant to repeat seamlessly.",
+      "translation": "该声音是否用于无缝循环播放。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#0",
+      "source": "Everything that decides how one sound set sounds.",
+      "source_sha256": "8e922d48efa84786beb84fe04839b29c7bbac239dbd9f489dd7b75d012f51f56",
+      "context": "Everything that decides how one sound set sounds.",
+      "translation": "决定一个声音集听起来如何的所有因素。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#1",
+      "source": "stable identifier, used in the cache path and the stored preference.",
+      "source_sha256": "78d9273b67b019223c75eb50f92d970510fc7904e2de66bb10881a6505985f6a",
+      "context": "stable identifier, used in the cache path and the stored preference.",
+      "translation": "稳定的标识符，用于缓存路径和已存储的首选项。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#10",
+      "source": "low-pass cutoff of the pad at rest; it breathes up to roughly twice this.",
+      "source_sha256": "7983fc33336f6e1df9450ad8b2748ba6f78373dc348072281ce1b6ece8f90e0c",
+      "context": "low-pass cutoff of the pad at rest; it breathes up to roughly twice this.",
+      "translation": "铺底在静止时的低通截止频率；它会呼吸式地升高到大约两倍。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#11",
+      "source": "pad level in the mix.",
+      "source_sha256": "271d5aea54c63858f321f7c44bc48f1bc8e0ad5fbcb4f0a1e9a8f72e7658a815",
+      "context": "pad level in the mix.",
+      "translation": "铺底在混音中的电平。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#12",
+      "source": "depth of the dip on every beat of the music bus -- pads, arpeggio, lead and their reverb, everything but the kick and half of the sub. The side-chain of house music, with or without a kick drum to cause it (0 to 1). THIS NUMBER, NOT THE ROUTING, IS MOST OF HOW DEEP THE PUMP SOUNDS: measured on the reference bed, 300-3000 Hz, the mix dips 1.81 dB with this at 0, 2.46 dB at the 0.3 the pads alone used, and 4.59 dB at the 0.6 the reference now asks for. A theme that sets it back toward 0.3 is asking for a pump shallower than ``test_the_music_bus_ducks_on_the_beat`` accepts.",
+      "source_sha256": "2fb85cba72b046d80baaa531d569869b411e8bde584c4624d25fd3384c69a5a5",
+      "context": "depth of the dip on every beat of the music bus -- pads, arpeggio, lead and their reverb, everything but the kick and half of the sub. The side-chain of house music, with or without a kick drum to cause it (0 to 1). this number, not the routing, is most of how deep the pump sounds: measured on the reference bed, 300-3000 Hz, the mix dips 1.81 dB with this at 0, 2.46 dB at the 0.3 the pads alone used, and 4.59 dB at the 0.6 the reference now asks for. A theme that sets it back toward 0.3 is asking for a pump shallower than ``test_the_music_bus_ducks_on_the_beat`` accepts.",
+      "translation": "音乐总线上每一拍下陷的深度——铺底、琶音、主旋律及其混响，除了底鼓和一半的超低音之外的一切。这是浩室音乐的侧链效果，无论是否有底鼓来触发它（0 到 1）。“决定泵感听起来有多深的，主要是这个数值，而不是路由”：在参考背景音乐上于 300-3000 Hz 测量，此值为 0 时混音下陷 1.81 dB，为单独铺底过去使用的 0.3 时为 2.46 dB，为参考现在所要求的 0.6 时为 4.59 dB。把它调回接近 0.3 的主题，所要求的泵感会比 ``test_the_music_bus_ducks_on_the_beat`` 所接受的更浅。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#13",
+      "source": "how slowly the pluck's harmonics fall away (0 to 1); higher is brighter.",
+      "source_sha256": "8fb6360d4dc435bfe39dbc3de31b113c74cf7812d8f01ab04a04376b2c7793bd",
+      "context": "how slowly the pluck's harmonics fall away (0 to 1); higher is brighter.",
+      "translation": "拨弦音泛音衰减的缓慢程度（0 到 1）；越高越明亮。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#14",
+      "source": "time constant of the pluck's fundamental, seconds.",
+      "source_sha256": "c0a343853d8971f076325371dd2fa15047a8c85743c4c21648bbb10a6ec3b866",
+      "context": "time constant of the pluck's fundamental, seconds.",
+      "translation": "拨弦音基频的时间常数，单位为秒。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#15",
+      "source": "arpeggio level in the mix.",
+      "source_sha256": "8e593aa0615db4af2723d21833c853c6b7ded4e4b1ccb858e920385aeeb59037",
+      "context": "arpeggio level in the mix.",
+      "translation": "琶音在混音中的电平。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#16",
+      "source": "the melody, as ``(scale degree, beats)`` pairs read in order and repeated for the length of the bed. A degree of :data:`REST` is a silence of that many beats. An empty pattern, or a ``lead_level`` at or below :data:`PART_FLOOR`, leaves the melody out of the render entirely.",
+      "source_sha256": "f8a7acf040c145c1d86348f5c59049a6da2cee2ba9680815dada673f23b14fc8",
+      "context": "the melody, as ``(scale degree, beats)`` pairs read in order and repeated for the length of the bed. A degree of :data:`REST` is a silence of that many beats. An empty pattern, or a ``lead_level`` at or below :data:`PART_FLOOR`, leaves the melody out of the render entirely.",
+      "translation": "旋律，以 ``(scale degree, beats)`` 对表示，按顺序读取并在整个背景音乐长度内重复。级数为 :data:`REST` 表示相应拍数的休止。空的模式，或 ``lead_level`` 不高于 :data:`PART_FLOOR`，会使旋律完全不参与渲染。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#17",
+      "source": "melody level in the mix.",
+      "source_sha256": "3d6b8429001cb421e633dffc6e797674aebd23c2d322e964b832b206e8ab7122",
+      "context": "melody level in the mix.",
+      "translation": "旋律在混音中的电平。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#18",
+      "source": "whole octaves above the tonic the melody is played in.",
+      "source_sha256": "c45e98d7443425dc4608ba92890969a831d456c6617a216c1265fc43d7064463",
+      "context": "whole octaves above the tonic the melody is played in.",
+      "translation": "旋律演奏时高于主音的整八度数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#19",
+      "source": "seconds the melody's notes take to speak. Slow enough that it sings rather than plucks.",
+      "source_sha256": "ebdc856618570f1bb39b567fd4efd87df5caa9e67c2a19471fc6151c7e367c27",
+      "context": "seconds the melody's notes take to speak. Slow enough that it sings rather than plucks.",
+      "translation": "旋律音符发声所需的秒数。足够慢，使它听起来像歌唱而不是拨奏。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#20",
+      "source": "how far above each note's own pitch the melody's filter opens; higher is brighter. Capped so that no theme can turn the melody into a saw lead that takes the air away from the shaker -- this genre's lead is warm, and the top of the mix belongs to the percussion.",
+      "source_sha256": "535a6ef1299cc8de064672c41bd9c051cb32810526e64d57fcd1503fd864c963",
+      "context": "how far above each note's own pitch the melody's filter opens; higher is brighter. Capped so that no theme can turn the melody into a saw lead that takes the air away from the shaker -- this genre's lead is warm, and the top of the mix belongs to the percussion.",
+      "translation": "旋律的滤波器在每个音符自身音高之上开启的程度；越高越明亮。它有上限，使任何主题都无法把旋律变成抢走沙锤空间的锯齿波主音——这一风格的主旋律是温暖的，混音的高频部分属于打击乐。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#21",
+      "source": "indexes into the five arpeggio tones of a chord (four chord tones and the root an octave up), one per step.",
+      "source_sha256": "c620b3549f211534a55db4b8425cea310f1932e02d70230f0d8aca3b64eea112",
+      "context": "indexes into the five arpeggio tones of a chord (four chord tones and the root an octave up), one per step.",
+      "translation": "指向一个和弦五个琶音音（四个和弦音以及高八度的根音）的索引，每步一个。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#22",
+      "source": "arpeggio steps per beat (2 is eighth notes).",
+      "source_sha256": "9460af4484d5aee2e23bcc08f694511e6d311b8cac22e49267e7e95a7c9d9ba9",
+      "context": "arpeggio steps per beat (2 is eighth notes).",
+      "translation": "每拍的琶音步数（2 表示八分音符）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#23",
+      "source": "echo spacing in beats; 0.75 is the dotted eighth.",
+      "source_sha256": "e2ddfec0f2c1157f3d016dd9b9560cddbc60e4e29738f6e06a572b1c1989d2c9",
+      "context": "echo spacing in beats; 0.75 is the dotted eighth.",
+      "translation": "以拍为单位的回声间隔；0.75 为附点八分音符。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#24",
+      "source": "level of each echo relative to the one before.",
+      "source_sha256": "7566c2c2c34026adab70a10b7c1a98c5b2d3d0f848784fab01fd63a62d3de342",
+      "context": "level of each echo relative to the one before.",
+      "translation": "每次回声相对于前一次的电平。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#25",
+      "source": "how much of the echo reaches the output.",
+      "source_sha256": "0fe080fc16d23f47ca35060784994991a4d2bb1f6127d8f9164c707d7249286c",
+      "context": "how much of the echo reaches the output.",
+      "translation": "回声到达输出的比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#26",
+      "source": "level of the sine sub under each chord.",
+      "source_sha256": "6221340a7d1b482ddbfec5ccb1b8c251228b39d19b32755a6ec57f2aebadb9d2",
+      "context": "level of the sine sub under each chord.",
+      "translation": "每个和弦下方正弦超低音的电平。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#27",
+      "source": "reverb send (0 to 1).",
+      "source_sha256": "17378d160713f1f8345608e88720f5fc53c753e547fbd67dc01ca4055c8e3c6e",
+      "context": "reverb send (0 to 1).",
+      "translation": "混响发送量（0 到 1）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#28",
+      "source": "time for the reverb tail to fall 60 dB.",
+      "source_sha256": "5a75d0ee87d3e2c3a7bcc627f4559e6d990d283f8c39e2ef18125f70d56d0d37",
+      "context": "time for the reverb tail to fall 60 dB.",
+      "translation": "混响尾音衰减 60 dB 所需的时间。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#29",
+      "source": "stereo spread of the pad voices (0 is mono).",
+      "source_sha256": "545def16e2c8281a1d6f1bf39b605f437e1c87667f4628e986bfaca3727911f3",
+      "context": "stereo spread of the pad voices (0 is mono).",
+      "translation": "铺底声部的立体声展宽（0 表示单声道）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#30",
+      "source": "bars in one loop of the music bed. Rounded up to a whole number of :data:`BED_SECTIONS` sections by :func:`bed_plan`, so the arrangement always closes where it opened.",
+      "source_sha256": "fa528b7ddda05e5148c7bf58ffb60e5084d1ed8554087ac3d2f9776ec74843c3",
+      "context": "bars in one loop of the music bed. Rounded up to a whole number of :data:`BED_SECTIONS` sections by :func:`bed_plan`, so the arrangement always closes where it opened.",
+      "translation": "背景音乐一个循环中的小节数。会向上取整为 :data:`BED_SECTIONS` 个段落的整数倍（由 :func:`bed_plan` 完成），因此编排总是在开始的地方闭合。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#31",
+      "source": "level of the four-on-the-floor kick in the bed, 0 to 1. ``0.0`` leaves the kick out of the render entirely.",
+      "source_sha256": "cb0b5c3d9745f65cf382bbc10cb4ad75a5faf2b0c85a8a5367141cb4c8e8e81c",
+      "context": "level of the four-on-the-floor kick in the bed, 0 to 1. ``0.0`` leaves the kick out of the render entirely.",
+      "translation": "背景音乐中四四拍底鼓的电平，0 到 1。``0.0`` 会使底鼓完全不参与渲染。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#32",
+      "source": "level of the eighth-note shaker, 0 to 1. ``0.0`` leaves it out entirely.",
+      "source_sha256": "cceacd652497a2cb52cb12d7964375f94677f1c5d1d776c08df402e505675433",
+      "context": "level of the eighth-note shaker, 0 to 1. ``0.0`` leaves it out entirely.",
+      "translation": "八分音符沙锤的电平，0 到 1。``0.0`` 会使它完全不参与渲染。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#33",
+      "source": "programme loudness the finished bed is normalised to, in LUFS (:func:`loudness_lufs`). Quieter than anything mastered for release, because this plays under somebody's work.",
+      "source_sha256": "9c8e9dfc1ff528cf0a47f63279815f77d70d452c73ef0c4dbd7bc0f97d6865e9",
+      "context": "programme loudness the finished bed is normalised to, in LUFS (:func:`loudness_lufs`). Quieter than anything mastered for release, because this plays under somebody's work.",
+      "translation": "完成的背景音乐被归一化到的节目响度，单位为 LUFS（:func:`loudness_lufs`）。比任何为发行而母带处理的作品都更安静，因为它是在别人工作时作为背景播放的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#34",
+      "source": "the bed's peak ceiling in dBFS. Reached with a memoryless soft knee, which is what lets the ceiling be applied after the loop is folded without putting a seam back in.",
+      "source_sha256": "9b7c820bab31ca2bfbf86b69ae3d3dee5899c1f72bb31c563d72290ac213ff97",
+      "context": "the bed's peak ceiling in dBFS. Reached with a memoryless soft knee, which is what lets the ceiling be applied after the loop is folded without putting a seam back in.",
+      "translation": "背景音乐的峰值上限，单位为 dBFS。通过无记忆的软拐点实现，这使得上限可以在循环折叠之后再应用，而不会重新引入接缝。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#35",
+      "source": "seeds every random choice, so a theme always renders the same samples.",
+      "source_sha256": "acce4144a1533c746a4bf99789273b82618a846769b89c13ae7ca2a6bd984564",
+      "context": "seeds every random choice, so a theme always renders the same samples.",
+      "translation": "为每一个随机选择提供种子，因此一个主题总是渲染出相同的样本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#4",
+      "source": "MIDI note of the key's tonic, in the octave the pads sit in (57 is A3).",
+      "source_sha256": "226ccde969a8831ef15868a159aca891c6d56f5578194bd8204f9ed1dd8b024e",
+      "context": "MIDI note of the key's tonic, in the octave the pads sit in (57 is A3).",
+      "translation": "调性主音的 MIDI 音符，位于铺底所在的八度（57 为 A3）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#5",
+      "source": "semitones above the tonic of each scale degree.",
+      "source_sha256": "e770db322deffd2e9bf121f8957aa3530a9dbd2ed3b4be56e84feab90ee6d5e7",
+      "context": "semitones above the tonic of each scale degree.",
+      "translation": "每个音阶级数高于主音的半音数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#6",
+      "source": "beats per minute; sets the arpeggio rate and the delay.",
+      "source_sha256": "ce7c3530feb7b28aad4f3130490c682e129fecf72fe109ff45df88e93dffd94b",
+      "context": "beats per minute; sets the arpeggio rate and the delay.",
+      "translation": "每分钟节拍数；决定琶音速率和延迟。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#7",
+      "source": "one scale degree per bar of the music bed, each the root of a diatonic seventh chord (0-based: 0 is the tonic).",
+      "source_sha256": "d3280d0a8766ae4bb80c20c0d24a5378e1da0e57ab2787b48655252940232761",
+      "context": "one scale degree per bar of the music bed, each the root of a diatonic seventh chord (0-based: 0 is the tonic).",
+      "translation": "背景音乐每小节一个音阶级数，每个级数都是一个自然七和弦的根音（从 0 开始：0 是主音）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#8",
+      "source": "detuned sawtooth oscillators per pad note.",
+      "source_sha256": "900bc08da6b95506c5991548e6d8fcf64448a6a4a372e96367af63130347f9da",
+      "context": "detuned sawtooth oscillators per pad note.",
+      "translation": "每个铺底音符所用的失谐锯齿波振荡器数量。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme#9",
+      "source": "spread of those oscillators, either side.",
+      "source_sha256": "b93a9e4d12a3ffe9b3e4dcd96283fa092d2f64f59052ea558cb5120042a4593d",
+      "context": "spread of those oscillators, either side.",
+      "translation": "这些振荡器向两侧的扩展范围。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.SoundTheme.beat#0",
+      "source": "Seconds per beat at this theme's tempo.",
+      "source_sha256": "f3f36d8a85e977ea90432be071b990c15a0123f82c8ba1cb572f95eb8af7c10b",
+      "context": "Seconds per beat at this theme's tempo.",
+      "translation": "在此主题节奏下每拍的秒数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.bed_plan#0",
+      "source": "The arrangement, bar by bar, for a loop of ``bars`` bars.",
+      "source_sha256": "b6fd1fe1650c5394eca6f6c1c51a474d82770a2212231d04677758ce84826791",
+      "context": "The arrangement, bar by bar, for a loop of ``bars`` bars.",
+      "translation": "逐小节的编排，用于 ``bars`` 小节长的循环。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.bed_plan#1",
+      "source": "Every part reaches its section's level over the section's first half and holds it, so nothing arrives as a step; the ramp for the FIRST section starts from the LAST one's levels, which is what makes the arrangement circular rather than merely long. ``bars`` is stretched proportionally across :data:`BED_SECTIONS`, so a theme can ask for a shorter or longer loop and still get the same shape.",
+      "source_sha256": "bad5b1f0a302731f648528f0bbe90b5a1e495fb055459e59d9855090f37d0049",
+      "context": "Every part reaches its section's level over the section's first half and holds it, so nothing arrives as a step; the ramp for the FIRST section starts from the LAST one's levels, which is what makes the arrangement circular rather than merely long. ``bars`` is stretched proportionally across :data:`BED_SECTIONS`, so a theme can ask for a shorter or longer loop and still get the same shape.",
+      "translation": "每个声部都在所在段落的前半部分内逐渐达到该段落的电平并保持，因此没有任何东西是突然出现的；“第一个”段落的渐变从“最后一个”段落的电平开始，这正是编排成为循环而不仅仅是很长的原因。``bars`` 会按比例分配到 :data:`BED_SECTIONS` 上，因此主题可以要求更短或更长的循环，而仍保持相同的结构。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.bed_plan#2",
+      "source": "bars in the loop; at least one per section.",
+      "source_sha256": "e959b5fcbce2b46d0a6d3cffeece3a51ded3621c0be79fa14253e37246c9dd77",
+      "context": "bars in the loop; at least one per section.",
+      "translation": "循环中的小节数；每个段落至少一小节。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.bed_plan#3",
+      "source": "one :class:`BedBar` per bar.",
+      "source_sha256": "b526dc7c21d7e27af5192e242c83634bf743eaa9ceaaf4c71c3c92e5eabef16a",
+      "context": "one :class:`BedBar` per bar.",
+      "translation": "每小节一个 :class:`BedBar`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.chord_tones#0",
+      "source": "The diatonic chord built in thirds on a scale degree.",
+      "source_sha256": "4aa87813d91d87cf65ca9354436215e714a3faefeb1a3fe476e3ebe03e56680c",
+      "context": "The diatonic chord built in thirds on a scale degree.",
+      "translation": "在某个音阶级数上以三度叠置构成的自然和弦。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.chord_tones#1",
+      "source": "supplies the tonic and the scale.",
+      "source_sha256": "4a110977b321b7e953bf7068cdcbb1760d9e2c1b0395246a30d5a04e90a01fa9",
+      "context": "supplies the tonic and the scale.",
+      "translation": "提供主音和音阶。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.chord_tones#2",
+      "source": "0-based scale degree of the chord's root.",
+      "source_sha256": "d27f45df4b4bc720c2c01548000fc03d7ef0faad8ca9fd05334859abd2ed4292",
+      "context": "0-based scale degree of the chord's root.",
+      "translation": "和弦根音从 0 开始的音阶级数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.chord_tones#3",
+      "source": "chord tones to stack; 4 is a seventh chord.",
+      "source_sha256": "52060c1c3bb42be14ea0919c7f4928f91272b2905c0d982031d7f04cf42ec404",
+      "context": "chord tones to stack; 4 is a seventh chord.",
+      "translation": "要叠置的和弦音数量；4 表示七和弦。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.chord_tones#4",
+      "source": "MIDI notes, root first, ascending.",
+      "source_sha256": "e8e14e997390315e6417024207d8bf67bca93364482d49ba00f656784400d8d0",
+      "context": "MIDI notes, root first, ascending.",
+      "translation": "MIDI 音符，根音在前，按升序排列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#0",
+      "source": "Make sure each named sound exists on disk, rendering what is missing.",
+      "source_sha256": "51ac6b9e737e2a61b62a0ffd36e371cf6ef5f1a2504ec56d9ede72b985fcfff6",
+      "context": "Make sure each named sound exists on disk, rendering what is missing.",
+      "translation": "确保每个指定的声音都存在于磁盘上，渲染缺失的部分。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#1",
+      "source": "A file already in the theme's folder is trusted: the folder name is the fingerprint of everything that decides its contents. Folders left by an earlier fingerprint of the same theme are removed once the current one is in use.",
+      "source_sha256": "b93e95e99ba13df12afac39f87eb633fcc3d19a8661d8a53b07433e900f742c8",
+      "context": "A file already in the theme's folder is trusted: the folder name is the fingerprint of everything that decides its contents. Folders left by an earlier fingerprint of the same theme are removed once the current one is in use.",
+      "translation": "主题文件夹中已有的文件会被信任：文件夹名称就是决定其内容的所有因素的指纹。当前指纹投入使用后，同一主题早先指纹留下的文件夹会被移除。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#2",
+      "source": "the sound set.",
+      "source_sha256": "9a1e4f08a29d09744dc40260dc4e1068d7c092f4a94fc982de39db3f1c20559f",
+      "context": "the sound set.",
+      "translation": "声音集合。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#3",
+      "source": "stems from :func:`sound_names`.",
+      "source_sha256": "e3de65694cac076f002f856a9a8248c54a653b89a9a05da50e737ec83a0b79a8",
+      "context": "stems from :func:`sound_names`.",
+      "translation": "来自 :func:`sound_names` 的文件主干名。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#4",
+      "source": "cache root; :func:`sound_cache_root` when omitted.",
+      "source_sha256": "791af132ada5bcbaf1dc3a4f2884c4d9a9bea927515d95114ce7892a4cad2a02",
+      "context": "cache root; :func:`sound_cache_root` when omitted.",
+      "translation": "缓存根目录；省略时使用 :func:`sound_cache_root`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#6",
+      "source": "polled between sounds; returning True abandons the rest, so a render can be cancelled at the next file boundary.",
+      "source_sha256": "5de665df757261ae45e9673be9962f901d33095e8ad7de14ebf80d0b134f82ca",
+      "context": "polled between sounds; returning True abandons the rest, so a render can be cancelled at the next file boundary.",
+      "translation": "在声音之间轮询；返回 True 会放弃其余部分，因此渲染可以在下一个文件边界处被取消。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.ensure_rendered#7",
+      "source": "stem -> path, for every file that exists afterwards.",
+      "source_sha256": "e1e8d0abc6b13934c361cf215dc1789329138185d1372b7f1dbeadd1eae479fd",
+      "context": "stem -> path, for every file that exists afterwards.",
+      "translation": "主干名 -> 路径，涵盖之后存在的每个文件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.loudness_lufs#0",
+      "source": "Programme loudness in LUFS, by ITU-R BS.1770-4.",
+      "source_sha256": "7f2bc7cd770542639d0a5625619302993bd6f957dbc75fc65c9221049bc99463",
+      "context": "Programme loudness in LUFS, by itu-r bs.1770-4.",
+      "translation": "按 ITU-R BS.1770-4 计算的节目响度，单位为 LUFS。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.loudness_lufs#1",
+      "source": "The gated integrated measurement: K-weight both channels, take the mean square over 400 ms blocks overlapping by three quarters, drop every block below -70 LUFS, then drop every block more than 10 LU under the mean of what is left and take the mean of the rest.",
+      "source_sha256": "bf593bd92308db8e27e99a15872e61019473423783bb4c7cbb5d3e0a24d8a4b7",
+      "context": "The gated integrated measurement: K-weight both channels, take the mean square over 400 ms blocks overlapping by three quarters, drop every block below -70 LUFS, then drop every block more than 10 LU under the mean of what is left and take the mean of the rest.",
+      "translation": "门控积分测量：对两个声道进行 K 加权，在重叠四分之三的 400 ms 块上取均方，丢弃所有低于 -70 LUFS 的块，然后丢弃所有比剩余块均值低 10 LU 以上的块，并取其余块的均值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.loudness_lufs#2",
+      "source": "A PEAK IS NOT A LOUDNESS, which is the reason this exists. The music bed and the run sounds have similar peaks and are nothing like as loud as each other, and \"quiet enough to work under\" is a statement about loudness. The coefficients are the standard's own and are written for 48 kHz; another rate is measured with them anyway and the answer drifts by a fraction of a LU, which is inside what anybody can hear.",
+      "source_sha256": "3844cc4e57ce147b75d14b05e0c832f60e9c9276387d172b8ad43b5da92f0509",
+      "context": "A peak is not a loudness, which is the reason this exists. The music bed and the run sounds have similar peaks and are nothing like as loud as each other, and \"quiet enough to work under\" is a statement about loudness. The coefficients are the standard's own and are written for 48 kHz; another rate is measured with them anyway and the answer drifts by a fraction of a LU, which is inside what anybody can hear.",
+      "translation": "“峰值不等于响度”，这就是本函数存在的原因。背景音乐和运行音效的峰值相近，而响度却相差甚远，“安静到足以在其伴随下工作”是关于响度的表述。系数来自标准本身，是针对 48 kHz 编写的；其他采样率也照样用它们测量，结果只会偏差零点几个 LU，处于任何人都听不出差别的范围内。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.loudness_lufs#3",
+      "source": "shape ``(channels, n)``.",
+      "source_sha256": "b3ba9e78a5c5630f033fad31d1dd169eceb34139c5040917bb61831b36b08868",
+      "context": "shape ``(channels, n)``.",
+      "translation": "形状为 ``(channels, n)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.loudness_lufs#5",
+      "source": "LUFS, or ``-inf`` for silence.",
+      "source_sha256": "b9c3cbda4a91f491b544db7e90decc0ff275d2061ba187e47d50e00feb357f05",
+      "context": "LUFS, or ``-inf`` for silence.",
+      "translation": "LUFS，静音时为 ``-inf``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.midi_to_hz#0",
+      "source": "Frequency of a MIDI note number in equal temperament, A4 = 440 Hz.",
+      "source_sha256": "28229eea8159695aa5814832fedcb707d70efd3b2a37641a75ef96299ac7c50c",
+      "context": "Frequency of a MIDI note number in equal temperament, A4 = 440 Hz.",
+      "translation": "MIDI 音符编号在十二平均律下的频率，A4 = 440 Hz。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.midi_to_hz#1",
+      "source": "MIDI note number (69 is A4).",
+      "source_sha256": "62d0815ae4a946a6fa202c2ae4d0400e34607f7f121830caeb8bc71de8269e32",
+      "context": "MIDI note number (69 is A4).",
+      "translation": "MIDI 音符编号（69 为 A4）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.midi_to_hz#2",
+      "source": "frequency in hertz.",
+      "source_sha256": "8b056436642471f74dac9f4547eccdb7cc2296561961fbc4b1117cbee67d9e67",
+      "context": "frequency in hertz.",
+      "translation": "频率，单位为赫兹。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.read_wav#0",
+      "source": "Read a 16-bit PCM WAV written by :func:`write_wav`.",
+      "source_sha256": "bb2f56289007b4d830e2304efc81a2d44e29fd1369afcbd55e3e3ff3e6a21081",
+      "context": "Read a 16-bit PCM WAV written by :func:`write_wav`.",
+      "translation": "读取由 :func:`write_wav` 写出的 16-bit PCM WAV 文件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.read_wav#2",
+      "source": "``(audio, sample rate)``, audio shaped ``(channels, n)`` in -1 to 1.",
+      "source_sha256": "6998b5c968784e655a3fc5061d2c8bdafb434a9c5c9e77ee0ffd482059a93136",
+      "context": "``(audio, sample rate)``, audio shaped ``(channels, n)`` in -1 to 1.",
+      "translation": "``(audio, sample rate)``，音频形状为 ``(channels, n)``，取值范围为 -1 到 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.render#0",
+      "source": "Synthesize one named sound of a theme.",
+      "source_sha256": "88f2fe45bedf76539802d65ba44424f60c6d4208d80b5a885adc8b90b80ecab8",
+      "context": "Synthesize one named sound of a theme.",
+      "translation": "合成主题中的一个指定声音。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.render#2",
+      "source": "a stem from :func:`sound_names`.",
+      "source_sha256": "35486e97198c71c2c038e09205306051fe35470290301b53fc8f739912324088",
+      "context": "a stem from :func:`sound_names`.",
+      "translation": "来自 :func:`sound_names` 的文件主干名。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.render#4",
+      "source": "the rendered audio and its note schedule.",
+      "source_sha256": "b9235b2cefd5dea296e1cd66282c8689bb1bc429e3959167747f61b96f88f2e5",
+      "context": "the rendered audio and its note schedule.",
+      "translation": "渲染得到的音频及其音符时间表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.render#5",
+      "source": "for a name no event plays.",
+      "source_sha256": "c553f68a45f5cf0ac4a936310206cf283ad4d176f0f1f3885013e209db5918de",
+      "context": "for a name no event plays.",
+      "translation": "名称不对应任何事件所播放的声音时抛出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.scale_note#0",
+      "source": "The MIDI note of a scale degree, any number of octaves away.",
+      "source_sha256": "342575bca8061e4ba44c8291fc56b4bf219d13e27749ab3464af7dc23f1d3b59",
+      "context": "The MIDI note of a scale degree, any number of octaves away.",
+      "translation": "某个音阶级数的 MIDI 音符，可相隔任意数量的八度。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.scale_note#2",
+      "source": "0-based scale degree; values past the scale wrap into the next octave and negative values into the one below.",
+      "source_sha256": "9275e7f4c826437cbc9723d6e8f5c4c301c1eb947c048a26795374d842910f0f",
+      "context": "0-based scale degree; values past the scale wrap into the next octave and negative values into the one below.",
+      "translation": "从 0 开始的音阶级数；超出音阶的值会进入下一个八度，负值会进入下方的八度。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.scale_note#3",
+      "source": "whole octaves added on top.",
+      "source_sha256": "7fd49413d37b84d9f26ee8c1b4704ed15aafc0d1354d1f1a2abb4f967b147eee",
+      "context": "whole octaves added on top.",
+      "translation": "额外叠加的整八度数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.scale_note#4",
+      "source": "a MIDI note number.",
+      "source_sha256": "ac62f67a05bbc4ada128c8380db7324f734c4204ffd2d2d728d7fd60ae631161",
+      "context": "a MIDI note number.",
+      "translation": "MIDI 音符编号。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.sound_cache_root#0",
+      "source": "Where rendered sounds are kept: ``~/.spacr/sounds`` by default.",
+      "source_sha256": "177334406b2ab59a2e81a77675817d88c9ff56a175ad6a40fc64f0c9fa541433",
+      "context": "Where rendered sounds are kept: ``~/.spacr/sounds`` by default.",
+      "translation": "渲染好的声音的保存位置：默认为 ``~/.spacr/sounds``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.sound_cache_root#1",
+      "source": ":data:`CACHE_ENV` overrides it. Read on every call, so a test that sets the variable is honoured without any reload.",
+      "source_sha256": "9cdef46659a6d65c7d8b506fb1cb9f9364b88f471e3badb362101a6d105a77a8",
+      "context": ":data:`CACHE_ENV` overrides it. Read on every call, so a test that sets the variable is honoured without any reload.",
+      "translation": ":data:`CACHE_ENV` 会覆盖它。每次调用都会读取，因此设置该变量的测试无需任何重新加载即可生效。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.sound_names#0",
+      "source": "The file stems an event plays, in the order they rotate.",
+      "source_sha256": "821320e30bb8f6bf7225eb6e6d5bdf4e7da2446488e7f77f258004b8d4ab2be4",
+      "context": "The file stems an event plays, in the order they rotate.",
+      "translation": "某个事件播放的文件主干名，按轮换顺序排列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.sound_names#1",
+      "source": "one of :data:`EVENTS`.",
+      "source_sha256": "f07f143c4e3cde893c82dc37dde05cd9a0ca38da3ba9ceffbab60f6f3a566ef1",
+      "context": "one of :data:`EVENTS`.",
+      "translation": ":data:`EVENTS` 之一。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.sound_names#2",
+      "source": "for example ``[\"click-0\", ..., \"click-3\"]`` for a click.",
+      "source_sha256": "0d6db05e8fbb9f1751222d26d2b623087dc5aa621b06c38ba1e55d35cd37fa7a",
+      "context": "for example ``[\"click-0\", ..., \"click-3\"]`` for a click.",
+      "translation": "例如，点击为 ``[\"click-0\", ..., \"click-3\"]``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.sound_names#3",
+      "source": "for an event this module does not know.",
+      "source_sha256": "4530ff8a32e78a7696129811f7cfca0eb2e7811e6b307679050acc0e88b50a8e",
+      "context": "for an event this module does not know.",
+      "translation": "本模块不认识该事件时抛出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.theme_cache_dir#0",
+      "source": "The folder a theme's files live in, named by key and fingerprint.",
+      "source_sha256": "6f5704d83e5b9404024113299d2650353722a124a9a28d53a8552f433383ec73",
+      "context": "The folder a theme's files live in, named by key and fingerprint.",
+      "translation": "主题文件所在的文件夹，以键和指纹命名。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.theme_cache_dir#4",
+      "source": "the folder (not created here).",
+      "source_sha256": "a1a54e24ebf8353d9906e224cc464d274dbddd58c2875aea0758a619e636cb5b",
+      "context": "the folder (not created here).",
+      "translation": "该文件夹（此处不创建）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.theme_fingerprint#0",
+      "source": "A short hash of everything that decides what a theme's files hold.",
+      "source_sha256": "6dca7d4ebf7369c14730419329721964780c318e78bb86a7dbd85e0cfd32204f",
+      "context": "A short hash of everything that decides what a theme's files hold.",
+      "translation": "决定主题文件内容的所有因素的简短哈希值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.theme_fingerprint#3",
+      "source": "twelve hex digits.",
+      "source_sha256": "1c7415c5405c7e88330283a91a0577f8e46cac43bfecba3ba5e86d39997cda0b",
+      "context": "twelve hex digits.",
+      "translation": "十二个十六进制数字。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.write_wav#0",
+      "source": "Write stereo float samples as 16-bit PCM, atomically.",
+      "source_sha256": "ba095772e928b3063c7c1574cf1ab53e7e5f4254102dfdb36a647dba277da200",
+      "context": "Write stereo float samples as 16-bit PCM, atomically.",
+      "translation": "以原子方式将立体声浮点样本写为 16-bit PCM。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.write_wav#1",
+      "source": "The file appears under its final name only once it is complete, so a player that looks while it is being written sees the old file or none, never half of one.",
+      "source_sha256": "e3cb44af3ef3f60f457acfc7becd80cc76efd71b51c7285eef4e8b31a7ae6678",
+      "context": "The file appears under its final name only once it is complete, so a player that looks while it is being written sees the old file or none, never half of one.",
+      "translation": "文件只有在写完后才会以最终名称出现，因此在写入期间查看的播放器看到的是旧文件或没有文件，绝不会是写了一半的文件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.write_wav#2",
+      "source": "destination.",
+      "source_sha256": "b3bd9deda0e7dd6b318c597df750e9767f8fba710634be3b75a85edb672d8c1f",
+      "context": "destination.",
+      "translation": "目标位置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.sound_synth.write_wav#3",
+      "source": "shape ``(2, n)``, values in -1 to 1.",
+      "source_sha256": "d1b333b610e9fb5378b8efc3ead28929ce57ee9fdc714fe04e26cae8561945db",
+      "context": "shape ``(2, n)``, values in -1 to 1.",
+      "translation": "形状为 ``(2, n)``，取值范围为 -1 到 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.background_path#2",
+      "source": "output width in pixels; clamped to 16-3840.",
+      "source_sha256": "fe4ba345c9bf26056cc28d549f59e1063d738dd671b16ca4ab12a3442b28d152",
+      "context": "output width in pixels; clamped to 16-3840.",
+      "translation": "输出宽度，单位为像素；限制在 16-3840 之间。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.background_path#3",
+      "source": "output height in pixels; clamped to 16-2400.",
+      "source_sha256": "02f495e310f3792694951a2a774d1ebdaaa1c9f424fceea8df6f1e9313b0ce77",
+      "context": "output height in pixels; clamped to 16-2400.",
+      "translation": "输出高度，单位为像素；限制在 16-2400 之间。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.cache_name#1",
+      "source": "background width in pixels.",
+      "source_sha256": "a11b947e473f5235198d1fca93cc787952c0e63fe1aa794cd6aa2c667b282632",
+      "context": "background width in pixels.",
+      "translation": "背景宽度，单位为像素。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.cache_name#2",
+      "source": "background height in pixels.",
+      "source_sha256": "3aaaa74f3f13225b67c89c11a8fba2d9f526074a9366a4682c0acb374efee0b0",
+      "context": "background height in pixels.",
+      "translation": "背景高度，单位为像素。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.cache_name#3",
+      "source": "background variant name, such as ``'galaxy'``, ``'sun'`` or ``'stars'``.",
+      "source_sha256": "604c41c8a3988c70136e9fb213b5a58c10b8c89783e6b16813daa42a6cb5de57",
+      "context": "background variant name, such as ``'galaxy'``, ``'sun'`` or ``'stars'``.",
+      "translation": "背景变体名称，例如 ``'galaxy'``、``'sun'`` 或 ``'stars'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.cache_name#4",
+      "source": "random seed the background was rendered with.",
+      "source_sha256": "e85e2c3bb0fcc558fdc7b86598f6ef97b891c22b35dba46859632099c6b6ffae",
+      "context": "random seed the background was rendered with.",
+      "translation": "渲染背景时所用的随机种子。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.highlight_ceiling#2",
+      "source": "tone-mapping exposure, as returned by :func:`tone_exposure`; zero or a negative value returns ``inf``.",
+      "source_sha256": "e914b334ba750ba8fda527fd355c5c11f502d4c9046696c87aec2e4d8ebbf92c",
+      "context": "tone-mapping exposure, as returned by :func:`tone_exposure`; zero or a negative value returns ``inf``.",
+      "translation": "色调映射曝光，与 :func:`tone_exposure` 返回的相同；为零或负值时返回 ``inf``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.sample_star_fluxes#3",
+      "source": "NumPy random generator; its ``random`` method supplies the draws.",
+      "source_sha256": "3ff2b775fa4a47e9d7c0c27b4205b4e7c79dbcb37c02c858af7d3b36872e43d8",
+      "context": "NumPy random generator; its ``random`` method supplies the draws.",
+      "translation": "NumPy 随机数生成器；由其 ``random`` 方法提供抽样。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.sample_star_fluxes#4",
+      "source": "number of fluxes to draw; zero or fewer returns an empty array.",
+      "source_sha256": "08538bc06a8ec12f6dd224955b50c84085d9947853b752e39942fc469077c629",
+      "context": "number of fluxes to draw; zero or fewer returns an empty array.",
+      "translation": "要抽取的通量数量；为零或更少时返回空数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.sample_star_temperatures#1",
+      "source": "NumPy random generator; its ``choice`` and ``random`` methods supply the draws.",
+      "source_sha256": "1850679a1f5330447ed86bc0db3089ea83ccc14c45e5b3e7ab2afa70bdcc94ba",
+      "context": "NumPy random generator; its ``choice`` and ``random`` methods supply the draws.",
+      "translation": "NumPy 随机数生成器；由其 ``choice`` 和 ``random`` 方法提供抽样。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.sample_star_temperatures#2",
+      "source": "number of temperatures to draw; zero or fewer returns an empty array.",
+      "source_sha256": "52e5d842767fd1c3ac828cce452f901bca665a4436829160fb55a35c35c57fe5",
+      "context": "number of temperatures to draw; zero or fewer returns an empty array.",
+      "translation": "要抽取的温度数量；为零或更少时返回空数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.star_colors#1",
+      "source": "1-D array of temperatures in kelvin; values outside 2000-40000 K are clipped to that range.",
+      "source_sha256": "9294ce758afbeb1dcd57c8a5ca8fdea387bbcd3f30a1ed38355a7962baafe7f5",
+      "context": "1-D array of temperatures in kelvin; values outside 2000-40000 K are clipped to that range.",
+      "translation": "以开尔文为单位的温度 1-D 数组；超出 2000-40000 K 的值会被裁剪到该范围内。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.starfield#1",
+      "source": "output width in pixels.",
+      "source_sha256": "2ce22dfb0c3947ed57170fb9834bebdb01759d597667d95693529a46e1952caf",
+      "context": "output width in pixels.",
+      "translation": "输出宽度，单位为像素。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.space.starfield#2",
+      "source": "output height in pixels.",
+      "source_sha256": "68d3d10428cf7fdc8545211715317f9f1873958870ef4982256f0d5ad2a97b3c",
+      "context": "output height in pixels.",
+      "translation": "输出高度，单位为像素。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.space.sun#1",
+      "source": "output width in pixels; the star is rendered at a third of this and upsampled.",
+      "source_sha256": "3a38a8a332fbce7ba7064b2b3601909ad010ef23512dc57543087f78ddbb9f6d",
+      "context": "output width in pixels; the star is rendered at a third of this and upsampled.",
+      "translation": "输出宽度，单位为像素；恒星以其三分之一的尺寸渲染后再上采样。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.sun#2",
+      "source": "output height in pixels; the star is rendered at a third of this and upsampled.",
+      "source_sha256": "f46c94f36502486be55f2e16cbd97a6c036489994051c7c08fee8840dd277328",
+      "context": "output height in pixels; the star is rendered at a third of this and upsampled.",
+      "translation": "输出高度，单位为像素；恒星以其三分之一的尺寸渲染后再上采样。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.to_qimage#1",
+      "source": "RGB image, an array of shape (h, w, 3); it is converted to contiguous ``uint8``.",
+      "source_sha256": "047327dc446a4457a11fba465acc0c83463a351d43ead96e4f90ec19bb16dea1",
+      "context": "RGB image, an array of shape (h, w, 3); it is converted to contiguous ``uint8``.",
+      "translation": "RGB 图像，形状为 (h, w, 3) 的数组；会转换为连续的 ``uint8``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.space.tone_exposure#2",
+      "source": "2-D array of HDR luminance for the frame.",
+      "source_sha256": "0ddb7bf2ba21dad096e8f8b379dfc4ede70895e3369878297241599d006e084a",
+      "context": "2-D array of HDR luminance for the frame.",
+      "translation": "该帧 HDR 亮度的二维数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.spaceout#1",
+      "source": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and fractal ambient animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "source_sha256": "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3",
+      "context": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and fractal ambient animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "translation": "该命令会启动标准的 :func:`spacr.qt.run` 应用程序，并使用经过对比度检查的光谱调色板和分形环境动画。该模式仅对当前进程有效：它不会存储为首选项，也不会改变之后的标准启动。现有的动画首选项仍然有效，包括关闭环境动画的选项。它也是唯一带声音的模式：“首选项”只在这里显示其 Sound 选项卡（以及 Fractal 选项卡），而普通的 spaCR 无论存储的声音设置如何都不会播放任何声音。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog#0",
+      "source": "Check PyPI off the GUI thread, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
+      "source_sha256": "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906",
+      "context": "Check PyPI off the main GUI execution path, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
+      "translation": "在 GUI 线程之外检查 PyPI，允许在取消检查后打开已安装的应用。准备一次自动的只读更新检查。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent#0",
+      "source": "Prevent destruction of an active check thread.",
+      "source_sha256": "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+      "context": "Prevent destruction of an active check thread.",
+      "translation": "防止销毁正在进行的检查线程。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent#1",
+      "source": "Qt close event; ignored while the check is being cancelled.",
+      "source_sha256": "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+      "context": "Qt close event; ignored while the check is being cancelled.",
+      "translation": "Qt 关闭事件；在检查正被取消时会被忽略。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.reject#0",
+      "source": "Cancel the check and keep the dialog alive until its worker exits.",
+      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
+      "context": "Cancel the check and keep the dialog alive until its worker exits.",
+      "translation": "取消检查，并使对话框保持存活直到其工作线程退出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source": "Check for updates on every open and offer pip upgrades before launching.",
+      "source_sha256": "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+      "context": "Check for updates on every open and offer pip upgrades before launching.",
+      "translation": "每次打开时检查更新，并在启动前提供 pip 升级。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#1",
+      "source": "the running ``QApplication``, passed to the controller.",
+      "source_sha256": "31e875c8021c5af64ce295eb2128dda1a971f31d0b978ea0dcc10845aaf7157b",
+      "context": "the running ``QApplication``, passed to the controller.",
+      "translation": "正在运行的 ``QApplication``，会传递给控制器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#2",
+      "source": "the main window the benchmark drives.",
+      "source_sha256": "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86",
+      "context": "the main window the benchmark drives.",
+      "translation": "基准测试所驱动的主窗口。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.synthetic#10",
+      "source": "CLI",
+      "source_sha256": "e759793341ff3757eaa76e814db0170ec13b6b0a988a742d9a81240c505f48ec",
+      "context": "CLI",
+      "translation": "命令行接口",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.synthetic#9",
+      "source": "Public API",
+      "source_sha256": "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+      "context": "Public API",
+      "translation": "公开 API",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.synthetic.DemoLayout#2",
+      "source": "absolute path of the demo folder, the value the demo's settings use as ``src``.",
+      "source_sha256": "2bc20af886873b1f06055ac11ccf2894edfc5e9c0055bc23de9ddfcea2cc7a1b",
+      "context": "absolute path of the demo folder, the value the demo's settings use as ``src``.",
+      "translation": "演示文件夹的绝对路径，即演示设置用作 ``src`` 的值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.synthetic.DemoLayout#3",
+      "source": "absolute path of the folder holding the generated raw images; the same as ``src`` except for demos that put them in a ``data`` subfolder.",
+      "source_sha256": "bd6a040d8d24b4b34483f02dabae95b8fae7d543f5d03baf03fde99cd4143721",
+      "context": "absolute path of the folder holding the generated raw images; the same as ``src`` except for demos that put them in a ``data`` subfolder.",
+      "translation": "保存生成的原始图像的文件夹的绝对路径；与 ``src`` 相同，但把图像放在 ``data`` 子文件夹中的演示除外。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.synthetic.generate_mask_demo#1",
+      "source": "destination folder; made absolute and created if absent.",
+      "source_sha256": "7f22b8d4154fd9a0ea84ed58b23f5d055a61a03b207a45835f03236fdd25e8c1",
+      "context": "destination folder; made absolute and created if absent.",
+      "translation": "目标文件夹；会转换为绝对路径，不存在时会被创建。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.synthetic.save_settings_csv#1",
+      "source": "CSV file to write; made absolute, its parent folder is created, and an existing file is overwritten.",
+      "source_sha256": "0cf84c7682860a60fd994341d3f0b39fe4354d5f1b7e7ecb4f9f6a58640ed685",
+      "context": "CSV file to write; made absolute, its parent folder is created, and an existing file is overwritten.",
+      "translation": "要写入的 CSV 文件；会转换为绝对路径，其父文件夹会被创建，已有文件会被覆盖。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.synthetic.save_settings_csv#2",
+      "source": "settings to write, one ``Key,Value`` row each; ``None`` is written as an empty value and everything else with ``str()``.",
+      "source_sha256": "559ce61e1ee0e510f5c05af13ebe5719cca623b2a2b7b2d1e5d40edcbe41dd87",
+      "context": "settings to write, one ``Key,Value`` row each; ``None`` is written as an empty value and everything else with ``str()``.",
+      "translation": "要写入的设置，每项一行 ``Key,Value``；``None`` 写为空值，其他所有值都用 ``str()`` 写出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.terms_i18n.paragraphs#1",
+      "source": "language code, as :mod:`spacr.qt.i18n` spells it; a code with no registered translation gives ``None``.",
+      "source_sha256": "33390bc7427144de621b5e74fdfe96809725d08a164d902b22c17054321e1ac8",
+      "context": "language code, as :mod:`spacr.qt.i18n` spells it; a code with no registered translation gives ``None``.",
+      "translation": "语言代码，拼写与 :mod:`spacr.qt.i18n` 相同；没有已注册翻译的代码返回 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.terms_i18n.review_note#1",
+      "source": "language code, as :mod:`spacr.qt.i18n` spells it.",
+      "source_sha256": "a2436e4132be39c9ef6a6b535ef43f436e46c761e2bcbc364ceeb82ab69e8fa1",
+      "context": "language code, as :mod:`spacr.qt.i18n` spells it.",
+      "translation": "语言代码，拼写与 :mod:`spacr.qt.i18n` 相同。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.theme#1",
+      "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "source_sha256": "fda3e9606f7d5c5f45a5bf04835a04a56a1132b241681c81cd2eed9f5ee6c47e",
+      "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "translation": "对实时控件显示的颜色使用 :func:`active_palette`，对应用程序样式表使用 :func:`stylesheet`。:data:`THEMES` 包含可选的调色板 ``\"dark\"``、``\"light\"``、``\"cell\"``、``\"glass\"`` 以及 :mod:`spacr.qt.night_themes` 中的十个夜间主题；``\"system\"`` 首选项在查找调色板之前会解析为深色或浅色。旧式的 ``\"space\"`` 调色板仍可从已保存的设置中读取，但不可选择。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.advance_spaceout_drift#2",
+      "source": "seconds to add to the spaceout clock; ignored when not positive or when spaceout is off.",
+      "source_sha256": "8c57f07703a78d003212507c254acd5081ea016d8b4537a7acafb2162c0ff519",
+      "context": "seconds to add to the spaceout clock; ignored when not positive or when spaceout is off.",
+      "translation": "要加到 spaceout 时钟上的秒数；非正值或 spaceout 关闭时被忽略。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.apply_qpalette#1",
+      "source": "The platform is told the theme's scheme first (see :func:`hold_the_colour_scheme`), so a theme change the operating system reports afterwards cannot repaint the roles set here. Disabled text is the dim ink, so a disabled control reads as disabled on every theme.",
+      "source_sha256": "00191793cab21ac45bc711f642d84c450551921e28f47ee8bc8035f5e62855b9",
+      "context": "The platform is told the theme's scheme first (see :func:`hold_the_colour_scheme`), so a theme change the operating system reports afterwards cannot repaint the roles set here. Disabled text is the dim ink, so a disabled control reads as disabled on every theme.",
+      "translation": "会先把主题的配色方案告知平台（参见 :func:`hold_the_colour_scheme`），因此操作系统之后报告的主题变化无法重绘这里设置的角色。禁用文字使用暗淡的文字颜色，因此禁用的控件在每个主题上都能被看出处于禁用状态。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.apply_qpalette#4",
+      "source": "release the scheme to the operating system instead of pinning it; the explicit \"Follow system\" choice.",
+      "source_sha256": "792de2514f5f760b04580ec0d84dffd4d983879c4e187d4f966a7153b587242c",
+      "context": "release the scheme to the operating system instead of pinning it; the explicit \"Follow system\" choice.",
+      "translation": "将配色方案交还给操作系统，而不是固定它；即显式的 \"Follow system\" 选择。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "source": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
+      "source_sha256": "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b",
+      "context": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
+      "translation": "在页面之外等待的设置类别主体没有父对象，因此 Qt 会将其列为顶层控件，但它并不是窗口：它会在任何人看到之前回到其页面之下，并从那里沿用页面的样式表。如果在这里为它设置样式表，它就会携带一份回到页面时刻的样式表副本，而下一次主题更改将无法作用于它。参见 :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.button_accent_text#0",
+      "source": "The colour for TEXT drawn in the button accent straight on the page.",
+      "source_sha256": "8255f73ec2af9cdcdcc71dd96e7675de7d96649dd8b27772d83aa3300607b2ba",
+      "context": "The colour for TEXT drawn in the button accent straight on the page.",
+      "translation": "直接在页面上以按钮强调色绘制的“文字”所用的颜色。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.button_accent_text#1",
+      "source": "``button_accent`` is the same blue on every theme (see :data:`CONSTANT_ROLES`), and as a fill or an outline it is. As the ink of an outlined button's caption it is not readable on a light page: #4A9EFF on the light theme's page is about 2.2:1, and on Glass's lightest panel it is 3.9:1. So the caption takes the first of a short list that clears 4.5:1 on every panel the theme has: on a dark theme the constant blue, then its lighter ``button_accent_hi``; on a light theme the theme's darker ``accent_hi``, then ``accent_lo``. The ink itself is the last resort, which clears it on any theme that passes its own contrast rules.",
+      "source_sha256": "333c6d3053b1fc92c56d6fb47c7b573a9c115ea84c1ff164a80013930c465f9a",
+      "context": "``button_accent`` is the same blue on every theme (see :data:`CONSTANT_ROLES`), and as a fill or an outline it is. As the ink of an outlined button's caption it is not readable on a light page: #4A9EFF on the light theme's page is about 2.2:1, and on Glass's lightest panel it is 3.9:1. So the caption takes the first of a short list that clears 4.5:1 on every panel the theme has: on a dark theme the constant blue, then its lighter ``button_accent_hi``; on a light theme the theme's darker ``accent_hi``, then ``accent_lo``. The ink itself is the last resort, which clears it on any theme that passes its own contrast rules.",
+      "translation": "``button_accent`` 在每个主题上都是同一种蓝色（参见 :data:`CONSTANT_ROLES`），作为填充或轮廓时确实如此。但作为轮廓按钮标题的文字颜色，它在浅色页面上不可读：#4A9EFF 在浅色主题页面上的对比度约为 2.2:1，在 Glass 最浅的面板上为 3.9:1。因此，标题会从一个短列表中选取第一个在该主题所有面板上都能达到 4.5:1 的颜色：在深色主题上依次为恒定的蓝色、较浅的 ``button_accent_hi``；在浅色主题上依次为主题较深的 ``accent_hi``、``accent_lo``。文字颜色本身是最后的选择，在任何通过自身对比度规则的主题上它都能达标。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.button_accent_text#2",
+      "source": "Derived on request rather than stored as a palette role, so the spaceout dressing (which re-hues every stored role) needs no entry for it.",
+      "source_sha256": "d63d6f2500c706bedb8a3b9b279ace501e025c8cf9547b42de3c10e4061a42f7",
+      "context": "Derived on request rather than stored as a palette role, so the spaceout dressing (which re-hues every stored role) needs no entry for it.",
+      "translation": "按需推导，而不是作为调色板角色存储，因此 spaceout 装扮（会重新调整每个已存储角色的色相）无需为它设置条目。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.button_accent_text#3",
+      "source": "a palette carrying ``bg``, ``fg`` and the accent roles; :func:`active_palette` when omitted.",
+      "source_sha256": "76add05365ba2210794cbd1829d0709db1b5369abdd13709942535c51dac9c3f",
+      "context": "a palette carrying ``bg``, ``fg`` and the accent roles; :func:`active_palette` when omitted.",
+      "translation": "包含 ``bg``、``fg`` 和强调色角色的调色板；省略时使用 :func:`active_palette`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.button_accent_text#4",
+      "source": "a hex colour.",
+      "source_sha256": "294cc28756a1a4df1dc06a820766b967576fc213d3d9ea532762390c378f7ec8",
+      "context": "a hex colour.",
+      "translation": "十六进制颜色。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.composite#1",
+      "source": "the upper colour, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "621ea9835116a577b3b23f06c842f9c966a03e1aeafa41ef8cf530c8886061d4",
+      "context": "the upper colour, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "上层颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.composite#2",
+      "source": "opacity of ``top``, clamped to [0, 1].",
+      "source_sha256": "6cff061a68a1bcf805c8d598a8cd9b1255abd64b47ce30f01f621aa91c1600b8",
+      "context": "opacity of ``top``, clamped to [0, 1].",
+      "translation": "``top`` 的不透明度，限制在 [0, 1] 内。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.contrast_failures#1",
+      "source": "the theme name, as passed to :func:`palette_for`.",
+      "source_sha256": "8fca92acc55d05799a7741eb34a6345e13f6c72bae5740610713f901a8b8a515",
+      "context": "the theme name, as passed to :func:`palette_for`.",
+      "translation": "主题名称，与传给 :func:`palette_for` 的相同。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.contrast_ratio#1",
+      "source": "one colour, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "3fa2fc288a7366c6a043c3872f22ad4e8f6de9d3e0f51a85ec125e82abb2d099",
+      "context": "one colour, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "一种颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.contrast_ratio#2",
+      "source": "the other colour; the order of ``a`` and ``b`` does not matter.",
+      "source_sha256": "9431a0dee300d1e491ac281a5c692a08ce221b0515c9996a103cedfd9f894efb",
+      "context": "the other colour; the order of ``a`` and ``b`` does not matter.",
+      "translation": "另一种颜色；``a`` 和 ``b`` 的顺序无关紧要。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.css_color#1",
+      "source": "the colour, a ``#rgb`` or ``#rrggbb`` colour string. Returned unchanged when ``alpha`` is 1 or more.",
+      "source_sha256": "5d12b7fdbaaf710b3437a8ad86c44e7ef8600c69854d5f9a6a172080ea38958c",
+      "context": "the colour, a ``#rgb`` or ``#rrggbb`` colour string. Returned unchanged when ``alpha`` is 1 or more.",
+      "translation": "颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。当 ``alpha`` 为 1 或更大时原样返回。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.effective_surface#3",
+      "source": "the surface role, a key of the theme's palette.",
+      "source_sha256": "31d3f143f1a612e29b2aa364990350002d3c058640e200d850cfd0d0b261cca5",
+      "context": "the surface role, a key of the theme's palette.",
+      "translation": "表面角色，为主题调色板的一个键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.ensure_widget_qss_applied#7",
+      "source": "A ROOT WHOSE SHEET IS STILL OWED KEEPS THE BLOCKS AND IS NOT RESTYLED. A module screen built after the theme is in force carries no sheet until its first show, and :func:`_sheet_one_window` puts this suffix on the end of the sheet it applies then. Applying it here as well would repolish the whole screen once for the suffix and again when Qt reparents it into the stack -- 829 ms and about as much again on a Regression open, for a screen nobody could see yet.",
+      "source_sha256": "d2fdbbfd6e8c2d48e21957349006f36fddd26d075555af0e87b9e0e702f17efd",
+      "context": "A root whose sheet is still owed keeps the blocks and is not restyled. A module application view built after the theme is in force carries no sheet until its first show, and :func:`_sheet_one_window` puts this suffix on the end of the sheet it applies then. Applying it here as well would repolish the whole application view once for the suffix and again when Qt reparents it into the stack -- 829 ms and about as much again on a Regression open, for an application view nobody could see yet.",
+      "translation": "“仍欠样式表的根控件会保留这些块，且不会被重新设置样式。”在主题生效之后构建的模块界面，在首次显示之前不带样式表，而 :func:`_sheet_one_window` 会在届时应用的样式表末尾加上这段后缀。如果在这里也应用它，就会为了这段后缀对整个界面重新应用一次样式，并在 Qt 将其重新设置父对象到堆栈中时再来一次——打开 Regression 时要花 829 ms，然后再花差不多同样的时间，而这时界面还没有任何人能看到。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.field_fade_alpha#3",
+      "source": "fraction of the way across the field, clamped to [0, 1].",
+      "source_sha256": "6c931eaaa5098902b7d443b0c703192edccc16c84d90cbdd6d5f3c0748ce9062",
+      "context": "fraction of the way across the field, clamped to [0, 1].",
+      "translation": "在字段宽度上所处的比例位置，限制在 [0, 1] 内。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.glass_material#2",
+      "source": "the body colour of the glass, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "f16f790e3b7e6516688af4cdecb80f592a324ee1521b43d941a211b97c21a022",
+      "context": "the body colour of the glass, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "玻璃的主体颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.glass_material#3",
+      "source": "base opacity of the body, clamped to [0, 1]; the highlight and lower edge are drawn slightly denser.",
+      "source_sha256": "f9109d99da672ef8ea071c839fa419cf58bb303a9a4623b603d41ce73718a820",
+      "context": "base opacity of the body, clamped to [0, 1]; the highlight and lower edge are drawn slightly denser.",
+      "translation": "主体的基础不透明度，限制在 [0, 1] 内；高光和下边缘绘制得略微更浓。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.hold_the_colour_scheme#0",
+      "source": "Tell the platform which scheme spaCR draws in, so it cannot differ.",
+      "source_sha256": "27421e773816799813edcc9b033dee2f9742855ef284ba2c1b561f37685c2ab5",
+      "context": "Tell the platform which scheme spaCR draws in, so it cannot differ.",
+      "translation": "告知平台 spaCR 使用哪种配色方案绘制，使两者不会不一致。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.hold_the_colour_scheme#1",
+      "source": "Qt 6.8 added ``QStyleHints.setColorScheme``. Without it a Mac in light appearance draws spaCR's title bar, native menus and file dialogs light around a dark window, and Windows does the same with its title bar; on Linux the GTK and KDE platform themes feed their own palette to the style. Setting it pins those to the theme in force. ``None`` releases the request, which is what the explicit \"Follow system\" choice wants.",
+      "source_sha256": "4eca19a32fd0aed2766378f4b26979ea3f1a88805da45b62c952e0584eff1fbd",
+      "context": "Qt 6.8 added ``QStyleHints.setColorScheme``. Without it a Mac in light appearance draws spaCR's title bar, native menus and file dialogs light around a dark window, and Windows does the same with its title bar; on Linux the GTK and KDE platform themes feed their own palette to the style. Setting it pins those to the theme in force. ``None`` releases the request, which is what the explicit \"Follow system\" choice wants.",
+      "translation": "Qt 6.8 新增了 ``QStyleHints.setColorScheme``。如果没有它，处于浅色外观的 Mac 会在深色窗口周围以浅色绘制 spaCR 的标题栏、原生菜单和文件对话框，Windows 对其标题栏也是如此；在 Linux 上，GTK 和 KDE 平台主题会把它们自己的调色板提供给样式。设置它可以把这些固定为当前生效的主题。``None`` 会释放该请求，这正是显式的 \"Follow system\" 选择所需要的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.hold_the_colour_scheme#2",
+      "source": "A no-op returning ``False`` on a Qt older than 6.8, where the palette and stylesheet (and the Fusion style :func:`use_a_style_that_honours_the_palette` installs) still carry the colours.",
+      "source_sha256": "4dc676cea879e4351624326857865fae179f0ac97b9a19f865ca38c9b535bdf7",
+      "context": "A no-op returning ``False`` on a Qt older than 6.8, where the palette and stylesheet (and the Fusion style :func:`use_a_style_that_honours_the_palette` installs) still carry the colours.",
+      "translation": "在低于 6.8 的 Qt 上不执行任何操作并返回 ``False``，此时颜色仍由调色板和样式表（以及 :func:`use_a_style_that_honours_the_palette` 安装的 Fusion 样式）承载。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.hold_the_colour_scheme#3",
+      "source": "the running application.",
+      "source_sha256": "95ddd383ded0006589080e9046e5184a311b8943393468da979cfa7da66a8fa2",
+      "context": "the running application.",
+      "translation": "正在运行的应用程序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.hold_the_colour_scheme#4",
+      "source": "a theme from :data:`THEMES`, or ``None`` to follow the system again.",
+      "source_sha256": "c552bbb149e1abfab4e18b158b30f987f46a6fa5e4384d3ab50d7a1ec388e0c0",
+      "context": "a theme from :data:`THEMES`, or ``None`` to follow the system again.",
+      "translation": "来自 :data:`THEMES` 的主题，或为 ``None`` 以重新跟随系统。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.hold_the_colour_scheme#5",
+      "source": "``True`` when the request reached Qt.",
+      "source_sha256": "f5ea172e2cda97097873882a5ebafea8167db64ddd5dd1c68bd345c9882f9364",
+      "context": "``True`` when the request reached Qt.",
+      "translation": "请求到达 Qt 时为 ``True``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.image_contrast_failures#2",
+      "source": "the wallpaper colour sampled behind the text, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "3885daf160f329e82b35e310682faf64f326d4e7b295cb473398c5e2c7eea662",
+      "context": "the wallpaper colour sampled behind the text, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "在文字后方采样的壁纸颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.install_close_marks#2",
+      "source": "a :class:`QTabWidget`, a :class:`QTabBar`, or any widget whose child tab widgets and tab bars are marked.",
+      "source_sha256": "d249cec6eed3c019c0d522862ed125de121649433aaeeb47366a6bf1c59a5fb2",
+      "context": "a :class:`QTabWidget`, a :class:`QTabBar`, or any widget whose child tab widgets and tab bars are marked.",
+      "translation": "一个 :class:`QTabWidget`、一个 :class:`QTabBar`，或任何其子选项卡控件和选项卡栏会被标记的控件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.is_close_mark#1",
+      "source": "the widget to test; None gives False.",
+      "source_sha256": "5511f746c3419357b9b15d8bdbe2124b950fff3d9c6f034ae0cdad95679619c4",
+      "context": "the widget to test; None gives False.",
+      "translation": "要检验的控件；为 None 时返回 False。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.lightness#2",
+      "source": "a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "515aed68e54f4d681cc101da2d1ea2dd2c6750857e9d6153e7176c259bb49c40",
+      "context": "a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.mark_tab_bar#2",
+      "source": "the :class:`QTabBar` whose close buttons are replaced.",
+      "source_sha256": "6fa576ae8f047a05fc316638f47ebca7f013b9e22ff2d29f7dcceaf579cfc2b4",
+      "context": "the :class:`QTabBar` whose close buttons are replaced.",
+      "translation": "要替换其关闭按钮的 :class:`QTabBar`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.pane_alpha#2",
+      "source": "the theme name, as passed to :func:`palette_for`. Glass scales the opacity by its designed surface scrim.",
+      "source_sha256": "b0fd00e7337b525c63830c15cf43c153093d775f229016b4f3fce5ff1da5bb2c",
+      "context": "the theme name, as passed to :func:`palette_for`. Glass scales the opacity by its designed surface scrim.",
+      "translation": "主题名称，与传给 :func:`palette_for` 的相同。Glass 会按其设计的表面遮罩缩放不透明度。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.pane_alpha_floor#2",
+      "source": "the theme name, as passed to :func:`palette_for`. Image themes are judged over :func:`scrim_under`, others over their own ``bg`` colour.",
+      "source_sha256": "2956e82ac66a905d4be3895cf9518bfdb2b3845f1628b721fd623f024121883b",
+      "context": "the theme name, as passed to :func:`palette_for`. Image themes are judged over :func:`scrim_under`, others over their own ``bg`` colour.",
+      "translation": "主题名称，与传给 :func:`palette_for` 的相同。图像主题以 :func:`scrim_under` 为背景进行评判，其他主题以其自身的 ``bg`` 颜色为背景。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.panel_alpha#4",
+      "source": "the surface role; ``elevated`` is always opaque.",
+      "source_sha256": "c7cc6adab4a4679e8e0b871b57e4f2ed72f34657c3013d3ee5fb3c08fbad2e0d",
+      "context": "the surface role; ``elevated`` is always opaque.",
+      "translation": "表面角色；``elevated`` 始终不透明。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.picture_contrast#4",
+      "source": "the panel's opacity, 0 to 1.",
+      "source_sha256": "026e813b6c75bde9bc8bee1a35e2fde8a04f7133e19213fe0ee882c3d1039ff3",
+      "context": "the panel's opacity, 0 to 1.",
+      "translation": "面板的不透明度，0 到 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.preserve_widget_qss_overlay#2",
+      "source": "the widget whose stored late-QSS suffix is appended; a widget without one adds nothing.",
+      "source_sha256": "4665948a340932eb2e749347e9c20ba51c832ebf4b799b6095e2b7b43091df93",
+      "context": "the widget whose stored late-QSS suffix is appended; a widget without one adds nothing.",
+      "translation": "其存储的后期 QSS 后缀会被追加的控件；没有后缀的控件不追加任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.preserve_widget_qss_overlay#3",
+      "source": "the new base stylesheet, converted to a string.",
+      "source_sha256": "4b0a95f282c2f357cfed5cefdc02b71b14744efa05d62282b44cb4d1998cfe5c",
+      "context": "the new base stylesheet, converted to a string.",
+      "translation": "新的基础样式表，会转换为字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.registered_widget_qss#3",
+      "source": "the palette dict passed, with ``opacity``, to every registered block function.",
+      "source_sha256": "5f78dd6c85101f181649bc41ec421083984b9c0ab115c92583c1ade564bcc69a",
+      "context": "the palette key-value mapping passed, with ``opacity``, to every registered block function.",
+      "translation": "调色板字典，会连同 ``opacity`` 一起传递给每个已注册的块函数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.repolish#1",
+      "source": "the widget to unpolish, polish and update.",
+      "source_sha256": "fdde06c240f7abdac80049ebf30bd32abf4cb2d14914e91f06329cd147cae283",
+      "context": "the widget to unpolish, polish and update.",
+      "translation": "要取消样式、重新应用样式并更新的控件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.scheme_of#0",
+      "source": "``\"light\"`` or ``\"dark\"``: which way ``theme`` draws its text.",
+      "source_sha256": "ac0fb391239a5bc468a61e31daf26bc86b30368b17d9d1c65bc588d0cd9dabdd",
+      "context": "``\"light\"`` or ``\"dark\"``: which way ``theme`` draws its text.",
+      "translation": "``\"light\"`` 或 ``\"dark\"``：``theme`` 以哪种方式绘制其文字。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.scheme_of#1",
+      "source": "Read off the palette rather than listed, so a new theme needs no entry here: a theme whose page is brighter than its ink is a light theme.",
+      "source_sha256": "22401df4c9c93e9f402ac419fbb5744ac20a1bde57dde5759e12957e3d6c9fa2",
+      "context": "Read off the palette rather than listed, so a new theme needs no entry here: a theme whose page is brighter than its ink is a light theme.",
+      "translation": "从调色板中读取，而不是逐一列出，因此新主题无需在这里添加条目：页面比文字更亮的主题就是浅色主题。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.scheme_of#2",
+      "source": "one of :data:`THEMES`.",
+      "source_sha256": "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+      "context": "one of :data:`THEMES`.",
+      "translation": ":data:`THEMES` 之一。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.scheme_of#3",
+      "source": "``\"light\"`` when the page outshines the ink, else ``\"dark\"``.",
+      "source_sha256": "a14357bb6ec4bfd646256938fe4f4db416fe841d5edd04581de168689f0f51c2",
+      "context": "``\"light\"`` when the page outshines the ink, else ``\"dark\"``.",
+      "translation": "页面比文字更亮时为 ``\"light\"``，否则为 ``\"dark\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.scrim_alpha#2",
+      "source": "the surface role; roles and themes not in ``SCRIM_ALPHA`` give 1.0.",
+      "source_sha256": "509754defe838d9760870f7364bbdbf565171cb488c2e6590301b29b86231136",
+      "context": "the surface role; roles and themes not in ``SCRIM_ALPHA`` give 1.0.",
+      "translation": "表面角色；不在 ``SCRIM_ALPHA`` 中的角色和主题返回 1.0。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.scrim_under#5",
+      "source": "the theme name.",
+      "source_sha256": "5dcc412544e3712c295abb17c2e570f7fec462a1b8548ee82a9f2aeb01f78385",
+      "context": "the theme name.",
+      "translation": "主题名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.set_a_sheeted_widgets_own_rule#4",
+      "source": "A WIDGET STILL BEING BUILT IS NOT SHEETED HERE. It is marked as a sheet target and sheeted on its first ``Polish`` as a page or its first ``Show``, which is before its first paint; see :func:`_the_sheet_can_wait_for_the_show` for why, and for the three repolishes of a whole module screen that saves.",
+      "source_sha256": "e54ffa293357665df27ffae3f2c15921a85389029c0ef455bf9167be15ce119b",
+      "context": "A widget still being built is not sheeted here. It is marked as a sheet target and sheeted on its first ``Polish`` as a page or its first ``Show``, which is before its first paint; see :func:`_the_sheet_can_wait_for_the_show` for why, and for the three repolishes of a whole module application view that saves.",
+      "translation": "“仍在构建中的控件不会在这里应用样式表。”它会被标记为样式表目标，并在其作为页面的第一次 ``Polish`` 或第一次 ``Show`` 时应用样式表，这发生在其首次绘制之前；原因参见 :func:`_the_sheet_can_wait_for_the_show`，其中也说明了这样做为整个模块界面节省的三次重新应用样式。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.set_spaceout_drift_seconds#1",
+      "source": "the new clock value, in seconds; negative values become 0.",
+      "source_sha256": "278ddf5f3d3d15d52dad460f28319a673cd1b498b9f5c6554bbba194037ac8f6",
+      "context": "the new clock value, in seconds; negative values become 0.",
+      "translation": "新的时钟值，单位为秒；负值变为 0。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.set_widget_qss_context#1",
+      "source": "the application object the context is stored on; None does nothing.",
+      "source_sha256": "df03332f35a52fa299c360659a16e57ba11a4cfc59f94a684a94c9cee4d58542",
+      "context": "the application object the context is stored on; None does nothing.",
+      "translation": "保存上下文的应用程序对象；为 None 时不执行任何操作。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.set_widget_qss_context#2",
+      "source": "the active theme name.",
+      "source_sha256": "b2165356689fb1d0c9ac727d4d8cf90a7f2f11a9c8ed46daecb23cc935d21293",
+      "context": "the active theme name.",
+      "translation": "当前的主题名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.set_widget_qss_context#3",
+      "source": "the active font scale, stored as a float.",
+      "source_sha256": "62afae0c6a2cbfd29d6d53bd603a1aa98dfcfe6e65e092e0eca010eba7a4f3cc",
+      "context": "the active font scale, stored as a float.",
+      "translation": "当前的字体缩放，以浮点数存储。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.set_widget_qss_context#4",
+      "source": "the page-opacity preference, or None for the theme's designed scrim.",
+      "source_sha256": "756365ec446064409c86e64838691e25f385181a4842eb7b3f27fbc242556041",
+      "context": "the page-opacity preference, or None for the theme's designed scrim.",
+      "translation": "页面不透明度首选项，或为 None 使用主题设计的遮罩。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.size_close_mark#1",
+      "source": "THE FLOORS ARE CONVERTED, and that is the whole of the GUI scale in here. ``minimumWidth`` answers in 100 % units (the scaling layer in :mod:`spacr.qt.gui_scale` remembers what the code asked for) while the glyph is measured in the pixels actually being drawn, so comparing them raw made the box 12 px wider than the mark at 50 % and left the chrome shifted when the scale came back.",
+      "source_sha256": "7a5b4e95b24af28ee70d4c2558e493187edbb18c0b3f44f15ab43cf43b466d7d",
+      "context": "The floors are converted, and that is the whole of the GUI scale in here. ``minimumWidth`` answers in 100 % units (the scaling layer in :mod:`spacr.qt.gui_scale` remembers what the code asked for) while the glyph is measured in the pixels actually being drawn, so comparing them raw made the box 12 px wider than the mark at 50 % and left the chrome shifted when the scale came back.",
+      "translation": "“下限值会被换算”，这就是这里对 GUI 缩放的全部处理。``minimumWidth`` 以 100 % 单位作答（:mod:`spacr.qt.gui_scale` 中的缩放层记住了代码请求的值），而字形则按实际绘制的像素测量，因此直接比较两者会使 50 % 时方框比标记宽 12 px，并在缩放恢复后使界面元素发生偏移。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.size_close_mark#2",
+      "source": "the close-mark button to give a fixed size.",
+      "source_sha256": "3b8b1155011863b6545cace955fedd70233e79a655384aabb8ceaa0af7570ca9",
+      "context": "the close-mark button to give a fixed size.",
+      "translation": "要设为固定尺寸的关闭标记按钮。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.splash_dim_alpha#2",
+      "source": "the text colour, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "45016e6e0b1343c9001f74ef9acf5274c3b6322834e1ac2ce289b6d7def40231",
+      "context": "the text colour, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "文字颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.splash_dim_alpha#3",
+      "source": "the background colour it is composited over, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "source_sha256": "488ef0165e1c2d503621c02cdd68a2a5cb293be22fd3c6d72205200feef25fa3",
+      "context": "the background colour it is composited over, a ``#rgb`` or ``#rrggbb`` colour string.",
+      "translation": "其下方合成的背景颜色，``#rgb`` 或 ``#rrggbb`` 形式的颜色字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.stage_hover#1",
+      "source": "the app stage, a key of ``STAGE_HOVER``.",
+      "source_sha256": "21ea0949c5bb5087604dc7a0e827748484beaeddb5c1897a56769685067674b8",
+      "context": "the app stage, a key of ``STAGE_HOVER``.",
+      "translation": "应用阶段，为 ``STAGE_HOVER`` 的一个键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.system_colour_scheme#0",
+      "source": "What the operating system's own light/dark setting is, if Qt knows.",
+      "source_sha256": "4320f00001d76aa2890ff95f30278cf8686d9e7bcfebb8fdf660da47e108c20f",
+      "context": "What the operating system's own light/dark setting is, if Qt knows.",
+      "translation": "操作系统自身的浅色/深色设置（如果 Qt 知道的话）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.system_colour_scheme#1",
+      "source": "Any scheme spaCR asked for earlier is released first (``QStyleHints.unsetColorScheme``, Qt 6.8+), so the answer is the platform's -- macOS appearance, the Windows app mode, or the GTK/KDE preference on Linux -- and not an echo of what spaCR requested. Only the ``\"system\"`` theme calls this.",
+      "source_sha256": "8cd71b1953385af10475242b74fc22d7659d02a1ba680d8f95406c929914ec3e",
+      "context": "Any scheme spaCR asked for earlier is released first (``QStyleHints.unsetColorScheme``, Qt 6.8+), so the answer is the platform's -- macOS appearance, the Windows app mode, or the GTK/KDE preference on Linux -- and not an echo of what spaCR requested. Only the ``\"system\"`` theme calls this.",
+      "translation": "spaCR 之前请求的任何配色方案都会先被释放（``QStyleHints.unsetColorScheme``，Qt 6.8+），因此得到的是平台的答案——macOS 外观、Windows 应用模式，或 Linux 上的 GTK/KDE 偏好——而不是 spaCR 所请求内容的回声。只有 ``\"system\"`` 主题会调用此函数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.system_colour_scheme#2",
+      "source": "the running application; ``QApplication.instance()`` when omitted.",
+      "source_sha256": "043a47f2303443e44c5ab1a05a3ed1cd04d1de4ecf6ad803ca2caebed03388f2",
+      "context": "the running application; ``QApplication.instance()`` when omitted.",
+      "translation": "正在运行的应用程序；省略时使用 ``QApplication.instance()``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.system_colour_scheme#3",
+      "source": "``\"dark\"``, ``\"light\"``, or ``None`` when Qt cannot tell (the offscreen platform, a desktop with no preference, Qt < 6.5).",
+      "source_sha256": "4fafb2a3e068d0cb76137a64c84d10b011ce9ed2d8ad3a021bc35cb09ed96804",
+      "context": "``\"dark\"``, ``\"light\"``, or ``None`` when Qt cannot tell (the offscreen platform, a desktop with no preference, Qt < 6.5).",
+      "translation": "``\"dark\"``、``\"light\"``；当 Qt 无法判断时（offscreen 平台、没有偏好设置的桌面、Qt < 6.5）为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.unregister_widget_qss#1",
+      "source": "the name the block was registered under, converted to a string.",
+      "source_sha256": "91314d9c6dc4a526eb1e78b97359915d668cf17beb71807190bc4b900ad3485d",
+      "context": "the name the block was registered under, converted to a string.",
+      "translation": "注册该块时使用的名称，会转换为字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.use_a_style_that_honours_the_palette#0",
+      "source": "Put the application on Fusion unless somebody asked for a style.",
+      "source_sha256": "4e910f43970421a13822689bea2556924faba6ac4dc44919cbc0c5a693cd862a",
+      "context": "Put the application on Fusion unless somebody asked for a style.",
+      "translation": "除非有人指定了样式，否则让应用程序使用 Fusion。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.use_a_style_that_honours_the_palette#1",
+      "source": "spaCR's stylesheet is written against Fusion, which draws every control from the palette. The native macOS and Windows styles draw some of them -- combo boxes, spin-box buttons, scroll bars, the parts of a control no rule reaches -- from the operating system's own light or dark setting, which is how a dark spaCR came out with light fields on a light Mac.",
+      "source_sha256": "ed726467489f8c7376ca20ff03f9a2edfca35b370973ccdd5527c6de44541763",
+      "context": "spaCR's stylesheet is written against Fusion, which draws every control from the palette. The native macOS and Windows styles draw some of them -- combo boxes, spin-box buttons, scroll bars, the parts of a control no rule reaches -- from the operating system's own light or dark setting, which is how a dark spaCR came out with light fields on a light Mac.",
+      "translation": "spaCR 的样式表是针对 Fusion 编写的，Fusion 会根据调色板绘制每个控件。原生的 macOS 和 Windows 样式会按操作系统自身的浅色或深色设置绘制其中一些控件——组合框、数值框按钮、滚动条，以及任何规则都作用不到的控件部分——这就是深色的 spaCR 在浅色 Mac 上出现浅色输入框的原因。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.use_a_style_that_honours_the_palette#2",
+      "source": "Left alone when ``QT_STYLE_OVERRIDE`` is set: that is somebody choosing a style on purpose. (``launch`` hands Qt only the program name, so a ``-style`` argument never reaches Qt and needs no exception here.)",
+      "source_sha256": "80de9bd6da74e10278ef512182f35b4301439791397834e82a2534bb5123f013",
+      "context": "Left alone when ``QT_STYLE_OVERRIDE`` is set: that is somebody choosing a style on purpose. (``launch`` hands Qt only the program name, so a ``-style`` argument never reaches Qt and needs no exception here.)",
+      "translation": "当设置了 ``QT_STYLE_OVERRIDE`` 时保持不变：那是有人有意选择了样式。（``launch`` 只把程序名传给 Qt，因此 ``-style`` 参数永远不会到达 Qt，这里也无需为其设置例外。）",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.use_a_style_that_honours_the_palette#3",
+      "source": "the application; ``QApplication.instance()`` when omitted.",
+      "source_sha256": "7ee34cc464bb300332fa64a11509acdbd64a5d671d9fc9c372793f09f880bb94",
+      "context": "the application; ``QApplication.instance()`` when omitted.",
+      "translation": "应用程序；省略时使用 ``QApplication.instance()``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.use_a_style_that_honours_the_palette#4",
+      "source": "environment to consult; ``os.environ`` when omitted.",
+      "source_sha256": "af706d8e11162b7cfb129a1ed7dd9ae0d32760cf82363b8d9116747a9a65261e",
+      "context": "environment to consult; ``os.environ`` when omitted.",
+      "translation": "要查询的环境变量；省略时使用 ``os.environ``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.theme.use_a_style_that_honours_the_palette#5",
+      "source": "the name of the style in force afterwards, lower case.",
+      "source_sha256": "ec5cae24e92bda961e918171e41bd3ac6d9de4f8cb95ed165d77988b0f11840b",
+      "context": "the name of the style in force afterwards, lower case.",
+      "translation": "之后生效的样式名称，小写。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.interval_started#2",
+      "source": "the interaction's label; a ``\"<name> requested\"`` mark is recorded for it.",
+      "source_sha256": "075ba07ba7ff87c1146be17449151f634216e1c0b9ccc8566084f99c2a5c7ccf",
+      "context": "the interaction's label; a ``\"<name> requested\"`` mark is recorded for it.",
+      "translation": "交互的标签；会为其记录一个 ``\"<name> requested\"`` 标记。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.mark#1",
+      "source": "label of the instant in the timeline; recorded only while ``SPACR_TIMING`` is on.",
+      "source_sha256": "6daa7c88d68f25e885327c37bfde0387b0d9a090b83b15450bdbec5795b0f818",
+      "context": "label of the instant in the timeline; recorded only while ``SPACR_TIMING`` is on.",
+      "translation": "时间线中该时刻的标签；只在 ``SPACR_TIMING`` 开启时记录。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.span#2",
+      "source": "label of the region in the timeline; recorded only while ``SPACR_TIMING`` is on.",
+      "source_sha256": "be234b6936ed3259f4b19550bbd542ba3e0d33bca7e5cae0473e00dc7629b121",
+      "context": "label of the region in the timeline; recorded only while ``SPACR_TIMING`` is on.",
+      "translation": "时间线中该区段的标签；只在 ``SPACR_TIMING`` 开启时记录。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.stalls_between#2",
+      "source": "start of the interval, in seconds on the instrumentation clock (the clock of the stall rows' ``at`` values).",
+      "source_sha256": "aa1052747624dde46f7b71a8ee4b235de5640351dc2bb8cc7b80c79d9b8c2156",
+      "context": "start of the interval, in seconds on the instrumentation clock (the clock of the stall rows' ``at`` values).",
+      "translation": "区间的起点，以检测时钟上的秒数表示（即卡顿行中 ``at`` 值所用的时钟）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.stalls_between#3",
+      "source": "end of the interval on the same clock; an end at or before the start gives an empty list.",
+      "source_sha256": "51564ae67817d3be8a1bfd916d80b3ba6f1b7b8270d5077f5c602506b05a3f5b",
+      "context": "end of the interval on the same clock; an end at or before the start gives an empty list.",
+      "translation": "区间的终点，使用同一时钟；终点不晚于起点时返回空列表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.subscribe_readiness#1",
+      "source": "called with a copy of each readiness record dict; registering the same callable twice has no extra effect, and an exception it raises is ignored.",
+      "source_sha256": "131dc545f5b21d5f0165835860b395576e43027bfa3a93a2efa1aebde6d649c3",
+      "context": "called with a copy of each readiness record key-value mapping; registering the same callable twice has no extra effect, and an exception it raises is ignored.",
+      "translation": "以每条就绪记录字典的副本调用；重复注册同一个可调用对象不会产生额外效果，它抛出的异常会被忽略。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.unsubscribe_readiness#1",
+      "source": "the callable to remove; one that is not subscribed is ignored.",
+      "source_sha256": "e155ce2eba6a1688e9e92bdb339629a29f190c72cdb0a931e28665b746f7108e",
+      "context": "the callable to remove; one that is not subscribed is ignored.",
+      "translation": "要移除的可调用对象；未订阅的会被忽略。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.watch_interactive#7",
+      "source": "the screen to observe; it and its input controls get the paint filter, and ``None`` records nothing.",
+      "source_sha256": "0728612359157dad096093b4310e39a4cd3719c7116fff88e608d9f4b182ed1f",
+      "context": "the screen to observe; it and its input controls get the paint filter, and ``None`` records nothing.",
+      "translation": "要观察的界面；它及其输入控件都会获得绘制过滤器，为 ``None`` 时不记录任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.watch_interactive#8",
+      "source": "the readiness record's label; an unfinished probe with the same name and detail is retired first.",
+      "source_sha256": "887270e550e5453445ea6dbe50dc42277cf10ea4e61ff7145dee9b9cc9c67fab",
+      "context": "the readiness record's label; an unfinished probe with the same name and detail is retired first.",
+      "translation": "就绪记录的标签；名称和详情相同的未完成探测会先被注销。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.timing.write_json#1",
+      "source": "destination JSON file, overwritten; nothing is written while timing is off or when the path is empty.",
+      "source_sha256": "ec77f861e635b233ab796c9ef65dc4b3142de81c2f457fc10fc6f5466ce0dbea",
+      "context": "destination JSON file, overwritten; nothing is written while timing is off or when the path is empty.",
+      "translation": "目标 JSON 文件，会被覆盖；计时关闭或路径为空时不写入任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#0",
+      "source": "One rule for every tooltip in spaCR: when it appears and when it goes.",
+      "source_sha256": "48eaa8e06a21c5314ba8e46a7ec6166d025c4f7764dc3e52b73040a115e9161e",
+      "context": "One rule for every tooltip in spaCR: when it appears and when it goes.",
+      "translation": "spaCR 中所有工具提示的统一规则：何时出现、何时消失。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#1",
+      "source": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
+      "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
+      "context": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
+      "translation": "Qt 自己的做法是一个样式提示 ``SH_ToolTip_WakeUpDelay``，大多数样式将其设为约 700 ms，而 spaCR 中没有任何地方在选择它。因此，工具提示会在指针仍在移动时出现，并在指针离开控件的瞬间消失——快得来不及阅读，而且文字较长时根本无法把指针移到提示上。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#10",
+      "source": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is SENT AGAIN after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
+      "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
+      "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
+      "translation": "表格、表头或列表根据 ``Qt::ToolTipRole`` 作答，这发生在其自身的 ``event`` 中，而不是通过任何过滤器都能读取的 ``toolTip()``。当父链中没有任何工具提示时，事件会在等待之后“再次发送”，此时过滤器让开，因此这些工具提示仍会出现——并且遵循与其他所有工具提示相同的两秒规则。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#11",
+      "source": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
+      "source_sha256": "9232bc992c7181bc76e540316641ad6fd297daed0940025b97c52ea4b73c360c",
+      "context": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
+      "translation": ":func:`tooltips_enabled` 是首选项开关，默认开启。关闭时，``ToolTip`` 事件会被吞掉，任何地方都不会显示工具提示。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#2",
+      "source": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
+      "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
+      "context": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
+      "translation": "本模块在 ``QApplication`` 上安装“一个”事件过滤器，把决定权从样式中拿走：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#3",
+      "source": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
+      "source_sha256": "c3d480a1c93c46593205ea41fe41200a122d718ace1f964cb9a8b001961d23a7",
+      "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
+      "translation": "悬停 :data:`SHOW_DELAY_MS` 之后工具提示才会出现，不会更早；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#4",
+      "source": "it stays while the pointer is on the widget OR on the tooltip itself;",
+      "source_sha256": "fac9a80355f8d387c3c01ac14bc0a41ea3ca8e9a58c1b489725b8892b3eb8137",
+      "context": "it stays while the pointer is on the widget OR on the tooltip itself;",
+      "translation": "只要指针停留在控件上“或”工具提示本身上，它就会保持显示；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#5",
+      "source": "it leaves :data:`LINGER_MS` after the pointer leaves both.",
+      "source_sha256": "7176b9efbebbcb210671646c972fdb11d13029a248c948cb4688a6a417012bf1",
+      "context": "it leaves :data:`LINGER_MS` after the pointer leaves both.",
+      "translation": "指针离开两者 :data:`LINGER_MS` 之后，它才会消失。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#6",
+      "source": "Because the filter sits on the application object, a widget written later obeys the rule without anyone remembering to ask for it: its ``ToolTip`` event travels to the application like every other one.",
+      "source_sha256": "e311828c0fd62dcb5caa2ef1beed3baf91e792a5ab0a4b0dc7e67fbecad4311d",
+      "context": "Because the filter sits on the application object, a widget written later obeys the rule without anyone remembering to ask for it: its ``ToolTip`` event travels to the application like every other one.",
+      "translation": "由于过滤器位于应用程序对象上，之后编写的控件无需任何人记得去请求，就会遵守这一规则：它的 ``ToolTip`` 事件与其他所有事件一样都会传到应用程序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#7",
+      "source": "The filter shows the text itself, with ``QToolTip.showText`` and no owning widget, rather than letting Qt show it. Handing Qt the widget hands Qt the hiding as well -- Qt hides on the widget's ``Leave`` event, immediately, which is the one behaviour this module exists to change.",
+      "source_sha256": "2b8cd0a25c5bd69600174eb6800990aacc4fd3b3ca74fca147f3c780c784f25d",
+      "context": "The filter shows the text itself, with ``QToolTip.showText`` and no owning widget, rather than letting Qt show it. Handing Qt the widget hands Qt the hiding as well -- Qt hides on the widget's ``Leave`` event, immediately, which is the one behaviour this module exists to change.",
+      "translation": "过滤器自行显示文字，使用 ``QToolTip.showText`` 且不指定所属控件，而不是让 Qt 来显示。把控件交给 Qt，也就把隐藏交给了 Qt——Qt 会在控件的 ``Leave`` 事件时立即隐藏，而这正是本模块存在所要改变的行为。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#8",
+      "source": "Two things follow from taking the event, and both are handled rather than accepted:",
+      "source_sha256": "1c65ac0c2c0a5e7bdb6e1a0dc25ba9e6454c9d8e96111f79e3da15a5758e5e07",
+      "context": "Two things follow from taking the event, and both are handled rather than accepted:",
+      "translation": "接管该事件会带来两个后果，两者都得到了处理，而不是被默认接受：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#9",
+      "source": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
+      "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
+      "context": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
+      "translation": "当指针下方的控件没有自己的工具提示时，Qt 会把工具提示事件“传播”给父控件，这正是卡片在指针位于其上所写标签时仍能说明自身的方式。因此，文字通过 :func:`tooltip_text_for` 沿父链向上解析，与 Qt 原本的做法完全相同。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#0",
+      "source": "Install the application-wide tooltip filter. Idempotent.",
+      "source_sha256": "37cd103a757b68df3b8333cfd8dba473ebcf712efda96513fa9e95a2dcc6a108",
+      "context": "Install the application-wide tooltip filter. Idempotent.",
+      "translation": "安装应用程序范围的工具提示过滤器。可重复调用而结果不变。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#1",
+      "source": "the QApplication; defaults to the running instance.",
+      "source_sha256": "a3393d9d64731c60abd540ae37ad9cecf0930943d98a5c68ccabafb24faa2027",
+      "context": "the QApplication; defaults to the running instance.",
+      "translation": "QApplication；默认为正在运行的实例。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#2",
+      "source": "``True`` if a filter was installed by this call.",
+      "source_sha256": "8c27290a2cb17c912a3ebf2f0a3d8bd8e10292555be5fc0a4d1545affd5291cc",
+      "context": "``True`` if a filter was installed by this call.",
+      "translation": "如果此次调用安装了过滤器，则为 ``True``。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.invalidate_tooltip_policy#0",
+      "source": "Forget the cached preference, and hide anything already up.",
+      "source_sha256": "60185df72fa970bbb2073a70c050da25b252321e1f56841c50d6995ac7c574c0",
+      "context": "Forget the cached preference, and hide anything already up.",
+      "translation": "忘记缓存的首选项，并隐藏任何已显示的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltip_policy#0",
+      "source": "The installed filter, or ``None``. For tests and for diagnostics.",
+      "source_sha256": "eae34b9e2a08790fc581870f2407fe00778f869a6bf0c073076113ee297fcef0",
+      "context": "The installed filter, or ``None``. For tests and for diagnostics.",
+      "translation": "已安装的过滤器，或 ``None``。供测试和诊断使用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltip_text_for#0",
+      "source": "The tooltip a hover on ``widget`` would raise, parents included.",
+      "source_sha256": "60d17b32ee9afb6cef9f4c7de3f344e0584b7959a4fa1e3a697705e2a65d0f15",
+      "context": "The tooltip a hover on ``widget`` would raise, parents included.",
+      "translation": "悬停在 ``widget`` 上会引发的工具提示，包括来自父控件的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltip_text_for#1",
+      "source": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
+      "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
+      "context": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
+      "translation": "这不是为了方便：这正是要保留的行为。Qt 会沿父链向上“传播”工具提示事件，因此位于有工具提示的卡片中、自身没有工具提示的标签会显示卡片的工具提示。如果过滤器只读取 ``widget.toolTip()`` 然后吞掉事件，就会破坏所有这些情况——卡片能说明自身，直到指针落在其上所写的文字上，然后就不再说明了。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltip_text_for#2",
+      "source": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
+      "source_sha256": "d21dcb2473f571e64a6724769b1ed0a4c2f1f677bbda9f3b4aa5b965dfe5424b",
+      "context": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
+      "translation": "被悬停的控件，或 ``None``；先读取其 ``toolTip()``，然后逐级读取每个父控件的，直到并包括其窗口（最多 64 层）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltip_text_for#3",
+      "source": "the first non-empty tooltip from the widget outwards, or ``\"\"`` if neither it nor any parent up to its window has one.",
+      "source_sha256": "cf619771c993744acd16f3ca47e3748523b698bac187f2b4dc724d8d0a3ec90b",
+      "context": "the first non-empty tooltip from the widget outwards, or ``\"\"`` if neither it nor any parent up to its window has one.",
+      "translation": "从该控件向外找到的第一个非空工具提示；如果它及其直到窗口的所有父控件都没有，则为 ``\"\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltips_enabled#0",
+      "source": "Whether tooltips are shown at all. Cached; ``True`` by default.",
+      "source_sha256": "9bf47b094b1693803428c0518c6af4fbdc3d5ad48e5a33891565cd80287d3083",
+      "context": "Whether tooltips are shown at all. Cached; ``True`` by default.",
+      "translation": "是否显示工具提示。结果会被缓存；默认为 ``True``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.tooltips_enabled#1",
+      "source": "Read on every ``ToolTip`` event, which is why the answer is cached rather than re-read from ``QSettings`` each time. :func:`invalidate_tooltip_policy` drops the cache, and :func:`spacr.qt.preferences.set_tooltips_enabled` calls it, so the switch and the screen can never disagree.",
+      "source_sha256": "44c5cce19bc94079adb3bbdcef2ab95756220f1095e8ab0d2a55233e73a4fe2f",
+      "context": "Read on every ``ToolTip`` event, which is why the answer is cached rather than re-read from ``QSettings`` each time. :func:`invalidate_tooltip_policy` drops the cache, and :func:`spacr.qt.preferences.set_tooltips_enabled` calls it, so the switch and the application view can never disagree.",
+      "translation": "每个 ``ToolTip`` 事件都会读取它，因此答案被缓存，而不是每次都从 ``QSettings`` 重新读取。:func:`invalidate_tooltip_policy` 会清除缓存，而 :func:`spacr.qt.preferences.set_tooltips_enabled` 会调用它，因此开关与界面永远不会不一致。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

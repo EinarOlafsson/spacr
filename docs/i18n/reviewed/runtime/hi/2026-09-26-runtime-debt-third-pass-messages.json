@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source": "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source_sha256": "ae96f6c340ecf326902a20474c8af68b7c6d712eb18ce210e0a787597356ca3d",
+      "translation": "आसंजन Invasion Assay खोलता है, जिसकी चिपकी हुई और भीतर घुसी गिनतियाँ पोषक-कोशिका की एकल परत से बंधी कवक कोशिकाएँ बताती हैं। योजनाबद्ध जैवफ़िल्म मॉड्यूल सामूहिक वृद्धि पर केंद्रित होगा, जिसमें ढका क्षेत्रफल और, अधिग्रहण में गहराई की जानकारी होने पर, मोटाई शामिल है। एक द्वि-आयामी दृश्य क्षेत्र सतह कवरेज बता सकता है, पर अकेले बायोफ़िल्म की मोटाई स्थापित नहीं कर सकता। अंतिम बिंदु के अनुसार एकल-तल या आयतनी इमेजिंग चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source": "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model.",
+      "source_sha256": "3d9219554981a2ff84a21cab785f893bef104ec1c3adb6aacc5df3e8a8e7aaa2",
+      "translation": "spaCR के सामुदायिक ट्रेनिंग डेटा के लिए इस छवि को एनोटेट करें और इसे Hugging Face पर भेजें। चित्र मोड: वेल डिटेक्टर के लिए हर वेल पर बॉक्स बनाएँ। प्लाक मोड: अगले प्लाक मॉडल के लिए हर प्लाक पेंट करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source": "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source_sha256": "ac08f28c2446f47dbfb46bf1ef2d92557b06e0257b77114af27f1bc9553d8777",
+      "translation": "प्रतिफंगल प्रतिक्रिया खुराक–प्रतिक्रिया खोलती है, ताकि कवक वृद्धि या आकृति स्कोर को दवा की सांद्रता के विरुद्ध फ़िट किया जा सके। इसे आकृति विज्ञान या जैवफ़िल्म के साथ जोड़ने से यह बताने में मदद मिलेगी कि उपचार के दौरान कौन-सी छवि विशेषताएँ बदलती हैं। तंतु निर्माण, अंकुरण नलिका निर्माण, जैवफ़िल्म और आकृति विज्ञान योजना में हैं और उनकी टाइलों पर जल्द आ रहा है अंकित है। Candida Genome Database और UniProt मार्कर चयन और व्याख्या में सहायता के लिए जीन और प्रोटीन एनोटेशन देते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source": "Anything that helps: microscope, magnification, cell line, what counts as one object.",
+      "source_sha256": "c63ebc1be0895171fbd2cf1fce44ee4d41bbd8a9557ccd755cd77777659dac32",
+      "translation": "जो कुछ भी मदद करे: माइक्रोस्कोप, आवर्धन, कोशिका लाइन, किसे एक ऑब्जेक्ट माना जाए।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source": "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change.",
+      "source_sha256": "9bdfa0d5fb3e4935d33bd97a181bb044a6e8a48610fe56e0960a76d9cb655fee",
+      "translation": "वे gRNAs चुनें जिनके बारे में प्लॉट है। यह रिग्रेशन के शीर्ष सार्थक हिट के साथ खुलता है; जब भी gRNAs बदलते हैं, चयनित वेल फिर से उन्हीं से निकाले जाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source": "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again.",
+      "source_sha256": "ebdaade8df046600bf5f54f550a6fec649e3c0b09a7cde20bae6678c55b4d3f6",
+      "translation": "किसी ऑब्जेक्ट को पूरा हटाने के लिए उस पर क्लिक करें। Backspace पिछली हटाने की क्रिया पूर्ववत करता है। फिर से पेंट करने के लिए ब्रश दबाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "DOI or citation of the paper these figures come from",
+      "source": "DOI or citation of the paper these figures come from",
+      "source_sha256": "a0c02cbfd7fa7c1923d69390b5cc21ba32f21a76811a3c1a0417d7b449d709c3",
+      "translation": "उस शोधपत्र का DOI या उद्धरण जिससे ये चित्र लिए गए हैं"
+    },
+    {
+      "table": "ui",
+      "key": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source": "Drag to make the dock wider or narrower. Double-click to fit it to the names again.",
+      "source_sha256": "9162528a420515355c60cc7e740a53774c6f34874d643d7b8924e92831d0d65b",
+      "translation": "डॉक को चौड़ा या संकरा करने के लिए खींचें। उसे फिर से नामों के अनुसार करने के लिए डबल-क्लिक करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source": "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet.",
+      "source_sha256": "4ba7f62b5b0bd3823c61f41f7ddcd5e9ce157703a7f00ef1806c3b952c48206a",
+      "translation": "हर पेज पर हर वेल के चारों ओर एक बॉक्स बनाएँ: जोड़ने के लिए पेज पर खींचें, ठीक करने के लिए बॉक्स या उसका कोना खींचें, हटाने के लिए राइट-क्लिक करें या Delete दबाएँ। नारंगी बॉक्स spaCR के वे अनुमान हैं जिन्हें आपने अभी तक नहीं छुआ है।"
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source": "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source_sha256": "5cc5f3c3d05c7cd3122f9068b826dce76f8eb383dffcaeb465ccbcbe3158143a",
+      "translation": "उपकला में आक्रमण Invasion Assay खोलता है, ताकि बाह्यकोशिकीय कवकों को उपकला कोशिकाओं द्वारा भीतर लिए गए कवकों से अलग किया जा सके। कोशिका भक्षण भक्षक कोशिकाओं द्वारा ग्रहण मापने के लिए मेज़बान–रोगजनक विश्लेषण खोलता है। दोनों के लिए संपर्क को आंतरिकीकरण से अलग करने का तरीका चाहिए, जैसे उपयुक्त विभेदी लेबलिंग या स्थानिक जानकारी। ग्रहण के परिणाम के साथ पोषक-कोशिका समूह और कवक आकृति की भी रिपोर्ट करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Every curated image here with its saved mask ({n})",
+      "source": "Every curated image here with its saved mask ({n})",
+      "source_sha256": "b47221bdf5af704d3b6e8cdad993eebd1e68f87b54c6406a451bd8bffe31edab",
+      "translation": "यहाँ क्यूरेट की गई हर छवि, उसके सहेजे गए मास्क के साथ ({n})"
+    },
+    {
+      "table": "ui",
+      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source_sha256": "e1e8d450cec728bc4555e897e8ee360c90908b2198f083ea3f3d87572c2b6878",
+      "translation": "गैमेटोसाइट की परिपक्वता अवस्था और लिंग से जुड़ी छवि विशेषताओं के लिए एक प्रस्तावित कार्यप्रवाह है, जब उपयुक्त मार्कर और संदर्भ एनोटेशन उपलब्ध हों। दवा प्रतिक्रिया की इमेजिंग खुराक–प्रतिक्रिया खोलती है, ताकि किसी छवि माप को सांद्रता के विरुद्ध फ़िट किया जा सके। इन मापों के साथ प्रजाति, आरंभिक अवस्था और संपर्क अवधि दर्ज करें: अन्यथा अवस्थाओं के मिश्रण में बदलाव को परजीवी संख्या में बदलाव समझा जा सकता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source": "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source_sha256": "eaa362c830a87873d1e978e3e54d7371552dcc7b32ea679c7389820dc1ef9c55",
+      "translation": "सरकने की गतिशीलता बाह्यकोशिकीय परजीवी पथों की गति और सीधापन मापने के लिए गतिशीलता परीक्षण खोलती है। योजनाबद्ध निर्गमन मॉड्यूल रिक्तिका के फटने और परजीवी के बाहर निकलने पर केंद्रित होगा। ब्रैडीज़ोइट में रूपांतरण अवस्था-मार्कर और सिस्ट-भित्ति मापों को देखेगा, जबकि पोषक कोशिका क्षति एकल परत की हानि का वर्णन करेगी। ये तीनों प्रस्तावित कार्यप्रवाह हैं, इसलिए उनकी टाइलों पर जल्द आ रहा है अंकित है। स्थिर छवियाँ, समय श्रृंखला और अवस्था-विशिष्ट मार्कर अलग-अलग प्रश्नों के उत्तर देते हैं और अभिप्रेत माप के अनुसार चुने जाने चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "I agree that they and my annotations are shared under {licence}.",
+      "source": "I agree that they and my annotations are shared under {licence}.",
+      "source_sha256": "63704987226e07b44c211bf5e59f55b464e7b1f7ca2f18b07d98313096673e5a",
+      "translation": "मैं सहमत हूँ कि ये छवियाँ और मेरे एनोटेशन {licence} के तहत साझा किए जाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source": "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it.",
+      "source_sha256": "cdc60c0c66ae010869b9f431d23d6a2128164f7aa3c4184cbb1ad0c735c5c9c7",
+      "translation": "मुझे ये छवियाँ साझा करने का अधिकार है: मैंने इन्हें बनाया है, या इनका स्रोत (शोधपत्र के चित्र के लिए, उस शोधपत्र का लाइसेंस) इसकी अनुमति देता है।"
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source_sha256": "2dcc3cac08ea898d9e7d4050969a1b7d9c15a54f134739e7e4cd102cfe3eef9e",
+      "translation": "यदि आप स्वयं मॉडल प्रशिक्षित नहीं कर सकते, तो अपनी छवियाँ और मास्क यहाँ अपलोड करें और हम आपके लिए एक मॉडल प्रशिक्षित करेंगे। स्क्रीन पर दिख रही छवि उसके मास्क के साथ, यहाँ क्यूरेट की गई हर छवि, या एक छवि फ़ोल्डर के साथ समान नामों वाले मास्क रखने वाला मास्क फ़ोल्डर भेजें। बताएँ कि वे क्या दिखाती हैं (जीव, ऑब्जेक्ट प्रकार, स्टेन), और वे Hugging Face पर अपने स्वयं के सामुदायिक डेटासेट में पुल रिक्वेस्ट के रूप में जाती हैं, जिसकी समीक्षा अनुरक्षक किसी भी मॉडल के प्रशिक्षण से पहले करता है। वे {licence} के तहत साझा की जाती हैं, इसलिए केवल वही छवियाँ भेजें जिन्हें साझा करने का आपको अधिकार है। सावधानी से बना मास्क अच्छा मॉडल देता है: हर ऑब्जेक्ट, अपने किनारे से सटा हुआ।"
+    },
+    {
+      "table": "ui",
+      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source_sha256": "77891ddcc4abedd6f302f9317ab6c44fd8994662a20c74d1da14e51b9ca31850",
+      "translation": "यकृत अवस्था में वृद्धि की योजना हेपेटोसाइट के भीतर परजीवियों की संख्या और आकार मापने के लिए है। स्पोरोज़ोइट की गतिशीलता ग्लाइडिंग पथों के लिए गतिशीलता परीक्षण खोलती है, जबकि कोशिका से होकर गुजरना परजीवी के पथ के साथ पोषक कोशिका की क्षति को देखेगा। पारगमन, उत्पादक आक्रमण और उसके बाद की वृद्धि अलग-अलग परिणाम हैं: उनके छवि मार्कर, अवलोकन समय और हर अलग-अलग परिभाषित करने होंगे।"
+    },
+    {
+      "table": "ui",
+      "key": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source": "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog.",
+      "source_sha256": "68de5ea04ce2ee379cf82fe8750b6df72be35bc5356f3fb2a9404f382c405e94",
+      "translation": "अपनी छवियों के कुछ छवि क्षेत्रों से कोशिका, नाभिक और रोगजनक के व्यास मापें, और उन्हें मास्क निर्माण की सेटिंग्स में लिखें। API: spacr.qt.prerun.DiameterDialog।"
+    },
+    {
+      "table": "ui",
+      "key": "More than one file with the same name: {names}",
+      "source": "More than one file with the same name: {names}",
+      "source_sha256": "dff5f9843ea09ac77ba2711bbed729091cf036714bb7354855574445bb1ce6b2",
+      "translation": "समान नाम वाली एक से अधिक फ़ाइलें: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Name the dataset: what the images show, and how.",
+      "source": "Name the dataset: what the images show, and how.",
+      "source_sha256": "e2c45f1f71e9d3b7a4036ec7a3aecafceb81402783dc314f91141ce140f4e66f",
+      "translation": "डेटासेट को नाम दें: छवियाँ क्या दिखाती हैं, और कैसे।"
+    },
+    {
+      "table": "ui",
+      "key": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source": "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'.",
+      "source_sha256": "240e7802f023577209d60dff4928bca21c21802a2e5689a0827c842b6652af35",
+      "translation": "चुने गए gRNAs वाले वेल को सीमित करें। केवल इन वेल के ऑब्जेक्ट 'gRNAs + other datapoints in selected wells' के अंतर्गत बनाए जाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source": "No well carries the chosen gRNAs, so there are no wells to narrow.",
+      "source_sha256": "0d6e22361af52f71df779f30e844ecec8fff3a2119fb5766dbba03024cdafd6b",
+      "translation": "किसी भी वेल में चुने गए gRNAs नहीं हैं, इसलिए सीमित करने के लिए कोई वेल नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source": "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out.",
+      "source_sha256": "305fc7f2f8cb876d3bebdf3b2fc6880a86ee7a7b59dfa372bc470161c98dda34",
+      "translation": "नहीं भेजा गया। हर छवि को कम से कम एक एनोटेशन चाहिए, और इनमें एक भी नहीं है: {names}। इन्हें एनोटेट करें या छोड़ दें।"
+    },
+    {
+      "table": "ui",
+      "key": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source": "Organism, object type, stain: e.g. toxoplasma vacuoles GFP",
+      "source_sha256": "a8bfc10e57969087291efc5b7ab73641bb6669b530a3ba84edceff756d1fffca",
+      "translation": "जीव, ऑब्जेक्ट प्रकार, स्टेन: उदा. toxoplasma रिक्तिकाएँ GFP"
+    },
+    {
+      "table": "ui",
+      "key": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source": "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct.",
+      "source_sha256": "a20a756945ebcbd39623440d4d894a9312b8675200017b667c4f84960c8801c6",
+      "translation": "हर छवि पर हर प्लाक पेंट करें: बायाँ बटन खींचने से प्लाक लेबल में पेंट होता है, दायाँ बटन खींचने से मिटता है, नए दूसरा प्लाक शुरू करता है, [ और ] ब्रश का आकार बदलते हैं। spaCR के अपने प्लाक पहले से पेंट हैं ताकि आप उन्हें सुधार सकें।"
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source": "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source_sha256": "ed3602a7e637989141e3f56afaba27c555c783d7c48cc476061313aacd678e40",
+      "translation": "परजीवीरक्तता मेज़बान–रोगजनक विश्लेषण खोलती है, जो सभी मापी गई लाल रक्त कोशिकाओं के सापेक्ष संक्रमित लाल रक्त कोशिकाओं की रिपोर्ट देता है। रक्त-अवस्था वर्गीकरण रिंग, ट्रोफ़ोज़ोइट और शाइज़ॉन्ट को अलग करेगा, ताकि अवस्था संरचना में बदलाव को संक्रमण आवृत्ति के साथ देखा जा सके। मेरोज़ोइट का आक्रमण लाल रक्त कोशिकाओं में प्रवेश पर केंद्रित होगा। ये माप मिलकर कम नई संक्रमित कोशिकाओं और पहले से भीतर मौजूद परजीवियों के बदले हुए विकास में अंतर करने में मदद करेंगे।"
+    },
+    {
+      "table": "ui",
+      "key": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source": "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source_sha256": "e35d6c43c0728a7e9533b5b4190cc731f2d9e9120919b5d42b5613c2ea2e482f",
+      "translation": "परजीवीरक्तता, स्पोरोज़ोइट की गतिशीलता और दवा प्रतिक्रिया की इमेजिंग मौजूदा spaCR मॉड्यूल खोलते हैं; बाकी पाँच टाइलें योजना में हैं और उन पर जल्द आ रहा है अंकित है। इनके विवरण उपलब्ध विश्लेषण पाइपलाइन नहीं, बल्कि अभिप्रेत मापों को परिभाषित करते हैं। PlasmoDB और UniProt मार्कर चुनने और परिणामों की व्याख्या के लिए जीनोम और प्रोटीन संदर्भ देते हैं। एपिकॉम्प्लेक्सन चित्रण Toxoplasma के साथ साझा कक्षों पर चर्चा के लिए उपयोगी है, पर यह स्थापित नहीं करता कि किसी प्रोटीन का स्थान दोनों जीवों में एक जैसा है।"
+    },
+    {
+      "table": "ui",
+      "key": "Ready: {n} images, each with its saved mask.",
+      "source": "Ready: {n} images, each with its saved mask.",
+      "source_sha256": "056a9b63f868dd702ef265095660b53b3cb2605f65796c0fa3c9d6948c724fb3",
+      "translation": "तैयार: {n} छवियाँ, हर एक का सहेजा गया मास्क।"
+    },
+    {
+      "table": "ui",
+      "key": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source": "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written.",
+      "source_sha256": "fac0ad5eb6ef563e67e269af1e894be31d2f9d75738a790a54c50bbeb83f0625",
+      "translation": "इस छवि क्षेत्र को ऐसा दर्ज करें जिसे क्यूरेट नहीं किया जा सकता, और अगले पर जाएँ। यह सत्र की curate_status.csv फ़ाइल में skip के रूप में लिखा जाता है, ताकि अगला सत्र इसे दोबारा न दिखाए। कोई मास्क नहीं लिखा जाता।"
+    },
+    {
+      "table": "ui",
+      "key": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source": "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews.",
+      "source_sha256": "b35ab80d1bc1fd9db9c8f12bc9287e50370d4a9c36ca1651e490b48779e976ec",
+      "translation": "छवियाँ और अपने एनोटेशन Hugging Face पर {repo} को भेजें, एक ऐसे योगदान के रूप में जिसकी समीक्षा अनुरक्षक करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source": "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask.",
+      "source_sha256": "a0be2790879872838f7d28af1006cfbb6ec1c1ae9b98c1b337db7b8a9b4b436d",
+      "translation": "ये छवियाँ और मास्क समीक्षा के लिए भेजें। तब सक्रिय होता है जब डेटासेट का नाम हो और हर छवि का मास्क हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source": "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…",
+      "source_sha256": "74bc0acdd3935d06075e3a38a9ad3d5560880d70150f704d817729b086c8a2df",
+      "translation": "चरण {step}/{steps}: {rows} पंक्तियों के लिए तालिका, प्लॉट और निदान बनाए जा रहे हैं…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source": "Step {step} of {steps}: reading {name} (file {done} of {total})…",
+      "source_sha256": "42418dfe804f71cd428d9135722d6d4994986fa237b6d2f02bb5d970aca47451",
+      "translation": "चरण {step}/{steps}: {name} पढ़ी जा रही है (फ़ाइल {done}/{total})…"
+    },
+    {
+      "table": "ui",
+      "key": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source": "Step {step} of {steps}: searching {folder} for a results table…",
+      "source_sha256": "aa95e2d3cd55ceb4c99da8b437327013c3d97ffd8d5ea9c8c15b2ade6b20a375",
+      "translation": "चरण {step}/{steps}: {folder} में परिणाम तालिका खोजी जा रही है…"
+    },
+    {
+      "table": "ui",
+      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
+      "translation": "धन्यवाद। आपका योगदान समीक्षा की प्रतीक्षा में है: <a href=\"{url}\">{url}</a>"
+    },
+    {
+      "table": "ui",
+      "key": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
+      "source_sha256": "eb58f954e410e3b478d7ec8c08b8db73fc55c006a28c8e0a01900acfae41f3a5",
+      "translation": "स्क्रीन पर दिख रही छवि का अभी कोई मास्क नहीं है: पहले उसे सेगमेंट करें या पेंट करें। मास्क नहीं, तो अपलोड नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source": "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here.",
+      "source_sha256": "07cd4d6a46e7a390862a1c4632c94c1039347b31c96a040868502ef306f1830b",
+      "translation": "प्लॉट रिग्रेशन के शीर्ष हिट के साथ खुलता है। चयनित वेल यहाँ चुने गए gRNAs के अनुसार बदलते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source": "The population box is set aside for this contrast: it compares against wells outside the selection.",
+      "source_sha256": "a864a1cb68f85250f6e1bb6f03bce04fa73901c8f7235931905c322ba52d7559",
+      "translation": "इस तुलना के लिए जनसंख्या बॉक्स अलग रखा गया है: यह चयन के बाहर के वेल से तुलना करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "There are no image and mask pairs to send.",
+      "source": "There are no image and mask pairs to send.",
+      "source_sha256": "51cc61e84b3cca124889c7d288b9e054c61e9927d64e4681a0302758d9111daf",
+      "translation": "भेजने के लिए छवि और मास्क की कोई जोड़ी नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source": "These object rows name no gRNA, so there is nothing to choose between.",
+      "source_sha256": "c540a28d31709383834c8b8c0658bab88d117707a0fbce6348ab9cb7300f17fc",
+      "translation": "इन ऑब्जेक्ट पंक्तियों में किसी gRNA का नाम नहीं है, इसलिए चुनने के लिए कुछ नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source": "These wells carry the chosen gRNAs. A well left out is not drawn at all.",
+      "source_sha256": "595a466c304d33341d59fde70b9338ab1952bd7360d9ac7bf4e1ab9aebe8480d",
+      "translation": "इन वेल में चुने गए gRNAs हैं। छोड़ा गया वेल बिल्कुल नहीं बनाया जाता।"
+    },
+    {
+      "table": "ui",
+      "key": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source": "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used.",
+      "source_sha256": "4be7dd89a68d982cab8a14924a1f0c33909df81757c465276431e8d58039470e",
+      "translation": "आप जो योगदान करते हैं वह Hugging Face पर खुले रूप से प्रकाशित होता है, ताकि कोई भी उस पर मॉडल प्रशिक्षित और जाँच सके। उपयोग से पहले उसकी समीक्षा होती है।"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source": "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…",
+      "source_sha256": "f3a52d7250b2367f7c3e58211de91905aebcfcc63607aef277cddddcc4d91f60",
+      "translation": "[issue] spaCR AI के उत्तर के लिए अधिकतम {seconds} s प्रतीक्षा की जा रही है, ताकि रिपोर्ट में वह शामिल हो…"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source": "spaCR could not make a first guess for {name} ({why}); annotate it from scratch.",
+      "source_sha256": "9025c7719f41b2188891be974bb96e3ea8e8be5d2311f7686c526582208d0de9",
+      "translation": "spaCR {name} के लिए पहला अनुमान नहीं बना सका ({why}); इसे शुरू से एनोटेट करें।"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source": "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open.",
+      "source_sha256": "cdb18c94628a9f493d899699da86cf92e919d0306fff8e40e10fab078f49cef9",
+      "translation": "spaCR की अपलोड सेवा इसे स्वीकार नहीं कर सकी ({why})। इसके बजाय आप इसे मुफ़्त Hugging Face लॉगिन से भेज सकते हैं: 'huggingface-cli login' चलाएँ, या HF_TOKEN सेट करें, फिर अपलोड करें दोबारा दबाएँ। जब तक यह विंडो खुली है, आपके एनोटेशन सुरक्षित रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source": "{judged} skipped, and will not be offered again  —  now on {now}",
+      "source_sha256": "9a339dbd721a8cf3b636822897b91e9ab9ffd6112c9bdb44225e4ee65a26c10c",
+      "translation": "{judged} छोड़ा गया, और दोबारा नहीं दिखाया जाएगा  —  अब {now} पर"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source": "{judged} skipped, and will not be offered again  —  that was the last field in this session",
+      "source_sha256": "32fc57fd8fa98d4693f0060276e0925fe61578f093fbef44806877ed20c14859",
+      "translation": "{judged} छोड़ा गया, और दोबारा नहीं दिखाया जाएगा  —  यह इस सत्र का अंतिम छवि क्षेत्र था"
+    }
+  ]
+}

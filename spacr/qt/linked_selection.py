@@ -61,12 +61,14 @@ and Annotate does not grow a method per caller.
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import Any, Callable, Dict, Mapping, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Optional, Tuple
 
-import pandas as pd
 from PySide6.QtCore import QObject, Signal
 
 from ..selection import DataFilter, ObjectRequest, Selection, as_key_index
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 __all__ = [
     "LinkedSelection",

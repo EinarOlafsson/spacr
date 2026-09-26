@@ -1145,7 +1145,29 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 #: below and must leave this set.
 # 316, 2026-09-25: empty. The catalog pass built rows for every caption
 # 508 and 509 left here, and they are in en.UI_SOURCES now.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 493, 2026-09-26: the parallel GPU mask controls, their greyed-out
+# reasons, the Cluster Distribution profile and the per-GPU progress line.
+# 569, 2026-09-26: the Show alpha features switch and its tooltip.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    'Show alpha features',
+    'Show the settings, controls, screens and models built from the '
+    'future-features list that are not yet released. Off hides them; saved '
+    'values still reach every run.',
+    'GPU {device}: {done}/{total} {state}',
+    'Mask generation: segment batches on every GPU allocated to the job',
+    'Needs two or more compatible CUDA or ROCm GPUs; {count} found on this '
+    'computer. Cluster Distribution runs use the GPUs allocated to the job.',
+    'Submits mask_parallel on with a blank mask_gpu_indices, so the job uses '
+    'exactly the GPUs its scheduler allocates, one model per GPU. Request them '
+    'in the execution profile, for example --gres=gpu:2. A job given one GPU '
+    'runs on that one.',
+    'Used only when mask_parallel is on. {count} GPUs found.',
+    'done',
+    'running',
+    'starting',
+    'stopped',
+    '{done}/{total} {role} batches done, {failed} failed',
+})
 
 
 
