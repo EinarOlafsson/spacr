@@ -159,6 +159,8 @@ IMPORT_TO_DIST = {
     # that cannot be installed.
     "mpl_toolkits": "matplotlib",
     "huggingface_hub": "huggingface-hub",
+    # InstanSeg (item 552) publishes its package as instanseg-torch.
+    "instanseg": "instanseg-torch",
     # No import statement anywhere -- see STRING_LITERAL_ONLY. Here so that the
     # day one is written, `omero` resolves to `omero-py` (which the `omero`
     # extra declares) rather than to a distribution of that name, which is a
@@ -205,6 +207,7 @@ ISOLATED_WORKER_IMPORTS = {
     "stardist": ("_StarDistAdapter",),
     "csbdeep": ("_StarDistAdapter",),
     "tensorflow": ("_tensorflow_device",),
+    "instanseg": ("_InstanSegAdapter",),
 }
 BACKEND_SOURCE = PKG / "_segmentation_backends.py"
 

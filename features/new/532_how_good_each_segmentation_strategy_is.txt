@@ -241,6 +241,8 @@ toxo_pv: 0.656 CPU against 0.674 GPU; all others within 0.01).
   cp3_nuclei                  general            865   910  0.592  0.563  0.577   0.441  0.819  0.368    17.9     2.2
   oc1_p66                     general           1031   910  0.498  0.564  0.529   0.399  0.829  0.464     7.7     2.2
   stardist_fluo (551)         general           1748   910  0.360  0.692  0.474   0.371  0.823  0.489    16.3     4.8
+  instanseg_cells (552)       general           1324   910  0.514  0.747  0.609   0.328  0.752  0.630   117.5     4.8
+  instanseg_nuclei (552)      general            615   910  0.467  0.315  0.376   0.198  0.731  0.415    97.9     4.8
 
   -- toxo_pv: F1 at IoU 0.5 per field
   field                                            pv_r2       pv_r5       pv_r6 dino_vitb+d   dino_vitl dino_vitb+c dino_vitb+t dino_vitb+d   dino_vitb dino_vitb+l dino_vitb+d       cpsam    cpsam_v2    cp3_cyto   cp3_cyto2 dino_vitb+f dino_vitb+b dino_vitb+f   cp3_cyto3  cp3_nuclei     oc1_p66
@@ -458,6 +460,11 @@ promise). Their rows are in the CPU toxo_pv table above, marked with the item.
   1,748 objects for 910 vacuoles (precision 0.36, recall 0.69), 16.3 s per
   field. A nucleus model: it splits vacuoles and finds 1.9 times too many
   objects, below every Cellpose model here. Not for PVs.
+  InstanSeg fluorescence_nuclei_and_cells (552), toxo_pv: its CELLS output
+  F1@.5 0.609, F1@.75 0.328 (1,324 objects, P 0.51 / R 0.75); its NUCLEI
+  output 0.376 / 0.198 (615 objects, recall 0.32). 98-118 s per field at
+  load ~85. Better than StarDist on PVs, still below every Cellpose model,
+  and loose outlines (mean matched IoU 0.75). Not for PVs.
 
 NUCLEI (opt-in dataset nuclei_plate1). StarDist and InstanSeg are nucleus
 models, so they are also scored on nuclei: four 1994 x 1994 40x fields of
@@ -471,14 +478,17 @@ StarDist's and InstanSeg's diameter references were measured on it. Diameter
 
   strategy                    family             obj    GT   P@.5   R@.5  F1@.5  F1@.75   mIoU  fldF1  eval s  prep s
   cp3_nuclei                  general            211   223  0.972  0.919  0.945   0.926  0.954  0.938    41.1     5.3
+  instanseg_nuclei (552)      general            209   223  0.947  0.888  0.917   0.866  0.872  0.909    20.1     5.3
   stardist_fluo (551)         general            223   223  0.901  0.901  0.901   0.892  0.935  0.895     8.8     5.3
 
-  per field F1@.5 (cp3_nuclei / stardist_fluo): E01_10 0.977/0.939,
-  E01_11 0.968/0.920, E01_9 0.960/0.906, E02_10 0.847/0.814.
+  per field F1@.5 (cp3_nuclei / instanseg_nuclei / stardist_fluo): E01_10
+  0.977/0.939/0.939, E01_11 0.968/0.938/0.920, E01_9 0.960/0.951/0.906,
+  E02_10 0.847/0.809/0.814.
 
   StarDist agrees with the Cellpose-SAM reference almost as well as Cellpose
   3's nuclei model and is 4.7 times faster on the CPU (8.8 s against 41.1 s
-  per field).
+  per field). InstanSeg sits between them (0.917, 20.1 s), with looser
+  outlines (F1@.75 0.866, mean IoU 0.872).
 
 The synthetic Host-Pathogen nuclei (host_pathogen_v1, drawn labels) were
 tried first and dropped: their DNA plane is 1.2 % non-zero, so Mask's 2-98
@@ -491,4 +501,6 @@ Reproduce (receipts in /tmp/spacr-55x-scratch/bench/cpu/results):
     tools/benchmark_segmentation_strategies.py --device cpu --threads 8 \
     --out /tmp/spacr-55x-scratch/bench/cpu --plan models \
     --datasets toxo_pv --strategies stardist_fluo
-  (and --datasets nuclei_plate1 --strategies stardist_fluo,cp3_nuclei)
+  (and --datasets nuclei_plate1 --strategies stardist_fluo,cp3_nuclei,
+  instanseg_nuclei; --datasets toxo_pv --strategies instanseg_nuclei,
+  instanseg_cells)

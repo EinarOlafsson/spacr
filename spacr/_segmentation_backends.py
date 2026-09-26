@@ -176,6 +176,24 @@ _STARDIST_MODELS = ("2D_versatile_fluo", "2D_versatile_he",
 #: 85 and 91 px. A blank diameter runs the plane at its own scale.
 _STARDIST_DIAMETER = 30.0
 
+#: InstanSeg (item 552): embedding-based instance segmentation of nuclei
+#: and cells, channel-agnostic. Chosen through an object's model setting,
+#: ``instanseg:<model or file>``, like StarDist.
+_INSTANSEG = "instanseg"
+
+#: InstanSeg's own published models (its model-index.json, 0.1.1).
+_INSTANSEG_MODELS = ("fluorescence_nuclei_and_cells", "brightfield_nuclei")
+
+#: The object diameter, in pixels at the model's own pixel size, InstanSeg
+#: is run at when the object's diameter is set (see
+#: :class:`_InstanSegAdapter`). InstanSeg publishes no object size, so this
+#: was measured (2026-09-26, fluorescence_nuclei_and_cells, nuclei output,
+#: toxo_mito plate1_E01_1_1, 40x nuclei of median 86 px, 49 in spaCR's
+#: Cellpose-SAM reference): at the model's own scale it found 35 objects of
+#: median 20 px; given pixel sizes that bring the nuclei to about 43, 26
+#: and 17 px it found 34, 39 and 40 objects of median 51, 81 and 77 px.
+_INSTANSEG_DIAMETER = 26.0
+
 _RESTORATION_MODELS = tuple(
     f"{operation}_{structure}"
     for operation in ("denoise", "deblur", "oneclick")
@@ -438,6 +456,36 @@ _SPECS = {
             "spaCR has not scored it against those results; item 532 "
             "scores it on spaCR's own fields."),
         prefix="stardist:", default_model="2D_versatile_fluo", alpha=True),
+    _INSTANSEG: _BackendSpec(
+        name=_INSTANSEG, label="InstanSeg", module="instanseg",
+        probe=("instanseg", "instanseg.utils.utils"),
+        distribution="instanseg-torch",
+        requirements=("instanseg-torch==0.1.1",),
+        torch=("torch",), python=((3, 9), (3, 13)),
+        licence="Apache-2.0",
+        licence_note=(
+            "InstanSeg (instanseg-torch 0.1.1) is Apache-2.0, and so are its "
+            "fluorescence_nuclei_and_cells and brightfield_nuclei models, "
+            "which InstanSeg downloads itself from the instanseg/instanseg "
+            "GitHub release (instanseg_models_v0.1.1) into the backend's "
+            "own folder. spaCR ships none of it."),
+        homepage="https://github.com/instanseg/instanseg", size_gb=3.0,
+        models=_INSTANSEG_MODELS,
+        blurb=(
+            "InstanSeg, embedding-based segmentation of nuclei and cells "
+            "that reads any number of fluorescence channels, with its "
+            "fluorescence_nuclei_and_cells and brightfield_nuclei models or "
+            "an InstanSeg TorchScript file. A nucleus object keeps its "
+            "nuclei, every other object its cells. It runs in an "
+            "environment of its own."),
+        published=(
+            "Published results: Goldsborough et al., 'InstanSeg: an "
+            "embedding-based instance segmentation algorithm optimized for "
+            "accurate, efficient and portable cell segmentation', arXiv 2024 "
+            "(arXiv:2408.15954). spaCR has not scored it against those "
+            "results; item 532 scores it on spaCR's own fields."),
+        prefix="instanseg:", default_model="fluorescence_nuclei_and_cells",
+        alpha=True),
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
@@ -1429,6 +1477,9 @@ def _worker_env(name, env):
     StarDist fetches its pretrained models with Keras' ``get_file``, which
     keeps them under ``KERAS_HOME`` (``~/.keras`` otherwise).
 
+    InstanSeg downloads its models to ``INSTANSEG_BIOIMAGEIO_PATH``, and
+    otherwise into its own package folder.
+
     SAMCell has two downloads: its fine-tuned checkpoint uses Torch's hub
     cache, and its SAM backbone uses Transformers and Hugging Face. Both
     are scoped to the environment; legacy Transformers cache overrides
@@ -1446,6 +1497,9 @@ def _worker_env(name, env):
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
     elif name == _STARDIST:
         environ["KERAS_HOME"] = os.path.join(env, "keras")
+    elif name == _INSTANSEG:
+        environ["INSTANSEG_BIOIMAGEIO_PATH"] = os.path.join(
+            env, "instanseg_models")
     elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
         for variable in _HF_CACHE_VARIABLES:
@@ -3259,11 +3313,115 @@ class _StarDistAdapter(_PrefixedAdapter):
         return labels, [None, None, probability]
 
 
+class _InstanSegAdapter(_PrefixedAdapter):
+    """InstanSeg, inside its own environment (item 552).
+
+    A named model is InstanSeg's own, which InstanSeg downloads from its
+    GitHub release into ``INSTANSEG_BIOIMAGEIO_PATH`` (inside the backend's
+    folder); a path is an InstanSeg TorchScript file (``instanseg.pt``, or
+    the folder holding one).
+
+    THE OUTPUT. ``fluorescence_nuclei_and_cells`` segments both; ``target``
+    keeps one: ``nuclei`` for a nucleus object, ``cells`` for every other,
+    unless the model setting ends in ``#nuclei`` or ``#cells``. A model
+    with one output ignores it.
+
+    THE SETTINGS. InstanSeg normalises each plane to its own percentiles,
+    as it was trained, whatever ``normalize`` says (spaCR's scaling is
+    linear, so this is the normalisation of the raw plane). InstanSeg
+    rescales by pixel size, and spaCR's mask settings carry none, so a
+    diameter is given to it as the pixel size that makes the objects
+    :data:`_INSTANSEG_DIAMETER` pixels across at the model's own pixel
+    size; a blank diameter runs the plane at the model's pixel size. A
+    plane InstanSeg calls small is segmented whole, a larger one in its own
+    512-pixel tiles. The flow threshold, cell-probability threshold and
+    resampling have no InstanSeg counterpart and are named as not honoured.
+    The minimum size is applied to its objects. InstanSeg gives no
+    probability map.
+
+    :param model: a name from :data:`_INSTANSEG_MODELS`, a TorchScript file,
+        or a folder holding ``instanseg.pt``.
+    :param device: a torch device name.
+    :param target: ``'nuclei'``, ``'cells'`` or ``''`` (``'cells'``).
+    :param instanseg_class: ``instanseg.InstanSeg``, or a stand-in for tests.
+    :raises FileNotFoundError: for a path with no model.
+    """
+
+    name = _INSTANSEG
+    unsupported = ("flow_threshold", "cellprob_threshold", "resample")
+
+    def __init__(self, model="fluorescence_nuclei_and_cells", device="cpu",
+                 target="", instanseg_class=None):
+        """Load the model on ``device``."""
+        super().__init__()
+        if instanseg_class is None:
+            from instanseg import InstanSeg as instanseg_class
+        self.model = model
+        self.target = target if target in ("nuclei", "cells") else "cells"
+        if model in _INSTANSEG_MODELS:
+            network = model
+        else:
+            path = (os.path.join(model, "instanseg.pt")
+                    if os.path.isdir(model) else model)
+            if not os.path.isfile(path):
+                raise FileNotFoundError(
+                    f"no InstanSeg model called {model!r}: it is not one of "
+                    f"{', '.join(_INSTANSEG_MODELS)}, and no TorchScript "
+                    f"file is there.")
+            import torch
+
+            network = torch.jit.load(path, map_location="cpu")
+        self._model = instanseg_class(network, device=device, verbosity=0)
+
+    def _pixel_size(self, diameter):
+        """The pixel size that brings ``diameter`` to the model's scale."""
+        if not diameter or float(diameter) <= 0:
+            return None
+        native = getattr(getattr(self._model, "instanseg", None),
+                         "pixel_size", None)
+        if not native:
+            self.ignored.add("diameter")
+            return None
+        return float(native) * _INSTANSEG_DIAMETER / float(diameter)
+
+    def _segment(self, plane, normalize=True, diameter=None, **other):
+        """InstanSeg's instances of the chosen target for one plane."""
+        if normalize is False:
+            self.translated.add(
+                "normalize=False became InstanSeg's own percentile "
+                "normalisation, which its models were trained on")
+        image = np.asarray(plane, np.float32)[np.newaxis]
+        pixel_size = self._pixel_size(diameter)
+        choose = getattr(self._model, "_get_eval_function_to_use", None)
+        size = choose(plane.size) if callable(choose) else "small"
+        if size == "small":
+            labels = self._model.eval_small_image(
+                image, pixel_size=pixel_size, normalise=True,
+                return_image_tensor=False, target=self.target)
+        else:
+            labels = self._model.eval_medium_image(
+                image, pixel_size=pixel_size, normalise=True, tile_size=512,
+                batch_size=1, return_image_tensor=False, target=self.target)
+        labels = np.asarray(labels.numpy() if hasattr(labels, "numpy")
+                            else labels)
+        return labels.reshape((-1,) + labels.shape[-2:])[0], []
+
+
+def _instanseg_options(model_name, object_type=None):
+    """The output InstanSeg keeps: the setting's ``#nuclei`` / ``#cells``,
+    else ``nuclei`` for a nucleus object and ``cells`` for any other."""
+    _model, target = _prefixed_split(_INSTANSEG, model_name)
+    if target not in ("nuclei", "cells"):
+        target = "nuclei" if object_type == "nucleus" else "cells"
+    return {"target": target}
+
+
 #: Backend name -> in-process class. Tests replace entries with stubs.
 _BACKEND_CLASSES = {_DINOCELL: _DinoCellBackend, _SAMCELL: _SamCellBackend}
 
 #: Backend name -> the worker adapter of a prefixed backend.
-_PREFIXED_ADAPTERS = {_STARDIST: _StarDistAdapter}
+_PREFIXED_ADAPTERS = {_STARDIST: _StarDistAdapter,
+                      _INSTANSEG: _InstanSegAdapter}
 
 
 def _worker_device(requested=None):
@@ -3857,7 +4015,10 @@ def _load_prefixed(name, model_name, *, device=None, z_plan=None,
 
 def _prefixed_options(name, model_name, object_type=None):
     """What a prefixed backend's worker is told beside the model: the
-    output InstanSeg keeps. Empty for the others."""
+    output InstanSeg keeps (:func:`_instanseg_options`). Empty for the
+    others."""
+    if name == _INSTANSEG:
+        return _instanseg_options(model_name, object_type)
     return {}
 
 

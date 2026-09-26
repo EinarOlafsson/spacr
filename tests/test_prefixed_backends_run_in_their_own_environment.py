@@ -37,7 +37,7 @@ _base_settings = _wiring._base_settings
 _write_npz = _wiring._write_npz
 _artifacts = _wiring._artifacts
 
-PREFIXED = ("stardist",)
+PREFIXED = ("stardist", "instanseg")
 
 
 @pytest.fixture(autouse=True)
@@ -492,3 +492,117 @@ def test_each_model_is_a_zoo_row_that_needs_its_backend(tmp_path):
 def test_mask_generation_fields_ask_the_zoo_for_every_prefixed_kind():
     assert zoo.mask_model_kinds() == (
         "cellpose", "cellpose3", "cellpose_dino") + PREFIXED
+
+
+# ===========================================================================
+# InstanSeg (item 552)
+# ===========================================================================
+
+def test_instanseg_pins_its_package_and_names_its_models():
+    spec = SB._SPECS["instanseg"]
+    assert spec.requirements == ("instanseg-torch==0.1.1",)
+    assert spec.torch == ("torch",)
+    assert spec.models == ("fluorescence_nuclei_and_cells",
+                           "brightfield_nuclei")
+    assert spec.licence == "Apache-2.0"
+    assert "instanseg_models_v0.1.1" in spec.licence_note
+
+
+def test_instanseg_keeps_its_downloads_inside_its_environment(tmp_path):
+    env = str(tmp_path / "env")
+    assert SB._worker_env("instanseg", env)["INSTANSEG_BIOIMAGEIO_PATH"] == (
+        os.path.join(env, "instanseg_models"))
+
+
+@pytest.mark.parametrize("value, object_type, target", [
+    ("instanseg:", "nucleus", "nuclei"),
+    ("instanseg:", "cell", "cells"),
+    ("instanseg:", "pathogen", "cells"),
+    ("instanseg:fluorescence_nuclei_and_cells#nuclei", "cell", "nuclei"),
+    ("instanseg:fluorescence_nuclei_and_cells#cells", "nucleus", "cells"),
+])
+def test_instanseg_keeps_the_objects_output(tmp_path, value, object_type,
+                                            target):
+    _finish(tmp_path, "instanseg")
+    model = SB._load_backend("cellpose", model_name=value,
+                             object_type=object_type)
+    assert model.model == "fluorescence_nuclei_and_cells"
+    assert model.options == {"target": target}
+
+
+class _FakeInstanSeg:
+    """``instanseg.InstanSeg`` as far as the adapter can see it."""
+
+    built = []
+
+    def __init__(self, model_type, device=None, verbosity=1):
+        self.model_type, self.device = model_type, device
+        self.instanseg = types.SimpleNamespace(pixel_size=0.5)
+        self.calls = []
+        type(self).built.append(self)
+
+    def _get_eval_function_to_use(self, num_pixels):
+        return "small" if num_pixels < 1000 else "medium"
+
+    def _answer(self, image, how, **kwargs):
+        self.calls.append(dict(kwargs, how=how, shape=np.shape(image)))
+        h, w = np.shape(image)[-2:]
+        return np.asarray(_known_labels((h, w)))[None, None]
+
+    def eval_small_image(self, image, **kwargs):
+        return self._answer(image, "small", **kwargs)
+
+    def eval_medium_image(self, image, **kwargs):
+        return self._answer(image, "medium", **kwargs)
+
+
+def test_instanseg_answers_in_cellpose_sams_shapes(tmp_path):
+    _FakeInstanSeg.built = []
+    adapter = SB._InstanSegAdapter("fluorescence_nuclei_and_cells", "cpu",
+                                   target="nuclei",
+                                   instanseg_class=_FakeInstanSeg)
+    assert _FakeInstanSeg.built[0].model_type == (
+        "fluorescence_nuclei_and_cells")
+    images = [np.ones((24, 30, 2), np.float32), np.ones((40, 40), np.float32)]
+    masks, flows, styles = adapter.eval(
+        images, channel_axis=-1, normalize=False, diameter=17.0,
+        min_size=2, flow_threshold=0.4, cellprob_threshold=0.0,
+        resample=True, batch_size=2)
+    assert styles is None
+    assert [m.shape for m in masks] == [(24, 30), (40, 40)]
+    assert all(m.dtype == np.uint16 and int(m.max()) == 2 for m in masks)
+    assert all(entry == [None, None, None, None] for entry in flows)
+    calls = _FakeInstanSeg.built[0].calls
+    assert [c["how"] for c in calls] == ["small", "medium"]
+    assert all(c["target"] == "nuclei" and c["normalise"] is True
+               for c in calls)
+    assert calls[0]["pixel_size"] == pytest.approx(
+        0.5 * SB._INSTANSEG_DIAMETER / 17.0), "the diameter, as a pixel size"
+    assert calls[0]["shape"] == (1, 24, 30)
+    assert calls[1]["tile_size"] == 512
+    assert adapter.ignored == {"flow_threshold", "cellprob_threshold",
+                               "resample"}
+    adapter.eval([np.ones((8, 8), np.float32)], diameter=None)
+    assert _FakeInstanSeg.built[0].calls[-1]["pixel_size"] is None
+    assert any("normalize=False" in t for t in adapter.translated)
+
+
+def test_instanseg_loads_a_torchscript_file_and_refuses_a_missing_one(
+        tmp_path, monkeypatch):
+    loaded = []
+    fake_torch = types.SimpleNamespace(
+        jit=types.SimpleNamespace(load=lambda path, map_location=None:
+                                  loaded.append(path) or "network"))
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    folder = tmp_path / "my_instanseg"
+    folder.mkdir()
+    (folder / "instanseg.pt").write_bytes(b"ts")
+    _FakeInstanSeg.built = []
+    adapter = SB._InstanSegAdapter(str(folder), "cpu",
+                                   instanseg_class=_FakeInstanSeg)
+    assert loaded == [str(folder / "instanseg.pt")]
+    assert _FakeInstanSeg.built[0].model_type == "network"
+    assert adapter.target == "cells"
+    with pytest.raises(FileNotFoundError, match="no InstanSeg model"):
+        SB._InstanSegAdapter(str(tmp_path / "gone"), "cpu",
+                             instanseg_class=_FakeInstanSeg)

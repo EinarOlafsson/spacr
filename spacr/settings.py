@@ -6775,6 +6775,10 @@ ALPHA_FEATURES = {
         'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
                    'stardist_2D_versatile_he', 'stardist_2D_paper_dsb2018'),
     },
+    552: {
+        'models': ('instanseg_v1', 'instanseg_fluorescence_nuclei_and_cells',
+                   'instanseg_brightfield_nuclei'),
+    },
 }
 
 
