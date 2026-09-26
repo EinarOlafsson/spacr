@@ -2823,124 +2823,162 @@
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
       "section": "Tools",
-      "title": "Train Cellpose: yfirfarin pör og skýr API-hjáleið",
-      "description": "Finndu Train í Cellpose Workbench, þekktu núverandi innflutningsvillu gagnaslóðar og fylgdu raunverulegri tveggja umferða Python-þjálfun með sex niðurhalanlegum frumumynda- og grímupörum.",
+      "title": "Þjálfaðu Cellpose-líkan",
+      "description": "Undirbúðu pör mynda og gríma, fínstilltu skiptingarlíkan í Cellpose Workbench og notaðu vistaða eftirlitspunktinn.",
       "objectives": [
-        "Finna Train og Apply innan Make Masks, ekki sem sérflísar á Home.",
-        "Athuga samsvarandi skráarnöfn og greina núverandi merkingar frá yfirförnum viðmiðum.",
-        "Þekkja hlutainnflutning og aðgreina API-leið frá gölluðu GUI.",
-        "Skoða inntak, upphitunarhraða, breytt vægi og staðfesta slóð.",
-        "Greina þjálfunartap, frátekin prófunargildi og lestur vægja frá óháðri nákvæmni."
+        "Skoða myndir og samsvarandi hlutamerkjagrímur í Make Masks.",
+        "Velja þjálfunarmöppu, upphafslíkan, þjálfunaráætlun og úttaksstað.",
+        "Keyra þjálfun, finna eftirlitspunktinn og nota hann á aðrar myndir."
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "Notaðu sexpara pakkann með upptökuhjálparforritinu og upprunaskrá. Raunveruleg myndsvið varðveita frumustyrk rásar 1 og frumugrímu plans 4; plan 6 er sýkill. Núverandi merkingar og kantafskornir hlutir eru EKKI óháð yfirfarin viðmið. Train tapar enn src og heldur model_name=new_model þótt tölur flytjist inn; engin GUI-þjálfun byrjar. spacr.submodules.train_cellpose notar nýjan áfangastað, tvær umferðir, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 og enga auka gagnamögnun spaCR. normalize=False slekkur á hundraðshlutamarkaforvinnslu spaCR, ekki kvörðun með hámarki eða stöðlun Cellpose. Cellpose snýr og stærðarbreytir enn og notar innri 256-díla búta. Upphafsfræ 19; innri slembivinnsla helst. CUDA takmarkað við 65% á RTX 3090; 100 GiB vinnsluminnisvakt á aðeins við þessa stöð. 3,145,728 inntaksgildi og tólf myndfylki skoðuð; öll sex pör héldust í þjálfun. Hraðar 0 og 1.1111111111111112e-6; 345 af 347 þjálfanlegum stikatenserum breyttust. Tap hækkaði úr 1.496740683913231 í 1.5215517828861873. Engin prófunargögn: núllin eru fráteknir reitir. Vistunarskrá undir models/cellpose_model/models lesin með weights_only=True; samantekt stjórnborðs sleppir öðru models. Lestur er ekki ályktun eða nákvæmnispróf. Raunveruleg mynd í ytri skoðara, ekki sett í GUI. Frumgögn, mistök og fyrri GUI-stöðvun varðveitt. Engin AI-beiðni, þjónustusvar, vísindalegt samþykki eða birting.",
+      "prerequisite": "Sæktu og afþjappaðu tengda dæmið: sex þjálfunarmyndir með grímum og þrjár aðskildar myndir fyrir Apply. Eða undirbúðu eigin myndir og samsvarandi grímur með heiltölumerkjum og skoðaðu þær í Make Masks fyrir þjálfun.",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Opnaðu Make Masks og síðan innbyggða Cellpose Workbench. Train og Apply eru flipar þar, ekki sérflísar á Home. Kennslan sýnir núverandi leið, innflutningsvillu og skýra Python-hjáleið. Tengda Make Masks-kennslan fjallar um að skoða og breyta grímum fyrir þjálfun.",
+          "visual": "home_make_masks",
+          "narration": "Frá Home opnarðu Tools og svo Make Masks. Opnaðu Cellpose Workbench af tækjastiku þess; það opnast á flipanum Train. Þú þjálfar út frá myndum og hlutamerkjagrímum þeirra og notar svo vistaða líkanið í Apply.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_source",
+          "narration": "Afþjappaðu tengda dæmið. Mappan training inniheldur sex myndir og undirmöppuna masks, og mappan apply inniheldur þrjár aðskildar myndir til síðari nota. Smelltu á möpphnappinn við hlið Image source folder og veldu training. Hafðu Mask source folder tómt til að nota undirmöppuna masks, eða veldu aðra grímumöppu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "Hver mynd þarf grímu með sömu hæð og breidd. 0 er bakgrunnur og hver hlutur hefur sína eigin jákvæðu tölu. Opnaðu þjálfunarmöppuna í Make Masks til að skoða merkin og leiðrétta þau fyrir þjálfun. Þessi mynd hefur 95 merktar frumur.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_channels",
+          "narration": "Dæmið er grátónamynd, svo hafðu Channels tómt. Fyrir fjölrása mynd bætirðu við allt að þremur rásanúmerum sem byrja á núlli, til dæmis 0 og 2 fyrir fyrstu og þriðju rás. Stilltu Channel axis aðeins ef sjálfvirk greining finnur ekki rásavíddina.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ]
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Hafðu Base model á cpsam til að byrja frá Cellpose-SAM, eða sláðu inn slóð að eftirlitspunkti til að halda áfram þjálfun fyrra líkans. Sláðu inn Model name; hér er það tutorial cells. Hafðu Checkpoint folder tómt til að vista í upprunamöppunni, eða veldu aðra möppu.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ]
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "Stilltu N epochs og Batch size. Þessi fljótlega keyrsla notar 10 umferðir með skammtastærð 1. Fleiri umferðir gefa líkaninu fleiri þjálfunaruppfærslur og stærri skammtar nota meira minni. Haltu birtum lærdómshraða til að byrja með.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ]
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "Hafðu Normalize virkt með 1. og 99. hundraðshluta sem upphafspunkt. Þeir ákvarða styrkbilið sem notað er fyrir hverja rás. Scale range breytir myndastærð meðan á þjálfun stendur og Min train masks sleppir myndum með færri merkta hluti.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ]
+        },
+        {
+          "visual": "train_validation",
+          "narration": "Til að fylgjast með staðfestingartapi velurðu sérstaka Validation image folder og Validation mask folder hennar. Notaðu aldrei þjálfunarmyndir þar aftur. Hafðu báðar tómar ef þú hefur ekki sérstakt merkt safn, eins og í þessu dæmi.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ]
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni. Á þessu GPU-skjákorti tóku 10 umferðir á sex myndum innan við mínútu.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ]
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "Þegar þjálfun lýkur gefur stjórnborðið upp slóð eftirlitspunktsins. Með sjálfgefnum stað er hann í upprunamöppunni undir models/cellpose_model/models. Skráarheitið bætir högun og fjölda umferða við heiti líkansins. Geymdu hann með þjálfunarstillingunum.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ]
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Opnaðu flipann Apply. Custom model vísar nú á eftirlitspunktinn sem þú þjálfaðir. Stilltu Source á möppuna apply í dæminu, en myndir hennar koma úr brunnum sem ekki voru notaðir til þjálfunar. Stilltu Channels á 0 og Percentiles á 2 og 99. Slökktu á Fill in svo að frumur sem snertast haldist aðskildar, og kveiktu á Save og Verbose.",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "Í Train skaltu skoða upphafspunkt og þjálfunaráætlun. Ekki afrita upphaflegan umferðafjölda eða námshraða sem ráðleggingu. Þjálfun krefst paraðra mynda og tilvikagríma, gagnamöppu og úttaksheitis. Sýnilegt eyðublað þýðir ekki að þessum kröfum sé fullnægt.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "Raunverulega Import settings-gluggann notarðu til að opna CSV með afmörkuðum stillingum. Eftir innflutning sjást tvær umferðir, minibatch eitt og lítill námshraði. En nauðsynleg gagnaslóð tapast og líkananafnið helst new model. Þetta er hlutainnflutningur, ekki tilbúin uppsetning; ekki ýta á Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "Python-leiðin hér fyrir neðan er aðskilin frá GUI-villunni. Hún setur ekki gagnaslóð í leyni og lagar ekki eyðublaðið. Notaðu tengda pakkann í nýrri möppu. Hjálparforritið hafnar fyrirliggjandi áfangastað, varðveitir upprunapör og skráir nákvæmlega API-útfærslu og inntak.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "Sex raunveruleg 512-díla mynd- og grímupör bera samsvarandi skráarnöfn. Upprunalegar stillingar auðkenna frumustyrk sem rás eitt og frumugrímur sem plan fjögur; plan sex er sýkill. Núverandi merkingar eru ekki óháð yfirfarin viðmið. Skoðaðu mörk og kantafskorna hluti fyrir eiginlega þjálfun.",
           "focus": [
-            190,
-            80,
-            3450,
-            900
-          ],
-          "hold_after": 0.7
+            366,
+            607,
+            1165,
+            1156
+          ]
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "Þetta er raunverulega sexpara myndin sem API-keyrslan vistaði og ytri skoðari opnaði, ekki mynd sett inn í spaCR. Hver efri mynd samsvarar grímunni beint undir. Öll inntaksgildi og tólf birt fylki voru borin við upprunapör. Það staðfestir samsvörun, ekki gæði merkinga.",
+          "visual": "apply_preview",
+          "narration": "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 76 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
-          ],
-          "hold_after": 0.7
+            390,
+            520,
+            3410,
+            1240
+          ]
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "Keyrðu hjálparforritið með gagnauppsprettu og nýjum áfangastað. Afmarkaða CUDA-dæmið notar sex pör, tvær umferðir og minibatch eitt. Inntaksstærð er 512 dílar, en Cellpose þjálfar innri 256-díla búta. Að sleppa auka gagnamögnun spaCR slekkur ekki á stöðlun, snúningi og stærðarbreytingu Cellpose.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Fyrsta upphitunarumferð hefur námshraða núll. Önnur notar lítinn jákvæðan hraða og leyfir raunverulegar vægisbreytingar. Vistuð vægi voru borin við upphafleg þjálfanleg vægi: 345 af 347 stikatenserum breyttust. Breyting á þvermáli einu nægði ekki. Breytt vægi sanna samt ekki gott líkan.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Þjálfunartap hækkaði lítillega úr um 1,497 í 1,522. Engin prófunargögn voru gefin. Núll í prófunartapsreitum eru staðgenglar, ekki fullkominn árangur. Þetta sýnir vélræna framkvæmd, ekki samleitni, betri sundurgreiningu eða óháða nákvæmni. Haltu sjálfstæðu mati aðskildu frá þjálfun.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Notaðu slóð vistuðu vægjanna í yfirförnu athuganaskránni. Hún hefur aðra models-möppu sem almenna stjórnborðssamantektin sleppir. Geymdu vægi, stillingar, upprunaskrá og athuganir saman. Öruggur lestur tensora staðfestir læsilega skrá, ekki ályktun; pakkinn inniheldur pör og hjálparforrit, ekki vottað líkan.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply hefur eigin gagnamöppu, reit fyrir sérlíkan og lifandi forskoðun. Að opna flipann velur ekki ytri vægjaskrána okkar og keyrir ekki ályktun. Fylgdu tengdri kennslu og staðfestu á óháðum myndum. Valfrjálsa spaCR AI er ónotað hér; spurningar eða þjónustusvör koma ekki í stað skoðunar raunverulegra gagna.",
+          "visual": "apply_result",
+          "narration": "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 76, 48 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun.",
+          "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7099,22 +7137,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination: mettu og skoðaðu leiðréttingarlíkan",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "Veldu myndrásir, mettu lýsingarsvið, skoðaðu gæðaeftirlitsmyndrit þess og endurnýttu vistaða líkanið.",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "Velja dæmigerð sjónsvið og styrkleikarásir.",
+        "Meta og skoða lýsingarlíkan.",
+        "Endurnýta líkanið í Mask eða Measure."
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "Notaðu möppu sameinaðra mynda með dæmigerðum sjónsviðum úr hverjum myndatökuhópi. Dæmið notar sextán sjónsvið úr plötudæminu sem sótt var í Measure. Vittu hvaða vistuð lög innihalda styrk og hver innihalda merki.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "Opnaðu Measure og svo Illumination til að meta leiðréttingarlíkan fyrir ójafna birtu mynda.",
           "focus": [
             3625,
             65,
@@ -7128,7 +7166,7 @@
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "Stilltu Source á möppuna merged sem inniheldur myndfylkin. Notaðu dæmigerð sjónsvið úr myndatökunni; dæmið notar sextán sjónsvið af einni plötu.",
           "focus": [
             363,
             375,
@@ -7143,7 +7181,7 @@
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "Stilltu Channels á vistuðu styrkleikalögin sem þú vilt leiðrétta. Dæmið notar rás 0. Athugaðu rásavörpunina og útilokaðu lög með merkjagrímum.",
           "focus": [
             374,
             475,
@@ -7154,7 +7192,7 @@
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "Virkjaðu Illumination correction áður en þú metur svið. Þegar slökkt er á því lýkur Run án þess að búa til leiðréttingarlíkan.",
           "focus": [
             1518,
             405,
@@ -7165,7 +7203,7 @@
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "Veldu matsaðferð og stillingar hennar. Fyrir margliðudæmið notarðu stig 4 og hefur Illumination model tómt til að meta nýtt svið. Skoðaðu hvort niðurstaðan inniheldur byggingar sem tilheyra frumum frekar en lýsingu.",
           "focus": [
             363,
             550,
@@ -7176,7 +7214,7 @@
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "Virkjaðu Illumination per plate til að aðlaga myndatökuhópa sérstaklega. Stilltu Maximum fields á dæmigert úrtak; dæmið tekur öll sextán tiltæk sjónsvið með.",
           "focus": [
             363,
             858,
@@ -7187,7 +7225,7 @@
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "Stilltu Illumination dark eftir kvörðun myndavélarinnar ef hún er til. Það er viðbótarhliðrun í hráum talningum; 0 er gildi dæmisins.",
           "focus": [
             374,
             775,
@@ -7198,7 +7236,7 @@
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "Virkjaðu Illumination QC og veldu reglu fyrir líkön sem vantar. Með error valið stöðvar vinnslan ef leiðréttingu plötu vantar svo þú getir leyst málið.",
           "focus": [
             363,
             1020,
@@ -7209,7 +7247,7 @@
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "Ýttu á Run og lestu slóð vistaða líkansins í stjórnborðinu. Þetta skref metur líkanið; virkjaðu það í síðari greiningu til að beita leiðréttingunni.",
           "focus": [
             1518,
             405,
@@ -7220,7 +7258,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "Opnaðu vistaða PNG-gæðaeftirlitsmynd lýsingar í möppunni illumination. Notaðu myndskoðara ef hún birtist ekki í spjaldinu Figures.",
           "focus": [
             200,
             100,
@@ -7231,7 +7269,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "Skoðaðu metna lýsingarsviðið: birtan á að breytast mjúklega og engar óæskilegar frumulaga byggingar eiga að sjást. Leiðréttingin dregur myrkurhliðrunina frá og deilir með þessu sviði sem hefur meðaltalið 1.",
           "focus": [
             400,
             680,
@@ -7242,7 +7280,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "Berðu saman geislalægu sniðin fyrir og eftir. Notaðu fleiri sjónsvið til að meta hversu vel leiðréttingin virkar utan myndanna sem notaðar voru til að aðlaga hana.",
           "focus": [
             1270,
             680,
@@ -7253,7 +7291,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "Til að endurnýta líkanið tilgreinirðu slóð þess og virkjar leiðréttinguna í viðeigandi Mask- eða Measure-ferli. Geymdu rásir þess, auðkenni platna og stillingar með því og forðastu að leiðrétta sama styrk tvisvar.",
           "focus": [
             363,
             370,
@@ -7270,6 +7308,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7280,18 +7358,18 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager: skoðaðu notkun, hreinsaðu og settu í geymslu",
+      "description": "Farðu yfir geymslupláss verkefnis, forskoðaðu hreinsunaráætlun og færðu verkefni á geymslustað.",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "Skoða disknotkun verkefnisins.",
+        "Fara yfir og beita hreinsunaráætlun.",
+        "Færa verkefni í geymslu og skanna það aftur."
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "Notaðu lokið spaCR-verkefni og taktu óháð öryggisafrit fyrir hreinsun. Dæmið notar afrit af verkefninu sem External Masks bjó til.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "Opnaðu Help og svo Data manager. Veldu lokið verkefni til að skoða geymslu þess og skipuleggja hreinsun eða geymslu.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -7299,7 +7377,7 @@
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "Smelltu á Choose project og veldu rót verkefnisins. Lestu Usage fyrir skrár þess, diskpláss og skráða afurðir.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7310,7 +7388,7 @@
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "Opnaðu Prune og veldu hvaða tegundir afurða koma til greina. Hafðu mælingagagnagrunna og vigta líkana óvalda ef þú vilt halda þeim og smelltu svo á Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7321,7 +7399,7 @@
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "Farðu yfir tillögðu skrárnar, plássið sem sparast og upplýsingar um endurheimt. Dæmið velur möppu úrklippa hluta. Haltu inntökum og stillingum sem þarf til að endurgera það sem þú fjarlægir.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7332,17 +7410,17 @@
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
+          "narration": "Smelltu á Delete til að fara yfir endanlegan skráalista. Ekki er hægt að afturkalla eyðingu, svo athugaðu slóðirnar og öryggisafritið áður en þú samþykkir áætlunina.",
           "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
+          "narration": "Notaðu Cancel ef þú vilt halda skránum eða breyta valinu. Þegar listinn er samþykktur verður lokaaðgerðin Delete virk.",
           "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "Staðfestu Delete þegar áætlunin er rétt. Lestu í niðurstöðunni fjölda fjarlægðra skráa og plássið sem losnaði.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7353,7 +7431,7 @@
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "Skoðaðu uppfærðu Usage-skönnunina. Fjarlægðar afurðir geta áfram verið skráðar sem vantar ásamt skráðri uppskrift sinni; endurgerðu þær með viðeigandi einingu þegar þörf er á.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7364,22 +7442,22 @@
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
+          "narration": "Opnaðu Archive og veldu tóman áfangastað utan upprunaverkefnisins. Smelltu á Show what would move og skoðaðu báðar slóðirnar.",
           "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
+          "narration": "Smelltu á Move til að fara yfir staðfestinguna. Archive færir verkefnið, svo taktu fyrst hvert það sérstaka öryggisafrit sem þú þarft.",
           "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
+          "narration": "Staðfestu Yes til að færa verkefnið. Geymdu yfirlitsskrána á áfangastaðnum og geymsluannálinn sem verður eftir á upprunalega staðnum.",
           "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "Veldu áfangastaðinn sem verkefni og skannaðu hann aftur. Athugaðu færðu skrárnar og uppfærðu ytri tilvísanir sem vísa enn á gamla staðinn.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7390,7 +7468,7 @@
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "Notaðu Database Browser til að skoða mælingatöflur, Report til að búa til samantekt verkefnis og Data Manager til viðhalds geymslu. Geymdu geymsluskrárnar með gögnum verkefnisins.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7402,6 +7480,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7412,18 +7530,18 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser: finndu og skoðaðu verkefni",
+      "description": "Leitaðu í verkefnismöppum, skoðaðu skráð stig og finndu næsta tól sem á að opna.",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "Finna verkefni með leitarrótum og leitardýpt.",
+        "Skoða afurðir og skráð stig.",
+        "Velja næsta viðeigandi tól."
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "Veldu möppur sem innihalda spaCR-verkefnin þín. Hægt er að æfa sig á loknum dæmum úr External Masks og Format Converter.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "Opnaðu Help og svo Project browser til að finna verkefnismöppur og skoða skráð úttak þeirra.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -7432,7 +7550,7 @@
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "Smelltu á Add folder og veldu leitarrót. Dýpt 0 athugar aðeins möppuna sjálfa; hækkaðu dýptina þegar verkefnin eru í undirmöppum.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7443,7 +7561,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "Stilltu Depth á 1 og smelltu á Scan til að taka með möppur beint undir rótinni. Skoðaðu verkefnalínurnar sem birtast.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7454,7 +7572,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "Lestu State og Stage ásamt skránum sem fundust á diskinum. Mappa án afurðaskrár getur sýnt unknown jafnvel þótt hún innihaldi umbreyttar myndir.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7469,7 +7587,7 @@
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "Bættu við fleiri leitarrótum til að taka með önnur verkefni. Veldu línu til að skoða hana; ef upplýsingar eru auðar eftir endurskönnun velurðu aðra línu og ferð svo til baka.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7480,7 +7598,7 @@
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "Dragðu skilrúmið til að breikka upplýsingasvæðið. Farðu yfir skráðar afurðir, óskráðar skrár og uppruna tímastimpils síðustu keyrslu.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -7491,7 +7609,7 @@
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "Opnaðu Stages til að sjá hvaða væntanlegt úttak er til staðar. Notaðu What could run next til að velja viðeigandi ferli og athugaðu svo hvaða inntök sú eining þarf.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -7505,7 +7623,7 @@
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "Smelltu á dálkfyrirsögn eins og Size til að raða verkefnunum. Smelltu aftur til að snúa röðinni við.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7516,7 +7634,7 @@
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "Breyttu Depth og skannaðu aftur þegar þú þarft þrengri eða víðari leit. Verkefni sem valið er beint finnst áfram með dýpt 0.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7527,12 +7645,12 @@
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
+          "narration": "Veldu rót og smelltu á Remove til að hætta að leita í henni. Þetta fjarlægir leitarstaðinn af listanum en skrárnar verða áfram á diskinum.",
           "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "Opnaðu Run History fyrir verkskrár, Database Browser fyrir mælingar eða Data Manager fyrir hreinsun og geymslu. Notaðu kennsluefni viðkomandi einingar til að halda greiningunni áfram.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7545,6 +7663,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7552,25 +7710,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge: breyttu merkjagrímu og sæktu hana aftur",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "Opnaðu mynd og grímu hennar í napari, breyttu merkjum og vistaðu leiðréttu grímuna aftur í spaCR.",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "Opna samsvarandi mynd- og merkjaskrár.",
+        "Gera breytingar í napari og afturkalla þær.",
+        "Sækja vistuðu grímuna aftur og skoða hana."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "Settu upp valfrjálsu napari-kvöðina og afþjappaðu tilbúna dæmið í nýja möppu. Haltu ósnertu öryggisafriti: Take the mask back skrifar yfir valda vinnugrímu. Lokaðu skoðaranum og opnaðu hann aftur milli vistaðra breytingalotna.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "Opnaðu Make Masks og svo Napari Bridge. Notaðu þetta til að breyta fyrirliggjandi merkjagrímu með styrkleikamyndina sem viðmið. Haltu ósnertu öryggisafriti af grímunni.",
           "focus": [
             460,
             235,
@@ -7584,7 +7742,7 @@
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "Sæktu og afþjappaðu tilbúna dæmið. Veldu mask.tif fyrir Mask og image.tif fyrir Image og ýttu svo á Open in napari.",
           "focus": [
             460,
             365,
@@ -7595,12 +7753,12 @@
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+          "narration": "Veldu Labels-lag grímunnar í napari. Merki 0 er bakgrunnur; hvert hlutarmerki hefur birtingarlit. Gerðu breytingar á merkjalaginu.",
           "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "Farðu aftur í spaCR og notaðu Take the mask back til að flytja inn núverandi merki skoðarans. Ef þú hefur engu breytt sýnir staðan að gríman sé óbreytt.",
           "focus": [
             460,
             445,
@@ -7611,17 +7769,17 @@
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+          "narration": "Til æfingar velurðu merki 18, velur Fill og smellir á hlutinn með merkið 2. Skoðaðu breytta merkið áður en þú flytur það inn.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+          "narration": "Notaðu Undo til að afturkalla síðustu breytingu í skoðaranum. Endurtaktu Fill þegar þú ert tilbúin að halda breytingunni.",
           "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "Smelltu á Take the mask back í spaCR. Farðu yfir fjölda breyttra díla og skoðaðu svo vistuðu grímuna og fylgiskrá hennar með leiðréttingasögu.",
           "focus": [
             460,
             445,
@@ -7632,7 +7790,7 @@
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "Smelltu á Close viewer og opnaðu grímuna aftur fyrir næstu breytingalotu. Þá verður vistaða gríman upphafspunktur síðari leiðréttinga.",
           "focus": [
             460,
             445,
@@ -7643,7 +7801,7 @@
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "Eftir næstu breytingu sækirðu grímuna aftur og skoðar niðurstöðuna á ný. Lokaðu skoðaranum þegar þú ert búin, haltu leiðréttingasögunni og keyrðu aftur mælingar sem breyttu merkin hafa áhrif á.",
           "focus": [
             460,
             445,
@@ -7660,6 +7818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7667,22 +7865,22 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC: skoðaðu lestrardýpt og veldu þröskuld",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "Hlaðu inn vörpuðum talningum, farðu yfir þekju brunna og leiðaraða og berðu saman gnægðarþröskulda.",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "Velja talningainntök og stillingar gæðaeftirlits.",
+        "Skoða þekju og staðsetningaráhrif.",
+        "Bera saman þröskulda og halda töflunum og gröfunum sem verða til."
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "Notaðu plate_1_unique_combinations.csv úr gögnum dæmaskimunarinnar sem sótt voru í Regression-kennsluefninu, eða þína eigin töflu með vörpuðum talningum. Veldu nýja úttaksmöppu. Leggðu fram gæðaeftirlitsskrár vörpunar og tilvísunarskrár strikamerkja þegar þú þarft prófanir sem byggja á óvörpuðum lestrum eða væntanlegu safni.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "Opnaðu Map Barcodes og svo Barcode QC. Byrjaðu á töflu með vörpuðum talningum; tengda Regression-dæmið leggur til eina til æfingar.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
@@ -7691,52 +7889,52 @@
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+          "narration": "Stilltu Count data á talningatöfluna þína og veldu nýjan úttaksstað. Dæmið inniheldur varpaða lestra úr 384 brunnum.",
           "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+          "narration": "Stilltu Target gRNAs per well eftir tilraunasniðinu og veldu samantektaraðferðina sem notuð er til að leiða út þröskuldinn. Dæmið notar 5 og median.",
           "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+          "narration": "Stilltu Starved read fraction til að merkja brunna með fáa lestra miðað við miðgildi plötunnar. Dæmið notar 0,1. Farðu yfir merktu brunnana áður en þú útilokar þá.",
           "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+          "narration": "Virkjaðu Plot og Save og ýttu svo á Run. Bættu við gæðaeftirlitsinntaki vörpunar eða tilvísunarinntaki þegar þú vilt samsvarandi prófanir; talningataflan ein lýsir aðeins sýnilegum vörpuðum lestrum.",
           "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+          "narration": "Lestu lokaannálinn og vistaðar úttaksslóðir. Rannsakaðu villur miðað við valin inntök áður en þú notar niðurstöðurnar.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+          "narration": "Opnaðu barcode_qc.png og threshold_sweep.png úr úttaksmöppunni. Notaðu myndskoðara ef spjaldið Figures er tómt.",
           "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+          "narration": "Skoðaðu lestrardýpt, áhrif raða og dálka og hvernig leiðaraðir eru fulltrúa. Berðu saman við tilvísunarsafn þegar þú þarft að finna væntanlegar leiðaraðir sem vantar alveg.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+          "narration": "Skoðaðu þröskuldssóparann. Í þessu dæmi gefur þröskuldur nálægt 1,21 % af lestrum hvers brunns miðgildið fimm leiðaraðir og heldur um 58 % varpaðra lestra.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+          "narration": "Berðu saman lestra sem haldast, brunna sem haldast og brunna yfir markmiði leiðaraða eftir því sem þröskuldurinn breytist. Veldu þröskuld sem hentar sniðinu; markmið leiðaraða staðfestir ekki að niðurstaðan tilheyri einni leiðaröð.",
           "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "Haltu ráðleggingunni, sóparatöflunni, gröfunum og stillingunum með upprunatalningunum. Notaðu valinn þröskuld stöðugt í síðari greiningu og skráðu ástæðuna fyrir valinu.",
           "related_lessons": [
             "06_api",
             "13_regression"
@@ -7747,6 +7945,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7754,7 +7992,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List: síaðu kandídata og fluttu út stuttan lista",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -7762,17 +8000,17 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "Hlaðu inn niðurstöðum úr Regression, síaðu eftir q-gildi, fjölda leiðaraða og samræmi og fluttu svo út valda kandídata.",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "Opna dæmaniðurstöður Regression með meðfylgjandi hjálparskriftu.",
+        "Sía kandídata og lesa áhrif þeirra og samræmi leiðaraða.",
+        "Flytja valdar línur út sem CSV, Markdown eða HTML."
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Dragðu út Hit_List_real_results_companion.zip og virkjaðu spaCR-umhverfið þitt. Núverandi Hits-flýtileið í Regression sýnir ekki spjaldið; keyrðu í staðinn python hit_list_companion.py og notaðu Browse til að fara í útdregnu niðurstöðumöppuna. Hjálparskriftan tengist ekki Investigate. Notaðu wells_with_gene úr results_gene.csv fyrir fjölda styðjandi brunna: útflutta n_obs=0 er ekki raunverulegur stuðningur. Dæmið inniheldur engin gen sem uppfylla q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "Frá Home opnarðu Regression og velur Hits. Ef spjaldið helst falið notarðu hjálparskriftuna sem fylgir þessari kennslustund til að opna Hit List.",
           "related_lessons": [
             "13_regression"
           ],
@@ -7780,52 +8018,52 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "narration": "Dragðu tengda dæmið út og virkjaðu spaCR-umhverfið. Keyrðu python hit_list_companion.py. Í glugga hjálparskriftunnar smellirðu á Browse og velur útdregnu niðurstöðumöppuna.",
           "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "narration": "Dæmið hleður inn 325 genum. Breikkaðu dálkana til að lesa áhrif, P, q og samræmi leiðaraða. Áhrifin eru stöðluð jaðaráhrif. Fyrir fjölda styðjandi brunna lestu wells_with_gene í results_gene.csv; útflutt athuganafjöldi 0 þýðir að stuðningur er ekki tiltækur.",
           "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "narration": "Stilltu Max q á 0,05. Ekkert gen í dæminu stenst það, svo taflan verður tóm. Settu Max q aftur á 1 til að skoða alla kandídata.",
           "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "narration": "Stilltu Minimum guides á 2. Eftir standa 117 gen með að minnsta kosti tvær prófaðar leiðaraðalínur. Þessi sía heldur upprunalegu q-gildunum.",
           "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "narration": "Stilltu Minimum agreement á 1. Eftir standa 57 kandídatar þar sem allar prófaðar leiðaraðir deila formerki genaáhrifanna. Lestu samræmið ásamt q: þessir kandídatar standast samt ekki marktektarþröskuldinn.",
           "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "narration": "Virkjaðu Hide controls til að fjarlægja viðmiðunarlínuna úr þessari sýn, og eftir standa 56 kandídatar. Slökktu aftur á því til að taka línuna með í síðari útflutningi.",
           "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "narration": "Hreinsaðu hinar síurnar, veldu Direction up og stilltu Minimum absolute effect á 0,1. Eftir standa 16 línur. Veldu þröskulda fyrir greininguna og settu þessar stýringar svo aftur í fyrra horf fyrir næsta skref.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "narration": "Sláðu inn auðkenni í Search til að finna línu þess. Leit án samsvörunar tæmir töfluna. Hreinsaðu Search til að fá núverandi síaða safnið aftur.",
           "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "narration": "Fyrir útflutning stillirðu tvær leiðaraðir, fullt samræmi, viðmið með og tóma leit. Fluttu þær 57 valdar línur út sem CSV, Markdown eða HTML. CSV varðveitir töluleg smáatriði. Vistaðu síuvalið með skránum.",
           "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "Hreinsaðu síurnar til að fara aftur í öll 325 genin. Haltu útflutningi stuttra lista aðskildum frá upprunalegu niðurstöðunum. Í Python notarðu build_hit_list, svo filter og skrifföllin fyrir CSV, Markdown eða HTML; athugaðu línumörk hvers sniðs.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
@@ -7836,6 +8074,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7843,22 +8121,22 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results: gerðu drög að keyrsluskýrslu og fluttu hana út",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "Veldu lokna keyrslu, búðu til skýrslu hennar, farðu yfir skráðar stillingar og niðurstöður og fluttu út Markdown.",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "Velja verkefnið, keyrsludagbókina og samsvarandi niðurstöðumöppu.",
+        "Búa til samantekt og skoða flipana Methods, Results og Caveats.",
+        "Afrita texta skýrslunnar eða flytja út Markdown með keyrslusamantektinni."
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "Ljúktu fyrst Regression-dæminu. Haltu verkefnismöppu þess, keyrsludagbók og guide_permutation-niðurstöðum saman. Farðu yfir ályktaðar stillingar, útgáfur greiningar og tölfræðilega þröskulda áður en þú notar myndaða textann í skýrslu.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "Frá Home opnarðu Regression og svo Methods and Results. Notaðu tólið til að gera drög að skýrslu úr lokinni greiningu. Yfirferðin heldur áfram með vistuðu keyrsluna úr Regression-dæminu.",
           "related_lessons": [
             "13_regression"
           ],
@@ -7866,7 +8144,7 @@
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "Veldu verkefnismöppuna, keyrsludagbókina og samsvarandi möppu með aðhvarfsniðurstöðum. Hafðu Classifier tómt í þessu aðhvarfsdæmi. Staðfestu að allar valdar skrár tilheyri keyrslunni sem þú vilt lýsa.",
           "focus": [
             355,
             270,
@@ -7877,12 +8155,12 @@
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
+          "narration": "Smelltu á Build digest og lestu svo flipana Methods og Results. Berðu útgáfu greiningarinnar saman við vistaða keyrsluumhverfið; útgáfa útflutningstólsins getur verið önnur en sú sem framkvæmdi greininguna.",
           "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "Lestu Caveats og berðu frææfærslur saman við vistuðu stillingarnar eftir heiti. Umröðunarfræ og almennt fræ vísa til ólíkra slembigjafa. Láttu óskráð eldra fræ standa sem óþekkt þegar þú breytir skýrslunni.",
           "focus": [
             355,
             640,
@@ -7893,7 +8171,7 @@
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "Opnaðu Run digest til að skoða skipulögðu stillingarnar og upprunaskrárnar. Berðu þær saman við textann og farðu yfir viðvaranir um skýrslur sem vantar eða ályktuð sjálfgildi áður en þú deilir drögunum.",
           "focus": [
             355,
             680,
@@ -7904,7 +8182,7 @@
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "Í Results skoðarðu áhrifastærðir og leiðrétt q-gildi saman. Í þessu dæmi eru engin gen undir q-gildisþröskuldinum 0,05. Lýstu línunum sem raðaðir kandídatar þegar þú breytir fyrirsögn sem kallar þær hits.",
           "focus": [
             355,
             680,
@@ -7915,12 +8193,12 @@
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
+          "narration": "Smelltu á Copy sections til að afrita birtu Methods og Results. Berðu afritaða textann saman við upprunaskrárnar. Notaðu Export Markdown þegar þú þarft líka skipulögðu keyrslusamantektina.",
           "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "Smelltu á Export Markdown og veldu nýtt skráarheiti. Skráin inniheldur báða hluta skýrslunnar og keyrslusamantektina sem viðauka. Haltu upprunalegum drögum og vistaðu yfirfarnar endurskoðanir sérstaklega.",
           "focus": [
             1550,
             780,
@@ -7931,7 +8209,7 @@
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AI er valfrjálst og sendir samantektina til stillta þjónustuaðilans. Farðu yfir innihaldið áður en þú notar þann valkost og berðu svo myndaðan texta saman við vistuðu greininguna. Þú getur líka notað build_digest, render_methods og render_results úr Python.",
           "focus": [
             355,
             560,
@@ -7948,6 +8226,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7955,24 +8273,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare: berðu saman vistaðar keyrslur",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "Veldu tvær vistaðar keyrslur, skoðaðu mun á stillingum og fjölda og athugaðu tiltækan samanburð niðurstaðna.",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "Velja grunnkeyrslu og samanburðarkeyrslu.",
+        "Skoða mun á stillingum og fjölda.",
+        "Finna tiltækan samanburð niðurstaðna."
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "Sæktu og afþjappaðu tengdu skyndimyndirnar. Fylgdu README-skránni til að keyra prepare_run_compare_download.py í spaCR-umhverfinu með nýja áfangamöppu. Fyrir eigin samanburð vistarðu úttak hverrar keyrslu áður en skrifað er yfir það.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "Í flokknum Data á Home opnarðu Run Compare til að skoða skráð úttak tveggja keyrslna.",
           "focus_modules": [
             "run_compare"
           ],
@@ -7984,17 +8302,17 @@
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
+          "narration": "Sæktu og afþjappaðu skyndimyndadæmið. Fylgdu README-skránni til að keyra undirbúningsskriftuna með nýja áfangamöppu.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
+          "narration": "Smelltu á Browse og veldu undirbúnu samanburðarmöppuna. Hafðu upprunalegu verkefnin og keyrsluskyndimyndir þeirra tiltæk fyrir eigin samanburð.",
           "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "Veldu grunnkeyrslu sem A og samanburðarkeyrsluna sem B og smelltu svo á Compare. Athugaðu heiti eininga þeirra og skráðar útgáfur.",
           "focus": [
             350,
             235,
@@ -8005,7 +8323,7 @@
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "Virkjaðu Show unchanged settings til að taka með gildi sem eru eins. Opnaðu færslurnar til að skoða stillingarnar sem hvor keyrsla notaði.",
           "focus": [
             350,
             360,
@@ -8016,7 +8334,7 @@
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "Opnaðu Counts til að bera saman heildarfjölda hluta. Delta er B mínus A. Í dæminu er fjöldinn eins; skoðaðu viðeigandi myndir og mælingar þegar þú þarft að skilja mun.",
           "focus": [
             350,
             425,
@@ -8027,7 +8345,7 @@
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "Opnaðu Hits þegar báðar keyrslur hafa skráðar aðhvarfsniðurstöður. Dæmið inniheldur Measure-skyndimyndir, svo enginn samanburður á hits er tiltækur.",
           "focus": [
             350,
             405,
@@ -8042,7 +8360,7 @@
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "Veldu tvær ólíkar keyrslur. Ef sama keyrsla er valin báðum megin notarðu viðvörunina til að leiðrétta valið.",
           "focus": [
             350,
             235,
@@ -8053,7 +8371,7 @@
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "Geymdu báðar úttaksskyndimyndirnar og stillingarnar sem skýra muninn á þeim. Notaðu Run History fyrir einstaka annála og Regression fyrir undirliggjandi hits-niðurstöður.",
           "related_lessons": [
             "06_api",
             "08_measure"
@@ -8064,6 +8382,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8075,18 +8433,18 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts: fylgstu með viðmiðum milli platna",
+      "description": "Hlaðu inn herferðartöflu, veldu viðmið og grunnlínumörk, skoðaðu viðvaranir og fluttu út teiknuðu punktana.",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "Velja mælingu og þýði viðmiða.",
+        "Stilla grunnlínu og viðvörunarreglur.",
+        "Skoða viðvaranir og flytja út punkta grafsins."
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "Sæktu tilbúnu herferðar-CSV-skrána hér fyrir neðan, eða útbúðu töflu á brunnastigi með auðkenni plötu, keyrsluröð, mælingu og merkjum viðmiða. Dæmið sýnir þrjátíu plötur með forritaðri reki.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "Opnaðu QC og svo Control Charts til að fylgjast með endurteknum viðmiðum yfir herferð. Æfinga-CSV-skráin notar tilbúnar plötur og forritað rek.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
@@ -8094,7 +8452,7 @@
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "Sæktu dæma-CSV-skrána hér fyrir neðan, smelltu á Load table og veldu hana. Hún inniheldur þrjátíu plötur, hver með þrjá brunna fyrir hverja tegund viðmiðs og þrjá sýnabrunna.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -8105,7 +8463,7 @@
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "Paraðu Plate, Run order, Measurement og Control column við töfluna. Undir Control is velurðu neg fyrir neikvæðu viðmiðin. Tómt val tekur allar línur með.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8116,7 +8474,7 @@
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "Veldu Sigma from til að ráða matsaðferð breytileikans. Auto notar hér undirhópamat, því hver plata inniheldur þrjá valda viðmiðunarbrunna.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8127,7 +8485,7 @@
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "Veldu í Rules viðvaranirnar sem þú vilt skoða. Dæmið notar Limits only til að einbeita sér að punktum utan þriggja sigma marka. Breyting á stillingu teiknar grafið aftur.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8138,7 +8496,7 @@
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "Stilltu Baseline plates á 20. Fyrstu tuttugu plöturnar ákvarða mörk raðarinnar. Lestu skýrsluna og reglutöfluna til að finna merktar síðari plötur.",
           "hold_after": 0.7,
           "focus": [
             1010,
@@ -8149,12 +8507,12 @@
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
+          "narration": "Til að skoða jákvæð viðmið afvelurðu neg og velur pos. Skoðaðu meðaltöl þeirra og mörk sérstaklega og farðu svo aftur í neg til að halda dæminu áfram.",
           "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "Breyttu Baseline plates þegar fyrirhugað viðmiðunartímabil er annað. Tólið krefst að minnsta kosti átta platna; veldu stöðuga grunnlínu sem hentar prófinu.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8165,7 +8523,7 @@
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "Smelltu á Export points og veldu CSV-áfangastað. Þar eru vistuð auðkenni platna, meðaltöl, stærðir undirhópa, mörk, aðild að grunnlínu og reglur sem virkjuðust.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -8176,7 +8534,7 @@
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "Haltu inntaks-CSV-skránni, völdum viðmiðum og grunnlínustillingum með útfluttu punktunum. Notaðu auðkenni merktra platna til að rannsaka breytingar í myndatöku eða prófi.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8190,6 +8548,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8200,18 +8598,18 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph: skoðaðu úttak og kvaðir",
+      "description": "Opnaðu afurðagraf verkefnis, skoðaðu úttak sem vantar og afritaðu kvaðamynd þess.",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "Opna afurðagraf verkefnis.",
+        "Skoða slóðir, stöður og kvaðir.",
+        "Afrita myndina og endurnýja skrár hennar."
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "Veldu spaCR-verkefni með skráð úttak. External Masks-dæmið leggur til mælingar og úrklipp; kennslustundin um Data Manager sýnir hvernig fjarlægð afurð birtist.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "Opnaðu Help og svo Pipeline graph til að skoða skráð úttak og kvaðir verkefnis.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -8220,7 +8618,7 @@
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "Flettu að verkefnismöppunni með Browse. Ef grafið er tómt athugarðu hvort mappan hafi skráðar afurðir; skrár geta verið til án skráningarfærslna.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8235,7 +8633,7 @@
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "Veldu mælda verkefnið til að sýna afurðareiti þess. Dæmið inniheldur mælingar, úrklipp og auðlindaannál, þar sem fjarlægð úrklippamappa er merkt sem vantar.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8246,7 +8644,7 @@
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "Smelltu á afurð og breikkaðu upplýsingasvæðið með skilrúminu. Skoðaðu slóð hennar, hlutverk, auðkenni keyrslu, framleiðslutíma og hugbúnaðarútgáfu.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8257,7 +8655,7 @@
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "Veldu Missing-afurð til að finna skráða slóð hennar. Stærðin sem birtist lýsir vistuðu færslunni, svo athugaðu raunverulegu staðsetninguna þegar þú rannsakar skrár sem vantar.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8268,7 +8666,7 @@
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "Skoðaðu inntaks- og framhaldstengla þar sem þeir eru skráðir. Sumar afurðir, eins og auðlindaannálar, geta verið utan verkefnismöppunnar.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8279,7 +8677,7 @@
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "Notaðu Current, Stale og Missing til að velja hvaða stöður afurða sjást. Feldu til dæmis Current til að einbeita þér að úttaki sem vantar.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8290,7 +8688,7 @@
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "Ef engir reitir sjást athugarðu birtingarsíurnar og heildarfjölda afurða. Settu aftur inn stöðurnar sem þú vilt skoða.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8301,7 +8699,7 @@
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "Smelltu á Copy Graphviz til að afrita alla myndina sem DOT-texta, þar á meðal hnúta sem síurnar fela. Límdu hann inn í Graphviz-tól til að teikna hann eða vista.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8312,7 +8710,7 @@
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "Settu inn síurnar sem þú vilt og veldu aftur afurð til að skoða upplýsingar hennar. Notaðu skráða slóð hennar og fyrra ferli til að ákveða hvað þarfnast athygli.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8323,7 +8721,7 @@
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "Smelltu á Redraw eftir breytingar á verkefninu til að lesa skráninguna aftur. Opnaðu Run History fyrir vistaðar stillingar og annála, eða Data Manager fyrir hreinsun og geymslu.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8336,6 +8734,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8490,23 +8928,23 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC: skoðaðu gæðaskýrslur verkefnis",
+      "description": "Veldu verkefni, lestu tiltækar gæðaskýrslur, rannsakaðu viðvaranir og endurnýjaðu mælaborðið.",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "Velja verkefnið eða keyrsluna sem á að skoða.",
+        "Lesa tiltækar, vantandi og úreltar skýrslur.",
+        "Rannsaka niðurstöður og endurnýja sýnina."
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "Notaðu verkefni með vistaðar gæðaskýrslur. Sóttu dæmin úr Mask og Annotate gefa ólík skýrslusöfn; veldu tiltekna verkefnið eða keyrslumöppuna sem þú vilt skoða.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
+          "narration": "Opnaðu QC úr flokknum Data á Home til að fara yfir gæðaskýrslur sem vistaðar eru með verkefni.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "Hausinn opnar Layer Viewer, Control Charts og Outliers. Notaðu kennsluefni þeirra þegar niðurstaða á mælaborðinu þarfnast frekari rannsóknar.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -8517,7 +8955,7 @@
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "Smelltu á Browse og veldu verkefnismöppuna. Veldu möppuna sem geymir skýrslur keyrslunnar sem þú vilt meta.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8525,12 +8963,12 @@
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
+          "narration": "Líttu á Missing sem skýrslu sem ekki er tiltæk fyrir þá prófun. Fylgdu leiðbeiningunum til að afla nauðsynlegrar skýrslu áður en þú dregur ályktanir.",
           "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "Veldu undirmöppu keyrslu þegar úttak hennar er aðskilið frá yfirverkefninu. Athugaðu að birt umfang passi við gögnin sem þú vilt skoða.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -8539,7 +8977,7 @@
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "Lestu viðvaranir um aðgreiningu og skoðaðu viðkomandi sjónsvið. Við viðvörun um stærðardreifingu berðu saman myndir og mörk hluta til að skilja orsökina.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8554,12 +8992,12 @@
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
+          "narration": "Farðu yfir einingaspjaldið ásamt hinum flokkunum. Samræmd einingaskýrsla uppfyllir þá prófun; skýrslur sem vantar þarfnast enn athygli.",
           "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "Lestu alla fimm flokkana og leiðbeiningar þeirra. Fyrir gagnaleka athugarðu að auðkenni sýna og hópun endurspegli fyrirhugaðar óháðar staðfestingareiningar.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -8569,7 +9007,7 @@
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "Opnaðu upplýsingar um villur eða viðvaranir til að finna sjónsvið sem hlut eiga að máli og upprunaskýrslur. Notaðu viðeigandi greiningartól til að rannsaka þær.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8580,7 +9018,7 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "Smelltu á Refresh þegar skýrslur breytast á diskinum. Mælaborðið les tiltæk gögn aftur; búðu til uppfærðar skýrslur með greiningunni sem framleiðir þær.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8591,12 +9029,12 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
+          "narration": "Rannsakaðu úrelta skýrslu miðað við inntaksgögn hennar og stillingar. Haltu óleystum niðurstöðum sýnilegum í yfirferð verkefnisins.",
           "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "Geymdu gæðaskýrslurnar með verkefninu. Haltu áfram í tengdu sérhæfðu tólunum eða kennsluefni viðkomandi einingar til að taka á hverri niðurstöðu.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8609,6 +9047,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8620,18 +9098,18 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter: skoðaðu mælingar og úrklipp þeirra",
+      "description": "Teiknaðu tvo mælingadálka, forskoðaðu úrklipp hluta og sendu valinn hlut til Annotate.",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "Hlaða inn mælingum og velja ása.",
+        "Skoða úrklippið á bak við punkt.",
+        "Senda valinn hlut til Annotate."
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "Notaðu spaCR-mælingagagnagrunn með samsvarandi úrklippum hluta og sniðskrám úrklippa. Niðurhalanlega Annotate-dæmið leggur til þessi inntök.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "Opnaðu Image UMAP og svo Image Scatter til að teikna tvær fyrirliggjandi mælingar. Æfðu þig á gagnagrunni Annotate-dæmisins og samsvarandi frumuúrklippum.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8640,17 +9118,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
+          "narration": "Smelltu á Browse og opnaðu measurements.db. Haltu data-möppu verkefnisins og sniðskrám úrklippa með gagnagrunninum svo smámyndirnar finnist.",
           "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
+          "narration": "Veldu cell í töfluvalinu og smelltu á Plot. Þegar þú skiptir yfir í aðra töflu smellirðu aftur á Plot til að hlaða inn línum hennar.",
           "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "Stilltu x á flatarmál frumu og y á meðalstyrk frumunnar í rás 1. Val á ásum teiknar innlesnu línurnar strax aftur.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -8664,7 +9142,7 @@
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "Færðu bendilinn yfir punkt til að sjá vistað úrklipp hans og fullt auðkenni hlutarins. Notaðu myndina til að skilja mælinguna á bak við punktinn.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8675,7 +9153,7 @@
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "Færðu bendilinn frá til að hreinsa bráðabirgðaforskoðunina og færðu hann svo yfir annan punkt til að skoða hann.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8686,7 +9164,7 @@
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "Víxlaðu mælingunum á x og y til að kanna tengslin frá öðru sjónarhorni. Veldu marktæka eiginleika og athugaðu einingar þeirra.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8697,7 +9175,7 @@
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "Veldu aðra mælingu, til dæmis einsleitniseiginleikann. Línum sem vantar hnit er sleppt úr grafinu, svo fjöldi teiknaðra punkta getur verið annar en fjöldi innlesinna lína.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8708,7 +9186,7 @@
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "Fastur dálkur, eins og vídd mælingar í þessu dæmi, setur punktana á línu. Farðu aftur í eiginleika með gagnlegum breytileika til að skoða hluti.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8719,7 +9197,7 @@
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "Til að skoða valið úrklipp í Annotate opnarðu fyrst Annotate og hleður inn sama verkefni. Farðu svo aftur í fyrirliggjandi Image Scatter-sýn.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8727,7 +9205,7 @@
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "Smelltu á punktinn sjálfan til að senda auðkenni hlutar hans til Annotate og skiptu svo yfir á þá síðu. Að færa bendilinn yfir sýnir aðeins forskoðun úrklippsins.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8738,7 +9216,7 @@
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "Skoðaðu valda hlutinn í Annotate áður en þú setur merki. Notaðu Database Browser til að flytja út töflur, eða PCA fyrir þáttagreiningu.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -8756,6 +9234,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8767,14 +9285,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage: flettu í foreldrahlutum og innihaldi þeirra",
+      "description": "Opnaðu vistuð tengsl foreldra og afkvæma, veldu fjölskyldu og skoðaðu samsvarandi úrklipp foreldrafrumu í Annotate.",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "Hlaða inn mælingum og opna tengsl foreldra og afkvæma.",
+        "Velja hluti og athuga um leið sjónsvið og tegund hlutar.",
+        "Opna samsvarandi úrklipp foreldrafrumu og fá allt stigveldið með Python."
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklipp: tvísmelltu á foreldrafrumu til að skoða úrklipp. Núverandi fjölskylduaðgerðin Open crops getur sett úrklipp ótengdra frumna í stað afkvæmaúrklippa sem vantar; forðastu hana með þessu dæmi.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -8782,7 +9300,7 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "Frá Home opnarðu Database Browser og svo Lineage. Notaðu tréð til að sjá hvaða mældir hlutir eru vistaðir innan hverrar foreldrafrumu.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -8790,42 +9308,42 @@
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "narration": "Flettu að measurements.db úr Annotate-dæminu og smelltu á Build tree. Breikkaðu dálkinn Object og skilrúmið til að lesa merkin. Auðkenndu hlut eftir sjónsviði og tegund jafnt sem númeri.",
           "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "narration": "Þessi gagnagrunnur inniheldur 2.341 frumu. Tréð sýnir allt að 2.000 foreldrafjölskyldur. Notaðu Python-útflutninginn sem sýndur er síðar í kennslustundinni þegar þú þarft allar fjölskyldurnar.",
           "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "narration": "Lestu samantektina fyrir ofan tréð. Kjarni telst afkvæmi, svo fruma með innihald getur samt verið án sýklahlutar. Notaðu tegundir afkvæma til að túlka hverja fjölskyldu.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "narration": "Opnaðu foreldri til að sjá afkvæmi þess. Hér inniheldur fruma 3 kjarna 5 og sýkil 1. Veldu þá tilteknu tegund hlutar sem þú vilt skoða.",
           "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "narration": "Notaðu Select with contents til að velja foreldrið og afkvæmi þess saman. Völdu auðkennin innihalda sjónsvið og tegund hlutar. Veldu afkvæmi eitt og sér þegar þú þarft aðeins þann hlut.",
           "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "narration": "Opnaðu stóra fjölskyldu til að skoða innihald hennar. Dæmið inniheldur eina fjölskyldu með 33 hlutum. Skoðaðu samsvarandi myndir þegar fjöldi virðist óvenjulegur.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "narration": "Smelltu á dálkfyrirsögn til að raða birtu fjölskyldunum. Röðunin heldur vistuðu tengslunum og birtingarmörkunum 2.000 foreldra.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "Til að sjá úrklipp opnarðu fyrst Annotate og hleður inn samsvarandi dæmaverkefni. Ef þú sérð skilaboðin sem biðja um Annotate opnarðu það áður en þú biður um myndir úr Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8833,27 +9351,27 @@
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "narration": "Notaðu allt niðurhalaða verkefnið, sem inniheldur frumuúrklippin. Haltu gagnagrunni og myndum úr sömu keyrslu saman svo auðkenni hluta passi.",
           "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "narration": "Forðastu Open crops fyrir heila fjölskyldu í þessu dæmi. Úrklippum kjarna og sýkla sem vantar getur verið skipt út fyrir úrklipp ótengdra frumna. Farðu aftur í tréð og veldu aðeins foreldrafrumuna.",
           "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "narration": "Tvísmelltu á foreldrafrumuna í Lineage. Annotate opnar samsvarandi frumuúrklipp þess foreldris. Þetta er úrklippið sem er tiltækt í niðurhalaða dæminu.",
           "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "narration": "Smelltu með Shift á smámynd foreldrisins til að stækka forskoðunina og ýttu svo á Esc til að fara til baka. Venjulegur vinstrismellur setur merkingarflokk, svo notaðu Shift þegar þú vilt aðeins skoða.",
           "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "Smelltu á Build tree til að endurnýja sýnina. Fyrir allt stigveldið í Python notarðu read_object_tables, build_forest og lineage_frame og vistar töfluna sem CSV. Tengda dæma-CSV-skráin inniheldur alla 7.201 hnúta.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -8863,6 +9381,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8873,18 +9431,18 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer: skoðaðu myndir og merkjayfirlagnir",
+      "description": "Hlaðu inn samsvarandi mynd og grímu, stilltu yfirlögnina og þysjaðu inn til að skoða mörk hluta.",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "Opna mynd og samsvarandi grímu hennar.",
+        "Stilla sýnileika, ógegnsæi, blöndun og röð laga.",
+        "Skoða merki með þysjun og hliðrun."
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "Sæktu og dragðu út Layer_Viewer_real_image_mask.zip. Notaðu meðfylgjandi styrkleikamynd og samsvarandi grímu með heiltölumerkjum. Engin eðlisfræðileg kvörðun díla er tiltæk fyrir þetta dæmi.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "Frá Home opnarðu QC og svo Layer Viewer. Sæktu og dragðu út tengda mynd- og grímudæmið. Skoðarinn hefur eigin skráastýringar fyrir þessi tvö inntök.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -8893,22 +9451,22 @@
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+          "narration": "Smelltu á + Image og opnaðu fov01_C1.tif. Gráskalamyndin birtist á teikniflötinum með birtuskilateygju eftir hundraðshlutum til birtingar.",
           "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+          "narration": "Smelltu á Fit til að fylla myndspjaldið. Fit getur teygt ferhyrnda mynd í breiðu spjaldi; stilltu skilrúmið svo spjaldið verði nokkurn veginn ferhyrnt þegar þú skoðar lögun.",
           "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+          "narration": "Smelltu á + Mask og opnaðu fov01_cell_mask.tif. Hlutirnir 44 sem hafa merki birtast yfir myndinni. 0 er bakgrunnur og helst gegnsætt.",
           "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "Veldu mask í lagalistanum áður en þú breytir stýringum þess. Kveiktu og slökktu á gátreitnum til að bera mörkin saman við myndina undir.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -8919,7 +9477,7 @@
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "Settu Opacity fyrir mask á 0 til að fela litina en halda laginu inni. Athugaðu valda línu áður en þú stillir annað lag.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -8930,42 +9488,42 @@
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+          "narration": "Settu Opacity á 100 % til að skoða lögun merkjanna. Litirnir hylja myndina innan hvers merkts hlutar.",
           "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+          "narration": "Settu Opacity aftur á 50 % og veldu translucent-blöndun til að sjá áferð myndarinnar í gegnum grímuna. Berðu mörk hluta saman við undirliggjandi merki.",
           "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+          "narration": "Veldu additive-blöndun til að leggja liti grímunnar við myndina. Björt svæði geta mettast í þessari birtingu, svo farðu aftur í translucent þegar þú þarft skýrari samanburð.",
           "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+          "narration": "Prófaðu multiply- og minimum-blöndun til að bera saman dekkri yfirlagnir. Þessir valkostir breyta birtri samsetningu en upprunalegu styrkgildin eru áfram í upprunamyndinni.",
           "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+          "narration": "Veldu opaque og hreyfðu Opacity-sleðann til að bera útlitið saman. Með þessari heiltölugrímu lítur opaque við 50 % eins út og translucent við 50 %. Settu translucent aftur á til að halda áfram.",
           "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+          "narration": "Veldu image og veldu cyan í litakortavalinu. Styrkleikamyndin skiptir um lit en gríman heldur merkjalitum sínum. Veldu gray til að fá gráskalasýnina aftur.",
           "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+          "narration": "Veldu mask og ýttu á örina niður til að færa hana aftur fyrir myndina. Efra lagið birtist fremst. Færðu grímuna aftur upp til að skoða merki hennar.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "Smelltu á sýnilegan merktan hlut til að lesa staðsetningu hans og merkjanúmer í stöðulínunni. Notaðu lýsigögn verkefnisins þegar þú þarft að finna sjónsvið, plötu eða brunn hlutarins.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8976,22 +9534,22 @@
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+          "narration": "Snúðu músarhjólinu yfir hlut til að þysja kringum bendilinn. Farðu nær þar til auðvelt er að skoða mörk hans.",
           "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+          "narration": "Haltu Shift inni og dragðu með vinstri músarhnappi til að hliðra. Þú getur líka dregið með miðhnappinum. Færðu þig um sjónsviðið án þess að breyta þysjun.",
           "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+          "narration": "Smelltu á Fit til að fara aftur í allt sjónsviðið. Breyttu lögun spjaldsins ef aðlagaða myndin virðist teygð.",
           "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "+ Points og + Shapes bæta við tómum hjálparlögum. Til að teikna eða breyta aðgreiningargrímum heldurðu áfram í Make Masks; þessi skoðari hefur engar teiknistýringar fyrir þessi tómu lög.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
@@ -8999,12 +9557,12 @@
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+          "narration": "Veldu lag og notaðu Remove til að taka það úr sýninni. Upprunalega skráin er áfram á diskinum, tilbúin til að hlaðast inn aftur.",
           "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "Niðurstaðan er yfirfarin lagasýn. Fyrir útflutta samsetningu notarðu stack_from_paths og LayerStack.render_uint8 úr Python. Haltu áfram í Make Masks til að vista breytingar á grímum eða Measure fyrir mælingar á hlutum.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -9020,6 +9578,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9030,26 +9628,26 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder: teiknaðu mælingar og síaðu hluti",
+      "description": "Hlaðu inn mælingatöflu, úthlutaðu ásum grafsins, berðu saman hópa og síaðu birtu hlutina.",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "Hlaða inn dæmatöflu með mælingum.",
+        "Búa til stuðlarit, dreifirit og hópaspjöld.",
+        "Sía hluti og velja næstu sýn."
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "Sæktu og dragðu út Graph_Builder_real_measurements.zip. Það inniheldur measurements.db. Til að skoða myndúrklipp síðar skaltu líka hafa samsvarandi Annotate-verkefni og myndir þess tiltækar.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+          "narration": "Opnaðu Graph Builder frá Home til að kanna mælingatöflu. Byrjaðu á tengda dæmagagnagrunninum og endurtaktu svo skrefin með þínu eigin mælda verkefni.",
           "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Smelltu á Load table og opnaðu measurements.db úr útdregna safninu. Veldu töfluna cell. Dæmið inniheldur 2.341 mælda frumu.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -9058,47 +9656,47 @@
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+          "narration": "Finndu cell_area í dálkalistanum og dragðu hann á X. Sjálfvirka grafið verður stuðlarit: hver súla telur frumur á flatarmálsbili. Athugaðu mælieiningarnar áður en þú túlkar ásinn.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+          "narration": "Dragðu cell_channel_1_mean_intensity á Y til að búa til dreifirit. Hver punktur staðsetur eina frumu eftir flatarmáli og meðalstyrk í rás 1. Lestu tilkynninguna um línufjölda þegar þú vinnur með stærri töflur.",
           "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+          "narration": "Dragðu columnID á Colour til að greina á milli dálka plötunnar. Notaðu skýringuna til að para litina við skráð dálkamerki og leitaðu að hópum sem þarf að skoða nánar.",
           "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+          "narration": "Dragðu rowID á hliðarrásina niður á við til að búa til spjald fyrir hverja röð plötunnar. Berðu spjöldin saman með sameiginlegu ásunum. Notaðu óháða brunna þegar þú gerir tölfræðilegan samanburð milli aðstæðna.",
           "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+          "narration": "Í síuspjaldinu hægra megin bætirðu við cell_area og slærð inn lágmark. Dæmið notar 21.925, sem skilur eftir 1.171 línu. Veldu þröskulda sem henta þínum mælingum og fylgstu með teiknaða fjöldanum og ásunum breytast.",
           "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+          "narration": "Smelltu á Clear all í síuspjaldinu til að fá alla töfluna aftur. Notaðu Clear all channels vinstra megin þegar þú vilt fjarlægja vörpun grafsins og byrja á öðru grafi.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+          "narration": "Fjarlægðu hlið með litla krossinum hennar til að fara aftur í eitt dreifirit. Dragðu rétthyrning utan um hluti til að velja svæði. Ef Open selection in Annotate er ekki tiltækt opnarðu Annotate sérstaklega með samsvarandi verkefni og skoðar hlutina þar.",
           "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+          "narration": "Smelltu á auðan hluta grafsins til að hreinsa valið. Athugaðu virkar síur og birtan fjölda áður en þú kannar annan hóp hluta.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "Notaðu flýtileiðirnar í hausnum til að opna Plate Viewer fyrir hitakort brunna eða Small Multiples fyrir endurtekin gröf. Haltu upprunagagnagrunninum, völdum dálkum og síum svo þú getir endurgert sýnina.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
@@ -9107,7 +9705,7 @@
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "Núverandi skjár sýnir gröf án útflutningshnapps. Notaðu Graph Builder-forritaskilin fyrir skriftuð gröf, eða Database Browser til að flytja út töflu fyrir annað graftól.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9117,6 +9715,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

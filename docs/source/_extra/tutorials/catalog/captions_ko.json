@@ -2823,124 +2823,162 @@
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
       "section": "Tools",
-      "title": "Train Cellpose: 확인된 데이터 쌍과 명시적인 API 우회 절차",
-      "description": "Cellpose Workbench의 Train을 찾고 현재 원본 가져오기 결함을 확인한 뒤 다운로드 가능한 세포 이미지/마스크 여섯 쌍으로 실제 두 에포크 Python 학습을 따라갑니다.",
+      "title": "Cellpose 모델 학습",
+      "description": "이미지와 마스크 쌍을 준비하고, Cellpose Workbench에서 분할 모델을 미세 조정한 뒤 저장된 체크포인트를 적용합니다.",
       "objectives": [
-        "독립 Home 타일이 아닌 Make Masks 내부의 Train과 Apply를 찾습니다.",
-        "짝을 이루는 파일명을 확인하고 기존 레이블과 검토된 정답을 구분합니다.",
-        "부분 가져오기를 인식하고 API 절차와 결함 있는 GUI를 구분합니다.",
-        "실제 입력, 준비 단계 학습률, 변경된 가중치와 확인된 경로를 점검합니다.",
-        "학습 손실, 테스트 자리표시자, 가중치 읽기를 독립 정확도와 구분합니다."
+        "Make Masks에서 이미지와 그에 맞는 객체 라벨 마스크를 확인합니다.",
+        "학습 폴더, 시작 모델, 학습 일정, 출력 위치를 고릅니다.",
+        "학습을 실행하고, 체크포인트를 찾아 별도의 이미지에 적용합니다."
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "연결된 여섯 쌍, 녹화된 도우미, 원본 목록을 사용합니다. 실제 시야의 세포 강도 채널1과 세포 마스크 평면4를 보존하며 평면6은 병원체입니다. 기존 레이블과 경계에서 잘린 물체는 독립 검토된 정답이 아닙니다. Train은 수치를 가져와도 src를 버리고 model_name=new_model을 유지하므로 GUI 학습은 시작하지 않습니다. 명시적인 spacr.submodules.train_cellpose는 새 목적지, 두 에포크, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512와 spaCR 추가 증강 끄기를 사용합니다. normalize=False는 spaCR 백분위 전처리만 끄며 최댓값 스케일링과 Cellpose 내부 정규화는 남습니다. Cellpose 내부 회전·크기 변경과256픽셀 패치도 계속 사용됩니다. 시작 시드19, 내부 무작위 과정은 남습니다. 녹화 RTX3090에서 CUDA65%, RAM 보호100GiB는 이 워크스테이션 전용입니다. 입력3,145,728값과 표시 배열12개를 확인했고 여섯 쌍 모두 학습에 남았습니다. 실제 학습률0과1.1111111111111112e-6에서 학습 가능한 매개변수 텐서347개 중345개가 변했습니다. 손실은1.496740683913231에서1.5215517828861873으로 올랐습니다. 테스트 데이터 없이 테스트0값은 자리표시자입니다. 실제 체크포인트는 models/cellpose_model/models 아래에 있고 weights_only=True로 읽었습니다. 일반 로그는 두 번째 models를 생략합니다. 읽기는 추론이나 정확도 검증이 아닙니다. 실제 그림은 외부 뷰어에 표시하며 GUI에 삽입하지 않습니다. 원본, 실패 캡처, 이전 GUI 보류 증거를 보존합니다. AI 요청, 제공자 답변, 과학적 승인, 공개는 없습니다.",
+      "prerequisite": "연결된 예제를 내려받아 압축을 푸세요. 마스크가 있는 학습 이미지 6개와 Apply용 별도 이미지 3개가 들어 있습니다. 또는 자신의 이미지와 그에 맞는 정수 라벨 마스크를 준비하고, 학습 전에 Make Masks에서 확인하세요.",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Make Masks를 열고 내부의 Cellpose Workbench로 이동합니다. Train과 Apply는 그 안의 탭이지 독립 Home 타일이 아닙니다. 이 수업은 현재 경로, 설정 가져오기 문제, 명시적인 Python 우회 절차를 보여 줍니다. 학습 전 마스크 검사와 편집은 연결된 Make Masks 수업을 보세요.",
+          "visual": "home_make_masks",
+          "narration": "Home에서 Tools를 연 뒤 Make Masks를 여세요. 도구 모음에서 Cellpose Workbench를 열면 Train 탭에서 시작합니다. 이미지와 객체 라벨 마스크로 학습한 다음, 저장된 모델을 Apply에서 씁니다.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_source",
+          "narration": "연결된 예제의 압축을 푸세요. training 폴더에는 이미지 6개와 masks 하위 폴더가 있고, apply 폴더에는 나중에 쓸 별도 이미지 3개가 있습니다. Image source folder 옆의 폴더 버튼을 클릭하고 training을 고르세요. masks 하위 폴더를 쓰려면 Mask source folder를 비워 두고, 아니면 다른 마스크 폴더를 고르세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "각 이미지에는 높이와 너비가 같은 마스크가 하나 필요합니다. 0은 배경이고 각 객체는 고유한 양수 번호를 가집니다. 학습 전에 학습 폴더를 Make Masks에서 열어 라벨을 확인하고 수정하세요. 이 이미지에는 라벨이 붙은 세포가 95개 있습니다.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_channels",
+          "narration": "이 예제는 회색조이므로 Channels를 비워 두세요. 다채널 이미지에서는 0부터 세는 채널 번호를 최대 3개까지 추가하세요. 예를 들어 첫째와 셋째 채널이면 0과 2입니다. 자동 감지가 채널 차원을 찾지 못할 때만 Channel axis를 설정하세요.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ]
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Cellpose-SAM에서 시작하려면 Base model을 cpsam으로 두고, 이전 모델의 학습을 이어 가려면 체크포인트 경로를 입력하세요. Model name을 입력하세요. 여기서는 tutorial cells입니다. 원본 폴더 안에 저장하려면 Checkpoint folder를 비워 두고, 아니면 다른 폴더를 고르세요.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ]
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "N epochs와 Batch size를 설정하세요. 이 빠른 실행은 배치 크기 1로 10 에포크를 씁니다. 에포크가 많을수록 학습 업데이트가 늘고, 배치가 클수록 메모리를 더 씁니다. 처음에는 표시된 학습률을 그대로 두세요.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ]
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "처음에는 1번째와 99번째 백분위수로 Normalize를 켜 두세요. 이 값이 각 채널에 쓰는 강도 범위를 정합니다. Scale range는 학습 중 이미지 크기를 바꾸고, Min train masks는 라벨이 붙은 객체가 적은 이미지를 건너뜁니다.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ]
+        },
+        {
+          "visual": "train_validation",
+          "narration": "검증 손실을 보려면 별도의 Validation image folder와 그 Validation mask folder를 고르세요. 거기에 학습 이미지를 다시 쓰면 안 됩니다. 이 예제처럼 별도로 라벨을 붙인 세트가 없으면 둘 다 비워 두세요.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ]
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "폴더, 모델 이름, 출력 위치를 확인한 뒤 Run을 누르세요. Figures 패널에는 학습 이미지가 마스크 위에 표시되고, 콘솔에서 진행 상황을 볼 수 있습니다. 이 GPU에서는 이미지 6개로 10 에포크 학습이 1분도 안 되어 끝났습니다.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ]
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "학습이 끝나면 콘솔에 체크포인트 경로가 표시됩니다. 기본 위치에서는 원본 폴더의 models/cellpose_model/models 아래에 있습니다. 파일 이름은 모델 이름에 아키텍처와 에포크 수를 덧붙입니다. 학습 설정과 함께 보관하세요.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ]
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Apply 탭을 여세요. Custom model은 이제 학습한 체크포인트를 가리킵니다. Source를 예제의 apply 폴더로 설정하세요. 그 이미지는 학습에 쓰지 않은 웰에서 나온 것입니다. Channels를 0으로, Percentiles를 2와 99로 설정하세요. 맞닿은 세포가 분리된 채로 남도록 Fill in을 끄고, Save와 Verbose를 켜세요.",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "Train에서 시작점과 학습 계획을 확인합니다. 초기 에포크 수나 학습률을 권장값으로 복사하지 마세요. 학습에는 짝지은 이미지와 인스턴스 마스크, 원본 폴더, 출력 이름이 필요합니다. 양식이 보인다고 요건이 충족된 것은 아닙니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "실제 Import settings 선택기로 제한된 예제 설정 CSV를 엽니다. 두 에포크, 미니배치1, 작은 학습률이 나타나지만 필수 원본은 버려지고 지정 이름은 new model로 남습니다. 부분 가져오기이지 준비된 구성은 아니므로 Run을 누르지 마세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "다음 Python 경로는 이 GUI 결함과 별개입니다. 숨겨진 원본을 몰래 지정하거나 양식을 고치지 않습니다. 연결된 예제를 새 폴더에서 사용하세요. 도우미는 기존 목적지를 거부하고 원본 쌍을 보존하며 실제 API 구현과 입력을 기록합니다.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "파일명이 맞는512픽셀 실제 이미지와 마스크가 여섯 쌍 있습니다. 원래 설정에서 세포 강도는 채널1, 세포 마스크는 평면4이고 평면6은 병원체입니다. 기존 레이블은 독립 검토된 정답이 아닙니다. 실제 학습에 쓰기 전 경계와 잘린 물체를 확인하세요.",
           "focus": [
-            190,
-            80,
-            3450,
-            900
-          ],
-          "hold_after": 0.7
+            366,
+            607,
+            1165,
+            1156
+          ]
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "API 실행이 저장한 실제 여섯 쌍 그림을 외부 뷰어에서 열었으며 spaCR에 삽입한 것이 아닙니다. 각 위쪽 이미지는 바로 아래 마스크와 대응합니다. 모든 입력 값과 표시 배열12개를 원본과 대조했습니다. 대응 관계를 확인한 것이지 주석 품질을 보증한 것은 아닙니다.",
+          "visual": "apply_preview",
+          "narration": "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 76개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
-          ],
-          "hold_after": 0.7
+            390,
+            520,
+            3410,
+            1240
+          ]
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "도우미에 데이터 원본과 새 목적지를 지정합니다. 이 제한된 CUDA 예제는 여섯 쌍 전부, 두 에포크, 미니배치1을 사용합니다. 입력 목표는512픽셀이지만 Cellpose 내부 학습 패치는256픽셀입니다. spaCR 추가 증강을 꺼도 Cellpose 자체 정규화, 회전, 크기 변경은 계속됩니다.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "첫 준비 에포크의 학습률은0입니다. 두 번째는 작은 양수여서 실제 가중치가 갱신됩니다. 저장 체크포인트와 초기 학습 가능 가중치를 비교했더니 매개변수 텐서347개 중345개가 바뀌었습니다. 지름 설정만 바뀌면 통과하지 못합니다. 가중치 변경만으로 좋은 모델이라고 할 수는 없습니다.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "학습 손실은 약1.497에서1.522로 조금 올랐습니다. 테스트 세트는 제공하지 않았습니다. 테스트 손실0은 자리표시자이지 완벽한 성능이 아닙니다. 이는 짧은 동작 시연으로 수렴, 분할 개선, 독립 데이터 정확도를 뜻하지 않습니다. 독립 평가는 학습과 분리하세요.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "검증 파일의 체크포인트 경로를 사용하세요. 일반 콘솔 요약이 생략한 두 번째 models 폴더가 포함됩니다. 체크포인트, 설정, 원본 목록, 검사를 함께 보관합니다. 텐서를 안전하게 읽는 것은 파일 가독성 검사이지 추론 결과가 아닙니다. 다운로드는 데이터 쌍과 도우미이며 인증된 모델이 아닙니다.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply에는 별도 원본 폴더, 사용자 모델 필드와 실시간 미리보기가 있습니다. 탭을 열어도 외부 체크포인트를 선택하거나 추론을 실행하지 않습니다. 연결된 수업을 읽고 독립 이미지에서 검증하세요. 선택적 spaCR AI는 사용하지 않았습니다. 질문이나 제공자 답변으로 실제 증거 검사를 대신할 수 없습니다.",
+          "visual": "apply_result",
+          "narration": "Run을 누르세요. Apply는 이미지마다 마스크 하나를 그 이미지 옆의 masks 하위 폴더에 기록하고, Verbose는 각 결과를 그림으로 보여 줍니다. 여기서 세 마스크에는 세포가 각각 76개, 48개, 55개 있습니다. 모델을 실험 전체에 쓰기 전에 그 마스크를 별도로 라벨을 붙인 시야와 비교하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7099,22 +7137,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination: 보정 모델 추정과 확인",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "이미지 채널을 고르고, 조명 필드를 추정하고, QC 그림을 확인한 뒤 저장된 모델을 다시 씁니다.",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "대표 시야와 강도 채널을 고릅니다.",
+        "조명 모델을 추정하고 확인합니다.",
+        "모델을 Mask나 Measure에서 다시 씁니다."
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "획득 그룹마다 대표 시야가 들어 있는 병합 이미지 폴더를 쓰세요. 예제는 Measure에서 내려받은 플레이트 예제의 시야 16개를 씁니다. 저장된 평면 중 어느 것이 강도이고 어느 것이 라벨인지 알아 두세요.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "Measure를 연 뒤 Illumination을 열어 고르지 않은 이미지 밝기를 보정하는 모델을 추정하세요.",
           "focus": [
             3625,
             65,
@@ -7128,7 +7166,7 @@
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "Source를 이미지 배열이 들어 있는 merged 폴더로 지정하세요. 획득 데이터의 대표 시야를 쓰세요. 예제는 플레이트 한 장의 시야 16개를 씁니다.",
           "focus": [
             363,
             375,
@@ -7143,7 +7181,7 @@
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "Channels를 보정하려는 저장된 강도 평면으로 지정하세요. 예제는 채널 0을 씁니다. 채널 매핑을 확인하고 라벨 마스크 평면은 제외하세요.",
           "focus": [
             374,
             475,
@@ -7154,7 +7192,7 @@
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "필드를 추정하기 전에 Illumination correction을 켜세요. 꺼져 있으면 Run은 보정 모델을 만들지 않고 끝납니다.",
           "focus": [
             1518,
             405,
@@ -7165,7 +7203,7 @@
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "추정기와 그 설정을 고르세요. 다항식 예제에서는 차수 4를 쓰고, 새 필드를 추정하도록 Illumination model은 비워 두세요. 결과에 조명이 아니라 세포에서 온 구조가 있는지 확인하세요.",
           "focus": [
             363,
             550,
@@ -7176,7 +7214,7 @@
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "획득 그룹을 따로 적합하려면 Illumination per plate를 켜세요. Maximum fields는 대표 표본 수로 두세요. 예제는 사용 가능한 시야 16개를 모두 포함합니다.",
           "focus": [
             363,
             858,
@@ -7187,7 +7225,7 @@
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "카메라 보정 값이 있다면 그것으로 Illumination dark를 설정하세요. 원시 카운트에 더해지는 오프셋이며, 예제에서는 0입니다.",
           "focus": [
             374,
             775,
@@ -7198,7 +7236,7 @@
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "Illumination QC를 켜고 모델이 없을 때의 정책을 고르세요. error를 선택하면 플레이트 보정이 없을 때 처리가 멈추므로 문제를 해결할 수 있습니다.",
           "focus": [
             363,
             1020,
@@ -7209,7 +7247,7 @@
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "Run을 누르고 콘솔에서 저장된 모델 경로를 읽으세요. 이 단계는 모델을 추정만 합니다. 보정을 적용하려면 이후 분석에서 모델을 켜세요.",
           "focus": [
             1518,
             405,
@@ -7220,7 +7258,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "illumination 폴더에 저장된 조명 QC PNG를 여세요. Figures 패널에 나타나지 않으면 이미지 뷰어를 쓰세요.",
           "focus": [
             200,
             100,
@@ -7231,7 +7269,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "추정된 조명 필드에서 밝기가 부드럽게 변하는지, 세포 모양의 원치 않는 구조가 없는지 확인하세요. 보정은 암전류 오프셋을 뺀 뒤 평균이 1인 이 필드로 나눕니다.",
           "focus": [
             400,
             680,
@@ -7242,7 +7280,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "보정 전후의 방사 방향 프로파일을 비교하세요. 적합에 쓴 이미지 밖에서도 보정이 잘 되는지 다른 시야로 평가하세요.",
           "focus": [
             1270,
             680,
@@ -7253,7 +7291,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "모델을 다시 쓰려면 그 경로를 지정하고 원하는 Mask나 Measure 워크플로에서 보정을 켜세요. 채널, 플레이트 식별 정보, 설정을 모델과 함께 보관하고, 같은 강도를 두 번 보정하지 마세요.",
           "focus": [
             363,
             370,
@@ -7270,6 +7308,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7280,18 +7358,18 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager: 사용량 확인, 정리, 보관",
+      "description": "프로젝트 저장 공간을 검토하고, 정리 계획을 미리 본 뒤 프로젝트를 보관 위치로 옮깁니다.",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "프로젝트의 디스크 사용량을 확인합니다.",
+        "정리 계획을 검토하고 적용합니다.",
+        "보관한 프로젝트를 옮기고 다시 스캔합니다."
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "완료된 spaCR 프로젝트를 쓰고, 정리하기 전에 독립적인 백업을 만들어 두세요. 예제는 External Masks가 만든 프로젝트의 사본을 씁니다.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "Help를 연 뒤 Data manager를 여세요. 완료된 프로젝트를 골라 저장 공간을 확인하고 정리나 보관을 계획하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -7299,7 +7377,7 @@
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "Choose project를 클릭하고 프로젝트 루트를 선택하세요. Usage에서 파일, 디스크 공간, 등록된 산출물을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7310,7 +7388,7 @@
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "Prune을 열고 고려할 산출물 유형을 고르세요. 측정 데이터베이스와 모델 가중치를 남기려면 체크하지 않은 채로 두고 Show what can be deleted를 클릭하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7321,7 +7399,7 @@
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "제안된 파일, 절약되는 공간, 복구 정보를 검토하세요. 예제는 객체 크롭 폴더를 선택합니다. 지운 것을 다시 만들 수 있도록 필요한 입력과 설정은 남겨 두세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7332,17 +7410,17 @@
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
+          "narration": "Delete를 클릭해 최종 파일 목록을 검토하세요. 삭제는 되돌릴 수 없으니, 계획을 승인하기 전에 경로와 백업을 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
+          "narration": "파일을 남기거나 선택을 바꾸려면 Cancel을 쓰세요. 목록을 승인하면 최종 Delete 동작이 활성화됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "계획이 맞으면 Delete를 확인하세요. 결과에서 삭제된 파일 수와 확보된 공간을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7353,7 +7431,7 @@
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "갱신된 Usage 스캔을 검토하세요. 삭제된 산출물은 기록된 생성 방법과 함께 누락으로 목록에 남을 수 있으며, 필요하면 해당 모듈로 다시 만드세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7364,22 +7442,22 @@
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
+          "narration": "Archive를 열고 원본 프로젝트 밖의 빈 대상 위치를 고르세요. Show what would move를 클릭하고 두 경로를 모두 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
+          "narration": "Move를 클릭해 확인 내용을 검토하세요. Archive는 프로젝트를 옮기므로, 필요한 별도 백업은 먼저 만들어 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
+          "narration": "Yes로 확인해 프로젝트를 옮기세요. 대상 위치의 매니페스트와 원래 위치에 남는 보관 로그를 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "대상 위치를 프로젝트로 선택하고 다시 스캔하세요. 옮겨진 파일을 확인하고, 아직 이전 위치를 가리키는 외부 참조를 갱신하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7390,7 +7468,7 @@
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "측정 표는 Database Browser로, 프로젝트 요약은 Report로, 저장 공간 관리는 Data Manager로 하세요. 보관 기록은 프로젝트 문서와 함께 두세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7402,6 +7480,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7412,18 +7530,18 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser: 프로젝트 찾기와 확인",
+      "description": "프로젝트 폴더를 검색하고, 기록된 단계를 확인한 뒤 다음에 열 도구를 정합니다.",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "검색 루트와 깊이로 프로젝트를 찾습니다.",
+        "산출물과 기록된 단계를 확인합니다.",
+        "다음에 쓸 적절한 도구를 고릅니다."
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "spaCR 프로젝트가 들어 있는 폴더를 고르세요. 연습에는 완료된 External Masks와 Format Converter 예제를 쓸 수 있습니다.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "Help를 연 뒤 Project browser를 열어 프로젝트 폴더를 찾고 기록된 출력을 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -7432,7 +7550,7 @@
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "Add folder를 클릭하고 검색 루트를 고르세요. 깊이 0은 그 폴더 자체만 확인합니다. 프로젝트가 하위 폴더에 있다면 깊이를 늘리세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7443,7 +7561,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "Depth를 1로 두고 Scan을 클릭하면 루트 바로 아래의 폴더도 포함됩니다. 찾은 프로젝트 행을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7454,7 +7572,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "State와 Stage를 디스크에서 찾은 파일과 함께 읽으세요. 산출물 등록 정보가 없는 폴더는 변환된 이미지가 있어도 unknown으로 표시될 수 있습니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7469,7 +7587,7 @@
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "다른 프로젝트도 포함하려면 검색 루트를 더 추가하세요. 행을 선택해 확인하고, 다시 스캔한 뒤 세부 정보가 비어 있으면 다른 행을 선택했다가 돌아오세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7480,7 +7598,7 @@
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "구분선을 드래그해 세부 정보 영역을 넓히세요. 등록된 산출물, 등록되지 않은 파일, 마지막 실행 시각의 출처를 검토하세요.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -7491,7 +7609,7 @@
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "Stages를 열어 예상 출력 중 어떤 것이 있는지 확인하세요. What could run next로 알맞은 워크플로를 고른 뒤, 그 모듈에 필요한 입력을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -7505,7 +7623,7 @@
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "Size 같은 열 제목을 클릭하면 프로젝트가 정렬됩니다. 다시 클릭하면 순서가 뒤집힙니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7516,7 +7634,7 @@
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "검색 범위를 좁히거나 넓히려면 Depth를 조정하고 다시 스캔하세요. 직접 선택한 프로젝트는 깊이 0에서도 찾을 수 있습니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7527,12 +7645,12 @@
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
+          "narration": "루트를 선택하고 Remove를 클릭하면 그곳에서 더 이상 검색하지 않습니다. 목록에서 검색 위치만 빠지고 파일은 디스크에 그대로 남습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "작업 기록은 Run History에서, 측정값은 Database Browser에서, 정리와 보관은 Data Manager에서 확인하세요. 분석을 이어 가려면 해당 모듈의 튜토리얼을 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7545,6 +7663,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7552,25 +7710,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge: 라벨 마스크 편집 후 되가져오기",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "napari에서 이미지와 마스크를 열고, 라벨을 편집한 뒤 수정한 마스크를 spaCR로 다시 저장합니다.",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "대응하는 이미지와 라벨 파일을 엽니다.",
+        "napari에서 변경하고 실행 취소합니다.",
+        "저장된 마스크를 되가져와 확인합니다."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "선택 사항인 napari 의존성을 설치하고 합성 예제를 새 폴더에 압축 해제하세요. 손대지 않은 백업을 두세요. Take the mask back은 선택한 작업 마스크를 덮어씁니다. 저장한 편집 회차 사이에는 뷰어를 닫았다가 다시 여세요.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "Make Masks를 연 뒤 Napari Bridge를 여세요. 강도 이미지를 참고하며 기존 라벨 마스크를 편집할 때 씁니다. 마스크의 손대지 않은 백업을 두세요.",
           "focus": [
             460,
             235,
@@ -7584,7 +7742,7 @@
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "합성 예제를 내려받아 압축을 푸세요. Mask에는 mask.tif를, Image에는 image.tif를 고른 뒤 Open in napari를 누르세요.",
           "focus": [
             460,
             365,
@@ -7595,12 +7753,12 @@
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+          "narration": "napari에서 마스크의 Labels 레이어를 선택하세요. 라벨 0은 배경이며, 각 객체 라벨에는 표시 색이 있습니다. 편집은 라벨 레이어에서 하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "spaCR로 돌아가 Take the mask back으로 뷰어의 현재 라벨을 가져오세요. 아무것도 바꾸지 않았다면 마스크가 바뀌지 않았다고 상태에 표시됩니다.",
           "focus": [
             460,
             445,
@@ -7611,17 +7769,17 @@
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+          "narration": "연습으로 라벨 18을 선택하고 Fill을 고른 뒤 라벨 2인 객체를 클릭하세요. 가져오기 전에 바뀐 라벨을 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+          "narration": "Undo로 뷰어의 마지막 편집을 되돌리세요. 변경을 유지하려면 Fill을 다시 하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "spaCR에서 Take the mask back을 클릭하세요. 바뀐 픽셀 수를 확인한 뒤, 저장된 마스크와 수정 기록 보조 파일을 살펴보세요.",
           "focus": [
             460,
             445,
@@ -7632,7 +7790,7 @@
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "다음 편집 회차 전에 Close viewer를 클릭하고 마스크를 다시 여세요. 그러면 저장된 마스크가 이후 수정의 시작점이 됩니다.",
           "focus": [
             460,
             445,
@@ -7643,7 +7801,7 @@
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "다음 편집 후 마스크를 되가져와 결과를 다시 확인하세요. 끝나면 뷰어를 닫고, 수정 기록을 보관하고, 바뀐 라벨의 영향을 받는 측정을 다시 실행하세요.",
           "focus": [
             460,
             445,
@@ -7660,6 +7818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7667,22 +7865,22 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC: 리드 깊이 확인과 기준값 선택",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "매핑된 카운트를 불러오고, 웰과 가이드 커버리지를 검토한 뒤 존재량 임계값을 비교합니다.",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "카운트 입력과 QC 설정을 고릅니다.",
+        "커버리지와 위치 효과를 확인합니다.",
+        "임계값을 비교하고 결과 표와 그래프를 보관합니다."
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "Regression 튜토리얼에서 내려받은 예제 스크린 데이터의 plate_1_unique_combinations.csv나 자신의 매핑된 카운트 표를 쓰세요. 새 출력 폴더를 고르세요. 매핑되지 않은 리드나 예상 라이브러리에 따라 달라지는 검사가 필요하면 매핑 QC 파일과 바코드 참조 파일을 제공하세요.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "Map Barcodes를 연 뒤 Barcode QC를 여세요. 매핑된 카운트 표로 시작하세요. 연결된 Regression 예제에 연습용 표가 있습니다.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
@@ -7691,52 +7889,52 @@
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+          "narration": "Count data를 카운트 표로 지정하고 새 출력 대상을 고르세요. 예제에는 웰 384개에 걸친 매핑된 리드가 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+          "narration": "실험 설계에 따라 Target gRNAs per well을 설정하고 기준값을 구할 요약 방법을 고르세요. 예제는 5와 median을 씁니다.",
           "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+          "narration": "Starved read fraction을 설정해 플레이트 중앙값보다 리드가 적은 웰을 표시하세요. 예제는 0.1을 씁니다. 제외하기 전에 표시된 웰을 검토하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+          "narration": "Plot과 Save를 켜고 Run을 누르세요. 해당 검사가 필요하면 매핑 QC나 참조 입력을 추가하세요. 카운트 표만으로는 관찰된 매핑 리드만 알 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+          "narration": "완료 로그와 저장된 출력 경로를 읽으세요. 결과를 쓰기 전에 선택한 입력과 대조해 오류를 조사하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+          "narration": "출력 폴더에서 barcode_qc.png와 threshold_sweep.png를 여세요. Figures 패널이 비어 있으면 이미지 뷰어를 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+          "narration": "리드 깊이, 행·열 효과, 가이드 분포를 확인하세요. 예상 가이드 중 완전히 빠진 것을 찾으려면 참조 라이브러리와 비교하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+          "narration": "임계값 스윕을 확인하세요. 이 예제에서는 각 웰 리드의 약 1.21%를 기준값으로 두면 가이드 수 중앙값이 5가 되고, 매핑된 리드의 약 58%가 남습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+          "narration": "기준값이 바뀔 때 남는 리드, 남는 웰, 가이드 목표를 넘는 웰을 비교하세요. 설계에 맞는 기준값을 고르세요. 가이드 목표를 충족해도 단일 가이드에 귀속된다고 확정되지는 않습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "추천값, 스윕 표, 그래프, 설정을 원본 카운트와 함께 보관하세요. 고른 기준값을 이후 분석에서 일관되게 쓰고, 선택한 이유를 기록하세요.",
           "related_lessons": [
             "06_api",
             "13_regression"
@@ -7747,6 +7945,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7754,7 +7992,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List: 후보 필터링과 요약 목록 내보내기",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -7762,17 +8000,17 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "Regression 결과를 불러오고, q값, 가이드 수, 일치도로 필터링한 뒤 선택한 후보를 내보냅니다.",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "제공된 보조 스크립트로 예제 Regression 결과를 엽니다.",
+        "후보를 필터링하고 효과와 가이드 일치도를 읽습니다.",
+        "선택한 행을 CSV, Markdown, HTML로 내보냅니다."
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Hit_List_real_results_companion.zip의 압축을 풀고 spaCR 환경을 활성화하세요. 현재 Regression의 Hits 바로 가기는 패널을 표시하지 않으므로, 대신 python hit_list_companion.py를 실행하고 Browse로 압축을 푼 결과 폴더를 선택하세요. 보조 스크립트는 Investigate와 연결되지 않습니다. 지지하는 웰 수는 results_gene.csv의 wells_with_gene을 쓰세요. 내보낸 n_obs=0은 실제 지지 수가 아닙니다. 예제에는 q <= 0.05를 만족하는 유전자가 없습니다.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "Home에서 Regression을 열고 Hits를 선택하세요. 패널이 계속 보이지 않으면 이 강의에 포함된 보조 스크립트로 Hit List를 여세요.",
           "related_lessons": [
             "13_regression"
           ],
@@ -7780,52 +8018,52 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "narration": "연결된 예제의 압축을 풀고 spaCR 환경을 활성화하세요. python hit_list_companion.py를 실행하세요. 보조 스크립트 창에서 Browse를 클릭하고 압축을 푼 결과 폴더를 선택하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "narration": "예제는 유전자 325개를 불러옵니다. 열을 넓혀 효과, P, q, 가이드 일치도를 읽으세요. 효과는 표준화된 한계 효과입니다. 지지하는 웰 수는 results_gene.csv의 wells_with_gene에서 읽으세요. 내보낸 관측 수가 0이면 지지 정보가 없다는 뜻입니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "narration": "Max q를 0.05로 두세요. 이 예제에는 통과하는 유전자가 없어 표가 비게 됩니다. 모든 후보를 보려면 Max q를 다시 1로 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "narration": "Minimum guides를 2로 두세요. 검정된 가이드 행이 두 개 이상인 유전자 117개가 남습니다. 이 필터는 원래 q값을 유지합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "narration": "Minimum agreement를 1로 두세요. 검정된 가이드가 모두 유전자 효과와 같은 부호를 가진 후보 57개가 남습니다. 일치도는 q와 함께 읽으세요. 이 후보들도 여전히 유의성 기준을 넘지 못합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "narration": "Hide controls를 켜면 이 보기에서 대조군 행이 빠져 후보 56개가 남습니다. 나중에 내보낼 때 그 행을 포함하려면 다시 끄세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "narration": "다른 필터를 지우고 Direction up을 고른 뒤 Minimum absolute effect를 0.1로 두세요. 16개 행이 남습니다. 분석에 맞는 기준을 고른 뒤, 다음 단계 전에 이 컨트롤을 원래대로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "narration": "Search에 식별자를 입력해 해당 행을 찾으세요. 일치하는 것이 없으면 표가 비게 됩니다. 현재 필터링 결과로 돌아가려면 Search를 지우세요.",
           "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "narration": "내보내기에는 가이드 2개, 완전 일치, 대조군 포함, 빈 검색으로 설정하세요. 선택된 57개 행을 CSV, Markdown, HTML로 내보내세요. CSV는 수치를 자세히 보존합니다. 필터 선택은 파일과 함께 저장하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "필터를 지우면 유전자 325개 전체로 돌아갑니다. 요약 목록 내보내기는 원래 결과와 따로 보관하세요. Python에서는 build_hit_list를 쓴 뒤 filter와 CSV, Markdown, HTML 쓰기 함수를 쓰세요. 각 형식의 행 수 제한을 확인하세요.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
@@ -7836,6 +8074,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7843,22 +8121,22 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results: 실행 보고서 초안 작성과 내보내기",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "완료된 실행을 고르고, 보고서를 만들고, 기록된 설정과 결과를 검토한 뒤 Markdown으로 내보냅니다.",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "프로젝트, 실행 저널, 해당 결과 폴더를 선택합니다.",
+        "요약을 만들고 Methods, Results, Caveats 탭을 검토합니다.",
+        "보고서 텍스트를 복사하거나 실행 요약과 함께 Markdown으로 내보냅니다."
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "먼저 Regression 예제를 마치세요. 프로젝트 폴더, 실행 저널, guide_permutation 결과를 함께 두세요. 생성된 텍스트를 보고서에 쓰기 전에 추론된 설정, 분석 버전, 통계 기준값을 검토하세요.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "Home에서 Regression을 연 뒤 Methods and Results를 여세요. 완료된 분석으로 보고서 초안을 만들 때 이 도구를 씁니다. 이 안내는 Regression 예제에서 저장한 실행을 이어서 씁니다.",
           "related_lessons": [
             "13_regression"
           ],
@@ -7866,7 +8144,7 @@
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "프로젝트 폴더, 실행 저널, 해당 회귀 결과 폴더를 고르세요. 이 회귀 예제에서는 Classifier를 비워 두세요. 선택한 파일이 모두 설명하려는 실행에 속하는지 확인하세요.",
           "focus": [
             355,
             270,
@@ -7877,12 +8155,12 @@
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
+          "narration": "Build digest를 클릭한 뒤 Methods와 Results 탭을 읽으세요. 분석 버전을 저장된 실행 환경과 대조하세요. 내보내기 도구의 버전은 분석을 수행한 버전과 다를 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "Caveats를 읽고 시드 항목을 이름으로 저장된 설정과 비교하세요. 순열 시드와 전역 시드는 서로 다른 생성기를 가리킵니다. 보고서를 편집할 때 기록되지 않은 과거 시드는 알 수 없음으로 두세요.",
           "focus": [
             355,
             640,
@@ -7893,7 +8171,7 @@
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "Run digest를 열어 구조화된 설정과 원본 기록을 확인하세요. 본문과 비교하고, 초안을 공유하기 전에 누락된 보고서나 추론된 기본값에 관한 경고를 검토하세요.",
           "focus": [
             355,
             680,
@@ -7904,7 +8182,7 @@
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "Results에서는 효과 크기와 보정된 q값을 함께 확인하세요. 이 예제에는 q값 기준 0.05보다 낮은 유전자가 없습니다. 제목에서 이 행들을 hits라고 부른다면, 편집할 때 순위가 매겨진 후보로 설명하세요.",
           "focus": [
             355,
             680,
@@ -7915,12 +8193,12 @@
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
+          "narration": "Copy sections를 클릭해 표시된 Methods와 Results를 복사하세요. 복사한 텍스트를 원본 기록과 대조하세요. 구조화된 실행 요약도 필요하면 Export Markdown을 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "Export Markdown을 클릭하고 새 파일 이름을 고르세요. 파일에는 보고서의 두 섹션과 부록으로 실행 요약이 들어 있습니다. 원래 초안을 보관하고, 검토한 수정본은 따로 저장하세요.",
           "focus": [
             1550,
             780,
@@ -7931,7 +8209,7 @@
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AI는 선택 기능이며 요약을 설정한 제공자에게 보냅니다. 이 기능을 쓰기 전에 내용을 검토하고, 생성된 텍스트는 저장된 분석과 대조하세요. Python에서 build_digest, render_methods, render_results를 쓸 수도 있습니다.",
           "focus": [
             355,
             560,
@@ -7948,6 +8226,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7955,24 +8273,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare: 저장된 실행 비교",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "저장된 실행 두 개를 고르고, 설정과 개수 차이를 확인한 뒤 사용 가능한 결과 비교를 살펴봅니다.",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "기준 실행과 비교 실행을 선택합니다.",
+        "설정과 개수 차이를 확인합니다.",
+        "사용 가능한 결과 비교를 찾습니다."
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "연결된 스냅숏을 내려받아 압축을 푸세요. README에 따라 spaCR 환경에서 새 대상 폴더를 지정해 prepare_run_compare_download.py를 실행하세요. 직접 비교할 때는 각 실행의 출력이 덮어쓰이기 전에 보존하세요.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "Home의 Data 범주에서 Run Compare를 열어 두 실행에 기록된 출력을 확인하세요.",
           "focus_modules": [
             "run_compare"
           ],
@@ -7984,17 +8302,17 @@
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
+          "narration": "스냅숏 예제를 내려받아 압축을 푸세요. README에 따라 새 대상 폴더를 지정해 준비 스크립트를 실행하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
+          "narration": "Browse를 클릭하고 준비한 비교 폴더를 선택하세요. 직접 비교할 때를 위해 원래 프로젝트와 실행 스냅숏을 계속 쓸 수 있게 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "기준 실행을 A로, 비교할 실행을 B로 고른 뒤 Compare를 클릭하세요. 각 모듈 이름과 기록된 버전을 확인하세요.",
           "focus": [
             350,
             235,
@@ -8005,7 +8323,7 @@
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "Show unchanged settings를 켜면 같은 값도 포함됩니다. 항목을 펼쳐 각 실행이 쓴 구성을 확인하세요.",
           "focus": [
             350,
             360,
@@ -8016,7 +8334,7 @@
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "Counts를 열어 객체 총수를 비교하세요. Delta는 B에서 A를 뺀 값입니다. 예제는 개수가 같으며, 차이를 이해해야 할 때는 해당 이미지와 측정값을 확인하세요.",
           "focus": [
             350,
             425,
@@ -8027,7 +8345,7 @@
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "두 실행 모두 회귀 결과가 등록되어 있으면 Hits를 여세요. 예제는 Measure 스냅숏이라 hits 비교가 없습니다.",
           "focus": [
             350,
             405,
@@ -8042,7 +8360,7 @@
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "서로 다른 두 실행을 고르세요. 양쪽에서 같은 실행이 선택되었다면 경고를 보고 선택을 고치세요.",
           "focus": [
             350,
             235,
@@ -8053,7 +8371,7 @@
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "두 출력 스냅숏과 그 차이를 설명하는 설정을 보관하세요. 개별 로그는 Run History에서, 바탕이 되는 hits 결과는 Regression에서 확인하세요.",
           "related_lessons": [
             "06_api",
             "08_measure"
@@ -8064,6 +8382,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8075,18 +8433,18 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts: 플레이트 전반의 대조군 모니터링",
+      "description": "캠페인 표를 불러오고, 대조군과 기준 한계를 고르고, 경고를 확인한 뒤 그래프의 점을 내보냅니다.",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "측정값과 대조군 집단을 고릅니다.",
+        "기준 구간과 경고 규칙을 설정합니다.",
+        "경고를 확인하고 차트의 점을 내보냅니다."
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "아래의 합성 캠페인 CSV를 내려받거나, 플레이트 식별 정보, 실행 순서, 측정값, 대조군 라벨이 있는 웰 단위 표를 준비하세요. 예제는 의도적인 드리프트가 있는 플레이트 30장을 보여 줍니다.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "QC를 연 뒤 Control Charts를 열어 캠페인 전반에서 반복된 대조군을 모니터링하세요. 연습용 CSV는 합성 플레이트와 의도적인 드리프트를 씁니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
@@ -8094,7 +8452,7 @@
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "아래 예제 CSV를 내려받고 Load table을 클릭해 선택하세요. 플레이트 30장이 있으며, 각 플레이트에는 대조군 유형마다 웰 3개와 샘플 웰 3개가 있습니다.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -8105,7 +8463,7 @@
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "Plate, Run order, Measurement, Control column을 표의 열에 맞추세요. Control is에서는 음성 대조군으로 neg를 고르세요. 아무것도 고르지 않으면 모든 행이 포함됩니다.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8116,7 +8474,7 @@
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "Sigma from으로 변동 추정 방법을 고르세요. 각 플레이트에 선택된 대조군 웰이 3개씩 있으므로 여기서 Auto는 하위 그룹 추정을 씁니다.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8127,7 +8485,7 @@
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "Rules에서 확인할 경고를 고르세요. 예제는 3시그마 한계를 벗어난 점에 집중하도록 Limits only를 씁니다. 설정을 바꾸면 차트가 다시 그려집니다.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8138,7 +8496,7 @@
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "Baseline plates를 20으로 두세요. 처음 20장의 플레이트가 계열의 한계를 정합니다. 보고서와 규칙 표를 읽고 표시된 이후 플레이트를 찾으세요.",
           "hold_after": 0.7,
           "focus": [
             1010,
@@ -8149,12 +8507,12 @@
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
+          "narration": "양성 대조군을 확인하려면 neg를 해제하고 pos를 고르세요. 평균과 한계를 따로 검토한 뒤, 예제를 계속하려면 neg로 돌아가세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "계획한 기준 기간이 다르면 Baseline plates를 조정하세요. 이 도구는 플레이트가 최소 8장 필요하므로, 분석법에 맞는 안정적인 기준을 고르세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8165,7 +8523,7 @@
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "Export points를 클릭하고 CSV 저장 위치를 고르세요. 플레이트 식별 정보, 평균, 하위 그룹 크기, 한계, 기준 포함 여부, 발동된 규칙이 저장됩니다.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -8176,7 +8534,7 @@
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "입력 CSV, 선택한 대조군, 기준 설정을 내보낸 점과 함께 보관하세요. 표시된 플레이트의 식별 정보로 획득이나 분석법의 변화를 조사하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8190,6 +8548,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8200,18 +8598,18 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph: 출력과 의존 관계 확인",
+      "description": "프로젝트의 산출물 그래프를 열고, 누락된 출력을 확인한 뒤 의존 관계도를 복사합니다.",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "프로젝트의 산출물 그래프를 엽니다.",
+        "경로, 상태, 의존 관계를 확인합니다.",
+        "관계도를 복사하고 기록을 새로 고칩니다."
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "출력이 등록된 spaCR 프로젝트를 고르세요. External Masks 예제는 측정값과 크롭을 제공하며, 삭제된 산출물이 어떻게 보이는지는 Data Manager 강의에서 보여 줍니다.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "Help를 연 뒤 Pipeline graph를 열어 프로젝트에 기록된 출력과 의존 관계를 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -8220,7 +8618,7 @@
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "Browse로 프로젝트 폴더를 찾으세요. 그래프가 비어 있으면 그 폴더에 등록된 산출물이 있는지 확인하세요. 등록 기록 없이 파일만 있을 수도 있습니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8235,7 +8633,7 @@
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "측정된 프로젝트를 고르면 산출물 상자가 표시됩니다. 예제에는 측정값, 크롭, 리소스 로그가 있고, 삭제된 크롭 폴더는 누락으로 표시됩니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8246,7 +8644,7 @@
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "산출물을 클릭하고 구분선으로 세부 정보 영역을 넓히세요. 경로, 역할, 실행 식별자, 생성 시각, 소프트웨어 버전을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8257,7 +8655,7 @@
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "Missing 산출물을 선택해 기록된 경로를 찾으세요. 표시된 크기는 저장된 기록의 값이므로, 없는 파일을 조사할 때는 실제 위치를 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8268,7 +8666,7 @@
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "기록되어 있다면 입력 연결과 하위 연결을 확인하세요. 리소스 로그처럼 프로젝트 폴더 밖에 있는 산출물도 있습니다.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8279,7 +8677,7 @@
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "Current, Stale, Missing으로 표시할 산출물 상태를 고르세요. 예를 들어 누락된 출력에 집중하려면 Current를 숨기세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8290,7 +8688,7 @@
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "상자가 하나도 보이지 않으면 표시 필터와 전체 산출물 수를 확인하세요. 확인하려는 상태를 다시 켜세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8301,7 +8699,7 @@
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "Copy Graphviz를 클릭하면 필터로 숨긴 노드까지 포함한 전체 관계도가 DOT 텍스트로 복사됩니다. Graphviz 도구에 붙여 넣어 그리거나 저장하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8312,7 +8710,7 @@
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "원하는 필터로 되돌리고 산출물을 다시 선택해 세부 정보를 확인하세요. 기록된 경로와 상위 워크플로를 보고 무엇을 처리해야 할지 정하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8323,7 +8721,7 @@
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "프로젝트를 바꾼 뒤에는 Redraw를 클릭해 등록 정보를 다시 읽으세요. 저장된 설정과 로그는 Run History에서, 정리와 보관은 Data Manager에서 하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8336,6 +8734,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8490,23 +8928,23 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC: 프로젝트 품질 보고서 확인",
+      "description": "프로젝트를 고르고, 사용 가능한 품질 보고서를 읽고, 경고를 조사한 뒤 대시보드를 새로 고칩니다.",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "확인하려는 프로젝트나 실행을 고릅니다.",
+        "사용 가능한 보고서, 누락된 보고서, 오래된 보고서를 읽습니다.",
+        "발견 사항을 조사하고 보기를 새로 고칩니다."
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "품질 보고서가 저장된 프로젝트를 쓰세요. 내려받은 Mask와 Annotate 예제는 보고서 구성이 서로 다르므로, 확인하려는 특정 프로젝트나 실행 폴더를 고르세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
+          "narration": "Home의 Data 범주에서 QC를 열어 프로젝트와 함께 저장된 품질 보고서를 검토하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "머리글에서 Layer Viewer, Control Charts, Outliers를 열 수 있습니다. 대시보드의 발견 사항을 더 조사해야 할 때 각 튜토리얼을 쓰세요.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -8517,7 +8955,7 @@
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "Browse를 클릭하고 프로젝트 폴더를 고르세요. 평가하려는 실행의 보고서가 들어 있는 폴더를 선택하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8525,12 +8963,12 @@
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
+          "narration": "Missing은 그 검사에 쓸 보고서가 없다는 뜻입니다. 결론을 내리기 전에 안내에 따라 필요한 보고서를 준비하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "실행의 출력이 상위 프로젝트와 따로 있다면 그 실행 하위 폴더를 고르세요. 표시된 범위가 검토하려는 데이터와 맞는지 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -8539,7 +8977,7 @@
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "분할 경고를 읽고 해당 시야를 확인하세요. 크기 분포 경고라면 이미지와 객체 경계를 비교해 원인을 파악하세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8554,12 +8992,12 @@
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
+          "narration": "단위 카드도 나머지 범주와 함께 검토하세요. 단위 보고서가 일관되면 그 검사는 충족되지만, 누락된 보고서는 여전히 처리해야 합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "다섯 가지 범주와 안내를 모두 읽으세요. 누수에 대해서는 샘플 식별 정보와 그룹화가 의도한 독립 검증 단위를 반영하는지 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -8569,7 +9007,7 @@
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "실패나 경고의 세부 정보를 열어 영향을 받은 시야와 원본 보고서를 찾으세요. 해당 분석 도구로 조사하세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8580,7 +9018,7 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "디스크의 보고서가 바뀌면 Refresh를 클릭하세요. 대시보드는 사용 가능한 근거를 다시 읽으며, 갱신된 보고서는 그것을 만드는 분석으로 생성하세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8591,12 +9029,12 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
+          "narration": "오래된 보고서는 입력 데이터와 설정에 비추어 조사하세요. 해결되지 않은 발견 사항은 프로젝트 검토에서 계속 보이게 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "품질 보고서는 프로젝트와 함께 보관하세요. 각 발견 사항을 처리하려면 연결된 전문 도구나 해당 모듈 튜토리얼로 이어 가세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8609,6 +9047,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8620,18 +9098,18 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter: 측정값과 그 크롭 확인",
+      "description": "측정 열 두 개를 그리고, 객체 크롭을 미리 본 뒤 선택한 객체를 Annotate로 보냅니다.",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "측정값을 불러오고 축을 고릅니다.",
+        "점 뒤에 있는 크롭을 확인합니다.",
+        "선택한 객체를 Annotate로 보냅니다."
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "대응하는 객체 크롭과 크롭 형식 파일이 있는 spaCR 측정 데이터베이스를 쓰세요. 내려받을 수 있는 Annotate 예제에 이 입력이 들어 있습니다.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "Image UMAP을 연 뒤 Image Scatter를 열어 기존 측정값 두 개를 그리세요. 연습에는 Annotate 예제의 데이터베이스와 대응하는 세포 크롭을 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8640,17 +9118,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
+          "narration": "Browse를 클릭하고 measurements.db를 여세요. 썸네일을 찾을 수 있도록 프로젝트의 data 폴더와 크롭 형식 파일을 데이터베이스와 함께 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
+          "narration": "표 선택기에서 cell을 고르고 Plot을 클릭하세요. 다른 표로 바꿀 때는 Plot을 다시 클릭해 그 행을 불러오세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "x는 세포 면적으로, y는 세포의 채널 1 평균 강도로 두세요. 축을 고르면 불러온 행이 바로 다시 그려집니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -8664,7 +9142,7 @@
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "점 위에 포인터를 올리면 저장된 크롭과 객체의 전체 식별 정보가 보입니다. 이미지를 보며 그 점의 측정값을 이해하세요.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8675,7 +9153,7 @@
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "포인터를 치우면 임시 미리 보기가 사라집니다. 다른 점 위에 포인터를 올려 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8686,7 +9164,7 @@
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "x와 y의 측정값을 바꿔 다른 관점에서 관계를 살펴보세요. 의미 있는 특징을 고르고 단위를 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8697,7 +9175,7 @@
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "균질성 특징처럼 다른 측정값을 고르세요. 좌표가 없는 행은 그래프에서 빠지므로, 그려진 점의 수가 불러온 표의 행 수와 다를 수 있습니다.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8708,7 +9186,7 @@
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "이 예제의 측정 차원처럼 값이 일정한 열은 점을 한 줄로 늘어놓습니다. 객체를 확인하려면 변동이 있는 특징으로 돌아가세요.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8719,7 +9197,7 @@
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "선택한 크롭을 Annotate에서 보려면 먼저 Annotate를 열고 같은 프로젝트를 불러오세요. 그다음 열려 있는 Image Scatter 보기로 돌아오세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8727,7 +9205,7 @@
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "점 자체를 클릭하면 그 객체의 식별 정보가 Annotate로 전송됩니다. 그다음 그 페이지로 전환하세요. 포인터만 올리면 크롭 미리 보기만 표시됩니다.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8738,7 +9216,7 @@
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "라벨을 붙이기 전에 Annotate에서 선택한 객체를 확인하세요. 표 내보내기에는 Database Browser를, 성분 분석에는 PCA를 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -8756,6 +9234,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8767,14 +9285,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage: 부모 객체와 그 내용 살펴보기",
+      "description": "저장된 부모-자식 관계를 열고, 가족을 선택한 뒤 Annotate에서 대응하는 부모 세포 크롭을 확인합니다.",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "측정값을 불러오고 부모-자식 관계를 펼칩니다.",
+        "시야와 객체 유형을 확인하며 객체를 선택합니다.",
+        "대응하는 부모 세포 크롭을 열고 Python으로 전체 계층을 얻습니다."
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "측정 데이터베이스와 대응하는 세포 크롭이 함께 있는 Annotate 예제 전체를 내려받으세요. 데이터베이스만 있는 Graph Builder 아카이브로는 이미지를 얻을 수 없습니다. 이 예제에는 세포 크롭만 있으므로, 크롭을 확인하려면 부모 세포를 더블클릭하세요. 현재 가족 단위의 Open crops 동작은 누락된 자식 크롭을 관련 없는 세포 크롭으로 대신할 수 있으니, 이 예제에서는 쓰지 마세요.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -8782,7 +9300,7 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "Home에서 Database Browser를 연 뒤 Lineage를 여세요. 트리로 각 부모 세포 안에 어떤 측정 객체가 저장되어 있는지 살펴보세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -8790,42 +9308,42 @@
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "narration": "Browse로 Annotate 예제의 measurements.db를 찾아 Build tree를 클릭하세요. 라벨을 읽을 수 있도록 Object 열과 구분선을 넓히세요. 객체는 번호뿐 아니라 시야와 유형으로도 식별하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "narration": "이 데이터베이스에는 세포 2,341개가 있습니다. 트리는 부모 가족을 최대 2,000개까지 표시합니다. 모든 가족이 필요하면 이 강의 뒷부분의 Python 내보내기를 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "narration": "트리 위의 요약을 읽으세요. 핵도 자식으로 세므로, 내용이 있는 세포에도 병원체 객체가 없을 수 있습니다. 자식 유형으로 각 가족을 해석하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "narration": "부모를 펼쳐 자식을 확인하세요. 여기서 세포 3에는 핵 5와 병원체 1이 들어 있습니다. 확인하려는 특정 객체 유형을 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "narration": "Select with contents를 쓰면 부모와 자식을 함께 선택합니다. 선택된 식별 정보에는 시야와 객체 유형이 포함됩니다. 그 객체만 필요하면 자식 하나만 선택하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "narration": "큰 가족을 펼쳐 내용을 확인하세요. 이 예제에는 객체 33개로 이루어진 가족이 하나 있습니다. 개수가 이상해 보이면 해당 이미지를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "narration": "열 제목을 클릭하면 표시된 가족이 정렬됩니다. 정렬해도 저장된 관계와 부모 2,000개라는 표시 한도는 그대로입니다.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "크롭을 보려면 먼저 Annotate를 열고 대응하는 예제 프로젝트를 불러오세요. Annotate를 요청하는 메시지가 나오면, Lineage에서 이미지를 요청하기 전에 Annotate를 여세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8833,27 +9351,27 @@
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "narration": "세포 크롭이 포함된 전체 다운로드 프로젝트를 쓰세요. 객체 식별 정보가 맞도록 같은 실행의 데이터베이스와 이미지를 함께 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "narration": "이 예제에서는 가족 전체에 Open crops를 쓰지 마세요. 누락된 핵과 병원체 크롭이 관련 없는 세포 크롭으로 대체될 수 있습니다. 트리로 돌아가 부모 세포만 선택하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "narration": "Lineage에서 부모 세포를 더블클릭하세요. Annotate가 그 부모에 대응하는 세포 크롭을 엽니다. 내려받은 예제에서 쓸 수 있는 크롭이 바로 이것입니다.",
           "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "narration": "부모 썸네일을 Shift와 함께 클릭하면 미리 보기가 커지고, Escape를 누르면 돌아옵니다. 일반 왼쪽 클릭은 주석 클래스를 붙이므로, 확인만 할 때는 Shift를 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "Build tree를 클릭해 보기를 새로 고치세요. Python에서 전체 계층을 얻으려면 read_object_tables, build_forest, lineage_frame을 쓰고 표를 CSV로 저장하세요. 연결된 예제 CSV에는 노드 7,201개가 모두 들어 있습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -8863,6 +9381,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8873,18 +9431,18 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer: 이미지와 라벨 오버레이 확인",
+      "description": "대응하는 이미지와 마스크를 불러오고, 오버레이를 조정한 뒤 확대해 객체 경계를 확인합니다.",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "이미지와 대응하는 마스크를 엽니다.",
+        "표시 여부, 불투명도, 혼합 방식, 레이어 순서를 조정합니다.",
+        "확대와 이동으로 라벨을 확인합니다."
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "Layer_Viewer_real_image_mask.zip을 내려받아 압축을 푸세요. 포함된 강도 이미지와 대응하는 정수 라벨 마스크를 쓰세요. 이 예제에는 픽셀의 물리적 보정 값이 없습니다.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "Home에서 QC를 연 뒤 Layer Viewer를 여세요. 연결된 이미지와 마스크 예제를 내려받아 압축을 푸세요. 뷰어에는 이 두 입력을 위한 자체 파일 컨트롤이 있습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -8893,22 +9451,22 @@
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+          "narration": "+ Image를 클릭하고 fov01_C1.tif를 여세요. 회색조 이미지가 표시용 백분위수 대비 조정과 함께 캔버스에 나타납니다.",
           "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+          "narration": "Fit을 클릭하면 이미지가 패널을 채웁니다. 넓은 패널에서는 정사각형 이미지가 늘어날 수 있으니, 형태를 확인할 때는 구분선을 조정해 패널을 거의 정사각형으로 만드세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+          "narration": "+ Mask를 클릭하고 fov01_cell_mask.tif를 여세요. 라벨이 붙은 객체 44개가 이미지 위에 나타납니다. 0은 배경이며 투명하게 남습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "컨트롤을 바꾸기 전에 레이어 목록에서 mask를 선택하세요. 체크박스를 켜고 끄며 아래 이미지와 경계를 비교하세요.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -8919,7 +9477,7 @@
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "mask의 Opacity를 0으로 두면 레이어를 불러온 채로 색만 숨길 수 있습니다. 다른 레이어를 조정하기 전에 선택된 행을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -8930,42 +9488,42 @@
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+          "narration": "Opacity를 100%로 두고 라벨 모양을 확인하세요. 라벨이 붙은 각 객체 안쪽의 이미지가 색으로 덮입니다.",
           "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+          "narration": "Opacity를 50%로 되돌리고 translucent 혼합을 골라 마스크 너머로 이미지 질감을 보세요. 객체 경계를 아래의 신호와 비교하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+          "narration": "additive 혼합을 고르면 마스크 색이 이미지에 더해집니다. 이 표시에서는 밝은 부분이 포화될 수 있으니, 더 분명하게 비교하려면 translucent로 돌아가세요.",
           "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+          "narration": "multiply와 minimum 혼합도 써 보며 더 어두운 오버레이를 비교하세요. 이 옵션은 표시되는 합성 이미지만 바꾸며, 원래 강도 값은 원본 이미지에 그대로 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+          "narration": "opaque를 고르고 Opacity 슬라이더를 움직여 모양을 비교하세요. 이 정수 마스크에서는 50% opaque 혼합이 50% translucent 혼합과 똑같이 보입니다. 계속하려면 translucent로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+          "narration": "image를 선택하고 색상 맵 선택기에서 cyan을 고르세요. 강도 이미지의 색이 바뀌고 마스크는 라벨 색을 유지합니다. 회색조로 돌아가려면 gray를 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+          "narration": "mask를 선택하고 아래쪽 화살표를 눌러 이미지 뒤로 옮기세요. 위쪽 레이어가 앞에 표시됩니다. 라벨을 확인하려면 마스크를 다시 위로 올리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "보이는 라벨 객체를 클릭하면 상태 줄에 위치와 라벨 번호가 나옵니다. 그 객체의 시야, 플레이트, 웰을 확인하려면 프로젝트 메타데이터를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8976,22 +9534,22 @@
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+          "narration": "객체 위에서 마우스 휠을 굴리면 포인터를 중심으로 확대됩니다. 경계가 잘 보일 때까지 확대하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+          "narration": "Shift를 누른 채 왼쪽 버튼으로 드래그하면 화면이 이동합니다. 가운데 버튼으로 드래그해도 됩니다. 현재 확대 배율을 유지한 채 시야를 둘러보세요.",
           "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+          "narration": "Fit을 클릭하면 시야 전체 보기로 돌아갑니다. 맞춘 이미지가 늘어나 보이면 패널 모양을 조정하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "+ Points와 + Shapes는 빈 보조 레이어를 추가합니다. 분할 마스크를 그리거나 편집하려면 Make Masks로 넘어가세요. 이 뷰어에는 그 빈 레이어용 그리기 도구가 없습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
@@ -8999,12 +9557,12 @@
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+          "narration": "레이어를 선택하고 Remove로 보기에서 빼세요. 원본 파일은 디스크에 남아 있어 다시 불러올 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "이제 레이어 보기 확인이 끝났습니다. 합성 이미지를 내보내려면 Python에서 stack_from_paths와 LayerStack.render_uint8을 쓰세요. 마스크 편집을 저장하려면 Make Masks로, 객체 측정은 Measure로 넘어가세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -9020,6 +9578,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9030,26 +9628,26 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder: 측정값 그래프와 객체 필터링",
+      "description": "측정 표를 불러오고, 그래프 축을 지정하고, 그룹을 비교한 뒤 표시된 객체를 필터링합니다.",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "예제 측정 표를 불러옵니다.",
+        "히스토그램, 산점도, 그룹별 패널을 만듭니다.",
+        "객체를 필터링하고 다음에 쓸 보기를 고릅니다."
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "Graph_Builder_real_measurements.zip을 내려받아 압축을 푸세요. measurements.db가 들어 있습니다. 나중에 이미지 크롭을 확인하려면 대응하는 Annotate 프로젝트와 이미지도 준비해 두세요.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+          "narration": "Home에서 Graph Builder를 열어 측정 표를 살펴보세요. 연결된 예제 데이터베이스로 시작한 뒤, 자신의 측정 프로젝트로 같은 단계를 반복하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Load table을 클릭하고 압축을 푼 아카이브의 measurements.db를 여세요. cell 표를 고르세요. 이 예제에는 측정된 세포 2,341개가 있습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -9058,47 +9656,47 @@
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+          "narration": "열 목록에서 cell_area를 찾아 X로 끌어다 놓으세요. 자동 차트가 히스토그램이 되며, 각 막대는 면적 구간별 세포 수를 나타냅니다. 축을 해석하기 전에 측정 단위를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+          "narration": "cell_channel_1_mean_intensity를 Y로 끌어다 놓아 산점도를 만드세요. 각 점은 세포 하나를 면적과 채널 1 평균 강도로 배치합니다. 큰 표를 다룰 때는 행 수 안내를 읽으세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+          "narration": "columnID를 Colour로 끌어다 놓아 플레이트 열을 구분하세요. 범례로 색과 기록된 열 라벨을 대응시키고, 더 자세히 볼 그룹을 찾으세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+          "narration": "rowID를 아래 방향 패싯 채널로 끌어다 놓으면 플레이트 행마다 패널이 생깁니다. 공유 축을 이용해 패널을 비교하세요. 조건 간 통계 비교에는 독립된 웰을 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+          "narration": "오른쪽 필터 패널에서 cell_area를 추가하고 최솟값을 입력하세요. 예제는 21,925를 쓰며, 그러면 1,171개 행이 남습니다. 자신의 측정값에 맞는 기준값을 고르고, 그려진 개수와 축이 바뀌는 것을 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+          "narration": "필터 패널의 Clear all을 클릭하면 전체 표로 돌아갑니다. 그래프 매핑을 지우고 다른 차트를 시작하려면 왼쪽의 Clear all channels를 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+          "narration": "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. Open selection in Annotate를 쓸 수 없다면, 대응하는 프로젝트로 Annotate를 따로 열어 그곳에서 객체를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+          "narration": "그래프의 빈 곳을 클릭하면 선택이 해제됩니다. 다른 객체 그룹을 살펴보기 전에 활성 필터와 표시된 개수를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "머리글의 바로 가기로 웰 히트맵은 Plate Viewer에서, 반복 차트는 Small Multiples에서 여세요. 보기를 재현할 수 있도록 원본 데이터베이스와 고른 열, 필터를 보관하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
@@ -9107,7 +9705,7 @@
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "현재 화면에는 차트 내보내기 버튼이 없습니다. 스크립트로 그래프를 만들려면 Graph Builder API를, 다른 그래프 도구에서 쓸 표를 내보내려면 Database Browser를 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9117,6 +9715,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
