@@ -772,14 +772,27 @@ def test_real_default_claims_have_no_unrecorded_drift():
                 for key in ("confluency", "confluency_channel",
                             "confluency_window", "confluency_qc_threshold")}
     assert item_541 <= compared_pairs
-    assert comparisons == 744
+    # 744 -> 760 on 2026-09-26, +16/-0 (item 535): eight cell-cycle claims --
+    # cell_cycle (False), cell_cycle_channel, cell_cycle_gates and
+    # cell_cycle_fucci_channels (None), cell_cycle_mitotic_ratio (1.8),
+    # cell_cycle_labels and cell_cycle_model (blank) and cell_cycle_epochs
+    # (20) -- each resolved by Measure and by External Masks.
+    # cell_cycle_method says "Default measurements.", not a literal.
+    item_535 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("cell_cycle", "cell_cycle_channel",
+                            "cell_cycle_gates", "cell_cycle_fucci_channels",
+                            "cell_cycle_mitotic_ratio", "cell_cycle_labels",
+                            "cell_cycle_model", "cell_cycle_epochs")}
+    assert item_535 <= compared_pairs
+    assert comparisons == 760
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
     # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
-    # + 8: item 541's four confluency claims in two apps, pinned above.
+    # + 8: item 541's four confluency claims in two apps, pinned above;
+    # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
-            + len(item_541) == comparisons)
+            + len(item_541) + len(item_535) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

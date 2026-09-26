@@ -1191,6 +1191,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Write the ranked hit table, every well's scores and the plate summary "
     "as CSV, and one plate heatmap per statistic, into a folder",
     'hit report written to {folder}',
+    # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
+    "The cell-cycle phase of every nucleus, called after measuring from the "
+    "DNA stain in one of three interchangeable ways: gates on each plate's "
+    "fitted DNA-content histogram, a boosted classifier on the nucleus "
+    "measurements, or an image classifier on nucleus crops. Each writes the "
+    "same phase column to measurements.db, with the phase fractions per well "
+    "among infected and uninfected cells.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
     'Confluency',

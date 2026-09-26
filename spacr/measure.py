@@ -3415,6 +3415,1272 @@ def _monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
     return out
 
 
+_CELL_CYCLE_TABLE = 'cell_cycle'
+_CELL_CYCLE_WELL_TABLE = 'cell_cycle_well'
+_CELL_CYCLE_PHASES = ('G1', 'S', 'G2', 'M')
+_CELL_CYCLE_BELOW = 'subG1'
+_CELL_CYCLE_ABOVE = '>4N'
+_CELL_CYCLE_METHODS = ('measurements', 'xgboost', 'torch')
+_CELL_CYCLE_CHOICES = _CELL_CYCLE_METHODS + ('all',)
+_CELL_CYCLE_KEYS = ('plateID', 'rowID', 'columnID', 'fieldID')
+_CELL_CYCLE_MIN_FIT = 30
+_CELL_CYCLE_RATIO_BOUNDS = (1.6, 2.4)
+_CELL_CYCLE_OUTLIER_SD = 4.0
+_CELL_CYCLE_OUTLIER_CAP = 0.15
+_CELL_CYCLE_MAX_CV = 0.15
+_CELL_CYCLE_FIT_RANGE = (0.35, 3.2)
+_CELL_CYCLE_WEAK_CONFIDENCE = 0.6
+_CELL_CYCLE_TORCH_BACKBONE = 'resnet18'
+_FUCCI_STATES = ('early G1', 'G1', 'G1/S', 'S/G2/M')
+
+
+@dataclass
+class _DnaFit:
+    """A fitted DNA-content histogram: a G1 and a G2 peak with S between.
+
+    ``g1`` and ``g2`` are the peak positions in integrated-intensity units,
+    ``sd1`` and ``sd2`` their widths, ``weights`` the fractions of G1, S,
+    G2 and of a flat component that absorbs debris and aggregates, and
+    ``gates`` the two integrated-intensity cuts between G1 and S and
+    between S and G2 -- fitted crossings, or the user's gates converted
+    from DNA content units (the G1 peak is 2).
+    """
+
+    g1: float
+    g2: float
+    sd1: float
+    sd2: float
+    weights: Tuple[float, float, float, float]
+    gates: Tuple[float, float]
+    n: int
+    iterations: int
+    fitted_gates: bool = True
+
+    def c_value(self, content):
+        """DNA content in C units, the G1 peak at 2 and the G2 peak near 4.
+
+        :param content: integrated intensities, scalar or array.
+        :returns: ``2 * content / g1``.
+        """
+        return 2.0 * np.asarray(content, dtype=float) / self.g1
+
+    def densities(self, content):
+        """Weighted component densities of G1, S, G2 and the flat outliers.
+
+        S is a uniform stretch from the G1 to the G2 peak, softened at both
+        ends by the mean peak width, as a DNA-synthesis phase is in a flow
+        histogram.
+
+        :param content: integrated intensities.
+        :returns: ``(n, 4)`` array.
+        """
+        from scipy.stats import norm
+
+        x = np.asarray(content, dtype=float)
+        w1, ws, w2, wo = self.weights
+        spread = 0.5 * (self.sd1 + self.sd2)
+        span = max(self.g2 - self.g1, 1e-12)
+        s_density = (norm.cdf((x - self.g1) / spread)
+                     - norm.cdf((x - self.g2) / spread)) / span
+        outlier = 1.0 / max(self.g2 * 2.0, 1e-12)
+        return np.column_stack([
+            w1 * norm.pdf(x, self.g1, self.sd1),
+            ws * s_density,
+            w2 * norm.pdf(x, self.g2, self.sd2),
+            np.full(x.shape, wo * outlier),
+        ])
+
+
+def _dna_seed(x):
+    """The starting G1 peak for the DNA-content fit.
+
+    The tallest peak of the smoothed log2 histogram, unless a peak of at
+    least a quarter of its height sits one octave lower; then that lower
+    peak is G1 and the tallest is G2, as in a G2-arrested population.
+
+    :param x: positive integrated intensities.
+    :returns: the G1 peak position.
+    """
+    from scipy.ndimage import gaussian_filter1d
+
+    logx = np.log2(x)
+    low, high = np.percentile(logx, [0.5, 99.5])
+    if not high > low:
+        return float(2 ** np.median(logx))
+    bins = int(np.clip(np.sqrt(x.size) * 2, 32, 200))
+    counts, edges = np.histogram(logx, bins=bins, range=(low, high))
+    smooth = gaussian_filter1d(counts.astype(float), sigma=max(1.0, bins / 60))
+    centres = 0.5 * (edges[:-1] + edges[1:])
+    peak = centres[int(np.argmax(smooth))]
+    below = np.abs(centres - (peak - 1.0)) <= 0.2
+    if below.any() and smooth[below].max() >= 0.25 * smooth.max():
+        return float(2 ** centres[below][int(np.argmax(smooth[below]))])
+    return float(2 ** peak)
+
+
+def _dna_g2_seed(x, g1):
+    """The starting G2 peak: the densest point 1.6 to 2.4 times G1.
+
+    :param x: positive integrated intensities.
+    :param g1: the starting G1 peak.
+    :returns: the G2 peak position; twice G1 when nothing lies there.
+    """
+    from scipy.ndimage import gaussian_filter1d
+
+    low, high = _CELL_CYCLE_RATIO_BOUNDS
+    inside = x[(x >= low * g1) & (x <= high * g1)]
+    if inside.size < 5:
+        return 2.0 * g1
+    counts, edges = np.histogram(inside, bins=24, range=(low * g1, high * g1))
+    smooth = gaussian_filter1d(counts.astype(float), sigma=1.5)
+    centre = int(np.argmax(smooth))
+    return float(0.5 * (edges[centre] + edges[centre + 1]))
+
+
+def _dna_gates(fit):
+    """Where the fitted G1/S and S/G2 densities cross.
+
+    :param fit: a :class:`_DnaFit`.
+    :returns: two integrated-intensity cuts, the second never below the
+        first.
+    """
+    grid = np.linspace(fit.g1, fit.g2, 1024)
+    dens = fit.densities(grid)
+    first = np.nonzero(dens[:, 1] >= dens[:, 0])[0]
+    g1_s = grid[first[0]] if first.size else None
+    last = np.nonzero(dens[:, 2] >= dens[:, 1])[0]
+    s_g2 = grid[last[0]] if last.size else None
+    if g1_s is None or s_g2 is None or s_g2 < g1_s:
+        cross = np.nonzero(dens[:, 2] >= dens[:, 0])[0]
+        middle = grid[cross[0]] if cross.size else 0.5 * (fit.g1 + fit.g2)
+        g1_s = middle if g1_s is None else g1_s
+        s_g2 = max(middle, g1_s) if s_g2 is None or s_g2 < g1_s else s_g2
+    return float(g1_s), float(s_g2)
+
+
+def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
+    """Fit G1 and G2 peaks with an S phase between them to DNA content.
+
+    A Dean-Jett-Fox style mixture fitted by expectation maximisation: a
+    Gaussian G1 peak, a Gaussian G2 peak held between 1.6 and 2.4 times the
+    G1 position with the same coefficient of variation (at most 15 %, as
+    for any DNA stain that measures content), a uniform S phase between
+    the two peaks, and a flat
+    component of at most 15 % for debris, clumps and mis-segmented nuclei.
+    The fit starts from the G1 peak of the log histogram and ignores nuclei
+    below 0.35 or above 3.2 times it, which are fragments, nuclei cut by the
+    field edge and clumps rather than cells in a phase.
+
+    :param content: background-subtracted integrated DNA intensities of one
+        plate; non-finite and non-positive values are ignored.
+    :param gates: optional ``[G1/S, S/G2]`` cuts in DNA content units, the
+        G1 peak being 2 and the G2 peak 4; they replace the fitted
+        crossings.
+    :param max_iter: iteration cap.
+    :param tol: convergence tolerance on the mean log-likelihood.
+    :returns: a :class:`_DnaFit`.
+    :raises ValueError: fewer than 30 usable nuclei, or gates that are not
+        two increasing numbers.
+    """
+    x = np.asarray(content, dtype=float)
+    x = x[np.isfinite(x) & (x > 0)]
+    if x.size < _CELL_CYCLE_MIN_FIT:
+        raise ValueError(
+            f"A DNA-content histogram needs at least {_CELL_CYCLE_MIN_FIT} "
+            f"nuclei with a positive DNA signal; this one has {x.size}.")
+    g1 = _dna_seed(x)
+    x = x[(x >= _CELL_CYCLE_FIT_RANGE[0] * g1)
+          & (x <= _CELL_CYCLE_FIT_RANGE[1] * g1)]
+    if x.size < _CELL_CYCLE_MIN_FIT:
+        raise ValueError(
+            f"A DNA-content histogram needs at least {_CELL_CYCLE_MIN_FIT} "
+            f"nuclei near its G1 and G2 peaks; this one has {x.size}.")
+    low, high = _CELL_CYCLE_RATIO_BOUNDS
+    g2 = _dna_g2_seed(x, g1)
+    cv = 0.08
+    sd1, sd2 = cv * g1, cv * g2
+    weights = np.array([0.5, 0.2, 0.25, 0.05])
+    previous = -np.inf
+    iterations = 0
+    for iterations in range(1, max_iter + 1):
+        fit = _DnaFit(g1, g2, sd1, sd2, tuple(weights), (g1, g2), x.size,
+                      iterations)
+        dens = fit.densities(x)
+        total = np.maximum(dens.sum(axis=1), 1e-300)
+        resp = dens / total[:, None]
+        likelihood = float(np.mean(np.log(total)))
+        weights = resp.mean(axis=0)
+        weights[3] = min(weights[3], _CELL_CYCLE_OUTLIER_CAP)
+        weights = weights / weights.sum()
+        r1, r2 = resp[:, 0], resp[:, 2]
+        if r1.sum() > 1e-9:
+            g1 = float(np.sum(r1 * x) / r1.sum())
+        if r2.sum() > 1e-9:
+            g2 = float(np.sum(r2 * x) / r2.sum())
+        g2 = float(np.clip(g2, low * g1, high * g1))
+        spread = (np.sum(r1 * ((x - g1) / g1) ** 2)
+                  + np.sum(r2 * ((x - g2) / g2) ** 2))
+        cv = float(np.sqrt(spread / max(r1.sum() + r2.sum(), 1e-9)))
+        cv = float(np.clip(cv, 0.02, _CELL_CYCLE_MAX_CV))
+        sd1, sd2 = cv * g1, cv * g2
+        if abs(likelihood - previous) < tol * max(1.0, abs(likelihood)):
+            break
+        previous = likelihood
+    fit = _DnaFit(g1, g2, sd1, sd2, tuple(float(w) for w in weights),
+                  (g1, g2), int(x.size), iterations)
+    if gates is None:
+        fit.gates = _dna_gates(fit)
+        return fit
+    try:
+        first, second = (float(v) for v in gates)
+    except (TypeError, ValueError):
+        raise ValueError(
+            f"Setting: cell_cycle_gates must be two numbers in DNA content "
+            f"units, such as [2.5, 3.5]; got {gates!r}.") from None
+    if not 0 < first < second:
+        raise ValueError(
+            f"Setting: cell_cycle_gates must be two increasing positive "
+            f"numbers, G1/S then S/G2; got {gates!r}.")
+    fit.gates = (first * g1 / 2.0, second * g1 / 2.0)
+    fit.fitted_gates = False
+    return fit
+
+
+def _gate_dna_content(content, fit):
+    """Call G1, S or G2 from DNA content with a fitted histogram.
+
+    Content more than four peak widths below G1 is ``subG1`` and more than
+    four above G2 is ``>4N``. The confidence is the fitted posterior of the
+    called component; it is 1 outside the peaks.
+
+    :param content: integrated intensities.
+    :param fit: a :class:`_DnaFit`.
+    :returns: ``(phases, confidence, posterior)``; ``posterior`` is the
+        ``(n, 3)`` fitted probability of G1, S and G2, renormalised without
+        the flat component.
+    """
+    x = np.asarray(content, dtype=float)
+    first, second = fit.gates
+    phases = np.where(x < first, 'G1', np.where(x < second, 'S', 'G2'))
+    phases = phases.astype(object)
+    phases[x < fit.g1 - _CELL_CYCLE_OUTLIER_SD * fit.sd1] = _CELL_CYCLE_BELOW
+    phases[x > fit.g2 + _CELL_CYCLE_OUTLIER_SD * fit.sd2] = _CELL_CYCLE_ABOVE
+    phases[~np.isfinite(x)] = None
+    dens = fit.densities(np.nan_to_num(x))
+    posterior = dens / np.maximum(dens.sum(axis=1), 1e-300)[:, None]
+    column = {'G1': 0, 'S': 1, 'G2': 2}
+    confidence = np.array([
+        posterior[i, column[p]] if p in column else 1.0
+        for i, p in enumerate(phases)])
+    confidence[~np.isfinite(x)] = np.nan
+    three = dens[:, :3] / np.maximum(dens[:, :3].sum(axis=1), 1e-300)[:, None]
+    three[~np.isfinite(x)] = np.nan
+    return phases, confidence, three
+
+
+def _cell_cycle_channel(settings):
+    """The merged-array channel the cell-cycle phase is read from.
+
+    :param settings: Measure settings; reads ``cell_cycle_channel``, then
+        ``nucleus_channel``, then the first entry of ``channels``.
+    :returns: the merged-array channel index.
+    """
+    for key in ('cell_cycle_channel', 'nucleus_channel'):
+        value = settings.get(key)
+        if value is not None and value != '':
+            return int(value)
+    channels = settings.get('channels') or [0]
+    return int(channels[0])
+
+
+def _measured_channel_column(settings, channel):
+    """The ``channel_<i>`` index Measure wrote a merged channel under.
+
+    Measure numbers intensity columns by position in ``channels``.
+
+    :param settings: Measure settings.
+    :param channel: a merged-array channel.
+    :returns: the position of ``channel`` in ``channels``.
+    :raises ValueError: the channel was not measured.
+    """
+    measured = [int(c) for c in (settings.get('channels') or [])]
+    if not measured:
+        return int(channel)
+    if int(channel) not in measured:
+        raise ValueError(
+            f"Channel {channel} was not measured (channels is {measured}); "
+            f"add it to channels or pick a measured cell_cycle_channel.")
+    return measured.index(int(channel))
+
+
+def _nucleus_dna(nuclei, column):
+    """Background-subtracted DNA content and mean intensity of each nucleus.
+
+    The background is the median of the ring Measure samples just outside
+    each nucleus, times the nucleus area, when that column exists.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :returns: a frame with ``dna_content`` and ``dna_mean``.
+    :raises ValueError: the table has no integrated intensity for the channel.
+    """
+    prefix = f'nucleus_channel_{column}_'
+    integrated = prefix + 'integrated_intensity'
+    if integrated not in nuclei.columns:
+        raise ValueError(
+            f"The nucleus table has no {integrated} column; measure the DNA "
+            f"stain on nuclei (nucleus_mask_dim and channels) first.")
+    area = pd.to_numeric(nuclei.get('nucleus_area'), errors='coerce')
+    content = pd.to_numeric(nuclei[integrated], errors='coerce')
+    mean = pd.to_numeric(nuclei.get(prefix + 'mean_intensity'),
+                         errors='coerce')
+    for name in (prefix + 'outside_percentile_50', prefix + 'outside_mean'):
+        if name in nuclei.columns:
+            background = pd.to_numeric(nuclei[name], errors='coerce')
+            background = background.fillna(background.median())
+            content = content - background * area
+            mean = mean - background
+            break
+    return pd.DataFrame({'dna_content': content.astype(float),
+                         'dna_mean': mean.astype(float)},
+                        index=nuclei.index)
+
+
+def _plate_groups(nuclei):
+    """Row groups a DNA histogram is fitted over: one per plate and time.
+
+    :param nuclei: the ``nucleus`` table.
+    :returns: a list of ``(name, index)`` pairs.
+    """
+    keys = [k for k in ('plateID', 'timeID') if k in nuclei.columns
+            and nuclei[k].notna().any()]
+    if not keys:
+        return [('all', nuclei.index)]
+    return [(name if isinstance(name, tuple) else (name,), block.index)
+            for name, block in nuclei.groupby(keys, dropna=False, sort=True)]
+
+
+def _phases_by_measurements(nuclei, *, column, gates=None,
+                            mitotic_ratio=1.8):
+    """Cell-cycle phase of every nucleus from its measured DNA stain.
+
+    Per plate (and time point), fits :func:`_fit_dna_content` and gates the
+    DNA content. A nucleus past the G1/S gate whose background-subtracted
+    mean DNA intensity is at least ``mitotic_ratio`` times the median of the
+    plate's G2 nuclei has condensed chromatin and is called M; condensed
+    chromatin loses some of its signal outside a tight mask, so an M nucleus
+    can fall short of the S/G2 gate. A plate
+    with too few nuclei to fit is gated with the fit of all plates pooled.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :param mitotic_ratio: condensation cut for M; ``None`` keeps G2 and M
+        together as G2.
+    :returns: ``(frame, fits)``: per nucleus ``dna_content``, ``dna_mean``,
+        ``dna_c``, ``condensation``, ``gate_g1_s`` and ``gate_s_g2`` (in C
+        units), ``phase_measurements``, ``confidence_measurements`` and the
+        fitted ``posterior_G1``, ``posterior_S`` and ``posterior_G2``;
+        ``fits`` maps each group to its :class:`_DnaFit`.
+    """
+    dna = _nucleus_dna(nuclei, column)
+    out = dna.copy()
+    for name in ('dna_c', 'condensation', 'gate_g1_s', 'gate_s_g2',
+                 'confidence_measurements', 'posterior_G1', 'posterior_S',
+                 'posterior_G2'):
+        out[name] = np.nan
+    out['phase_measurements'] = None
+    pooled = None
+    fits = {}
+    for name, index in _plate_groups(nuclei):
+        content = dna.loc[index, 'dna_content']
+        try:
+            fit = _fit_dna_content(content, gates=gates)
+        except ValueError:
+            if pooled is None:
+                pooled = _fit_dna_content(dna['dna_content'], gates=gates)
+            fit = pooled
+        fits[name] = fit
+        phases, confidence, posterior = _gate_dna_content(
+            content.to_numpy(), fit)
+        mean = dna.loc[index, 'dna_mean'].to_numpy(dtype=float)
+        g2 = phases == 'G2'
+        reference = np.nanmedian(mean[g2]) if g2.any() else np.nan
+        condensation = (mean / reference if np.isfinite(reference)
+                        and reference > 0 else np.full(mean.shape, np.nan))
+        if mitotic_ratio is not None:
+            late = (phases == 'S') | g2
+            phases[late & (condensation >= float(mitotic_ratio))] = 'M'
+        out.loc[index, 'dna_c'] = fit.c_value(content.to_numpy())
+        out.loc[index, 'condensation'] = condensation
+        out.loc[index, 'gate_g1_s'] = float(fit.c_value(fit.gates[0]))
+        out.loc[index, 'gate_s_g2'] = float(fit.c_value(fit.gates[1]))
+        out.loc[index, 'phase_measurements'] = phases
+        out.loc[index, 'confidence_measurements'] = confidence
+        for column, name in enumerate(('G1', 'S', 'G2')):
+            out.loc[index, f'posterior_{name}'] = posterior[:, column]
+    return out, fits
+
+
+def _fucci_states(nuclei, settings, channels):
+    """FUCCI state of each nucleus from two reporter channels.
+
+    Each reporter is positive above an Otsu cut of its log mean intensity,
+    background-subtracted, per plate. The G1 reporter alone is ``G1``,
+    both are ``G1/S``, the S/G2/M reporter alone is ``S/G2/M`` and neither
+    is ``early G1``.
+
+    :param nuclei: the ``nucleus`` table.
+    :param settings: Measure settings.
+    :param channels: ``[G1 reporter, S/G2/M reporter]`` merged-array
+        channels.
+    :returns: a Series of states.
+    :raises ValueError: not exactly two channels.
+    """
+    from skimage.filters import threshold_otsu
+
+    if channels is None or len(channels) != 2:
+        raise ValueError(
+            f"Setting: cell_cycle_fucci_channels needs two channels, the G1 "
+            f"reporter then the S/G2/M reporter; got {channels!r}.")
+    positive = []
+    for channel in channels:
+        column = _measured_channel_column(settings, channel)
+        signal = _nucleus_dna(nuclei, column)['dna_mean']
+        logged = np.log1p(signal.clip(lower=0).to_numpy(dtype=float))
+        flags = np.zeros(len(nuclei), dtype=bool)
+        for _name, index in _plate_groups(nuclei):
+            where = nuclei.index.get_indexer(index)
+            values = logged[where]
+            finite = values[np.isfinite(values)]
+            if finite.size < 2 or np.ptp(finite) == 0:
+                continue
+            flags[where] = values > threshold_otsu(finite)
+        positive.append(flags)
+    g1, late = positive
+    states = np.where(g1 & late, 'G1/S', np.where(
+        g1, 'G1', np.where(late, 'S/G2/M', 'early G1')))
+    return pd.Series(states, index=nuclei.index, dtype=object)
+
+
+_CELL_CYCLE_POSITIONAL = (
+    'centroid', 'distance', 'neighbor', 'touching', 'radial_position',
+    'overlap', 'field_edge', 'maxima_to', 'cell_surface', 'pathogen',
+    '_cell_id', 'nucleus_nucleus', 'label_list',
+)
+
+
+def _phase_features(nuclei, measured, columns):
+    """The per-nucleus features the tabular classifier is trained on.
+
+    Nucleus morphology and the intensity columns of the named measured
+    channels, plus the DNA content and condensation. Position in the field,
+    neighbour counts and distances are left out: they describe where a
+    nucleus is, not what phase it is in.
+
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param columns: ``channel_<i>`` indices whose intensities are used.
+    :returns: a float frame, missing values filled with column medians.
+    """
+    wanted = tuple(f'nucleus_channel_{c}_' for c in columns)
+    keep = []
+    for name in nuclei.columns:
+        if not name.startswith('nucleus_'):
+            continue
+        if any(token in name for token in _CELL_CYCLE_POSITIONAL):
+            continue
+        if '_channel_' in name and not name.startswith(wanted):
+            continue
+        if pd.api.types.is_numeric_dtype(nuclei[name]):
+            keep.append(name)
+    features = nuclei[keep].apply(pd.to_numeric, errors='coerce')
+    for name in ('dna_c', 'condensation', 'dna_mean'):
+        features[name] = measured[name].astype(float)
+    features = features.replace([np.inf, -np.inf], np.nan)
+    features = features.loc[:, features.notna().any()]
+    features = features.fillna(features.median())
+    varying = features.nunique(dropna=True) > 1
+    return features.loc[:, varying].astype(np.float32)
+
+
+def _normalise_phase(value):
+    """A phase label from an annotation, or None.
+
+    Integers count from 1 through G1, S, G2 and M; names match case-
+    insensitively, with ``G2/M`` read as G2 and ``mitotic`` as M.
+
+    :param value: an annotation value.
+    :returns: one of the phases, or None for unlabelled.
+    """
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, (int, np.integer, float, np.floating)):
+        number = int(value)
+        if number == value and 1 <= number <= len(_CELL_CYCLE_PHASES):
+            return _CELL_CYCLE_PHASES[number - 1]
+        return None
+    text = str(value).strip().lower().replace(' ', '')
+    aliases = {'g1': 'G1', 's': 'S', 'g2': 'G2', 'm': 'M', 'g2/m': 'G2',
+               'g2m': 'G2', 'mitotic': 'M', 'mitosis': 'M'}
+    if text.isdigit():
+        return _normalise_phase(int(text))
+    return aliases.get(text)
+
+
+def _nucleus_prcfo(nuclei, *, by_cell):
+    """The object key of each nucleus, or of the cell it sits in.
+
+    :param nuclei: the ``nucleus`` table.
+    :param by_cell: key on ``cell_id`` where the nucleus has one.
+    :returns: a Series of ``<prcf>_o<label>`` strings.
+    """
+    from . import schema
+
+    labels = pd.to_numeric(nuclei['object_label'], errors='coerce')
+    if by_cell and 'cell_id' in nuclei.columns:
+        cells = pd.to_numeric(nuclei['cell_id'], errors='coerce')
+        labels = cells.where(cells.notna(), labels)
+    prcf = nuclei['prcf'] if 'prcf' in nuclei.columns else pd.Series(
+        ['_'.join(str(nuclei.at[i, k]) for k in _CELL_CYCLE_KEYS)
+         for i in nuclei.index], index=nuclei.index)
+    return pd.Series([
+        f"{p}_{schema.object_id(int(o))}" if pd.notna(o) else None
+        for p, o in zip(prcf, labels)], index=nuclei.index, dtype=object)
+
+
+def _cell_cycle_labels(db_path, nuclei, measured, column_name):
+    """Training labels for the xgboost and torch phase classifiers.
+
+    With an annotation column, the Annotate labels on ``png_list`` joined to
+    each nucleus through its cell (or itself when it has no cell). Without
+    one, the measurement calls the fit is sure of: G1, S and G2 whose
+    posterior is at least 0.6, and every M. The first is supervision; the
+    second is weak supervision that teaches the classifiers what the gates
+    already say, leaving out the nuclei nearest a gate.
+
+    :param db_path: the ``measurements.db``.
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param column_name: a ``png_list`` column, or empty for the gates.
+    :returns: ``(labels, source)``: a Series of phases or None, and
+        ``'annotation:<column>'`` or ``'gates'``.
+    :raises ValueError: the annotation column is not on ``png_list``.
+    """
+    if not column_name:
+        phase = measured['phase_measurements']
+        confident = (measured['confidence_measurements']
+                     >= _CELL_CYCLE_WEAK_CONFIDENCE) | (phase == 'M')
+        labels = phase.where(confident & phase.isin(_CELL_CYCLE_PHASES))
+        return labels.astype(object).where(labels.notna(), None), 'gates'
+    from .tabular import read_table
+
+    crops = read_table(db_path, table='png_list', report=None)
+    if column_name not in crops.columns:
+        raise ValueError(
+            f"Setting: cell_cycle_labels names {column_name!r}, which is not "
+            f"a column of png_list; annotate in Annotate first or leave it "
+            f"blank to learn from the DNA gates.")
+    by_key = {str(k): _normalise_phase(v)
+              for k, v in zip(crops['prcfo'], crops[column_name])}
+    labels = pd.Series(None, index=nuclei.index, dtype=object)
+    for by_cell in (True, False):
+        keys = _nucleus_prcfo(nuclei, by_cell=by_cell)
+        found = keys.map(lambda k: by_key.get(str(k)) if k else None)
+        labels = labels.where(labels.notna(), found)
+    return labels, f'annotation:{column_name}'
+
+
+def _phase_scores(truth, predicted, phases=_CELL_CYCLE_PHASES):
+    """Accuracy and per-phase F1 of phase calls against labels.
+
+    :param truth: true phases; None and phases outside ``phases`` are
+        skipped.
+    :param predicted: called phases, aligned with ``truth``.
+    :param phases: the phases scored.
+    :returns: ``{'n', 'accuracy', 'f1': {phase: F1}, 'macro_f1'}``.
+    """
+    truth = np.asarray(list(truth), dtype=object)
+    predicted = np.asarray(list(predicted), dtype=object)
+    keep = np.array([t in phases for t in truth])
+    truth, predicted = truth[keep], predicted[keep]
+    n = int(truth.size)
+    if n == 0:
+        return {'n': 0, 'accuracy': float('nan'), 'f1': {},
+                'macro_f1': float('nan')}
+    f1 = {}
+    for phase in phases:
+        tp = int(np.sum((truth == phase) & (predicted == phase)))
+        fp = int(np.sum((truth != phase) & (predicted == phase)))
+        fn = int(np.sum((truth == phase) & (predicted != phase)))
+        if tp + fp + fn:
+            f1[phase] = 2 * tp / (2 * tp + fp + fn)
+    return {'n': n, 'accuracy': float(np.mean(truth == predicted)),
+            'f1': f1, 'macro_f1': float(np.mean(list(f1.values())))}
+
+
+def _field_split(groups, fraction=0.2, seed=0):
+    """Hold out whole fields for testing, about ``fraction`` of them.
+
+    :param groups: the field identity of each row.
+    :param fraction: share of fields held out; at least one when there are
+        two or more.
+    :param seed: random seed.
+    :returns: a boolean array, True for held-out rows.
+    """
+    groups = np.asarray(list(groups), dtype=object)
+    unique = sorted(set(groups.tolist()), key=str)
+    if len(unique) < 2:
+        return np.zeros(groups.size, dtype=bool)
+    rng = np.random.default_rng(seed)
+    n_test = max(1, int(round(fraction * len(unique))))
+    held = set(rng.choice(np.array(unique, dtype=object), n_test,
+                          replace=False).tolist())
+    return np.array([g in held for g in groups])
+
+
+def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
+    """Cell-cycle phase of every nucleus from a gradient-boosted classifier.
+
+    Trained on the labelled nuclei and applied to all of them. Whole fields
+    are first held out to score the classifier on nuclei it never saw; the
+    model that calls every nucleus is then refitted on all the labels.
+
+    :param features: the frame from :func:`_phase_features`.
+    :param labels: phase or None per row.
+    :param groups: field identity per row, for the held-out split.
+    :param seed: random seed.
+    :param n_jobs: xgboost threads.
+    :returns: ``(phases, confidence, report, model)``; ``report`` holds the
+        held-out scores and the class counts.
+    :raises ValueError: fewer than two labelled phases.
+    """
+    from xgboost import XGBClassifier
+
+    from .openmp_guard import single_threaded_openmp
+
+    labelled = labels.notna().to_numpy()
+    classes = [p for p in _CELL_CYCLE_PHASES
+               if (labels[labelled] == p).any()]
+    if len(classes) < 2:
+        raise ValueError(
+            f"The xgboost phase classifier needs labels of at least two "
+            f"phases; it has {classes or 'none'}.")
+    code = {p: i for i, p in enumerate(classes)}
+    x_all = features.to_numpy(dtype=np.float32)
+    y_all = np.array([code.get(p, -1) for p in labels], dtype=int)
+
+    def _model():
+        """A fresh classifier with the fixed phase-calling parameters."""
+        return XGBClassifier(
+            n_estimators=300, max_depth=4, learning_rate=0.1,
+            subsample=0.9, colsample_bytree=0.8, tree_method='hist',
+            random_state=seed, n_jobs=n_jobs, eval_metric='mlogloss')
+
+    report = {'classes': classes,
+              'counts': {p: int((labels == p).sum()) for p in classes}}
+    held = _field_split(np.asarray(groups)[labelled], seed=seed)
+    x_lab, y_lab = x_all[labelled], y_all[labelled]
+    with single_threaded_openmp('cell-cycle phase classifier'):
+        if held.any() and len(set(y_lab[~held].tolist())) == len(classes):
+            model = _model().fit(x_lab[~held], y_lab[~held])
+            guess = model.predict(x_lab[held])
+            report['held_out'] = _phase_scores(
+                [classes[i] for i in y_lab[held]],
+                [classes[i] for i in guess], phases=tuple(classes))
+        model = _model().fit(x_lab, y_lab)
+        proba = model.predict_proba(x_all)
+    phases = np.array([classes[i] for i in proba.argmax(axis=1)],
+                      dtype=object)
+    return phases, proba.max(axis=1), report, model
+
+
+def _nucleus_crop_size(nuclei):
+    """Side of the square crop the torch classifier sees, in pixels.
+
+    Twice the 95th percentile of the nuclei's major axis, rounded up to a
+    multiple of 8 and held between 32 and 128, so every nucleus fits with
+    room and the pixel scale is never resampled.
+
+    :param nuclei: the ``nucleus`` table.
+    :returns: the side length.
+    """
+    axis = pd.to_numeric(nuclei.get('nucleus_major_axis_length'),
+                         errors='coerce').dropna()
+    if axis.empty:
+        return 64
+    side = int(np.ceil(2 * np.percentile(axis, 95) / 8.0) * 8)
+    return int(np.clip(side, 32, 128))
+
+
+def _write_nucleus_crops(root, nuclei, measured, settings, *, channel,
+                         size, folder):
+    """Write one fixed-size DNA crop per nucleus for the torch classifier.
+
+    Each crop is centred on the nucleus, cut without resampling, and saved
+    as an RGB PNG: the DNA stain less the field's background on red and
+    green, scaled by twice the plate's 99.5th percentile of mean nuclear DNA
+    intensity so brightness still carries DNA content, and the nucleus's own
+    mask on blue so the classifier knows which of several nuclei in the box
+    it is asked about. Files are named ``<plate>_<row>_<column>_<field>_o<label>``
+    so the training split's leakage audit can read their identity.
+
+    :param root: the experiment root holding ``merged/``.
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param settings: Measure settings.
+    :param channel: the merged-array DNA channel.
+    :param size: crop side.
+    :param folder: where the PNGs go.
+    :returns: a Series of PNG paths, None where the nucleus was not found.
+    """
+    from PIL import Image
+
+    from .crop_source import crop_at
+
+    os.makedirs(folder, exist_ok=True)
+    mask_dim = settings.get('nucleus_mask_dim')
+    if mask_dim is None:
+        layout = read_merged_plane_layout(os.path.join(root, 'merged'))
+        mask_dim = dict((layout or {}).get('mask_dims')
+                        or DEFAULT_MASK_DIMS).get('nucleus')
+    mask_dim = int(mask_dim)
+    paths = pd.Series(None, index=nuclei.index, dtype=object)
+    scale = {}
+    for name, index in _plate_groups(nuclei):
+        peak = pd.to_numeric(measured.loc[index, 'dna_mean'],
+                             errors='coerce').dropna()
+        top = float(np.percentile(peak, 99.5)) * 2.0 if len(peak) else 1.0
+        for i in index:
+            scale[i] = top if top > 0 else 1.0
+    merged_dir = os.path.join(root, 'merged')
+    for path_name, block in nuclei.groupby('path_name', sort=False):
+        resolved = _resolve_merged_path(path_name, merged_dir)
+        if resolved is None:
+            continue
+        data = np.load(resolved, mmap_mode='r')
+        if data.ndim == 4:
+            data = np.asarray(data).max(axis=0)
+        mask = np.asarray(data[..., mask_dim])
+        image = np.asarray(data[..., channel], dtype=np.float32)
+        bg = float(np.percentile(image[mask == 0], 50)) if (
+            mask == 0).any() else 0.0
+        boxes = find_objects(mask.astype(np.int64))
+        for i, row in block.iterrows():
+            label = int(row['object_label'])
+            if label < 1 or label > len(boxes) or boxes[label - 1] is None:
+                continue
+            rows, cols = boxes[label - 1]
+            centre_r = 0.5 * (rows.start + rows.stop - 1)
+            centre_c = 0.5 * (cols.start + cols.stop - 1)
+            stack = np.dstack([image, (mask == label).astype(np.float32)])
+            cut = crop_at(stack, centre_r, centre_c, channels=[0, 1],
+                          size=size)
+            if cut is None:
+                continue
+            dna = np.clip((cut[..., 0] - bg) / scale[i], 0, 1) * 255
+            own = cut[..., 1] * 255
+            rgb = np.dstack([dna, dna, own]).astype(np.uint8)
+            stem = '_'.join(str(row[k]) for k in _CELL_CYCLE_KEYS)
+            if 'timeID' in row.index and pd.notna(row.get('timeID')):
+                stem = f"{stem}_t{row['timeID']}"
+            png = os.path.join(folder, f"{stem}_o{label}.png")
+            Image.fromarray(rgb).save(png)
+            paths[i] = png
+    return paths
+
+
+def _link_or_copy(source, target):
+    """Hard-link ``source`` to ``target``, copying where links fail.
+
+    :param source: an existing file.
+    :param target: the new path.
+    """
+    try:
+        os.link(source, target)
+    except OSError:
+        shutil.copy2(source, target)
+
+
+def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
+                     work):
+    """Cell-cycle phase of every nucleus from an image classifier on crops.
+
+    Crops every nucleus (:func:`_write_nucleus_crops`), then either applies
+    the model named by ``cell_cycle_model`` or trains one with
+    :func:`spacr.deep_spacr.train_test_model`, the same training Classify
+    runs: labelled crops go to ``train/<phase>`` and ``test/<phase>`` of a
+    dataset split by field, and the trained model is applied to every crop
+    with :func:`spacr.deep_spacr.apply_model`. The phase order the model
+    was trained with is written beside it as ``cell_cycle_phases.json``.
+
+    :param root: the experiment root.
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param labels: phase or None per nucleus.
+    :param settings: Measure settings.
+    :param channel: the merged-array DNA channel.
+    :param work: the folder the crops, dataset and model go in.
+    :returns: ``(phases, confidence, report)``.
+    :raises ValueError: fewer than two labelled phases, or a model file
+        without its phase order.
+    """
+    from .deep_spacr import apply_model, train_test_model
+
+    size = _nucleus_crop_size(nuclei)
+    crops = os.path.join(work, 'crops')
+    if os.path.isdir(crops):
+        shutil.rmtree(crops)
+    paths = _write_nucleus_crops(root, nuclei, measured, settings,
+                                 channel=channel, size=size, folder=crops)
+    model_path = str(settings.get('cell_cycle_model') or '').strip()
+    report = {'crop_size': size, 'crops': int(paths.notna().sum())}
+    if model_path:
+        order_file = os.path.join(os.path.dirname(model_path),
+                                  'cell_cycle_phases.json')
+        if not os.path.isfile(order_file):
+            raise ValueError(
+                f"Setting: cell_cycle_model {model_path} has no "
+                f"cell_cycle_phases.json beside it, so the order of its "
+                f"phases is unknown; use a model this step trained.")
+        with open(order_file) as handle:
+            meta = json.load(handle)
+        classes, size = list(meta['phases']), int(meta.get('crop_size', size))
+        report['model'] = model_path
+    else:
+        usable = labels.notna() & paths.notna()
+        classes = sorted(p for p in _CELL_CYCLE_PHASES
+                         if (labels[usable] == p).any())
+        if len(classes) < 2:
+            raise ValueError(
+                f"The torch phase classifier needs labelled crops of at "
+                f"least two phases; it has {classes or 'none'}.")
+        dataset = os.path.join(work, 'dataset')
+        if os.path.isdir(dataset):
+            shutil.rmtree(dataset)
+        fields = nuclei.loc[usable, list(_CELL_CYCLE_KEYS)].astype(str).agg(
+            '_'.join, axis=1)
+        held = _field_split(fields.to_numpy())
+        for (i, png), test in zip(paths[usable].items(), held):
+            target = os.path.join(dataset, 'test' if test else 'train',
+                                  labels[i])
+            os.makedirs(target, exist_ok=True)
+            _link_or_copy(png, os.path.join(target, os.path.basename(png)))
+        for split in ('train', 'test'):
+            for phase in classes:
+                os.makedirs(os.path.join(dataset, split, phase),
+                            exist_ok=True)
+        model_path = train_test_model({
+            'src': dataset, 'model_type': _CELL_CYCLE_TORCH_BACKBONE,
+            'class_folder_names': classes, 'image_size': size,
+            'epochs': int(settings.get('cell_cycle_epochs') or 20),
+            'batch_size': 32, 'train': True, 'test': bool(held.any()),
+            'init_weights': False, 'learning_rate': 1e-3,
+            'gradient_accumulation_steps': 1, 'use_checkpoint': False,
+            'plot': False, 'tensorboard': False, 'n_jobs': 0,
+            'pin_memory': False, 'cv_group_by': 'field', 'verbose': False,
+            'class_balance': 'weighted_loss',
+        })
+        if not model_path or not str(model_path).endswith('.pth'):
+            raise RuntimeError(
+                f"Training the torch phase classifier produced no model "
+                f"({model_path!r}).")
+        with open(os.path.join(os.path.dirname(model_path),
+                               'cell_cycle_phases.json'), 'w') as handle:
+            json.dump({'phases': classes, 'crop_size': size,
+                       'channel': int(channel)}, handle)
+        report['model'] = model_path
+    scored = apply_model(crops, model_path, image_size=size, batch_size=64,
+                         normalize=True, n_jobs=0)
+    by_path = {os.path.abspath(str(p)): row for p, row in zip(
+        scored['path'], scored.to_dict('records'))}
+    phases = pd.Series(None, index=nuclei.index, dtype=object)
+    confidence = pd.Series(np.nan, index=nuclei.index)
+    for i, png in paths.dropna().items():
+        row = by_path.get(os.path.abspath(png))
+        if row is None:
+            continue
+        if len(classes) == 2:
+            index = int(row['pred'] >= 0.5)
+            score = row['pred'] if index else 1 - row['pred']
+        else:
+            index = int(row['predicted_label'])
+            score = row['pred']
+        phases[i] = classes[index]
+        confidence[i] = float(score)
+    report['classes'] = classes
+    return phases, confidence, report
+
+
+def _nucleus_infection(db_path, nuclei):
+    """Whether the cell around each nucleus holds a pathogen.
+
+    :param db_path: the ``measurements.db``.
+    :param nuclei: the ``nucleus`` table.
+    :returns: a float Series, 1 infected, 0 not, NaN when the nucleus has
+        no cell or the run segmented no pathogens.
+    """
+    out = pd.Series(np.nan, index=nuclei.index)
+    if 'cell_id' not in nuclei.columns:
+        return out
+    try:
+        from .infection import parasites_per_cell
+
+        cells = parasites_per_cell(db_path)
+    except Exception:                                        # noqa: BLE001
+        return out
+    if cells.empty or 'pathogen_count' not in cells.columns:
+        return out
+    keys = [k for k in _CELL_CYCLE_KEYS if k in cells.columns]
+    lookup = {tuple(str(v) for v in key) + (int(label),): count
+              for *key, label, count in cells[keys + [
+                  'object_label', 'pathogen_count']].itertuples(index=False)
+              if pd.notna(label)}
+    for i, row in nuclei.iterrows():
+        cell = pd.to_numeric(row.get('cell_id'), errors='coerce')
+        if pd.isna(cell):
+            continue
+        count = lookup.get(tuple(str(row[k]) for k in keys) + (int(cell),))
+        if count is not None:
+            out[i] = float(count > 0)
+    return out
+
+
+def _keep_content_calls(phases, measured):
+    """A learned method's calls, with subG1 and >4N taken from DNA content.
+
+    Nuclei outside the fitted peaks are fragments, cut nuclei and clumps,
+    decided by their DNA content alone; the learned methods are asked only
+    which phase a nucleus inside the peaks is in, so every method reports
+    the same subG1 and >4N nuclei.
+
+    :param phases: phase per nucleus from a learned method.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :returns: a Series of phases.
+    """
+    out = pd.Series(list(phases), index=measured.index, dtype=object)
+    outside = measured['phase_measurements'].isin(
+        (_CELL_CYCLE_BELOW, _CELL_CYCLE_ABOVE))
+    out[outside] = measured.loc[outside, 'phase_measurements']
+    return out
+
+
+def _consensus_phase(frame, methods):
+    """The majority phase of the methods run, the measurement call on a tie.
+
+    :param frame: per-nucleus frame with ``phase_<method>`` columns.
+    :param methods: the methods run, in priority order.
+    :returns: a Series of phases.
+    """
+    columns = [f'phase_{m}' for m in methods]
+    out = []
+    for values in frame[columns].itertuples(index=False):
+        called = [v for v in values if v is not None and not (
+            isinstance(v, float) and np.isnan(v))]
+        if not called:
+            out.append(None)
+            continue
+        counts = pd.Series(called).value_counts()
+        best = counts[counts == counts.max()].index.tolist()
+        out.append(next(v for v in called if v in best))
+    return pd.Series(out, index=frame.index, dtype=object)
+
+
+def _fitted_fractions(block):
+    """G1, S and G2/M fractions of a group from the fitted posteriors.
+
+    Summing each nucleus's posterior rather than counting its gated call is
+    how a flow-cytometry histogram is read: where the peaks are wide, a
+    gate hands most of S to G1 and G2, while the posteriors keep it.
+    Nuclei outside the peaks (subG1, >4N) are left out.
+
+    :param block: rows of the per-nucleus ``cell_cycle`` frame.
+    :returns: ``fit_fraction_G1``, ``fit_fraction_S`` and
+        ``fit_fraction_G2M``.
+    """
+    inside = block[block['phase_measurements'].isin(_CELL_CYCLE_PHASES)]
+    posterior = inside[['posterior_G1', 'posterior_S', 'posterior_G2']]
+    posterior = posterior.astype(float).dropna()
+    total = float(posterior.to_numpy().sum())
+    shares = (posterior.sum() / total if total > 0
+              else pd.Series(np.nan, index=posterior.columns))
+    return {'fit_fraction_G1': float(shares['posterior_G1']),
+            'fit_fraction_S': float(shares['posterior_S']),
+            'fit_fraction_G2M': float(shares['posterior_G2'])}
+
+
+def _cell_cycle_by_well(table, methods):
+    """Phase fractions per well for each method, and among infected cells.
+
+    :param table: the per-nucleus ``cell_cycle`` frame.
+    :param methods: the methods whose ``phase_<method>`` columns to count,
+        plus ``'consensus'`` for the ``cell_cycle_phase`` column.
+    :returns: one row per well (and time point) and method: ``n``, the
+        fraction in each of G1, S, G2, M, subG1 and >4N, ``fraction_G2M``,
+        and the same fractions among infected and uninfected cells when
+        infection is known, with their counts. The measurement rows also
+        carry the posterior fractions of :func:`_fitted_fractions`.
+    """
+    if table is None or table.empty:
+        return pd.DataFrame()
+    keys = ['plateID', 'rowID', 'columnID']
+    if 'timeID' in table.columns and table['timeID'].notna().any():
+        keys.append('timeID')
+    everything = _CELL_CYCLE_PHASES + (_CELL_CYCLE_BELOW, _CELL_CYCLE_ABOVE)
+
+    def _fractions(phases, prefix=''):
+        """Count and phase fractions of one group of nuclei."""
+        phases = phases.dropna()
+        n = int(len(phases))
+        row = {f'{prefix}n': n}
+        for phase in everything:
+            row[f'{prefix}fraction_{phase}'] = (
+                float((phases == phase).mean()) if n else np.nan)
+        row[f'{prefix}fraction_G2M'] = (
+            float(phases.isin(('G2', 'M')).mean()) if n else np.nan)
+        return row
+
+    rows = []
+    for method in methods:
+        column = ('cell_cycle_phase' if method == 'consensus'
+                  else f'phase_{method}')
+        if column not in table.columns:
+            continue
+        for name, block in table.groupby(keys, dropna=False, sort=True):
+            identity = dict(zip(keys, name if isinstance(name, tuple)
+                                else (name,)))
+            row = {**identity, 'method': method, **_fractions(block[column])}
+            if method == 'measurements' and 'posterior_S' in block.columns:
+                row.update(_fitted_fractions(block))
+            if 'infected' in block.columns and block['infected'].notna().any():
+                row.update(_fractions(
+                    block.loc[block['infected'] == 1, column], 'infected_'))
+                row.update(_fractions(
+                    block.loc[block['infected'] == 0, column], 'uninfected_'))
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _phase_agreement_by_well(wells, methods):
+    """The largest disagreement between methods in each well's fractions.
+
+    :param wells: the frame from :func:`_cell_cycle_by_well`.
+    :param methods: the methods compared.
+    :returns: one row per well, with ``max_fraction_difference`` and the
+        phase it occurs in.
+    """
+    if wells.empty or len(methods) < 2:
+        return pd.DataFrame()
+    keys = [k for k in ('plateID', 'rowID', 'columnID', 'timeID')
+            if k in wells.columns]
+    rows = []
+    compared = wells[wells['method'].isin(methods)]
+    for name, block in compared.groupby(keys, dropna=False, sort=True):
+        identity = dict(zip(keys, name if isinstance(name, tuple)
+                            else (name,)))
+        worst, where = 0.0, None
+        for phase in _CELL_CYCLE_PHASES:
+            values = block[f'fraction_{phase}'].astype(float)
+            spread = float(values.max() - values.min())
+            if spread > worst:
+                worst, where = spread, phase
+        rows.append({**identity, 'max_fraction_difference': worst,
+                     'phase': where})
+    return pd.DataFrame(rows)
+
+
+def _dna_histogram_figure(dna_c, fit, title, phases=None):
+    """The DNA-content histogram with its fitted model and gates.
+
+    :param dna_c: DNA content in C units of one plate.
+    :param fit: the plate's :class:`_DnaFit`.
+    :param title: figure title.
+    :param phases: optional phase per nucleus, to show each phase's share.
+    :returns: the figure.
+    """
+    values = np.asarray(dna_c, dtype=float)
+    values = values[np.isfinite(values)]
+    upper = max(6.0, float(np.percentile(values, 99.5)) if values.size else 6)
+    grid = np.linspace(0, upper, 600)
+    dens = fit.densities(grid * fit.g1 / 2.0) * fit.g1 / 2.0
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(7, 4))
+        ax.hist(values, bins=120, range=(0, upper), density=True,
+                color='0.7', label='nuclei')
+        for column, name in enumerate(('G1', 'S', 'G2')):
+            ax.plot(grid, dens[:, column], label=f'{name} fit')
+        ax.plot(grid, dens.sum(axis=1), color='k', lw=1, label='model')
+        for gate in fit.gates:
+            ax.axvline(float(fit.c_value(gate)), color='k', ls='--', lw=1)
+        ax.set_xlabel('DNA content (C, G1 peak = 2)')
+        ax.set_ylabel('density')
+        if phases is not None:
+            shares = pd.Series(list(phases)).value_counts(normalize=True)
+            title = title + ': ' + ', '.join(
+                f'{p} {shares.get(p, 0):.0%}' for p in _CELL_CYCLE_PHASES)
+        ax.set_title(title)
+        ax.legend(frameon=False, fontsize=8)
+    return fig
+
+
+def _resolve_cell_cycle_methods(method):
+    """The methods a ``cell_cycle_method`` value runs, in priority order.
+
+    :param method: ``measurements``, ``xgboost``, ``torch`` or ``all``.
+    :returns: a tuple of methods; the measurement gates always run first,
+        since the others learn from them or report beside them.
+    :raises ValueError: an unknown method.
+    """
+    method = str(method or 'measurements').strip().lower()
+    if method not in _CELL_CYCLE_CHOICES:
+        raise ValueError(
+            f"Setting: cell_cycle_method must be one of "
+            f"{list(_CELL_CYCLE_CHOICES)}; got {method!r}.")
+    if method == 'all':
+        return _CELL_CYCLE_METHODS
+    if method == 'measurements':
+        return ('measurements',)
+    return ('measurements', method)
+
+
+def _classify_cell_cycle(db_path, settings, *, plot=None):
+    """Call every nucleus's cell-cycle phase and write it to the database.
+
+    Reads the ``nucleus`` table Measure wrote and calls G1, S, G2 or M for
+    each nucleus by the ``cell_cycle_method`` setting: ``measurements``
+    gates the DNA-content histogram of each plate
+    (:func:`_phases_by_measurements`); ``xgboost`` trains a gradient-boosted
+    classifier on the nucleus features; ``torch`` trains an image classifier
+    on nucleus crops with Classify's training; ``all`` runs the three.
+    Labels for the two learned methods come from the Annotate column named
+    by ``cell_cycle_labels``, or from the confident gate calls when it is
+    blank. With ``cell_cycle_fucci_channels`` a FUCCI state is added.
+
+    Writes ``measurements.db:cell_cycle``, one row per nucleus keyed by its
+    ``prcfo`` with ``phase_<method>`` and ``confidence_<method>`` for every
+    method run, the DNA content and gates, ``infected`` where pathogens were
+    segmented, and ``cell_cycle_phase``: the chosen method's call, or with
+    ``all`` the majority of the three (the measurement call on a tie).
+    ``cell_cycle_well`` holds the phase fractions per well and method,
+    overall and among infected and uninfected cells, and
+    ``cell_cycle_agreement`` the largest difference between methods per
+    well. With ``plot``, each plate's fitted histogram is saved under
+    ``results/cell_cycle``.
+
+    :param db_path: a ``measurements.db`` with a ``nucleus`` table.
+    :param settings: Measure settings.
+    :param plot: save the histograms; defaults to ``settings['plot']``.
+    :returns: ``(table, report)``: the per-nucleus frame written and a dict
+        of what each method did, including held-out scores.
+    :raises ValueError: no nucleus table, or unusable settings.
+    """
+    from .tabular import database_tables, read_table, write_database
+
+    if 'nucleus' not in database_tables(db_path):
+        raise ValueError(
+            f"{db_path} has no nucleus table; cell-cycle phases are called "
+            f"from measured nuclei, so set nucleus_mask_dim.")
+    methods = _resolve_cell_cycle_methods(settings.get('cell_cycle_method'))
+    nuclei = read_table(db_path, table='nucleus', report=None)
+    nuclei = nuclei.reset_index(drop=True)
+    channel = _cell_cycle_channel(settings)
+    column = _measured_channel_column(settings, channel)
+    ratio = settings.get('cell_cycle_mitotic_ratio', 1.8)
+    measured, fits = _phases_by_measurements(
+        nuclei, column=column, gates=settings.get('cell_cycle_gates') or None,
+        mitotic_ratio=None if ratio in (None, '') else float(ratio))
+    table = nuclei[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
+                                'object_label', 'cell_id', 'file_name')
+                    if k in nuclei.columns]].copy()
+    table['prcfo'] = _nucleus_prcfo(nuclei, by_cell=False)
+    for name in ('dna_content', 'dna_mean', 'dna_c', 'condensation',
+                 'gate_g1_s', 'gate_s_g2', 'phase_measurements',
+                 'confidence_measurements', 'posterior_G1', 'posterior_S',
+                 'posterior_G2'):
+        table[name] = measured[name]
+    report = {'methods': list(methods), 'channel': channel,
+              'plates': {str(k): {'g1': f.g1, 'g2': f.g2,
+                                  'g2_over_g1': f.g2 / f.g1,
+                                  'gates_c': [float(f.c_value(g))
+                                              for g in f.gates],
+                                  'fitted_gates': f.fitted_gates,
+                                  'n': f.n}
+                         for k, f in fits.items()}}
+    labels = source = None
+    if len(methods) > 1:
+        labels, source = _cell_cycle_labels(
+            db_path, nuclei, measured, settings.get('cell_cycle_labels'))
+        report['labels'] = source
+        report['labelled'] = int(labels.notna().sum())
+    if 'xgboost' in methods:
+        fucci = settings.get('cell_cycle_fucci_channels') or []
+        columns = [column] + [_measured_channel_column(settings, c)
+                              for c in fucci]
+        features = _phase_features(nuclei, measured, columns)
+        fields = table[list(_CELL_CYCLE_KEYS)].astype(str).agg('_'.join,
+                                                               axis=1)
+        phases, confidence, xgb_report, model = _phases_by_xgboost(
+            features, labels, fields.to_numpy(),
+            n_jobs=int(settings.get('n_jobs') or 1))
+        table['phase_xgboost'] = _keep_content_calls(phases, measured)
+        table['confidence_xgboost'] = confidence
+        report['xgboost'] = xgb_report
+        model.get_booster().save_model(os.path.join(
+            os.path.dirname(db_path), 'cell_cycle_xgboost.json'))
+    if 'torch' in methods:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        phases, confidence, torch_report = _phases_by_torch(
+            root, nuclei, measured, labels, settings, channel=channel,
+            work=os.path.join(root, 'cell_cycle'))
+        table['phase_torch'] = _keep_content_calls(phases, measured)
+        table['confidence_torch'] = confidence
+        report['torch'] = torch_report
+    fucci = settings.get('cell_cycle_fucci_channels')
+    if fucci:
+        table['fucci_state'] = _fucci_states(nuclei, settings, fucci)
+    table['infected'] = _nucleus_infection(db_path, nuclei)
+    if len(methods) == len(_CELL_CYCLE_METHODS):
+        table['cell_cycle_phase'] = _consensus_phase(table, methods)
+        table['cell_cycle_method'] = 'consensus'
+    else:
+        table['cell_cycle_phase'] = table[f'phase_{methods[-1]}']
+        table['cell_cycle_method'] = methods[-1]
+    write_database(table, db_path, _CELL_CYCLE_TABLE, if_exists='replace',
+                   canonicalise=False)
+    counted = list(methods) + (['consensus'] if len(methods) == len(
+        _CELL_CYCLE_METHODS) else [])
+    wells = _cell_cycle_by_well(table, counted)
+    if not wells.empty:
+        write_database(wells, db_path, _CELL_CYCLE_WELL_TABLE,
+                       if_exists='replace', canonicalise=False)
+    agreement = _phase_agreement_by_well(wells, methods)
+    if not agreement.empty:
+        write_database(agreement, db_path, 'cell_cycle_agreement',
+                       if_exists='replace', canonicalise=False)
+        report['max_fraction_difference'] = float(
+            agreement['max_fraction_difference'].max())
+    if settings.get('plot') if plot is None else plot:
+        from .plot import save_figure
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        for name, index in _plate_groups(nuclei):
+            fit = fits[name]
+            label = '_'.join(str(v) for v in name) if isinstance(
+                name, tuple) else str(name)
+            fig = _dna_histogram_figure(
+                table.loc[index, 'dna_c'], fit, label,
+                table.loc[index, 'cell_cycle_phase'])
+            save_figure(fig, os.path.join(
+                root, 'results', 'cell_cycle', f'dna_content_{label}.pdf'),
+                close=True)
+    return table, report
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -4390,6 +5656,9 @@ def measure_crop(settings):
                               f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
                               f"{failing} below the monolayer QC threshold.")
 
+                if settings.get('cell_cycle') and os.path.isfile(db_path):
+                    _run_cell_cycle_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
@@ -4402,6 +5671,29 @@ def measure_crop(settings):
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _run_cell_cycle_step(db_path, settings):
+    """Call cell-cycle phases at the end of a Measure run and say where.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database, and the phases can be called again from it.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-nucleus table, or None when the step failed.
+    """
+    try:
+        table, report = _classify_cell_cycle(db_path, settings)
+    except Exception as exc:                                 # noqa: BLE001
+        print(f"Cell-cycle phases could not be called: {exc}")
+        return None
+    shares = table['cell_cycle_phase'].value_counts(normalize=True)
+    print(f"Cell cycle ({', '.join(report['methods'])}): {len(table)} nuclei "
+          f"in measurements.db:{_CELL_CYCLE_TABLE}; "
+          + ', '.join(f'{p} {shares.get(p, 0):.0%}'
+                      for p in _CELL_CYCLE_PHASES))
+    return table
+
 
 def _emit_infection_report(db_path):
     """Write the infection report a finished run can support, if any.
