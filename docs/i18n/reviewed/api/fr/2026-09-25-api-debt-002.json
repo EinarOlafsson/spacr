@@ -1074,7 +1074,9 @@
       "source_sha256": "c5612469082f8c5f4d1c921458f8ba1f61dbef7958af69e2578f8e2bacd5553f",
       "context": "screen — the two operating systems whose own folders have spaces in them. A UNC path was not a path at all: nothing here started at ``\\\\``. What is left is the tail of the LAST component of an unquoted path, since only a separator can prove that a space is inside the path rather than after it; a quoted path is taken whole, and the title and every ``repr``-ed settings value are quoted.",
       "translation": "criblage — les deux systèmes d’exploitation dont les dossiers propres contiennent des espaces. Un chemin UNC n’était pas du tout reconnu comme chemin : rien ici ne commençait à ``\\\\``. Ce qui subsiste est la fin du DERNIER composant d’un chemin sans guillemets, car seul un séparateur peut prouver qu’une espace se trouve dans le chemin plutôt qu’après lui ; un chemin entre guillemets est pris en entier, et le titre ainsi que chaque valeur de réglage passée par ``repr`` sont entre guillemets.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#5",
@@ -4218,7 +4220,9 @@
       "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "Il accepte des images de plages, des dossiers de telles images, les deux mélangés, et, en mode Figure, le PDF d’un article. Avant ce gestionnaire, Plaque Assay recevait la politique de Make Masks, qui refusait un dossier inutilisable avec la phrase de Make Masks.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
@@ -4274,7 +4278,9 @@
       "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
       "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
       "translation": "Une image de plages, un PDF, ou un dossier contenant des images de plages ou des PDFs.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",

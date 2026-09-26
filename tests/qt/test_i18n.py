@@ -81,7 +81,10 @@ def test_common_settings_terms_translate_conservatively():
     from spacr.qt.i18n import tr
 
     assert tr("Input & Metadata", "de") == "Eingabe & Metadaten"
-    assert tr("Cell Segmentation", "sv") == "Cell Segmentering"
+    # 2026-09-25: the reviewed Swedish is the grammatical compound
+    # "Cellsegmentering"; the old "Cell Segmentering" was a split machine
+    # rendering. The conservative part of this test is the path below.
+    assert tr("Cell Segmentation", "sv") == "Cellsegmentering"
     assert tr("/data/Cell_Segmentation.tif", "fr") == \
         "/data/Cell_Segmentation.tif"
 

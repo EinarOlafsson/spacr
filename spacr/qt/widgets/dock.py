@@ -619,8 +619,8 @@ class Dock(QWidget):
 class DockEdge(QWidget):
     """The strip along the dock's right edge that drags its width (item 529).
 
-    The maintainer, 2026-09-25: "the user should be able to modify the width
-    of the dock when not hidden". A sibling of the dock's slot rather than a
+    Dragging it sets the width of the dock while the dock is shown. A
+    sibling of the dock's slot rather than a
     splitter handle, because the dock is a fixed-width layout member and
     everything that measures it (the drawer, the backdrop, the fitting width)
     reads that fixed width. Dragging sets it; releasing stores it; a

@@ -698,7 +698,9 @@
       "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "Er nimmt Plaque-Bilder, Ordner damit, beides gemischt und im Figure-Modus das PDF eines Artikels an. Vor diesem Handler erhielt Plaque Assay die Richtlinie von Make Masks, die einen Ordner, den sie nicht verwenden konnte, mit dem Satz von Make Masks ablehnte.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
@@ -746,7 +748,9 @@
       "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
       "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
       "translation": "Ein Plaque-Bild, ein PDF oder ein Ordner mit Plaque-Bildern oder PDFs darin.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",

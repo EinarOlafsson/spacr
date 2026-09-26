@@ -107,10 +107,10 @@ def _read_results(results: Any) -> Optional[pd.DataFrame]:
         path = next((f for f in inside if os.path.isfile(f)), "")
     if not path or not os.path.isfile(path):
         return None
-    try:
-        from .tabular import read_table
+    from .tabular import read_table
 
-        return read_table(path, report=None)
+    try:
+        return read_table(path, canonicalise=False, report=None)
     except Exception:
         LOG.debug("could not read results %s", path, exc_info=True)
         return None

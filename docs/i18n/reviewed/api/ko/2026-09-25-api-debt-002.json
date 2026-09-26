@@ -1074,7 +1074,9 @@
       "source_sha256": "c5612469082f8c5f4d1c921458f8ba1f61dbef7958af69e2578f8e2bacd5553f",
       "context": "screen — the two operating systems whose own folders have spaces in them. A UNC path was not a path at all: nothing here started at ``\\\\``. What is left is the tail of the LAST component of an unquoted path, since only a separator can prove that a space is inside the path rather than after it; a quoted path is taken whole, and the title and every ``repr``-ed settings value are quoted.",
       "translation": "스크리닝 이름을 남겼습니다. 두 운영 체제 모두 자체 폴더 이름에 공백이 있습니다. UNC 경로는 아예 경로로 인식되지 않았습니다. 여기서는 어떤 것도 ``\\\\`` 에서 시작하지 않았습니다. 이제 남는 것은 인용되지 않은 경로의 마지막 구성 요소의 끝부분뿐입니다. 공백이 경로 뒤가 아니라 경로 안에 있음을 증명할 수 있는 것은 구분자뿐이기 때문입니다. 인용된 경로는 통째로 처리되며, 제목과 ``repr`` 로 표현된 모든 설정 값은 인용됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#5",

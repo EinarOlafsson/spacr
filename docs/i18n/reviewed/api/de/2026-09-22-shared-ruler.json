@@ -27,7 +27,9 @@
       "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
       "source": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
       "source_sha256": "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c",
-      "translation": "Hosts übergeben ihre Widget-zu-Bild-Abbildung an :meth:`handle` und die inverse Abbildung an :meth:`paint`. Zoom und Verschieben ändern die gemessene Länge nie. Pixeleinheiten werden immer angezeigt. Physikalische Einheiten erfordern eine explizite, validierte Kalibrierung über :meth:`set_spacing`; die Kameravergrößerung wird nie geschätzt. Ein Rechtsklick löscht die Linie, während das Werkzeug aktiv ist. Der Anfangszustand hat keine Linie, keine Kalibrierung und deaktiviertes Zeichnen."
+      "translation": "Hosts übergeben ihre Widget-zu-Bild-Abbildung an :meth:`handle` und die inverse Abbildung an :meth:`paint`. Zoom und Verschieben ändern die gemessene Länge nie. Pixeleinheiten werden immer angezeigt. Physikalische Einheiten erfordern eine explizite, validierte Kalibrierung über :meth:`set_spacing`; die Kameravergrößerung wird nie geschätzt. Ein Rechtsklick löscht die Linie, während das Werkzeug aktiv ist. Der Anfangszustand hat keine Linie, keine Kalibrierung und deaktiviertes Zeichnen.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Remove the line without changing tool activation or calibration.",
