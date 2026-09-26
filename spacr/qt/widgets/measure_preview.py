@@ -808,7 +808,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions.addWidget(self._settings_btn)
         from ..i18n import tr
         self._confluency_btn = QPushButton(tr("Confluency"))
-        self._confluency_btn.setObjectName("ToggleButton")
+        self._confluency_btn.setObjectName("MeasureConfluencyToggle")
         self._confluency_btn.setCheckable(True)
         self._confluency_btn.setProperty("maturity", "alpha")
         self._confluency_btn.setToolTip(tr(
@@ -831,7 +831,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._confluency_view.setAlignment(Qt.AlignCenter)
         self._confluency_view.hide()
         root.addWidget(self._confluency_view)
-        self.refresh_maturity_visibility()
+        self.refresh_alpha_visibility()
 
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
@@ -1305,25 +1305,28 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if self._confluency_btn.isChecked():
             self.refresh_confluency()
 
-    def refresh_maturity_visibility(self) -> None:
-        """Show the Alpha confluency preview only when Preferences allow it.
+    def refresh_alpha_visibility(self) -> None:
+        """Show the confluency preview only when alpha features are shown.
 
-        Hiding it also switches it off, so no overlay is left on screen
-        from a control the user can no longer see.
+        Item 541 registers the toggle and its overlay in
+        ``spacr.settings.ALPHA_FEATURES``; this asks the same gate the rest
+        of the window uses. Hiding it also switches it off, so no overlay is
+        left on screen from a control the user can no longer see.
         """
-        from ..preferences import maturity_is_visible
+        from ..preferences import _is_alpha_visible
 
-        visible = maturity_is_visible("alpha")
+        visible = _is_alpha_visible(
+            "widgets", self._confluency_btn.objectName())
         if not visible and self._confluency_btn.isChecked():
             self._confluency_btn.setChecked(False)
         self._confluency_btn.setVisible(visible)
 
     def showEvent(self, event):
-        """Re-read the maturity preference each time the panel is shown.
+        """Re-read the alpha preference each time the panel is shown.
 
         :param event: the Qt show event.
         """
-        self.refresh_maturity_visibility()
+        self.refresh_alpha_visibility()
         super().showEvent(event)
 
     def confluency_settings(self) -> Dict[str, Any]:

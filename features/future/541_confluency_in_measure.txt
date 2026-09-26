@@ -87,5 +87,7 @@ DONE WHEN
     on the synthetic fields); wiring the flag into analyze_plaques.
 ALPHA: settings confluency, confluency_source, confluency_channel,
 confluency_window, confluency_qc_threshold (Measure category "Confluency
-(Alpha)"); widgets: the Confluency toggle button and the
-MeasureConfluencyOverlay label in the Measure preview.
+(Alpha)"); widgets: MeasureConfluencyToggle, the Confluency button in the
+Measure preview (its MeasureConfluencyOverlay label is shown only through
+it). Registered as ALPHA_FEATURES[541] in spacr/settings.py after 569 reached
+nightly; the preview asks preferences._is_alpha_visible for the toggle.

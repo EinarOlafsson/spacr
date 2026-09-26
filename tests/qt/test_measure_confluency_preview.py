@@ -2,7 +2,8 @@
 
 The Confluency button runs the same function a Measure run with
 ``confluency`` on runs for one field, so the overlay and the database agree,
-and it is present only when Preferences shows Alpha features.
+and it is present only when Preferences -> Show alpha features is on (item
+569's registry, where item 541 registers it).
 """
 from __future__ import annotations
 
@@ -31,7 +32,8 @@ def _field(directory, fraction=0.4):
 
 @pytest.fixture
 def alpha_on(monkeypatch):
-    monkeypatch.setattr(preferences, "get_show_alpha", lambda: True)
+    monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                        lambda: True)
 
 
 @pytest.fixture
@@ -79,14 +81,19 @@ def test_a_failure_is_reported_not_raised(tmp_path):
 
 
 def test_the_button_is_hidden_when_alpha_features_are(qtbot, monkeypatch):
-    monkeypatch.setattr(preferences, "get_show_alpha", lambda: True)
+    from spacr.settings import ALPHA_FEATURES
+
+    assert "MeasureConfluencyToggle" in ALPHA_FEATURES[541]["widgets"]
+    monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                        lambda: True)
     widget = MP.MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(widget)
+    assert widget._confluency_btn.objectName() == "MeasureConfluencyToggle"
     assert not widget._confluency_btn.isHidden()
-    assert widget._confluency_btn.property("maturity") == "alpha"
     widget._confluency_btn.setChecked(True)
 
-    monkeypatch.setattr(preferences, "get_show_alpha", lambda: False)
-    widget.refresh_maturity_visibility()
+    monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                        lambda: False)
+    widget.refresh_alpha_visibility()
     assert widget._confluency_btn.isHidden()
     assert not widget._confluency_btn.isChecked()
