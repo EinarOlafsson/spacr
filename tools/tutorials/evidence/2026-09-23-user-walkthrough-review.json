@@ -291,9 +291,7 @@
       "newly_authored": false,
       "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
-      "incompatible_translation_reviews": [
-        "12_map_barcodes.reviewed"
-      ],
+      "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
       "published_rewrite": true
     },
