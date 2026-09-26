@@ -1,29 +1,34 @@
 {
   "lesson": "68_power_design",
-  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "es",
-  "title": "Power / Design: leer el simulador y sus limitaciones",
-  "description": "Comprenda los controles, curvas simuladas y advertencias sin confundir una demostración pequeña o un resumen contradictorio con asesoramiento de diseño validado.",
+  "title": "Power & Design: explorar curvas de detección simuladas",
+  "description": "Define supuestos de biblioteca y de diseño, ejecuta simulaciones y revisa las fracciones de detección, los ajustes fallidos y las advertencias.",
   "objectives": [
-    "Distinguir supuestos de simulación y datos experimentales adquiridos.",
-    "Leer correctamente ajustes utilizables, fracciones de detección e incertidumbre.",
-    "Reconocer la recomendación errónea sobre el mismo diseño y conservar la evidencia."
+    "Definir la biblioteca, la unidad de puntuación y los supuestos de diseño.",
+    "Ejecutar barridos de número de células y de pozos con la configuración registrada.",
+    "Leer las fracciones de detección y las advertencias antes de interpretar un diseño."
   ],
-  "prerequisite": "Es una revisión crítica del simulador registrado, no potencia estadística calibrada ni asesoramiento de tamaño muestral. Power_recorded_simulation_review.zip conserva el JSON original y su revisión; no es una ejecución importable ni una exportación de la GUI. La pantalla, adaptador, simulador y código de ajuste registrados con spaCR 1.5.0.4 siguen siendo idénticos al código actual. Dos barridos marginales produjeron 18 ajustes y nueve puntos, con dos réplicas por punto; cuatro ajustes no convergentes siguen en el denominador. Dos simulaciones recortaron probabilidades. El mismo diseño nominal, con sorteos distintos, produjo 1/2 y 2/2 detecciones. Se rechaza explícitamente la recomendación de aumentar hasta el número de pocillos ya existente; sigue sin corregirse. Algunas etiquetas de extremos se recortan; la tabla verificada tiene las nueve coordenadas. No se afirma nueva simulación, datos adquiridos, calibración biológica, tarea GPU, consulta a IA ni publicación. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve y spacr.qt.screens.power.run_power_sweep; spacr.power_simulate y spacr.power_model simulan y ajustan.",
+  "prerequisite": "Prepara supuestos sobre el tamaño de la biblioteca, las guías por gen, el fondo, el efecto y la prevalencia. Este módulo simula datos. El ejemplo enlazado usa solo dos réplicas por punto para mostrar los controles; usa suficientes repeticiones y supuestos adecuados para planificar. En esta versión, revisa la tabla en lugar de fiarte de un titular que puede recomendar el mismo número de pozos de partida.",
   "scenes": [
-    "Power y Design explora supuestos mediante datos simulados. No carga un experimento adquirido ni demuestra que sus supuestos coincidan con los suyos. Esta lección examina una ejecución real registrada, incluidas advertencias y una recomendación engañosa. No use esta pequeña demostración como asesoramiento validado de tamaño muestral.",
-    "Comience por la biblioteca y la unidad de puntuación. Cambiar entre guía y gen cambia lo que evalúa el modelo: el ejemplo tiene cuarenta genes y cuatro guías por gen, por lo que puntuar guías da ciento sesenta unidades. Puntuar genes agrupa la información de sus guías. Son supuestos didácticos, no nuevas mediciones biológicas.",
-    "Los controles de placa y efecto describen el diseño supuesto. La tasa de llamadas positivas es una probabilidad de clasificación simulada, no un recuento de organismos ni una tasa de infección medida. Examine conjuntamente el fondo, el efecto y la prevalencia; los supuestos mostrados no validan el modelo.",
-    "Un efecto menor que uno activa la advertencia nativa de dirección no admitida y deshabilita Run. La grabación restaura después un valor admitido y los controles se recuperan. Es una protección del software, no una afirmación de imposibilidad biológica. No eluda la advertencia para obtener una curva conveniente.",
-    "La demostración usa solo dos réplicas por punto. La detección exige un ajuste utilizable que alcance el umbral elegido del área bajo la curva característica operativa del receptor. No es un umbral P de contraste de hipótesis. Se registran semilla y backend; seleccionar Torch no demuestra ejecución en GPU.",
-    "Run inicia el simulador real en un hilo de trabajo. Varía por separado los ejes de células y pocillos, no todas sus combinaciones. La grabación completó dieciocho ajustes en nueve puntos. Conserve juntos los ajustes de configuración y registros de réplicas para vincular cada fracción dibujada con los ajustes que la produjeron.",
-    "Lea detecciones como recuentos sobre todas las réplicas solicitadas. Cuatro ajustes no convergieron y siguen en el denominador como no detecciones; no se descartan silenciosamente. Aquí cien por ciento significa solo dos de dos. Una muestra tan pequeña no establece una probabilidad de detección precisa.",
-    "La tabla separa fracciones de detección y rendimiento medio de los ajustes utilizables. Una media no disponible no es cero. La precisión media también necesita la referencia de prevalencia. Use la tabla si se recorta una etiqueta del extremo y revise la no convergencia, en vez de juzgar solo la línea azul.",
-    "El resumen contiene un error. Ambos valores de referencia ya usan noventa y seis pocillos, pero sorteos aleatorios distintos producen una detección de dos en un barrido y dos de dos en el otro. Pasar a los mismos noventa y seis pocillos no mejora el diseño. Rechace esa recomendación; el tutorial no la repara.",
-    "Expanda las demás advertencias. Dos pantallas simuladas recortaron probabilidades mayores que uno, así que su ocupación realizada difiere de la solicitada. El modelo tiene otros supuestos y limitaciones; enumerarlos no equivale a validarlo. Revise advertencias y ajustes fallidos antes de concluir nada de una simulación.",
-    "El archivo enlazado conserva la especificación registrada, réplicas, curvas, tabla y resumen incorrecto. Es una descarga externa de evidencia, no una exportación nativa ni un resultado importado. El adaptador de diseño y las API de simulación de Python exponen el mismo flujo, pero planificar exige validar aparte supuestos e incertidumbre."
+    "Desde Home, abre Power & Design. Empieza con los supuestos que quieres explorar y luego usa las curvas de detección simuladas para comparar las opciones de número de células y de pozos mostradas.",
+    "Define el tamaño de la biblioteca y las guías por gen, y luego elige la unidad de puntuación. Con cuarenta genes y cuatro guías por gen, la puntuación por guía usa ciento sesenta unidades; la puntuación por gen agrupa la información de las guías.",
+    "Revisa juntos los controles de placa, fondo, efecto y prevalencia. La tasa de llamadas positivas es una probabilidad de clasificación supuesta. Elige valores que describan el análisis que planeas.",
+    "Si un efecto menor que uno desactiva Run, lee el aviso de dirección no admitida. Recupera un valor admitido para continuar; este simulador no cubre todas las direcciones de efecto posibles.",
+    "Define las repeticiones, la semilla, el motor de cálculo y el umbral de detección. El umbral usa el área bajo la curva característica operativa del receptor. El ejemplo usa dos réplicas por punto para una ejecución corta; elige más repeticiones cuando estimes la probabilidad de detección.",
+    "Haz clic en Run y sigue el progreso. El simulador recorre por separado el número de células y el número de pozos. Guarda la configuración junto con los resultados completos.",
+    "Lee los recuentos de detección junto con sus denominadores. Los ajustes fallidos o que no convergen cuentan como no detecciones. Con dos réplicas pedidas, el cien por cien significa solo dos detecciones de dos.",
+    "Usa la tabla de resultados para revisar las fracciones de detección, el rendimiento medio entre los ajustes útiles y la falta de convergencia. Los valores medios no disponibles son resultados que faltan. Interpreta la precisión media en relación con la prevalencia supuesta.",
+    "Compara directamente los valores de diseño pedidos. Esta versión puede recomendar aumentar hasta el mismo número de pozos de partida, porque los dos barridos usan sorteos aleatorios distintos. Ignora ese titular y usa la tabla y la incertidumbre para valorar la comparación.",
+    "Despliega las advertencias y revisa los ajustes fallidos o las probabilidades recortadas. Ajusta los supuestos cuando produzcan resultados incoherentes con el experimento que quieres modelar.",
+    "Guarda juntos la configuración y los resultados de las réplicas. El archivo enlazado contiene la ejecución de ejemplo para revisarla. Para obtener resultados desde código, usa el adaptador de diseño y las API de simulación; valora los supuestos y la incertidumbre antes de elegir un diseño experimental."
   ]
 }
