@@ -1,6 +1,8 @@
 486 — NATIVE OS CURSOR AND THIN RESIZE EDGE HINTS
 ================================================
-Implemented 2026-09-23. Supersedes the earlier custom blue arrow request.
+Status: DONE 2026-09-25 (implemented 2026-09-23, re-checked 2026-09-25).
+Supersedes the earlier custom blue arrow request. Native compositors on other
+desktops are not visually verified (needs real displays).
 
 Always retain the OS standard arrow, including its user-configured artwork
 and size. Interactive widget cursor requests are normalized to the native
@@ -18,3 +20,10 @@ Validation: native cursor shape/artwork, edge rendering and child routing,
 anchored corner resizing with minimum size, popup gestures and pipeline
 controls. Offscreen Qt validation; native compositor interaction is not
 visually verified on all desktop environments.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_fixed_arrow_
+cursor.py and test_cov_wf_qt_widgets_glass.py, 14 passed. Nothing
+buildable remains. Not verifiable here: the look of the OS arrow and the
+one-pixel edge hint under native compositors (GNOME/KDE Wayland and X11,
+Windows, macOS); that needs those desktops and a real display.

@@ -1,29 +1,31 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
   "review": {
-    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "PyPI, GitHub og conda-forge",
-  "description": "Find de officielle kilder til pakker og installationsprogrammer, sammenlign versionen på hver kanal, og vælg den tilhørende installationsvejledning.",
+  "title": "Find spaCR på GitHub, PyPI og conda-forge",
+  "description": "Find de officielle kilder til pakken og installationsprogrammerne, sammenlign den version, der findes på hver kanal, og vælg den tilsvarende installationsvejledning.",
   "objectives": [
-    "Identificere spaCRs officielle sider på PyPI, GitHub og conda-forge.",
-    "Skelne mellem udgivelsesfiler, udviklingskode og pakkekanaler, der opdateres hver for sig.",
-    "Vælge en installationsvej og kontrollere den faktisk installerede version."
+    "Finde de officielle downloadsider.",
+    "Vælge installationsvej til din computer.",
+    "Åbne den tilsvarende installationsvejledning."
   ],
-  "prerequisite": "Denne oversigt udfører ingen installation. Siderne blev optaget den 10. september 2026: PyPI og GitHub tilbyder 1.5.0.5, mens conda-forge tilbyder 1.5.0.4. Kanalversioner og tilgængelige filer kan ændre sig; læs den aktuelle side, og kontrollér din installerede version. Browseroptagelserne bruger en anonym profil og bevarer sidetekst, statusmærker og udgivelseshistorik uændret. De tilknyttede installationsvejledninger dækker platformspecifik installation og hardwarevalg.",
+  "prerequisite": "Åbn en webbrowser, og beslut, om du vil have et installationsprogram til skrivebordet eller et Python-miljø.",
   "scenes": [
-    "Vælg spaCRs officielle distributionskilde, før du installerer. PyPI og conda-forge leverer Python-pakker; GitHub leverer kildekode, udgivelsesoversigter og installationsprogrammer til skrivebordet. Vejene hænger sammen, men udgiver ikke nødvendigvis samme version på samme tidspunkt.",
-    "Læs versionsoverskriften og installationskommandoen på PyPI. Her står spaCR et punkt fem punkt nul punkt fem. Kontrollér værdien på den aktuelle side i stedet for at udlede versionen fra et gammelt skærmbillede, et statusmærke eller en vejlednings dato.",
-    "Project links forbinder pakken med dokumentation, hjemmeside, fejlregistrering og kildekodelager. Brug disse links til at skifte mellem officielle ressourcer. En pakkeside beskriver den pågældende udgivelse; den garanterer ikke, at alle funktioner under udvikling allerede er med.",
-    "På GitHub viser grenvælgeren, hvilken kodelinje du læser. Main er udgivelseslinjen, og nightly indeholder igangværende udvikling. Vælg en udgivet version til almindelig installation; brug kun nightly, når du bevidst har brug for nyere arbejde og kan acceptere ændringer.",
-    "Åbn en udgivelse, og fold Assets ud. Vælg installationsprogrammet til Windows, macOS eller Linux. Wheel og kildedistributionen er Python-pakkefiler, ikke skrivebordsinstallationsprogrammer. Hent kontrolsumlisten for netop den valgte udgivelse og fil i stedet for at sammenligne hashværdier fra en anden kanal.",
-    "Conda-forge-siden har sin egen versionsvælger. Under optagelsen tilbyder den et punkt fem punkt nul punkt fire, mens PyPI tilbyder et punkt fem punkt nul punkt fem. Denne virkelige forskel vises bevidst; antag ikke, at en kanalopdatering allerede er ankommet.",
-    "Kommandoen med angivet kanal er conda install conda-forge, to koloner, spacr. Kør den i det miljø, du vil bruge. Conda-vejledningen gennemgår den vej; at oprette et Conda-miljø og installere med pip er en anden vej, selv om begge bruger en miljøstyring.",
-    "Vælg pip-vejledningen til et virtuelt Python-miljø, Conda-vejledningen til kanalpakken eller Platform installers til et privat kørselsmiljø styret af installationsprogrammet. Kontrollér derefter den installerede version, og kør spacr-doctor, før du følger modulvejledningerne."
+    "Vælg, hvordan du vil installere spaCR. Brug et installationsprogram til et program, der er klar til at starte, pip til et virtuelt Python-miljø eller conda-forge til et Conda-miljø. Tag udgangspunkt i de officielle spaCR-links, der vises her.",
+    "På PyPI finder du spaCR og læser installationskommandoen ved siden af den aktuelle version. Kopiér kommandoen, når du er klar til at installere i dit Python-miljø. Vejledningen til pip viser, hvordan du først opretter og aktiverer miljøet.",
+    "Brug Project links til at åbne dokumentationen, kildekodearkivet eller fejlsporingen. Bogmærk dokumentationen, så du kan vende tilbage til modulgennemgangene, mens du arbejder i spaCR.",
+    "På GitHub åbner du spaCR-arkivet. main indeholder kildekoden til udgivelsen, og nightly indeholder det nyeste udviklingsarbejde. Til en pakket skrivebordsinstallation åbner du Releases og vælger en udgivelse.",
+    "Fold Assets ud, og download installationsprogrammet til Windows, macOS eller Linux. Gem tjeksumfilen fra samme udgivelse, hvis du vil verificere downloaden. Lektionen Platform installers viser, hvordan du starter installationsprogrammet og åbner spaCR.",
+    "På conda-forge åbner du pakkesiden for spaCR og kontrollerer, hvilken version der findes. Pakkekanaler kan opdateres på forskellige tidspunkter, så vælg den version, der findes via den vej, du vælger.",
+    "Kommandoen til conda-forge installerer spaCR i dit aktive Conda-miljø. Følg Conda-lektionen for at oprette miljøet, installere pakken og starte programmet.",
+    "Fortsæt med pip, Conda eller Platform installers. Når spaCR åbner, går du videre til Home-lektionen og derefter til pipelineoversigterne for at vælge et workflow til dine data."
   ]
 }

@@ -3895,6 +3895,7 @@ _IMAGE_SOURCES = {
     "on_demand": "stream_images",
     "stream": "stream_images",
     "stream_images": "stream_images",
+    "merged_db": "stream_images",
     "auto": "auto",
 }
 
@@ -3915,6 +3916,11 @@ def _canonical_image_source(value) -> str:
     stopped finding its own crops. Both are mapped explicitly now, and
     ``auto`` survives as itself because both readers downstream understand
     it.
+
+    ``merged_db`` (`crops.STREAM_FROM_DB`, the viewers' database stream) is
+    a STREAMING source, so it resolves to ``stream_images`` -- training has
+    no database mode, and the unrecognised branch would have answered it
+    with the opposite direction, as it once did ``on_demand``.
     """
     return _IMAGE_SOURCES.get(str(value or "").strip().lower(),
                               "load_images")

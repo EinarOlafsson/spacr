@@ -2,7 +2,8 @@
 THE ANNOTATED FRACTIONS ARE ALL ONE OR ZERO
 ================================================================================
 
-Status:    DONE 2026-08-21, filed the same day.
+Status:    DONE 2026-08-21; the missing measurement (criterion 1) made
+           on the tsg101 screen 2026-09-25 -- no annotation bug.
 Requested: 2026-08-21 -- "i think there is a problem with the gRNA annotation
            alorithms or the graphing logic. if i pick tob py score, pick
            225160 on the volcano plot, and jitter plot and cell level i see a
@@ -396,3 +397,56 @@ and this file gives an argument. The argument is a good one and it is not the
 same thing -- the whole point of the criterion is that the comparison costs
 one query and settles whether there was an annotation bug at all. The data is
 on disk (`tsg101_screen`), so this is a job, not an unknown.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- THE MEASUREMENT: SHOW_ALL_IN_WELL ON AND OFF, ON THE REAL SCREEN
+--------------------------------------------------------------------------------
+
+DATA. /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen on this
+machine: per-cell scores from plate1..4_dv.csv (the maxvit classifier's
+`pred`, 226,467 cells in 1,366 wells; `prc` there reads `pplate1_...` and was
+rewritten to `plate1_...` to match the counts), per-well guide fractions from
+results/glm/regression_data.csv, and the fitted coefficients from
+results/glm/results.csv. The selection is the real
+`spacr.cell_montage.select_montage`, picking='rank' (top by score, the
+default), `normalise_fraction` on (the default), cap lifted so no well is
+trimmed. The script is not committed (no new modules); it is 60 lines around
+that one call and is described here in full.
+
+GENE 225160 (coefficient 5.94), 13 wells:
+
+                          cells  annotated  Non_annotated  per-well annotated
+                          shown  to 225160                 fraction of shown
+  show_all_in_well OFF      547   547 (100%)        0      1.000 in 13/13 wells
+  show_all_in_well ON     2,636   547 (20.8%)   2,089      0.029 .. 0.468,
+                                                           median 0.187; no
+                                                           well at 0 or at 1
+
+GUIDE 225160_2 (coefficient 6.58), 8 wells: OFF 279 cells, all annotated,
+1.000 in 8/8 wells; ON 1,274 cells, 279 annotated (21.9%), per-well 0.029 ..
+0.468, median 0.306.
+
+THE ANSWER THE CRITERION ASKS FOR. The picker annotates the same 547 cells
+either way, and in every well the count is exactly round(share x n): the
+annotation did what it is specified to do. With the option OFF every visible
+cell is annotated, so every visible per-well fraction is exactly 1 -- the
+maintainer's diagnosis, now measured. There is no annotation bug.
+
+WHERE THE ZEROS COME FROM, which the option does not explain. The per-cell
+SCORE is itself two-valued on this screen: screen-wide, 58.6% of cells have
+pred < 0.05 and 27.4% have pred > 0.95 (the classifier reports 99%
+accuracy, and a confident classifier's probabilities pile at its ends). A
+cell-level jitter of the score therefore piles at 0 and 1 whatever is
+selected. Top-by-score for a positive coefficient takes the high end: the
+picked cells have median pred 0.976 (OFF), the whole wells median 0.016 (ON).
+
+WHAT NORMALISATION DOES HERE, measured, for section D: the share the rank
+picker uses is the raw fraction divided by what survived the threshold, and
+in these wells that multiplies it by up to 12x -- plate4_r13_c17 raw 0.020
+-> share 0.254; plate4_r6_c4 0.051 -> 0.352; plate1_r3_c24 0.182 -> 0.469.
+So `normalise_fraction=False` is the setting to reach for when a low-read
+guide is being handed many cells, as D argued.
+
+NOT MEASURED SEPARATELY: picking='attributed'. Without the effects table the
+call falls back to rank, and its numbers were identical to rank's; measuring
+it needs the effects grid the GUI passes.

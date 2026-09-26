@@ -1,0 +1,1502 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+  "review": {
+    "kind": "AI-written workflow-map phrase bank; AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "native_speaker_signoff": false,
+    "narration_2026_09_25": "298 phrases added for the rewritten 78-81 stories and generated handoffs; AI technical review (Claude Opus 5.5), no native-speaker signoff."
+  },
+  "records": [
+    {
+      "source": "spaCR screens",
+      "source_sha256": "1709a0fdd58514c0c116c09229be2ee7c0f285a74cfa7bf36eff48f9d685b78a",
+      "translation": "spaCR screens"
+    },
+    {
+      "source": "the run queue",
+      "source_sha256": "2c98be8de7c83ff0ea02e619d52beb7b336533adbf96686e3d89480f9a034dc5",
+      "translation": "실행 대기열"
+    },
+    {
+      "source": "the label masks",
+      "source_sha256": "acf55963d0bfb61030c0e3624d6b6fd837e797a929ee8adea25cf4ebdf930b84",
+      "translation": "라벨 마스크"
+    },
+    {
+      "source": "the object crops",
+      "source_sha256": "f918bbd08a858a7c0ff853bc65d662a537dba68015494095db5abf7ac627000f",
+      "translation": "객체 크롭"
+    },
+    {
+      "source": "{artifacts} from",
+      "source_sha256": "afaa233e21c0606ded300ef66d7c13352bf466143ce5c1a0bff8f48909a62a37",
+      "translation": "{artifacts}"
+    },
+    {
+      "source": "the assay results",
+      "source_sha256": "92ce5e1dd9373c897110178229262331698112d3ce640a95990bafc7094317d6",
+      "translation": "분석 결과"
+    },
+    {
+      "source": "the object counts",
+      "source_sha256": "20c5cf216dc0df6690e9696782112eead95d8f1dab0bf9bdee7a4d88defb647a",
+      "translation": "객체 개수"
+    },
+    {
+      "source": "the AnnData export",
+      "source_sha256": "dd4e470cccafacd1661bf7885b64523853e2c1aea0dbd3e024ee0ce32c271ad5",
+      "translation": "AnnData 내보내기"
+    },
+    {
+      "source": "the reusable gates",
+      "source_sha256": "6e4af060a80dfe5f65bc78b054a479e38876905e2231e8f0b6cef79f5d60aa88",
+      "translation": "재사용 가능한 게이트"
+    },
+    {
+      "source": "{items} and {last}",
+      "source_sha256": "69faa4f0e0f2439b86179d6e9554642dad1b209fbfed0eabc9216db12cff879d",
+      "translation": "{items} 및 {last}"
+    },
+    {
+      "source": "{items}, and {last}",
+      "source_sha256": "233abe6fe1f1373843adf917c956883e1ca47d5c30685944bef135b525393251",
+      "translation": "{items} 및 {last}"
+    },
+    {
+      "source": "the image embeddings",
+      "source_sha256": "48c5e84cbac1939288ebfb4895fbd1ea643080e0455fc67929caf9c27de9046c",
+      "translation": "이미지 임베딩"
+    },
+    {
+      "source": "the measured objects",
+      "source_sha256": "d19842300522956cce87e64779f653cb9156a654965c07e8f7214141904f25a9",
+      "translation": "측정된 객체"
+    },
+    {
+      "source": "the sequencing reads",
+      "source_sha256": "b20093fe76e1a7cbe00575e4ab792a99e9d012d14caa4a635ef7221e7e4f498a",
+      "translation": "시퀀싱 리드"
+    },
+    {
+      "source": "the microscope images",
+      "source_sha256": "7ec0cd5f60e8857e0ab1a8e779a6ec92c3ce19134a7648bdb8374a200f597695",
+      "translation": "현미경 이미지"
+    },
+    {
+      "source": "the shareable reports",
+      "source_sha256": "14edc7cd3d247b0da1008d1745d0284f9b80a0624cd5bd78bab30306ee53b84b",
+      "translation": "공유 가능한 보고서"
+    },
+    {
+      "source": "{name} reads {items}.",
+      "source_sha256": "ef38ded487508a359bf5bd3d591a81a4b929bae2b21323c6edda3f7aa60b413d",
+      "translation": "{name} 모듈은 {items}을(를) 읽습니다."
+    },
+    {
+      "source": "{peer} uses them too.",
+      "source_sha256": "231d800f52cd85dc7df6e61046faae1d15003a3303c1d4ed4cb6bc08c6a1271d",
+      "translation": "{peer}에서도 이것을 사용합니다."
+    },
+    {
+      "source": "They also feed {peer}.",
+      "source_sha256": "1b41cf81efd822bc12cd21fd5f115dfd5071e7d722733064a4bc3b33f08f95b7",
+      "translation": "이것은 {peer}에도 전달됩니다."
+    },
+    {
+      "source": "the experimental layout",
+      "source_sha256": "a2e3106a86c9e033efc63484698fc21ee06ab55b7708b8ed512b5d5d4d8681ec",
+      "translation": "실험 레이아웃"
+    },
+    {
+      "source": "the feature definitions",
+      "source_sha256": "4015e65f9e47cfbb71bfd4c75b2710852d24cabad338c32eddf86d09094eb653",
+      "translation": "특징 정의"
+    },
+    {
+      "source": "the run/model comparison",
+      "source_sha256": "e13ad9b64e8f823c04bda0edd02a7336907420aae3e10842f51da88f69a4de46",
+      "translation": "실행 및 모델 비교"
+    },
+    {
+      "source": "the training annotations",
+      "source_sha256": "0fea00423f4ef1845e7f1e38f4ee43929d9df4fc8191895479d622d97c69483e",
+      "translation": "학습용 주석"
+    },
+    {
+      "source": "Look for {artifact} here:",
+      "source_sha256": "81bc5dbe23cc7493aa9bf7453d1f81a40ef9b93e7f5ddcf3090da28ba9e90b0f",
+      "translation": "{artifact} 위치:"
+    },
+    {
+      "source": "the external measurements",
+      "source_sha256": "e392225eda9e661cb82dbd8793f9d149f9451b09bb55d3f3976eea892dc6a342",
+      "translation": "외부 측정값"
+    },
+    {
+      "source": "the guide counts per well",
+      "source_sha256": "2296e542829f16819d0c7f0c5d47e711d981a3764699f05e9d3918560e5ff2a3",
+      "translation": "웰별 가이드 개수"
+    },
+    {
+      "source": "the image attribution maps",
+      "source_sha256": "52c0158ffc1988177c538ff5131738f644580b3408692d1e99658819f336b032",
+      "translation": "이미지 기여도 지도"
+    },
+    {
+      "source": "the images and label masks",
+      "source_sha256": "b219f3a2c39f71c0bf290b80d1a1666381a3a3e858cc4bd88ded114883c010a1",
+      "translation": "이미지와 라벨 마스크"
+    },
+    {
+      "source": "the curated training fields",
+      "source_sha256": "d07837498c8563ef7670665a690577bd0951520f5515a607a3ea14372eb294c4",
+      "translation": "정리된 학습 시야"
+    },
+    {
+      "source": "the projection and clusters",
+      "source_sha256": "ba34cb4a9aa442be745a5baaa87a70706cc3662aed36bdbb9ecf0266af34ce60",
+      "translation": "투영과 클러스터"
+    },
+    {
+      "source": "the quality-control results",
+      "source_sha256": "a83899a480a696c40563b326d448eb5acce54aa60f3e6c89f43344a8e1c71a9c",
+      "translation": "품질 관리 결과"
+    },
+    {
+      "source": "the segmentation checkpoint",
+      "source_sha256": "26023675228430360b54f847071804ef4d8a66f0aaadbef6c63a79383fdac6c0",
+      "translation": "분할 체크포인트"
+    },
+    {
+      "source": "You'll find {artifact} here:",
+      "source_sha256": "1026db6f12a4a6d125239e31ac014f2acfe38f959b44444ebf7d0e52ecb70dec",
+      "translation": "{artifact}은(는) 여기에 있습니다:"
+    },
+    {
+      "source": "the trained image classifier",
+      "source_sha256": "c35984568b0a393b72c462473963a902fe4becac3dd20e1df715c43c29f386a3",
+      "translation": "학습된 이미지 분류기"
+    },
+    {
+      "source": "the figures and table exports",
+      "source_sha256": "96a17963c9e9ffe94b7193702f871bbe528f65fd6533700402354f8ea0e5c26b",
+      "translation": "그림과 내보낸 표"
+    },
+    {
+      "source": "the fitted feature classifier",
+      "source_sha256": "f6f67d27b0e7c64bcccd1a9069072eb5848ee13bd8251bb03d90a8cb3e248678",
+      "translation": "적합된 특징 분류기"
+    },
+    {
+      "source": "the run history and artifacts",
+      "source_sha256": "bc84b8e21d6d57e05da18ee7f94d4e27f0415bd95fb30843c96445d55498522e",
+      "translation": "실행 기록과 산출물"
+    },
+    {
+      "source": "the bundled organism reference",
+      "source_sha256": "0e0d892e31dc03a963882d6e5d2f0a3a88ae29d27614ea1783303591eb0f0405",
+      "translation": "기본 제공 생물 참고 자료"
+    },
+    {
+      "source": "the direct Cellpose TIFF masks",
+      "source_sha256": "931c5e2db7b87e1dd22e6043980e294e6dcfaed721c2cbe040f236afe74ef7fc",
+      "translation": "Cellpose가 직접 만든 TIFF 마스크"
+    },
+    {
+      "source": "the linked time-series objects",
+      "source_sha256": "98971227d3e9f62d58e9af373bcd5fce29b90d28898000ce81a185bf6de26f7a",
+      "translation": "연결된 시계열 객체"
+    },
+    {
+      "source": "{peer} can supply {artifacts}.",
+      "source_sha256": "5ce3d3a3f2ce4437a8f7b9655154f31a0d96c7c1c877d56fd83341a4b0158ac7",
+      "translation": "{peer}에서 {artifacts}을(를) 제공할 수 있습니다."
+    },
+    {
+      "source": "the optical barcode assignments",
+      "source_sha256": "5687b2fc831be5228614cc902a7c72f1f0472a410f305176b755c8a108f1146d",
+      "translation": "광학 바코드 배정"
+    },
+    {
+      "source": "the regression results and hits",
+      "source_sha256": "9d18bd9a4f1d4118117338bb3155d9b79fdd50dfd553bce1430b223ed30a998f",
+      "translation": "회귀 결과와 히트"
+    },
+    {
+      "source": "{peer} can supply them as well.",
+      "source_sha256": "319632d4bfe1cbfe76fd6636a2f57c9a1066aaca09f3c1cfda313ba339b42475",
+      "translation": "{peer}에서도 받을 수 있습니다."
+    },
+    {
+      "source": "the classifier evaluation bundle",
+      "source_sha256": "67fd10357abf5afcefba3d9f452364c3147881c4301fde24ba28183b3758ccc0",
+      "translation": "분류기 평가 묶음"
+    },
+    {
+      "source": "the object classification scores",
+      "source_sha256": "98d8fb50fc3e8132f40d8bc9c8e6835166d238d41c99f09aedcb2de55230d985",
+      "translation": "객체 분류 점수"
+    },
+    {
+      "source": "{peer} is another place they go.",
+      "source_sha256": "1a93cba0a3d339bae3bcb9fac52a075b5835f61b3c9096409864744933e4af1e",
+      "translation": "{peer}에도 보낼 수 있습니다."
+    },
+    {
+      "source": "{peer} picks up {artifacts} next.",
+      "source_sha256": "3074d4df9eda0e0e8be758fd4708af05f0fdb4ae24fd92269584e428c506ddcc",
+      "translation": "다음으로 {peer}에서 {artifacts}을(를) 이어받습니다."
+    },
+    {
+      "source": "{peer} reads {artifacts} as well.",
+      "source_sha256": "b4cb57dcab90646d69e7ea6d94c323f41bb1034186f7a77e028de4b825def10b",
+      "translation": "{peer}도 {artifacts}을(를) 읽습니다."
+    },
+    {
+      "source": "the aligned mosaic and coordinates",
+      "source_sha256": "4b06daacaf005dc61a1c7f78de346b60fcdf7e1e3a093fe8939378e31a3c54ea",
+      "translation": "정렬된 모자이크와 좌표"
+    },
+    {
+      "source": "the area-derived size-proxy results",
+      "source_sha256": "e51b5c8b765f92bf6a5aaec1de68fe467d896e654616071ad7208c9372e94a8a",
+      "translation": "면적 기반 크기 지표 결과"
+    },
+    {
+      "source": "From those, {name} produces {items}.",
+      "source_sha256": "77aeb5bf832ffdab1dadd000e331caa11a6b062022d6788e9d2ea6795a181382",
+      "translation": "이를 바탕으로 {name} 모듈은 {items}을(를) 만듭니다."
+    },
+    {
+      "source": "the screen design and power estimates",
+      "source_sha256": "a751d0f285d12b289ca0e06a06c5d8d8ae5bf446cde8ad32c39e85f1ec3c2792",
+      "translation": "스크린 설계와 검정력 추정"
+    },
+    {
+      "source": "Sequencing modules and how they relate",
+      "source_sha256": "4e75c2b76afeb08a59df4f8d0ba0e9f6088c392b5133f85ddfeafb4abe4a2043",
+      "translation": "시퀀싱 모듈과 그 관계"
+    },
+    {
+      "source": "the organism guide and assay selection",
+      "source_sha256": "892ca6ddf9a52afab78858eb5a298477ac10d46b3f2bf2e9c6e52025822110fd",
+      "translation": "생물 가이드와 분석 선택"
+    },
+    {
+      "source": "{artifacts_from} {peer} work here too.",
+      "source_sha256": "83dabc3d9d51674d8bef4b404bea03c4ac9f02ae057612160153fe9a69768e54",
+      "translation": "{peer}에서 나온 {artifacts_from}도 여기서 쓸 수 있습니다."
+    },
+    {
+      "source": "the pooled-screen simulation assumptions",
+      "source_sha256": "ef7d675a5d3084a7cbbaef10c1b1e20b5d6dcb602b5c00df81d3634856cee90c",
+      "translation": "풀링 스크린 시뮬레이션의 가정"
+    },
+    {
+      "source": "the synthetic screen simulation summaries",
+      "source_sha256": "e853ca549ed76db6c9b535c1eb2ca7caafe3f60e223b96f6e68cc860f7d20fa8",
+      "translation": "합성 스크린 시뮬레이션 요약"
+    },
+    {
+      "source": "the host-cell-aggregated compartment areas",
+      "source_sha256": "cf896d73d962a4bde359424041cbc4f9db09b3ce80e636f5dc4f894cb65d415e",
+      "translation": "숙주 세포별로 합산한 구획 면적"
+    },
+    {
+      "source": "You can also take {artifacts} on to {peer}.",
+      "source_sha256": "e831632ab06476c248ac02b27e0463289ba1c446c23cf66f0d493b31f338ff41",
+      "translation": "{artifacts}을(를) {peer}에 넘길 수도 있습니다."
+    },
+    {
+      "source": "The columns to keep an eye on are {columns}.",
+      "source_sha256": "5cc9d48bb9c0754a43d2eded6f953342cd39392d56b3ebde8f92a949a5534657",
+      "translation": "눈여겨볼 열: {columns}."
+    },
+    {
+      "source": "the TIFF fields for direct Cellpose inference",
+      "source_sha256": "a63b1ce2d7d195ffc484a904f6d96215ce901050d3a2da0d97110e61caf7fde0",
+      "translation": "Cellpose 직접 추론용 TIFF 시야"
+    },
+    {
+      "source": "If you start in {peer}, it provides {artifacts}.",
+      "source_sha256": "a5f4f271096b5379be6f6d53b6c53f76fa7182c6e01a39271c79d91a3d492fc1",
+      "translation": "{peer}에서 시작하면 그곳에서 {artifacts}을(를) 제공합니다."
+    },
+    {
+      "source": "Depending on the route, the tables that matter are {tables}.",
+      "source_sha256": "73edd4987cc1803e199b07f73a1a4b82291bc3d74d57f1bcc902b7293ce5ef1a",
+      "translation": "경로에 따라 중요한 테이블: {tables}."
+    },
+    {
+      "source": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
+      "source_sha256": "287f0ce05974bbf2d3e0fcbbcafa9d56e2a31129ed89d7797ffa66ba011b03c9",
+      "translation": "Home에서 시작해 이미지 측정, 표현형 분류, 바코드 개수를 거쳐 회귀까지, 풀링된 이미지 기반 스크린의 흐름을 따라가세요."
+    },
+    {
+      "source": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
+      "source_sha256": "7b73600857ae9eac64e768c170f632d9c061005b21a8e2c61e5e485a870eb2ad",
+      "translation": "spaCR을 설치하고 Home을 여세요. 워크플로의 시작 데이터를 고른 뒤, 조작 방법과 예제 데이터는 연결된 모듈 강의를 따라가세요."
+    },
+    {
+      "source": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
+      "source_sha256": "d1144840374924e7e75ad8ed21042c8db9eac7f0bf3ccd551c361472cb938f0b",
+      "translation": "시퀀싱 및 광학 바코드 워크플로를 표현형 점수, 회귀, 실험 계획, 검정력 추정, 용량-반응 분석, 실행 비교와 연결합니다."
+    },
+    {
+      "source": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
+      "source_sha256": "1a176ab3c0d9b877d5d351493995d68529cd6121e83ffb464e04bab131421cb4",
+      "translation": "어떤 분석은 먼저 타일을 하나의 그림으로 이어 붙여야 합니다. Home에서 Align & Stitch를 열고 타일 배치, 겹침, 채널 매핑을 확인한 뒤 좌표 기록과 함께 모자이크를 저장하세요. OPS의 경우 원래의 사이클과 위치 식별 정보도 보관하세요."
+    },
+    {
+      "source": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
+      "source_sha256": "82e7c9ea3d3a685f076ec33b2f96e68847e3317040f8693be7852e17fd2cce3a",
+      "translation": "Home의 Toxoplasma 아래에 있는 Replication Assay는 액포마다 기생충 수를 세고 조건별로 그 분포를 비교합니다. Measure의 객체를 읽지만, 기생충과 액포의 명시적인 대응이 필요합니다. 숙주 식별 정보만으로는 액포가 정해지지 않습니다."
+    },
+    {
+      "source": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
+      "source_sha256": "bf00adbec38a52959e82be1ce7e46e9794f86f9428b659e3bbb7080e7f438fe6",
+      "translation": "Recruitment는 기생충에 표지자가 얼마나 모이는지를 묻습니다. Home에서 Toxoplasma를 연 다음 Recruitment를 선택하세요. 숙주와 병원체 식별 정보가 서로 맞는 구획 강도를 Measure에서 읽고, 각 웰과 조건을 유지한 채 집적 비율을 계산합니다."
+    },
+    {
+      "source": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
+      "source_sha256": "2cf161d3bf12c8cf08e91ecabb8ad5c24ca6acd037c0d59b53c6b74fa1b73164",
+      "translation": "Measure 이후 언제든 Home에서 QC를 열어 작업을 점검하세요. 분할, 단위, 누출, 플레이트 효과에 대해 저장된 검사를 읽고, 내장된 뷰어로 더 자세히 볼 수 있습니다. 검사가 없다는 것은 검사를 통과했다는 뜻이 아닙니다. QC는 결과를 내보낼 수 있는 그림과 표와 함께 저장합니다."
+    },
+    {
+      "source": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
+      "source_sha256": "07167b783fa0ae762969fbb95481f190b24eb970e4777e98c6464ab12a801d08",
+      "translation": "단지 부착한 기생충과 안으로 들어간 기생충을 구분하려면 Home에서 Toxoplasma를 열고 Invasion Assay를 선택하세요. Measure의 2색 차등 염색 측정값과 염색 기준 대조군을 바탕으로 하며, 각 웰과 조건을 그대로 유지한 채 분석 결과를 저장합니다."
+    },
+    {
+      "source": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
+      "source_sha256": "a824a04f298016d44055093abb3411ca415446c598f37e6573e019e2de894b4d",
+      "translation": "다음 작업이 정해지면 해당 장으로 바로 가서, 조작 방법과 예제 데이터는 연결된 모듈 강의를 여세요. 모든 출력은 그것을 만든 설정과 함께 보관하세요. 자신의 분석에서 단계를 이어 붙일 때도, 모듈 페이지와 Python API는 같은 파일, 표, 식별자를 설명합니다."
+    },
+    {
+      "source": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
+      "source_sha256": "fcbd2c714c776e292493c06db223b6de0588af774fe329b909870c8776283ddc",
+      "translation": "분석이 둘 이상이 되면 Home에서 Run Compare를 여세요. 저장된 실행 기록과 Regression 결과를 읽어 설정, 개수, 히트 목록을 나란히 보여 줍니다. 실행 사이에 입력 데이터가 바뀌었다면 그 차이는 통제된 모델 비교가 아니므로, 이 점을 염두에 두고 읽으세요."
+    },
+    {
+      "source": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
+      "source_sha256": "a12cefbbcb9fb7707fed3c87538aadf923c210341e60628790ee77381257d63d",
+      "translation": "Barcode QC는 Map Barcodes 안에 있으므로, Home에서 Map Barcodes를 열고 거기서 선택하세요. 방금 만든 가이드 개수를 읽고 매핑 깊이, 커버리지, 바코드 충돌, 위치 효과를 보여 줍니다. QC 결과를 내보낼 수 있는 그림과 표와 함께 저장하므로, 다음 단계로 가기 전에 어떤 가이드를 걸러낼지 정할 수 있습니다."
+    },
+    {
+      "source": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
+      "source_sha256": "75ebed73e7cb5060246101a521d4d9276b502737fb6962da28ea8c98d47ccec5",
+      "translation": "Dose–Response는 어떤 가이드인지가 아니라 얼마나인지를 답하므로 시퀀싱이 전혀 필요 없습니다. Home에서 열고, Experiment Design의 용량과 조건 식별 정보와 함께 측정한 반응을 가져오세요. 용량 열과 반응 열, 대조군, 단위를 설정한 뒤 곡선을 적합하세요. 분석 결과를 내보낼 그림과 표와 함께 저장합니다."
+    },
+    {
+      "source": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
+      "source_sha256": "368bc59b9ac36adc061e348bcf7fa6b7850634229799c8d4ccdd5de7817707be",
+      "translation": "이 강의를 각 파일이 어디로 가는지 보여 주는 지도라고 생각하세요. 각 장은 하나의 모듈이며, 여는 방법, 읽는 것, 쓰는 것, 그리고 그 출력을 다음에 어떤 모듈이 받는지를 설명합니다. 가지고 있는 파일이나 필요한 결과에서 시작해 그다음 전달 과정을 따라가세요. 데이터가 이동하는 동안 객체, 플레이트, 웰 식별자를 함께 유지하세요."
+    },
+    {
+      "source": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well. Keep barcode references and plate layouts with your count tables, and for an optical screen, join the decoded objects to their phenotypes and aggregate them before Regression. The linked module lessons show the settings and outputs for each step.",
+      "source_sha256": "0d75fe5f303a158d2b1641e78e59d112c0a51c24777909875f716c1cbea086aa",
+      "translation": "이처럼 스크린의 바코드 쪽은 항상 같은 방식으로 끝납니다. 식별 정보가 플레이트와 웰을 통해 표현형과 연결되는 것입니다. 바코드 참조와 플레이트 레이아웃은 개수 표와 함께 보관하고, 광학 스크린에서는 디코딩한 객체를 표현형과 결합해 집계한 뒤 Regression으로 보내세요. 연결된 모듈 강의에서 각 단계의 설정과 출력을 볼 수 있습니다."
+    },
+    {
+      "source": "So a pooled screen runs as two streams that meet in Regression. Before you open it, check that the plate and well identifiers match across your scores, guide counts and plate layout, and keep the annotation column, classifier settings and barcode references with the run. The linked module lessons walk through each step, or choose the pooled-screen walkthrough on Home.",
+      "source_sha256": "c14f80b63e5e53fe6c1139b8c053e129945e1a59a82ededadb50fd6f3715dfd1",
+      "translation": "이처럼 풀링 스크린은 Regression에서 만나는 두 흐름으로 진행됩니다. 열기 전에 점수, 가이드 개수, 플레이트 레이아웃 사이에서 플레이트와 웰 식별자가 일치하는지 확인하고, 주석 열, 분류기 설정, 바코드 참조를 실행과 함께 보관하세요. 연결된 모듈 강의가 각 단계를 안내하며, Home에서 풀링 스크린 안내를 선택할 수도 있습니다."
+    },
+    {
+      "source": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
+      "source_sha256": "2c0d7903f782ec7e590990e95d24d4a2fc455fc5d1807856ccba09844943be4c",
+      "translation": "이처럼 이미지 경로는 거의 항상 Mask에서 Measure로 이어진 뒤 질문에 따라 갈라집니다. 자신만의 분할 모델을 학습시키려면 Make Masks에서 이미지-마스크 쌍을 준비하고, Cellpose Workbench에서 학습시킨 뒤, 저장된 모델을 Mask에서 다시 여세요. 호환되는 출력이 이미 있다면 중간 단계부터 시작할 수 있습니다. 어디로 가든 각 결과에 채널 식별 정보, 단위, 객체 키를 함께 보관하세요."
+    },
+    {
+      "source": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
+      "source_sha256": "4e1a8ce2204e4ac1aa562e07db573b3e1220209a76ce76dbc98539f52e101c0a",
+      "translation": "원본 현미경 이미지는 Mask에서 시작합니다. Home에서 열고 채널과 분할 모델을 고른 뒤, 실행하기 전에 미리 보기를 확인하세요. Mask는 각 시야를 병합 배열로 저장하며, 여기에는 이미지 채널과 정수 라벨 평면이 함께 들어 있습니다. 다음에 Measure가 읽는 것이 바로 이 병합 배열입니다. Mask는 작은 개수 데이터베이스도 남기지만, 그것은 집계일 뿐 특징 표가 아닙니다."
+    },
+    {
+      "source": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
+      "source_sha256": "bf6069eb0912c20a3bc48d93254215e8598edfc30e74755469e832ebcae15f87",
+      "translation": "이제 실험 이전으로 돌아가 봅시다. Home에서 Power / Design을 열면, 선택한 효과 크기와 변동성을 바탕으로 효과를 보기 위해 필요한 표본 수를 추정할 수 있습니다. 예비 측정으로 이 가정을 뒷받침할 수 있지만 필수는 아닙니다. Experiment Design의 레이아웃이 이 추정에 쓰이며, 추정 결과에 따라 그 설계를 다시 고칠 수도 있습니다."
+    },
+    {
+      "source": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
+      "source_sha256": "b86361798acfed79b3c2fd5ed184696964a478a4974fe14502cef8bcb00b7d2a",
+      "translation": "이제 Toxoplasma 분석입니다. Home에서 Toxoplasma를 열고 Plaque Assay를 선택하세요. 이 분석은 Measure를 거치지 않습니다. 플라크 이미지나 이미 가지고 있는 마스크를 읽고 설정된 플라크 모델을 실행합니다. Make Masks의 마스크도 대응하는 원본 이미지가 있는 플라크 마스크라면 여기서 쓸 수 있습니다. 세포 마스크는 플라크 라벨이 아닙니다. 플라크 결과와 마스크를 저장하며, 플라크 예제 강의에서 전체 실행을 볼 수 있습니다."
+    },
+    {
+      "source": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
+      "source_sha256": "3c413dfd5550bf3ff592cf43fb7236e9f0817725acd171085f21338500c60590",
+      "translation": "이미지가 한 길로 가는 동안 시퀀싱 리드는 다른 길로 갑니다. Home에서 Map Barcodes를 열고 FASTQ 파일과 스크린을 인코딩한 바코드 참조를 주면, 각 웰에 어떤 가이드가 나타났는지 셉니다. 믿기 전에 매핑된 개수와 바코드 QC를 확인하세요. 여기서 저장하는 unique_combinations.csv가 Regression이 웰마다 표현형 점수와 짝짓는 가이드 개수 표입니다."
+    },
+    {
+      "source": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
+      "source_sha256": "476e217b4106216ac4b3f8faa4e18b7ed96da0a1ba69847b4c4688a41c663a9f",
+      "translation": "Embeddings는 사람이 고른 특징이 아니라 모델이 보는 것으로 객체를 설명합니다. Home에서 열고 모델과 채널 정책을 고르면, Measure가 만든 객체 크롭을 객체마다 하나의 특징 벡터로 인코딩합니다. 이 특징과 함께 객체 식별 정보, 인코더, 채널 정책을 기록하세요. Image UMAP에는 객체 ID가 일치하는 특징 표가 필요하며, 모든 경로가 이를 자동으로 저장해 주지는 않기 때문입니다."
+    },
+    {
+      "source": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
+      "source_sha256": "f31b0e3feab908ac6377c33cc40fdfabb8a55667d4d9411c80296d29c67c110f",
+      "translation": "모든 것은 현미경 이미지에서 시작합니다. Home에서 Mask를 열고 채널과 분할 모델을 고른 뒤, 실행하기 전에 미리 보기를 확인하세요. Mask는 각 시야에서 객체를 찾고, 이미지 채널과 라벨 마스크를 겹쳐 쌓은 병합 배열로 각 시야를 저장합니다. 다음에 Measure가 여는 것이 바로 이 병합 배열입니다. Mask가 남기는 작은 개수 데이터베이스는 집계일 뿐, 아직 특징 표가 아닙니다."
+    },
+    {
+      "source": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
+      "source_sha256": "21b54f753865f9296518cfdaa37c59e8ba1bb733323eaa6d099f64a8cd405384",
+      "translation": "풀링 스크린은 이야기를 두 번 들려줍니다. 한 번은 이미지로, 한 번은 시퀀싱 리드로 들려주며, spaCR은 마지막에 둘을 합칩니다. 이미지 쪽에서는 Mask와 Measure가 현미경 시야를 측정된 세포로 바꾸고, Annotate와 Classify가 그 세포를 표현형 점수로 바꿉니다. 시퀀싱 쪽에서는 Map Barcodes가 리드를 가이드 개수로 바꿉니다. Regression은 플레이트와 웰을 기준으로 둘을 연결합니다. 결과가 시작되는 지점에서 합류하세요."
+    },
+    {
+      "source": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
+      "source_sha256": "58f9a55bd3dc1cf0f1d93b20c17a8fd64cf9e32260bce7843b545cbad513eed3",
+      "translation": "spaCR의 이미지 분석은 픽셀에서 답까지 이미지를 따라갑니다. 원본 이미지는 객체를 찾는 Mask에서 시작합니다. 마스크를 손으로 고치고 싶다면 Make Masks를 쓰거나 이미 있는 마스크를 가져오세요. 그다음 Measure가 이미지와 마스크를 숫자로, 원하면 크롭으로도 바꿉니다. 거기서부터는 분류, 이미지 탐색, 게이팅, 분석 중에서 길을 고릅니다. 분석에 하나의 좌표계가 필요하면 먼저 타일을 이어 붙이세요."
+    },
+    {
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+      "translation": "분류기가 무엇이든 배우려면 예시가 필요합니다. Home에서 Annotate를 열면 Measure가 저장했거나 스트리밍하는 객체 크롭이 표시됩니다. 대표적인 세포를 넘겨 보며 라벨을 붙이세요. 각 라벨은 png_list 테이블의 주석 열에 해당 객체의 식별 정보와 연결되어 기록됩니다. 질문마다 별도의 열을 쓰고, 라벨을 붙인 객체 일부는 평가용으로 떼어 두세요. 다음에 Classify가 학습하는 것이 바로 이 주석 열입니다."
+    },
+    {
+      "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
+      "source_sha256": "8e52f400e22abea6044720c14d7da981af621c37bc3c43d5152350440c2a89d8",
+      "translation": "시퀀싱은 풀링 스크린이 어떤 가이드가 어떤 웰이나 세포에 있는지 알아내는 방법이며, spaCR은 이를 두 가지 방식으로 읽습니다. 시퀀서의 리드는 Map Barcodes로 갑니다. 사이클마다 촬영한 바코드는 Mask 안에 있는 OPS로 갑니다. 어느 쪽이든 바코드 식별 정보는 결국 Regression에서 표현형 옆에 놓입니다. 그 중심 주변에는 촬영 전에 쓰는 계획 도구인 Experiment Design과 Power, 그리고 결과에 쓰는 Dose–Response와 Run Compare가 있습니다."
+    },
+    {
+      "source": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+      "source_sha256": "43e7f79521b57714babc0a6106a7d3214699486774cd08c6ba80d3a102560a3a",
+      "translation": "무엇이든 촬영하기 전에 Home에서 Experiment Design을 열어 플레이트를 배치하세요. 검정력 추정을 염두에 두고 조건, 대조군, 반복, 플레이트 제약을 입력한 뒤 실험 레이아웃을 내보내세요. 이 레이아웃은 멀리까지 쓰입니다. Power / Design은 이를 이용해 표본 추출 가정을 정하고, 나중에 실험을 촬영하고 측정한 뒤에는 Dose–Response가 그 용량과 조건 식별 정보를 사용합니다. 그러니 끝까지 바꾸지 마세요."
+    },
+    {
+      "source": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+      "source_sha256": "542f2a25d6bc5b5c1784cdf8b4feffb26dc8b6d6ca0310c5acda1b17be2bad48",
+      "translation": "시퀀싱 리드부터 시작하세요. Home에서 Map Barcodes를 열고, 싱글엔드 또는 페어드엔드 FASTQ 파일을 실험을 인코딩한 바코드 참조 표와 함께 주세요. Map Barcodes는 각 리드를 바코드와 대응시키고 웰마다 가이드를 세며, 실행 폴더에 unique_combinations.csv와 annotated_reads.h5를 저장합니다. 이 개수를 믿기 전에 Barcode QC에서 열어 보세요. 검사를 통과하면, 이것이 Regression이 같은 플레이트와 웰 키로 표현형 점수와 짝짓는 가이드 개수가 됩니다."
+    },
+    {
+      "source": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
+      "source_sha256": "0fe87f6232115c552ae38b05b6dffd909331a2dddd88316265912061359cc9a0",
+      "translation": "광학 스크린은 다른 길을 갑니다. Home에서 Mask를 연 다음 OPS를 선택하세요. OPS는 리드 대신 각 시퀀싱 사이클의 이미지를 받아 표현형 이미지와 정렬하고, 핵마다 바코드를 디코딩합니다. 결과는 OPS의 measurements.db에 저장되며, 형태, 표현형 정렬, 핵, 바코드에 대한 표가 들어 있습니다. 하지만 이 데이터베이스는 FASTQ 개수 표가 아닙니다. Regression에서 쓰려면 먼저 디코딩한 식별 정보를 표현형 데이터와 결합하고 집계해, 각 객체나 웰이 둘 다 갖도록 하세요."
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
+      "translation": "때로는 마스크에 사람의 손길이 필요합니다. Home에서 Make Masks를 열고 시야별로 고치세요. 여기서 저장한 것은 두 방향으로 갈 수 있습니다. 분할 모델을 학습시키려면 이미지-마스크 쌍을 정리해 학습 시야로 함께 보관하세요. 측정하려면 FEATURES로 각 이미지를 마스크와 짝지어 측정 프로젝트를 저장하세요. 이렇게 해야 마스크가 Measure에 도달합니다. 따로 떨어진 마스크는 병합 배열이 아닙니다. 여기서 그린 플라크 마스크는 대응하는 원본 이미지와 함께 Plaque Assay에도 쓸 수 있습니다. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
+    },
+    {
+      "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+      "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
+      "translation": "다음으로 Home에서 Measure를 열고, 이미지와 마스크 채널 인덱스를 올바르게 설정한 채 같은 프로젝트를 지정하세요. Measure는 이미지와 라벨 평면을 함께 담은 각 병합 배열을 읽고, 세포, 핵, 기생충 하나하나를 measurements.db의 한 행으로 씁니다. 크롭 저장을 켜면 각 객체 주변의 작은 PNG도 잘라 png_list에 색인합니다. 여기서 이야기가 갈라집니다. Annotate는 그 크롭을 보여 주어 예시에 라벨을 붙이게 하고, Classify는 크롭이나 측정된 특징에서 배우므로 객체 식별 정보를 안정적으로 유지하세요."
+    },
+    {
+      "source": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
+      "source_sha256": "aa480763b8fdc0f37ce7ec8d49f9ebc31d85c45748724d74ac0402ea2a74b700",
+      "translation": "측정값이 준비되면 Annotate에서 예시로 가르칩니다. Home에서 열면 Measure가 저장했거나 프로젝트에서 스트리밍하는 객체 크롭이 표시됩니다. 대표적인 객체에 라벨을 붙이세요. 각 라벨은 png_list 테이블의 주석 열에 해당 객체의 식별 정보와 연결되어 들어갑니다. 처음부터 시작할 필요는 없습니다. Gate Editor에 저장한 게이트가 검토할 라벨 후보를 제안할 수 있습니다. 질문마다 별도의 열을 쓰고 학습용과 평가용 객체를 분리하세요. 다음에 Classify가 학습하는 것이 바로 이 열입니다."
+    },
+    {
+      "source": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
+      "source_sha256": "737abb7d17017d52677b164ee2921618dfd73d528f25398c56017f43af68cd19",
+      "translation": "두 번째는 Cellpose로 마스크를 직접 생성하는 spacr.spacr_cellpose.identify_masks_finetune이며, 이것도 Home 타일이나 메뉴 항목이 없습니다. 이름과 달리 학습이 아니라 추론을 합니다. 폴더 안의 TIFF 시야에 기본 또는 사용자 지정 Cellpose 모델을 적용합니다. 먼저 정규화, 채널, 크기 조정, 모델 설정을 확인하고 저장을 켜세요. save가 켜져 있을 때만 마스크가 저장되기 때문입니다. 얻는 것은 라벨 TIFF이지, Measure에서 바로 쓸 수 있는 프로젝트가 아닙니다. 계속하려면 Measure 전에 External Masks로 이미지-마스크 쌍을 가져오거나, 학습용으로 정리하세요."
+    },
+    {
+      "source": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
+      "source_sha256": "428d8fa2854a627bbcf473c3d6f9dd8cf450ce167739de0e12d565d2924ee6a2",
+      "translation": "Home에서 Classify를 열면 여기서 라벨이 점수가 됩니다. Classify에는 두 계열이 있으며, 데이터에 따라 어느 쪽을 쓸지 정해집니다. Computer Vision은 객체 크롭 자체에서, Tabular Machine Learning은 측정된 특징 열에서 배웁니다. 어느 쪽이든 Annotate에서 만든 라벨로 학습하고, 떼어 둔 객체로 스스로를 점검한 뒤, 학습된 모델, 평가 묶음, 점수를 CSV 파일로, 그리고 병합하면 png_list에도 저장합니다. 검정할 CV 또는 ML 점수 열을 고르고, 플레이트와 웰 식별 정보를 그대로 유지한 채 Regression으로 가져가세요."
+    },
+    {
+      "source": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
+      "source_sha256": "210a36c0bde8db5336b0d643fbec120141412a965e4a96144c185984dcaac5d7",
+      "translation": "Gate Editor에서는 눈이 아니라 규칙으로 객체를 고릅니다. Home에서 열고 실제 열에 임곗값 게이트나 다각형 게이트를 그리세요. 대상은 실제 단위를 가진 Measure의 측정 특징이나 Image UMAP 투영의 좌표입니다. 게이트를 저장하면 호환되는 어떤 객체에도 다시 적용할 수 있습니다. 선택한 객체를 검토하고 이진 또는 다중 클래스 라벨을 고른 뒤에는, Annotate 버튼이 표시된 게이트를 주석 열에 씁니다. 저장된 게이트는 Annotate 안에서 라벨 후보를 제안할 수도 있습니다. 그런 다음 Classify에서 같은 열과 같은 객체 집단을 선택하고, 검증용 객체는 학습 라벨과 분리하세요."
+    },
+    {
+      "source": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
+      "source_sha256": "4eab84e3490d34e089a06f4585d7e32e383ccf6f078c9bdd1b0aa99b56b17ff8",
+      "translation": "Host–Pathogen Analysis는 감염을 양쪽에서 봅니다. Home에서 Toxoplasma를 연 다음 이것을 선택하세요. 액포 전체, 숙주 기준 구획, 그리고 감염 분모가 되는 비감염 숙주 세포를 포함한 Measure의 측정값을 읽습니다. 표지자 채널을 고르고 대조군으로 보정한 비율 임곗값을 설정하세요. 개별 기생충을 분할했다면, 명시적 연결이나 측정된 개수 열로 액포별 기생충 수를 셀 수 있습니다. 그러면 액포, 숙주, 웰 표, 표지자 결합 상태, 증식 분포, 그리고 대응시키지 못한 기생충 연결을 얻습니다. 알 수 없는 측정값은 알 수 없는 채로 남으며, 숙주 식별 정보만으로 액포가 정해지는 일은 없습니다."
+    },
+    {
+      "source": "This is where the two halves of the screen meet. Open Regression from Home and give it both: the phenotype scores from Classify and the guide counts from Map Barcodes. Regression matches them on plate and well, so those keys have to agree in both files. Choose the response column and your controls, run the fit, and open the diagnostics before you believe any hit. If your barcodes were read optically with OPS instead, join and aggregate the decoded objects to your phenotype and guide data first; OPS does not hand over a ready-made count table. Regression can also model a directly measured response. It writes a results folder of coefficients, hit tables, settings and diagnostic figures.",
+      "source_sha256": "fc8e6fcfdc0df40b5b50e7f4523908220e4bdf8cb5110209bf067763baaa0423",
+      "translation": "여기서 스크린의 두 절반이 만납니다. Home에서 Regression을 열고 Classify의 표현형 점수와 Map Barcodes의 가이드 개수를 모두 주세요. Regression은 플레이트와 웰로 둘을 맞추므로, 그 키가 두 파일에서 일치해야 합니다. 반응 열과 대조군을 고르고 적합을 실행한 뒤, 어떤 히트도 믿기 전에 진단을 여세요. 바코드를 OPS로 광학적으로 읽었다면, 먼저 디코딩한 객체를 표현형과 가이드 데이터에 결합하고 집계하세요. OPS는 바로 쓸 수 있는 개수 표를 넘겨주지 않습니다. Regression은 직접 측정한 반응도 모델링할 수 있습니다. 계수, 히트 표, 설정, 진단 그림이 담긴 결과 폴더를 저장합니다."
+    },
+    {
+      "source": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
+      "source_sha256": "b292be611385980d0e0b646738bf79a2b59d336afbf057dcd0d4768083908501",
+      "translation": "어떤 방식으로 시퀀싱했든, 바코드와 표현형은 Regression에서 만납니다. Home에서 여세요. 풀링 스크린에서는 Classify의 표현형 점수와 Map Barcodes의 가이드 개수를 받습니다. 광학 스크린에서는 직접 결합하고 집계한 디코딩된 OPS 객체를 받습니다. 이것은 파일을 그대로 넘기는 것이 아닙니다. 직접 측정한 반응을 모델링할 수도 있습니다. 어떤 경우든 입력 사이에서 플레이트와 웰 식별자가 일치해야 합니다. 반응과 대조군을 고르고 적합을 실행한 뒤, 무엇이든 히트라고 부르기 전에 진단을 읽으세요. 계수, 히트 표, 설정, 그림이 담긴 결과 폴더는, 이 실행을 다른 실행과 나란히 보고 싶을 때 Run Compare가 여는 폴더입니다."
+    },
+    {
+      "source": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
+      "source_sha256": "029f3c5ca1ff41f4a21df2b7ad6963449a8e3b9f5d4abb213f991ab3b98eb1f1",
+      "translation": "이 지도에서 두 도구는 Python에서만 쓸 수 있습니다. 첫 번째는 내출아 크기 지표인 spacr.submodules.analyze_endodyogeny로, Home 타일이나 메뉴 항목이 없습니다. Measure 프로젝트에서 측정한 구획 면적을 읽고, 조건별로 라벨을 붙인 뒤, 면적의 1.5제곱을 log2 크기 배가 구간으로 나눕니다. 기본적으로 병원체 면적을 액포가 아니라 숙주 세포 단위로 합산하므로, 한 세포 안의 여러 액포가 합쳐집니다. 그래서 이것은 면적에서 얻은 크기 지표이지, 측정한 부피나 기생충 수가 아닙니다. 액포별 기생충 수에는 Replication Assay를 쓰세요. 호출하기 전에 구획, 면적 필터, 보정, 조건, 그룹을 설정하고, 구간을 읽기 전에 집계 방식과 면적 단위를 확인하세요. Mask의 개수 데이터베이스만으로는 부족합니다."
+    },
+    {
+      "source": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database.",
+      "source_sha256": "e203b3a2ba9acc4c9ad007b1d25fbfc439ba1bf3515bddd82c69c7c1f6e2285e",
+      "translation": "또 하나의 계획 도구도 Python에서만 쓸 수 있습니다. 풀링 스크린 시뮬레이션 일괄 실행인 spacr.sim.run_multiple_simulations로, Home 타일이나 메뉴 항목이 없습니다. 스크린 규모, 점유율, 분류기 정확도, 시퀀싱 같은 가정을 설정 딕셔너리로 넘깁니다. 모든 조합을 펼쳐 프로세스 풀에서 각각 시뮬레이션하고, simulations.db에 합성 요약 행을 추가합니다. 호출 자체는 None을 반환합니다. 매개변수 격자는 작게 유지하고, 실행 전에 max_workers를 명시적으로 설정하세요. 나오는 것은 계획을 위한 근거이지 데이터가 아니며, Regression에서 측정값이나 바코드 개수를 대신할 수 없습니다. 요약을 읽고 가정을 기록한 뒤, 이를 직접 Power / Design이나 Experiment Design으로 옮기세요. 두 도구 모두 시뮬레이션 데이터베이스를 가져오지 않기 때문입니다."
+    },
+    {
+      "source": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
+      "source_sha256": "cca3dcdff190d4a0d55abf37829e7babe9e9d5abe3314cbfafe105748b3713ae",
+      "translation": "Image UMAP은 라벨을 붙이기 전에 살펴보기 위한 도구입니다. Home에서 열면 Measure의 측정 특징이나, 객체 ID가 일치하는 Embeddings의 인코더 특징을 비슷한 객체끼리 가까이 모이는 지도로 투영합니다. 대표적인 크롭을 열어 어떤 영역에 실제로 무엇이 있는지 확인하세요. 클러스터는 후보 그룹일 뿐, 검증된 표현형이 아닙니다. 어떤 영역이 정말 의미 있어 보이면 올가미로 둘러싸고, 잡힌 것을 검토한 뒤, 그 선택을 대응하는 측정 데이터베이스의 주석 열에 쓰세요. 그러면 Classify가 그 열로 학습할 수 있습니다. 대응하는 좌표 열과 특징 열로 선택을 정의하고 싶다면 투영을 Gate Editor로 보낼 수도 있습니다. 모든 GUI 경로가 인코더 특징을 자동으로 저장하지는 않으며, 그래프 위의 모양만으로 생물학적 표현형이 확립되지는 않습니다."
+    },
+    {
+      "source": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
+      "source_sha256": "124d161d8f5715bdcbe4c44bf52b5a6521e970ea0b3099a68fe0929059722c8b",
+      "translation": "Home에서 Classify를 열어 라벨을 예측으로 바꾸세요. 두 계열이 있으며, 데이터에 따라 어느 쪽을 쓸지 정해집니다. Computer Vision은 Measure가 저장하거나 스트리밍하는 객체 크롭에서, Tabular Machine Learning은 측정된 특징 열에서 배웁니다. 라벨은 세 곳에서 올 수 있습니다. 대부분은 Annotate에서 옵니다. Gate Editor는 검토한 게이트 선택을 주석 열에 쓸 수 있고, Image UMAP도 검토한 올가미 선택으로 같은 일을 할 수 있습니다. 어느 경우든 여기서 같은 열과 같은 객체 집단을 선택하세요. 임베딩 클러스터는 정답이 아니므로 크롭을 확인하고, 라벨을 검증하고, 검증용 객체는 학습에서 떼어 두세요. 그러면 Classify는 점수, 학습된 모델, 그리고 떼어 둔 데이터에 대한 예측을 담은 평가 묶음을 저장합니다. 스크린에서는 사용할 CV 또는 ML 점수 열을 고르고, 플레이트와 웰 식별 정보를 유지한 채 Regression으로 가져가세요."
+    },
+    {
+      "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
+      "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
+      "translation": "Measure는 이 지도 전체의 중심입니다. Home에서 열고, 이미지와 마스크 채널 인덱스를 올바르게 설정한 채 Mask가 만든 프로젝트를 지정하세요. Make Masks에서 짝지은 마스크도 여기로 옵니다. Measure는 이미지와 라벨 평면을 함께 읽고, 세포, 핵, 기생충 하나하나를 measurements.db의 한 행으로 씁니다. 각 객체의 PNG가 필요하면 크롭 저장을 켜고, 대신 크롭을 스트리밍한다면 데이터베이스를 원본 프로젝트와 함께 보관하세요. 거의 모든 것이 이 행들에서 시작합니다. Annotate와 Classify는 측정값과 크롭으로 표현형을 배웁니다. Image UMAP은 이를 투영해 그룹을 찾게 해 주고, Embeddings는 모델로 크롭을 인코딩하면서 인코더와 채널 정책을 기록합니다. Gate Editor는 실제 단위를 가진 실제 측정 특징에 임곗값을 설정하고, QC는 어떤 검사가 있고 어떤 검사가 빠졌는지 보여 줍니다. Toxoplasma 분석도 여기서 시작합니다. Recruitment에는 알맞은 구획 강도가, Invasion Assay에는 기준 대조군을 포함한 2색 염색 측정값이, Replication Assay에는 기생충과 액포의 명시적 연결이 필요합니다. Host–Pathogen Analysis에는 액포 전체 마스크와 숙주 기준 강도가 필요하며, 비감염 세포도 남겨 두어야 합니다. 그리고 내출아 크기 지표는 숙주 세포별 집계와 면적 단위를 확인한 뒤 Python에서 측정된 프로젝트를 읽습니다. Mask의 개수 데이터베이스만으로는 부족합니다."
+    },
+    {
+      "source": "Workflows",
+      "source_sha256": "e2073645cb0dbbddb2464dacc4ed2a03923b8e4a4b680245c36c69763766fb40",
+      "translation": "Workflows"
+    },
+    {
+      "source": "Open {name} from Home.",
+      "source_sha256": "01b546ab01479158850c53d91ff0fd9e9db579e577872ddeb83fb71fa0639596",
+      "translation": "Home에서 {name}을(를) 여세요."
+    },
+    {
+      "source": "Module inputs and outputs",
+      "source_sha256": "e192f98241a10816e70a97d747b7fd46feda4e7cabda312565f954bc0a0356e1",
+      "translation": "모듈 입력과 출력"
+    },
+    {
+      "source": "Inspect actual tables before exporting.",
+      "source_sha256": "9f7168593c7e6c0adf66726c8de006dd1e92b22386138be9c85898ff0376cb6e",
+      "translation": "내보내기 전에 실제 테이블을 확인하세요."
+    },
+    {
+      "source": "Inspect ranked hits and guide agreement.",
+      "source_sha256": "4a3764a775c3feb7134130a3e1bbf5b1433664ac9fca66a6808eb7b74d2acc9a",
+      "translation": "순위가 매겨진 히트와 가이드 일치도를 확인하세요."
+    },
+    {
+      "source": "Image analysis modules and how they relate",
+      "source_sha256": "37bcd8931505ea92a95a37e93e3453a2cee20377fdb0150e263c8d9914614ecc",
+      "translation": "이미지 분석 모듈과 그 관계"
+    },
+    {
+      "source": "Open {host} from Home, then choose {name}.",
+      "source_sha256": "551cd3bac1835524db37ebbb33db51be60fbc1f092dbf68556ebf1f4d9920709",
+      "translation": "Home에서 {host}을(를) 연 다음 {name}을(를) 선택하세요."
+    },
+    {
+      "source": "Identify what each module reads and writes.",
+      "source_sha256": "d4390d52c2bb7feff6b80ece398baf65fb2e194394fc43b04fd665d58604ee58",
+      "translation": "각 모듈이 무엇을 읽고 쓰는지 파악합니다."
+    },
+    {
+      "source": "Use independently checked image/mask pairs.",
+      "source_sha256": "2f8e1a168f30c74b5a6d8e4e992160c37bd92d719504c229c168a957b48d4964",
+      "translation": "독립적으로 확인한 이미지/마스크 쌍을 사용하세요."
+    },
+    {
+      "source": "Supply frame interval and pixel calibration.",
+      "source_sha256": "2293a08135e16e72e954972084b7744919a1c5f3335d781da515db0eb733c9b3",
+      "translation": "프레임 간격과 픽셀 보정값을 입력하세요."
+    },
+    {
+      "source": "Retain encoder and channel-policy provenance.",
+      "source_sha256": "8b0b0f9935ced0554f6dccb35fad06786eea0175c353cccb7319d6c202ae0986",
+      "translation": "인코더와 채널 정책의 출처 정보를 보관하세요."
+    },
+    {
+      "source": "Review available checks and missing evidence.",
+      "source_sha256": "f7a99271ed3715003c48d350f37209623b8854e83b4151ed08180909f716355c",
+      "translation": "사용 가능한 검사와 빠진 근거를 검토하세요."
+    },
+    {
+      "source": "Choose explicit variables, groups and filters.",
+      "source_sha256": "3f346a1d8a8fc510ad9eefe78481e54db311742cb68caa3d0eaa38ea53505af2",
+      "translation": "변수, 그룹, 필터를 명시적으로 고르세요."
+    },
+    {
+      "source": "Combine measured objects with matching tracks.",
+      "source_sha256": "9814ec4bb65f1bbc792c24c8ddf12b71822c9e49252bdb0a60d77bed63851c5d",
+      "translation": "측정된 객체를 일치하는 궤적과 결합하세요."
+    },
+    {
+      "source": "Review exported prose and every traced result.",
+      "source_sha256": "61abde1bb83664efef7b3b1b76178bfa133ad7b1aa601885ca4fa35c128d7d15",
+      "translation": "내보낸 문장과 추적한 모든 결과를 검토하세요."
+    },
+    {
+      "source": "Export compatible feature and metadata columns.",
+      "source_sha256": "b5a153c5432fbc4af6601d85ac9b74b093e55033080d0788b4829f5716776ab9",
+      "translation": "호환되는 특징 열과 메타데이터 열을 내보내세요."
+    },
+    {
+      "source": "Select the saved compatible checkpoint in Mask.",
+      "source_sha256": "e728ebc34eecea176cd1c0292a03c313fea3f405905ac93b531880cb8c41397e",
+      "translation": "Mask에서 저장된 호환 체크포인트를 선택하세요."
+    },
+    {
+      "source": "Inspect saved effects and adjusted significance.",
+      "source_sha256": "5c93baa88ff14b133e94ac4cff181688e099f74dfd313c6656e63e56cab93711",
+      "translation": "저장된 효과와 보정된 유의성을 확인하세요."
+    },
+    {
+      "source": "Require explicit parasite-to-vacuole identities.",
+      "source_sha256": "cd46ef6645b6037759f807bcfcde8657d63ff3ab247d0e4967759b1fa6783e84",
+      "translation": "기생충과 액포의 명시적인 식별 대응이 필요합니다."
+    },
+    {
+      "source": "Check mapping and coverage before guide filtering.",
+      "source_sha256": "8f0003ef9a4bff7fd9ec78f06910d83d5cd54dba893fb6d715164d8fb80a7e0f",
+      "translation": "가이드를 거르기 전에 매핑과 커버리지를 확인하세요."
+    },
+    {
+      "source": "Define the class comparison and inspect filtering.",
+      "source_sha256": "7fa9a001232f6d1ea07ecc963e11b123f8518f46eb02030948f841e51e9e0f00",
+      "translation": "클래스 비교를 정의하고 필터링을 확인하세요."
+    },
+    {
+      "source": "Open the diagnostics actually written by this run.",
+      "source_sha256": "2447417b10859c54b1edc1f2c510f7a654f628856a8b3dbcc472ce9529d5ce76",
+      "translation": "이 실행이 실제로 저장한 진단을 여세요."
+    },
+    {
+      "source": "Save or stream crops with stable object identities.",
+      "source_sha256": "9d2aa7c76cc7845e15485b8ae6535fcdaf16a0f105e55bc2bc0ef6c27cb1fd6b",
+      "translation": "안정적인 객체 식별 정보와 함께 크롭을 저장하거나 스트리밍하세요."
+    },
+    {
+      "source": "Open {host} through Help search, then choose {name}.",
+      "source_sha256": "cb10d8215264f4a4bb7d6bbc74158f9755f375f83cd43db64019702f31348940",
+      "translation": "Help 검색으로 {host}을(를) 연 다음 {name}을(를) 선택하세요."
+    },
+    {
+      "source": "Apply compatible gates, then review candidate labels.",
+      "source_sha256": "313dcd7499b29d9ab4f1e85a9a12a0700c2235ad0e42e8c45faaf93c6fc939ca",
+      "translation": "호환되는 게이트를 적용한 뒤 라벨 후보를 검토하세요."
+    },
+    {
+      "source": "Find {name} in the application's Help or tools menus.",
+      "source_sha256": "a6595866f9a2e96b94713734a202fadabaec0e8639f7e30e0041ee33751204c0",
+      "translation": "애플리케이션의 Help 또는 도구 메뉴에서 {name}을(를) 찾으세요."
+    },
+    {
+      "source": "Keep labelled training and evaluation groups separate.",
+      "source_sha256": "610a65cab0a0cfca2b75a8d04f0e636d16235e102a3d1c5274ecea4e03ee68e0",
+      "translation": "라벨이 붙은 학습 그룹과 평가 그룹을 분리하세요."
+    },
+    {
+      "source": "Use the actual measured feature definitions and units.",
+      "source_sha256": "24b57dd68ed527779c36fabc6773c67269591681de7ba0d1a43361e1f0c55ff7",
+      "translation": "실제 측정 특징의 정의와 단위를 사용하세요."
+    },
+    {
+      "source": "Choose the image or tabular family to match your input.",
+      "source_sha256": "ceb54e5452ef1c9acadfccb5dd22ce2b6781d2eb432446886ad5e7cdf57e35a5",
+      "translation": "입력에 맞게 이미지 계열 또는 표 계열을 고르세요."
+    },
+    {
+      "source": "Choose a starting module from the data you already have.",
+      "source_sha256": "9fcef3d204529b4bcdac2d96089f0ddfdeb8308de16add81e67097473e8a9e0b",
+      "translation": "이미 가지고 있는 데이터에 맞는 시작 모듈을 고릅니다."
+    },
+    {
+      "source": "Choose feature columns and inspect representative crops.",
+      "source_sha256": "22bcabd0b57471c6762a75c4ddf999a1619320d8e32a20ec6bd4f94d3e8fa2f1",
+      "translation": "특징 열을 고르고 대표적인 크롭을 확인하세요."
+    },
+    {
+      "source": "Compare compatible saved result sets and their settings.",
+      "source_sha256": "bfceea3a2459b0f73caaca76beadd1d4b3b1aa069ae336974fa5170d55b99e5a",
+      "translation": "호환되는 저장된 결과 세트와 그 설정을 비교하세요."
+    },
+    {
+      "source": "Keep the newly measured project and crop index together.",
+      "source_sha256": "e538adf6094a34c8897dcc2636cf51f7a3eb23dfdd1d7f52cf6f08e8c209dbe7",
+      "translation": "새로 측정한 프로젝트와 크롭 색인을 함께 보관하세요."
+    },
+    {
+      "source": "Select CV predictions and the matching measured objects.",
+      "source_sha256": "6ee8a7cca7e74c41a5c49c929c4e82ac81a65cf4f1b2a0a20641da6824f3fa58",
+      "translation": "CV 예측과 일치하는 측정 객체를 선택하세요."
+    },
+    {
+      "source": "Use the matching held-out predictions and split metadata.",
+      "source_sha256": "f54d26c6f55e27fc9e4bfa8aa68751237c19bcfb4789430b0c398fdfa26da239",
+      "translation": "일치하는 보류 예측과 분할 메타데이터를 사용하세요."
+    },
+    {
+      "source": "Also provide the matching crops and channel preprocessing.",
+      "source_sha256": "5d14f534937d88a8a816046b5b06ec106abb7f34c8957aecb6f28e07eb986510",
+      "translation": "일치하는 크롭과 채널 전처리도 함께 제공하세요."
+    },
+    {
+      "source": "Join the measured response to explicit doses and controls.",
+      "source_sha256": "9ff398804fdf613057ad8d22390c3dd6946e5b85b6cdc5462a3f3d26544950f7",
+      "translation": "측정한 반응을 명시적인 용량과 대조군에 결합하세요."
+    },
+    {
+      "source": "Choose independent annotation columns for the same objects.",
+      "source_sha256": "cd79b318e185370c7e0f596616c08b46b9b6ada79e3dddb0e40ef52e399f4a28",
+      "translation": "같은 객체에 대해 독립적인 주석 열을 고르세요."
+    },
+    {
+      "source": "Require the intended compartment intensities and identities.",
+      "source_sha256": "c4679d0263754b570fc8c5472c32e7185876dcb096fc4be186cf28860ee7e2e5",
+      "translation": "의도한 구획 강도와 식별 정보가 필요합니다."
+    },
+    {
+      "source": "Join compatible phenotype and object data for the chosen hit.",
+      "source_sha256": "466c619c86e3c239704201a67118a42e95cee2ff69b1ad9b5190a1145f27e4a6",
+      "translation": "선택한 히트에 대해 호환되는 표현형 데이터와 객체 데이터를 결합하세요."
+    },
+    {
+      "source": "Plot selected measurement columns with object-crop inspection.",
+      "source_sha256": "8f37a50e559b84de232a8d35656d11e93e3f61ab39888765d6f42b7f1a5ac298",
+      "translation": "선택한 측정 열을 그래프로 그리고 객체 크롭을 함께 확인하세요."
+    },
+    {
+      "source": "Use the converted layout and preserve source identity mappings.",
+      "source_sha256": "83abb6351062dd3f2d76d8cafc9881379225d38c3c5dee6621b86b6d79c56cd5",
+      "translation": "변환된 레이아웃을 사용하고 원본 식별 정보 매핑을 보존하세요."
+    },
+    {
+      "source": "Use the same project and the correct image/mask channel indices.",
+      "source_sha256": "a13443df7b3ac941065d58a50ac84111df75ac2f088812325d7a5611061621b2",
+      "translation": "같은 프로젝트와 올바른 이미지/마스크 채널 인덱스를 사용하세요."
+    },
+    {
+      "source": "Use the time-series project with stable frame/object identities.",
+      "source_sha256": "7f51c91c57e8c6bcfbc6eb8b314770891a24fd6027910ff8fae48c728b8ef191",
+      "translation": "프레임/객체 식별 정보가 안정적인 시계열 프로젝트를 사용하세요."
+    },
+    {
+      "source": "Saved module/plate/settings job definitions and dependency order.",
+      "source_sha256": "a895c2a8bf7504b9565e7f1b4558b652aabde3076ed3ee4f13387d13ca2e0e40",
+      "translation": "저장된 모듈/플레이트/설정 작업 정의와 의존 순서."
+    },
+    {
+      "source": "Enable the nested time-series route before generating linked labels.",
+      "source_sha256": "4a59d8325e489697c01c88d856ccace60f6b442bcda13f547714b0b04d186f6e",
+      "translation": "연결된 라벨을 만들기 전에 중첩된 시계열 경로를 켜세요."
+    },
+    {
+      "source": "Follow the linked module lessons and API contracts for the next step.",
+      "source_sha256": "74a732280e08f5f2c642416fbf0a2159c203154cf0fedcc33098976357956ed1",
+      "translation": "다음 단계는 연결된 모듈 강의와 API 규약을 따라갑니다."
+    },
+    {
+      "source": "Imported tables require explicit column and object-identity mappings.",
+      "source_sha256": "71aea881bbcc62966b4e24cc7699a30f68cef9cf39007ff98d83b722cfdc1242",
+      "translation": "가져온 테이블에는 명시적인 열 매핑과 객체 식별 매핑이 필요합니다."
+    },
+    {
+      "source": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+      "source_sha256": "2118bd261715a7ba1349929e075dcb76d1f0dbcd2b2e6a42615454b4558520ea",
+      "translation": "저장된 히트를 효과, FDR, 가이드 일치도와 함께 거르고 순위를 매기세요."
+    },
+    {
+      "source": "An exported .h5ad file containing measured features and object metadata.",
+      "source_sha256": "eb1617e946b752baaf07a5fa75c860776425f0660848a412d57eb7d5439c8097",
+      "translation": "측정 특징과 객체 메타데이터가 담긴 내보낸 .h5ad 파일."
+    },
+    {
+      "source": "Require two-colour stain measurements and appropriate baseline controls.",
+      "source_sha256": "2dbfb2abec909e52724c2e17330ced9df59b3618a82aa7ab5a7034eecc05881b",
+      "translation": "2색 염색 측정값과 적절한 기준 대조군이 필요합니다."
+    },
+    {
+      "source": "Inspect aligned image, label and point/ROI layers for the selected field.",
+      "source_sha256": "3093d844ab489bc1671e9f7e96b42f9159a5693512a489bd026fc3ec528a1e93",
+      "translation": "선택한 시야의 정렬된 이미지, 라벨, 점/ROI 레이어를 확인하세요."
+    },
+    {
+      "source": "Pair guide counts with phenotype scores using consistent plate/well keys.",
+      "source_sha256": "20664e0c8d9066c2f2d0d45276ac352e32bc87a15be06e2a2e892b3f7678da65",
+      "translation": "일관된 플레이트/웰 키로 가이드 개수와 표현형 점수를 짝지으세요."
+    },
+    {
+      "source": "Supply the matching coordinate/feature columns when defining a selection.",
+      "source_sha256": "6de47ffaa553bf88af78940b9c462f484adff0610d0a9c86304e69879511cd22",
+      "translation": "선택을 정의할 때는 일치하는 좌표/특징 열을 제공하세요."
+    },
+    {
+      "source": "Look up feature definitions and units before choosing measurement columns.",
+      "source_sha256": "478c14113b0d8f447c0a0455ad7ded1ff9d2697cad0d61355c5b89893d015193",
+      "translation": "측정 열을 고르기 전에 특징 정의와 단위를 찾아보세요."
+    },
+    {
+      "source": "Correct labels and track assignments while retaining a record of the edits.",
+      "source_sha256": "e1b49e03ad6cc63788f37b0d1269f1eacec5b175d89cfe80bd4e7393bf95d2d0",
+      "translation": "편집 기록을 남기면서 라벨과 궤적 배정을 수정하세요."
+    },
+    {
+      "source": "Select the intended CV or ML score column and preserve plate/well identity.",
+      "source_sha256": "3169a21d98fc6556bb837be858fc357341cbab46a02077c6b03629995f97f236",
+      "translation": "의도한 CV 또는 ML 점수 열을 선택하고 플레이트/웰 식별 정보를 보존하세요."
+    },
+    {
+      "source": "Re-measure only when needed; External Masks can already perform measurement.",
+      "source_sha256": "609cfb8952ac5d5c9785f409f81cbee8ae53f7ba2caec695e861b63e548b70e9",
+      "translation": "필요할 때만 다시 측정하세요. External Masks에서 이미 측정할 수 있습니다."
+    },
+    {
+      "source": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
+      "source_sha256": "0386f78d235909cfa5ae06c876ef6f91690c42f21c189eca9f20144eecc1f80a",
+      "translation": "싱글엔드 또는 페어드 FASTQ 파일과 일치하는 바코드 참조 표."
+    },
+    {
+      "source": "Locate projects and inspect their stage, last run, disk use and stale outputs.",
+      "source_sha256": "72b2138959b12b714abf0e0030f0b5701a39fa4738280a491f9add07e6a66095",
+      "translation": "프로젝트를 찾아 단계, 마지막 실행, 디스크 사용량, 오래된 출력을 확인하세요."
+    },
+    {
+      "source": "Source image folder; original files, supported vendor files or imported TIFFs.",
+      "source_sha256": "fa481657a34770a41f4a4b81f3d58d7649d44128d4728030f6044cfa67d6af1b",
+      "translation": "원본 이미지 폴더: 원본 파일, 지원되는 제조사 파일 또는 가져온 TIFF."
+    },
+    {
+      "source": "Stored project checks and QC reports; a missing check is not a passing result.",
+      "source_sha256": "2e80ccd973941d555efb5b932b3ced7e60da7471cc7214ba07494baf3d85d387",
+      "translation": "저장된 프로젝트 검사와 QC 보고서. 검사가 없다는 것은 통과했다는 뜻이 아닙니다."
+    },
+    {
+      "source": "Acquire and measure the experiment first, preserving dose/condition identities.",
+      "source_sha256": "0f323891c020796daca4869bf6e5ac0698a80e6005ed1a0577fe7c124622897c",
+      "translation": "먼저 실험을 촬영하고 측정하되, 용량/조건 식별 정보를 보존하세요."
+    },
+    {
+      "source": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+      "source_sha256": "5696e4b8e59ff2424fa5e83649b69a765bbc3cc0f5f5881bef5744475888bbf8",
+      "translation": "공유 축 또는 독립 축을 명시한 소형 다중 그래프로 그룹을 비교하세요."
+    },
+    {
+      "source": "Saved score CSVs and, when merged, measurements/measurements.db, table png_list.",
+      "source_sha256": "c6d92932393861ee5acf119bd5b4799ee37b82e034439028e1b78d83b2e21ca9",
+      "translation": "저장된 점수 CSV 파일, 그리고 병합한 경우 measurements/measurements.db의 png_list 테이블."
+    },
+    {
+      "source": "Compare saved training histories, metrics and settings from compatible model runs.",
+      "source_sha256": "648125cd6c6c041fb5612df6dae629b30dfa25720e1c143668b9cf0256eb886f",
+      "translation": "호환되는 모델 실행의 저장된 학습 기록, 지표, 설정을 비교하세요."
+    },
+    {
+      "source": "Project run records, settings, output paths, artifact provenance, status and logs.",
+      "source_sha256": "a04ac68f0d4b5ee392e4d35b944fa7161c727104c9c53a691055179934457f61",
+      "translation": "프로젝트 실행 기록, 설정, 출력 경로, 산출물 출처, 상태, 로그."
+    },
+    {
+      "source": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+      "source_sha256": "80c34a382ee7c88b39fd8785dbe0561813d318b5ebcf49c587119249fb1f4bc7",
+      "translation": "선택한 측정값을 웰별로 집계하고 플레이트 패턴과 대조군을 확인하세요."
+    },
+    {
+      "source": "Use the experimental layout to define sampling assumptions, then revise the design.",
+      "source_sha256": "a99aba00513138a13d7bd5c7dfce282948ea89fdaa83da640031eea3b60d1faa",
+      "translation": "실험 레이아웃으로 표본 추출 가정을 정한 뒤 설계를 수정하세요."
+    },
+    {
+      "source": "Inspect principal components and feature loadings for the selected measured objects.",
+      "source_sha256": "2489bd7523d955bc91300db41ab120bde64a0938f9f0d8b7bab32fc3bd94eace",
+      "translation": "선택한 측정 객체의 주성분과 특징 적재량을 확인하세요."
+    },
+    {
+      "source": "Use imported image planes and identities; image-only imports still need segmentation.",
+      "source_sha256": "758477637b64fbd09f3708ee401272535f117650e825088aed95df4925e637d7",
+      "translation": "가져온 이미지 평면과 식별 정보를 사용하세요. 이미지만 가져온 경우에도 분할이 필요합니다."
+    },
+    {
+      "source": "Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
+      "source_sha256": "3adcf7fe9dc8b715851177b45d1ef712e8a3b1a91fe7c5742b883b69db5e2df7",
+      "translation": "기록된 분석 출력에서 만든 내보낸 HTML/PDF 또는 방법/결과 문서."
+    },
+    {
+      "source": "merged/*.npy in the project; channels and integer label planes share each field array.",
+      "source_sha256": "dd31724bc9249a234a1d470a40044ced540a2f1a45f87f971fa0130c34fd22e8",
+      "translation": "프로젝트 안의 merged/*.npy. 채널과 정수 라벨 평면이 각 시야 배열을 공유합니다."
+    },
+    {
+      "source": "Browse selected tables and export rows; table inspection does not rerun image analysis.",
+      "source_sha256": "ae9c5095f336105e9fbd9f5fbffb6e0bb0b6d8c74654859bb1ec9948b395204c",
+      "translation": "선택한 테이블을 둘러보고 행을 내보내세요. 테이블을 확인한다고 이미지 분석이 다시 실행되지는 않습니다."
+    },
+    {
+      "source": "The output location chosen by the tool; exports describe the selected data and filters.",
+      "source_sha256": "3985f989fd85cde2b0a359d542fdca8b7f5a38bb3683a39339d8888e7ea1eb1e",
+      "translation": "도구에서 선택한 출력 위치. 내보낸 파일은 선택한 데이터와 필터를 설명합니다."
+    },
+    {
+      "source": "measurements/measurements.db; Mask counts alone are not per-object feature measurements.",
+      "source_sha256": "ff6f35a646686f728ba4a6db279103047a3eccaadc76ba9bf8f12be03772832d",
+      "translation": "measurements/measurements.db. Mask 개수만으로는 객체별 특징 측정값이 아닙니다."
+    },
+    {
+      "source": "Saved model-response/saliency images for the matching classifier and input preprocessing.",
+      "source_sha256": "892315e07670f5468be340f149e65735943c12e0e621b9985fc1a966eff118a2",
+      "translation": "일치하는 분류기와 입력 전처리에 대해 저장된 모델 반응/돌출도 이미지."
+    },
+    {
+      "source": "Use {name} from Python through {api}. This API-only workflow has no Home tile or menu entry.",
+      "source_sha256": "092fd7bd3c6ec42a192044b5f9228818bfe5ac1f1591b41983b2f52bf09b46b2",
+      "translation": "Python에서 {api}를 통해 {name}을(를) 사용하세요. 이 API 전용 워크플로에는 Home 타일이나 메뉴 항목이 없습니다."
+    },
+    {
+      "source": "Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.",
+      "source_sha256": "469fd48b96e0591fe63f4d154b076c3e362f30332752c4dcf5e3cca06b9064d5",
+      "translation": "설치된 생물 설명과 SwissBioPics 세포 도식. 프로젝트 입력은 필요 없습니다."
+    },
+    {
+      "source": "Saved classifier checkpoint, model settings and matching channel/preprocessing configuration.",
+      "source_sha256": "662164a39d3f173304280c2ce24cb3e4d3823dac61e7447e44a9de1a018b6e25",
+      "translation": "저장된 분류기 체크포인트, 모델 설정, 일치하는 채널/전처리 구성."
+    },
+    {
+      "source": "Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "source_sha256": "d187ff0654b7898c787f957f79ee85752f15f2ce9890325944b3e2c5cc363f92",
+      "translation": "원본 이미지가 일치하는 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 라벨이 되지는 않습니다."
+    },
+    {
+      "source": "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps.",
+      "source_sha256": "616ed7d84583d1cb7edea0e7c6e356a336ea0312b3b0b4fbe0f20674a50cefaf",
+      "translation": "일치하는 이미지 분류기와 전처리를 적용해 돌출도/모델 반응 지도를 확인하세요."
+    },
+    {
+      "source": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
+      "source_sha256": "d4259004a55ccf450d716693b1f7dac26e2f2061fb978865903367698bbe0be3",
+      "translation": "학습된 체크포인트를 일치하는 이미지 채널과 전처리와 함께 custom_model로 전달하세요."
+    },
+    {
+      "source": "Third-party measurement CSV/database tables and their image, mask and object-identity mappings.",
+      "source_sha256": "ed6a75b4a1c0e58a894154b4c26f9f413e82dc148a261997e69fbf32599d21a9",
+      "translation": "외부 측정 CSV/데이터베이스 테이블과 그 이미지, 마스크, 객체 식별 매핑."
+    },
+    {
+      "source": "Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.",
+      "source_sha256": "211fe97e842fc48332c5363c42a044748dc4d3d14928cef145b0a7d91f8d899c",
+      "translation": "불러온 측정 데이터에 대한 Image UMAP/PCA 좌표 표, 선택한 클러스터, 그림."
+    },
+    {
+      "source": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+      "source_sha256": "eb6b47369f6d0f2d1e0d32c998fbf80f295fa8e111177eabd41d295bb28cdc80",
+      "translation": "가이드 개수를 거르기 전에 매핑 깊이, 커버리지, 충돌, 위치 효과를 확인하세요."
+    },
+    {
+      "source": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+      "source_sha256": "afe94717349638a4f56c60cbedebb413850da21777d1e0b3f53f5aa4ec8c709b",
+      "translation": "일치하는 분류기의 보류 예측, 보정, 분할/누출 근거를 확인하세요."
+    },
+    {
+      "source": "Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures.",
+      "source_sha256": "49c83a20b0aa1ccbb981fece12420a351e03c61184bdb16c229f0bcfd7a98f2a",
+      "translation": "선택한 실행 결과 폴더: 계수/결과 CSV 파일, 히트 표, 설정, 진단 그림."
+    },
+    {
+      "source": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+      "source_sha256": "47e35d8dced8ab5228a2151d8312488e2a27982d5ea2c0878ea0f14b2b82c956",
+      "translation": "기록된 설정과 결과로 방법/결과 초안을 작성하세요. 발표 전에 모든 주장을 검토하세요."
+    },
+    {
+      "source": "The installed feature dictionary; definitions describe existing measurements and do not compute them.",
+      "source_sha256": "bce8377488dfae31f017c8b9417cc2479a48287b1d9aadc6af8e4d3c4f63b91c",
+      "translation": "설치된 특징 사전. 정의는 기존 측정값을 설명할 뿐 계산하지는 않습니다."
+    },
+    {
+      "source": "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log.",
+      "source_sha256": "0300e5287d7ced093423753607dfa50fb9c3fc6effc5c503aa208e3f62b180b8",
+      "translation": "모듈 작업을 의존 순서대로 검증하고 실행하세요. 각 작업은 자체 모듈 출력과 로그를 씁니다."
+    },
+    {
+      "source": "The fitted tabular classifier and its recorded feature list, training settings and validation results.",
+      "source_sha256": "a197512a268caafe8fc317d2098c3393bb748a9509a7d547cd3ef5d68c5bfb1c",
+      "translation": "적합된 표 분류기와 기록된 특징 목록, 학습 설정, 검증 결과."
+    },
+    {
+      "source": "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.",
+      "source_sha256": "f6c34d8205ce135fb2481706b5cc4beeb9cb39d5bcb7de202c6aa50274bd12a4",
+      "translation": "그룹 변수와 측정 열을 고른 뒤 피벗 표와 그룹별 표본 크기를 확인하세요."
+    },
+    {
+      "source": "Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run.",
+      "source_sha256": "50777d615176b80fcc0735b3aae29a30eb723e80744831d7b1efc17977f90f8c",
+      "translation": "저장된 분류기 실행의 보류 예측, 라벨, 분할 메타데이터, 보정/누출 지표."
+    },
+    {
+      "source": "Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.",
+      "source_sha256": "eed85941623ad9242e81659667fcfcf7e6fb97f5fc561b34fdad55df20ad92fc",
+      "translation": "Align & Stitch 저장 위치: 합성 이미지와, 이를 해석하는 데 필요한 타일 좌표/배치 기록."
+    },
+    {
+      "source": "Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
+      "source_sha256": "8c3b2bc30d04bcc6d3c08a62c5d761ad0cbe2ae7075f1a84d4b7d1b61d630439",
+      "translation": "타일 좌표와 원래 시퀀싱 사이클을 OPS로 가져가세요. 평탄화한 모자이크만으로는 부족합니다."
+    },
+    {
+      "source": "Tracked labels and frame/object associations from the time-series project, with frame interval and units.",
+      "source_sha256": "37bd92b56d8713b33c122df7d0dbf826ae1a418b2433f9c6348aeff300710032",
+      "translation": "시계열 프로젝트의 추적된 라벨과 프레임/객체 연결, 그리고 프레임 간격과 단위."
+    },
+    {
+      "source": "masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.",
+      "source_sha256": "5bd7480a631cb9830f42aa8f650373d1750b0475863c9bada0b58c26ae52ba17",
+      "translation": "보관한 경우 masks/ 폴더, 또는 명시적으로 저장한 이미지/마스크 쌍. 중간 마스크는 정리 과정에서 삭제될 수 있습니다."
+    },
+    {
+      "source": "Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy.",
+      "source_sha256": "43464fdacefc288e0354f2982955822f2e7a4bc7b9dd2b0200a9e1d71f7fb5aa",
+      "translation": "호환되는 저장된 실행이나 마스크의 비교 표와 그림. 일치도는 정답 기준 정확도가 아닙니다."
+    },
+    {
+      "source": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "source_sha256": "c6990de9aec7ce45253154d30b40db01c6be3a46df913a675d953dc274e1d8df",
+      "translation": "GUI 전용 구획 강조 표시와 사용 가능한 분석으로의 이동. 측정값이나 파일은 만들지 않습니다."
+    },
+    {
+      "source": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
+      "source_sha256": "fa875ab85dfa1b048df6ebb3342d0ca7162864be60ca6eca78028a50debcea9c",
+      "translation": "저장된 회귀 결과를 열고 효과 크기, 보정된 유의성, 개별 히트 기록을 확인하세요."
+    },
+    {
+      "source": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+      "source_sha256": "8ef18b465ab0917966596ed137974077f7c52493a02cdcb45b9a46ec5e46f3e3",
+      "translation": "기록된 결과, 설정, QC를 분석을 몰래 다시 실행하지 않고 공유 가능한 보고서로 묶으세요."
+    },
+    {
+      "source": "Send the matching image/labels to napari and import the revised labels back with field identity preserved.",
+      "source_sha256": "154189afc6a259171833ab0877a3a87c5ad013d526397f7fe7612973732ab9e4",
+      "translation": "일치하는 이미지/라벨을 napari로 보내고, 수정한 라벨을 시야 식별 정보를 보존한 채 다시 가져오세요."
+    },
+    {
+      "source": "Separate image and integer-mask files with matching field identities; preserve original images and labels.",
+      "source_sha256": "8c1c362fe4c1aa54902b533e68bf6f519e6d521a9311dc14227766a57bb90688",
+      "translation": "시야 식별 정보가 일치하는 별도의 이미지 파일과 정수 마스크 파일. 원본 이미지와 라벨을 보존하세요."
+    },
+    {
+      "source": "Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration.",
+      "source_sha256": "dbb4e52b9ecc8172367656d188eaf6139295f106803d3be9c58d17313937b53a",
+      "translation": "저장된 Cellpose 호환 체크포인트, 또는 자체 구성으로 선택한 호환 설치 백엔드."
+    },
+    {
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "FEATURES로 이미지와 마스크를 짝지어 측정 프로젝트를 저장하세요. 따로 떨어진 마스크는 병합 배열이 아닙니다."
+    },
+    {
+      "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
+      "translation": "구획 강도 측정값과 일치하는 숙주/병원체 식별 정보로 집적 비율을 계산하세요."
+    },
+    {
+      "source": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+      "source_sha256": "5fa7a4af9b51b166edee374f83f221ab3e7a1814c09945f1f66cbae7083a16bf",
+      "translation": "후속 단일 세포 분석을 위해 객체 메타데이터와 측정 특징이 담긴 AnnData .h5ad 파일을 내보내세요."
+    },
+    {
+      "source": "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects.",
+      "source_sha256": "8bf5fa9f5425217931d7fa714ff2fac5d06e04ee132f60330d8f40fcb1b813ce",
+      "translation": "입력 특징이 바뀔 때 적합된 모델이 어떻게 반응하는지 확인하세요. 예측이 인과 효과를 입증하지는 않습니다."
+    },
+    {
+      "source": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+      "source_sha256": "f76ede70324bf6b59ba96bbcebc8a1c9a6befe6f2e6bf2d0d2c698a4af9f7dc3",
+      "translation": "저장된 실행 상태, 설정, 출력, 로그를 확인하세요. 실행이 완료되었다고 생물학적 타당성이 입증되지는 않습니다."
+    },
+    {
+      "source": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+      "source_sha256": "85200bfcb32c2776ee13219bc3335669351ce175abb6d4d41b3694476c89d66c",
+      "translation": "명시적인 프레임 간격과 픽셀 보정값으로 궤적 속도와 감염 관련 측정값을 확인하세요."
+    },
+    {
+      "source": "measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.",
+      "source_sha256": "5c642be9ad3e3f8cbc8fbac46351f33eecc6313cdb7527491571ec72e0eee4e5",
+      "translation": "measurements/measurements.db. 객체 테이블은 활성화한 세포, 핵, 병원체, 소기관 마스크에 따라 달라집니다."
+    },
+    {
+      "source": "A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.",
+      "source_sha256": "d15a1f463dbd341e4426d502b19a34f5319d8bd5928b5344098edc6dcc06dfb0",
+      "translation": "measurements/measurements.db의 png_list 테이블에서 선택한 주석 열. 라벨은 객체 식별 정보에 속합니다."
+    },
+    {
+      "source": "Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.",
+      "source_sha256": "ee03d7abfb310a809d87dc74641d955da2273f9429c1fbd9bf86b97b8e0f7d63",
+      "translation": "명시적으로 선택한 효과 크기, 변동성, 표본 추출 가정에 근거해 저장한 계획 표나 그림."
+    },
+    {
+      "source": "Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions.",
+      "source_sha256": "62b20b663e7a23796bd7f77862f393881c84b8c60002083a635b10e485bb68f9",
+      "translation": "저장된 임곗값/다각형 게이트 정의 또는 선택한 객체 집합. 게이트는 같은 특징 정의에 적용하세요."
+    },
+    {
+      "source": "Assay-specific result tables and figures in the configured destination, preserving well and condition identities.",
+      "source_sha256": "965e5013440f3ad50e24620facf0624e2bd30ec2b73cf95cb4515ac9d1720ed9",
+      "translation": "설정한 저장 위치의 분석별 결과 표와 그림. 웰과 조건 식별 정보를 보존합니다."
+    },
+    {
+      "source": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+      "source_sha256": "655820b760232c1ea9c727bfc79fac9ce5687fd0e80096da483d5571bc17e23e",
+      "translation": "곡선을 적합하기 전에 용량 열과 반응 열, 대조군, 단위를 입력하세요. 이 경로에는 시퀀싱이 필요 없습니다."
+    },
+    {
+      "source": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+      "source_sha256": "f5c09dfef9795ff76303326bed04aae85be1983d26dff5474bbc8eb8d73cc2f6",
+      "translation": "지정한 대조군을 플레이트 간에 비교하고 드리프트를 확인하세요. 대조군의 정의는 실험에서 나옵니다."
+    },
+    {
+      "source": "Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "source_sha256": "2f6896eed25bb6e8254da9ee7a0920c6144c929afe3bc2d6180bf73f3721ef92",
+      "translation": "객체 ID가 일치하는 인코더 특징 표를 제공하세요. 모든 GUI 경로가 이를 자동으로 저장한다고 가정하지 마세요."
+    },
+    {
+      "source": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+      "source_sha256": "9cd1301eb44caabf898e98fb379cd9f8985b7f545fa1f8ca965d70bcbc12d4c9",
+      "translation": "저장된 분할, 단위, 누출, 플레이트 효과 검사를 확인하세요. 자세히 보려면 중첩된 뷰어를 여세요."
+    },
+    {
+      "source": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "source_sha256": "6da28684ab563ec60c570b753fbec2796a13824106ce6d342f7453ac340c41a2",
+      "translation": "조건, 대조군, 반복, 플레이트 제약을 입력한 뒤, 촬영 전에 실험 레이아웃을 내보내세요."
+    },
+    {
+      "source": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+      "source_sha256": "aa2b056edaf7cf50e1cbe293910c25e45f59a1a89b0f8a723aa6ab83a637cd8d",
+      "translation": "필터링한 데이터를 분석에 넘기기 전에 로버스트한 객체/웰 이상치 점수와 선택한 제외 규칙을 검토하세요."
+    },
+    {
+      "source": "Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.",
+      "source_sha256": "8d84303fc9ff554db33bd92aa40b0d4ba48d7cb09c515fcc9c594d759222dad0",
+      "translation": "내보낸 플레이트/조건/대조군/반복 지도. 플레이트와 웰 식별자를 촬영한 데이터와 일치시키세요."
+    },
+    {
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "불러온 표에서 변수, 그룹, 그래프 설정을 고른 뒤, 분석 맥락과 함께 그림을 내보내세요."
+    },
+    {
+      "source": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+      "source_sha256": "9bd4e6188a58340c22515e30d1c9cc8744fe271fa4fdefcfaa0b9cb0a5cba84e",
+      "translation": "독립적인 주석 열을 비교하고 불일치 객체를 확인하세요. 일치도는 분류 정확도와 별개입니다."
+    },
+    {
+      "source": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+      "source_sha256": "b8c66e9971ea673831a25b24cb99ec59b943fe00047d0d4837de3c23f5526f9d",
+      "translation": "선택한 회귀 실행이 저장한 진단 패널을 확인하세요. 진단이 없는 것과 가정을 통과한 것을 구분하세요."
+    },
+    {
+      "source": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+      "source_sha256": "d320e6611dd6b5e4eeb0b569def06ac3abc7d9a6cbc45a75b9caf38ec2d56fec",
+      "translation": "선택한 효과 크기와 변동성으로 필요한 표본 수를 추정하세요. 예비 측정은 가정을 뒷받침하는 선택적 근거입니다."
+    },
+    {
+      "source": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "source_sha256": "2cf55dddd04e6bd139cd78bae20f8eec30284db12edc978374d0b7550d2e9288",
+      "translation": "Regression 전에 디코딩한 객체를 표현형과 가이드 입력에 명시적으로 결합/집계하세요. 이것은 CSV 파일을 그대로 넘기는 것이 아닙니다."
+    },
+    {
+      "source": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+      "source_sha256": "694456ee4f476e0a484dee77cb01c2482717f65c64115b614d7b1ae8bb4a9981",
+      "translation": "바뀐 입력 데이터를 통제된 모델 비교로 취급하지 말고, 호환되는 저장된 설정, 개수, 히트 목록을 비교하세요."
+    },
+    {
+      "source": "OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.",
+      "source_sha256": "de4dc4ec3f6034c63a881c623f865dc4020f7b2a27d17f5fd1dc7163856eeab9",
+      "translation": "OPS 저장 위치의 measurements.db: 웰별 형태, 표현형 정렬, 핵, 바코드 표와 선택적인 사이클별 리드."
+    },
+    {
+      "source": "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking.",
+      "source_sha256": "6d6e5e416c309f86247b2c8615055657920d5f905a77aab84a943e4e8ed3fc27",
+      "translation": "선택한 클래스 비교에 대해 측정 특징의 순위를 매기세요. 순위를 해석하기 전에 필터링과 클래스 정의를 검토하세요."
+    },
+    {
+      "source": "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed.",
+      "source_sha256": "84b781cc8fb2cd4df0c08e9fee3b4983b75605c6a6722f7253a783d838848c23",
+      "translation": "명시적으로 고른 회귀 설정을 실행하고 진단을 비교하세요. 입력 데이터와 평가 질문은 고정해 두세요."
+    },
+    {
+      "source": "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them.",
+      "source_sha256": "687dd2e9735ffb85adf10d1c7821cef3f201afb6d64a495b0dfc1d9be9ce0809",
+      "translation": "Make Masks에서 열린 이미지 폴더에 선택한 분할 모델을 적용하세요. 측정하기 전에 저장된 라벨을 확인하세요."
+    },
+    {
+      "source": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+      "source_sha256": "01b84c8634b8ebbfbf456e257050b0c5b27254d651f251bd76ad5f7a118ee367",
+      "translation": "회귀 히트를 후보 객체와 정량적인 웰 수준 근거에 연결합니다. 이것이 히트를 독립적으로 검증하지는 않습니다."
+    },
+    {
+      "source": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+      "source_sha256": "dcca464e6947ecaf6148f3655f0fb920bd208d2493de370bbde26f6f9137f025",
+      "translation": "선택한 파이프라인을 여러 플레이트에 실행합니다. 출력은 대기열에 있는 각 모듈의 출력이며, 플레이트와 설정을 각각 따로 보관하세요."
+    },
+    {
+      "source": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "source_sha256": "240313d6c6c0cd9baf7ffde5b0e1fd23807099980c7dbdd70f54cc8d30847617",
+      "translation": "같은 시야에서 모델 마스크를 비교하세요. 독립적인 기준 라벨이 없으면 일치도는 분할 정확도를 측정하지 않습니다."
+    },
+    {
+      "source": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "source_sha256": "9e186427eeeae53324a86200df796448a0fa3468ef460e7b8f1c42edb2d1865c",
+      "translation": "Mask 안에서 Timelapse를 열어 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 후속 운동성 분석 전에 연결을 확인하세요."
+    },
+    {
+      "source": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference.",
+      "source_sha256": "654721a34b66ca794c84748e3d38fb286b79e854f98f9a954e37097f2087b4cd",
+      "translation": "기록된 세포/핵/병원체/소기관 포함 관계를 확인하세요. 이것은 객체 포함 관계이지, 시계열 계보 추론이 아닙니다."
+    },
+    {
+      "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
+      "translation": "명시적인 액포 식별 정보로 기생충을 세고 조건별 분포를 비교하세요. 숙주 식별 정보만으로는 액포가 정해지지 않습니다."
+    },
+    {
+      "source": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+      "source_sha256": "e693bf805fa2a43e1785953123c5516b7b48144ee0e89744bbc32a78edd0d9b6",
+      "translation": "모델 출처를 확인하고 호환되는 체크포인트나 백엔드를 내려받아 설치하세요. 목록에 있는 백엔드 자체가 체크포인트 파일은 아닙니다."
+    },
+    {
+      "source": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source_sha256": "240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815",
+      "translation": "필수인 2색 차등 염색 측정값과 염색 기준 대조군으로 부착과 침입을 구분하세요."
+    },
+    {
+      "source": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+      "source_sha256": "67c18edf78c03e939326aefe323cec616df1aa343f338419df84ced18677623c",
+      "translation": "대응하는 이미지와 기존 정수 라벨 마스크를 배정한 뒤, 분할을 다시 실행하지 않고 spaCR 프로젝트를 만들고 측정하세요."
+    },
+    {
+      "source": "Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.",
+      "source_sha256": "3418591d4d0ff5ecc2735f22380f261d5719ff86f4cce31095360bfc4b06fea4",
+      "translation": "Map Barcodes 실행 폴더: unique_combinations.csv와 annotated_reads.h5. 웰 식별에는 대응하는 바코드 참조가 필요합니다."
+    },
+    {
+      "source": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts.",
+      "source_sha256": "7f64cda8e5ed01d72bfe4b9cb167c5ec9e11ea757761f0446275c0e6bb28d2c7",
+      "translation": "기록된 산출물 의존 관계와 오래됨/누락 상태를 읽으세요. 그래프는 출처를 설명할 뿐, 누락된 산출물을 다시 만들지 않습니다."
+    },
+    {
+      "source": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
+      "source_sha256": "d17d8fb71e7b0be7bf66776d0a32400b03bca80145816a8d884fff1b4a4084e1",
+      "translation": "식별 결합을 보존한 채 기존 컴퓨터 비전 점수에 측정 특징 기반 대리 모델을 적합하세요. 대리 설명은 인과가 아닙니다."
+    },
+    {
+      "source": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "source_sha256": "5aec914042c999cb6eb678d21744ef5523a518727e87339b764dc7fbe5960762",
+      "translation": "저장된 라벨 TIFF 파일과 원본 이미지를 External Masks에 제공하고, 객체 역할을 배정한 뒤 Measure 전에 병합 프로젝트를 만드세요."
+    },
+    {
+      "source": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
+      "source_sha256": "e10410e4b302304d58343d87bf0d434988e50616ecb85616422d40cd39d524e3",
+      "translation": "Home 모듈 안에 중첩된 도구를 포함해, 현재 모든 모듈의 입력 데이터, 저장된 출력, 상류 생성 모듈, 하류 사용 모듈을 찾아보세요."
+    },
+    {
+      "source": "Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent.",
+      "source_sha256": "285dfcb60567d8ab9611db90834fa6f90fde4de8086a7711e1bf64abed8795ff",
+      "translation": "채널 정책과 인코더 출처가 딸린 객체 색인 인코더 특징. 인코딩 API는 특징을 반환하며, 저장 여부는 호출하는 쪽에 달려 있습니다."
+    },
+    {
+      "source": "When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.",
+      "source_sha256": "ee0bd77b1f809745ceee1d1f39be5c9817cf6bd81f217c5d1a2a057e01f15bb4",
+      "translation": "save=True이면 src/masks/<image-name>.tif에 정수 라벨이 들어갑니다. 호출은 None을 반환하며, 병합 배열이나 measurements.db를 만들지 않습니다."
+    },
+    {
+      "source": "data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks.",
+      "source_sha256": "bd53efc1885c16bab0fcdfbad7b76154c439ce7dc30dbe9773432a3039dcb59b",
+      "translation": "save_png를 켜면 data/**/*_png. png_list가 저장된 크롭을 색인합니다. 지원되는 워크플로는 대신 병합 배열과 마스크에서 크롭을 스트리밍할 수 있습니다."
+    },
+    {
+      "source": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "source_sha256": "c279a49ea9a53c428e8a4db0e4740f6bdfd25ea34fccbf92f32e0ec3603582d5",
+      "translation": "채널과 모델을 고르고 미리 보기를 확인한 뒤 Mask를 실행하세요. Measure가 병합 배열을 사용합니다. 개수 데이터베이스는 아직 특징 표가 아닙니다."
+    },
+    {
+      "source": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+      "source_sha256": "ff8703beb2e105461ec44b322f82f73a76842e4ba4e9ac58cb0ddedc483801b2",
+      "translation": "원본 매핑을 보존하면서 지원되는 현미경 형식을 설정된 TIFF 레이아웃으로 변환하세요. 변환은 객체 측정값을 만들지 않습니다."
+    },
+    {
+      "source": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "source_sha256": "3cbf9dbe362cbcf1a7a87afa72fd928327a45b20c76376f0c868b81a328e11a5",
+      "translation": "타일 배치, 겹침, 채널 매핑을 확인한 뒤 좌표 기록과 함께 모자이크를 저장하세요. OPS에는 원래의 사이클/위치 식별 정보도 필요합니다."
+    },
+    {
+      "source": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+      "source_sha256": "c838f473fa96e1a4d0dfd289edffec8b35a72f2681cada7ed544fd0f102f20d6",
+      "translation": "설정된 플라크 모델로 플라크 이미지나 기존 마스크를 분석하세요. 이 경로는 Measure를 거치지 않아도 되며, 전용 플라크 예제를 사용하세요."
+    },
+    {
+      "source": "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable.",
+      "source_sha256": "f10dacc01fe54e82409cb9ad39fbfd81e2b1554e16275bbda1272c30ce4a6aa3",
+      "translation": "프로젝트 파일과 디스크 사용량을 확인하세요. 파생 산출물을 지우면 그 파일을 쓰는 후속 작업이 무효가 되며, 원본 이미지는 복구할 수 있어야 합니다."
+    },
+    {
+      "source": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "source_sha256": "b4b500f9af732b5efc49612c1feb0f0fc51b2f9695acd6bd259d06701940f2c6",
+      "translation": "실험을 인코딩한 참조를 제공하세요. 웰 수준 가이드 개수를 표현형 점수와 짝짓기 전에 매핑된 개수와 바코드 QC를 확인하세요."
+    },
+    {
+      "source": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+      "source_sha256": "a78f47685fc5865fe2dd1cb58581c2020d1d47e2e0f0830db6d4e432da7fd164",
+      "translation": "설정한 실행을 원격 실행 대상에 제출하고 상태와 로그를 확인하세요. 후속 분석 전에 실제 모듈 산출물을 가져오세요."
+    },
+    {
+      "source": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+      "source_sha256": "e9b4f0e3bcc3cf2791f210cc78121e60d4e4f63441441f4f8bb4f62480c8c386",
+      "translation": "Make Masks 안에서 Cellpose Workbench를 열고 검증된 이미지/마스크 쌍으로 학습시키세요. Mask에서 체크포인트를 선택하기 전에 별도의 시야로 평가하세요."
+    },
+    {
+      "source": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+      "source_sha256": "55fe876cb0804a390ac56a7666124f4b040f4c05a6e930938cc92b938103e7d6",
+      "translation": "설정한 단계에서 평면 보정을 추정하고 적용하세요. 보정된 표시값은 원본 측정값과 구분하고, 적용한 정책을 기록하세요."
+    },
+    {
+      "source": "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint.",
+      "source_sha256": "157870287274791f6edcd76f6239ee8da9024726d7faea807be50694c3fb0371",
+      "translation": "라벨이 붙은 객체 크롭, 압축 파일, 지원되는 스트리밍 크롭으로 이미지 분류기를 학습시키세요. 체크포인트를 적용할 때 채널과 전처리를 맞추세요."
+    },
+    {
+      "source": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "source_sha256": "31136664c0081bf6af83614363227ee715ee89961ee9943b2eaa39cf13347700",
+      "translation": "Measure는 이미지와 라벨 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 크롭을 스트리밍할 때는 데이터베이스와 원본 프로젝트를 함께 보관하세요."
+    },
+    {
+      "source": "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores.",
+      "source_sha256": "1473eae34799bd98c10c5efffa9efe29b06b5d7b7e6a56e12024b0cc166eab8e",
+      "translation": "측정된 객체와 라벨로 특징 기반 분류기를 학습시키세요. 점수를 쓰기 전에 누락 특징 제외와 그룹 단위 보류 성능을 확인하세요."
+    },
+    {
+      "source": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "source_sha256": "dfd0615694b07d1b38c715a9faf27f675d184a1abb8ecaaf55907a64653b2f4f",
+      "translation": "크롭이나 스트리밍한 객체 이미지에는 Computer Vision을, 측정된 특징 열에는 Tabular Machine Learning을 고르세요. 두 계열은 서로 다른 입력을 사용합니다."
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "분할 학습을 위해 이미지/마스크 쌍을 정리하거나, FEATURES로 이미지와 마스크를 배정해 측정을 실행하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
+    },
+    {
+      "source": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+      "source_sha256": "a4923474c959d4abf02e4bf3e6d4603a9b671771e7f8d0c56fa9b32223e57584",
+      "translation": "분할, 측정, 주석, 분류, 투영, 게이트, 이미지 정합, 품질 관리, 분석을 거치는 이미지 분석 경로를 고르세요."
+    },
+    {
+      "source": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.",
+      "source_sha256": "35b235cb5077c11915611d198ac94633ce4cad1fb31dfa642db6be0fd3dfa99d",
+      "translation": "선택한 모델과 채널 정책으로 객체 이미지를 인코딩하세요. 특징을 후속 탐색에 넘길 때 객체 식별 정보와 인코더 출처를 보존하세요."
+    },
+    {
+      "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
+      "translation": "이미지만 가져올 때는 Import Images나 Format Converter를 사용하고, Mask가 서식을 맞춘 이미지 프로젝트를 가리키게 하세요. 외부 측정값만으로는 분할 입력이 되지 않습니다."
+    },
+    {
+      "source": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+      "source_sha256": "27f2d313aee8120e7c482b34e457ce69de7254faa9552021e1856b62f9d41aad",
+      "translation": "별도의 프로젝트를 쓰기 전에 시야 식별 정보, 이미지 채널, 선택적 외부 마스크를 검토하세요. 이미지만 가져온 경우 측정 전에 분할이 필요합니다."
+    },
+    {
+      "source": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+      "source_sha256": "744bfa8bdd0ada1b412b86797c66d08943409b06b61b6d3ba802230c92942961",
+      "translation": "지도 학습 전에 png_list에서 대표 객체에 라벨을 붙이세요. 질문마다 별도의 주석을 쓰고, 학습 그룹과 평가 그룹을 독립적으로 유지하세요."
+    },
+    {
+      "source": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source_sha256": "f85a9cc79c3583d7bbd5c3e52ae8a5247479704c29927f597ef10ab0848438c7",
+      "translation": "검토한 게이트 선택을 주석 열에 쓴 뒤, Classify에서 같은 열과 객체 집단을 선택하세요. 검증 객체는 학습 라벨과 분리하세요."
+    },
+    {
+      "source": "Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.",
+      "source_sha256": "d6981d9420937bef89ab5478f331a69354baaeeadfe6c65615a221a7d9d350b2",
+      "translation": "src 최상위의 소문자 .tif 파일. src/masks에 같은 이름의 파일이 있으면 건너뜁니다. 설정한 채널과 호환되는 기본 model_name 또는 custom_model 체크포인트를 제공하세요."
+    },
+    {
+      "source": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source_sha256": "283550e02f8c5608b7f1e9510902dc4c8737514c63c807853fe6332ef8bed217",
+      "translation": "Measure에서 비감염 세포를 유지하세요. 액포 전체 마스크, 숙주 기준 강도, 선택적인 명시적 기생충-액포 연결을 제공하세요. 숙주 식별 정보만으로는 액포가 정해지지 않습니다."
+    },
+    {
+      "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
+      "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
+      "translation": "src/<YYMMDD>/<name>/simulations.db. 일괄 실행은 simulations에 요약 행을 추가하고 선택적으로 그래프를 씁니다. 이것은 합성 성능 추정치이지, 측정된 실험 히트가 아닙니다."
+    },
+    {
+      "source": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "source_sha256": "438a93721fc9965017beb890f83eb7b3112b5ede58858135be4357f6f73d6d6f",
+      "translation": "측정된 프로젝트 루트와 필요한 객체/png_list 테이블을 제공하세요. 크기 구간을 해석하기 전에 숙주 세포 집계와 면적 단위를 확인하세요. Mask 개수 데이터베이스만으로는 부족합니다."
+    },
+    {
+      "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
+      "translation": "검토한 올가미 선택을 일치하는 객체 데이터베이스의 주석 열에 쓴 뒤, Classify에서 그 열을 선택하세요. 크롭을 확인하고 라벨을 검증하세요. 임베딩 클러스터는 정답이 아닙니다."
+    },
+    {
+      "source": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "source_sha256": "54820bf3f12a9ed291255be48a9135ae659c6febc492cd9a5ff326b0175dc659",
+      "translation": "표현형 입력과 가이드 개수 입력 사이에서 플레이트와 웰 식별자를 맞추고, 반응과 대조군을 고른 뒤, 히트를 해석하기 전에 진단을 확인하세요. 직접 측정한 반응도 지원합니다."
+    },
+    {
+      "source": "Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.",
+      "source_sha256": "93295eb258fa9ffe5027738a1bde2bd68b50768d18ce4955cc17a595a61f1d17",
+      "translation": "data와 chi_squared DataFrame을 반환합니다. save=True이면 첫 번째 프로젝트 루트/results/analyze_endodyogeny/ 아래에 data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv와 그림도 씁니다."
+    },
+    {
+      "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
+      "translation": "Home에서 생물 가이드를 열어 계획된 말라리아 영상 워크플로를 읽고 공통 정단복합체문 도식을 확인하세요. 여덟 개의 분석 타일은 모두 Coming soon이며, 어느 것도 분석을 시작하거나 결과를 만들지 않습니다."
+    },
+    {
+      "source": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "cd8eee037d1e7fed958031b6299335dd1ca2e1221f50b40832d82823c29ede0b",
+      "translation": "Home에서 생물 가이드를 열어 계획된 진균 영상 워크플로를 읽고 일반적인 출아 효모 도식을 확인하세요. 여덟 개의 분석 타일은 모두 Coming soon이며, 어느 것도 분석을 시작하거나 결과를 만들지 않습니다."
+    },
+    {
+      "source": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV.",
+      "source_sha256": "0eb5f6bb9207a04f8b001a466fe3cb70551ca61d6ebfb4702f12e4f11bda482e",
+      "translation": "시퀀싱 사이클 이미지와 표현형 정렬로 핵마다 바코드를 디코딩하세요. Regression 전에 디코딩한 식별 정보를 호환되는 표현형 입력에 집계/결합하세요. OPS 데이터베이스는 FASTQ 개수 CSV를 대신하지 않습니다."
+    },
+    {
+      "source": "Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.",
+      "source_sha256": "58cd7ba9f7a8e3c6f1636d22351c3b4700ff9ab75536f79422228dd04c1d0ccd",
+      "translation": "각 src 프로젝트 루트/measurements/measurements.db. 테이블은 기본적으로 cell, nucleus, pathogen, cytoplasm이며 병합을 위해 png_list가 추가됩니다. 구획 설정이 면적 열을 선택하며, 기본 pathogen_area는 숙주 세포별로 합산됩니다."
+    },
+    {
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "실제 특징/좌표 열에 임곗값 게이트나 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate로 표시된 게이트를 주석 열에 쓰고, 선택한 객체를 검토한 뒤 이진 또는 다중 클래스 라벨을 고르세요."
+    },
+    {
+      "source": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source_sha256": "1add3ee9b720d1a8cb1a2bd958ca943479479de99ad8433854e912dc545adaed",
+      "translation": "일치하는 이미지와 외부 정수 마스크를 가져와 병합 프로젝트 배열을 만든 뒤, 그 프로젝트에서 Measure를 여세요. 호환되는 측정값을 이미 가져왔거나 계산했다면 이 단계는 건너뛰세요. 기존에 가져온 테이블에 중복 측정값을 덧붙이지 마세요."
+    },
+    {
+      "source": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
+      "source_sha256": "7fd1ca38483ff7f42e51bed6c20ac2428ad7369c113eeb92b5fd0e031230e0d2",
+      "translation": "Home에서 생물 가이드를 열고 구획 도식을 확인한 뒤 Plaque Assay, Recruitment, Invasion Assay, Replication Assay 중 하나를 선택하세요. Coming soon 타일 네 개는 제안을 설명할 뿐 실행할 수 없습니다. 가이드 자체는 프로젝트를 분석하거나 측정 표를 만들지 않습니다."
+    },
+    {
+      "source": "Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.",
+      "source_sha256": "7886c297bee9f5c55819fd0904042879e9a800e192c5670e2676ce91fac2d62a",
+      "translation": "Python 설정 딕셔너리: 스크린 규모, 점유율, 분류기 정확도, 시퀀싱 가정에 대한 반복 가능한 일괄 값과 replicates, src, name, variable, plot, max_workers. generate_parameters가 이들의 데카르트 곱을 펼칩니다. 작은 일괄 실행과 명시적인 작업자 상한으로 시작하세요."
+    },
+    {
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source_sha256": "73f0218ad1985f156a3b2d89f339a8294f2362cc568eb237b1c71c1fe269aaf9",
+      "translation": "측정 특징이나 제공된 인코더 특징을 투영하고 대표적인 크롭을 확인하세요. 클러스터는 후보 그룹일 뿐 검증된 표현형이 아닙니다. 올가미와 주석 도구로 검토한 선택을 일치하는 측정 데이터베이스의 주석 열에 쓰세요. 기하학적 선택만으로는 생물학적 표현형이 확립되지 않습니다."
+    },
+    {
+      "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
+      "translation": "액포 전체와 숙주 기준 구획을 측정하고, 감염 분모를 위해 비감염 숙주 세포를 유지하세요. 표지자 채널과 대조군으로 보정한 비율 임곗값을 고르세요. 선택적으로, 명시적 액포 연결이나 측정된 개수 열로 개별 분할한 기생충을 셀 수 있습니다. 액포, 숙주, 웰 표, 표지자 결합 상태, 증식 분포, 대응되지 않은 기생충 연결을 검토하세요. 알 수 없는 측정값은 알 수 없는 채로 남습니다."
+    },
+    {
+      "source": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project.",
+      "source_sha256": "c4bd82a1c8aa3b0a8d63c064ca0f9a82f5605673c75f90d98a00c71c0ed19646",
+      "translation": "Python API로 TIFF 시야에 기본 또는 사용자 지정 Cellpose 모델을 실행합니다. 역사적인 identify_masks_finetune이라는 이름과 달리, 이 함수는 학습이 아니라 추론을 합니다. 정규화, 채널, 크기 조정, 모델 매개변수를 검토하세요. 저장을 켰을 때만 마스크가 저장됩니다. Measure 전에 External Masks로 호환되는 이미지/마스크 쌍을 가져오거나, 학습 전에 쌍을 정리하세요. 이 호출은 Measure에서 바로 쓸 수 있는 병합 프로젝트를 만들지 않습니다."
+    },
+    {
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source_sha256": "a7dfb6c8e1f2c2cc6d0c3f9bc2104039ef4e48812f0803bd7f0a3cbae0aca976",
+      "translation": "명시적인 객체/열 매핑으로 외부 측정값을 가져오거나, Import Images, Format Converter, External Masks 중 하나를 고르세요. 가져온 측정값은 새로 실행한 Measure 결과가 아닙니다. 일치하는 원본 이미지와 외부 정수 마스크가 있으면 Import가 Measure에서 쓰는 병합 프로젝트 배열을 만듭니다. 파일에 맞는 경로를 고르고 측정 전에 객체 식별 정보를 확인하세요. 가져온 특징 표에 필요한 측정값이 이미 있다면 그대로 쓸 수 있습니다."
+    },
+    {
+      "source": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "source_sha256": "688de4937a6708239783748ae71f0eb724d5b74111f890d0e2788ecf6800f837",
+      "translation": "측정된 구획 면적을 읽고 조건을 주석으로 달고, 면적 ** 1.5를 log2 크기 배가 구간으로 나눕니다. 기본값은 병원체 면적을 액포가 아니라 숙주 세포별로 집계하므로 한 세포의 여러 액포가 합쳐집니다. 이것은 면적 기반 크기 지표이지, 측정한 부피나 기생충 수가 아닙니다. 액포별 기생충 수에는 명시적 액포 식별 정보와 함께 Replication Assay를 쓰세요. API를 호출하기 전에 구획, 면적 필터, 보정, 조건, 그룹을 설정하세요. 저장은 선택 사항입니다."
+    },
+    {
+      "source": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid.",
+      "source_sha256": "4546ed51870a60e41bcc003e0306fea487f7a6bdd322366eacfdcf11e3dcaf16",
+      "translation": "Python 일괄 실행 API로 명시한 스크린 설계 가정을 탐색하세요. 조합을 펼쳐 프로세스 풀에서 시뮬레이션을 실행하고 합성 요약 통계를 쓰며, None을 반환합니다. 실행 전에 max_workers 값을 작고 명시적으로 정하고 매개변수 격자를 제한하세요. 출력은 실험 Regression에서 측정값이나 바코드 개수를 대신하지 않습니다. 그 결과는 가정을 기록한 채 계획 근거로만 사용하세요. 계획 가정을 고를 때 합성 요약을 검토하고, 그 가정을 직접 Power / Design이나 Experiment Design으로 옮기세요. 두 도구 모두 이 시뮬레이션 데이터베이스를 가져오지 않으며, 시뮬레이션 설정 격자를 내보내지도 않습니다."
+    }
+  ]
+}

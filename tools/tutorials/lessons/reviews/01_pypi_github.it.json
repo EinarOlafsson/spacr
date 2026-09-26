@@ -1,29 +1,31 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
   "review": {
-    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "it",
-  "title": "PyPI, GitHub e conda-forge",
-  "description": "Trova le fonti ufficiali di pacchetti e programmi di installazione, confronta la versione disponibile su ogni canale e scegli il tutorial di installazione corrispondente.",
+  "title": "Trovare spaCR su GitHub, PyPI e conda-forge",
+  "description": "Trova le fonti ufficiali del pacchetto e degli installer, confronta la versione disponibile su ciascun canale e scegli il tutorial di installazione corrispondente.",
   "objectives": [
-    "Identificare le pagine ufficiali di spaCR su PyPI, GitHub e conda-forge.",
-    "Distinguere i file di una versione pubblicata, il codice in sviluppo e i canali dei pacchetti aggiornati separatamente.",
-    "Scegliere un percorso di installazione e verificare la versione effettivamente installata."
+    "Trovare le pagine ufficiali di download.",
+    "Scegliere il metodo di installazione per il tuo computer.",
+    "Aprire il tutorial di installazione corrispondente."
   ],
-  "prerequisite": "Questa panoramica non esegue alcuna installazione. Le pagine sono state acquisite il 10 settembre 2026: PyPI e GitHub offrono 1.5.0.5, mentre conda-forge offre 1.5.0.4. Versioni e file disponibili possono cambiare: leggi la pagina attuale e verifica la versione installata. Le acquisizioni usano un profilo anonimo e mantengono intatti testo, badge e cronologia delle versioni. L’installazione specifica per piattaforma e le opzioni hardware sono trattate nei tutorial collegati.",
+  "prerequisite": "Apri un browser web e decidi se vuoi un installer desktop o un ambiente Python.",
   "scenes": [
-    "Prima di installare spaCR, scegli la sua fonte ufficiale di distribuzione. PyPI e conda-forge forniscono pacchetti Python; GitHub fornisce codice sorgente, registri delle versioni e programmi di installazione desktop. Questi percorsi sono collegati, ma non pubblicano necessariamente la stessa versione nello stesso momento.",
-    "Su PyPI, leggi l’intestazione della versione e il comando di installazione. Qui l’intestazione indica spaCR uno punto cinque punto zero punto cinque. Controlla questo valore nella pagina attuale, senza dedurre la versione da una vecchia schermata, da un badge o dalla data di un tutorial.",
-    "Project links collega il pacchetto alla documentazione, alla pagina principale, al sistema di segnalazione dei problemi e al repository del codice. Usa questi collegamenti per passare fra le risorse ufficiali. La pagina di un pacchetto descrive quella versione pubblicata, non garantisce che includa già tutte le funzioni in sviluppo.",
-    "Su GitHub, il selettore del ramo identifica la linea di codice che stai leggendo. Main è la linea delle versioni pubblicate, mentre nightly contiene lo sviluppo in corso. Per un’installazione ordinaria scegli una versione pubblicata; usa nightly solo se vuoi deliberatamente codice più recente e puoi accettare cambiamenti.",
-    "Apri una versione pubblicata ed espandi Assets. Scegli il programma di installazione per Windows, macOS o Linux. Il file wheel e la distribuzione sorgente sono pacchetti Python, non programmi di installazione desktop. Scarica l’elenco delle somme di controllo per la versione e il file esatti, anziché confrontare hash di un altro canale.",
-    "La pagina conda-forge ha un proprio selettore di versione. Durante questa registrazione offre uno punto cinque punto zero punto quattro, mentre PyPI offre uno punto cinque punto zero punto cinque. Mostriamo intenzionalmente questa differenza reale: non presumere che l’aggiornamento di un canale sia già arrivato.",
-    "Il comando che specifica il canale è conda install conda-forge, due segni di due punti, spacr. Eseguilo nell’ambiente che intendi usare. Il tutorial Conda illustra questo percorso; creare un ambiente Conda e installare con pip è un percorso diverso, anche se entrambi usano un gestore di ambienti.",
-    "Scegli il tutorial pip per un ambiente virtuale Python, quello Conda per il pacchetto del canale oppure Platform installers per un runtime privato gestito dal programma di installazione. Poi verifica la versione installata ed esegui spacr-doctor prima di seguire i tutorial dei moduli."
+    "Scegli come vuoi installare spaCR. Usa un installer desktop per un’applicazione pronta da avviare, pip per un ambiente virtuale Python o conda-forge per un ambiente Conda. Parti dai collegamenti ufficiali di spaCR mostrati qui.",
+    "Su PyPI, trova spaCR e leggi il comando di installazione accanto alla versione attuale. Copia quel comando quando sei pronto a installare nel tuo ambiente Python. Il tutorial di pip mostra come creare e attivare prima quell’ambiente.",
+    "Usa Project links per aprire la documentazione, il repository del codice sorgente o il sistema di segnalazione dei problemi. Aggiungi la documentazione ai segnalibri per tornare alle procedure dei moduli mentre lavori in spaCR.",
+    "Su GitHub, apri il repository di spaCR. Main contiene il codice della release, mentre nightly contiene il lavoro di sviluppo più recente. Per un’installazione desktop pacchettizzata, apri Releases e scegli una release.",
+    "Espandi Assets e scarica l’installer per Windows, macOS o Linux. Conserva il file dei checksum della stessa release se vuoi verificare il download. La lezione Platform installers spiega come avviare l’installer e aprire spaCR.",
+    "Su conda-forge, apri la pagina del pacchetto spaCR e controlla la versione disponibile. I canali dei pacchetti possono aggiornarsi in momenti diversi, quindi scegli la versione disponibile tramite il metodo che preferisci.",
+    "Il comando di conda-forge installa spaCR nel tuo ambiente Conda attivo. Segui la lezione su Conda per creare quell’ambiente, installare il pacchetto e avviare l’applicazione.",
+    "Prosegui con pip, Conda o Platform installers. Una volta aperto spaCR, passa alla lezione su Home, poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati."
   ]
 }

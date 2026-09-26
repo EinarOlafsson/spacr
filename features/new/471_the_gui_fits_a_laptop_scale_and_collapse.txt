@@ -2,9 +2,11 @@
 THE GUI FITS A LAPTOP: A WHOLE-GUI SCALE, AND EVERYTHING COLLAPSES
 ================================================================================
 
-Status:    IMPLEMENTED. GUI/preview scaling, Keep/Revert, reset and collapsible
-           panels are built. Later notes record verified layout and reset fixes.
-           Cross-platform performance acceptance remains in284/380.
+Status:    DONE 2026-09-25. GUI/preview scaling, Keep/Revert, reset and
+           collapsible panels are built and the DONE WHEN is met (checked
+           2026-09-25, 43 tests pass). Not in this item: where the Live/3D/
+           Time/OPS/AI switch lives (maintainer's call) and cross-platform
+           performance acceptance (other OS/real display; items 284/380).
 Requested: 2026-09-22, by the maintainer, in these words:
 
            "the scale of spacr works great on a 4k monitor, but on a laptop at
@@ -905,3 +907,12 @@ to30px, parent styling is unchanged and the preview has no retained local sheet.
 live hooks/save failures, Keep/Revert recovery and no-drift splitters/spacers.
 Receipt288_scale_recovery_2026-09-23.json. No new settings, captions or API
 signature. Native desktop/cross-platform/performance claims remain separate.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2: tests/qt/test_gui_scale_recovery.py and
+tests/qt/test_the_gui_scale_fits_a_laptop.py, 43 passed in 10.8 s
+(offscreen). Nothing buildable is left here. Two things stay outside it,
+each with its blocker: (1) the Live/3D/Time/OPS/AI switch placement is the
+maintainer's decision (slice B's open question); (2) native desktop,
+Windows/macOS and performance acceptance need other operating systems and a
+real display, and are tracked in 284 and 380.

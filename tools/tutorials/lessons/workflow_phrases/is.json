@@ -1,0 +1,1502 @@
+{
+  "schema": 1,
+  "language": "is",
+  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+  "review": {
+    "kind": "AI-written workflow-map phrase bank; AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "native_speaker_signoff": false,
+    "narration_2026_09_25": "298 phrases added for the rewritten 78-81 stories and generated handoffs; AI technical review (Claude Opus 5.5), no native-speaker signoff."
+  },
+  "records": [
+    {
+      "source": "spaCR screens",
+      "source_sha256": "1709a0fdd58514c0c116c09229be2ee7c0f285a74cfa7bf36eff48f9d685b78a",
+      "translation": "spaCR screens"
+    },
+    {
+      "source": "the run queue",
+      "source_sha256": "2c98be8de7c83ff0ea02e619d52beb7b336533adbf96686e3d89480f9a034dc5",
+      "translation": "keyrsluröðina"
+    },
+    {
+      "source": "the label masks",
+      "source_sha256": "acf55963d0bfb61030c0e3624d6b6fd837e797a929ee8adea25cf4ebdf930b84",
+      "translation": "merkingagrímurnar"
+    },
+    {
+      "source": "the object crops",
+      "source_sha256": "f918bbd08a858a7c0ff853bc65d662a537dba68015494095db5abf7ac627000f",
+      "translation": "úrklipp hlutanna"
+    },
+    {
+      "source": "{artifacts} from",
+      "source_sha256": "afaa233e21c0606ded300ef66d7c13352bf466143ce5c1a0bff8f48909a62a37",
+      "translation": "{artifacts} frá"
+    },
+    {
+      "source": "the assay results",
+      "source_sha256": "92ce5e1dd9373c897110178229262331698112d3ce640a95990bafc7094317d6",
+      "translation": "niðurstöður greiningarinnar"
+    },
+    {
+      "source": "the object counts",
+      "source_sha256": "20c5cf216dc0df6690e9696782112eead95d8f1dab0bf9bdee7a4d88defb647a",
+      "translation": "fjölda hlutanna"
+    },
+    {
+      "source": "the AnnData export",
+      "source_sha256": "dd4e470cccafacd1661bf7885b64523853e2c1aea0dbd3e024ee0ce32c271ad5",
+      "translation": "AnnData-útflutninginn"
+    },
+    {
+      "source": "the reusable gates",
+      "source_sha256": "6e4af060a80dfe5f65bc78b054a479e38876905e2231e8f0b6cef79f5d60aa88",
+      "translation": "endurnýtanleg hlið"
+    },
+    {
+      "source": "{items} and {last}",
+      "source_sha256": "69faa4f0e0f2439b86179d6e9554642dad1b209fbfed0eabc9216db12cff879d",
+      "translation": "{items} og {last}"
+    },
+    {
+      "source": "{items}, and {last}",
+      "source_sha256": "233abe6fe1f1373843adf917c956883e1ca47d5c30685944bef135b525393251",
+      "translation": "{items} ásamt {last}"
+    },
+    {
+      "source": "the image embeddings",
+      "source_sha256": "48c5e84cbac1939288ebfb4895fbd1ea643080e0455fc67929caf9c27de9046c",
+      "translation": "myndinnfellingarnar"
+    },
+    {
+      "source": "the measured objects",
+      "source_sha256": "d19842300522956cce87e64779f653cb9156a654965c07e8f7214141904f25a9",
+      "translation": "mældu hlutina"
+    },
+    {
+      "source": "the sequencing reads",
+      "source_sha256": "b20093fe76e1a7cbe00575e4ab792a99e9d012d14caa4a635ef7221e7e4f498a",
+      "translation": "raðgreiningarlestrana"
+    },
+    {
+      "source": "the microscope images",
+      "source_sha256": "7ec0cd5f60e8857e0ab1a8e779a6ec92c3ce19134a7648bdb8374a200f597695",
+      "translation": "smásjármyndirnar"
+    },
+    {
+      "source": "the shareable reports",
+      "source_sha256": "14edc7cd3d247b0da1008d1745d0284f9b80a0624cd5bd78bab30306ee53b84b",
+      "translation": "skýrslurnar sem hægt er að deila"
+    },
+    {
+      "source": "{name} reads {items}.",
+      "source_sha256": "ef38ded487508a359bf5bd3d591a81a4b929bae2b21323c6edda3f7aa60b413d",
+      "translation": "{name} les {items}."
+    },
+    {
+      "source": "{peer} uses them too.",
+      "source_sha256": "231d800f52cd85dc7df6e61046faae1d15003a3303c1d4ed4cb6bc08c6a1271d",
+      "translation": "{peer} notar þau líka."
+    },
+    {
+      "source": "They also feed {peer}.",
+      "source_sha256": "1b41cf81efd822bc12cd21fd5f115dfd5071e7d722733064a4bc3b33f08f95b7",
+      "translation": "Þau fara líka til {peer}."
+    },
+    {
+      "source": "the experimental layout",
+      "source_sha256": "a2e3106a86c9e033efc63484698fc21ee06ab55b7708b8ed512b5d5d4d8681ec",
+      "translation": "tilraunauppsetninguna"
+    },
+    {
+      "source": "the feature definitions",
+      "source_sha256": "4015e65f9e47cfbb71bfd4c75b2710852d24cabad338c32eddf86d09094eb653",
+      "translation": "skilgreiningar eiginleikanna"
+    },
+    {
+      "source": "the run/model comparison",
+      "source_sha256": "e13ad9b64e8f823c04bda0edd02a7336907420aae3e10842f51da88f69a4de46",
+      "translation": "samanburð keyrslna og líkana"
+    },
+    {
+      "source": "the training annotations",
+      "source_sha256": "0fea00423f4ef1845e7f1e38f4ee43929d9df4fc8191895479d622d97c69483e",
+      "translation": "þjálfunarmerkingarnar"
+    },
+    {
+      "source": "Look for {artifact} here:",
+      "source_sha256": "81bc5dbe23cc7493aa9bf7453d1f81a40ef9b93e7f5ddcf3090da28ba9e90b0f",
+      "translation": "Hér finnurðu {artifact}:"
+    },
+    {
+      "source": "the external measurements",
+      "source_sha256": "e392225eda9e661cb82dbd8793f9d149f9451b09bb55d3f3976eea892dc6a342",
+      "translation": "ytri mælingarnar"
+    },
+    {
+      "source": "the guide counts per well",
+      "source_sha256": "2296e542829f16819d0c7f0c5d47e711d981a3764699f05e9d3918560e5ff2a3",
+      "translation": "fjölda leiðsagnar-RNA í hverjum brunni"
+    },
+    {
+      "source": "the image attribution maps",
+      "source_sha256": "52c0158ffc1988177c538ff5131738f644580b3408692d1e99658819f336b032",
+      "translation": "áhrifakort myndanna"
+    },
+    {
+      "source": "the images and label masks",
+      "source_sha256": "b219f3a2c39f71c0bf290b80d1a1666381a3a3e858cc4bd88ded114883c010a1",
+      "translation": "myndirnar og merkingagrímurnar"
+    },
+    {
+      "source": "the curated training fields",
+      "source_sha256": "d07837498c8563ef7670665a690577bd0951520f5515a607a3ea14372eb294c4",
+      "translation": "yfirfarin þjálfunarsvið"
+    },
+    {
+      "source": "the projection and clusters",
+      "source_sha256": "ba34cb4a9aa442be745a5baaa87a70706cc3662aed36bdbb9ecf0266af34ce60",
+      "translation": "vörpunina og klasana"
+    },
+    {
+      "source": "the quality-control results",
+      "source_sha256": "a83899a480a696c40563b326d448eb5acce54aa60f3e6c89f43344a8e1c71a9c",
+      "translation": "niðurstöður gæðaeftirlitsins"
+    },
+    {
+      "source": "the segmentation checkpoint",
+      "source_sha256": "26023675228430360b54f847071804ef4d8a66f0aaadbef6c63a79383fdac6c0",
+      "translation": "vistunarpunkt aðgreiningarinnar"
+    },
+    {
+      "source": "You'll find {artifact} here:",
+      "source_sha256": "1026db6f12a4a6d125239e31ac014f2acfe38f959b44444ebf7d0e52ecb70dec",
+      "translation": "{artifact} er að finna hér:"
+    },
+    {
+      "source": "the trained image classifier",
+      "source_sha256": "c35984568b0a393b72c462473963a902fe4becac3dd20e1df715c43c29f386a3",
+      "translation": "þjálfaða myndflokkarann"
+    },
+    {
+      "source": "the figures and table exports",
+      "source_sha256": "96a17963c9e9ffe94b7193702f871bbe528f65fd6533700402354f8ea0e5c26b",
+      "translation": "myndritin og útfluttu töflurnar"
+    },
+    {
+      "source": "the fitted feature classifier",
+      "source_sha256": "f6f67d27b0e7c64bcccd1a9069072eb5848ee13bd8251bb03d90a8cb3e248678",
+      "translation": "aðlagaða eiginleikaflokkarann"
+    },
+    {
+      "source": "the run history and artifacts",
+      "source_sha256": "bc84b8e21d6d57e05da18ee7f94d4e27f0415bd95fb30843c96445d55498522e",
+      "translation": "keyrslusöguna og afurðir hennar"
+    },
+    {
+      "source": "the bundled organism reference",
+      "source_sha256": "0e0d892e31dc03a963882d6e5d2f0a3a88ae29d27614ea1783303591eb0f0405",
+      "translation": "meðfylgjandi lífverutilvísun"
+    },
+    {
+      "source": "the direct Cellpose TIFF masks",
+      "source_sha256": "931c5e2db7b87e1dd22e6043980e294e6dcfaed721c2cbe040f236afe74ef7fc",
+      "translation": "beinu TIFF-grímurnar frá Cellpose"
+    },
+    {
+      "source": "the linked time-series objects",
+      "source_sha256": "98971227d3e9f62d58e9af373bcd5fce29b90d28898000ce81a185bf6de26f7a",
+      "translation": "tengdu tímaraðarhlutina"
+    },
+    {
+      "source": "{peer} can supply {artifacts}.",
+      "source_sha256": "5ce3d3a3f2ce4437a8f7b9655154f31a0d96c7c1c877d56fd83341a4b0158ac7",
+      "translation": "{peer} getur útvegað {artifacts}."
+    },
+    {
+      "source": "the optical barcode assignments",
+      "source_sha256": "5687b2fc831be5228614cc902a7c72f1f0472a410f305176b755c8a108f1146d",
+      "translation": "sjónrænu strikamerkjaúthlutanirnar"
+    },
+    {
+      "source": "the regression results and hits",
+      "source_sha256": "9d18bd9a4f1d4118117338bb3155d9b79fdd50dfd553bce1430b223ed30a998f",
+      "translation": "aðhvarfsniðurstöðurnar og smellina"
+    },
+    {
+      "source": "{peer} can supply them as well.",
+      "source_sha256": "319632d4bfe1cbfe76fd6636a2f57c9a1066aaca09f3c1cfda313ba339b42475",
+      "translation": "Þau geta líka komið frá {peer}."
+    },
+    {
+      "source": "the classifier evaluation bundle",
+      "source_sha256": "67fd10357abf5afcefba3d9f452364c3147881c4301fde24ba28183b3758ccc0",
+      "translation": "matspakka flokkarans"
+    },
+    {
+      "source": "the object classification scores",
+      "source_sha256": "98d8fb50fc3e8132f40d8bc9c8e6835166d238d41c99f09aedcb2de55230d985",
+      "translation": "flokkunarstig hlutanna"
+    },
+    {
+      "source": "{peer} is another place they go.",
+      "source_sha256": "1a93cba0a3d339bae3bcb9fac52a075b5835f61b3c9096409864744933e4af1e",
+      "translation": "Þau geta líka farið til {peer}."
+    },
+    {
+      "source": "{peer} picks up {artifacts} next.",
+      "source_sha256": "3074d4df9eda0e0e8be758fd4708af05f0fdb4ae24fd92269584e428c506ddcc",
+      "translation": "Næst tekur {peer} við {artifacts}."
+    },
+    {
+      "source": "{peer} reads {artifacts} as well.",
+      "source_sha256": "b4cb57dcab90646d69e7ea6d94c323f41bb1034186f7a77e028de4b825def10b",
+      "translation": "{peer} les líka {artifacts}."
+    },
+    {
+      "source": "the aligned mosaic and coordinates",
+      "source_sha256": "4b06daacaf005dc61a1c7f78de346b60fcdf7e1e3a093fe8939378e31a3c54ea",
+      "translation": "hliðraða mósaíkið og hnitin"
+    },
+    {
+      "source": "the area-derived size-proxy results",
+      "source_sha256": "e51b5c8b765f92bf6a5aaec1de68fe467d896e654616071ad7208c9372e94a8a",
+      "translation": "niðurstöður stærðarvísisins sem byggir á flatarmáli"
+    },
+    {
+      "source": "From those, {name} produces {items}.",
+      "source_sha256": "77aeb5bf832ffdab1dadd000e331caa11a6b062022d6788e9d2ea6795a181382",
+      "translation": "Út frá þeim býr {name} til {items}."
+    },
+    {
+      "source": "the screen design and power estimates",
+      "source_sha256": "a751d0f285d12b289ca0e06a06c5d8d8ae5bf446cde8ad32c39e85f1ec3c2792",
+      "translation": "skimunarhönnunina og aflmatið"
+    },
+    {
+      "source": "Sequencing modules and how they relate",
+      "source_sha256": "4e75c2b76afeb08a59df4f8d0ba0e9f6088c392b5133f85ddfeafb4abe4a2043",
+      "translation": "Raðgreiningareiningar og hvernig þær tengjast"
+    },
+    {
+      "source": "the organism guide and assay selection",
+      "source_sha256": "892ca6ddf9a52afab78858eb5a298477ac10d46b3f2bf2e9c6e52025822110fd",
+      "translation": "leiðarvísi lífverunnar og val á greiningu"
+    },
+    {
+      "source": "{artifacts_from} {peer} work here too.",
+      "source_sha256": "83dabc3d9d51674d8bef4b404bea03c4ac9f02ae057612160153fe9a69768e54",
+      "translation": "{artifacts_from} {peer} virka líka hér."
+    },
+    {
+      "source": "the pooled-screen simulation assumptions",
+      "source_sha256": "ef7d675a5d3084a7cbbaef10c1b1e20b5d6dcb602b5c00df81d3634856cee90c",
+      "translation": "forsendur hermunar á samsafnaðri skimun"
+    },
+    {
+      "source": "the synthetic screen simulation summaries",
+      "source_sha256": "e853ca549ed76db6c9b535c1eb2ca7caafe3f60e223b96f6e68cc860f7d20fa8",
+      "translation": "samantektir tilbúinnar skimunarhermunar"
+    },
+    {
+      "source": "the host-cell-aggregated compartment areas",
+      "source_sha256": "cf896d73d962a4bde359424041cbc4f9db09b3ce80e636f5dc4f894cb65d415e",
+      "translation": "flatarmál hólfa samanlagt eftir hýsilfrumum"
+    },
+    {
+      "source": "You can also take {artifacts} on to {peer}.",
+      "source_sha256": "e831632ab06476c248ac02b27e0463289ba1c446c23cf66f0d493b31f338ff41",
+      "translation": "Þú getur líka farið með {artifacts} áfram til {peer}."
+    },
+    {
+      "source": "The columns to keep an eye on are {columns}.",
+      "source_sha256": "5cc9d48bb9c0754a43d2eded6f953342cd39392d56b3ebde8f92a949a5534657",
+      "translation": "Dálkarnir sem þarf að fylgjast með eru {columns}."
+    },
+    {
+      "source": "the TIFF fields for direct Cellpose inference",
+      "source_sha256": "a63b1ce2d7d195ffc484a904f6d96215ce901050d3a2da0d97110e61caf7fde0",
+      "translation": "TIFF-sjónsviðin fyrir beina ályktun með Cellpose"
+    },
+    {
+      "source": "If you start in {peer}, it provides {artifacts}.",
+      "source_sha256": "a5f4f271096b5379be6f6d53b6c53f76fa7182c6e01a39271c79d91a3d492fc1",
+      "translation": "Ef þú byrjar í {peer} útvegar það {artifacts}."
+    },
+    {
+      "source": "Depending on the route, the tables that matter are {tables}.",
+      "source_sha256": "73edd4987cc1803e199b07f73a1a4b82291bc3d74d57f1bcc902b7293ce5ef1a",
+      "translation": "Eftir leiðinni eru töflurnar sem skipta máli {tables}."
+    },
+    {
+      "source": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
+      "source_sha256": "287f0ce05974bbf2d3e0fcbbcafa9d56e2a31129ed89d7797ffa66ba011b03c9",
+      "translation": "Fylgdu samsafnaðri myndgreiningarskimun frá Home í gegnum myndmælingar, svipgerðarflokkun og talningu strikamerkja alla leið að aðhvarfsgreiningu."
+    },
+    {
+      "source": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
+      "source_sha256": "7b73600857ae9eac64e768c170f632d9c061005b21a8e2c61e5e485a870eb2ad",
+      "translation": "Settu upp spaCR og opnaðu Home. Veldu upphafsgögn verkferlisins og fylgdu svo tengdu einingakennslunum fyrir stýringar og sýnigögn."
+    },
+    {
+      "source": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
+      "source_sha256": "d1144840374924e7e75ad8ed21042c8db9eac7f0bf3ccd551c361472cb938f0b",
+      "translation": "Tengdu raðgreiningu og sjónræn strikamerkjaferli við svipgerðarstig, aðhvarfsgreiningu, skipulagningu tilrauna, aflmat, skammtasvörunargreiningu og samanburð keyrslna."
+    },
+    {
+      "source": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
+      "source_sha256": "1a176ab3c0d9b877d5d351493995d68529cd6121e83ffb464e04bab131421cb4",
+      "translation": "Sumar greiningar þurfa fyrst að skeyta reitum saman í eina mynd. Opnaðu Align & Stitch frá Home, athugaðu rúmfræði reitanna, skörun og rásavörpun og vistaðu mósaíkið með hnitaskrám sínum. Fyrir OPS heldurðu líka upprunalegum auðkennum lotna og staða."
+    },
+    {
+      "source": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
+      "source_sha256": "82e7c9ea3d3a685f076ec33b2f96e68847e3317040f8693be7852e17fd2cce3a",
+      "translation": "Replication Assay, sem er líka undir Toxoplasma í Home, telur sníkjudýrin í hverri bólu og ber þessar dreifingar saman milli skilyrða. Það les hluti úr Measure en þarf skýr tengsl sníkjudýrs og bólu; auðkenni hýsilsins eitt og sér skilgreinir ekki bólu."
+    },
+    {
+      "source": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
+      "source_sha256": "bf00adbec38a52959e82be1ce7e46e9794f86f9428b659e3bbb7080e7f438fe6",
+      "translation": "Recruitment spyr hversu mikið af merki safnast við sníkjudýrið. Opnaðu Toxoplasma frá Home og veldu svo Recruitment. Það les styrk hólfa úr Measure, með samsvarandi auðkennum hýsils og sýkils, og reiknar söfnunarhlutföll sem halda hverjum brunni og skilyrði."
+    },
+    {
+      "source": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
+      "source_sha256": "2cf161d3bf12c8cf08e91ecabb8ad5c24ca6acd037c0d59b53c6b74fa1b73164",
+      "translation": "Hvenær sem er eftir Measure geturðu opnað QC frá Home til að athuga vinnuna. Það les vistaðar athuganir á aðgreiningu, einingum, leka og plötuáhrifum, og innbyggðir skoðarar leyfa þér að skoða nánar. Athugun sem vantar er ekki athugun sem stóðst. QC vistar niðurstöður sínar með myndritum og töflum sem hægt er að flytja út."
+    },
+    {
+      "source": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
+      "source_sha256": "07167b783fa0ae762969fbb95481f190b24eb970e4777e98c6464ab12a801d08",
+      "translation": "Til að greina sníkjudýr sem aðeins festust frá þeim sem komust inn opnarðu Toxoplasma frá Home og velur Invasion Assay. Það byggir á tvílita aðgreiningarlitunarmælingum úr Measure ásamt grunnlínuviðmiðum fyrir litunina, og vistar niðurstöðurnar með hvern brunn og skilyrði óskert."
+    },
+    {
+      "source": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
+      "source_sha256": "a824a04f298016d44055093abb3411ca415446c598f37e6573e019e2de894b4d",
+      "translation": "Þegar þú veist hvert næsta verk er ferðu beint í kafla þess og opnar tengdu einingakennsluna fyrir stýringar og sýnigögn. Geymdu hvert úttak við hliðina á stillingunum sem bjuggu það til. Einingasíðurnar og Python-API-ið lýsa sömu skrám, töflum og auðkennum þegar þú tengir saman skref í eigin greiningu."
+    },
+    {
+      "source": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
+      "source_sha256": "fcbd2c714c776e292493c06db223b6de0588af774fe329b909870c8776283ddc",
+      "translation": "Þegar þú ert kominn með fleiri en eina greiningu opnarðu Run Compare frá Home. Það les vistaðar keyrsluskrár og niðurstöður úr Regression og setur stillingar, talningar og smellalista hlið við hlið. Ef inntaksgögnin breyttust milli keyrslna er munurinn ekki stýrður samanburður líkana, svo lestu hann með það í huga."
+    },
+    {
+      "source": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
+      "source_sha256": "a12cefbbcb9fb7707fed3c87538aadf923c210341e60628790ee77381257d63d",
+      "translation": "Barcode QC er inni í Map Barcodes, svo opnaðu Map Barcodes frá Home og veldu það þar. Það les fjölda leiðsagnar-RNA sem þú varst að búa til og sýnir vörpunardýpt, þekju, árekstra strikamerkja og staðsetningaráhrif. Það vistar QC-niðurstöðurnar með myndritum og töflum sem hægt er að flytja út, svo þú getir ákveðið hvaða leiðsagnar-RNA á að sía frá áður en haldið er áfram."
+    },
+    {
+      "source": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
+      "source_sha256": "75ebed73e7cb5060246101a521d4d9276b502737fb6962da28ea8c98d47ccec5",
+      "translation": "Dose–Response svarar því hversu mikið, ekki hvaða leiðsagnar-RNA, svo það þarf enga raðgreiningu. Opnaðu það frá Home og komdu með mældu svörin ásamt auðkennum skammta og skilyrða úr Experiment Design. Stilltu skammta- og svardálka, viðmið og einingar og aðlagaðu svo ferlana. Það vistar niðurstöðurnar með myndritum og töflum til útflutnings."
+    },
+    {
+      "source": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
+      "source_sha256": "368bc59b9ac36adc061e348bcf7fa6b7850634229799c8d4ccdd5de7817707be",
+      "translation": "Líttu á þessa kennslu sem kort af því hvert hver skrá fer. Hver kafli er ein eining: hvernig á að opna hana, hvað hún les, hvað hún skrifar og hvaða eining tekur næst við úttakinu. Byrjaðu á skránum sem þú ert með eða niðurstöðunni sem þú þarft og fylgdu afhendingunum þaðan. Haltu auðkennum hluta, platna og brunna með gögnunum alla leiðina."
+    },
+    {
+      "source": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well. Keep barcode references and plate layouts with your count tables, and for an optical screen, join the decoded objects to their phenotypes and aggregate them before Regression. The linked module lessons show the settings and outputs for each step.",
+      "source_sha256": "0d75fe5f303a158d2b1641e78e59d112c0a51c24777909875f716c1cbea086aa",
+      "translation": "Strikamerkjahlið skimunar endar því alltaf eins: auðkenni tengd svipgerðum eftir plötu og brunni. Geymdu strikamerkjatilvísanir og plötuuppsetningar með talningartöflunum og, í sjónrænni skimun, tengdu afkóðuðu hlutina við svipgerðir sínar og safnaðu þeim saman fyrir Regression. Tengdu einingakennslurnar sýna stillingar og úttak hvers skrefs."
+    },
+    {
+      "source": "So a pooled screen runs as two streams that meet in Regression. Before you open it, check that the plate and well identifiers match across your scores, guide counts and plate layout, and keep the annotation column, classifier settings and barcode references with the run. The linked module lessons walk through each step, or choose the pooled-screen walkthrough on Home.",
+      "source_sha256": "c14f80b63e5e53fe6c1139b8c053e129945e1a59a82ededadb50fd6f3715dfd1",
+      "translation": "Samsöfnuð skimun gengur því sem tveir straumar sem mætast í Regression. Áður en þú opnar það skaltu athuga að auðkenni platna og brunna passi saman milli stiga, fjölda leiðsagnar-RNA og plötuuppsetningar, og geyma merkingadálkinn, stillingar flokkarans og strikamerkjatilvísanirnar með keyrslunni. Tengdu einingakennslurnar fara í gegnum hvert skref, eða þú getur valið yfirferð samsafnaðrar skimunar á Home."
+    },
+    {
+      "source": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
+      "source_sha256": "2c0d7903f782ec7e590990e95d24d4a2fc455fc5d1807856ccba09844943be4c",
+      "translation": "Myndaleiðin liggur því nær alltaf frá Mask til Measure og greinist svo eftir spurningunni þinni. Til að þjálfa eigið aðgreiningarlíkan útbýrðu pör af myndum og grímum í Make Masks, þjálfar þau í Cellpose Workbench og opnar vistaða líkanið aftur í Mask. Ef þú ert þegar með samhæft úttak geturðu komið inn síðar. Hvert sem þú ferð skaltu halda auðkennum rása, einingum og lyklum hluta með hverri niðurstöðu."
+    },
+    {
+      "source": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
+      "source_sha256": "4e1a8ce2204e4ac1aa562e07db573b3e1220209a76ce76dbc98539f52e101c0a",
+      "translation": "Óunnar smásjármyndir byrja í Mask. Opnaðu það frá Home, veldu rásir og aðgreiningarlíkön og athugaðu forskoðunina áður en þú keyrir. Mask skrifar hvert sjónsvið sem sameinað fylki, þar sem myndrásirnar og heiltölumerkingalögin eru saman, og það er þetta sameinaða fylki sem Measure les næst. Mask geymir líka lítinn talningagagnagrunn, en hann er aðeins talning, ekki eiginleikatafla."
+    },
+    {
+      "source": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
+      "source_sha256": "bf6069eb0912c20a3bc48d93254215e8598edfc30e74755469e832ebcae15f87",
+      "translation": "Farðu nú aftur til tímans fyrir tilraunina. Opnaðu Power / Design frá Home til að meta hversu mikla sýnatöku þú þarft til að sjá áhrif, út frá áhrifastærðunum og breytileikanum sem þú velur. Forkannanir geta stutt þessar forsendur, en þær eru valfrjálsar. Uppsetningin úr Experiment Design nýtist í matinu og matið getur svo sent þig aftur til að endurskoða hönnunina."
+    },
+    {
+      "source": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
+      "source_sha256": "b86361798acfed79b3c2fd5ed184696964a478a4974fe14502cef8bcb00b7d2a",
+      "translation": "Nú að Toxoplasma-greiningunum. Opnaðu Toxoplasma frá Home og veldu Plaque Assay. Þessi sleppir Measure: hún les skellumyndir, eða grímur sem þú átt þegar, og keyrir stillta skellulíkanið. Grímur úr Make Masks virka hér ef þær eru skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki skellumerkingar. Hún vistar niðurstöður og grímur skellanna, og kennslan um skelludæmið sýnir heila keyrslu."
+    },
+    {
+      "source": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
+      "source_sha256": "3c413dfd5550bf3ff592cf43fb7236e9f0817725acd171085f21338500c60590",
+      "translation": "Á meðan myndirnar fara eina leið fara raðgreiningarlestrarnir aðra. Opnaðu Map Barcodes frá Home, gefðu því FASTQ-skrárnar og strikamerkjatilvísanirnar sem kóða skimunina, og það telur hvaða leiðsagnar-RNA birtust í hverjum brunni. Athugaðu vörpuðu talningarnar og QC strikamerkjanna áður en þú treystir þeim. Skráin unique_combinations.csv sem það skrifar er talningartafla leiðsagnar-RNA sem Regression parar við svipgerðarstigin þín, brunn fyrir brunn."
+    },
+    {
+      "source": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
+      "source_sha256": "476e217b4106216ac4b3f8faa4e18b7ed96da0a1ba69847b4c4688a41c663a9f",
+      "translation": "Embeddings lýsir hlutum út frá því sem líkan sér frekar en handvöldum eiginleikum. Opnaðu það frá Home, veldu líkan og rásastefnu, og það kóðar úrklipp hlutanna frá Measure í einn eiginleikavigur fyrir hvern hlut. Skráðu auðkenni hlutanna, kóðarann og rásastefnuna með þessum eiginleikum, því Image UMAP þarf eiginleikatöflu með samsvarandi auðkennum hluta og ekki vista allar leiðir hana fyrir þig."
+    },
+    {
+      "source": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
+      "source_sha256": "f31b0e3feab908ac6377c33cc40fdfabb8a55667d4d9411c80296d29c67c110f",
+      "translation": "Allt byrjar á smásjármyndunum þínum. Opnaðu Mask frá Home, veldu rásirnar og aðgreiningarlíkan og athugaðu forskoðunina áður en þú keyrir. Mask finnur hlutina í hverju sjónsviði og vistar hvert sjónsvið sem sameinað fylki, þar sem myndrásunum er staflað með merkingagrímunum. Þessi sameinuðu fylki eru það sem Measure opnar næst. Litli talningagagnagrunnurinn sem Mask skilur eftir er aðeins talning, ekki enn eiginleikatafla."
+    },
+    {
+      "source": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
+      "source_sha256": "21b54f753865f9296518cfdaa37c59e8ba1bb733323eaa6d099f64a8cd405384",
+      "translation": "Samsöfnuð skimun segir sögu sína tvisvar, einu sinni í myndum og einu sinni í raðgreiningarlestrum, og spaCR sameinar þær í lokin. Myndamegin breyta Mask og Measure sjónsviðunum í mældar frumur og Annotate og Classify breyta frumunum í svipgerðarstig. Raðgreiningarmegin breytir Map Barcodes lestrum í fjölda leiðsagnar-RNA. Regression tengir hvort tveggja saman eftir plötu og brunni. Komdu inn þar sem niðurstöðurnar þínar byrja."
+    },
+    {
+      "source": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
+      "source_sha256": "58f9a55bd3dc1cf0f1d93b20c17a8fd64cf9e32260bce7843b545cbad513eed3",
+      "translation": "Myndgreining í spaCR fylgir myndunum þínum frá dílum til svara. Óunnar myndir byrja í Mask, sem finnur hlutina. Ef þú vilt laga grímur í höndunum notarðu Make Masks, eða flytur inn grímur sem þú átt þegar. Measure breytir svo myndum og grímum í tölur, og í úrklipp ef þú vilt. Þaðan velurðu leiðina: flokkun, könnun mynda, hliðun eða greiningu. Skeyttu reitum saman fyrst þegar greiningin þarf eitt hnitakerfi."
+    },
+    {
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+      "translation": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst."
+    },
+    {
+      "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
+      "source_sha256": "8e52f400e22abea6044720c14d7da981af621c37bc3c43d5152350440c2a89d8",
+      "translation": "Raðgreining er leiðin sem samsöfnuð skimun kemst að því hvaða leiðsagnar-RNA er í hvaða brunni eða frumu, og spaCR les hana á tvo vegu. Lestrar úr raðgreini fara í Map Barcodes. Strikamerki sem mynduð eru lotu fyrir lotu fara í OPS, sem er inni í Mask. Hvor leiðin sem er lenda auðkenni strikamerkjanna við hlið svipgerðanna í Regression. Umhverfis þennan kjarna eru skipulagstólin, Experiment Design og Power, fyrir tímann áður en myndað er, og Dose–Response og Run Compare fyrir niðurstöðurnar."
+    },
+    {
+      "source": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+      "source_sha256": "43e7f79521b57714babc0a6106a7d3214699486774cd08c6ba80d3a102560a3a",
+      "translation": "Opnaðu Experiment Design frá Home til að skipuleggja plöturnar áður en þú myndar nokkuð. Sláðu inn skilyrði, viðmið, endurtekningar og takmarkanir platna með aflmatið í huga og fluttu út tilraunauppsetninguna. Sú uppsetning nær langt. Power / Design notar hana til að ákvarða forsendur sýnatöku og síðar, þegar tilraunin hefur verið mynduð og mæld, notar Dose–Response auðkenni skammta og skilyrða úr henni, svo haltu þeim óbreyttum alla leiðina."
+    },
+    {
+      "source": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+      "source_sha256": "542f2a25d6bc5b5c1784cdf8b4feffb26dc8b6d6ca0310c5acda1b17be2bad48",
+      "translation": "Byrjaðu á raðgreiningarlestrunum. Opnaðu Map Barcodes frá Home og gefðu því FASTQ-skrárnar, einenda eða pöruðu, ásamt strikamerkjatilvísunartöflunum sem kóða tilraunina. Map Barcodes parar hvern lestur við strikamerki sín og telur leiðsagnar-RNA í hverjum brunni, og vistar unique_combinations.csv og annotated_reads.h5 í keyrslumöppunni. Áður en þú treystir talningunum skaltu opna þær í Barcode QC. Þegar þær hafa staðist eru þær fjöldi leiðsagnar-RNA sem Regression parar við svipgerðarstig eftir sömu plötu- og brunnalyklum."
+    },
+    {
+      "source": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
+      "source_sha256": "0fe87f6232115c552ae38b05b6dffd909331a2dddd88316265912061359cc9a0",
+      "translation": "Sjónrænar skimanir fara aðra leið. Opnaðu Mask frá Home og veldu svo OPS. Í stað lestra tekur OPS myndir úr hverri raðgreiningarlotu, hliðrar þeim að svipgerðarmyndunum og afkóðar strikamerki fyrir hvern kjarna. Niðurstöðurnar lenda í measurements.db frá OPS, með töflum fyrir rúmfræði, hliðrun svipgerða, kjarna og strikamerki. Sá gagnagrunnur er þó ekki FASTQ-talningartafla. Til að nota hann í Regression skaltu fyrst tengja og safna saman afkóðuðu auðkennunum við svipgerðargögnin, svo hver hlutur eða brunnur beri hvort tveggja."
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
+      "translation": "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu FEATURES til að para hverja mynd við grímu sína og skrifa mælt verkefni, og þannig komast grímurnar til Measure; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara."
+    },
+    {
+      "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+      "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
+      "translation": "Opnaðu næst Measure frá Home og beindu því að sama verkefni, með rásavísa myndar og grímu rétt stillta. Measure les hvert sameinað fylki, myndir og merkingalög saman, og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Kveiktu á vistun úrklippa og það sker líka út litla PNG-mynd í kringum hvern hlut, skráða í png_list. Héðan greinist sagan. Annotate sýnir úrklippin svo þú getir merkt dæmi, og Classify lærir annaðhvort af úrklippunum eða mældu eiginleikunum, svo haltu auðkennum hlutanna stöðugum."
+    },
+    {
+      "source": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
+      "source_sha256": "aa480763b8fdc0f37ce7ec8d49f9ebc31d85c45748724d74ac0402ea2a74b700",
+      "translation": "Með mælingar í höndunum er Annotate staðurinn þar sem þú kennir með dæmum. Opnaðu það frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir úr verkefninu. Merktu dæmigerða hluti; hver merking fer í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Þú þarft ekki að byrja frá grunni: hlið sem vistuð eru í Gate Editor geta stungið upp á merkingum sem þú ferð yfir. Notaðu sérstakan dálk fyrir hverja spurningu, haltu þjálfunar- og matshlutum aðskildum, og það er þessi dálkur sem Classify þjálfar á næst."
+    },
+    {
+      "source": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
+      "source_sha256": "737abb7d17017d52677b164ee2921618dfd73d528f25398c56017f43af68cd19",
+      "translation": "Annað er bein grímugerð með Cellpose, spacr.spacr_cellpose.identify_masks_finetune, einnig án reits á Home eða valmyndaratriðis. Þrátt fyrir nafnið keyrir það ályktun, ekki þjálfun: það beitir stöðluðu eða sérsniðnu Cellpose-líkani á TIFF-sjónsviðin í möppu. Athugaðu fyrst stöðlun, rásir, stærðarbreytingu og stillingar líkansins og kveiktu á vistun, því grímur eru aðeins skrifaðar þegar save er virkt. Það sem þú færð eru merkinga-TIFF-skrár, ekki verkefni tilbúið fyrir Measure. Til að halda áfram flytur þú pör mynda og grímna inn með External Masks fyrir Measure, eða ferð yfir þau fyrir þjálfun."
+    },
+    {
+      "source": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
+      "source_sha256": "428d8fa2854a627bbcf473c3d6f9dd8cf450ce167739de0e12d565d2924ee6a2",
+      "translation": "Opnaðu Classify frá Home, og hér verða merkingarnar að stigum. Classify hefur tvær fjölskyldur og gögnin þín ráða hvor er notuð. Computer Vision lærir af úrklippum hlutanna sjálfum en Tabular Machine Learning af mældu eiginleikadálkunum. Í báðum tilvikum þjálfar það á merkingunum sem þú bjóst til í Annotate, prófar sig á hlutunum sem þú hélst til hliðar og vistar þjálfaða líkanið, matspakka og stigin, sem CSV-skrár og, þegar þau eru sameinuð, í png_list. Veldu CV- eða ML-stigadálkinn sem þú vilt prófa, haltu auðkenni plötu og brunns óskertu og farðu með hann í Regression."
+    },
+    {
+      "source": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
+      "source_sha256": "210a36c0bde8db5336b0d643fbec120141412a965e4a96144c185984dcaac5d7",
+      "translation": "Gate Editor leyfir þér að velja hluti eftir reglu frekar en með augunum. Opnaðu það frá Home og teiknaðu þröskulds- eða marghyrningshlið á raunverulega dálka: mælda eiginleika úr Measure, í raunverulegum einingum sínum, eða hnit úr Image UMAP-vörpun. Vistaðu hlið og þú getur beitt því aftur á hvaða samhæfa hlut sem er. Annotate-hnappur þess skrifar sýndu hliðin í merkingadálk þegar þú hefur farið yfir valda hlutina og valið tvíundar- eða fjölflokkamerkingar. Vistuð hlið geta líka stungið upp á merkingum inni í Annotate. Veldu svo sama dálk og sama hlutasafn í Classify og haltu staðfestingarhlutum aðskildum frá þjálfunarmerkingunum."
+    },
+    {
+      "source": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
+      "source_sha256": "4eab84e3490d34e089a06f4585d7e32e383ccf6f078c9bdd1b0aa99b56b17ff8",
+      "translation": "Host–Pathogen Analysis skoðar sýkinguna frá báðum hliðum. Opnaðu Toxoplasma frá Home og veldu það svo. Það les mælingar úr Measure sem ná yfir heilar bólur, viðmiðunarhólf hýsilsins og ósýktar hýsilfrumur, sem mynda nefnara sýkingarinnar. Veldu merkjarásirnar og stilltu hlutfallsþröskulda sem eru kvarðaðir á viðmiðin þín. Ef þú aðgreindir einstök sníkjudýr getur það talið þau í hverri bólu út frá skýrum tengslum eða mældum talningardálki. Þá færðu töflur fyrir bólur, hýsla og brunna, samsettar merkjastöður, dreifingu fjölgunar og þau tengsl sníkjudýra sem ekki tókst að para. Óþekktar mælingar haldast óþekktar og auðkenni hýsils eitt og sér skilgreinir aldrei bólu."
+    },
+    {
+      "source": "This is where the two halves of the screen meet. Open Regression from Home and give it both: the phenotype scores from Classify and the guide counts from Map Barcodes. Regression matches them on plate and well, so those keys have to agree in both files. Choose the response column and your controls, run the fit, and open the diagnostics before you believe any hit. If your barcodes were read optically with OPS instead, join and aggregate the decoded objects to your phenotype and guide data first; OPS does not hand over a ready-made count table. Regression can also model a directly measured response. It writes a results folder of coefficients, hit tables, settings and diagnostic figures.",
+      "source_sha256": "fc8e6fcfdc0df40b5b50e7f4523908220e4bdf8cb5110209bf067763baaa0423",
+      "translation": "Hér mætast tveir helmingar skimunarinnar. Opnaðu Regression frá Home og gefðu því hvort tveggja: svipgerðarstigin úr Classify og fjölda leiðsagnar-RNA úr Map Barcodes. Regression parar þau eftir plötu og brunni, svo þessir lyklar verða að passa í báðum skrám. Veldu svardálkinn og viðmiðin, keyrðu aðlögunina og opnaðu greiningarniðurstöðurnar áður en þú trúir nokkrum smelli. Ef strikamerkin voru lesin sjónrænt með OPS skaltu fyrst tengja og safna saman afkóðuðu hlutunum við svipgerðar- og leiðsagnargögnin; OPS afhendir ekki tilbúna talningartöflu. Regression getur líka líkanað beint mælt svar. Það skrifar niðurstöðumöppu með stuðlum, smellatöflum, stillingum og greiningarmyndum."
+    },
+    {
+      "source": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
+      "source_sha256": "b292be611385980d0e0b646738bf79a2b59d336afbf057dcd0d4768083908501",
+      "translation": "Hvernig sem þú raðgreindir mætast strikamerki og svipgerðir í Regression. Opnaðu það frá Home. Fyrir samsafnaða skimun tekur það svipgerðarstig úr Classify og fjölda leiðsagnar-RNA úr Map Barcodes. Fyrir sjónræna skimun tekur það afkóðuðu OPS-hlutina eftir að þú hefur sjálfur tengt þá og safnað saman; það er ekki bein afhending skráa. Það getur líka líkanað beint mælt svar. Í öllum tilvikum verða auðkenni platna og brunna að passa saman milli inntaka. Veldu svarið og viðmiðin, keyrðu aðlögunina og lestu greiningarniðurstöðurnar áður en þú kallar eitthvað smell. Niðurstöðumappan sem það skrifar, með stuðlum, smellatöflum, stillingum og myndum, er það sem Run Compare opnar þegar þú vilt bera þessa keyrslu saman við aðra."
+    },
+    {
+      "source": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
+      "source_sha256": "029f3c5ca1ff41f4a21df2b7ad6963449a8e3b9f5d4abb213f991ab3b98eb1f1",
+      "translation": "Tvö verkfæri í þessu korti eru aðeins til í Python. Það fyrra er stærðarvísir innfjölgunar, spacr.submodules.analyze_endodyogeny; það hefur hvorki reit á Home né valmyndaratriði. Það les mæld flatarmál hólfa úr Measure-verkefnunum þínum, merkir þau eftir skilyrðum og skiptir flatarmálinu í veldinu 1,5 í tvöfaldanir stærðar á log2-kvarða. Sjálfgefið leggur það flatarmál sýkilsins saman eftir hýsilfrumu, ekki eftir bólu, svo margar bólur í sömu frumu eru sameinaðar. Þess vegna er það stærðarvísir sem byggir á flatarmáli, ekki mælt rúmmál né fjöldi sníkjudýra; fyrir sníkjudýr í hverri bólu notarðu Replication Assay. Stilltu hólf, flatarmálssíur, kvörðun, skilyrði og hópun áður en þú kallar á það, og athugaðu samantekt og flatarmálseiningar áður en þú lest bilin. Talningagagnagrunnur Mask einn og sér dugar ekki."
+    },
+    {
+      "source": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database.",
+      "source_sha256": "e203b3a2ba9acc4c9ad007b1d25fbfc439ba1bf3515bddd82c69c7c1f6e2285e",
+      "translation": "Annað skipulagstól er aðeins til í Python: hermunarsóp fyrir samsafnaða skimun, spacr.sim.run_multiple_simulations, án reits á Home eða valmyndaratriðis. Þú gefur því stillingaorðabók með forsendum eins og stærð skimunar, nýtingu, nákvæmni flokkara og raðgreiningu. Það víkkar út allar samsetningar, hermir hverja í ferlasafni og bætir tilbúnum samantektarlínum við simulations.db; kallið sjálft skilar None. Hafðu stikanetið lítið og stilltu max_workers skýrt áður en þú keyrir það. Það sem kemur út eru skipulagsgögn, ekki mæligögn, og þau geta ekki komið í stað mælinga eða talninga strikamerkja í Regression. Lestu samantektirnar, skráðu forsendurnar og færðu þær handvirkt yfir í Power / Design eða Experiment Design, því hvorugt tólið flytur inn hermunargagnagrunninn."
+    },
+    {
+      "source": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
+      "source_sha256": "cca3dcdff190d4a0d55abf37829e7babe9e9d5abe3314cbfafe105748b3713ae",
+      "translation": "Image UMAP er til að skoða áður en þú merkir. Opnaðu það frá Home og það varpar mældu eiginleikunum úr Measure, eða kóðaraeiginleikum úr Embeddings með samsvarandi auðkennum hluta, á kort þar sem líkir hlutir liggja nálægt hver öðrum. Opnaðu dæmigerð úrklipp til að sjá hvað svæði inniheldur í raun. Klasi er aðeins hópun sem kemur til greina, ekki staðfest svipgerð. Þegar svæði virðist raunverulega marktækt teiknarðu snöru utan um það, ferð yfir það sem þú náðir og skrifar valið í merkingadálk í samsvarandi mæligagnagrunni. Classify getur þá þjálfað á þeim dálki. Vörpunin getur líka farið í Gate Editor ef þú vilt frekar skilgreina valið þar með samsvarandi hnita- og eiginleikadálkum. Ekki vista allar leiðir viðmótsins kóðaraeiginleika fyrir þig, og lögun á grafi ein og sér staðfestir ekki líffræðilega svipgerð."
+    },
+    {
+      "source": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
+      "source_sha256": "124d161d8f5715bdcbe4c44bf52b5a6521e970ea0b3099a68fe0929059722c8b",
+      "translation": "Opnaðu Classify frá Home til að breyta merkingum í spár. Það hefur tvær fjölskyldur og gögnin þín ráða hvor er notuð. Computer Vision lærir af úrklippum hluta sem Measure vistar eða streymir; Tabular Machine Learning lærir af mældu eiginleikadálkunum. Merkingarnar geta komið frá þremur stöðum. Oftast koma þær úr Annotate. Gate Editor getur skrifað yfirfarið val hliða í merkingadálk og Image UMAP getur gert það sama með yfirfarið snöruval; í báðum tilvikum velurðu hér sama dálk og sama hlutasafn. Innfellingaklasi er ekki rétt svar, svo skoðaðu úrklippin, staðfestu merkingarnar og haltu staðfestingarhlutum frá þjálfuninni. Classify vistar svo stigin, þjálfaða líkanið og matspakka með spám á gögnunum sem haldið var til hliðar. Í skimun velurðu CV- eða ML-stigadálkinn sem þú átt við og ferð með hann í Regression með auðkenni plötu og brunns óskert."
+    },
+    {
+      "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
+      "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
+      "translation": "Measure er miðpunktur alls þessa korts. Opnaðu það frá Home og beindu því að verkefninu sem Mask bjó til, með rásavísa myndar og grímu rétt stillta; grímur sem paraðar eru í Make Masks koma líka hingað. Measure les myndir og merkingalög saman og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Kveiktu á vistun úrklippa ef þú vilt PNG-mynd af hverjum hlut, og geymdu gagnagrunninn með upprunaverkefninu ef þú streymir úrklippum í staðinn. Nær allt annað byrjar á þessum línum. Annotate og Classify nota mælingarnar og úrklippin til að læra svipgerðir. Image UMAP varpar þeim svo þú getir leitað að hópum og Embeddings kóðar úrklippin með líkani og skráir kóðarann og rásastefnuna. Gate Editor setur þröskulda á raunverulega mælda eiginleika, í raunverulegum einingum þeirra, og QC sýnir hvaða athuganir eru til og hverjar vantar. Toxoplasma-greiningarnar byrja líka hér: Recruitment þarf réttan styrk hólfa, Invasion Assay tvílitar litunarmælingar með grunnlínuviðmiðum og Replication Assay skýr tengsl sníkjudýrs og bólu. Host–Pathogen Analysis krefst grímna af heilum bólum og viðmiðunarstyrks hýsils, með ósýktu frumunum haldið inni. Og stærðarvísir innfjölgunar les mælda verkefnið úr Python eftir að þú hefur athugað samantekt eftir hýsilfrumum og flatarmálseiningar; talningagagnagrunnur Mask einn og sér dugar ekki."
+    },
+    {
+      "source": "Workflows",
+      "source_sha256": "e2073645cb0dbbddb2464dacc4ed2a03923b8e4a4b680245c36c69763766fb40",
+      "translation": "Workflows"
+    },
+    {
+      "source": "Open {name} from Home.",
+      "source_sha256": "01b546ab01479158850c53d91ff0fd9e9db579e577872ddeb83fb71fa0639596",
+      "translation": "Opnaðu {name} frá Home."
+    },
+    {
+      "source": "Module inputs and outputs",
+      "source_sha256": "e192f98241a10816e70a97d747b7fd46feda4e7cabda312565f954bc0a0356e1",
+      "translation": "Inntök og úttök eininga"
+    },
+    {
+      "source": "Inspect actual tables before exporting.",
+      "source_sha256": "9f7168593c7e6c0adf66726c8de006dd1e92b22386138be9c85898ff0376cb6e",
+      "translation": "Skoðaðu raunverulegu töflurnar áður en þú flytur út."
+    },
+    {
+      "source": "Inspect ranked hits and guide agreement.",
+      "source_sha256": "4a3764a775c3feb7134130a3e1bbf5b1433664ac9fca66a6808eb7b74d2acc9a",
+      "translation": "Skoðaðu raðaða smelli og samræmi leiðsagnar-RNA."
+    },
+    {
+      "source": "Image analysis modules and how they relate",
+      "source_sha256": "37bcd8931505ea92a95a37e93e3453a2cee20377fdb0150e263c8d9914614ecc",
+      "translation": "Myndgreiningareiningar og hvernig þær tengjast"
+    },
+    {
+      "source": "Open {host} from Home, then choose {name}.",
+      "source_sha256": "551cd3bac1835524db37ebbb33db51be60fbc1f092dbf68556ebf1f4d9920709",
+      "translation": "Opnaðu {host} frá Home og veldu svo {name}."
+    },
+    {
+      "source": "Identify what each module reads and writes.",
+      "source_sha256": "d4390d52c2bb7feff6b80ece398baf65fb2e194394fc43b04fd665d58604ee58",
+      "translation": "Greina hvað hver eining les og skrifar."
+    },
+    {
+      "source": "Use independently checked image/mask pairs.",
+      "source_sha256": "2f8e1a168f30c74b5a6d8e4e992160c37bd92d719504c229c168a957b48d4964",
+      "translation": "Notaðu pör af myndum og grímum sem hafa verið athuguð sjálfstætt."
+    },
+    {
+      "source": "Supply frame interval and pixel calibration.",
+      "source_sha256": "2293a08135e16e72e954972084b7744919a1c5f3335d781da515db0eb733c9b3",
+      "translation": "Gefðu upp tímabil milli ramma og kvörðun díla."
+    },
+    {
+      "source": "Retain encoder and channel-policy provenance.",
+      "source_sha256": "8b0b0f9935ced0554f6dccb35fad06786eea0175c353cccb7319d6c202ae0986",
+      "translation": "Haltu upplýsingum um uppruna kóðara og rásastefnu."
+    },
+    {
+      "source": "Review available checks and missing evidence.",
+      "source_sha256": "f7a99271ed3715003c48d350f37209623b8854e83b4151ed08180909f716355c",
+      "translation": "Farðu yfir tiltækar athuganir og gögn sem vantar."
+    },
+    {
+      "source": "Choose explicit variables, groups and filters.",
+      "source_sha256": "3f346a1d8a8fc510ad9eefe78481e54db311742cb68caa3d0eaa38ea53505af2",
+      "translation": "Veldu breytur, hópa og síur með skýrum hætti."
+    },
+    {
+      "source": "Combine measured objects with matching tracks.",
+      "source_sha256": "9814ec4bb65f1bbc792c24c8ddf12b71822c9e49252bdb0a60d77bed63851c5d",
+      "translation": "Tengdu mælda hluti við samsvarandi ferla."
+    },
+    {
+      "source": "Review exported prose and every traced result.",
+      "source_sha256": "61abde1bb83664efef7b3b1b76178bfa133ad7b1aa601885ca4fa35c128d7d15",
+      "translation": "Farðu yfir útfluttan texta og hverja rakta niðurstöðu."
+    },
+    {
+      "source": "Export compatible feature and metadata columns.",
+      "source_sha256": "b5a153c5432fbc4af6601d85ac9b74b093e55033080d0788b4829f5716776ab9",
+      "translation": "Fluttu út samhæfa eiginleika- og lýsigagnadálka."
+    },
+    {
+      "source": "Select the saved compatible checkpoint in Mask.",
+      "source_sha256": "e728ebc34eecea176cd1c0292a03c313fea3f405905ac93b531880cb8c41397e",
+      "translation": "Veldu vistaða samhæfa vistunarpunktinn í Mask."
+    },
+    {
+      "source": "Inspect saved effects and adjusted significance.",
+      "source_sha256": "5c93baa88ff14b133e94ac4cff181688e099f74dfd313c6656e63e56cab93711",
+      "translation": "Skoðaðu vistuð áhrif og leiðrétta marktækni."
+    },
+    {
+      "source": "Require explicit parasite-to-vacuole identities.",
+      "source_sha256": "cd46ef6645b6037759f807bcfcde8657d63ff3ab247d0e4967759b1fa6783e84",
+      "translation": "Krefjast skýrra auðkenna frá sníkjudýri til bólu."
+    },
+    {
+      "source": "Check mapping and coverage before guide filtering.",
+      "source_sha256": "8f0003ef9a4bff7fd9ec78f06910d83d5cd54dba893fb6d715164d8fb80a7e0f",
+      "translation": "Athugaðu vörpun og þekju áður en leiðsagnar-RNA eru síuð."
+    },
+    {
+      "source": "Define the class comparison and inspect filtering.",
+      "source_sha256": "7fa9a001232f6d1ea07ecc963e11b123f8518f46eb02030948f841e51e9e0f00",
+      "translation": "Skilgreindu flokkasamanburðinn og skoðaðu síunina."
+    },
+    {
+      "source": "Open the diagnostics actually written by this run.",
+      "source_sha256": "2447417b10859c54b1edc1f2c510f7a654f628856a8b3dbcc472ce9529d5ce76",
+      "translation": "Opnaðu greiningarniðurstöðurnar sem þessi keyrsla skrifaði í raun."
+    },
+    {
+      "source": "Save or stream crops with stable object identities.",
+      "source_sha256": "9d2aa7c76cc7845e15485b8ae6535fcdaf16a0f105e55bc2bc0ef6c27cb1fd6b",
+      "translation": "Vistaðu eða streymdu úrklippum með stöðugum auðkennum hluta."
+    },
+    {
+      "source": "Open {host} through Help search, then choose {name}.",
+      "source_sha256": "cb10d8215264f4a4bb7d6bbc74158f9755f375f83cd43db64019702f31348940",
+      "translation": "Opnaðu {host} í gegnum leitina í Help og veldu svo {name}."
+    },
+    {
+      "source": "Apply compatible gates, then review candidate labels.",
+      "source_sha256": "313dcd7499b29d9ab4f1e85a9a12a0700c2235ad0e42e8c45faaf93c6fc939ca",
+      "translation": "Beittu samhæfum hliðum og farðu svo yfir tillögur að merkingum."
+    },
+    {
+      "source": "Find {name} in the application's Help or tools menus.",
+      "source_sha256": "a6595866f9a2e96b94713734a202fadabaec0e8639f7e30e0041ee33751204c0",
+      "translation": "Finndu {name} í Help eða verkfæravalmyndum forritsins."
+    },
+    {
+      "source": "Keep labelled training and evaluation groups separate.",
+      "source_sha256": "610a65cab0a0cfca2b75a8d04f0e636d16235e102a3d1c5274ecea4e03ee68e0",
+      "translation": "Haltu merktum þjálfunar- og matshópum aðskildum."
+    },
+    {
+      "source": "Use the actual measured feature definitions and units.",
+      "source_sha256": "24b57dd68ed527779c36fabc6773c67269591681de7ba0d1a43361e1f0c55ff7",
+      "translation": "Notaðu raunverulegar skilgreiningar og einingar mældra eiginleika."
+    },
+    {
+      "source": "Choose the image or tabular family to match your input.",
+      "source_sha256": "ceb54e5452ef1c9acadfccb5dd22ce2b6781d2eb432446886ad5e7cdf57e35a5",
+      "translation": "Veldu mynda- eða töflufjölskylduna eftir inntakinu þínu."
+    },
+    {
+      "source": "Choose a starting module from the data you already have.",
+      "source_sha256": "9fcef3d204529b4bcdac2d96089f0ddfdeb8308de16add81e67097473e8a9e0b",
+      "translation": "Velja upphafseiningu út frá gögnunum sem þú ert þegar með."
+    },
+    {
+      "source": "Choose feature columns and inspect representative crops.",
+      "source_sha256": "22bcabd0b57471c6762a75c4ddf999a1619320d8e32a20ec6bd4f94d3e8fa2f1",
+      "translation": "Veldu eiginleikadálka og skoðaðu dæmigerð úrklipp."
+    },
+    {
+      "source": "Compare compatible saved result sets and their settings.",
+      "source_sha256": "bfceea3a2459b0f73caaca76beadd1d4b3b1aa069ae336974fa5170d55b99e5a",
+      "translation": "Berðu saman samhæf vistuð niðurstöðusöfn og stillingar þeirra."
+    },
+    {
+      "source": "Keep the newly measured project and crop index together.",
+      "source_sha256": "e538adf6094a34c8897dcc2636cf51f7a3eb23dfdd1d7f52cf6f08e8c209dbe7",
+      "translation": "Haltu nýmælda verkefninu og skrá úrklippanna saman."
+    },
+    {
+      "source": "Select CV predictions and the matching measured objects.",
+      "source_sha256": "6ee8a7cca7e74c41a5c49c929c4e82ac81a65cf4f1b2a0a20641da6824f3fa58",
+      "translation": "Veldu CV-spár og samsvarandi mælda hluti."
+    },
+    {
+      "source": "Use the matching held-out predictions and split metadata.",
+      "source_sha256": "f54d26c6f55e27fc9e4bfa8aa68751237c19bcfb4789430b0c398fdfa26da239",
+      "translation": "Notaðu samsvarandi spár á fráteknum gögnum og lýsigögn skiptingar."
+    },
+    {
+      "source": "Also provide the matching crops and channel preprocessing.",
+      "source_sha256": "5d14f534937d88a8a816046b5b06ec106abb7f34c8957aecb6f28e07eb986510",
+      "translation": "Útvegaðu líka samsvarandi úrklipp og forvinnslu rása."
+    },
+    {
+      "source": "Join the measured response to explicit doses and controls.",
+      "source_sha256": "9ff398804fdf613057ad8d22390c3dd6946e5b85b6cdc5462a3f3d26544950f7",
+      "translation": "Tengdu mælda svarið við skýra skammta og viðmið."
+    },
+    {
+      "source": "Choose independent annotation columns for the same objects.",
+      "source_sha256": "cd79b318e185370c7e0f596616c08b46b9b6ada79e3dddb0e40ef52e399f4a28",
+      "translation": "Veldu óháða merkingadálka fyrir sömu hluti."
+    },
+    {
+      "source": "Require the intended compartment intensities and identities.",
+      "source_sha256": "c4679d0263754b570fc8c5472c32e7185876dcb096fc4be186cf28860ee7e2e5",
+      "translation": "Krefjast ætlaðs styrks hólfa og auðkenna."
+    },
+    {
+      "source": "Join compatible phenotype and object data for the chosen hit.",
+      "source_sha256": "466c619c86e3c239704201a67118a42e95cee2ff69b1ad9b5190a1145f27e4a6",
+      "translation": "Tengdu samhæf svipgerðar- og hlutagögn fyrir valinn smell."
+    },
+    {
+      "source": "Plot selected measurement columns with object-crop inspection.",
+      "source_sha256": "8f37a50e559b84de232a8d35656d11e93e3f61ab39888765d6f42b7f1a5ac298",
+      "translation": "Teiknaðu valda mæliðálka og skoðaðu úrklipp hlutanna."
+    },
+    {
+      "source": "Use the converted layout and preserve source identity mappings.",
+      "source_sha256": "83abb6351062dd3f2d76d8cafc9881379225d38c3c5dee6621b86b6d79c56cd5",
+      "translation": "Notaðu umbreyttu uppsetninguna og varðveittu vörpun upprunaauðkenna."
+    },
+    {
+      "source": "Use the same project and the correct image/mask channel indices.",
+      "source_sha256": "a13443df7b3ac941065d58a50ac84111df75ac2f088812325d7a5611061621b2",
+      "translation": "Notaðu sama verkefni og rétta rásavísa myndar/grímu."
+    },
+    {
+      "source": "Use the time-series project with stable frame/object identities.",
+      "source_sha256": "7f51c91c57e8c6bcfbc6eb8b314770891a24fd6027910ff8fae48c728b8ef191",
+      "translation": "Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta."
+    },
+    {
+      "source": "Saved module/plate/settings job definitions and dependency order.",
+      "source_sha256": "a895c2a8bf7504b9565e7f1b4558b652aabde3076ed3ee4f13387d13ca2e0e40",
+      "translation": "Vistaðar verkskilgreiningar eininga/platna/stillinga og röð þeirra."
+    },
+    {
+      "source": "Enable the nested time-series route before generating linked labels.",
+      "source_sha256": "4a59d8325e489697c01c88d856ccace60f6b442bcda13f547714b0b04d186f6e",
+      "translation": "Virkjaðu innbyggðu tímaraðarleiðina áður en tengdar merkingar eru búnar til."
+    },
+    {
+      "source": "Follow the linked module lessons and API contracts for the next step.",
+      "source_sha256": "74a732280e08f5f2c642416fbf0a2159c203154cf0fedcc33098976357956ed1",
+      "translation": "Fylgja tengdu einingakennslunum og API-samningunum fyrir næsta skref."
+    },
+    {
+      "source": "Imported tables require explicit column and object-identity mappings.",
+      "source_sha256": "71aea881bbcc62966b4e24cc7699a30f68cef9cf39007ff98d83b722cfdc1242",
+      "translation": "Innfluttar töflur krefjast skýrrar vörpunar dálka og auðkenna hluta."
+    },
+    {
+      "source": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+      "source_sha256": "2118bd261715a7ba1349929e075dcb76d1f0dbcd2b2e6a42615454b4558520ea",
+      "translation": "Síaðu og raðaðu vistuðum smellum með áhrifum þeirra, FDR og samræmi leiðsagnar-RNA."
+    },
+    {
+      "source": "An exported .h5ad file containing measured features and object metadata.",
+      "source_sha256": "eb1617e946b752baaf07a5fa75c860776425f0660848a412d57eb7d5439c8097",
+      "translation": "Útflutt .h5ad-skrá með mældum eiginleikum og lýsigögnum hluta."
+    },
+    {
+      "source": "Require two-colour stain measurements and appropriate baseline controls.",
+      "source_sha256": "2dbfb2abec909e52724c2e17330ced9df59b3618a82aa7ab5a7034eecc05881b",
+      "translation": "Krefjast tvílitra litunarmælinga og viðeigandi grunnlínuviðmiða."
+    },
+    {
+      "source": "Inspect aligned image, label and point/ROI layers for the selected field.",
+      "source_sha256": "3093d844ab489bc1671e9f7e96b42f9159a5693512a489bd026fc3ec528a1e93",
+      "translation": "Skoðaðu hliðruð lög myndar, merkinga og punkta/ROI fyrir valið sjónsvið."
+    },
+    {
+      "source": "Pair guide counts with phenotype scores using consistent plate/well keys.",
+      "source_sha256": "20664e0c8d9066c2f2d0d45276ac352e32bc87a15be06e2a2e892b3f7678da65",
+      "translation": "Paraðu fjölda leiðsagnar-RNA við svipgerðarstig með samræmdum plötu-/brunnalyklum."
+    },
+    {
+      "source": "Supply the matching coordinate/feature columns when defining a selection.",
+      "source_sha256": "6de47ffaa553bf88af78940b9c462f484adff0610d0a9c86304e69879511cd22",
+      "translation": "Gefðu upp samsvarandi hnita-/eiginleikadálka þegar val er skilgreint."
+    },
+    {
+      "source": "Look up feature definitions and units before choosing measurement columns.",
+      "source_sha256": "478c14113b0d8f447c0a0455ad7ded1ff9d2697cad0d61355c5b89893d015193",
+      "translation": "Flettu upp skilgreiningum og einingum eiginleika áður en mæliðálkar eru valdir."
+    },
+    {
+      "source": "Correct labels and track assignments while retaining a record of the edits.",
+      "source_sha256": "e1b49e03ad6cc63788f37b0d1269f1eacec5b175d89cfe80bd4e7393bf95d2d0",
+      "translation": "Leiðréttu merkingar og úthlutun ferla og haltu skrá yfir breytingarnar."
+    },
+    {
+      "source": "Select the intended CV or ML score column and preserve plate/well identity.",
+      "source_sha256": "3169a21d98fc6556bb837be858fc357341cbab46a02077c6b03629995f97f236",
+      "translation": "Veldu ætlaðan CV- eða ML-stigadálk og varðveittu auðkenni plötu/brunns."
+    },
+    {
+      "source": "Re-measure only when needed; External Masks can already perform measurement.",
+      "source_sha256": "609cfb8952ac5d5c9785f409f81cbee8ae53f7ba2caec695e861b63e548b70e9",
+      "translation": "Mældu aftur aðeins þegar þörf krefur; External Masks getur þegar framkvæmt mælingu."
+    },
+    {
+      "source": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
+      "source_sha256": "0386f78d235909cfa5ae06c876ef6f91690c42f21c189eca9f20144eecc1f80a",
+      "translation": "Einenda eða paraðar FASTQ-skrár, með samsvarandi tilvísunartöflum strikamerkja."
+    },
+    {
+      "source": "Locate projects and inspect their stage, last run, disk use and stale outputs.",
+      "source_sha256": "72b2138959b12b714abf0e0030f0b5701a39fa4738280a491f9add07e6a66095",
+      "translation": "Finndu verkefni og skoðaðu stig þeirra, síðustu keyrslu, disknotkun og úrelt úttak."
+    },
+    {
+      "source": "Source image folder; original files, supported vendor files or imported TIFFs.",
+      "source_sha256": "fa481657a34770a41f4a4b81f3d58d7649d44128d4728030f6044cfa67d6af1b",
+      "translation": "Mappa upprunamynda; upprunalegar skrár, studdar skrár framleiðenda eða innfluttar TIFF-skrár."
+    },
+    {
+      "source": "Stored project checks and QC reports; a missing check is not a passing result.",
+      "source_sha256": "2e80ccd973941d555efb5b932b3ced7e60da7471cc7214ba07494baf3d85d387",
+      "translation": "Vistaðar athuganir verkefnis og QC-skýrslur; athugun sem vantar er ekki niðurstaða sem stóðst."
+    },
+    {
+      "source": "Acquire and measure the experiment first, preserving dose/condition identities.",
+      "source_sha256": "0f323891c020796daca4869bf6e5ac0698a80e6005ed1a0577fe7c124622897c",
+      "translation": "Myndaðu og mældu tilraunina fyrst og varðveittu auðkenni skammta/skilyrða."
+    },
+    {
+      "source": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+      "source_sha256": "5696e4b8e59ff2424fa5e83649b69a765bbc3cc0f5f5881bef5744475888bbf8",
+      "translation": "Berðu saman hópa í smámyndaröðum með skýrum sameiginlegum eða óháðum ásum."
+    },
+    {
+      "source": "Saved score CSVs and, when merged, measurements/measurements.db, table png_list.",
+      "source_sha256": "c6d92932393861ee5acf119bd5b4799ee37b82e034439028e1b78d83b2e21ca9",
+      "translation": "Vistaðar CSV-skrár með stigum og, eftir sameiningu, measurements/measurements.db, taflan png_list."
+    },
+    {
+      "source": "Compare saved training histories, metrics and settings from compatible model runs.",
+      "source_sha256": "648125cd6c6c041fb5612df6dae629b30dfa25720e1c143668b9cf0256eb886f",
+      "translation": "Berðu saman vistaða þjálfunarsögu, mælikvarða og stillingar úr samhæfum líkanakeyrslum."
+    },
+    {
+      "source": "Project run records, settings, output paths, artifact provenance, status and logs.",
+      "source_sha256": "a04ac68f0d4b5ee392e4d35b944fa7161c727104c9c53a691055179934457f61",
+      "translation": "Keyrsluskrár verkefnis, stillingar, úttaksslóðir, uppruni afurða, staða og annálar."
+    },
+    {
+      "source": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+      "source_sha256": "80c34a382ee7c88b39fd8785dbe0561813d318b5ebcf49c587119249fb1f4bc7",
+      "translation": "Safnaðu valinni mælingu saman eftir brunnum og skoðaðu plötumynstur og viðmið."
+    },
+    {
+      "source": "Use the experimental layout to define sampling assumptions, then revise the design.",
+      "source_sha256": "a99aba00513138a13d7bd5c7dfce282948ea89fdaa83da640031eea3b60d1faa",
+      "translation": "Notaðu tilraunauppsetninguna til að skilgreina forsendur sýnatöku og endurskoðaðu svo hönnunina."
+    },
+    {
+      "source": "Inspect principal components and feature loadings for the selected measured objects.",
+      "source_sha256": "2489bd7523d955bc91300db41ab120bde64a0938f9f0d8b7bab32fc3bd94eace",
+      "translation": "Skoðaðu höfuðþætti og þáttahleðslur eiginleika fyrir valda mælda hluti."
+    },
+    {
+      "source": "Use imported image planes and identities; image-only imports still need segmentation.",
+      "source_sha256": "758477637b64fbd09f3708ee401272535f117650e825088aed95df4925e637d7",
+      "translation": "Notaðu innflutt myndlög og auðkenni; innflutningur mynda eingöngu þarf samt aðgreiningu."
+    },
+    {
+      "source": "Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
+      "source_sha256": "3adcf7fe9dc8b715851177b45d1ef712e8a3b1a91fe7c5742b883b69db5e2df7",
+      "translation": "Útflutt HTML/PDF eða aðferða-/niðurstöðuskjöl unnin úr skráðu greiningarúttaki."
+    },
+    {
+      "source": "merged/*.npy in the project; channels and integer label planes share each field array.",
+      "source_sha256": "dd31724bc9249a234a1d470a40044ced540a2f1a45f87f971fa0130c34fd22e8",
+      "translation": "merged/*.npy í verkefninu; rásir og heiltölumerkingalög deila fylki hvers sjónsviðs."
+    },
+    {
+      "source": "Browse selected tables and export rows; table inspection does not rerun image analysis.",
+      "source_sha256": "ae9c5095f336105e9fbd9f5fbffb6e0bb0b6d8c74654859bb1ec9948b395204c",
+      "translation": "Flettu í völdum töflum og fluttu út línur; skoðun taflna keyrir myndgreininguna ekki aftur."
+    },
+    {
+      "source": "The output location chosen by the tool; exports describe the selected data and filters.",
+      "source_sha256": "3985f989fd85cde2b0a359d542fdca8b7f5a38bb3683a39339d8888e7ea1eb1e",
+      "translation": "Úttaksstaðurinn sem valinn er í tólinu; útflutningur lýsir völdum gögnum og síum."
+    },
+    {
+      "source": "measurements/measurements.db; Mask counts alone are not per-object feature measurements.",
+      "source_sha256": "ff6f35a646686f728ba4a6db279103047a3eccaadc76ba9bf8f12be03772832d",
+      "translation": "measurements/measurements.db; talningar Mask einar og sér eru ekki eiginleikamælingar á hvern hlut."
+    },
+    {
+      "source": "Saved model-response/saliency images for the matching classifier and input preprocessing.",
+      "source_sha256": "892315e07670f5468be340f149e65735943c12e0e621b9985fc1a966eff118a2",
+      "translation": "Vistaðar svörunar-/áberandimyndir líkans fyrir samsvarandi flokkara og forvinnslu inntaks."
+    },
+    {
+      "source": "Use {name} from Python through {api}. This API-only workflow has no Home tile or menu entry.",
+      "source_sha256": "092fd7bd3c6ec42a192044b5f9228818bfe5ac1f1591b41983b2f52bf09b46b2",
+      "translation": "Notaðu {name} úr Python í gegnum {api}. Þetta verkferli er aðeins í API-inu og hefur hvorki reit á Home né valmyndaratriði."
+    },
+    {
+      "source": "Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.",
+      "source_sha256": "469fd48b96e0591fe63f4d154b076c3e362f30332752c4dcf5e3cca06b9064d5",
+      "translation": "Uppsettar lýsingar lífvera og frumuskýringarmyndir frá SwissBioPics; ekkert verkefnainntak þarf."
+    },
+    {
+      "source": "Saved classifier checkpoint, model settings and matching channel/preprocessing configuration.",
+      "source_sha256": "662164a39d3f173304280c2ce24cb3e4d3823dac61e7447e44a9de1a018b6e25",
+      "translation": "Vistaður vistunarpunktur flokkara, stillingar líkans og samsvarandi rása-/forvinnslustillingar."
+    },
+    {
+      "source": "Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "source_sha256": "d187ff0654b7898c787f957f79ee85752f15f2ce9890325944b3e2c5cc363f92",
+      "translation": "Notaðu skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki sjálfkrafa skellumerkingar."
+    },
+    {
+      "source": "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps.",
+      "source_sha256": "616ed7d84583d1cb7edea0e7c6e356a336ea0312b3b0b4fbe0f20674a50cefaf",
+      "translation": "Beittu samsvarandi myndflokkara og forvinnslu til að skoða áberandi-/svörunarkort líkansins."
+    },
+    {
+      "source": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
+      "source_sha256": "d4259004a55ccf450d716693b1f7dac26e2f2061fb978865903367698bbe0be3",
+      "translation": "Sendu þjálfaða vistunarpunktinn sem custom_model með samsvarandi myndrásum og forvinnslu."
+    },
+    {
+      "source": "Third-party measurement CSV/database tables and their image, mask and object-identity mappings.",
+      "source_sha256": "ed6a75b4a1c0e58a894154b4c26f9f413e82dc148a261997e69fbf32599d21a9",
+      "translation": "CSV-/gagnagrunnstöflur ytri mælinga og vörpun þeirra á myndir, grímur og auðkenni hluta."
+    },
+    {
+      "source": "Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.",
+      "source_sha256": "211fe97e842fc48332c5363c42a044748dc4d3d14928cef145b0a7d91f8d899c",
+      "translation": "Hnitatöflur Image UMAP/PCA, valdir klasar og myndir fyrir hlaðin mæligögn."
+    },
+    {
+      "source": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+      "source_sha256": "eb6b47369f6d0f2d1e0d32c998fbf80f295fa8e111177eabd41d295bb28cdc80",
+      "translation": "Skoðaðu vörpunardýpt, þekju, árekstra og staðsetningaráhrif áður en talningar leiðsagnar-RNA eru síaðar."
+    },
+    {
+      "source": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+      "source_sha256": "afe94717349638a4f56c60cbedebb413850da21777d1e0b3f53f5aa4ec8c709b",
+      "translation": "Skoðaðu spár á fráteknum gögnum, kvörðun og vísbendingar um skiptingu/leka fyrir samsvarandi flokkara."
+    },
+    {
+      "source": "Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures.",
+      "source_sha256": "49c83a20b0aa1ccbb981fece12420a351e03c61184bdb16c229f0bcfd7a98f2a",
+      "translation": "Valin niðurstöðumappa keyrslu: CSV-skrár með stuðlum/niðurstöðum, smellatöflur, stillingar og greiningarmyndir."
+    },
+    {
+      "source": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+      "source_sha256": "47e35d8dced8ab5228a2151d8312488e2a27982d5ea2c0878ea0f14b2b82c956",
+      "translation": "Gerðu drög að aðferða-/niðurstöðutexta úr skráðum stillingum og niðurstöðum; farðu yfir hverja fullyrðingu fyrir birtingu."
+    },
+    {
+      "source": "The installed feature dictionary; definitions describe existing measurements and do not compute them.",
+      "source_sha256": "bce8377488dfae31f017c8b9417cc2479a48287b1d9aadc6af8e4d3c4f63b91c",
+      "translation": "Uppsetta eiginleikaorðabókin; skilgreiningar lýsa mælingum sem eru til og reikna þær ekki."
+    },
+    {
+      "source": "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log.",
+      "source_sha256": "0300e5287d7ced093423753607dfa50fb9c3fc6effc5c503aa208e3f62b180b8",
+      "translation": "Staðfestu og keyrðu verk eininga í réttri röð. Hvert verk skrifar eigið úttak og annál."
+    },
+    {
+      "source": "The fitted tabular classifier and its recorded feature list, training settings and validation results.",
+      "source_sha256": "a197512a268caafe8fc317d2098c3393bb748a9509a7d547cd3ef5d68c5bfb1c",
+      "translation": "Aðlagaði töfluflokkarinn og skráður eiginleikalisti hans, þjálfunarstillingar og staðfestingarniðurstöður."
+    },
+    {
+      "source": "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.",
+      "source_sha256": "f6c34d8205ce135fb2481706b5cc4beeb9cb39d5bcb7de202c6aa50274bd12a4",
+      "translation": "Veldu hópbreytur og mæliðálka og skoðaðu svo veltitöflur og úrtaksstærðir hópa."
+    },
+    {
+      "source": "Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run.",
+      "source_sha256": "50777d615176b80fcc0735b3aae29a30eb723e80744831d7b1efc17977f90f8c",
+      "translation": "Spár á fráteknum gögnum, merkingar, lýsigögn skiptingar og kvörðunar-/lekamælikvarðar fyrir vistaða flokkarakeyrslu."
+    },
+    {
+      "source": "Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.",
+      "source_sha256": "eed85941623ad9242e81659667fcfcf7e6fb97f5fc561b34fdad55df20ad92fc",
+      "translation": "Áfangastaður Align & Stitch: samsetta myndin og skrár um hnit/uppsetningu reita sem þarf til að túlka hana."
+    },
+    {
+      "source": "Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
+      "source_sha256": "8c3b2bc30d04bcc6d3c08a62c5d761ad0cbe2ae7075f1a84d4b7d1b61d630439",
+      "translation": "Farðu með hnit reitanna og upprunalegu raðgreiningarloturnar í OPS; flatt mósaík eitt og sér dugar ekki."
+    },
+    {
+      "source": "Tracked labels and frame/object associations from the time-series project, with frame interval and units.",
+      "source_sha256": "37bd92b56d8713b33c122df7d0dbf826ae1a418b2433f9c6348aeff300710032",
+      "translation": "Raktar merkingar og tengsl ramma/hluta úr tímaraðarverkefninu, með tímabili milli ramma og einingum."
+    },
+    {
+      "source": "masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.",
+      "source_sha256": "5bd7480a631cb9830f42aa8f650373d1750b0475863c9bada0b58c26ae52ba17",
+      "translation": "masks/ ef henni er haldið, eða pör mynda/grímna sem vistuð eru sérstaklega. Millistigsgrímum getur verið eytt við hreinsun."
+    },
+    {
+      "source": "Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy.",
+      "source_sha256": "43464fdacefc288e0354f2982955822f2e7a4bc7b9dd2b0200a9e1d71f7fb5aa",
+      "translation": "Samanburðartöflur og myndir úr samhæfum vistuðum keyrslum eða grímum; samræmi er ekki nákvæmni miðað við rétt svör."
+    },
+    {
+      "source": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "source_sha256": "c6990de9aec7ce45253154d30b40db01c6be3a46df913a675d953dc274e1d8df",
+      "translation": "Áherslur á hólf og leiðsögn að tiltækum greiningum, aðeins í viðmótinu; engar mælingar eða skrár verða til."
+    },
+    {
+      "source": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
+      "source_sha256": "fa875ab85dfa1b048df6ebb3342d0ca7162864be60ca6eca78028a50debcea9c",
+      "translation": "Opnaðu vistaða aðhvarfsniðurstöðu og skoðaðu áhrifastærðir, leiðrétta marktækni og einstakar smellaskrár."
+    },
+    {
+      "source": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+      "source_sha256": "8ef18b465ab0917966596ed137974077f7c52493a02cdcb45b9a46ec5e46f3e3",
+      "translation": "Pakkaðu skráðum niðurstöðum, stillingum og QC í skýrslu sem hægt er að deila, án þess að greiningin sé keyrð aftur í kyrrþey."
+    },
+    {
+      "source": "Send the matching image/labels to napari and import the revised labels back with field identity preserved.",
+      "source_sha256": "154189afc6a259171833ab0877a3a87c5ad013d526397f7fe7612973732ab9e4",
+      "translation": "Sendu samsvarandi mynd/merkingar til napari og fluttu endurskoðuðu merkingarnar inn aftur með auðkenni sjónsviðs varðveitt."
+    },
+    {
+      "source": "Separate image and integer-mask files with matching field identities; preserve original images and labels.",
+      "source_sha256": "8c1c362fe4c1aa54902b533e68bf6f519e6d521a9311dc14227766a57bb90688",
+      "translation": "Aðskildar skrár fyrir myndir og heiltölugrímur með samsvarandi auðkennum sjónsviða; varðveittu upprunalegar myndir og merkingar."
+    },
+    {
+      "source": "Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration.",
+      "source_sha256": "dbb4e52b9ecc8172367656d188eaf6139295f106803d3be9c58d17313937b53a",
+      "translation": "Vistaður vistunarpunktur samhæfur Cellpose, eða samhæfur uppsettur bakendi valinn með eigin stillingum."
+    },
+    {
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
+    },
+    {
+      "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
+      "translation": "Notaðu styrkmælingar hólfa og samsvarandi auðkenni hýsils/sýkils til að reikna söfnunarhlutföll."
+    },
+    {
+      "source": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+      "source_sha256": "5fa7a4af9b51b166edee374f83f221ab3e7a1814c09945f1f66cbae7083a16bf",
+      "translation": "Fluttu út AnnData .h5ad-skrá með lýsigögnum hluta og mældum eiginleikum fyrir einfrumugreiningu síðar."
+    },
+    {
+      "source": "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects.",
+      "source_sha256": "8bf5fa9f5425217931d7fa714ff2fac5d06e04ee132f60330d8f40fcb1b813ce",
+      "translation": "Skoðaðu hvernig aðlagað líkan bregst við þegar inntakseiginleiki breytist; spár staðfesta ekki orsakaáhrif."
+    },
+    {
+      "source": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+      "source_sha256": "f76ede70324bf6b59ba96bbcebc8a1c9a6befe6f2e6bf2d0d2c698a4af9f7dc3",
+      "translation": "Skoðaðu vistaða stöðu keyrslu, stillingar, úttak og annála; lokin keyrsla staðfestir ekki líffræðilegt gildi."
+    },
+    {
+      "source": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+      "source_sha256": "85200bfcb32c2776ee13219bc3335669351ce175abb6d4d41b3694476c89d66c",
+      "translation": "Skoðaðu hraða ferla og mælingar tengdar sýkingu með skýru tímabili milli ramma og kvörðun díla."
+    },
+    {
+      "source": "measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.",
+      "source_sha256": "5c642be9ad3e3f8cbc8fbac46351f33eecc6313cdb7527491571ec72e0eee4e5",
+      "translation": "measurements/measurements.db; hlutatöflur ráðast af virkum grímum fyrir frumur, kjarna, sýkla og frumulíffæri."
+    },
+    {
+      "source": "A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.",
+      "source_sha256": "d15a1f463dbd341e4426d502b19a34f5319d8bd5928b5344098edc6dcc06dfb0",
+      "translation": "Valinn merkingadálkur í measurements/measurements.db, taflan png_list; merkingar tilheyra auðkennum hluta."
+    },
+    {
+      "source": "Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.",
+      "source_sha256": "ee03d7abfb310a809d87dc74641d955da2273f9429c1fbd9bf86b97b8e0f7d63",
+      "translation": "Vistaðar skipulagstöflur eða myndir sem byggja á skýrt völdum áhrifastærðum, breytileika og forsendum sýnatöku."
+    },
+    {
+      "source": "Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions.",
+      "source_sha256": "62b20b663e7a23796bd7f77862f393881c84b8c60002083a635b10e485bb68f9",
+      "translation": "Vistaðar skilgreiningar þröskulds-/marghyrningshliða eða valið hlutasafn; beittu hliði á sömu eiginleikaskilgreiningar."
+    },
+    {
+      "source": "Assay-specific result tables and figures in the configured destination, preserving well and condition identities.",
+      "source_sha256": "965e5013440f3ad50e24620facf0624e2bd30ec2b73cf95cb4515ac9d1720ed9",
+      "translation": "Niðurstöðutöflur og myndir sérstakar fyrir greininguna á stilltum áfangastað, með auðkenni brunna og skilyrða varðveitt."
+    },
+    {
+      "source": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+      "source_sha256": "655820b760232c1ea9c727bfc79fac9ce5687fd0e80096da483d5571bc17e23e",
+      "translation": "Gefðu upp skammta- og svardálka, viðmið og einingar áður en ferlar eru aðlagaðir; þessi leið krefst ekki raðgreiningar."
+    },
+    {
+      "source": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+      "source_sha256": "f5c09dfef9795ff76303326bed04aae85be1983d26dff5474bbc8eb8d73cc2f6",
+      "translation": "Berðu saman tilgreind viðmið milli platna og skoðaðu rek; skilgreining viðmiðs kemur úr tilrauninni."
+    },
+    {
+      "source": "Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "source_sha256": "2f6896eed25bb6e8254da9ee7a0920c6144c929afe3bc2d6180bf73f3721ef92",
+      "translation": "Útvegaðu kóðaraeiginleikatöfluna með samsvarandi auðkennum hluta; gerðu ekki ráð fyrir að allar leiðir viðmótsins visti hana sjálfkrafa."
+    },
+    {
+      "source": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+      "source_sha256": "9cd1301eb44caabf898e98fb379cd9f8985b7f545fa1f8ca965d70bcbc12d4c9",
+      "translation": "Skoðaðu vistaðar athuganir á aðgreiningu, einingum, leka og plötuáhrifum. Opnaðu innbyggðu skoðarana fyrir nákvæma skoðun."
+    },
+    {
+      "source": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "source_sha256": "6da28684ab563ec60c570b753fbec2796a13824106ce6d342f7453ac340c41a2",
+      "translation": "Sláðu inn skilyrði, viðmið, endurtekningar og takmarkanir platna og fluttu svo út tilraunauppsetninguna fyrir myndatöku."
+    },
+    {
+      "source": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+      "source_sha256": "aa2b056edaf7cf50e1cbe293910c25e45f59a1a89b0f8a723aa6ab83a637cd8d",
+      "translation": "Farðu yfir traust frávikastig hluta/brunna og valda útilokunarreglu áður en síuð gögn fara í greiningu."
+    },
+    {
+      "source": "Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.",
+      "source_sha256": "8d84303fc9ff554db33bd92aa40b0d4ba48d7cb09c515fcc9c594d759222dad0",
+      "translation": "Útflutt kort af plötum/skilyrðum/viðmiðum/endurtekningum. Haltu auðkennum platna og brunna í samræmi við mynduðu gögnin."
+    },
+    {
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "Veldu breytur, hópa og teiknistillingar úr hlaðinni töflu og fluttu svo út myndina með greiningarsamhengi sínu."
+    },
+    {
+      "source": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+      "source_sha256": "9bd4e6188a58340c22515e30d1c9cc8744fe271fa4fdefcfaa0b9cb0a5cba84e",
+      "translation": "Berðu saman óháða merkingadálka og skoðaðu hluti þar sem ósamræmi er; samræmi er annað en nákvæmni flokkunar."
+    },
+    {
+      "source": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+      "source_sha256": "b8c66e9971ea673831a25b24cb99ec59b943fe00047d0d4837de3c23f5526f9d",
+      "translation": "Skoðaðu greiningarspjöldin sem valin aðhvarfskeyrsla vistaði; greindu á milli greininga sem vantar og forsendna sem stóðust."
+    },
+    {
+      "source": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+      "source_sha256": "d320e6611dd6b5e4eeb0b569def06ac3abc7d9a6cbc45a75b9caf38ec2d56fec",
+      "translation": "Metðu sýnatökuþörf út frá völdum áhrifastærðum og breytileika; forkannanir eru valfrjáls stoð fyrir forsendurnar."
+    },
+    {
+      "source": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "source_sha256": "2cf55dddd04e6bd139cd78bae20f8eec30284db12edc978374d0b7550d2e9288",
+      "translation": "Tengdu/safnaðu afkóðuðum hlutum skýrt við svipgerðar- og leiðsagnarinntök fyrir Regression; þetta er ekki bein afhending CSV-skrár."
+    },
+    {
+      "source": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+      "source_sha256": "694456ee4f476e0a484dee77cb01c2482717f65c64115b614d7b1ae8bb4a9981",
+      "translation": "Berðu saman samhæfar vistaðar stillingar, talningar og smellalista án þess að líta á breytt inntaksgögn sem stýrðan samanburð líkana."
+    },
+    {
+      "source": "OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.",
+      "source_sha256": "de4dc4ec3f6034c63a881c623f865dc4020f7b2a27d17f5fd1dc7163856eeab9",
+      "translation": "measurements.db á áfangastað OPS: rúmfræði, hliðrun svipgerða, kjarnar og strikamerkjatöflur fyrir hvern brunn; valfrjálsir lestrar fyrir hverja lotu."
+    },
+    {
+      "source": "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking.",
+      "source_sha256": "6d6e5e416c309f86247b2c8615055657920d5f905a77aab84a943e4e8ed3fc27",
+      "translation": "Raðaðu mældum eiginleikum fyrir valinn flokkasamanburð; farðu yfir síun og skilgreiningar flokka áður en röðunin er túlkuð."
+    },
+    {
+      "source": "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed.",
+      "source_sha256": "84b781cc8fb2cd4df0c08e9fee3b4983b75605c6a6722f7253a783d838848c23",
+      "translation": "Keyrðu skýrt valdar aðhvarfsstillingar og berðu saman greiningarniðurstöður þeirra. Haltu inntaksgögnum og matsspurningu föstum."
+    },
+    {
+      "source": "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them.",
+      "source_sha256": "687dd2e9735ffb85adf10d1c7821cef3f201afb6d64a495b0dfc1d9be9ce0809",
+      "translation": "Beittu völdu aðgreiningarlíkani á opnu myndamöppuna í gegnum Make Masks; skoðaðu vistaðar merkingar áður en þær eru mældar."
+    },
+    {
+      "source": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+      "source_sha256": "01b84c8634b8ebbfbf456e257050b0c5b27254d651f251bd76ad5f7a118ee367",
+      "translation": "Tengdu smell úr aðhvarfsgreiningu við hluti sem koma til greina og megindleg gögn á brunnastigi. Þetta staðfestir smellinn ekki sjálfstætt."
+    },
+    {
+      "source": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+      "source_sha256": "dcca464e6947ecaf6148f3655f0fb920bd208d2493de370bbde26f6f9137f025",
+      "translation": "Keyrðu valið greiningarferli á margar plötur. Úttakið er úttak hverrar einingar í röðinni; geymdu hverja plötu og stillingar hennar sér."
+    },
+    {
+      "source": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "source_sha256": "240313d6c6c0cd9baf7ffde5b0e1fd23807099980c7dbdd70f54cc8d30847617",
+      "translation": "Berðu saman grímur líkana á sömu sjónsviðum. Án óháðra viðmiðunarmerkinga mælir samræmi ekki nákvæmni aðgreiningar."
+    },
+    {
+      "source": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "source_sha256": "9e186427eeeae53324a86200df796448a0fa3468ef460e7b8f1c42edb2d1865c",
+      "translation": "Opnaðu Timelapse innan Mask til að aðgreina og tengja hluti yfir raðaða ramma; skoðaðu tengslin fyrir hreyfanleikagreiningu."
+    },
+    {
+      "source": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference.",
+      "source_sha256": "654721a34b66ca794c84748e3d38fb286b79e854f98f9a954e37097f2087b4cd",
+      "translation": "Skoðaðu skráð innihaldstengsl frumna/kjarna/sýkla/frumulíffæra; þetta er innihald hluta, ekki ályktun um ætterni í tímaröð."
+    },
+    {
+      "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
+      "translation": "Teldu sníkjudýr með skýru auðkenni bólu og berðu saman dreifingu milli skilyrða; auðkenni hýsils eitt og sér skilgreinir ekki bólu."
+    },
+    {
+      "source": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+      "source_sha256": "e693bf805fa2a43e1785953123c5516b7b48144ee0e89744bbc32a78edd0d9b6",
+      "translation": "Skoðaðu uppruna líkana og sæktu/settu upp samhæfa vistunarpunkta eða bakenda. Bakendi á lista er ekki sjálfur vistunarpunktsskrá."
+    },
+    {
+      "source": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source_sha256": "240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815",
+      "translation": "Notaðu tilskildar tvílitar aðgreiningarlitunarmælingar og grunnlínuviðmið litunar til að greina festingu frá innrás."
+    },
+    {
+      "source": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+      "source_sha256": "67c18edf78c03e939326aefe323cec616df1aa343f338419df84ced18677623c",
+      "translation": "Úthlutaðu samsvarandi myndum og fyrirliggjandi heiltölumerkingagrímum og búðu svo til og mældu spaCR-verkefni án þess að keyra aðgreiningu aftur."
+    },
+    {
+      "source": "Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.",
+      "source_sha256": "3418591d4d0ff5ecc2735f22380f261d5719ff86f4cce31095360bfc4b06fea4",
+      "translation": "Keyrslumappa Map Barcodes: unique_combinations.csv og annotated_reads.h5. Auðkenni brunns krefst samsvarandi strikamerkjatilvísana."
+    },
+    {
+      "source": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts.",
+      "source_sha256": "7f64cda8e5ed01d72bfe4b9cb167c5ec9e11ea757761f0446275c0e6bb28d2c7",
+      "translation": "Lestu skráð tengsl afurða og stöðu úreldingar/skorts. Grafið lýsir uppruna og endurgerir ekki afurðir sem vantar."
+    },
+    {
+      "source": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
+      "source_sha256": "d17d8fb71e7b0be7bf66776d0a32400b03bca80145816a8d884fff1b4a4084e1",
+      "translation": "Aðlagaðu staðgengilslíkan byggt á mældum eiginleikum að fyrirliggjandi stigum tölvusjónar og varðveittu tengingar auðkenna. Skýring staðgengils er ekki orsakasamband."
+    },
+    {
+      "source": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "source_sha256": "5aec914042c999cb6eb678d21744ef5523a518727e87339b764dc7fbe5960762",
+      "translation": "Gefðu External Masks vistuðu merkinga-TIFF-skrárnar og upprunalegar myndir þeirra, úthlutaðu hlutverkum hluta og búðu til sameinaða verkefnið fyrir Measure."
+    },
+    {
+      "source": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
+      "source_sha256": "e10410e4b302304d58343d87bf0d434988e50616ecb85616422d40cd39d524e3",
+      "translation": "Finndu inntaksgögn, vistað úttak, framleiðendur ofar í ferlinu og notendur neðar í því fyrir hverja núverandi einingu, þar á meðal tól inni í Home-einingum."
+    },
+    {
+      "source": "Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent.",
+      "source_sha256": "285dfcb60567d8ab9611db90834fa6f90fde4de8086a7711e1bf64abed8795ff",
+      "translation": "Kóðaraeiginleikar raðaðir eftir hlutum, með rásastefnu og uppruna kóðara. Kóðunar-API-ið skilar eiginleikum; vistun fer eftir þeim sem kallar."
+    },
+    {
+      "source": "When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.",
+      "source_sha256": "ee0bd77b1f809745ceee1d1f39be5c9817cf6bd81f217c5d1a2a057e01f15bb4",
+      "translation": "Þegar save=True inniheldur src/masks/<image-name>.tif heiltölumerkingar. Kallið skilar None og býr hvorki til sameinuð fylki né measurements.db."
+    },
+    {
+      "source": "data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks.",
+      "source_sha256": "bd53efc1885c16bab0fcdfbad7b76154c439ce7dc30dbe9773432a3039dcb59b",
+      "translation": "data/**/*_png þegar save_png er virkt; png_list skráir vistuð úrklipp. Studd verkferli geta í staðinn streymt úrklippum úr sameinuðum fylkjum og grímum."
+    },
+    {
+      "source": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "source_sha256": "c279a49ea9a53c428e8a4db0e4740f6bdfd25ea34fccbf92f32e0ec3603582d5",
+      "translation": "Veldu rásir og líkön, skoðaðu forskoðun og keyrðu svo Mask. Measure notar sameinuðu fylkin; talningagagnagrunnurinn er ekki enn eiginleikatafla."
+    },
+    {
+      "source": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+      "source_sha256": "ff8703beb2e105461ec44b322f82f73a76842e4ba4e9ac58cb0ddedc483801b2",
+      "translation": "Umbreyttu studdum smásjársniðum í stillta TIFF-uppsetningu og varðveittu upprunavörpun. Umbreyting býr ekki til mælingar á hlutum."
+    },
+    {
+      "source": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "source_sha256": "3cbf9dbe362cbcf1a7a87afa72fd928327a45b20c76376f0c868b81a328e11a5",
+      "translation": "Skoðaðu rúmfræði reita, skörun og rásavörpun og vistaðu svo mósaíkið með hnitaskrám. OPS þarf líka upprunaleg auðkenni lotna/staða."
+    },
+    {
+      "source": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+      "source_sha256": "c838f473fa96e1a4d0dfd289edffec8b35a72f2681cada7ed544fd0f102f20d6",
+      "translation": "Greindu skellumyndir eða fyrirliggjandi grímur með stilltu skellulíkani. Þessi leið þarf ekki að fara í gegnum Measure; notaðu sérstaka skelludæmið."
+    },
+    {
+      "source": "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable.",
+      "source_sha256": "f10dacc01fe54e82409cb9ad39fbfd81e2b1554e16275bbda1272c30ce4a6aa3",
+      "translation": "Skoðaðu verkefnaskrár og disknotkun. Að fjarlægja afleiddar afurðir ógildir notkun þeirra skráa síðar; upprunalegar myndir verða að vera endurheimtanlegar."
+    },
+    {
+      "source": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "source_sha256": "b4b500f9af732b5efc49612c1feb0f0fc51b2f9695acd6bd259d06701940f2c6",
+      "translation": "Gefðu upp tilvísanirnar sem kóða tilraunina. Skoðaðu varpaðar talningar og QC strikamerkja áður en fjöldi leiðsagnar-RNA á brunnastigi er paraður við svipgerðarstig."
+    },
+    {
+      "source": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+      "source_sha256": "a78f47685fc5865fe2dd1cb58581c2020d1d47e2e0f0830db6d4e432da7fd164",
+      "translation": "Sendu stillta keyrslu á fjarlægt keyrsluumhverfi og skoðaðu stöðu hennar og annála. Sæktu raunverulegar afurðir eininganna fyrir áframhaldandi greiningu."
+    },
+    {
+      "source": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+      "source_sha256": "e9b4f0e3bcc3cf2791f210cc78121e60d4e4f63441441f4f8bb4f62480c8c386",
+      "translation": "Opnaðu Cellpose Workbench innan Make Masks og þjálfaðu á staðfestum pörum mynda og grímna. Metðu á aðskildum sjónsviðum áður en vistunarpunkturinn er valinn í Mask."
+    },
+    {
+      "source": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+      "source_sha256": "55fe876cb0804a390ac56a7666124f4b040f4c05a6e930938cc92b938103e7d6",
+      "translation": "Metðu og beittu flatsviðsleiðréttingu á stilltum stigum. Haltu leiðréttum birtingargildum aðskildum frá óunnum mælingum og skráðu stefnuna sem var beitt."
+    },
+    {
+      "source": "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint.",
+      "source_sha256": "157870287274791f6edcd76f6239ee8da9024726d7faea807be50694c3fb0371",
+      "translation": "Þjálfaðu myndflokkara á merktum úrklippum hluta, söfnum eða studdum streymdum úrklippum. Láttu rásir og forvinnslu passa þegar vistunarpunkti hans er beitt."
+    },
+    {
+      "source": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "source_sha256": "31136664c0081bf6af83614363227ee715ee89961ee9943b2eaa39cf13347700",
+      "translation": "Measure les myndir og merkingalög saman. Kveiktu á vistun úrklippa ef þú þarft PNG-skrár; haltu gagnagrunni og upprunaverkefni saman fyrir streymd úrklipp."
+    },
+    {
+      "source": "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores.",
+      "source_sha256": "1473eae34799bd98c10c5efffa9efe29b06b5d7b7e6a56e12024b0cc166eab8e",
+      "translation": "Þjálfaðu eiginleikaflokkara á mældum hlutum og merkingum. Skoðaðu útilokanir vegna eiginleika sem vantar og frammistöðu á hópuðum fráteknum gögnum áður en stigin eru notuð."
+    },
+    {
+      "source": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "source_sha256": "dfd0615694b07d1b38c715a9faf27f675d184a1abb8ecaaf55907a64653b2f4f",
+      "translation": "Veldu Computer Vision fyrir úrklipp eða streymdar myndir af hlutum, eða Tabular Machine Learning fyrir mælda eiginleikadálka. Fjölskyldurnar tvær nota ólík inntök."
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "Farðu yfir pör mynda og grímna fyrir þjálfun aðgreiningar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Að vista grímu þjálfar engan flokkara."
+    },
+    {
+      "source": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+      "source_sha256": "a4923474c959d4abf02e4bf3e6d4603a9b671771e7f8d0c56fa9b32223e57584",
+      "translation": "Veldu myndgreiningarleið í gegnum aðgreiningu, mælingu, merkingu, flokkun, varpanir, hlið, samskráningu mynda, gæðaeftirlit og greiningar."
+    },
+    {
+      "source": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.",
+      "source_sha256": "35b235cb5077c11915611d198ac94633ce4cad1fb31dfa642db6be0fd3dfa99d",
+      "translation": "Kóðaðu myndir af hlutum með völdu líkani og rásastefnu. Varðveittu auðkenni hluta og uppruna kóðara þegar eiginleikarnir fara í áframhaldandi könnun."
+    },
+    {
+      "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
+      "translation": "Fyrir innflutning mynda eingöngu notarðu Import Images eða Format Converter og beinir Mask að sniðna myndaverkefninu. Ytri mælingar einar og sér eru ekki inntak fyrir aðgreiningu."
+    },
+    {
+      "source": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+      "source_sha256": "27f2d313aee8120e7c482b34e457ce69de7254faa9552021e1856b62f9d41aad",
+      "translation": "Farðu yfir auðkenni sjónsviða, myndrásir og valfrjálsar ytri grímur áður en sérstakt verkefni er skrifað. Innflutningur mynda eingöngu þarf enn aðgreiningu fyrir mælingu."
+    },
+    {
+      "source": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+      "source_sha256": "744bfa8bdd0ada1b412b86797c66d08943409b06b61b6d3ba802230c92942961",
+      "translation": "Merktu dæmigerða hluti í png_list fyrir stýrða þjálfun. Notaðu aðskildar merkingar fyrir ólíkar spurningar og haltu þjálfunar- og matshópum óháðum."
+    },
+    {
+      "source": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source_sha256": "f85a9cc79c3583d7bbd5c3e52ae8a5247479704c29927f597ef10ab0848438c7",
+      "translation": "Skrifaðu yfirfarið val hliða í merkingadálk og veldu svo sama dálk og hlutasafn í Classify. Haltu staðfestingarhlutum aðskildum frá þjálfunarmerkingum."
+    },
+    {
+      "source": "Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.",
+      "source_sha256": "d6981d9420937bef89ab5478f331a69354baaeeadfe6c65615a221a7d9d350b2",
+      "translation": "Efsta stigs .tif-skrár með lágstöfum í src; skrám með sama nafni í src/masks er sleppt. Gefðu upp stilltar rásir og samhæft staðlað model_name eða custom_model-vistunarpunkt."
+    },
+    {
+      "source": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source_sha256": "283550e02f8c5608b7f1e9510902dc4c8737514c63c807853fe6332ef8bed217",
+      "translation": "Haltu ósýktum frumum í Measure. Útvegaðu grímur heilla bóla, viðmiðunarstyrk hýsils og valfrjáls skýr tengsl sníkjudýrs og bólu; auðkenni hýsils eitt og sér skilgreinir ekki bólu."
+    },
+    {
+      "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
+      "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
+      "translation": "src/<YYMMDD>/<name>/simulations.db; sópið bætir samantektarlínum í simulations og skrifar valfrjálst gröf. Þetta eru tilbúin frammistöðumöt, ekki mældir smellir úr tilraunum."
+    },
+    {
+      "source": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "source_sha256": "438a93721fc9965017beb890f83eb7b3112b5ede58858135be4357f6f73d6d6f",
+      "translation": "Gefðu upp rætur mældu verkefnanna og tilskildar hluta-/png_list-töflur. Staðfestu samantekt eftir hýsilfrumum og flatarmálseiningar áður en stærðarbil eru túlkuð; talningagagnagrunnur Mask einn og sér dugar ekki."
+    },
+    {
+      "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
+      "translation": "Skrifaðu yfirfarið snöruval í merkingadálk í samsvarandi hlutagagnagrunni og veldu svo þann dálk í Classify. Skoðaðu úrklipp og staðfestu merkingar; innfellingaklasar eru ekki rétt svör."
+    },
+    {
+      "source": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "source_sha256": "54820bf3f12a9ed291255be48a9135ae659c6febc492cd9a5ff326b0175dc659",
+      "translation": "Láttu auðkenni platna og brunna passa milli svipgerðar- og talningarinntaka, veldu svarið og viðmiðin og skoðaðu greiningarniðurstöður áður en smellir eru túlkaðir. Beint mæld svör eru líka studd."
+    },
+    {
+      "source": "Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.",
+      "source_sha256": "93295eb258fa9ffe5027738a1bde2bd68b50768d18ce4955cc17a595a61f1d17",
+      "translation": "Skilar data- og chi_squared-DataFrame-töflum; save=True skrifar líka data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv og mynd undir fyrstu verkefnisrót/results/analyze_endodyogeny/."
+    },
+    {
+      "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
+      "translation": "Opnaðu leiðarvísi lífverunnar frá Home til að lesa um fyrirhuguð myndgreiningarferli fyrir malaríu og skoða sameiginlegu skýringarmynd gródýra. Allir átta greiningarreitirnir eru Coming soon; enginn þeirra ræsir greiningu eða skilar niðurstöðu."
+    },
+    {
+      "source": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "cd8eee037d1e7fed958031b6299335dd1ca2e1221f50b40832d82823c29ede0b",
+      "translation": "Opnaðu leiðarvísi lífverunnar frá Home til að lesa um fyrirhuguð myndgreiningarferli fyrir sveppi og skoða almennu skýringarmyndina af brumandi gersvepp. Allir átta greiningarreitirnir eru Coming soon; enginn þeirra ræsir greiningu eða skilar niðurstöðu."
+    },
+    {
+      "source": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV.",
+      "source_sha256": "0eb5f6bb9207a04f8b001a466fe3cb70551ca61d6ebfb4702f12e4f11bda482e",
+      "translation": "Notaðu myndir raðgreiningarlotna og hliðrun svipgerða til að afkóða strikamerki fyrir hvern kjarna. Safnaðu/tengdu afkóðuðu auðkennin við samhæf svipgerðarinntök fyrir Regression; OPS-gagnagrunnurinn kemur ekki í stað FASTQ-talninga í CSV."
+    },
+    {
+      "source": "Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.",
+      "source_sha256": "58cd7ba9f7a8e3c6f1636d22351c3b4700ff9ab75536f79422228dd04c1d0ccd",
+      "translation": "measurements/measurements.db í hverri verkefnisrót í src; töflur eru sjálfgefið cell, nucleus, pathogen og cytoplasm, með png_list bætt við til sameiningar. Hólfastillingin velur flatarmálsdálkinn; sjálfgefið er pathogen_area lagt saman eftir hýsilfrumu."
+    },
+    {
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "Skilgreindu þröskulds- eða marghyrningshlið á raunverulega eiginleika-/hnitadálka og beittu svo vistaða hliðinu á samhæfa hluti. Notaðu Annotate til að skrifa sýndu hliðin í merkingadálk; farðu yfir valda hluti og veldu tvíundar- eða fjölflokkamerkingar."
+    },
+    {
+      "source": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source_sha256": "1add3ee9b720d1a8cb1a2bd958ca943479479de99ad8433854e912dc545adaed",
+      "translation": "Fluttu inn samsvarandi myndir og ytri heiltölugrímur til að búa til sameinuð verkefnisfylki og opnaðu svo Measure á því verkefni. Slepptu þessu skrefi ef samhæfar mælingar hafa þegar verið fluttar inn eða reiknaðar. Bættu ekki tvíteknum mælingum við fyrirliggjandi innflutta töflu."
+    },
+    {
+      "source": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
+      "source_sha256": "7fd1ca38483ff7f42e51bed6c20ac2428ad7369c113eeb92b5fd0e031230e0d2",
+      "translation": "Opnaðu leiðarvísi lífverunnar frá Home, skoðaðu hólfaskýringarmyndina og veldu svo Plaque Assay, Recruitment, Invasion Assay eða Replication Assay. Fjórir Coming soon-reitir lýsa tillögum og er ekki hægt að keyra. Leiðarvísirinn sjálfur greinir ekki verkefni né býr til mælitöflu."
+    },
+    {
+      "source": "Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.",
+      "source_sha256": "7886c297bee9f5c55819fd0904042879e9a800e192c5670e2676ce91fac2d62a",
+      "translation": "Stillingaorðabók í Python: ítranleg sópgildi fyrir stærð skimunar, nýtingu, nákvæmni flokkara og forsendur raðgreiningar, auk replicates, src, name, variable, plot og max_workers. generate_parameters víkkar út margfeldi þeirra; byrjaðu með litlu sópi og skýru hámarki á vinnsluferlum."
+    },
+    {
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source_sha256": "73f0218ad1985f156a3b2d89f339a8294f2362cc568eb237b1c71c1fe269aaf9",
+      "translation": "Varpaðu mældum eiginleikum eða kóðaraeiginleikum sem gefnir eru upp og skoðaðu dæmigerð úrklipp. Klasi er hópun sem kemur til greina, ekki staðfest svipgerð. Notaðu snöru- og merkingastýringarnar til að skrifa yfirfarið val í merkingadálk í samsvarandi mæligagnagrunni. Rúmfræðilegt val eitt og sér staðfestir ekki líffræðilega svipgerð."
+    },
+    {
+      "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
+      "translation": "Mældu heilar bólur og viðmiðunarhólf hýsils og haltu ósýktum hýsilfrumum fyrir nefnara sýkingar. Veldu merkjarásir og hlutfallsþröskulda kvarðaða á viðmið. Valfrjálst er að telja einstök aðgreind sníkjudýr út frá skýrum tengslum við bólur eða mældum talningardálki. Farðu yfir töflur bóla, hýsla og brunna, samsettar merkjastöður, dreifingu fjölgunar og ópöruð tengsl sníkjudýra; óþekktar mælingar haldast óþekktar."
+    },
+    {
+      "source": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project.",
+      "source_sha256": "c4bd82a1c8aa3b0a8d63c064ca0f9a82f5605673c75f90d98a00c71c0ed19646",
+      "translation": "Keyrðu staðlað eða sérsniðið Cellpose-líkan á TIFF-sjónsvið í gegnum Python-API-ið. Þrátt fyrir sögulega nafnið identify_masks_finetune framkvæmir þetta fall ályktun, ekki þjálfun. Farðu yfir stöðlun, rásir, stærðarbreytingu og stika líkansins; grímur eru aðeins skrifaðar þegar vistun er virk. Fluttu samhæf pör mynda og grímna inn með External Masks fyrir Measure, eða farðu yfir pörin fyrir þjálfun. Þetta kall býr ekki til sameinað verkefni tilbúið fyrir Measure."
+    },
+    {
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source_sha256": "a7dfb6c8e1f2c2cc6d0c3f9bc2104039ef4e48812f0803bd7f0a3cbae0aca976",
+      "translation": "Fluttu inn ytri mælingar með skýrri vörpun hluta og dálka, eða veldu Import Images, Format Converter eða External Masks. Innfluttar mælingar eru ekki ný keyrsla Measure. Með samsvarandi upprunamyndum og ytri heiltölugrímum býr Import til sameinuðu verkefnisfylkin sem Measure notar. Veldu leiðina sem passar við skrárnar þínar og skoðaðu auðkenni hluta fyrir mælingu; innfluttar eiginleikatöflur má nota beint ef þær innihalda þegar tilskildar mælingar."
+    },
+    {
+      "source": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "source_sha256": "688de4937a6708239783748ae71f0eb724d5b74111f890d0e2788ecf6800f837",
+      "translation": "Lestu mæld flatarmál hólfa, merktu skilyrði og skiptu flatarmáli ** 1.5 í tvöfaldanir stærðar á log2-kvarða. Sjálfgefið er flatarmál sýkils tekið saman eftir hýsilfrumu, ekki eftir bólu: margar bólur í einni frumu eru sameinaðar. Þetta er stærðarvísir byggður á flatarmáli, ekki mælt rúmmál né fjöldi sníkjudýra. Notaðu Replication Assay með skýru auðkenni bólu fyrir fjölda sníkjudýra í bólu. Stilltu hólf, flatarmálssíur, kvörðun, skilyrði og hópun áður en kallað er á API-ið; vistun er valfrjáls."
+    },
+    {
+      "source": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid.",
+      "source_sha256": "4546ed51870a60e41bcc003e0306fea487f7a6bdd322366eacfdcf11e3dcaf16",
+      "translation": "Notaðu sóp-API-ið í Python til að kanna tilgreindar forsendur skimunarhönnunar. Það víkkar út samsetningar, keyrir hermanir í ferlasafni og skrifar tilbúna samantektartölfræði; það skilar None. Stilltu lítið og skýrt max_workers-gildi og takmarkað stikanet áður en keyrt er. Úttakið kemur ekki í stað mælinga eða talninga strikamerkja fyrir Regression í tilraunum. Notaðu niðurstöðurnar sem skipulagsgögn og skráðu forsendurnar. Farðu yfir tilbúnu samantektirnar þegar forsendur skipulags eru valdar og færðu þær handvirkt yfir í Power / Design eða Experiment Design. Hvorugt tólið flytur inn þennan hermunargagnagrunn og hvorugt flytur út stillinganet hermunarinnar."
+    }
+  ]
+}

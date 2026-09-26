@@ -218,9 +218,10 @@ def test_every_constraint_pin_is_the_floor_or_explains_itself():
     """A pin above its floor leaves that floor the one bound nothing tests.
 
     The gap is legitimate only when the floors cannot be installed together --
-    torch/torchvision/sympy is the case that arises -- and then the constraints
-    file has to name the package, because otherwise the version a pinned user's
-    resolver lands on is exactly the version CI skipped.
+    torch/torchvision is the case that arises, since torchvision pins torch to
+    an exact release -- and then the constraints file has to name the package,
+    because otherwise the version a pinned user's resolver lands on is exactly
+    the version CI skipped.
     """
     declared = _declared()
     comments = _constraint_comments()

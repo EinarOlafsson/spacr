@@ -1,8 +1,9 @@
 PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART
 
 Requested: 2026-09-22 by the maintainer.
-Status: IMPLEMENTATION COMPLETE; translation/API/tutorial handoff pending in
-        the documentation lane. Not a claim that the entire two-list goal is done.
+Status: DONE 2026-09-25. Implementation complete; the translation and docs
+        handoff has landed (checked 2026-09-25). Only native compositor
+        movement is unverified (needs a real desktop).
 
 Requirements
 - Rename Home's Start a sample project button to Pipeline overviews.
@@ -146,3 +147,13 @@ native modifier, mouse wheel, empty-space dragging and Fit control.
 Validation: flowchart, translation and shortcut cohort116passed; one unrelated
 stale Settings recipes assertion updated to current Settings templates, then
 11 focused flowchart/menu checks passed. Rendered full-size card view inspected.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_flowchart_
+translations.py and test_pipeline_overviews_and_flowchart.py, 19 passed --
+including the nine translation checks that failed on 2026-09-22 on the new
+assay title, so the catalog lane has reached it. docs/source/workflows.rst
+opens with Pipeline overviews (external input nodes, explanation cards, the
+blue divider, Start example and Walkthrough) and index.rst links it. What
+is not verified here: the window's movement under a native compositor,
+which needs a real desktop; offscreen tests cover the fallback dragging.
