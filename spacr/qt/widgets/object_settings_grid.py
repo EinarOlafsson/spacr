@@ -854,7 +854,9 @@ class ObjectSettingsGrid(QWidget):
     #: and had to be typed by hand. The Cellpose 4 preview boxes keep
     #: ``("cellpose",)``: they load the checkpoint in spaCR's own process.
     #: A Cellpose-DINO checkpoint runs in its own backend (item 525), which
-    #: Mask generation reaches, so ``cellpose_dino`` belongs here too.
+    #: Mask generation reaches, so ``cellpose_dino`` belongs here too, and
+    #: so do StarDist's, InstanSeg's and Omnipose's models, which the button
+    #: adds from :data:`spacr.model_zoo.PREFIXED_KINDS` (items 551-553).
     MODEL_KINDS = ("cellpose", "cellpose3", "cellpose_dino")
 
     def choose_model_for(self, obj: str) -> bool:
@@ -866,9 +868,12 @@ class ObjectSettingsGrid(QWidget):
             alone rather than clearing it -- a cancelled dialog is not an
             instruction to forget the model already set.
         """
+        from ... import model_zoo
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=self.MODEL_KINDS)
+        path = choose_model(self, kinds=self.MODEL_KINDS + tuple(
+            kind for kind in model_zoo.PREFIXED_KINDS
+            if kind not in self.MODEL_KINDS))
         if not path:
             return False
         return self.set_value(MODEL_QUESTION, obj, path)

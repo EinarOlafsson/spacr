@@ -1,0 +1,217 @@
+THE PUBLIC SLIDE DECK IS FLAWLESS AND HIGH RESOLUTION
+
+Status: BUILT 2026-09-26 (see the dated note at the end); the nine translated
+READMEs' Back link is left for the docs lane (below).
+Owner: Claude agent (worktree agent-af1616c9b018f601c).
+
+THE REQUEST (the maintainer, 2026-09-26, verbatim)
+  "in the slide deck, the slide with the organells (slide 10) has poor object
+  detection and that needs to change, the nuclei are also poorly detected in
+  that slide.
+  in slide 2 i can see appart of the A in the figure pannel
+  in most pannels the pannel resolution is so low and the white lines on the
+  icons so thin that the icons are not allway visable, so all slides need to
+  be higher resolution.
+  on slide 3 many the could add and replace some features with more general
+  features and less niech features
+  I can see the pannels in most of the figures that you use. put boxes over
+  the pannel letter (these boxes should be perfectly alligned wi the figures
+  and not look blocky.)
+  the regression ledgend looks terrible and should be changed (another
+  version of the presentation already did this, the lab presentation
+  bersion)
+  add this as a new feature and consult the archived presentation session if
+  you can where the presentation was made.
+  because this presentation is fromt fasing on github now it needs to be
+  perfekt, higher resolution."
+
+WHAT WAS FOUND (2026-09-26)
+  The published deck. docs/source/_static/deck/ (index.html, slides/ and
+  thumbs/ JPEGs, anim/, pages/NN.md, spacr_deck.pdf, slides.json with
+  "source": "spacr_overview.pptx", 51 slides at 1600x900). It was added in
+  c3ee0ed98 and 7485ff27b on 2026-09-21 and has not been rebuilt since,
+  except for the title slide's version stamp.
+
+  The publisher. tools/build_readme_deck.py renders a .pptx with LibreOffice
+  (soffice -> PDF) and poppler (pdftoppm), writes the slide and thumbnail
+  JPEGs, a PDF made from the JPEGs, slides.json, pages/NN.md and the viewer
+  (tools/readme_deck_viewer.html). The title slide's version line is stamped
+  from setup.py (--stamp, called by packaging/release.py).
+
+  The deck source. /mnt/firecuda2/Claude/toxoplasma_projects/presentation/
+  (not a git repository):
+    scripts/build.js         pptxgenjs; every slide's text and layout. It
+                             builds BOTH decks: `node scripts/build.js` writes
+                             spacr_lab_meeting.pptx (the lab version) and
+                             `PUBLIC=1 node scripts/build.js` writes
+                             spacr_overview.pptx (the public one).
+    scripts/prep_assets.py   icons (spacr/resources/icons, 1024 px, cut down
+                             to 256 px) and scripts/sizes.json.
+    scripts/crop.py, jobs*.json    crops of the 4K tutorial keyframes in
+                             ../tutorials/production/*/keyframes/.
+    scripts/crop_paper*.py, paper_jobs.json    preprint figure panels, with
+                             the panel letters painted over.
+    images/                  every picture on the slides (150 MB).
+  Slide 10 ("Mask: every object class") is three crops of the Mask
+  tutorial's keyframes (07_mask/09_nucleus_overlay, 05_cell_overlay,
+  15_organelle_overlay), an app screenshot of a 5-image test run on the
+  tutorial dataset /mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/
+  spacr/tutorials/orig (HeLa RAMP4-GFP siRNA, field W0107F0002T0001Z000;
+  C1 nuclei, C2 cells, C3 lipid droplets). The organelle outlines are
+  Cellpose circles that miss most droplets, and many nuclei are unoutlined.
+
+  The session that made it. /home/olafsson/.claude/projects/
+  -mnt-firecuda2-Claude-repo/d76975b5-7a10-46fa-bf01-dd62a1467de7.jsonl
+  ("repo-7e", 2026-09-21 to 2026-09-25), with subagent
+  agent-ac4b011554b32b1d9 (the Regression app screenshots in
+  images/regression_app/). The publishing session was bf3aeb50-6b54-4e7c-
+  9366-2d0b03a72c35 ("repo-16").
+
+  The lab version and the regression legend. On 2026-09-22 the maintainer
+  asked the deck session to "pick a volcano from my paper instead" for the
+  regression hit-list slide, and for regression slides built from the real
+  module ("use the pyqtgraph volcano and screenshots of the actual modual").
+  The deck session did that in build.js (both builds): the hit-list slide's
+  own volcano, whose 30-entry compartment legend is unreadable at slide
+  size, was replaced by preprint Fig. 5B-C (XGBoost and MaxViT volcanos with
+  labelled hits), and three slides were added (choose the model, pick a gene
+  and see its cells, which assumptions hold). It also moved the deck to Open
+  Sans, re-cut the paper figures with the panel letters covered, and split
+  the Make Masks magnifier slide in two (live magnifier with two GIFs;
+  Features). The public spacr_overview.pptx was rebuilt with all of that
+  (55 slides), but its republish into the repository was stopped on
+  2026-09-22 ("Republish the deck", then interrupted), so the README still
+  shows the 51-slide version of 2026-09-21. The 2026-09-25 build of
+  spacr_overview.pptx still has blocky black squares over panel letters
+  (Classify image model, saliency) and stray fragments of the covered
+  "(i)".."(v)" labels on slide 2.
+
+WHAT TO BUILD
+  (a) Slide 10: better organelle and nucleus detection. Re-segment the field
+      with a stronger model or settings so the masks are visibly right:
+      every nucleus outlined, and the lipid droplets found as droplets (a
+      spot detector suited to small bright puncta) instead of a few circles.
+      Draw the three panels from the raw images and the new masks at full
+      resolution, not from a screen recording.
+  (b) Slide 2: remove the stray partial "A" panel letter (and any other
+      fragment of a covered label) from the preprint Fig. 1A panel.
+  (c) Every slide re-rendered at a much higher resolution (at least 2x:
+      3200x1800), with the module icons embedded at full resolution and
+      their white strokes thick enough to read at slide size.
+  (d) Slide 3: replace niche comparison rows with more general features
+      that people choosing a tool look for, and add a few. Proposed rows
+      (general first; spaCR's own strengths kept, fewer niche rows):
+        Point-and-click interface; Scripting / Python API; Batch and
+        headless runs (cluster); Deep-learning segmentation; Train your own
+        segmentation model; Correct masks by hand; Per-cell measurements;
+        Whole plates in one run; Classify cells from images (deep learning);
+        Classify cells from measurements; Explore cells: UMAP with images,
+        gating; Plots and statistics without code; Time-lapse tracking;
+        Plate-level QC and heat maps; GPU acceleration; Pooled CRISPR
+        screens: images to genes; Pixel classifier from brush strokes;
+        Whole-slide / tissue images; 3-D (z-stack) images; Large plugin
+        ecosystem.
+      Dropped as niche: "Link each well's images to its gRNAs", "Optical
+      pooled screens (OPS)", "Gene-level hit calling" (merged into "Pooled
+      CRISPR screens: images to genes"), "Screen design & power", "Parasite
+      assays", "Live assisted segmentation (magnifier)".
+  (e) Panel letters in every reused figure covered by boxes that match the
+      figure's own background and edges exactly, so nothing blocky shows:
+      no black squares on white, no partial glyphs, box edges on the
+      figure's pixel grid.
+  (f) The regression legend replaced with the lab version's: the hit-list
+      slide uses the preprint Fig. 5B-C volcanos, and the lab version's
+      regression slides come with it.
+  Regenerate every deck output (slides, thumbs, anim, PDF, slides.json,
+  pages, viewer) and keep the README and viewer links working.
+
+DONE WHEN
+  Every slide is 3200x1800; slides 2, 3, 10, the regression slides and
+  every slide with a reused paper figure have been checked by eye at full
+  size; no panel letter or fragment of one is visible; slide 10's outlines
+  sit on every nucleus and on the droplets; icons read at slide size; the
+  README's Back/Next and the viewer open the right slides; the deck tests
+  pass.
+
+--------------------------------------------------------------------------------
+2026-09-26 -- BUILT
+--------------------------------------------------------------------------------
+
+Where it was built. A copy of the presentation folder in
+/mnt/firecuda2/Claude/scratch/deck589/ (PUBLIC=1 node scripts/build.js ->
+spacr_overview.pptx, 55 slides), published with tools/build_readme_deck.py.
+The changed sources were copied back into /mnt/firecuda2/Claude/
+toxoplasma_projects/presentation/ with every replaced file kept in
+backup_589_2026-09-26/; the new public deck sits beside the old one as
+spacr_overview_589.pptx (spacr_overview.pptx and the lab deck are untouched,
+the lab deck was not rebuilt). Slide 10's scripts are in scripts/slide10/.
+
+(a) Slide 10. Re-segmented from the raw tutorial field W0107F0002T0001Z000
+    (900 x 900 px crop, drawn 2x): nuclei and cells with Cellpose-SAM
+    (cpsam_v2, CPU, float32; 300 nuclei, 310 cells in the padded crop,
+    about 14 min each), lipid droplets with spaCR's own spot segmentation
+    (LoG, threshold 0.03, sigma 1-3, watershed) on a 450 px close-up, since
+    droplets are a few pixels across. The GPU turn was queued through
+    tools/gpu_turn.sh and withdrawn before it started: CPU sufficed once
+    bfloat16 was off (bfloat16 on CPU had not finished nuclei in 30 min).
+    SPACR BUG FOUND AND FIXED on the way: spacr.object._blobs_to_labels's
+    watershed (organelle_watershed_spots with LoG/DoG) was bounded only by
+    the image's 20th intensity percentile, so every spot flooded out to its
+    neighbours -- on this field 7,049 "droplets" with median area 91 px and
+    a 2,708 px maximum, a mosaic over the whole field. Each spot now stops at
+    half its own height above a local white top-hat background, and pieces
+    not holding their seed are dropped (same field: median area ~10 px).
+    Tests: tests/test_cov_object_classical_spots.py (the pin that asserted
+    flooding is replaced; a noisy-cell droplet test added).
+(b) Slide 2. Panel letters are no longer covered by coarse rectangles:
+    scripts/crop_paper3.py finds each letter's ink inside its rough region
+    at full resolution (9922 px source, Fig. 3 from its PDF at 1200 dpi) and
+    sets only those pixels (plus a 2 px antialiasing halo) to the local
+    background. The "A" and every "(i)".."(v)" fragment on slide 2 are gone.
+(c) Resolution. Slides are 3200 x 1800 (were 1600 x 900), rendered from a
+    lossless LibreOffice PDF (no image downsampling) and saved as JPEG q86
+    with 4:4:4 colour. The published spacr_deck.pdf is now LibreOffice's own
+    with vector text (fonts embedded) and images at up to 300 dpi; a version
+    stamp swaps only its title page (replace_first_page). Icons are 512 px
+    (were 256) and their strokes are grown by a 13 px max filter per 1024
+    source px before downscaling (scripts/prep_assets.py), white throughout.
+(d) Slide 3. 21 rows, general first: point-and-click, batch/headless runs,
+    microscope formats, DL segmentation, training, live assisted
+    segmentation, mask correction, per-cell measurements, 3-D (spaCR: beta),
+    time-lapse, whole plates, plate maps/QC, image and measurement
+    classifiers, UMAP/gating, plots without code, GPU, pooled CRISPR screens
+    (one row for what were five niche rows: gRNA linking, OPS, gene-level
+    calls, screen power, parasite assays), and the three rows where other
+    tools lead. Chosen by the agent from features spaCR already has; the
+    maintainer should confirm.
+(e) Panel letters. Same erasure for every reused preprint panel (Fig. 1A,
+    1D-E, 3B, 3C-D, 4B-D, 4E, 4F, 5B-C, S7). Where a letter sat alone in a
+    grid tile (Fig. 4F saliency) the emptied tile takes its neighbours'
+    background colour, keeping the grid lines, instead of a black square. A
+    stray arc of the neighbouring panel on Fig. 5B-C's left edge is removed.
+    The well-detector example (slide 49) had nine panel letters A-I on
+    photographs; they are inpainted (scripts/welldet_letters.py, OpenCV
+    Telea) and the cut-off page title above the figure is cropped away.
+(f) Regression legend. The published deck carried the regression output's
+    own volcano with a 30-entry compartment legend. The public deck is now
+    built from the same build.js as the lab version, so the hit-list slide
+    shows the preprint Fig. 5B-C volcanos (labelled hits, no legend), and
+    the lab version's three regression slides from the real module come
+    with it (choose the model; pick a gene, see its cells; which
+    assumptions hold). 51 -> 55 slides; the Make Masks magnifier slide is
+    now two slides with two GIFs.
+
+Sizes (tracked, docs/source/_static/deck): 19.8 MB -> 44.7 MB. Slides
+6.4 -> 25.3 MB, thumbs 0.55 -> 0.5 MB, anim 6.2 -> 6.4 MB (two GIFs),
+spacr_deck.pdf 6.5 -> 12.2 MB. The docs media budget and the README
+checkout-size figure (1353 MB, 15% tolerance) both still pass.
+
+Checked by eye at full size: slides 2, 3, 10, 14, 21 (and native-resolution
+crops of the erased letters on 2, 14, 21, 49); every slide on 2x2 contact
+sheets.
+
+LEFT FOR THE DOCS LANE (translations are theirs). README.rst's "← Back" now
+points at pages/55.md (the last slide). The nine translated READMEs in
+docs/i18n/readme/ still point at pages/51.md, which exists but is now slide
+51, not the last; their reviewed records are docs/i18n/reviewed/readme/*/
+2026-09-21-deck-navigation.json. No other README text changed.

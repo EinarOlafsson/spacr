@@ -1,7 +1,8 @@
 INSTANSEG AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: FILED 2026-09-26. Not started.
-Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+Status: BUILT AS ALPHA 2026-09-26. Installed for real (CPU); segments nuclei and
+PVs through Mask generation and Make Masks; scored in item 532. No GPU.
+Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -23,3 +24,113 @@ WHAT TO BUILD
 DONE WHEN
     Installs for real; segments a field through Mask generation and Make
     Masks; scored in item 532's benchmark.
+
+
+--------------------------------------------------------------------------------
+2026-09-26 -- BUILT: WHAT CHANGED, THE INSTALL, THE REAL RUNS
+--------------------------------------------------------------------------------
+
+ON 551'S SEAM. Item 551 built one mechanism for prefixed backends (a spec
+with its own model-setting prefix, the worker adapter base, the route-table
+rows, Make Masks' Mode box / Model list / loader, the Model Zoo rows and
+cards, the alpha gate). InstanSeg adds a spec and an adapter to it:
+
+  spacr/_segmentation_backends.py
+    _INSTANSEG, _INSTANSEG_MODELS (fluorescence_nuclei_and_cells,
+      brightfield_nuclei -- instanseg-torch's model-index.json),
+      _INSTANSEG_DIAMETER (see THE DIAMETER).
+    The spec: instanseg-torch==0.1.1, torch from the installer's index,
+      Python 3.9-3.13, prefix "instanseg:", default model
+      fluorescence_nuclei_and_cells, alpha.
+    _worker_env: INSTANSEG_BIOIMAGEIO_PATH inside the env
+      (instanseg_models/), so the model zips land there and uninstall
+      removes them.
+    _InstanSegAdapter: InstanSeg(<name or TorchScript>, device); a model
+      folder holding instanseg.pt or a .pt file is torch.jit-loaded;
+      eval_small_image for what InstanSeg calls small, eval_medium_image
+      (512-px tiles) above; InstanSeg's own percentile normalisation; the
+      output kept is the object's: _instanseg_options gives "nuclei" for a
+      nucleus object and "cells" for every other, unless the setting ends
+      in "#nuclei" or "#cells" (instanseg:fluorescence_nuclei_and_cells#
+      nuclei). flow_threshold, cellprob_threshold and resample are named
+      "cannot honour"; no probability map.
+    _prefixed_options -> _instanseg_options, sent to the worker as the
+      adapter's options.
+  Nothing else in spacr/ changed: the route table, Make Masks, the Model
+  Zoo rows and cards, live_preview and the zoo buttons pick InstanSeg up
+  from its spec (model_zoo.PREFIXED_KINDS).
+
+THE DIAMETER. InstanSeg rescales by pixel size, and spaCR's mask settings
+carry none. On plate1_E01_1_1 (40x nuclei, median 86 px, 49 in spaCR's
+Cellpose-SAM reference) at the model's own scale the nuclei output found 35
+objects of median 20 px; with pixel sizes that bring the nuclei to about
+43, 26 and 17 px it found 34, 39 and 40 objects of median 51, 81 and 77 px.
+So a set diameter is passed as pixel_size = model pixel size (0.5 um) x 26
+/ diameter; blank runs the plane at the model's scale. That field is left
+out of the nuclei benchmark.
+
+LICENCE. instanseg-torch 0.1.1 is Apache-2.0 (its LICENSE), and so are both
+models (model-index.json: "license": "Apache-2.0"), downloaded by InstanSeg
+from the instanseg/instanseg GitHub release instanseg_models_v0.1.1. Said on
+the backend card, the install dialog and every model row's card. spaCR
+ships none of it.
+
+INSTALL, FOR REAL (_install_backend('instanseg'), the installer's own path,
+CUDA hidden): installed 2026-09-26 11:12:25 in 217.2 s, 5 steps (venv, pip,
+PyTorch, InstanSeg, self-test), self-test ok. ~/.spacr/backends/instanseg,
+5.7 GB (PyPI's CUDA torch: spaCR's torch reports a plain version, so the
+installer picks PyPI, as for 525). Python 3.12.4, instanseg-torch 0.1.1,
+torch 2.14.0, numpy 2.5.3, worker device cpu.
+
+REAL RUNS, CPU (SPACR_DEVICE=cpu, CUDA hidden, machine load 45-100).
+  Worker, direct (fluorescence_nuclei_and_cells#nuclei, import-test field
+    plate1_E01 F9 C01, 896 x 896 DAPI, no diameter): 23 objects, (896, 896)
+    uint16; first call 83.7 s (worker start, model download and load),
+    second 12.9 s.
+  Mask generation (the benchmark driver: preprocess_generate_masks +
+    generate_cellpose_masks_sam, nucleus plane as the object, model setting
+    instanseg:fluorescence_nuclei_and_cells#nuclei, diameter = the field's
+    reference median): four toxo_mito plate1 fields, 209 objects for 223
+    reference nuclei, F1@.5 0.917, 20.1 s per field.
+  Make Masks (load_cellpose_model + cellpose_detect): plate1_E02_10_1 at
+    diameter 86: 37 objects (46 in the reference), 54.5 s including worker
+    start; no probability, no flow picture.
+
+ITEM 532 (tools/benchmark_segmentation_strategies.py): strategies
+instanseg_nuclei and instanseg_cells. CPU pass, rows appended to 532:
+  toxo_pv (10 fields, 910 PVs), cells output: F1@.5 0.609, F1@.75 0.328,
+    1,324 objects (P 0.51 / R 0.75), 117.5 s/field at load ~85.
+  toxo_pv, nuclei output: F1@.5 0.376, F1@.75 0.198, 615 objects
+    (P 0.47 / R 0.32), 97.9 s/field.
+  nuclei_plate1 (4 fields, 223 nuclei, Cellpose-SAM reference), nuclei
+    output: F1@.5 0.917, F1@.75 0.866, 20.1 s/field -- between Cellpose 3
+    nuclei (0.945) and StarDist (0.901).
+GPU: not run (CPU asked).
+
+ALPHA (item 569, registered in spacr.settings.ALPHA_FEATURES[552]):
+  models: instanseg_v1 (the backend row),
+          instanseg_fluorescence_nuclei_and_cells,
+          instanseg_brightfield_nuclei (the model rows).
+  Prefix entries: Make Masks' Mode box modes instanseg:<model> and Model
+    list entries "InstanSeg · <model>" follow those rows (551's
+    _prefixed_alpha_hidden). Settings: none new.
+
+TESTS
+  tests/test_prefixed_backends_run_in_their_own_environment.py: PREFIXED
+    now covers instanseg (spec, zoo rows, model resolution, route table,
+    Live preview and Mode box parametrised), plus +9: pins and licence, the
+    model path inside the env, the output kept per object and per
+    #nuclei / #cells, the adapter with a faked InstanSeg (shapes, small vs
+    tiled path, the diameter as a pixel size, named settings), a
+    TorchScript file and a missing one.
+  Changed: test_declared_dependencies_match_imports (instanseg ->
+    instanseg-torch, worker-only in _InstanSegAdapter),
+    test_backends_live_in_their_own_environment (adapter ratchet).
+  Prefixed / alpha / zoo / declared-dependencies / backend selection
+    (6 files): 259 passed.
+
+NOT DONE
+  * No GPU run; brightfield_nuclei not run on a brightfield field; the
+    multiplexed (several-channel) input InstanSeg supports is not used --
+    spaCR hands it the object's own plane.
+  * i18n catalog rows (551's strings serve InstanSeg too; none new here).

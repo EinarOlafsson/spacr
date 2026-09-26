@@ -1,7 +1,8 @@
 STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: FILED 2026-09-26. Not started.
-Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+Status: BUILT AS ALPHA 2026-09-26. Installed for real (CPU); segments nuclei through Mask
+generation and Make Masks (previews routed, tested faked); scored in item 532. No GPU.
+Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -24,3 +25,184 @@ WHAT TO BUILD
 DONE WHEN
     Installs for real; segments a nucleus field through Mask generation and
     Make Masks; scored in item 532's benchmark against Cellpose models.
+
+
+--------------------------------------------------------------------------------
+2026-09-26 -- BUILT: WHAT CHANGED, THE INSTALL, THE REAL RUNS
+--------------------------------------------------------------------------------
+
+ONE SEAM FOR THREE BACKENDS. StarDist, InstanSeg (552) and Omnipose (553)
+share one mechanism, built here: a _BackendSpec that carries its own model
+setting prefix. Everything below is written against the spec, so 552 and
+553 add a spec and a worker adapter and nothing else.
+
+  spacr/_segmentation_backends.py
+    :163 _STARDIST, _STARDIST_MODELS (2D_versatile_fluo, 2D_versatile_he,
+      2D_paper_dsb2018), :177 _STARDIST_DIAMETER (see THE DIAMETER).
+    _BackendSpec gains prefix, default_model and alpha. :410 the spec:
+      stardist==0.9.2, csbdeep==0.8.2, tensorflow==2.21.0 and NO PyTorch
+      (torch=()), Python 3.10-3.13, licence note, published results.
+    :816 the prefix helpers: _prefixed_names / _prefixed_choice /
+      _prefixed_value / _prefixed_backend / _prefixed_split (a "#nuclei" /
+      "#cells" suffix, used by 552) / :872 _prefixed_model (one of the
+      spec's models by name, blank = its default model, else a file or
+      folder that must exist -- a missing path is refused, not run as the
+      default) / _prefixed_model_ok / _prefixed_is_chosen.
+    _worker_env: KERAS_HOME inside the env, so StarDist's pretrained models
+      land in ~/.spacr/backends/stardist/keras and uninstall removes them.
+    _worker_device: a worker with no torch asks TensorFlow (:3291
+      _tensorflow_device); the hello records tensorflow's version.
+    :3120 _PrefixedAdapter -- the worker side shared by the three: takes
+      the Cellpose-SAM eval call, segments each image's object plane (the
+      first channel), applies min_size, returns (masks, [[RGB flow, dP,
+      probability, None]...], None) -- the shapes parse_cellpose4_output
+      reads -- and names the settings the model has no counterpart for.
+    :3184 _StarDistAdapter -- StarDist2D.from_pretrained(name), or a model
+      folder (config.json + weights) the way StarDist loads its own;
+      1-99.8 percentile normalisation (spaCR's scaling is linear, so this
+      is the raw plane's); cellprob_threshold 0 keeps StarDist's tuned
+      prob_thresh, any other logit becomes a probability; n_tiles as
+      StarDist guesses; object probability returned as the cell
+      probability. flow_threshold and resample are named "cannot honour".
+    _worker_adapter -> _PREFIXED_ADAPTERS; :3828 _load_prefixed (z/t
+      stacks refused, as for every backend); _load_backend routes a
+      prefixed name or model setting there, a prefix winning.
+  spacr/object.py:232 _prefixed_masks (V1's Cellpose-SAM call, as
+    _cellpose_dino_masks makes it); :251 _prefixed_model_route gains one
+    row per prefixed spec, so pipeline_v2, the Live preview and the
+    Timelapse preview route stardist: with no change of their own; V1's
+    dispatch in generate_cellpose_masks_sam sends a prefixed object to
+    _load_backend and then through the UNCHANGED Cellpose-SAM eval call.
+  spacr/_mask_workers.py: parallel preparation refuses a prefixed object.
+  spacr/model_zoo.py: PREFIXED_KINDS (kinds named after each prefixed
+    backend, added to KINDS), _mask_model_kinds(), _prefixed_model_entries()
+    (one stock row per model, path = the name once the backend is
+    installed, "needs the StarDist backend" before), _backend_for, the
+    "spaCR" source heading, catalogue().
+  spacr/qt/widgets/model_zoo_picker.py: Status "needs the {backend}
+    backend", _needs_install (Download reads Install and opens 507's
+    install dialog), :2250 _prefixed_card (installed or not, what Use
+    writes, licence and licence note), Use writes stardist:<model>, the
+    backend row says where it is chosen.
+  spacr/qt/screens/model_zoo.py: the Zoo screen's status says the same.
+  spacr/qt/screens/make_masks.py: load_cellpose_model sends stardist: to
+    _backend_model (the worker); :3374 _offer_prefixed_modes makes every
+    model a Mode box entry ("StarDist · 2D_versatile_fluo", greyed with
+    the install offer until installed); :2681 _zoo_prefixed_models lists an
+    installed backend's models in the Model list; the Model zoo... button
+    labels a pick "StarDist · <model>".
+  live_preview (model box rules, zoo button), app_screen._model_kinds_for
+    and ObjectSettingsGrid's zoo button ask for _mask_model_kinds().
+
+THE DIAMETER. StarDist has no diameter, but its scale argument rescales the
+plane, and it matters: on plate1_E01_1_1 (40x nuclei, median 86 px, 49 in
+spaCR's Cellpose-SAM reference) native scale cut them into 111 objects of
+median 14 px. Scaled so the nuclei are about 50, 30 and 22 px it found 58,
+44 and 39 objects of median 73, 85 and 91 px. So a set diameter rescales by
+_STARDIST_DIAMETER / diameter = 30 / diameter; a blank diameter keeps the
+plane's own scale. That field is then left out of the nuclei benchmark.
+
+LICENCE. StarDist 0.9.2 and CSBDeep 0.8.2 are BSD-3-Clause, TensorFlow
+Apache-2.0; the pretrained models come from the stardist/stardist-models
+GitHub release (BSD-3-Clause), downloaded by StarDist against its pinned
+digest into the backend's own folder. Shown before install (backend card,
+install dialog) and on every model row's card. spaCR ships none of it.
+
+INSTALL, FOR REAL (this machine, _install_backend('stardist'), the
+installer's own path, CUDA hidden): installed 2026-09-26 11:28:24 in
+1287 s (tensorflow's 573 MB wheel downloaded at ~0.4 MB/s), 4 steps (venv,
+pip, StarDist, self-test -- no PyTorch step), self-test ok.
+~/.spacr/backends/stardist, 2.6 GB. Python 3.12.4, stardist 0.9.2,
+tensorflow 2.21.0, numpy 2.5.3, worker device cpu. The first segment
+fetched 2D_versatile_fluo into ~/.spacr/backends/stardist/keras.
+
+REAL RUNS, CPU (SPACR_DEVICE=cpu, CUDA hidden, machine load 40-70).
+  Worker, direct: import-test field plate1_E01 F9 C01 (896 x 896, DAPI):
+    35 objects, (896, 896) uint16 mask + (896, 896) float32 probability;
+    first call 55.1 s (worker start, TensorFlow import, model download and
+    load), second 3.7 s.
+  Mask generation (preprocess_generate_masks + generate_cellpose_masks_sam,
+    the benchmark driver's path, nucleus plane as the object,
+    cell_model_name = stardist:2D_versatile_fluo, diameter = the field's
+    reference median): four toxo_mito plate1 fields, 223 objects for 223
+    reference nuclei, F1@.5 0.901 against spaCR's Cellpose-SAM nucleus masks
+    (agreement, not ground truth), 8.8 s per field.
+  Make Masks (load_cellpose_model + cellpose_detect, the Model list / Mode
+    box path): plate1_E01_1_1 at diameter 0: 111 objects, 28.2 s;
+    plate1_E02_10_1 at diameter 86: 36 objects (46 in the reference),
+    23.9 s; labels int32, cell probability (1994, 1994), no flow picture.
+
+ITEM 532 (tools/benchmark_segmentation_strategies.py): strategy
+stardist_fluo, and an opt-in nuclei_plate1 dataset (four merged toxo_mito
+fields against the Cellpose-SAM reference, held-out calibration field).
+CPU pass, rows appended to 532's table:
+  toxo_pv (10 fields, 910 PVs): F1@.5 0.474, F1@.75 0.371, 1,748 objects,
+    P 0.36 / R 0.69, 16.3 s/field -- a nucleus model splits vacuoles.
+  nuclei_plate1 (4 fields, 223 nuclei): StarDist F1@.5 0.901, F1@.75 0.892,
+    8.8 s/field; Cellpose 3 nuclei 0.945 / 0.926, 41.1 s/field.
+The synthetic Host-Pathogen nuclei were tried and dropped (Mask's
+percentile normalisation flattens their 1.2 %-non-zero DNA plane, so no
+model found anything). GPU: not run (CPU asked).
+
+ALPHA (item 569, registered in spacr.settings.ALPHA_FEATURES[551]):
+  models: stardist_v1 (the Model Zoo backend row),
+          stardist_2D_versatile_fluo, stardist_2D_versatile_he,
+          stardist_2D_paper_dsb2018 (the model rows).
+  Prefix entries: the Make Masks Mode box modes stardist:<model> and the
+    Model list entries "StarDist · <model>" are offered only while those
+    rows are visible (make_masks._prefixed_alpha_hidden, read when the Mode
+    box is built -- not live; the Model Zoo screen and picker are live).
+  Settings: none new. A typed or saved stardist:<model> model setting
+    still runs headless and in the GUI, as 569 requires of alpha settings.
+
+TESTS
+  tests/test_prefixed_backends_run_in_their_own_environment.py (new, 28):
+    spec, pins, no-torch install (faked runner: venv, pip, StarDist,
+    self-test; KERAS_HOME), the no-torch worker device, prefix parsing,
+    model resolution and refusals, the route table, _load_backend,
+    parallel refusal, V1 Mask generation through the SAM call with masks
+    saved, _prefixed_masks, the adapter with a faked StarDist (shapes,
+    min_size, percentile normalisation, the diameter as scale, logit ->
+    prob_thresh, named settings), the real .npy hand-off into
+    parse_cellpose4_output, the zoo rows, _mask_model_kinds.
+  tests/qt/test_prefixed_backend_rows_offer_their_backend.py (new, 16):
+    alpha off hides rows / modes / Model list entries and on shows them;
+    missing backend -> Status, card, Install -> install_backend; installed
+    -> Use writes stardist:<model>; backend row text; zoo screen status;
+    Live preview routing and box rules; Timelapse frame; zoo buttons ask for
+    _mask_model_kinds(); Make Masks label, loader, Mode box, Model list.
+  Changed: test_declared_dependencies_match_imports (worker-only imports
+    may be classes and probed by any spec that pins them: stardist,
+    csbdeep, tensorflow), test_backends_live_in_their_own_environment
+    (adapter ratchet lists StarDist), test_the_zoo_lists_every_backend...
+    (one more backend row), and five qt tests that pinned the Mask-model
+    kinds as a literal now read _mask_model_kinds().
+  Backend / zoo / bioimage / Cellpose 3 / DINO / preview / pipeline_v2 /
+    mask-worker / alpha-gate selection (78 files), after rebasing on nightly
+    d48d76207: 1680 passed, 16 skipped, 3 failed, 2 errors, at machine load
+    ~100. test_mask_worker_model_identity x2 were load timeouts and pass
+    alone; test_live_zoom_endings x2 errors come from the nightly base
+    (conftest / live_zoom untouched here) and pass on a later nightly copy.
+  test_perf_guard::test_no_module_in_the_qt_package_imports_spacr_utils
+    fails identically on a clean nightly 6fe2876fb copy (cv2 and
+    matplotlib.pyplot at module level in spacr.qt), not this item.
+
+NEW tr() STRINGS (catalog rows are the docs lane's):
+  "needs the {backend} backend"
+  "Runs through the {backend} backend, which is installed. Use this model
+   writes {prefix}{model} into the object's model setting, which runs that
+   object through {backend} with its usual Mask generation settings."
+  "Needs the {backend} backend, which runs in an environment of its own
+   and is not installed — press Install to install it."
+  "{name} is a backend, not a checkpoint file. Install it here, then
+   choose one of its models listed with it and press Use this model, which
+   writes {prefix}<model> into the object's model setting."
+  "{backend} · {model}"
+  plus the spec's licence_note / blurb / published texts, shown via tr().
+
+NOT DONE
+  * No GPU run; 3-D StarDist (StarDist3D) not wired (z stacks are refused
+    for every backend, as before).
+  * The Make Masks Mode box re-reads the alpha switch when it is built,
+    not live.
+  * i18n catalog rows for the strings above.

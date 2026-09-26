@@ -6,6 +6,7 @@ and poppler's; what is tested here is what spaCR's own tool does with it.
 """
 import importlib.util
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -29,11 +30,22 @@ def _fake_render(pdf, folder, width, quality):
     return out
 
 
+def _fake_to_pdf(pptx, work, options=None):
+    """Three blank 16:9 pages, as LibreOffice's PDF of the fake deck."""
+    from PIL import Image
+
+    work.mkdir(parents=True, exist_ok=True)
+    pages = [Image.new("RGB", (160, 90), "white") for _ in range(3)]
+    pdf = work / "deck.pdf"
+    pages[0].save(pdf, "PDF", save_all=True, append_images=pages[1:])
+    return pdf
+
+
 def test_a_deck_becomes_slides_a_pdf_and_a_viewer_that_needs_no_server(
         tmp_path, monkeypatch):
     pptx = tmp_path / "deck.pptx"
     pptx.write_bytes(b"not really a deck")
-    monkeypatch.setattr(deck, "to_pdf", lambda p, work: work / "deck.pdf")
+    monkeypatch.setattr(deck, "to_pdf", _fake_to_pdf)
     monkeypatch.setattr(deck, "render", _fake_render)
     monkeypatch.setattr(deck, "animations", lambda p, folder: {})
     monkeypatch.setattr(deck, "titles",
@@ -112,6 +124,48 @@ def test_the_title_slide_is_restamped_with_the_version(tmp_path):
     assert drawn.crop((0, 360, 800, 420)).getextrema()[1] > 128
     assert json.loads((tmp_path / "slides.json").read_text())["version"] == "9.8.7.6"
     assert (tmp_path / "spacr_deck.pdf").is_file()
+
+
+def test_the_stamp_swaps_only_the_title_page_of_the_vector_pdf(tmp_path):
+    """Item 589: the published PDF is LibreOffice's, with vector text. A
+    version bump replaces its first page with the stamped picture, at the
+    same page size, and leaves every other page as it was."""
+    pypdf = pytest.importorskip("pypdf")
+    from PIL import Image
+
+    pages = [Image.new("RGB", (320, 180), c) for c in ("white", "red", "blue")]
+    pdf = tmp_path / "spacr_deck.pdf"
+    pages[0].save(pdf, "PDF", resolution=24.0, save_all=True,
+                  append_images=pages[1:])
+    before = pypdf.PdfReader(str(pdf))
+    size = (float(before.pages[0].mediabox.width),
+            float(before.pages[0].mediabox.height))
+    second = before.pages[1].extract_text(), before.pages[1].mediabox
+
+    assert deck.replace_first_page(pdf, Image.new("RGB", (3200, 1800), "black"))
+
+    after = pypdf.PdfReader(str(pdf))
+    assert len(after.pages) == 3
+    assert (float(after.pages[0].mediabox.width),
+            float(after.pages[0].mediabox.height)) == pytest.approx(size, abs=0.5)
+    assert after.pages[1].mediabox == second[1]
+    assert not deck.replace_first_page(tmp_path / "missing.pdf",
+                                       Image.new("RGB", (32, 18)))
+
+
+def test_slides_are_rendered_wide_and_with_full_colour_resolution(tmp_path):
+    """Item 589: 3200-px pictures, and no 4:2:0 chroma subsampling, which
+    fringes coloured text on the deck's dark background."""
+    if shutil.which("pdftoppm") is None:
+        pytest.skip("poppler is not installed")
+    from PIL import Image, JpegImagePlugin
+
+    source = tmp_path / "deck.pdf"
+    Image.new("RGB", (160, 90), (14, 18, 23)).save(source, "PDF")
+    (picture,) = deck.render(source, tmp_path / "slides", 640, 86)
+    with Image.open(picture) as opened:
+        assert opened.size == (640, 360)
+        assert JpegImagePlugin.get_sampling(opened) == 0
 
 
 def test_the_published_deck_carries_the_current_version():
