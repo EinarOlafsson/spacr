@@ -331,17 +331,20 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         proof['carry_note'] = panel._carry_note.text()
         # One grayscale channel with explicit 2-99 percentile scaling (the
         # Apply lesson's recipe); save writes masks, verbose shows figures.
+        # fill_in stays off: its hole filling relabels touching cells as one
+        # object (ndimage.label on the label image), reported to the app owners.
         for key, value in (('src', str(apply_folder)), ('channels', [0]), ('percentiles', [2, 99]),
-                           ('save', True), ('verbose', True)):
+                           ('fill_in', False), ('save', True), ('verbose', True)):
             if not apply._settings_model.set_value_for_key(key, value):
                 raise ValueError('The Apply form has no ' + key)
         apply_settings = apply._settings_model.collect()
         proof['apply_settings'] = apply_settings
         write_json(captures / 'apply_settings.json', apply_settings)
         if (apply_settings.get('custom_model') != str(checkpoint) or apply_settings.get('save') is not True
-                or apply_settings.get('channels') != [0] or apply_settings.get('percentiles') != [2, 99]):
+                or apply_settings.get('channels') != [0] or apply_settings.get('percentiles') != [2, 99]
+                or apply_settings.get('fill_in') is not False):
             raise ValueError('Apply settings changed unexpectedly')
-        tour(apply, 'apply_checkpoint', '', ['src', 'channels', 'percentiles', 'custom_model', 'save', 'verbose'])
+        tour(apply, 'apply_checkpoint', '', ['src', 'channels', 'percentiles', 'custom_model', 'fill_in', 'save', 'verbose'])
         tour(apply, 'apply_custom_model', 'model', ['model_name', 'custom_model'])
         tour(apply, 'apply_form', '', ['src'])
 
