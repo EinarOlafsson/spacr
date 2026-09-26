@@ -192,3 +192,38 @@ For the maintainer to decide
   * Whole-plaque delete is by erasing with the brush; a click-to-delete tool
     could come later.
 
+
+2026-09-26 -- LEFTOVER CLOSED: a whole plaque is deleted with one click
+
+  The note above left "whole-plaque delete is by erasing with the brush".
+  The mask page of "Contribute training data" now has a checkable "Delete
+  object" button above the brush panel. While it is down, a left or right
+  click on a plaque removes that plaque whole. Brush and Delete object take
+  turns (pressing one puts the other down); Backspace/Delete undo the last
+  delete exactly as they undo a stroke.
+  * spacr/curation.py: MaskCuration.delete_object(label) sets every element
+    of that label to 0 as ONE undoable stroke and records a "delete" entry
+    in the ledger (target = the label, n_changed = its pixels). Label 0 or
+    an id the mask does not hold changes and records nothing.
+  * spacr/qt/widgets/plaque_preview.py: _DeleteObjectTool (a duck-typed
+    CanvasTool, so the canvas module is still imported only when a mask
+    page is built), _MaskPage.delete_button / delete_at / deleted_objects.
+    deleted_objects() is read from the ledger and drops a delete that was
+    undone. The dialog passes it as extra={"deleted_objects": [...]}, so
+    each image's meta file records [{"label", "pixels", "seeded"}] beside
+    the existing provenance (whose "removed" still lists every seeded
+    plaque that is gone, however it went).
+  Tests (tests/qt/test_523_...): a mouse click on the canvas with the tool
+  armed deletes label 2 only (a background click does nothing); the ledger
+  holds ("delete", 2, 100); Backspace brings it back and empties the
+  record; delete again; Brush puts the tool down; the uploaded meta carries
+  deleted_objects and objects == 1. MaskCuration.delete_object refuses 0
+  and absent ids and undoes to the exact original.
+  test_523: 12 passed. With curation, curation_tool, every plaque Qt file,
+  528 and the comment/help-index guards: 453 passed.
+  New tr() strings: "Delete object", "Click an object to remove it whole.
+  Backspace undoes the last delete. Press Brush to paint again."
+  API: one new public callable, MaskCuration.delete_object. The pins were
+  already off on nightly f046bcc36 (9,779 callables vs pinned 9,735); this
+  makes it 9,780.
+

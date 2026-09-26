@@ -2475,13 +2475,76 @@ class _BoxEditor(QWidget):
         super().keyPressEvent(event)
 
 
+class _DeleteObjectTool:
+    """A canvas tool: a click removes the whole object under the pointer.
+
+    Duck-typed as a :class:`~spacr.qt.layer_viewer.CanvasTool` so this
+    module does not import the canvas until a mask page is built. The delete
+    goes through :meth:`spacr.curation.MaskCuration.delete_object`, so it is
+    one undoable stroke and one ``delete`` line in the ledger.
+
+    :param page: the mask page whose session and record the delete goes to.
+    """
+
+    cursor = Qt.PointingHandCursor
+
+    def __init__(self, page: "_MaskPage"):
+        """Bind the tool to one mask page.
+
+        :param page: the page it deletes from.
+        """
+        self._page = page
+
+    def press(self, view: Any, world: Dict[str, float], event: Any) -> bool:
+        """Delete the object under a left or right click.
+
+        :param view: the canvas; not used.
+        :param world: the clicked world point.
+        :param event: the mouse event; only its button is read.
+        """
+        button = event.button() if hasattr(event, "button") else Qt.LeftButton
+        if button not in (Qt.LeftButton, Qt.RightButton):
+            return False
+        self._page.delete_at(world)
+        return True
+
+    def move(self, view: Any, world: Dict[str, float], event: Any) -> bool:
+        """Leave hovering to the canvas."""
+        return False
+
+    def release(self, view: Any, world: Dict[str, float], event: Any) -> bool:
+        """Swallow the release that ends a delete click."""
+        return True
+
+    def double_click(self, view: Any, world: Dict[str, float],
+                     event: Any) -> bool:
+        """A double click deletes nothing beyond its presses."""
+        return True
+
+    def key(self, view: Any, event: Any) -> bool:
+        """Backspace or Delete undo the last stroke or delete, as the brush does.
+
+        :param view: the canvas; not used.
+        :param event: the key event.
+        """
+        if event.key() in (Qt.Key_Backspace, Qt.Key_Delete):
+            self._page.brush.undo()
+            return True
+        return False
+
+    def detach(self) -> None:
+        """Nothing is ever half-done between events."""
+
+
 class _MaskPage(QWidget):
     """One plaque image with its label mask, painted with Make Masks' brush.
 
     The canvas and the brush panel are the curation tool's own
     (:class:`~spacr.qt.curation_tool.BrushPanel`): left-drag paints the
     active plaque, right-drag erases, ``[`` and ``]`` resize, New starts a
-    plaque that does not exist yet, Backspace undoes a stroke.
+    plaque that does not exist yet, Backspace undoes a stroke. "Delete
+    object" arms a click that removes a whole plaque; each one is recorded
+    (:meth:`deleted_objects`) and goes into the image's meta file.
 
     :param rgb: the image, ``H x W x 3`` ``uint8``.
     :param seed: spaCR's proposed label mask, or None.
@@ -2519,14 +2582,83 @@ class _MaskPage(QWidget):
         self.canvas = LayerCanvas(stack, self)
         self.canvas.setMinimumSize(320, 240)
         row.addWidget(self.canvas, 3)
+        side = QVBoxLayout()
+        side.setContentsMargins(0, 0, 0, 0)
         self.brush = BrushPanel(self.canvas, self, layer=self.layer,
                                 artifact="community-plaques")
         self.brush.save_button.hide()
         self.brush.save_mask_button.hide()
         self.brush.use_next_label()
         self.brush.session.subscribe(lambda _edit: self.changed.emit())
-        row.addWidget(self.brush, 1)
+        self.delete_button = QPushButton(tr("Delete object"), self)
+        self.delete_button.setObjectName("ContributeDeleteObject")
+        self.delete_button.setCheckable(True)
+        self.delete_button.setToolTip(tr(
+            "Click an object to remove it whole. Backspace undoes the last "
+            "delete. Press Brush to paint again."))
+        self.delete_button.toggled.connect(self._on_delete_toggled)
+        self.brush.paint_button.toggled.connect(self._on_brush_toggled)
+        self._delete_tool = _DeleteObjectTool(self)
+        side.addWidget(self.delete_button)
+        side.addWidget(self.brush, 1)
+        row.addLayout(side, 1)
         self.brush.paint_button.setChecked(True)
+
+    def _on_delete_toggled(self, checked: bool) -> None:
+        """Arm or disarm click-to-delete; the brush and it take turns.
+
+        :param checked: True to delete on click.
+        """
+        if checked:
+            self.brush.paint_button.setChecked(False)
+            self.canvas.set_tool(self._delete_tool)
+        elif self.canvas.tool is self._delete_tool:
+            self.canvas.set_tool(None)
+
+    def _on_brush_toggled(self, checked: bool) -> None:
+        """Painting again puts the delete tool down.
+
+        :param checked: whether the brush was armed.
+        """
+        if checked and self.delete_button.isChecked():
+            self.delete_button.blockSignals(True)
+            self.delete_button.setChecked(False)
+            self.delete_button.blockSignals(False)
+
+    def delete_at(self, world: Dict[str, float]) -> int:
+        """Remove the whole object under a world point.
+
+        :param world: the point, as the canvas resolves a click.
+        :returns: the deleted object's label, or 0 when the point is on
+            background.
+        """
+        label = int(self.layer.label_at_world(world))
+        if not label or self.brush.session.delete_object(label) is None:
+            return 0
+        return label
+
+    def deleted_objects(self) -> List[Dict[str, Any]]:
+        """Every object removed with a click and still gone from the mask.
+
+        Read from the session's ledger, so a delete that was undone is not
+        reported: ``{"label", "pixels", "seeded"}``, where ``seeded`` says
+        the object was one of spaCR's proposed plaques.
+        """
+        present = {int(v) for v in np.unique(np.asarray(self.layer.data))}
+        seeded = (set() if self.seed is None
+                  else {int(v) for v in np.unique(self.seed) if v})
+        out: List[Dict[str, Any]] = []
+        seen: set = set()
+        for edit in self.brush.session.log.edits:
+            if edit.kind != "delete":
+                continue
+            label = int(edit.target)
+            if label in present or label in seen:
+                continue
+            seen.add(label)
+            out.append({"label": label, "pixels": int(edit.n_changed),
+                        "seeded": label in seeded})
+        return out
 
     def labels(self) -> np.ndarray:
         """The mask as it stands."""
@@ -2855,7 +2987,8 @@ class ContributeDialog(QDialog):
                 item.update(image=self._images[str(path)], boxes=page.boxes(),
                             provenance=page.provenance(), paper=paper)
             elif isinstance(page, _MaskPage):
-                item.update(labels=page.labels(), seed=page.seed)
+                item.update(labels=page.labels(), seed=page.seed,
+                            extra={"deleted_objects": page.deleted_objects()})
             else:
                 item.update(image=np.zeros((1, 1, 3), np.uint8), boxes=[],
                             labels=None)
