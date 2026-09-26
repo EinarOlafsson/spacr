@@ -494,6 +494,9 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
         "spotnet": (SB._worker_detect_spots,),
         "microsam": (SB._sam_predictor, SB._worker_sam_embed,
                      SB._worker_sam_prompt),
+        "stardist": (SB._StarDistAdapter, SB._tensorflow_device),
+        "instanseg": (SB._InstanSegAdapter,),
+        "omnipose": (SB._OmniposeAdapter, SB._omnipose_shape),
     }
     assert set(sources) == set(SB._SPECS), (
         "a backend was added or removed without its adapter being listed "

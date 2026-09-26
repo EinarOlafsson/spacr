@@ -214,7 +214,9 @@ TOOLS = ROOT / "tools"
 # 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
 # 11,834 on 2026-09-26: item 545's eighteen ROI callables, named in
 # test_docstring_correctness.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_834
+# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
+# 11,861 with item 588's mask_engine.fill_label_holes.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_861
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
