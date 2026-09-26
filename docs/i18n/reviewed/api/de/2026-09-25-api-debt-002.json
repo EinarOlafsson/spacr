@@ -1,0 +1,832 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.button_roles.action_role#1",
+      "source": "the button's visible label. Mnemonic ``&`` and ellipses are stripped and case is folded; the label is ``positive`` or ``negative`` when it is, or starts with, a word in ``POSITIVE_PREFIXES`` or ``NEGATIVE_PREFIXES``, otherwise ``None``.",
+      "source_sha256": "52b3f164f6df6b2c7a4f1da9317c63fada2e5c6619183faac24363cdb3d39877",
+      "context": "the button's visible label. Mnemonic ``&`` and ellipses are stripped and case is folded; the label is ``positive`` or ``negative`` when it is, or starts with, a word in ``POSITIVE_PREFIXES`` or ``NEGATIVE_PREFIXES``, otherwise ``None``.",
+      "translation": "die sichtbare Beschriftung der Schaltfläche. Das Mnemonik-Zeichen ``&`` und Auslassungspunkte werden entfernt und die Groß-/Kleinschreibung wird vereinheitlicht; die Beschriftung ist ``positive`` oder ``negative``, wenn sie ein Wort aus ``POSITIVE_PREFIXES`` oder ``NEGATIVE_PREFIXES`` ist oder damit beginnt, andernfalls ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.button_roles.alive#4",
+      "source": "the Qt widget wrapper to check, or ``None`` (not alive).",
+      "source_sha256": "85d9e29fa811ce991bd5d8a2fb296930392c15b2585785740dcca59040146a93",
+      "context": "the Qt widget wrapper to check, or ``None`` (not alive).",
+      "translation": "der zu prüfende Qt-Widget-Wrapper oder ``None`` (nicht lebendig).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.button_roles.set_button_busy#2",
+      "source": "the button whose ``buttonActionBusy`` property is set.",
+      "source_sha256": "5f6ecb54c527e2e10baea5e0d0b83b9ca4e1da6128cc805df28e03daeae04a8c",
+      "context": "the button whose ``buttonActionBusy`` property is set.",
+      "translation": "die Schaltfläche, deren Eigenschaft ``buttonActionBusy`` gesetzt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.button_roles.set_button_busy#3",
+      "source": "truthy to show the busy state, falsy to clear it; the button is repolished only when the value changes.",
+      "source_sha256": "efdebc4019de818c30c4b71456765979e5d1328711e1b9baed2f3a5d6a2cf506",
+      "context": "truthy to show the busy state, falsy to clear it; the button is repolished only when the value changes.",
+      "translation": "truthy, um den Beschäftigt-Zustand anzuzeigen, falsy, um ihn aufzuheben; die Schaltfläche wird nur neu gestylt, wenn sich der Wert ändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.chaining.chaining_bar#1",
+      "source": "the screen widget whose ``_chaining_bar`` attribute is read.",
+      "source_sha256": "378e69ce7e58b375e2a8fbc6f020265aaaa4491d640c39510d831ae3c38d8530",
+      "context": "the application view widget whose ``_chaining_bar`` attribute is read.",
+      "translation": "das Widget der Ansicht, dessen Attribut ``_chaining_bar`` gelesen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.add_panel#2",
+      "source": "the panel's name in this grid, converted to a string; a key already in the grid raises :class:`LayerError`.",
+      "source_sha256": "13e954a263f5010d913a5b6f1347a09ab71742824717b0e21a7362c8786e21d0",
+      "context": "the panel's name in this grid, converted to a string; a key already in the grid raises :class:`LayerError`.",
+      "translation": "der Name des Panels in diesem Raster, in eine Zeichenkette umgewandelt; ein bereits im Raster vorhandener Schlüssel löst :class:`LayerError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.add_panel#3",
+      "source": "the layer stack the new panel displays.",
+      "source_sha256": "081e38daf059f16d9595b9f85c349ccd6fa1358b2d121d0b9cbefff476095301",
+      "context": "the layer stack the new panel displays.",
+      "translation": "der Ebenenstapel, den das neue Panel anzeigt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.closeEvent#1",
+      "source": "the close event, passed on to the base class after the grid unlinks and detaches its panels.",
+      "source_sha256": "26d8f0d789eca6d9de147f24f05607fe6907b95af9c2c1b491ed3da619b276f6",
+      "context": "the close event, passed on to the base class after the grid unlinks and detaches its panels.",
+      "translation": "das Schließereignis, an die Basisklasse weitergereicht, nachdem das Raster seine Panels entkoppelt und abgelöst hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.highlight#2",
+      "source": "the object key to find, compared with each labels layer's field object keys.",
+      "source_sha256": "de7f6d208efdc16da766830d8a3e5055268b893ab2b5192bc23d98280acb523b",
+      "context": "the object identifier to find, compared with each labels layer's microscope field of view object identifiers.",
+      "translation": "der zu suchende Objektschlüssel, verglichen mit den Objektschlüsseln pro Sichtfeld jeder Label-Ebene.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.on_linked_selection_changed#1",
+      "source": "the shared selection; only one with exactly one key is shown.",
+      "source_sha256": "250af5eaf67cb57b719a1a2853c6a3de46d7852df1e079f6706951a33dce3cb9",
+      "context": "the shared selection; only one with exactly one key is shown.",
+      "translation": "die gemeinsame Auswahl; nur eine mit genau einem Schlüssel wird angezeigt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.remove_panel#1",
+      "source": "the panel's key; a key not in the grid raises :class:`LayerError`.",
+      "source_sha256": "f66db8109b9434a73e5d12c822568cff69b06b8b51844f31438474ca2965b18f",
+      "context": "the panel's key; a key not in the grid raises :class:`LayerError`.",
+      "translation": "der Schlüssel des Panels; ein Schlüssel, der nicht im Raster ist, löst :class:`LayerError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.comparison_grid.ComparisonGrid.resizeEvent#1",
+      "source": "the resize event, passed on to the base class before the view is re-shared.",
+      "source_sha256": "eb606bb9804669fe0890bb6e1bd85ca8bbab3128cbf180429357496793e4f79e",
+      "context": "the resize event, passed on to the base class before the view is re-shared.",
+      "translation": "das Größenänderungsereignis, an die Basisklasse weitergereicht, bevor die Ansicht erneut geteilt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingPanel.write#2",
+      "source": "destination CSV path, handed to the session's ``to_csv``; on an ``OSError`` or ``LayerError`` the error is shown in the panel and ``None`` is returned.",
+      "source_sha256": "c130e86e50a149412bb96eaf018ccd1f944c86ad6f0446cc6f01422841a670cc",
+      "context": "destination CSV path, handed to the session's ``to_csv``; on an ``OSError`` or ``LayerError`` the error is shown in the panel and ``None`` is returned.",
+      "translation": "Ziel-CSV-Pfad, an ``to_csv`` der Sitzung übergeben; bei einem ``OSError`` oder ``LayerError`` wird der Fehler im Panel angezeigt und ``None`` zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingPanel.write#3",
+      "source": "write one row per class instead of one per marker.",
+      "source_sha256": "04780f44c818c785c71240d56817a6ccd7aac22402dbdfdb7933e8436db57883",
+      "context": "write one row per class instead of one per marker.",
+      "translation": "eine Zeile pro Klasse statt einer pro Markierung schreiben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.key#1",
+      "source": "the canvas that had focus; not read.",
+      "source_sha256": "bb4c2ba5bfbc410ddbc6dc87adc88e9690fc60d568badaaff58fd7c5284bc942",
+      "context": "the canvas that had focus; not read.",
+      "translation": "die Zeichenfläche, die den Fokus hatte; wird nicht gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.key#2",
+      "source": "the key event; Backspace or Delete undoes, and a digit in its ``text()`` selects the class bound to that shortcut.",
+      "source_sha256": "14779498be33a817a0280b9063f44bf5416484086c34f411d1ea5ea58eb5b27c",
+      "context": "the key event; Backspace or Delete undoes, and a digit in its ``text()`` selects the class bound to that shortcut.",
+      "translation": "das Tastenereignis; Rücktaste oder Entf machen rückgängig, und eine Ziffer in seinem ``text()`` wählt die Klasse, die an dieses Tastenkürzel gebunden ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.key#3",
+      "source": "``True`` when the key was consumed.",
+      "source_sha256": "8543428715ed2605be77dd4a1bd34c176c9b219508937365a27e8cf3c1d3b7b1",
+      "context": "``True`` when the key was consumed.",
+      "translation": "``True``, wenn die Taste verarbeitet wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.press#1",
+      "source": "the canvas that was clicked; not read.",
+      "source_sha256": "0c700624f2c81d75c036b4391d3f8e7573c824c6c1dc0cde031522a35d107912",
+      "context": "the canvas that was clicked; not read.",
+      "translation": "die angeklickte Zeichenfläche; wird nicht gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.press#2",
+      "source": "world-axis coordinates of the click, as resolved by the canvas.",
+      "source_sha256": "9a671ccc1c910a16253803e1e74447d5591e350d6ae9e913231d0be0205bcaa6",
+      "context": "world-axis coordinates of the click, as resolved by the canvas.",
+      "translation": "Koordinaten des Klicks in Weltachsen, wie von der Zeichenfläche aufgelöst.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.press#3",
+      "source": "the mouse event; its ``button()`` is read (an event without one counts as a left click). Left toggles a marker at ``world``, right removes the one under it.",
+      "source_sha256": "1af97f7b75b1a07bb77dd0bb77f10e7c8ee16c46e770008f3c54abe58b1bef4b",
+      "context": "the mouse event; its ``button()`` is read (an event without one counts as a left click). Left toggles a marker at ``world``, right removes the one under it.",
+      "translation": "das Mausereignis; sein ``button()`` wird gelesen (ein Ereignis ohne gilt als Linksklick). Links schaltet eine Markierung bei ``world`` um, rechts entfernt die darunterliegende.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.counting_tool.CountingTool.press#4",
+      "source": "``True`` for a left or right click, ``False`` otherwise.",
+      "source_sha256": "9110d0efb25330aa8b9e68b3a57f98e947084a876d02a8e873407624a42f4add",
+      "context": "``True`` for a left or right click, ``False`` otherwise.",
+      "translation": "``True`` bei einem Links- oder Rechtsklick, sonst ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#0",
+      "source": "The CPU detectors: a histogram's worth of thresholds, and propagation.",
+      "source_sha256": "808be977f309473c6cc2deff59fbf0a1ce2a578308a16c1cdaaeeeb536758f11",
+      "context": "The CPU detectors: a histogram's worth of thresholds, and propagation.",
+      "translation": "Die CPU-Detektoren: ein Histogramm voller Schwellenwerte und die Ausbreitung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#1",
+      "source": "Make Masks' plain-threshold mode was Otsu and only Otsu. Otsu asks one question of a histogram -- where is the cut that separates it into two groups with the least variance inside each -- and it is a good question for a field with two clear populations and a poor one for everything else. A field that is mostly background, or whose objects are a thin bright tail, has been thresholded better by Li's minimum cross entropy or by the triangle method since before spaCR existed, and both are one call away in scikit-image.",
+      "source_sha256": "ae3b710827e726fbbf22871ad025d9ed07af25e7c40b061cbc41fa9e6c5ba984",
+      "context": "Make Masks' plain-threshold mode was Otsu and only Otsu. Otsu asks one question of a histogram -- where is the cut that separates it into two groups with the least variance inside each -- and it is a good question for a microscope field of view with two clear populations and a poor one for everything else. A microscope field of view that is mostly background, or whose objects are a thin bright tail, has been thresholded better by Li's minimum cross entropy or by the triangle method since before spaCR existed, and both are one call away in scikit-image.",
+      "translation": "Der einfache Schwellenwertmodus von Make Masks war Otsu und nur Otsu. Otsu stellt einem Histogramm eine einzige Frage -- wo liegt der Schnitt, der es in zwei Gruppen mit der geringsten Varianz innerhalb jeder Gruppe teilt --, und das ist eine gute Frage für ein Sichtfeld mit zwei klaren Populationen und eine schlechte für alles andere. Ein Sichtfeld, das überwiegend Hintergrund ist oder dessen Objekte einen dünnen hellen Ausläufer bilden, wurde schon vor der Existenz von spaCR mit der minimalen Kreuzentropie nach Li oder mit der Dreiecksmethode besser segmentiert, und beide sind in scikit-image nur einen Aufruf entfernt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#2",
+      "source": "So the threshold algorithms here are NAMES OF A LEVEL AND NOTHING ELSE. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
+      "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
+      "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
+      "translation": "Die Schwellenwertalgorithmen hier sind also NAMEN FÜR EIN NIVEAU UND SONST NICHTS. Jeder ist eine Zeile in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` oder :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, und alles rund um das Niveau -- die Glättung, die Schwellenwertkorrektur, die helle oder dunkle Seite, das Füllen von Löchern, die Wasserscheiden-Trennung, die Randregel, die Mindestfläche -- ist der Code, den Otsu bereits durchlaufen hat. Li statt Otsu zu wählen ändert, woher eine einzige Zahl kommt, und sonst nichts, und genau das soll es ändern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#5",
+      "source": "callable or Event; checked between stages, inside PSF iterations and while awaiting restoration. Cancellation raises :class:`spacr.point_spread.ProcessingCancelled`.",
+      "source_sha256": "cd31c05c09354eba773023b6481ba77fb03c6f52e1299826fed80e930346a304",
+      "context": "callable or Event; checked between stages, inside PSF iterations and while awaiting restoration. Cancellation raises :class:`spacr.point_spread.ProcessingCancelled`.",
+      "translation": "Callable oder Event; zwischen den Stufen, innerhalb der PSF-Iterationen und während des Wartens auf die Restaurierung geprüft. Ein Abbruch löst :class:`spacr.point_spread.ProcessingCancelled` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#6",
+      "source": "raise a failing step's error instead of logging it and handing on the image as far as the chain got.",
+      "source_sha256": "1e463c0f2c619814243f108f7230aeddd1db20227273d8815436d00c7e1be222",
+      "context": "raise a failing step's error instead of logging it and handing on the image as far as the chain got.",
+      "translation": "den Fehler eines fehlschlagenden Schritts als Ausnahme auslösen, statt ihn zu protokollieren und das Bild so weiterzugeben, wie weit die Kette gekommen ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#7",
+      "source": "``image`` itself when nothing is switched on -- so a detector reading an untouched field reads the very array and not a float copy -- and otherwise a new float32 array of the same shape.",
+      "source_sha256": "3776c55de19a5437406c74c6c1bbb7412186af032e59be86f79ca53ee970a78e",
+      "context": "``image`` itself when nothing is switched on -- so a detector reading an untouched field reads the very array and not a float copy -- and otherwise a new float32 array of the same shape.",
+      "translation": "``image`` selbst, wenn nichts eingeschaltet ist -- sodass ein Detektor, der ein unverändertes Sichtfeld liest, genau dieses Array liest und keine Float-Kopie --, andernfalls ein neues float32-Array derselben Form.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#0",
+      "source": "The chain as it goes into a mask's ledger entry.",
+      "source_sha256": "cf11827fa66d421c7c448695b5d34728b05294974b903b37fc189d4ec1361fdc",
+      "context": "The chain as it goes into a mask's ledger entry.",
+      "translation": "Die Kette, wie sie in den Ledger-Eintrag einer Maske eingeht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#1",
+      "source": "ONLY THE STEPS THAT RAN, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
+      "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
+      "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
+      "translation": "NUR DIE SCHRITTE, DIE GELAUFEN SIND, plus die Reihenfolge, in der sie liefen, sodass ein Eintrag sagt, was getan wurde, statt vierzehn Standardwerte drumherum aufzulisten; eine Kette, in der nichts eingeschaltet ist, hält nur den ausgeschalteten Schalter fest. Die Reihenfolge wird ausgeschrieben, weil gerade sie den Eintrag ausreichend macht, um die Maske zu reproduzieren: Dieselben Schritte in anderer Reihenfolge ergeben eine andere Maske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#3",
+      "source": "whether the screen's \"detect on the normalized image\" was on -- the chain's first stage, which is the screen's and not this module's.",
+      "source_sha256": "98db5176de8628252445ef3bc2f30e134a6aebfd48d9699c678904c58c02209d",
+      "context": "whether the screen's \"detect on the normalized image\" was on -- the chain's first stage, which is the screen's and not this module's.",
+      "translation": "ob \"detect on the normalized image\" der Ansicht eingeschaltet war -- die erste Stufe der Kette, die zur Ansicht gehört und nicht zu diesem Modul.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.provenance#4",
+      "source": "a JSON-safe dict, empty of steps when none ran.",
+      "source_sha256": "05d8e2a39429a1add01e96cad9344a3439b06042231479cacb1eb7ca27fc27c6",
+      "context": "a JSON-safe key-value mapping, empty of steps when none ran.",
+      "translation": "ein JSON-sicheres Wörterbuch, ohne Schritte, wenn keiner lief.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.setting_name#0",
+      "source": "The Mask setting that carries a chain field.",
+      "source_sha256": "4be7df789abda1b2ece481c38aa2fc8d871433fdb81dcd193f9465e3334eee5a",
+      "context": "The Mask setting that carries a chain microscope field of view.",
+      "translation": "Die Mask-Einstellung, die ein Feld der Kette trägt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.setting_name#1",
+      "source": "a :class:`Chain` field name from :data:`SETTINGS_FIELDS`.",
+      "source_sha256": "4892e4534a66c604e8bdf41d0aed291c52e894c97ade23b930c808d51f813eb0",
+      "context": "a :class:`Chain` field name from :data:`SETTINGS_FIELDS`.",
+      "translation": "ein :class:`Chain`-Feldname aus :data:`SETTINGS_FIELDS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#0",
+      "source": "The switched-on steps, in order, in the words a caption uses.",
+      "source_sha256": "1304864395f9ffb03c5fbe7ee21ed02d35d9c4a68531d491032751e2eb3ee43d",
+      "context": "The switched-on steps, in order, in the words a caption uses.",
+      "translation": "Die eingeschalteten Schritte der Reihe nach, in den Worten, die eine Bildunterschrift verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#1",
+      "source": "English, and each name is one row a caller can translate on its own -- the alternative, one row per combination of fifteen fields, is a catalog nobody can fill.",
+      "source_sha256": "c47a8a8da855312a854eef97a2414edeb724684e1b2b266b40525bd45319b27e",
+      "context": "English, and each name is one row a caller can translate on its own -- the alternative, one row per combination of fifteen fields, is a catalog nobody can fill.",
+      "translation": "Auf Englisch, und jeder Name ist eine Zeile, die ein Aufrufer für sich übersetzen kann -- die Alternative, eine Zeile pro Kombination von fünfzehn Feldern, wäre ein Katalog, den niemand füllen kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#3",
+      "source": "whether the screen's stretch was on.",
+      "source_sha256": "a499c5a518689a5c7be476641054b261f3b1acda44d1764726380871f9552294",
+      "context": "whether the screen's stretch was on.",
+      "translation": "ob die Streckung der Ansicht eingeschaltet war.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.step_names#4",
+      "source": "the names, in :data:`CHAIN_ORDER`; empty when nothing ran.",
+      "source_sha256": "c1350123cb672898bf6a955147410f9420f804f391b6124e9b910f5921876625",
+      "context": "the names, in :data:`CHAIN_ORDER`; empty when nothing ran.",
+      "translation": "die Namen, in :data:`CHAIN_ORDER`; leer, wenn nichts lief.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.content_floor#1",
+      "source": "the widget whose ``minimumSizeHint()`` is returned.",
+      "source_sha256": "26a425350316cf546ed228791214f249344a8f76180c54294625d985cde04658",
+      "context": "the widget whose ``minimumSizeHint()`` is returned.",
+      "translation": "das Widget, dessen ``minimumSizeHint()`` zurückgegeben wird.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.detach_all_dialogs#2",
+      "source": "the :class:`QApplication` that receives the event filter. ``None``, or the application already holding the filter, returns ``False`` without installing.",
+      "source_sha256": "cf69dcd1171708b2e9ba0b88e41bf4fc244467335b0540705a1e147bb871a5fb",
+      "context": "the :class:`QApplication` that receives the event filter. ``None``, or the application already holding the filter, returns ``False`` without installing.",
+      "translation": "die :class:`QApplication`, die den Ereignisfilter erhält. ``None`` oder die Anwendung, die den Filter bereits hat, gibt ``False`` zurück, ohne zu installieren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.drop_the_explicit_floor#2",
+      "source": "the dialog whose explicit minimum size is reset to zero when one is set.",
+      "source_sha256": "368d184909a6f3194a6e9812edf20b1be68abf35ee6350df08cdc6881394d890",
+      "context": "the dialog whose explicit minimum size is reset to zero when one is set.",
+      "translation": "der Dialog, dessen explizite Mindestgröße auf null zurückgesetzt wird, wenn eine gesetzt ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.fields_in#2",
+      "source": "the widget whose descendant widgets are searched for data-entry fields.",
+      "source_sha256": "9712cc8acc9e8851c539b8f1800061c1cd24d0a5a5e466960deec70cb97bcc92",
+      "context": "the widget whose descendant widgets are searched for data-entry fields.",
+      "translation": "das Widget, dessen Nachfahren-Widgets nach Dateneingabefeldern durchsucht werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.give_it_a_size_grip#1",
+      "source": "the :class:`QDialog` whose size grip is enabled and made transparent.",
+      "source_sha256": "1f27cacce26e41bf9b3f07a6912286f68ad11a8c3923319e0ccb472da04b3708",
+      "context": "the :class:`QDialog` whose size grip is enabled and made transparent.",
+      "translation": "der :class:`QDialog`, dessen Größengriff aktiviert und transparent gemacht wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.is_stuck_at_its_contents#2",
+      "source": "the dialog to measure; its size hint (at least its explicit minimum) is compared with its layout's minimum size hint.",
+      "source_sha256": "ba78eb7950982ae6fbd35ddbbb678b0217f686787e96909f6b1051a2e8d64b5e",
+      "context": "the dialog to measure; its size hint (at least its explicit minimum) is compared with its layout's minimum size hint.",
+      "translation": "der zu messende Dialog; sein Größenhinweis (mindestens sein explizites Minimum) wird mit dem Mindestgrößenhinweis seines Layouts verglichen.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.let_the_content_scroll#2",
+      "source": "the dialog whose existing layout is moved into a scroll area; it must already have a layout. It is flagged as scrolling afterwards.",
+      "source_sha256": "b2344b363765b0df51ca16f8d020fe29eb3f38322d264eaa61e46d3d4de7e7bc",
+      "context": "the dialog whose existing layout is moved into a scroll area; it must already have a layout. It is flagged as scrolling afterwards.",
+      "translation": "der Dialog, dessen vorhandenes Layout in einen Scrollbereich verschoben wird; er muss bereits ein Layout haben. Danach wird er als scrollend markiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.make_the_window_resizable#2",
+      "source": "the widget to process; anything :func:`wants_resizing` rejects is left untouched and returns ``False``.",
+      "source_sha256": "f58059e59605be527659a0e6b1cfc5ec1c3f50fe2d407a689e020bc137cd1021",
+      "context": "the widget to process; anything :func:`wants_resizing` rejects is left untouched and returns ``False``.",
+      "translation": "das zu verarbeitende Widget; alles, was :func:`wants_resizing` ablehnt, bleibt unberührt und gibt ``False`` zurück.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.more_than_a_message#2",
+      "source": "the widget searched for data-entry fields and scroll areas.",
+      "source_sha256": "0163c7c3a75d422496e549b9c76729b92945c355ab7a210aea9c78e5afb33d2d",
+      "context": "the widget searched for data-entry fields and scroll areas.",
+      "translation": "das Widget, das nach Dateneingabefeldern und Scrollbereichen durchsucht wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.open_at_its_natural_size#2",
+      "source": "the dialog whose stored opening size, if any, is applied (never shrinking its current size) and then cleared.",
+      "source_sha256": "065f740cdcae9ae288f121b44f3579a166bee6c7afe9c4eafed5bda54a896694",
+      "context": "the dialog whose stored opening size, if any, is applied (never shrinking its current size) and then cleared.",
+      "translation": "der Dialog, dessen gespeicherte Öffnungsgröße, falls vorhanden, angewendet (ohne seine aktuelle Größe je zu verkleinern) und dann gelöscht wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.wants_resizing#2",
+      "source": "the widget to judge. Only a :class:`QDialog` that is not one of Qt's own specialised dialogs, is not flagged exempt or already resizable, and has a non-empty layout can qualify.",
+      "source_sha256": "e2cc0717cdb0bad99ba3d09ffde7cf92ccc3673de8adde507d4da2b53f2d5d31",
+      "context": "the widget to judge. Only a :class:`QDialog` that is not one of Qt's own specialised dialogs, is not flagged exempt or already resizable, and has a non-empty layout can qualify.",
+      "translation": "das zu beurteilende Widget. Nur ein :class:`QDialog`, der keiner der eigenen Spezialdialoge von Qt ist, nicht als ausgenommen oder bereits größenveränderbar markiert ist und ein nicht leeres Layout hat, kommt in Frage.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dialogs.window_floor#2",
+      "source": "the widget whose ``minimumSize()`` is returned.",
+      "source_sha256": "ed3d263628502bd33587777f146d94292e0816c1b9b7a031e7bbc1e648973c5d",
+      "context": "the widget whose ``minimumSize()`` is returned.",
+      "translation": "das Widget, dessen ``minimumSize()`` zurückgegeben wird.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply#1",
+      "source": "the dropped folder or file, already accepted by :meth:`can_accept` (or picked from its alternatives).",
+      "source_sha256": "f5e96918cb4ac806a7e08cb2f119f1c1c22ab484d47d0f8ce3f45ca2ab783e83",
+      "context": "the dropped folder or file, already accepted by :meth:`can_accept` (or picked from its alternatives).",
+      "translation": "der abgelegte Ordner oder die abgelegte Datei, bereits von :meth:`can_accept` akzeptiert (oder aus ihren Alternativen ausgewählt).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply#2",
+      "source": "the app screen that received the drop; the handler writes the path into its settings form.",
+      "source_sha256": "e667772148f7a8c99a06f332664d8cfc74ab34bfac1a9f2fb81c245040a503a0",
+      "context": "the app application view that received the drop; the handler writes the path into its settings form.",
+      "translation": "die App-Ansicht, die die Ablage erhalten hat; der Handler schreibt den Pfad in ihr Einstellungsformular.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#0",
+      "source": "Wire every accepted path of ONE drop in at once, in drop order.",
+      "source_sha256": "99cd49d27fa1fbdd7d0187b0385887631997419c99342877454e97754a0ca754",
+      "context": "Wire every accepted path of ONE drop in at once, in drop order.",
+      "translation": "Übernimmt jeden akzeptierten Pfad EINER Ablage auf einmal, in Ablagereihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#1",
+      "source": "A handler whose screen builds one list out of a drop -- Make Masks' queue, Plaque Assay's selection -- overrides this, because :meth:`apply` called once per path cannot tell the second file of a drop from the first file of the next one. The default declines, and each path goes through :meth:`apply` as before.",
+      "source_sha256": "c24f4528e74b435d620adc0cdc4438624a948539b4935db82d14fbc45c81f03a",
+      "context": "A handler whose application view builds one list out of a drop -- Make Masks' work list, Plaque Assay's selection -- overrides this, because :meth:`apply` called once per path cannot tell the second file of a drop from the first file of the next one. The default declines, and each path goes through :meth:`apply` as before.",
+      "translation": "Ein Handler, dessen Ansicht aus einer Ablage eine einzige Liste aufbaut -- die Warteschlange von Make Masks, die Auswahl von Plaque Assay --, überschreibt dies, weil :meth:`apply`, einmal pro Pfad aufgerufen, die zweite Datei einer Ablage nicht von der ersten Datei der nächsten unterscheiden kann. Die Standardimplementierung lehnt ab, und jeder Pfad läuft wie bisher durch :meth:`apply`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#2",
+      "source": "the paths :meth:`can_accept` accepted, in drop order.",
+      "source_sha256": "4950b98f588ffa669911f3c96990152106e69fd3c16a9c07b04661530c2e50ed",
+      "context": "the paths :meth:`can_accept` accepted, in drop order.",
+      "translation": "die Pfade, die :meth:`can_accept` akzeptiert hat, in Ablagereihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#3",
+      "source": "the screen to wire the drop into.",
+      "source_sha256": "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36",
+      "context": "the application view to wire the drop into.",
+      "translation": "die Ansicht, in die die Ablage übernommen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.apply_all#4",
+      "source": "True when the drop was handled here; False sends every path through :meth:`apply` instead.",
+      "source_sha256": "776a71742bc3e44ef5fc05b261089769ac253193808ae25656d98362af2d02fe",
+      "context": "True when the drop was handled here; False sends every path through :meth:`apply` instead.",
+      "translation": "True, wenn die Ablage hier behandelt wurde; False schickt stattdessen jeden Pfad durch :meth:`apply`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.can_accept#1",
+      "source": "the dropped folder or file to test.",
+      "source_sha256": "b558a2b566af89b28166fd2e6d24a508692bda51fa49dc349978fbabcdaccd73",
+      "context": "the dropped folder or file to test.",
+      "translation": "der zu prüfende abgelegte Ordner oder die zu prüfende abgelegte Datei.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.error_message#1",
+      "source": "the dropped folder or file that was rejected; the default message names only its final component.",
+      "source_sha256": "65adf167d0722887ac7e75648ffff91137550ec71656245ab9822d8ce4c903e4",
+      "context": "the dropped folder or file that was rejected; the default message names only its final component.",
+      "translation": "der abgelegte Ordner oder die abgelegte Datei, die abgelehnt wurde; die Standardmeldung nennt nur die letzte Komponente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.suggest_alternatives#2",
+      "source": "the dropped folder or file that :meth:`can_accept` rejected; the default implementation ignores it.",
+      "source_sha256": "0eb6a8e54978159920611e729180fe1de64e329fc5b2e5081749512578b69e3a",
+      "context": "the dropped folder or file that :meth:`can_accept` rejected; the default implementation ignores it.",
+      "translation": "der abgelegte Ordner oder die abgelegte Datei, die :meth:`can_accept` abgelehnt hat; die Standardimplementierung ignoriert sie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.find_image_folders_nearby#2",
+      "source": "folder the user dropped; its siblings and, if it is a directory, its immediate child folders are searched.",
+      "source_sha256": "d229de5f08e851f37894e00d895a03873b52608bf63db8ebbb0dde77ab8eb75a",
+      "context": "folder the user dropped; its siblings and, if it is a directory, its immediate child folders are searched.",
+      "translation": "der Ordner, den der Benutzer abgelegt hat; seine Geschwister und, falls er ein Verzeichnis ist, seine direkten Unterordner werden durchsucht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.has_images_in#1",
+      "source": "folder to inspect; a path that is not a directory yields False.",
+      "source_sha256": "3e2e11034c9a8cf0d1715dfbfbf85907624d0c45e8c2167b0c50649802be299d",
+      "context": "folder to inspect; a path that is not a directory yields False.",
+      "translation": "zu untersuchender Ordner; ein Pfad, der kein Verzeichnis ist, ergibt False.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.sample_image_names#1",
+      "source": "folder whose top-level image files are listed in sorted order; a path that is not a directory yields an empty list.",
+      "source_sha256": "dc540cef0fc7fcc631952c7b8e3c967e36915a492926f1f28e6148cbc90a81d3",
+      "context": "folder whose top-level image files are listed in sorted order; a path that is not a directory yields an empty list.",
+      "translation": "Ordner, dessen Bilddateien auf oberster Ebene in sortierter Reihenfolge aufgelistet werden; ein Pfad, der kein Verzeichnis ist, ergibt eine leere Liste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.suggest_alternatives_dialog#1",
+      "source": "widget that owns the modal dialog.",
+      "source_sha256": "3c359b5a7c15bf0dede299dd5841408594fd029b2546e804a12c25466c43c1d1",
+      "context": "widget that owns the modal dialog.",
+      "translation": "Widget, dem der modale Dialog gehört.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.suggest_alternatives_dialog#2",
+      "source": "the rejected path; its final component is named in the dialog's heading.",
+      "source_sha256": "e3e88cd4398fd46b545e3f5a22460e8908022c717283d2460249c74c2b9ab3dd",
+      "context": "the rejected path; its final component is named in the dialog's heading.",
+      "translation": "der abgelehnte Pfad; seine letzte Komponente wird in der Überschrift des Dialogs genannt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd.suggest_alternatives_dialog#3",
+      "source": "candidate paths listed for the user, the first one preselected; the chosen entry is returned.",
+      "source_sha256": "1501e4c990c396c53bd4a58bc0569a04c8f65053eb85b9b5f018241a87a9e1f9",
+      "context": "candidate paths listed for the user, the first one preselected; the chosen entry is returned.",
+      "translation": "Kandidatenpfade, die dem Benutzer aufgelistet werden, der erste vorausgewählt; der gewählte Eintrag wird zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers#10",
+      "source": "image files and/or folders with images; one queue",
+      "source_sha256": "a1a6f6dfe062dc835876e6f6446e8fc0004b43fbc9f76f3407d11c785045765b",
+      "context": "image files and/or folders with images; one work list",
+      "translation": "Bilddateien und/oder Ordner mit Bildern; eine Warteschlange",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers#18",
+      "source": "plaque images and/or folders of them; a PDF (Figure)",
+      "source_sha256": "545971cd50969490c2e68920950a2a6a1a4f44fdb6c6e29c6f2408fdfaca9890",
+      "context": "plaque images and/or folders of them; a PDF (Figure)",
+      "translation": "Plaque-Bilder und/oder Ordner damit; ein PDF (Figure)",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler#0",
+      "source": "Accept one folder with images, for the Cellpose training screens.",
+      "source_sha256": "846e330e4b958ec81b9cb96129ab33cf6ad7e3440cd5de4954229c831884eb54",
+      "context": "Accept one folder with images, for the Cellpose training screens.",
+      "translation": "Akzeptiert einen Ordner mit Bildern, für die Cellpose-Trainingsansichten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler#1",
+      "source": "Their ``src`` is a folder the run lists, so a file is refused here even though Make Masks itself takes one.",
+      "source_sha256": "837c12b60afaf0d8e9573676f1098f5893ed1f22e68ea22c86db3952ca44f176",
+      "context": "Their ``src`` is a folder the processing session lists, so a file is refused here even though Make Masks itself takes one.",
+      "translation": "Ihr ``src`` ist ein Ordner, den der Lauf auflistet, daher wird hier eine Datei abgelehnt, obwohl Make Masks selbst eine annimmt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.accepts_multiple#0",
+      "source": "One folder is one source.",
+      "source_sha256": "051c9934e85c015862b1a9228781897d1993984113f068deee526624c6765ac3",
+      "context": "One folder is one source.",
+      "translation": "Ein Ordner ist eine Quelle.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.apply_all#0",
+      "source": "Decline: each folder is set as ``src`` by :meth:`apply`.",
+      "source_sha256": "2791438140efbee32cccf23afcc799cc93ba3e270481d1a73d8f23f3a69ae828",
+      "context": "Decline: each folder is set as ``src`` by :meth:`apply`.",
+      "translation": "Ablehnen: Jeder Ordner wird als ``src`` gesetzt, durch :meth:`apply`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.apply_all#1",
+      "source": "the accepted folders.",
+      "source_sha256": "18db1aa1b129787b4245f4049f0a01c86480434a651596a537b3296ef885ca1b",
+      "context": "the accepted folders.",
+      "translation": "die akzeptierten Ordner.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept#0",
+      "source": "A folder with images in it.",
+      "source_sha256": "4bf58f2d7852f8b256f2a4f959e3c7476c5c0d4374cd4e611d04ec8fa916fd5b",
+      "context": "A folder with images in it.",
+      "translation": "Ein Ordner mit Bildern darin.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept#1",
+      "source": "the dropped file or folder.",
+      "source_sha256": "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+      "context": "the dropped file or folder.",
+      "translation": "die abgelegte Datei oder der abgelegte Ordner.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.can_accept#2",
+      "source": "True when this handler can use ``path`` as-is.",
+      "source_sha256": "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb",
+      "context": "True when this handler can use ``path`` as-is.",
+      "translation": "True, wenn dieser Handler ``path`` unverändert verwenden kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.error_message#0",
+      "source": "The sentence the Cellpose screens have always shown.",
+      "source_sha256": "4a9abae213dbada7c88df390f695eba7fd6f434686d1549c56d882537621b19d",
+      "context": "The sentence the Cellpose application views have always shown.",
+      "translation": "Der Satz, den die Cellpose-Ansichten schon immer angezeigt haben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.CellposeFolderDropHandler.error_message#2",
+      "source": "the sentence shown when the drop is refused.",
+      "source_sha256": "346aa9851cfe20db209e3c6d9c1e62852e9deb9c87ff151738ac3e571695c95c",
+      "context": "the sentence shown when the drop is refused.",
+      "translation": "der Satz, der angezeigt wird, wenn die Ablage abgelehnt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler#0",
+      "source": "Accept image files, folders of images, or both; one drop, one queue.",
+      "source_sha256": "d05d65ffbcc475eace3bd37c78ba96163f3986991dcfb226570684de8b3dfe2f",
+      "context": "Accept image files, folders of images, or both; one drop, one work list.",
+      "translation": "Akzeptiert Bilddateien, Ordner mit Bildern oder beides; eine Ablage, eine Warteschlange.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.accepts_multiple#0",
+      "source": "Several files and folders in one drop make one queue.",
+      "source_sha256": "69445c82f924de701cf21fe601f138d5b4298b78438a998852491010ff7db938",
+      "context": "Several files and folders in one drop make one work list.",
+      "translation": "Mehrere Dateien und Ordner in einer Ablage ergeben eine Warteschlange.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply#0",
+      "source": "Open the one path; a screen without a queue gets it as ``src``.",
+      "source_sha256": "67212a11e5a081c5864c4e7234fa22849aa1cc3e6fd1c44c6eb3c87410c56d61",
+      "context": "Open the one path; an application view without a work list gets it as ``src``.",
+      "translation": "Öffnet den einen Pfad; eine Ansicht ohne Warteschlange erhält ihn als ``src``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all#0",
+      "source": "Hand the whole drop to Make Masks, which queues it in drop order.",
+      "source_sha256": "89986ae955148df80e0949b5c37753fe9c5da5a93c3865de0b99fb976fc9e030",
+      "context": "Hand the whole drop to Make Masks, which work lists it in drop order.",
+      "translation": "Übergibt die gesamte Ablage an Make Masks, das sie in Ablagereihenfolge in die Warteschlange stellt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all#1",
+      "source": "the accepted files and folders, in drop order.",
+      "source_sha256": "127631d3956bd5d2935839adea8572d1c5d757586f4dca9d47246b5c77fd8308",
+      "context": "the accepted files and folders, in drop order.",
+      "translation": "die akzeptierten Dateien und Ordner, in Ablagereihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply_all#3",
+      "source": "False for a screen that is not Make Masks, so each path goes through :meth:`apply` as a source folder instead.",
+      "source_sha256": "b7dc1a28c484e8629f299a5f14f09e5087388305552d67652797a67469426b51",
+      "context": "False for a screen that is not Make Masks, so each path goes through :meth:`apply` as a source folder instead.",
+      "translation": "False bei einer Ansicht, die nicht Make Masks ist, sodass stattdessen jeder Pfad als Quellordner durch :meth:`apply` läuft.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#0",
+      "source": "An image file Make Masks opens, or a folder with images in it.",
+      "source_sha256": "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
+      "context": "An image file Make Masks opens, or a folder with images in it.",
+      "translation": "Eine Bilddatei, die Make Masks öffnet, oder ein Ordner mit Bildern darin.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "Pairs are found later, not required here.",
+      "source_sha256": "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+      "context": "Pairs are found later, not required here.",
+      "translation": "Paare werden später gefunden und sind hier nicht erforderlich.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#0",
+      "source": "Plaque Assay's own drop policy and its own words.",
+      "source_sha256": "8419216522aa6de4de4d7de737f42afea88d6cee1aad26925d83d52568dca4c3",
+      "context": "Plaque Assay's own drop policy and its own words.",
+      "translation": "Die eigene Ablagerichtlinie von Plaque Assay und ihre eigenen Worte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#1",
+      "source": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
+      "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "translation": "Er nimmt Plaque-Bilder, Ordner damit, beides gemischt und im Figure-Modus das PDF eines Artikels an. Vor diesem Handler erhielt Plaque Assay die Richtlinie von Make Masks, die einen Ordner, den sie nicht verwenden konnte, mit dem Satz von Make Masks ablehnte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
+      "source": "Several images and folders in one drop make one selection.",
+      "source_sha256": "064e46d4917fefc212157ff0285fdec17c5be5dafd19a97c830713b54183c193",
+      "context": "Several images and folders in one drop make one selection.",
+      "translation": "Mehrere Bilder und Ordner in einer Ablage ergeben eine Auswahl.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply#0",
+      "source": "Take one dropped path.",
+      "source_sha256": "b2fec9f8cda9085d03f5fef7833aaad523032d01b23302b569ccf94c44385f08",
+      "context": "Take one dropped path.",
+      "translation": "Übernimmt einen abgelegten Pfad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#0",
+      "source": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.",
+      "source_sha256": "ccb674b3f5313eef10af1ee2a51d6bb9916de3f70d0f9931edd1da8398f670d5",
+      "context": "Point Plaque Assay at the drop: PDFs to Figure mode, images to src.",
+      "translation": "Richtet Plaque Assay auf die Ablage: PDFs in den Figure-Modus, Bilder nach src.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#1",
+      "source": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
+      "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "translation": "Der Modus folgt dem, was abgelegt wurde (Punkt 518): PDFs oder ein Ordner damit, im Plaque-Modus abgelegt, fragen, ob in den Figure-Modus gewechselt werden soll; im Figure-Modus abgelegte Bilder fragen, ob in den Plaque-Modus gewechselt werden soll; PDFs und Bilder zusammen melden, dass PDFs im Figure-Modus und Bilder im Plaque-Modus gelesen werden, und fragen, was gelesen werden soll. Bleibt man im Figure-Modus, werden die Bilder als Abbildungen gelesen; bleibt man im Plaque-Modus, bleiben die PDFs ungelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",
+      "source": "True; the drop is always handled here.",
+      "source_sha256": "1abb833f90714922fa3968fe30f8623d1fd099f4aa1cb52376626db7075255a4",
+      "context": "True; the drop is always handled here.",
+      "translation": "True; die Ablage wird hier immer behandelt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept#0",
+      "source": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
+      "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
+      "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
+      "translation": "Ein Plaque-Bild, ein PDF oder ein Ordner mit Plaque-Bildern oder PDFs darin.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",
+      "source": "Say what Plaque Assay reads, in its own terms.",
+      "source_sha256": "89245df910bf3f693bd6479f55320650c80333389ffa59daf51133bfca6ae91c",
+      "context": "Say what Plaque Assay reads, in its own terms.",
+      "translation": "Sagt in seinen eigenen Begriffen, was Plaque Assay liest.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.suggest_alternatives#0",
+      "source": "Nearby folders that hold plaque images.",
+      "source_sha256": "da80bad70c83a8071e53ba0bf6562cc09b1b9b4e4991e6cd3bff04e6fdb92df8",
+      "context": "Nearby folders that hold plaque images.",
+      "translation": "Nahe gelegene Ordner mit Plaque-Bildern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.suggest_alternatives#2",
+      "source": "sibling and child folders with plaque images in them.",
+      "source_sha256": "0b72dcf348de0bca178c6172ac1b168a61a05324a5ba90136d5e86d21b7ce058",
+      "context": "sibling and child folders with plaque images in them.",
+      "translation": "Geschwister- und Unterordner mit Plaque-Bildern darin.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#0",
+      "source": "What a drop or a ``src`` holds for each Plaque Assay mode.",
+      "source_sha256": "265586eb2e6164081c0d47ffe0e8e2a5c4990fb48650755ed60cea30ce4b6a9b",
+      "context": "What a drop or a ``src`` holds for each Plaque Assay mode.",
+      "translation": "Was eine Ablage oder ein ``src`` für jeden Modus von Plaque Assay enthält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#1",
+      "source": "Only the top level of a folder is read, as the plaque run reads it, and at most ``limit`` entries of each, so a huge folder on a slow share cannot hold the window for long.",
+      "source_sha256": "a529c004825db4bf61beda58e46cd820e34f5d35ba597fa8641149d3d32ef76f",
+      "context": "Only the top level of a folder is read, as the plaque run reads it, and at most ``limit`` entries of each, so a huge folder on a slow share cannot hold the window for long.",
+      "translation": "Nur die oberste Ebene eines Ordners wird gelesen, so wie der Plaque-Lauf ihn liest, und höchstens ``limit`` Einträge von jedem, sodass ein riesiger Ordner auf einer langsamen Freigabe das Fenster nicht lange blockieren kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#2",
+      "source": "dropped files and folders, or ``[src]``.",
+      "source_sha256": "f34783eb2c23011dbf9f801e00514f2cc148622efdbce4da18938f6127e7cb5d",
+      "context": "dropped files and folders, or ``[src]``.",
+      "translation": "abgelegte Dateien und Ordner oder ``[src]``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#3",
+      "source": "entries read per folder.",
+      "source_sha256": "eeb4c8057e335b764871e01b5ace23359e2b2c2d2bfe6978d9682dcd69eba4d0",
+      "context": "entries read per folder.",
+      "translation": "pro Ordner gelesene Einträge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_inputs#4",
+      "source": "``(pdfs, images, paper_folders)``. A paper folder -- one a paper was fetched into, holding its ``paper.json``, ``legends.csv`` or ``text_layer.json`` -- is Figure mode's input, and its figure images are not counted as plaque images.",
+      "source_sha256": "f9a3fc26e58350eb8c3a3391f90f20a2c453d1859a81a6e7508562e4feaa5bca",
+      "context": "``(pdfs, images, paper_folders)``. A paper folder -- one a paper was fetched into, holding its ``paper.json``, ``legends.csv`` or ``text_layer.json`` -- is Figure mode's input, and its figure images are not counted as plaque images.",
+      "translation": "``(pdfs, images, paper_folders)``. Ein Artikelordner -- einer, in den ein Artikel abgerufen wurde und der dessen ``paper.json``, ``legends.csv`` oder ``text_layer.json`` enthält -- ist die Eingabe des Figure-Modus, und seine Abbildungsbilder werden nicht als Plaque-Bilder gezählt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#0",
+      "source": "A folder that lists the dropped plaque images, without copying them.",
+      "source_sha256": "c789351d4dce23bd4b6aad8ff448daf23f0c259cc8a93d89ec9cc4de112cf441",
+      "context": "A folder that lists the dropped plaque images, without copying them.",
+      "translation": "Ein Ordner, der die abgelegten Plaque-Bilder auflistet, ohne sie zu kopieren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_selection_folder#1",
+      "source": "A plaque run reads one folder and writes its masks beneath it, so a drop of loose files becomes a folder of links to them -- symbolic, else hard -- named ``plaque_selection_<time>`` beside the first image, or in the temporary folder when that one cannot be written. Two images with the same name from different folders keep both, the second under its folder's name.",
+      "source_sha256": "a5ed53b772792408f3987f6a52d1d03eaa9e80844d5ea8b96318f2b7418abdcf",
+      "context": "A plaque run reads one folder and writes its masks beneath it, so a drop of loose files becomes a folder of links to them -- symbolic, else hard -- named ``plaque_selection_<time>`` beside the first image, or in the temporary folder when that one cannot be written. Two images with the same name from different folders keep both, the second under its folder's name.",
+      "translation": "Ein Plaque-Lauf liest einen Ordner und schreibt seine Masken darunter, daher wird eine Ablage loser Dateien zu einem Ordner mit Verknüpfungen auf sie -- symbolisch, sonst hart --, benannt ``plaque_selection_<time>``, neben dem ersten Bild oder im temporären Ordner, wenn dort nicht geschrieben werden kann. Zwei Bilder mit demselben Namen aus verschiedenen Ordnern bleiben beide erhalten, das zweite unter dem Namen seines Ordners.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
