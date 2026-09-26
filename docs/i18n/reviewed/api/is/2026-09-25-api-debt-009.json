@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#2",
+      "source": "the parsed map; modules and artifacts must be dictionaries. The bundled map also supplies pathways and connections.",
+      "source_sha256": "df69efcf127dd6a1e549d2fe68e45bc81a9f2eddcc518d42edaca15847b44f51",
+      "context": "the parsed map; modules and artifacts must be key-value mappings. The bundled map also supplies pathways and connections.",
+      "translation": "þáttaða kortið; einingar og afurðir verða að vera orðabækur. Meðfylgjandi kortið leggur einnig til ferla og tengingar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#3",
+      "source": "the file cannot be read.",
+      "source_sha256": "6a229420763e13d32d7641117a918a347b0431996cb065c9898a2345a35977b2",
+      "context": "the file cannot be read.",
+      "translation": "ekki er hægt að lesa skrána.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#4",
+      "source": "invalid JSON or missing module/artifact dictionaries.",
+      "source_sha256": "7cbf6731cfa94feb0e51d53c27d4ed31d048fc8c0921528c3902929541626c84",
+      "context": "invalid JSON or missing module/artifact key-value mappings.",
+      "translation": "ógilt JSON eða orðabækur eininga/afurða vantar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#0",
+      "source": "One image view that fits, zooms, pans -- and can be tied to another.",
+      "source_sha256": "bdf6df34f4091edfb8f9b0c9c8fea42ca916ca89f699c6eb7dd71d6ec230a0fa",
+      "context": "One image view that fits, zooms, pans -- and can be tied to another.",
+      "translation": "Ein myndasýn sem aðlagast, dregur að, hliðrast -- og hægt er að binda við aðra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#1",
+      "source": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC field browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the field browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
+      "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "translation": "spaCR hafði þegar myndastriga sem aðlagast við hleðslu, dregur að með hjóli og hliðrast með drætti: eigin ``_FieldView`` QC-sjónsviðsvafrans. Gluggi liðar 473 fyrir hrátt á móti bættu þurfti það sama tvisvar, og þriðja afritið af \"QGraphicsView með pixmap-mynd í\" er leiðin til þess að kóðasafn endi með þrjú sem hegða sér á fínlega ólíkan hátt. Svo sýn sjónsviðsvafrans var flutt hingað óbreytt, undir heiti sem segir að hún sé sameiginleg, og vafrinn heldur áfram að nota hana undir gamla heitinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#2",
+      "source": "WHAT IS NEW HERE IS THE TIE. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
+      "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
+      "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
+      "translation": "ÞAÐ SEM ER NÝTT HÉR ER BINDINGIN. Tvær sýnir af sama svæði eru aðeins þess virði að setja hlið við hlið ef þær haldast samstilltar: umsjónarmaður sem ber sjónsvið saman við bætta útgáfu þess leitar að mun á þeim, og munur á því hvert þær tvær vísa er eini munurinn sem er ekki upplýsingar. :meth:`ZoomableImageView.link_to` lætur hóp sýna deila einum aðdrætti og einni flettistöðu, svo aðdráttur eða hliðrun á einhverri þeirra færir þær allar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#3",
+      "source": "The tie is on the VIEW and not on the window, because what has to match is the transform and the two scroll bars -- the things a view owns. Views in a group must show images of the same size for the tie to mean anything; the compare window builds both of its pictures from one region, so they do.",
+      "source_sha256": "3b2873ed9de0f8f4659805ba8a0bb8c761e19512cb302a027126c7f5b3614112",
+      "context": "The tie is on the VIEW and not on the window, because what has to match is the transform and the two scroll bars -- the things a view owns. Views in a group must show images of the same size for the tie to mean anything; the compare window builds both of its pictures from one region, so they do.",
+      "translation": "Bindingin er á SÝNINNI en ekki á glugganum, því það sem þarf að passa saman er vörpunin og flettistikurnar tvær -- það sem sýn á. Sýnir í hópi verða að sýna myndir af sömu stærð til að bindingin þýði eitthvað; samanburðarglugginn byggir báðar myndir sínar úr einu svæði, svo þær gera það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView#0",
+      "source": "Fit-on-load image canvas with wheel zoom and drag panning.",
+      "source_sha256": "b83826d96225e71da81ed31663e7d55d963f89df4d1f8e26f51c2fd9b47f4643",
+      "context": "Fit-on-load image canvas with wheel zoom and drag panning.",
+      "translation": "Myndastrigi sem aðlagast við hleðslu, með aðdrætti með hjóli og hliðrun með drætti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView#2",
+      "source": "Build the view with its own scene, fitted on first load.",
+      "source_sha256": "b233e70200ec38b2dc0f83838a15aa67e1a4792e671aec8d91d0c9738cfc809e",
+      "context": "Build the view with its own scene, fitted on first load.",
+      "translation": "Byggja sýnina með eigin senu, aðlagaða við fyrstu hleðslu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image#0",
+      "source": "Empty the view.",
+      "source_sha256": "bb4f6950d494f46914c8d88e853aa8e5170f359a26ec075dab161e9d8ad967eb",
+      "context": "Empty the view.",
+      "translation": "Tæma sýnina.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.fit#0",
+      "source": "Fit the whole image in the view again, and the peers with it.",
+      "source_sha256": "2603f96b3286859cc085f89a0ab68f9b871d45bdd96d20aecfb08310c73923ed",
+      "context": "Fit the whole image in the view again, and the peers with it.",
+      "translation": "Laga alla myndina aftur að sýninni, og jafningjana með henni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to#0",
+      "source": "Move with ``other``, and make ``other`` move with this one.",
+      "source_sha256": "5ad5c5acc9eeb0d5df00a076c711df90b3b3d0abd3baeed1b6023568442f8786",
+      "context": "Move with ``other``, and make ``other`` move with this one.",
+      "translation": "Hreyfast með ``other``, og láta ``other`` hreyfast með þessari.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
