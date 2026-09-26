@@ -131,13 +131,19 @@ def test_the_umbrella_takes_the_place_of_its_first_family(mask_tree):
     """The panel's running order is the one its layout wrote.
 
     Hoisting the umbrella to the top or dropping it to the bottom would move
-    a block of settings the layout deliberately put between the organelle
-    detection parameters and the quality-control checks.
+    a block of settings the layout deliberately put between the segmentation
+    settings and the quality-control checks.
     """
     titles = [section.title for section in mask_tree]
-    assert titles[titles.index("Advanced settings") - 1] == \
-        "Organelle Segmentation (advanced)"
-    assert titles[titles.index("Advanced settings") + 1] == "Quality Control"
+    # The segmentation block ends with "Cellpose 3": the legacy Cellpose 3
+    # model settings apply to whichever object a Cellpose 3 model segments,
+    # so they follow the per-object segmentation headings (organelle's
+    # advanced one last) rather than sitting inside any of them, and the
+    # umbrella comes straight after the block.
+    umbrella = titles.index("Advanced settings")
+    assert titles[umbrella - 2:umbrella] == [
+        "Organelle Segmentation (advanced)", "Cellpose 3"]
+    assert titles[umbrella + 1] == "Quality Control"
 
 
 def test_each_family_splits_into_a_sub_section_per_object(mask_tree):
