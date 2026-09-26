@@ -252,7 +252,7 @@ def convert_settings_dict_for_gui(settings):
                       + [repr(['cell', role]) for role in ALL_ROLES
                          if role != 'cell'],
                       "['cell']"),
-        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
+        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack', 'timeflows'], 'trackastra'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),

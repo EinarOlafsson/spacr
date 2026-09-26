@@ -1080,6 +1080,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'threshold_method',
     'threshold_multiplier',
     'threshold_sensitivity',
+    'timeflows_model',
     'timelapse',
     'timelapse_batch_size',
     'timelapse_displacement',

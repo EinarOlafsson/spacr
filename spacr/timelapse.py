@@ -661,6 +661,99 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     return _masks_to_masks_stack(masks_tracked)
 
 
+def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                           timelapse_remove_transient=False, plot=False, save=False,
+                           mode='timeflows', model_path=None, device=None,
+                           min_successor=0.5, max_distance=1.0, net=None):
+    """Track objects with Timeflows, spaCR's experimental temporal Cellpose.
+
+    Timeflows predicts, for every pixel of an object in frame t, where that
+    object's centre is in frame t+1, plus whether it has a successor at all.
+    Those votes are assigned to the next frame's masks, and the links are
+    stitched into whole-movie track ids that are identical on every re-run
+    (:func:`spacr.timeflows_model._stitch_links`). A daughter after a division
+    starts a new track; parent/child lineage is not recorded yet.
+
+    It is opt-in and experimental: on the held-out movies measured so far it
+    does not beat overlap linking ('iou'), so it is never the default. It
+    needs a trained checkpoint (``timeflows_model``); none is downloaded.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack.
+    :param images: (T, Y, X) or (T, Y, X, C) intensity stack; required,
+        because the model reads the images, not only the masks.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param model_path: the Timeflows checkpoint to load.
+    :param device: 'cuda', 'cpu' or None for CUDA when available. On CPU the
+        encoder runs in float32, which is much faster there than bfloat16.
+    :param min_successor: successor probability an object needs to be linked.
+    :param max_distance: the furthest link, in the object's own diameters.
+    :param net: an already loaded network; used instead of ``model_path``.
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises ValueError: no checkpoint or images, or mismatched shapes.
+    """
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .qt.i18n import tr
+    from .utils import _masks_to_masks_stack
+    from . import timeflows_model
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(tr("Timeflows needs a (T, Y, X) mask stack, got shape {shape}.",
+                            shape=masks.shape))
+    if masks.shape[0] < 2:
+        print(tr("Timeflows: only {count} frame(s) for {object_type}; nothing to link.",
+                 count=masks.shape[0], object_type=object_type))
+        return _masks_to_masks_stack(masks)
+    if images is None:
+        raise ValueError(tr("timelapse_mode='timeflows' needs the image stack, not only the masks."))
+    images = np.asarray(images)
+    if images.shape[:3] != masks.shape:
+        raise ValueError(tr("Image stack shape {images} does not match mask stack shape {masks}.",
+                            images=images.shape, masks=masks.shape))
+    if net is None:
+        if not model_path or not os.path.isfile(str(model_path)):
+            raise ValueError(tr("timelapse_mode='timeflows' needs timeflows_model set to a trained "
+                                "Timeflows checkpoint file; none was found at {path}.",
+                                path=model_path))
+        if device is None:
+            import torch
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        net = timeflows_model._load_timeflows(
+            str(model_path), device=device,
+            precision='float32' if str(device).startswith('cpu') else 'checkpoint')
+    masks_tracked, _links = timeflows_model._track_movie(
+        net, list(images), masks, device=device or 'cpu',
+        min_successor=min_successor, max_distance=max_distance)
+
+    tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if timelapse_remove_transient and not tracks_df.empty:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(tr("Removed {count} objects that were not present in all frames",
+                 count=before - len(tracks_df)))
+        masks_tracked = np.where(np.isin(masks_tracked, list(kept_ids)), masks_tracked, 0)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    tracks_df.to_csv(
+        os.path.join(tracks_path, f'timeflows_tracks_{object_type}_{name}.csv'),
+        index=False)
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
+
+
 def _relabelled_stack_to_tracks_df(masks_tracked):
     """Flatten a tracker's relabelled label stack into spaCR's tracks table.
 
