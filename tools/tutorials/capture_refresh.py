@@ -87,7 +87,12 @@ def main() -> int:
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
+    parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
+                        help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
+                             'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
+        parser.error('--preferences-alpha-toggle-scene records only the Preferences toggle, without run/download/preview')
     if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
         parser.error('--workflow-overview requires workflow_overview without run/download/preview')
     if args.workflow_lesson != '78_spacr_screens' and not args.workflow_overview:
@@ -288,6 +293,7 @@ def main() -> int:
         mark_seen(key)
     set_preload_policy('on_demand')
     set_ai_on_by_default(False)
+    # Also turns Show alpha features off: alpha features get no tutorials.
     configure_appearance(args.theme, args.backdrop)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
@@ -319,7 +325,8 @@ def main() -> int:
         hidden_backdrops = exclude_special_backdrops(window)
         if hidden_backdrops:
             settle(.2)
-        appearance = verify_appearance(window)
+        appearance = verify_appearance(
+            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene)
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         except RuntimeError:

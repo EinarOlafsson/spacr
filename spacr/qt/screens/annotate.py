@@ -1648,6 +1648,51 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             "queue_summary": "", "note": ""}
 
 
+def _blind_order(rows, rank: Dict[str, int]) -> list:
+    """``rows`` in a blinding key's shuffled order.
+
+    :param rows: ``(png_path, annotation)`` pairs.
+    :param rank: each path's position in the key's order. A path the key
+        does not know, one added to the table after blinding started, goes
+        after the known ones, ordered by a hash of its path so it is not
+        next to its own well either.
+    :returns: the rows, reordered.
+    """
+    import hashlib
+
+    def position(row):
+        path = str(row[0])
+        at = rank.get(path)
+        if at is not None:
+            return (0, at, "")
+        return (1, 0, hashlib.sha256(path.encode("utf-8")).hexdigest())
+
+    return sorted(rows, key=position)
+
+
+def _blinded_total(outcome: dict, s: AnnotateSettings,
+                   rank: Optional[Dict[str, int]]) -> dict:
+    """A population count with its rows put in the blinding key's order.
+
+    Runs on the same worker as :func:`_compute_total`. The unfiltered
+    population has no row list of its own, so while blinded it is read
+    whole, because a page can then only be cut from the shuffled list.
+
+    :param outcome: what :func:`_compute_total` returned.
+    :param s: a frozen copy of the screen's settings.
+    :param rank: the key's order, or ``None`` when not blinded.
+    :returns: ``outcome``, reordered when blinded.
+    """
+    if rank is None:
+        return outcome
+    rows = outcome.get("filtered_rows")
+    if rows is None:
+        rows = fetch_page(s.db_path, s.annotation_column, 0, -1,
+                          s.image_type, table=s.png_table)
+    ordered = _blind_order(list(rows), rank)
+    return dict(outcome, filtered_rows=ordered, total=len(ordered), note="")
+
+
 def _read_example_settings(path) -> Dict[str, str]:
     """Read a settings CSV that shipped with a dataset, as ``key -> value``.
 
@@ -2813,6 +2858,7 @@ class AnnotateScreen(QWidget):
         self._object_rows: Optional[List[Tuple[str, Optional[int]]]] = None
         #: the routed request's reason, kept on the header through page loads
         self._request_note = ""
+        self._blind: Optional[Dict[str, Any]] = None
         self._object_opener = self.open_object_request
         self._pending_updates: Dict[str, Optional[int]] = {}
         self._page_verdicts: Dict[str, int] = {}
@@ -3050,6 +3096,7 @@ class AnnotateScreen(QWidget):
         self._btn_settings.setCursor(Qt.PointingHandCursor)
         self._btn_settings.clicked.connect(self._on_open_settings)
         row.addWidget(self._btn_settings)
+        row.addWidget(self._build_blind_toggle())
 
         self._btn_prev = QPushButton("Back")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -4088,6 +4135,7 @@ class AnnotateScreen(QWidget):
             if answer != QMessageBox.Yes:
                 return
         self._flush_pending()
+        self._leave_blind_unopened("another source was opened")
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
@@ -4120,6 +4168,163 @@ class AnnotateScreen(QWidget):
         """Rebuild the grid against the (now realized) viewport, then load."""
         self._rebuild_grid()
         self._load_page()
+
+    def _build_blind_toggle(self) -> QPushButton:
+        """The Blind switch: score the crops without knowing where they are from.
+
+        On, the crops of the population on screen are shuffled under a
+        blinding key (:func:`spacr.run_journal.start_blinding`), the source
+        line and a routed request's reason are hidden, and the tools that
+        show plates, wells or conditions (Coverage, Auto-annotate, View in
+        database) are disabled. Off asks first, then unblinds through
+        :func:`spacr.run_journal.unblind`, which records who did it and
+        when. An alpha feature, registered as ``AnnotateBlindToggle`` in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the checkable button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Blind"), self)
+        button.setObjectName("AnnotateBlindToggle")
+        button.setCheckable(True)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Score blind: hide the source, plates, wells, conditions and file "
+            "names, and show the crops in a shuffled order. The key is kept "
+            "beside the run journal, outside the data folder. Turning it off "
+            "unblinds, and the journal records who unblinded and when. "
+            "Default off."))
+        button.toggled.connect(self._on_blind_toggled)
+        _apply_alpha_widgets(button)
+        self._btn_blind = button
+        return button
+
+    def _set_blind_checked(self, on: bool) -> None:
+        """Move the Blind switch without asking it to act."""
+        button = getattr(self, "_btn_blind", None)
+        if button is None:
+            return
+        button.blockSignals(True)
+        button.setChecked(bool(on))
+        button.blockSignals(False)
+
+    def _on_blind_toggled(self, checked: bool) -> None:
+        """Start blinding, or ask to unblind; undo the click if refused."""
+        if checked and self._blind is None:
+            if not self._start_blind():
+                self._set_blind_checked(False)
+        elif not checked and self._blind is not None:
+            if not self._end_blind():
+                self._set_blind_checked(True)
+
+    def _start_blind(self) -> bool:
+        """Shuffle the population on screen under a new blinding key.
+
+        :returns: whether blinding started; not without an open source.
+        """
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, tr("Open a source first"),
+                tr("Open an experiment source before scoring it blind."))
+            return False
+        self._flush_pending()
+        rows = (list(self._filtered_rows) if self._filtered_rows is not None
+                else fetch_page(self._settings.db_path,
+                                self._settings.annotation_column, 0, -1,
+                                self._settings.image_type,
+                                table=self._settings.png_table))
+        from ...run_journal import start_blinding
+
+        src = self._settings.src or os.path.dirname(
+            os.path.dirname(self._settings.db_path))
+        key = start_blinding([row[0] for row in rows], scope="annotate",
+                             src=src)
+        rank = {item: index for index, item in enumerate(key["order"])}
+        self._blind = {"key_id": key["key_id"], "rank": rank,
+                       "codes": key["codes"]}
+        self._filtered_rows = _blind_order(rows, rank)
+        self._total = len(self._filtered_rows)
+        self._offset = 0
+        self._apply_blind_chrome(True)
+        self._console.append_notice(
+            "Blinded {count} crops under key {key}.\n",
+            count=len(rows), key=key["key_id"])
+        self._load_page()
+        return True
+
+    def _end_blind(self, *, ask=None) -> bool:
+        """Unblind, after asking, and record who did it and when.
+
+        :param ask: returns whether to go ahead; a Yes/No question when
+            omitted.
+        :returns: whether the session was unblinded.
+        """
+        if self._blind is None:
+            return True
+        if ask is None:
+            def ask():
+                return QMessageBox.question(
+                    self, tr("Unblind?"),
+                    tr("Unblinding shows where every crop is from again, "
+                       "and the run journal records who unblinded and "
+                       "when. An analysis lock on this folder treats any "
+                       "later change as post-hoc. Unblind now?"),
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No) == QMessageBox.Yes
+        if not ask():
+            return False
+        from ...run_journal import unblind
+
+        key_id = self._blind["key_id"]
+        self._flush_pending()
+        unblind(key_id, reason="annotate")
+        self._blind = None
+        self._apply_blind_chrome(False)
+        self._console.append_notice(
+            "Unblinded key {key}; the journal recorded who and when.\n",
+            key=key_id)
+        self._offset = 0
+        self._refresh_total(then=self._load_page)
+        return True
+
+    def _leave_blind_unopened(self, reason: str) -> None:
+        """End a blinded session without unblinding it, and log that it ended.
+
+        :param reason: why it ended, kept in the key's log.
+        """
+        if self._blind is None:
+            return
+        from ...run_journal import _close_blinding
+
+        _close_blinding(self._blind["key_id"], reason=reason)
+        self._blind = None
+        self._apply_blind_chrome(False)
+
+    def _apply_blind_chrome(self, on: bool) -> None:
+        """Hide or restore what on this screen says where the crops are from.
+
+        :param on: true while blinded.
+        """
+        self._set_blind_checked(on)
+        for button in (self._btn_coverage, self._btn_auto,
+                       self._btn_browse_db):
+            if on:
+                button.setProperty("_spacr_blind_was", button.isEnabled())
+                button.setEnabled(False)
+            elif button.property("_spacr_blind_was") is not None:
+                button.setEnabled(bool(button.property("_spacr_blind_was")))
+                button.setProperty("_spacr_blind_was", None)
+        if on:
+            self._src_label.setText(tr(
+                "Blinded: the source, plates, wells, conditions and file "
+                "names are hidden, and the crops are in a shuffled order."))
+        elif self._settings.db_path:
+            self._src_label.setText(
+                f"{self._settings.src}  →  {self._settings.db_path}")
+        else:
+            self._src_label.setText(
+                tr("No source selected — click Open source…"))
 
     def _on_open_settings(self):
         """Open the annotation settings dialog, and apply it on OK.
@@ -4509,6 +4714,8 @@ class AnnotateScreen(QWidget):
 
         self._flush_pending()
         self._object_rows = rows
+        if self._blind is not None:
+            rows = _blind_order(rows, self._blind["rank"])
         self._filtered_rows = rows
         self._total = len(rows)
         self._offset = 0
@@ -5176,8 +5383,10 @@ class AnnotateScreen(QWidget):
             ``_load_page()`` on the next line; that is what this is for, and
             passing it is how the ordering survives becoming asynchronous.
         """
+        rank = self._blind["rank"] if self._blind is not None else None
         if self._object_rows is not None:
-            self._filtered_rows = self._object_rows
+            self._filtered_rows = (self._object_rows if rank is None
+                                   else _blind_order(self._object_rows, rank))
             self._total = len(self._object_rows)
             self._queue_summary = ""
             if then is not None:
@@ -5187,7 +5396,8 @@ class AnnotateScreen(QWidget):
         filter_active = self._filter_active()
         self._total_jobs.cancel()
         self._total_jobs.submit(
-            lambda: _compute_total(settings, filter_active),
+            lambda: _blinded_total(_compute_total(settings, filter_active),
+                                   settings, rank),
             lambda outcome, _then=then: self._apply_total(outcome, _then))
 
     def _apply_total(self, outcome: dict, then=None) -> None:
@@ -5333,6 +5543,9 @@ class AnnotateScreen(QWidget):
         counter over them read as the whole screen. The reason is the part
         that must not be lost.
         """
+        if getattr(self, "_blind", None) is not None:
+            self._page_label.setText(tr("Blinded · {page}", page=text))
+            return
         note = getattr(self, "_request_note", "")
         self._page_label.setText(f"{note} — {text}" if note else text)
 
@@ -6242,6 +6455,10 @@ class AnnotateScreen(QWidget):
         batch = dict(self._pending_updates)
         self._worker.submit(self._pending_updates)
         self._pending_updates.clear()
+        if self._blind is not None and self._filtered_rows is not None:
+            self._filtered_rows = [
+                (path, batch[path]) if path in batch else (path, value)
+                for path, value in self._filtered_rows]
         self._record_round_provenance(batch)
 
     def _record_round_provenance(self, batch: Dict[str, Optional[int]]) -> None:
@@ -6317,6 +6534,11 @@ class AnnotateScreen(QWidget):
         self._resize_timer.stop()
         self._pending_page_load = None
         self._flush_pending()
+        try:
+            self._leave_blind_unopened("the screen was closed")
+        except Exception:
+            LOG.debug("could not log the end of a blinded session",
+                      exc_info=True)
         self._total_jobs.shutdown()
         self._report_jobs.shutdown()
         retrain = self._retrain_worker

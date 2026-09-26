@@ -1751,6 +1751,10 @@ def cmd_run(args: argparse.Namespace) -> int:
             log.info("recording reproducibility input hashes")
             with open_run(module.key, settings) as run:
                 log.info("reproducibility manifest %s", run.dir)
+                lock = getattr(run, "_analysis_lock", None)
+                if lock:
+                    (log.info if lock.get("status") == "verified"
+                     else log.warning)("%s", lock.get("summary"))
                 _call_entry(module, func, settings)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)

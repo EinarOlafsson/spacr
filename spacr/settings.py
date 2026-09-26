@@ -6814,6 +6814,9 @@ ALPHA_FEATURES = {
                      'confluency_window', 'confluency_qc_threshold'),
         'widgets': ('MeasureConfluencyToggle',),
     },
+    544: {
+        'widgets': ('AnnotateBlindToggle', 'MakeMasksBlindToggle'),
+    },
     545: {
         'widgets': ('MakeMasksRoisButton',),
     },
@@ -6844,6 +6847,9 @@ ALPHA_FEATURES = {
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
+    },
+    573: {
+        'widgets': ('AnalysisLockButton',),
     },
 }
 

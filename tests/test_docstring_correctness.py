@@ -2188,7 +2188,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # hit_heatmap, write_hit_report; figures.plates.score_ramp;
     # ControlChartScreen.hit_options, rescore_hits, choose_hit_export and
     # export_hits.
-    assert len(callables) == len(by_symbol) == 9_833
+    # 9,833 -> 9,837 with items 544 and 573 (blind scoring, analysis
+    # lock): spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
+    assert len(callables) == len(by_symbol) == 9_837
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2261,7 +2263,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 570: +15 function, +7 method, +2 dataclass_constructor
         # (MedianPolish, ArrayedHitResult), +1 exception_constructor
         # (HitScoringError); see the callable total.
-        "function": 4_395,
+        # Items 544 and 573: +4 function (spacr.run_journal).
+        "function": 4_399,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         "method": 4_245,
@@ -2321,7 +2324,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,784 -> 9,802 with item 545's eighteen, as the total.
         # 9,802 -> 9,803 with item 588's mask_engine.fill_label_holes.
         # 9,803 -> 9,828 with item 570's 25, as the total.
-        "autoapi": 9_828,
+        # 9,828 -> 9,832 with items 544 and 573's four, as the total.
+        "autoapi": 9_832,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2373,7 +2377,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,796 -> 9,814 with item 545's eighteen, one prose variant each.
     # 9,814 -> 9,815 with item 588's mask_engine.fill_label_holes.
     # 9,815 -> 9,840 with item 570's 25, one prose variant each.
-    assert sum(item.variant_count for item in callables) == 9_840
+    # 9,840 -> 9,844 with items 544 and 573's four, one prose variant each.
+    assert sum(item.variant_count for item in callables) == 9_844
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2390,7 +2395,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,782 -> 9,800 with item 545, as the sum above.
         # 9,800 -> 9,801 with item 588's mask_engine.fill_label_holes.
         # 9,801 -> 9,826 with item 570, as the sum above.
-        1: 9_826,
+        # 9,826 -> 9,830 with items 544 and 573, as the sum above.
+        1: 9_830,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2601,7 +2607,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 19,445 -> 19,446 with item 588's mask_engine.fill_label_holes.
     # 19,446 -> 19,522, +76 on 2026-09-26: the parameters of item 570's 25
     # hit-scoring callables and build_plates' new `outline` keyword.
-    assert sum(len(item.parameters) for item in callables) == 19_522
+    # 19,522 -> 19,537, +15, the parameters of items 544 and 573's four:
+    # start_blinding 4, unblind 2, lock_analysis 6, check_analysis_lock 3.
+    assert sum(len(item.parameters) for item in callables) == 19_537
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2643,7 +2651,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,991 -> 10,016 on 2026-09-26, +25, all on item 545's eighteen.
     # 10,016 -> 10,017 with item 588's mask_engine.fill_label_holes.
     # 10,017 -> 10,049, +32, all on item 570's 25 hit-scoring callables.
-    assert sum(len(item.required_parameters) for item in callables) == 10_049
+    # 10,049 -> 10,056, +7, the required ones among them.
+    assert sum(len(item.required_parameters) for item in callables) == 10_056
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2778,7 +2787,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # the one new row, spacr.qt.mask_engine.fill_label_holes, returns
     # 82154dd9..., item 545's pin above, byte for byte. With 541's
     # monolayer_filter and 588's fill_label_holes together: ca41ade6...
-) == "b3b92a2678dfe84ea8cfa2a35532e414bb5a3cac14ebb39241dede58e98e6304"
+    # Moved 2026-09-26 for items 544 and 573, proved by subtraction:
+    # dropping the four new spacr.run_journal rows (start_blinding, unblind,
+    # lock_analysis, check_analysis_lock) returns b3b92a26..., the previous
+    # pin, byte for byte.
+) == "28984a976acda2eb846c4b7fe66c68bfa859ab21df3746328f461a3e0f6b8a27"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3286,7 +3299,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 11,834 -> 11,835 with item 588's mask_engine.fill_label_holes.
     # 11,835 -> 11,861 with item 570's 26 (25 callables and
     # ControlChartScreen.hit_result), named at the callable inventory.
-    assert len(docs) == 11_861
+    # 11,861 -> 11,865 with items 544 and 573: spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
+    assert len(docs) == 11_865
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3619,15 +3633,17 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,481 with item 588's mask_engine.fill_label_holes.
     # 9,481 -> 9,506 with item 570's 25 hit-scoring callables, named at the
     # callable total.
-    assert len(prior - pipeline_callables) == 9_506
-    assert len(prior - pipeline_callables - validation_functions) == 9_500
+    # +4 each with items 544 and 573's four spacr.run_journal callables.
+    assert len(prior - pipeline_callables) == 9_510
+    assert len(prior - pipeline_callables - validation_functions) == 9_504
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
     # 9,802 with item 545's eighteen roi_callables.
     # 9,802 -> 9,803 with item 588's mask_engine.fill_label_holes.
     # 9,803 -> 9,828 with item 570's 25.
-    assert len(rendered_documented_callables) == 9_828
+    # 9,828 -> 9,832 with items 544 and 573's four.
+    assert len(rendered_documented_callables) == 9_832
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
