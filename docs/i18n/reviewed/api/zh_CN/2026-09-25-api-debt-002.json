@@ -1,0 +1,600 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.stream_dataset.settings_for_method#2",
+      "source": "method : str Selection method name (``'column'`` or ``'array'``), matched case-insensitively after stripping whitespace.",
+      "source_sha256": "16931865a08e319119f125b5cb0113b41d75041676cd16d913e39367870eecf7",
+      "context": "method : str Selection method name (``'column'`` or ``'array'``), matched case-insensitively after stripping whitespace.",
+      "translation": "method : str 选择方法名称（``'column'`` 或 ``'array'``），去除首尾空白后按不区分大小写的方式匹配。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.stream_dataset.stream#1",
+      "source": "Each merged field is loaded once and all selected objects from that field are extracted before advancing. Missing or ambiguous field matches are reported as missing crops; a different field is never used as a fallback.",
+      "source_sha256": "9b6fc7664f0614f6a9150230560849ff5474c766405334d110a6edc55424cf22",
+      "context": "Each merged microscope field of view is loaded once and all selected objects from that microscope field of view are extracted before advancing. Missing or ambiguous microscope field of view matches are reported as missing extracted image regions; a different microscope field of view is never used as a fallback.",
+      "translation": "每个合并视野只加载一次，并在继续处理下一个之前提取该视野中所有选定的对象。缺失或有歧义的视野匹配会被报告为缺失的裁剪图；绝不会退而使用另一个视野。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.Cellpose3Checkpoint#0",
+      "source": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
+      "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
+      "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
+      "translation": "一个 Cellpose 3 检查点被交给了 Cellpose 4，而后者无法加载它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#5",
+      "source": "``diameter``, ``flow_threshold`` and ``CP_prob``, read by :func:`spacr.plaque.segment_plaque_image`, the call the Plaque preview makes too.",
+      "source_sha256": "6c6e649957d0b9c583c81c447713b9b3b3db4949a7b6bc6afbe768633e9fd6e3",
+      "context": "``diameter``, ``flow_threshold`` and ``CP_prob``, read by :func:`spacr.plaque.segment_plaque_image`, the call the Plaque preview makes too.",
+      "translation": "``diameter``、``flow_threshold`` 和 ``CP_prob``，由 :func:`spacr.plaque.segment_plaque_image` 读取，Plaque 预览也调用同一个函数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#6",
+      "source": "``plaque_mode`` -- ``'figure'`` hands the folder to :func:`spacr.plaque_papers.measure_figure_folder` instead.",
+      "source_sha256": "42198a3abf9a706c48ef47734cb8536dda97a3ae52285ac4ffd2ba8f4888ddff",
+      "context": "``plaque_mode`` -- ``'figure'`` hands the folder to :func:`spacr.plaque_papers.measure_figure_folder` instead.",
+      "translation": "``plaque_mode``——``'figure'`` 会改为将文件夹交给 :func:`spacr.plaque_papers.measure_figure_folder`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#0",
+      "source": "Measure marker recruitment with host-cell and per-well summaries.",
+      "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
+      "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
+      "translation": "测量标记物募集，并按宿主细胞和按孔进行汇总。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#1",
+      "source": "Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from a spacr ``measurements.db``, annotates each row with cell type / pathogen / treatment based on plate metadata, filters objects by size and intensity, computes the pathogen-to-cytoplasm mean-intensity ratio for ``channel_of_interest``, groups by well and writes both ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.",
+      "source_sha256": "a29f43922aa0cb30f176d04778b1fdd408509368b812cb139973604ece725c8b",
+      "context": "Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from a spacr ``measurements.db``, annotates each row with cell type / pathogen / treatment based on laboratory microplate metadata, filters objects by size and intensity, computes the pathogen-to-cytoplasm mean-intensity ratio for ``channel_of_interest``, groups by well and writes both ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.",
+      "translation": "从 spacr ``measurements.db`` 中读取合并后的细胞/细胞核/病原体/细胞质特征表，根据板元数据为每一行标注细胞类型/病原体/处理，按大小和强度过滤对象，计算 ``channel_of_interest`` 的病原体与细胞质平均强度之比，按孔分组，并写出 ``results/cells.csv`` 和 ``results/wells.csv`` 以及募集图。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#10",
+      "source": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — recorded object-channel mapping used by image overlays and intensity filtering.",
+      "source_sha256": "cb6d273d8f2360ea8ec4bef8ba6f62a667ebc6ecc72eac903fb617f1f6bd3721",
+      "context": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — recorded object-image data channel mapping used by image overlays and intensity filtering.",
+      "translation": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim``——记录的对象与通道映射，用于图像叠加显示和强度过滤。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#15",
+      "source": "List ``[cells, wells]`` — the host-cell and per-well recruitment DataFrames, also written to CSV under ``src/results``.",
+      "source_sha256": "a361b3555fcb6119b2af0e473de644e51360e86efcabf19fd118ecc10bff870c",
+      "context": "List ``[cells, wells]`` — the host-cell and per-microplate sample position recruitment DataFrames, also written to CSV under ``src/results``.",
+      "translation": "列表 ``[cells, wells]``——按宿主细胞和按孔的募集 DataFrames，同时以 CSV 格式写入 ``src/results``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#2",
+      "source": "Each cell row combines the pathogen measurements assigned to that host cell. Pathogen mean intensities are averaged across its associated objects; these rows represent host cells rather than independently measured vacuoles. The main recruitment ratio divides that aggregate pathogen mean by the cell's cytoplasm mean. Each well averages its retained cell ratios.",
+      "source_sha256": "92758f0c3daf51c7599fc7762df2cd5c50a2acc4f27e3c75df90b7b6df3cc203",
+      "context": "Each cell row combines the pathogen measurements assigned to that host cell. Pathogen mean intensities are averaged across its associated objects; these rows represent host cells rather than independently measured vacuoles. The main recruitment ratio divides that aggregate pathogen mean by the cell's cytoplasm mean. Each microplate sample position averages its retained cell ratios.",
+      "translation": "每个细胞行合并分配给该宿主细胞的病原体测量值。病原体平均强度在其关联对象之间取平均；这些行代表宿主细胞，而不是独立测量的纳虫泡。主要募集比值是用该汇总病原体平均值除以该细胞的细胞质平均值。每个孔对其保留的细胞比值取平均。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#3",
+      "source": "In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project, map its channels and plate conditions, review the object filters, and Run. Inspect the retained counts and ratio columns before comparing conditions. Condition plots show between-well standard deviations. For measurements linked to individual vacuoles, use :mod:`spacr.host_pathogen`.",
+      "source_sha256": "fc79e36854da76e195f32ef1e797cc60fba0119db86589d27aca7d7ae8047840",
+      "context": "In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project, map its channels and laboratory microplate conditions, review the object filters, and Run. Inspect the retained counts and ratio columns before comparing conditions. Condition plots show between-well standard deviations. For measurements linked to individual vacuoles, use :mod:`spacr.host_pathogen`.",
+      "translation": "在 GUI 中，打开 Home > Toxoplasma > Recruitment。选择一个已测量的项目，映射其通道和板条件，检查对象过滤器，然后点击 Run。在比较条件之前，先检查保留的计数和比值列。条件图显示孔间标准差。对于与单个纳虫泡关联的测量，请使用 :mod:`spacr.host_pathogen`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#5",
+      "source": "``src`` — folder containing ``measurements/measurements.db`` and optional ``merged`` images for overlays. A database path is also accepted; a database outside a measurements folder may be moved into one, so use a project copy when reorganizing existing data.",
+      "source_sha256": "28d0a82095526582605eff4a5f53a1d538458fa91379f2695bbf50254e04a0f5",
+      "context": "``src`` — folder containing ``measurements/measurements.db`` and optional ``merged`` images for overlays. A database path is also accepted; a database outside a measurements folder may be moved into one, so use a project copy when reorganizing existing data.",
+      "translation": "``src``——包含 ``measurements/measurements.db`` 以及可选的用于叠加显示的 ``merged`` 图像的文件夹。也接受数据库路径；位于 measurements 文件夹之外的数据库可能会被移入其中，因此在重新组织现有数据时请使用项目副本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#1",
+      "source": "``replication_method='direct_count'`` is the default described below. ``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its area-derived, host-aggregated readout instead. Both return the selected method in ``replication_method``. ``'deep_learning_coming_soon'`` raises :class:`NotImplementedError` before any data are read or outputs written; the whole-vacuole classification model is not available yet.",
+      "source_sha256": "605c05e5ef87a845b292da76a0192c107f810769f3830dcf030806f270899ba8",
+      "context": "``replication_method='direct_count'`` is the default described below. ``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its area-derived, host-aggregated readout instead. Both return the selected method in ``replication_method``. ``'deep_learning_coming_soon'`` raises :class:`NotImplementedError` before any data are read or outputs written; the whole-vacuole classification model is not available yet.",
+      "translation": "``replication_method='direct_count'`` 是下文所述的默认方式。``'size_proxy'`` 委托给 :func:`analyze_endodyogeny`，并改为返回其基于面积推导、按宿主汇总的读数。两者都在 ``replication_method`` 中返回所选方法。``'deep_learning_coming_soon'`` 会在读取任何数据或写入任何输出之前抛出 :class:`NotImplementedError`；整个纳虫泡的分类模型目前尚不可用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#0",
+      "source": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
+      "source_sha256": "c06357c30e243f47a56f0866d851a560d8821236c421d5e6e896d33f29b70c14",
+      "context": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
+      "translation": "将 Cellpose 4 对 Cellpose 3 检查点的拒绝转换为建议。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#1",
+      "source": "the exception Cellpose raised.",
+      "source_sha256": "3c9d865f9dc45b7149be58619e293798d57edd70f7f0b4da1d40d20eacb72d4c",
+      "context": "the exception Cellpose raised.",
+      "translation": "Cellpose 抛出的异常。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#2",
+      "source": "what was asked for, for the message.",
+      "source_sha256": "9cd77fa3259421669734c34089afc8d0e363009f2248c20dc3e3b6e263f22ed2",
+      "context": "what was asked for, for the message.",
+      "translation": "所请求的内容，用于消息文本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#3",
+      "source": "a :class:`Cellpose3Checkpoint` when ``exc`` is that refusal, else ``exc`` unchanged.",
+      "source_sha256": "a89c9d48df95a75729bff383e3ea939f57642d28b9d70afcc0d662d4e5ad9682",
+      "context": "a :class:`Cellpose3Checkpoint` when ``exc`` is that refusal, else ``exc`` unchanged.",
+      "translation": "一个 :class:`Cellpose3Checkpoint`（当 ``exc`` 就是这种拒绝时），否则原样返回 ``exc``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.split_wells#5",
+      "source": "AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER WHOLE, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no crop and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
+      "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
+      "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
+      "translation": "“检测器未发现任何内容的图像会被完整复制到拆分文件夹中”，不带任何几何信息，因此它仍会被分析，只是没有标尺。一条写着 \"passed through whole\" 却随后跳过该图像的警告实际上什么也没有传递：当文件夹中一些图像被拆分而另一些没有时，另一些图像不会贡献任何裁剪图，也不会产生任何行，而且没有任何信息表明它们曾经存在。全有或全无的情况（即函数退而使用 ``src`` 时）是唯一会按消息所承诺的方式运行的情况。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#0",
+      "source": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
+      "source_sha256": "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
+      "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
+      "translation": "使用原生配对图像和实例标签掩膜对 Cellpose-SAM 进行微调。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#1",
+      "source": "image folder src; optional mask_src (default src/masks), validation test_src/test_mask_src, base_model, model_name, AdamW schedule, channels/channel_axis, normalize/percentiles, scale_range, min_train_masks, optional image limits and checkpoint controls. Legacy project/train/images plus project/train/masks remains accepted when mask_src is blank.",
+      "source_sha256": "469d8e68bdebf115e71e4f4d6c9731fba782bbc3cdd0ac5ecd087fb189556ef8",
+      "context": "image folder src; optional mask_src (default src/masks), validation test_src/test_mask_src, base_model, model_name, AdamW schedule, image data channels/channel_axis, normalize/percentiles, scale_range, min_train_masks, optional image limits and checkpoint controls. Legacy project/train/images plus project/train/masks remains accepted when mask_src is blank.",
+      "translation": "图像文件夹 src；可选的 mask_src（默认 src/masks）、验证用 test_src/test_mask_src、base_model、model_name、AdamW 调度、通道/channel_axis、normalize/percentiles、scale_range、min_train_masks，以及可选的图像数量限制和检查点控制。当 mask_src 为空时，仍接受旧式的 project/train/images 加 project/train/masks 布局。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#2",
+      "source": "Cellpose's checkpoint path, training losses and validation losses. Weights are written beneath save_path/models (default src/models/cellpose_model/models).",
+      "source_sha256": "d297cd371f123940ac73792b2a1a2c1c9c1671d84550f6c55a83c9992bcdbe7d",
+      "context": "Cellpose's checkpoint path, training losses and validation losses. Weights are written beneath save_path/models (default src/models/cellpose_model/models).",
+      "translation": "Cellpose 的检查点路径、训练损失和验证损失。权重写入 save_path/models 下（默认 src/models/cellpose_model/models）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#3",
+      "source": "invalid settings, unpaired images or incompatible masks.",
+      "source_sha256": "68bd070f095c6f864e4a8bf8cb655ee99edbf1869fb2db981ac89179562b4e4f",
+      "context": "invalid settings, unpaired images or incompatible masks.",
+      "translation": "设置无效、图像未配对或掩膜不兼容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest#4",
+      "source": "1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a run that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not when the model is confident, not on a re-run. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a run came out wrong. 3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. A JUDGEMENT IS RECORDED, NOT INFERRED (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "source_sha256": "0b9f3aa6e3b48fabeed1ae527d7b299f0b987d758a6005b56782d566cdf5a6d7",
+      "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "translation": "1. “建议绝不会与决定混淆。”建议以其自身的值存储——建议的 1 变为 11——因此读取标注列的任何代码都不会把建议误认为人工的答案，而一次出错的运行只需删除一个值即可撤销，无需记住改动过哪些行。2. “建议绝不会覆盖标注。”写入操作带有 ``IS NULL``。模型置信度高时不会，重新运行时也不会。人工标签是模型拟合所依据的参考标注；悄无声息地丢失一个会耗费数小时，而且要到某次运行结果出错时才会被发现。3. “没有置信度下限，因此由排序承载不确定性。”每个未标注的裁剪图都会得到一条建议，按置信度从高到低排序，审阅者在不再认同之处停下即可。阈值会替他们做出这个决定，而且用的是一个无人选择的数字。4. “判定是被记录的，而不是推断的”（第 512 项）。确认一条建议会把它变为普通标签，拒绝则会清除它——两者都会记录在该列旁边的 ``<column>_verdict`` 中，记为被确认（``+c``）或被拒绝（``-c``）的类别。拒绝是下一轮训练可以利用的信息——在二分类列中，\"not class 1\" 就是类别 2 的一个样本——而 NULL 则什么也不表达。判定列会在首次打开数据源时添加，因此在它出现之前创建的表无需迁移步骤即可获得该列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#0",
+      "source": "Add the verdict column to ``png_table`` if it is missing.",
+      "source_sha256": "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
+      "context": "Add the verdict column to ``png_table`` if it is missing.",
+      "translation": "如果 ``png_table`` 中缺少判定列，则添加它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#1",
+      "source": "Called when a source is opened, which is how a table made before the column existed gains it: an ``ALTER TABLE ... ADD COLUMN`` with no default is a metadata change in SQLite and rewrites no rows.",
+      "source_sha256": "2b07ecfc124de1a7de73b2ed616282ccb170e0afb50445de5df32b09e16ff824",
+      "context": "Called when a source is opened, which is how a table made before the column existed gains it: an ``ALTER TABLE ... ADD COLUMN`` with no default is a metadata change in SQLite and rewrites no rows.",
+      "translation": "在打开数据源时调用，在该列出现之前创建的表正是通过这种方式获得它：在 SQLite 中，不带默认值的 ``ALTER TABLE ... ADD COLUMN`` 只是元数据变更，不会重写任何行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#2",
+      "source": "path to a ``measurements.db``.",
+      "source_sha256": "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+      "context": "path to a ``measurements.db``.",
+      "translation": "指向 ``measurements.db`` 的路径。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#3",
+      "source": "the column whose judgements it will hold.",
+      "source_sha256": "bccf44b833d925410e1a66281b65f69f983ab85c9bdf2fdefa32cf47d7edb5a4",
+      "context": "the column whose judgements it will hold.",
+      "translation": "判定列将保存其判定的那个列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#4",
+      "source": "the crop table.",
+      "source_sha256": "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+      "context": "the extracted-image-region table.",
+      "translation": "裁剪图表。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#5",
+      "source": "True when the column exists afterwards.",
+      "source_sha256": "aeeaed1e38bda049eccd4bf6be3053a57d460ce0a3d8a93e3fb5c3a69946fc6e",
+      "context": "True when the column exists afterwards.",
+      "translation": "之后该列存在时返回 True。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#0",
+      "source": "The recorded judgement of each of ``paths`` that has one.",
+      "source_sha256": "d5ea58e07ce483bc4c2e4cbd73469e376f2802612b7b01834e0556a916993ee2",
+      "context": "The recorded judgement of each of ``paths`` that has one.",
+      "translation": "``paths`` 中每个已有判定的项所记录的判定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#2",
+      "source": "the column the judgements belong to.",
+      "source_sha256": "c9edf0f9f2b20e917abe2966d222b4e5690d89c8dc8e3d1b64d0cbaa7acf6f99",
+      "context": "the column the judgements belong to.",
+      "translation": "这些判定所属的列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#3",
+      "source": "the crops on the page.",
+      "source_sha256": "6c3066c392b39a79f718134545a2516be7bb52fca99e91f9cd4adf9602c32146",
+      "context": "the extracted image regions on the page.",
+      "translation": "该页面上的裁剪图。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#5",
+      "source": "``{png_path: verdict}`` for the crops that carry one; empty when the column does not exist yet.",
+      "source_sha256": "540703f0145090fe85f472b40aaec7b268d7c7193c7345daf6f42af32677020a",
+      "context": "``{png_path: verdict}`` for the extracted image regions that carry one; empty when the column does not exist yet.",
+      "translation": "带有判定的裁剪图的 ``{png_path: verdict}``；如果该列尚不存在则为空。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.judgement_counts#0",
+      "source": "How the column's suggestions stand: judged, and still to judge.",
+      "source_sha256": "42d4636ff5909674a9561e602945872e2db53bf394af227e127598756003d778",
+      "context": "How the column's suggestions stand: judged, and still to judge.",
+      "translation": "该列建议的状态：已判定的，以及仍待判定的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.judgement_counts#2",
+      "source": "the column the suggestions were written into.",
+      "source_sha256": "2edde29b80b50ede3c138dca438d0f8d106fb3eebdd02acc718ed13cb1ad1d61",
+      "context": "the column the suggestions were written into.",
+      "translation": "建议被写入的列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.judgement_counts#4",
+      "source": "``{\"left\": n, \"confirmed\": n, \"rejected\": n}`` -- ``left`` is the suggestions nobody has judged yet, the other two are every judgement recorded in the column so far.",
+      "source_sha256": "304724a6090c0707106acac66b7e90dc0fa7a7265c75cd1a435dc93df73537ec",
+      "context": "``{\"left\": n, \"confirmed\": n, \"rejected\": n}`` -- ``left`` is the suggestions nobody has judged yet, the other two are every judgement recorded in the column so far.",
+      "translation": "``{\"left\": n, \"confirmed\": n, \"rejected\": n}``——``left`` 是尚无人判定的建议，另外两项是迄今为止该列中记录的所有判定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.rejected_suggestions#0",
+      "source": "The crops whose suggestion was rejected, and the class that was refused.",
+      "source_sha256": "7650dad656ad61cb386fce9ca3bcc15299b5c79eecb8044387e41d0564cf06d2",
+      "context": "The extracted image regions whose suggestion was rejected, and the class that was refused.",
+      "translation": "建议被拒绝的裁剪图，以及被拒绝的类别。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.rejected_suggestions#1",
+      "source": "Only crops the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the crop twice.",
+      "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
+      "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
+      "translation": "只返回标注者此后“尚未”重新标注的裁剪图：拒绝之后做出的标注是更有力的表述，也是拟合从该列本身读取的内容，因此再把拒绝一并传递过去会使该裁剪图被计算两次。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.rejected_suggestions#5",
+      "source": "``{png_path: rejected class}``; empty when nothing was rejected or the verdict column does not exist.",
+      "source_sha256": "26de997dc1e186058a9e405cecb5953da19899d2c17c33fb8be1dcfdc7fbd533",
+      "context": "``{png_path: rejected class}``; empty when nothing was rejected or the verdict column does not exist.",
+      "translation": "``{png_path: rejected class}``；如果没有任何内容被拒绝，或判定列不存在，则为空。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.resolve_suggestions#8",
+      "source": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the crops then wear the same mark as ones confirmed one at a time, and the count the screen shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
+      "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
+      "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
+      "translation": "批量“保留”是对其保留的每条建议的确认，因此它也会记录在判定列中（当该列存在时）：这些裁剪图随后会带有与逐一确认的裁剪图相同的标记，界面显示的计数也与实际发生的情况一致。批量“丢弃”不是一次判定——“我不想审阅这些”并不等于 \"these are wrong\"——因此它不记录任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.verdict_column#0",
+      "source": "The column beside ``annotation_column`` that records judgements.",
+      "source_sha256": "295f1539cc65d7146774f994201847562fc701d4e27425104fef69c5da9e1f96",
+      "context": "The column beside ``annotation_column`` that records judgements.",
+      "translation": "位于 ``annotation_column`` 旁边、用于记录判定的列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.verdict_column#1",
+      "source": "One value per crop: ``+c`` when a suggested class ``c`` was confirmed, ``-c`` when it was rejected, NULL when nothing was judged. It lives in the crop table rather than in the screen so a judgement survives a restart and reaches the next round of training.",
+      "source_sha256": "f5f644508ecf645a388ca2871f7b4029710b07341dc50e37561c8f8a84aa525e",
+      "context": "One value per extracted image region: ``+c`` when a suggested class ``c`` was confirmed, ``-c`` when it was rejected, NULL when nothing was judged. It lives in the extracted-image-region table rather than in the screen so a judgement survives a restart and reaches the next round of training.",
+      "translation": "每个裁剪图一个值：``+c`` 表示建议的类别 ``c`` 已被确认，``-c`` 表示已被拒绝，NULL 表示未作判定。它保存在裁剪图表中而不是界面中，因此判定在重启后仍然保留，并会进入下一轮训练。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.verdict_column#3",
+      "source": "the verdict column's name.",
+      "source_sha256": "a9c3d276eaf79ce313802f8704616c1af37585c537606dfc4a14e9a184db9a03",
+      "context": "the verdict column's name.",
+      "translation": "判定列的名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#0",
+      "source": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
+      "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
+      "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
+      "translation": "timeflows 分支必须超越的普通拼接器，以及证明这一点的评分。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#1",
+      "source": "WHAT IT IS FOR",
+      "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
+      "context": "What it is for",
+      "translation": "用途",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_baseline#10",
+      "source": "HOW A TRACKING IS REPRESENTED",
+      "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
+      "context": "How a tracking is represented",
+      "translation": "跟踪结果的表示方式",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#11",
+      "source": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where THE LABEL IS THE TRACK ID, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
+      "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
+      "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
+      "translation": "采用 Cell Tracking Challenge 的约定，因为这些度量就是它定义的：一个标签堆栈，其中“标签就是轨迹 ID”，因此只要对象仍是同一对象，它就保持其标签；另外还有一个可选的谱系映射，将每个标签映射到其父标签。因此，一次分裂就是两个父标签为旧标签的新标签；无法表达分裂的跟踪器不传入谱系，并为缺失的两条父边付出代价，这正是普通拼接器应付的真实代价。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#12",
+      "source": "WHY IT DOES NOT CALL ``spacr.timelapse``",
+      "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
+      "context": "Why it does not call ``spacr.timelapse``",
+      "translation": "为什么它不调用 ``spacr.timelapse``",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#13",
+      "source": ":func:`spacr.timelapse.link_by_iou` does the same linking and is the one the pipeline uses. It is not imported here for two reasons. Importing ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends, which is a heavy import for a scoring module that has to run inside a training loop, and its overlap arithmetic is a Python double loop over pairs of boolean masks -- fine for the frames a run produces, far too slow for scoring a held out set every epoch. The arithmetic here is a single cross-tabulation per frame pair. Where the two are meant to agree -- which pairs of labels are matched at a given threshold -- the tests say so.",
+      "source_sha256": "34b6ad6824009cc8f50d0aa845c426f6fe6c4bfbe214d2a0aeb78a6e9a75c34e",
+      "context": ":func:`spacr.timelapse.link_by_iou` does the same linking and is the one the workflow uses. It is not imported here for two reasons. Importing ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends, which is a heavy import for a scoring module that has to run inside a training loop, and its overlap arithmetic is a Python double loop over pairs of boolean masks -- fine for the frames a run produces, far too slow for scoring a held out set every epoch. The arithmetic here is a single cross-tabulation per frame pair. Where the two are meant to agree -- which pairs of labels are matched at a given threshold -- the tests say so.",
+      "translation": ":func:`spacr.timelapse.link_by_iou` 执行相同的链接，也是流程中实际使用的那个函数。这里不导入它，原因有二。导入 ``spacr.timelapse`` 会引入 matplotlib、OpenCV 和各个跟踪后端，对于必须在训练循环内运行的评分模块而言，这是很重的导入；而且它的重叠计算是在布尔掩膜对上进行的 Python 双重循环——对一次运行产生的帧来说没问题，但用于每个 epoch 对留出集评分就太慢了。这里的计算是每个帧对一次交叉列表统计。在两者应当一致的地方（即在给定阈值下哪些标签对被匹配），由测试加以说明。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#2",
+      "source": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking field already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
+      "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "translation": "timeflows 方案（``features/future/426``）的第 2 步是一个数值，而不是一项功能。在编写、训练和维护第三个 Cellpose 预测头之前，必须先有一个基线：独立分割每一帧，按掩膜重叠链接各帧，并用跟踪研究界已经公认的度量将结果与参考标注对比评分。无论该分支得出什么，要么比这个更好，要么不是；方案明确指出，“普通拼接器已经足够好”是一个真实可能的结果，如果发生就应当接受。只有先有这个数值，这一结果才能显现出来。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#3",
+      "source": "WHAT IS IN HERE",
+      "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
+      "context": "What is in here",
+      "translation": "本模块包含的内容",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#4",
+      "source": ":func:`stitch_by_iou` -- per-frame labels in, one consistent id per object out. Hungarian assignment on the IoU between consecutive frames, which is the standard overlap stitcher and deliberately nothing cleverer.",
+      "source_sha256": "10d5f96670a333973745017a37401e99a3b17df9d56ca262b84087f96d252765",
+      "context": ":func:`stitch_by_iou` -- per-frame labels in, one consistent id per object out. Hungarian assignment on the IoU between consecutive frames, which is the standard overlap stitcher and deliberately nothing cleverer.",
+      "translation": ":func:`stitch_by_iou`——输入逐帧标签，输出每个对象一个一致的 ID。对连续帧之间的 IoU 使用匈牙利算法分配，这是标准的重叠拼接器，并且刻意不做任何更巧妙的处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#5",
+      "source": ":func:`det_score` and :func:`tra_score` -- the Cell Tracking Challenge's DET and TRA, built on the AOGM cost of Matula et al. (2015): the weighted count of the edit operations that would turn the computed tracking graph into the ground-truth one, normalised by the cost of building the ground truth from nothing.",
+      "source_sha256": "9a04c2cb7b6a63343058e4914ac4122dfff508a1e438724ef4e7c6993bb7ab5e",
+      "context": ":func:`det_score` and :func:`tra_score` -- the Cell Tracking Challenge's DET and TRA, built on the AOGM cost of Matula et al. (2015): the weighted count of the edit operations that would turn the computed tracking graph into the ground-truth one, normalised by the cost of building the ground truth from nothing.",
+      "translation": ":func:`det_score` 和 :func:`tra_score`——Cell Tracking Challenge 的 DET 和 TRA，基于 Matula 等人 (2015) 的 AOGM 代价：将计算所得的跟踪图转换为参考标注跟踪图所需编辑操作的加权计数，并以从零构建参考标注的代价进行归一化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#6",
+      "source": ":func:`identity_switches` -- how often one ground-truth object changes computed id. TRA already pays for this, mixed in with everything else; the count is reported separately because it is the failure a biologist sees, and because a tracker can trade it against segmentation errors without TRA moving much.",
+      "source_sha256": "3ee9725170ba824b4230af200c8f3ec942a35cd34ba6546a3bb23cfd2143536b",
+      "context": ":func:`identity_switches` -- how often one ground-truth object changes computed id. TRA already pays for this, mixed in with everything else; the count is reported separately because it is the failure a biologist sees, and because a tracker can trade it against segmentation errors without TRA moving much.",
+      "translation": ":func:`identity_switches`——一个参考标注对象更换计算 ID 的频率。TRA 已经为此计入代价，但与其他所有因素混在一起；单独报告该计数，是因为这是生物学家能看到的失败，也因为跟踪器可以用它来与分割错误相互权衡，而 TRA 变化不大。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#7",
+      "source": ":func:`score_tracking` -- all of it in one row, with the raw operation counts beside the scores.",
+      "source_sha256": "c2c0b13a4e61c4929f876a34be19f383a8a4b2dcc1b9346f8e847047bb163957",
+      "context": ":func:`score_tracking` -- all of it in one row, with the raw operation counts beside the scores.",
+      "translation": ":func:`score_tracking`——所有这些都放在一行中，原始操作计数列在评分旁边。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#8",
+      "source": "WHY THE OPERATION COUNTS ARE PUBLIC",
+      "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
+      "context": "Why the operation counts are public",
+      "translation": "为什么公开操作计数",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#9",
+      "source": "DET and TRA are one number each and both are dominated by the vertex terms: a false negative costs ten and a redundant edge costs one, so a tracker can lose half its links and still score well if its segmentation is good. The counts of false negatives, false positives, splits, and added, deleted and changed edges say which half of the problem the number came from. The plan needs exactly that distinction later -- the gap between linking given perfect segmentation and end-to-end linking is what decides whether to work on the head or on the backbone -- so the counts are part of the output rather than an internal.",
+      "source_sha256": "a005cbfcb7148e472212e888279d997281ae4ab403a5825447bdab63cbc982c9",
+      "context": "DET and TRA are one number each and both are dominated by the vertex terms: a false negative costs ten and a redundant edge costs one, so a tracker can lose half its links and still score well if its segmentation is good. The counts of false negatives, false positives, splits, and added, deleted and changed edges say which half of the problem the number came from. The plan needs exactly that distinction later -- the gap between linking given perfect segmentation and end-to-end linking is what decides whether to work on the head or on the backbone -- so the counts are part of the output rather than an internal.",
+      "translation": "DET 和 TRA 各自只是一个数值，并且都由顶点项主导：一个假阴性的代价是十，一条冗余边的代价是一，因此只要分割良好，跟踪器即使丢失一半链接也仍能得到高分。假阴性、假阳性、拆分以及添加、删除和更改的边的计数，说明了该数值来自问题的哪一半。方案稍后恰恰需要这种区分——在完美分割条件下的链接与端到端链接之间的差距，决定了应当改进预测头还是主干网络——因此这些计数是输出的一部分，而不是内部细节。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#0",
+      "source": "Count the edit operations between a computed tracking and the truth.",
+      "source_sha256": "244dd9a93d926c9b9b765c4bd5cf7c021e1559e0f7d1aa23580d9a8ae6cb55a1",
+      "context": "Count the edit operations between a computed tracking and the truth.",
+      "translation": "统计计算所得跟踪结果与真实情况之间的编辑操作。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#1",
+      "source": "Vertex operations follow the detection matching: a ground-truth object nothing detects is a false negative, a computed segment that detects nothing is a false positive, and a computed segment that detects several objects has to be split once per extra object.",
+      "source_sha256": "555e463eed71c252b151242bafffdb6bc385ca10f0364b12d3b62b90d965c8c0",
+      "context": "Vertex operations follow the detection matching: a ground-truth object nothing detects is a false negative, a computed segment that detects nothing is a false positive, and a computed segment that detects several objects has to be split once per extra object.",
+      "translation": "顶点操作遵循检测匹配：没有被任何对象检测到的参考标注对象是假阴性，没有检测到任何对象的计算分割区域是假阳性，而检测到多个对象的计算分割区域则必须针对每个多出的对象拆分一次。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#2",
+      "source": "Edge operations are counted on the mapped graph. A computed edge is carried onto the ground truth only when BOTH of its endpoints detect exactly one ground-truth object each; anything else has an endpoint that does not exist in the truth, so the edge is deleted. A ground-truth edge with no computed counterpart is added, and one whose counterpart has the other semantics -- a division link scored as a plain track link, or the reverse -- is changed rather than rebuilt.",
+      "source_sha256": "e6c67534dc1122a2e917d1c60a9b6bc196d1dc98ee519908327a937aa33b516f",
+      "context": "Edge operations are counted on the mapped graph. A computed edge is carried onto the ground truth only when BOTH of its endpoints detect exactly one ground-truth object each; anything else has an endpoint that does not exist in the truth, so the edge is deleted. A ground-truth edge with no computed counterpart is added, and one whose counterpart has the other semantics -- a division link scored as a plain track link, or the reverse -- is changed rather than rebuilt.",
+      "translation": "边操作在映射后的图上计数。只有当一条计算边的“两个”端点都各自恰好检测到一个参考标注对象时，该边才会被转移到参考标注上；其他任何情况下都有一个端点在真实情况中不存在，因此该边被删除。没有计算对应边的参考标注边会被添加；对应边语义不同的参考标注边（分裂链接被评为普通轨迹链接，或者相反）则被更改而不是重建。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#3",
+      "source": "ground-truth label stack, label = track id.",
+      "source_sha256": "bc071e98a7d7876dfb2f78c2b994c01800a8d0d5448f00dc7a857220d8a60f53",
+      "context": "ground-truth label stack, label = track id.",
+      "translation": "参考标注标签堆栈，标签 = 轨迹 ID。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#4",
+      "source": "computed label stack, label = track id.",
+      "source_sha256": "6b6caedc36ea371c31a2eb732c5b3e428ce1c3a2f71eaecd0fef4a4d7ae70eac",
+      "context": "computed label stack, label = track id.",
+      "translation": "计算所得的标签堆栈，标签 = 轨迹 ID。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#5",
+      "source": "mapping of ground-truth label to parent label.",
+      "source_sha256": "7a8ea972e641372504c268057cc936507e0c0209ecb786975ca255d43cb79817",
+      "context": "mapping of ground-truth label to parent label.",
+      "translation": "参考标注标签到父标签的映射。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#6",
+      "source": "mapping of computed label to parent label.",
+      "source_sha256": "aaedaa0a435f1bebb007283c6d3ff6bffe6e7d646682d30ccde514e256f7287f",
+      "context": "mapping of computed label to parent label.",
+      "translation": "计算所得标签到父标签的映射。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#7",
+      "source": "AOGM weights. Anything left out keeps its :data:`AOGM_WEIGHTS` value, so ``{'fp': 10.0}`` changes the price of a false positive and nothing else.",
+      "source_sha256": "ea9149bcb865bc27a196720b97e33f8835cfb7ee86a386a6bc3dded1fdff5f74",
+      "context": "AOGM weights. Anything left out keeps its :data:`AOGM_WEIGHTS` value, so ``{'fp': 10.0}`` changes the price of a false positive and nothing else.",
+      "translation": "AOGM 权重。未指定的项保留其 :data:`AOGM_WEIGHTS` 值，因此 ``{'fp': 10.0}`` 只改变假阳性的代价，其他不变。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#8",
+      "source": "dict of the six operation counts (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and ``aogm_0`` for tracking.",
+      "source_sha256": "b04d5df75825f235fc203e61205948e2b90ed034ba8d7c17fee9e51cebeaac91",
+      "context": "key-value mapping of the six operation counts (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and ``aogm_0`` for tracking.",
+      "translation": "包含六种操作计数（``fn``、``fp``、``ns``、``ed``、``ea``、``ec``）、图的规模（``n_gt_vertices``、``n_pred_vertices``、``n_gt_edges``、``n_pred_edges``）以及四种代价的字典：检测用 ``aogm_d`` 和 ``aogm_d0``，跟踪用 ``aogm`` 和 ``aogm_0``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#0",
+      "source": "The Cell Tracking Challenge's DET: detection only, no links.",
+      "source_sha256": "675914bcab3622ae4acd0c9398cc149a12062edae869f1e2f2325489101941db",
+      "context": "The Cell Tracking Challenge's DET: detection only, no links.",
+      "translation": "Cell Tracking Challenge 的 DET：只考虑检测，不考虑链接。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#1",
+      "source": "ground-truth label stack.",
+      "source_sha256": "24bda980edbbc792013c0c61637c4ac1172c58a0952c154b8a11925862360e26",
+      "context": "ground-truth label stack.",
+      "translation": "参考标注标签堆栈。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#2",
+      "source": "computed label stack.",
+      "source_sha256": "4a7915192a34157c137bfa6c4235d4c78d446030db64638a263b1b134e59ca36",
+      "context": "computed label stack.",
+      "translation": "计算所得的标签堆栈。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#3",
+      "source": "AOGM weights; :data:`AOGM_WEIGHTS` when ``None``.",
+      "source_sha256": "085c6b99f2a1a751cfc01b95bcc4d66015b0b55473ea1ba4fb6b2e4ba6ec85c6",
+      "context": "AOGM weights; :data:`AOGM_WEIGHTS` when ``None``.",
+      "translation": "AOGM 权重；默认取 :data:`AOGM_WEIGHTS`，即参数为 ``None`` 时。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#4",
+      "source": "an :func:`aogm_costs` result to reuse instead of measuring again.",
+      "source_sha256": "27786f78d71506d48717bce0ec3b682c50041d9002a93abccd68434606390633",
+      "context": "an :func:`aogm_costs` result to reuse instead of measuring again.",
+      "translation": "要重用的 :func:`aogm_costs` 结果，以免重新测量。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#5",
+      "source": "float in ``[0, 1]``; ``1.0`` when every object is detected once.",
+      "source_sha256": "e9f24b575d7e4ff91cef6ccc8c1f27e30ef283ac9381087fb5f0b0e4fdb7b0dc",
+      "context": "float in ``[0, 1]``; ``1.0`` when every object is detected once.",
+      "translation": "位于 ``[0, 1]`` 内的浮点数；每个对象都恰好被检测一次时为 ``1.0``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.identity_switches#0",
+      "source": "Count how often a ground-truth object changes computed identity.",
+      "source_sha256": "f5686da6330d393de754babba1a1de74316318e39e966f4df7acae377684f3e3",
+      "context": "Count how often a ground-truth object changes computed identity.",
+      "translation": "统计一个参考标注对象更换计算身份的频率。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.identity_switches#1",
+      "source": "Each ground-truth track is walked in frame order over the frames where it was detected, and every change of computed label is one switch. Frames where the object was missed are skipped rather than ending the track, so an object that is lost and then found again under a NEW id is counted as a switch. That is the failure a biologist reads as \"the cell became another cell\", and a tracker that hides it by dropping the frame should not score better for dropping it.",
+      "source_sha256": "08177c002c9ef2cc4c6cad6bfefa6b1ebe26ee56b93202c6304ef4d1f5793614",
+      "context": "Each ground-truth track is walked in frame order over the frames where it was detected, and every change of computed label is one switch. Frames where the object was missed are skipped rather than ending the track, so an object that is lost and then found again under a NEW id is counted as a switch. That is the failure a biologist reads as \"the cell became another cell\", and a tracker that hides it by dropping the frame should not score better for dropping it.",
+      "translation": "每条参考标注轨迹按帧顺序遍历其被检测到的各帧，计算标签的每一次变化记为一次切换。对象被漏检的帧会被跳过，而不会终止轨迹，因此一个丢失后又以“新” ID 被重新找到的对象会被计为一次切换。这正是生物学家理解为“这个细胞变成了另一个细胞”的失败，而通过丢弃该帧来掩盖它的跟踪器不应因此得到更高的分数。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
