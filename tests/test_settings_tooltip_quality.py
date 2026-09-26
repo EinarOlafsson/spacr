@@ -770,12 +770,23 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # "Default False." and mask_gpu_indices "Default blank.", both resolved
     # by Mask only (Timelapse keeps them hidden and is not in APPS).
     assert {("mask", "mask_parallel"), ("mask", "mask_gpu_indices")} <= compared_pairs
-    assert comparisons == 736
+    # 736 -> 744 on 2026-09-26, +8/-0 (item 541): confluency (False),
+    # confluency_channel (None), confluency_window (15) and
+    # confluency_qc_threshold (0.8), each resolved by Measure and by External
+    # Masks, which measures with Measure's defaults. confluency_source says
+    # "Default auto.", which is not a literal and so is not compared.
+    item_541 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("confluency", "confluency_channel",
+                            "confluency_window", "confluency_qc_threshold")}
+    assert item_541 <= compared_pairs
+    assert comparisons == 744
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
-    # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above.
-    assert census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 == comparisons
+    # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
+    # + 8: item 541's four confluency claims in two apps, pinned above.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
+            + len(item_541) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
