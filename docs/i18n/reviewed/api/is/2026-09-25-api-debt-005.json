@@ -1,0 +1,736 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.resonance.load_analysis#1",
+      "source": "Cached on the path and its modification time, and a file that cannot be read is remembered as unreadable so a missing analysis costs one failed ``stat`` and not one per frame.",
+      "source_sha256": "a3a0ba82aa506286e9d03a97159a6f8addb85641286afe2fa07a1988718c498e",
+      "context": "Cached on the path and its modification time, and a file that cannot be read is remembered as unreadable so a missing analysis costs one failed ``stat`` and not one per frame.",
+      "translation": "Geymt í skyndiminni eftir slóð og breytingartíma, og skrá sem ekki er hægt að lesa er munuð sem ólæsileg svo greining sem vantar kostar eitt misheppnað ``stat`` en ekki eitt fyrir hvern ramma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.load_analysis#2",
+      "source": "the ``.resonance.npz``.",
+      "source_sha256": "51b063a67c8adf0bcbaf70c5074d6e06e0d615edf7a17a225bc36268c3c28795",
+      "context": "the ``.resonance.npz``.",
+      "translation": "``.resonance.npz``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.load_analysis#3",
+      "source": "the analysis, or ``None``.",
+      "source_sha256": "23bb077e59596f849960154b6db2ab07cb43759ba6a6177b235c21a6b8ff42b8",
+      "context": "the analysis, or ``None``.",
+      "translation": "greiningin, eða ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.mode_blend#0",
+      "source": "Which two entries of :data:`MODES` a figure is between.",
+      "source_sha256": "2fc061c62fa6ad16d1e952334455df989efd6be4250a705782cd50bfbd6cbfaa",
+      "context": "Which two entries of :data:`MODES` a figure is between.",
+      "translation": "Milli hvaða tveggja færslna í :data:`MODES` mynstur er.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.mode_blend#1",
+      "source": "where along the list the figure sits; wrapped, so a drive that walks off the end comes back to the simplest figure rather than sticking on the busiest.",
+      "source_sha256": "75312e7b19e35334450bb5772f9509bc495337c5190149d09e75b1b6c9270c7d",
+      "context": "where along the list the figure sits; wrapped, so a drive that walks off the end comes back to the simplest figure rather than sticking on the busiest.",
+      "translation": "hvar eftir listanum mynstrið situr; vafið, svo örvun sem gengur út af endanum kemur aftur að einfaldasta mynstrinu frekar en að festast á því flóknasta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.now_playing#0",
+      "source": "What is playing, as last recorded.",
+      "source_sha256": "8197f18b23de052e6781be01d098407d4febcecf0781560245e6cf5036a34df3",
+      "context": "What is playing, as last recorded.",
+      "translation": "Það sem er að spilast, eins og síðast var skráð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.now_playing#1",
+      "source": "the record, or ``None``.",
+      "source_sha256": "c20b4566aa9f4c755373ed9e17861b973f58307edfca0db91e433c4cd49dc5a8",
+      "context": "the record, or ``None``.",
+      "translation": "færslan, eða ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.playing_moment#0",
+      "source": "The moment of whatever is playing, right now.",
+      "source_sha256": "b349581688d439f2c886d9725ca8d9cd576f57aad52592cbc5a83462cea1ed11",
+      "context": "The moment of whatever is playing, right now.",
+      "translation": "Augnablik þess sem er að spilast, akkúrat núna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.playing_moment#1",
+      "source": "Safe on any thread and cheap enough for a frame: a lock, an arithmetic position and two array reads, with NO file access at all -- see :func:`set_now_playing`. Returns :func:`silence` whenever nothing is playing, the analysis is missing, or the piece has ended, so the caller has one code path and the backdrop idles rather than failing.",
+      "source_sha256": "9583498a6a87c53c41348e7844e4ad82f7df47c84fcf8677e999b0d8e9a539fa",
+      "context": "Safe on any independent execution path and cheap enough for a frame: a lock, an arithmetic position and two array reads, with NO file access at all -- see :func:`set_now_playing`. Returns :func:`silence` whenever nothing is playing, the analysis is missing, or the piece has ended, so the caller has one code path and the backdrop idles rather than failing.",
+      "translation": "Öruggt á hvaða þræði sem er og nógu ódýrt fyrir ramma: lás, reiknuð staðsetning og tveir fylkjalestrar, ALLS ENGINN skráaaðgangur -- sjá :func:`set_now_playing`. Skilar :func:`silence` hvenær sem ekkert er að spilast, greininguna vantar eða verkinu er lokið, svo kallandinn hefur eina kóðaleið og bakgrunnurinn stendur aðgerðalaus frekar en að bregðast.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.playing_moment#2",
+      "source": "the monotonic clock to read it at; now, by default.",
+      "source_sha256": "bd68e686995620b72ff3e857b4576e7be3a3141170f73f3bad77212a532d8782",
+      "context": "the monotonic clock to read it at; now, by default.",
+      "translation": "einhalla klukkan sem á að lesa það við; núna, sjálfgefið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.playing_moment#3",
+      "source": "the moment.",
+      "source_sha256": "5fd83640a151795f9bb0f5bb964b2a61f915342b97dda7681b1dc4d999adba1d",
+      "context": "the moment.",
+      "translation": "augnablikið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.read_wav_mono#0",
+      "source": "Read a 16-bit PCM WAV down to one channel.",
+      "source_sha256": "66d7cf1c6d3c0334c8b8cc46c21f2404f32f9c2a0bcf181e8c8bc25382dbea07",
+      "context": "Read a 16-bit PCM WAV down to one channel.",
+      "translation": "Lesa 16-bita PCM WAV-skrá niður í eina rás.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.read_wav_mono#1",
+      "source": "Deliberately NOT :func:`spacr.qt.sound_synth.read_wav`: that module imports scipy, and this one is reached from the backdrop's shading thread by somebody who may have sound switched off entirely. Reading a WAV is the standard library and numpy, and that is all this needs.",
+      "source_sha256": "016a0912868c1c33efcff57a69de9812fb1f9b894d066faf2ce9e453948eebcb",
+      "context": "Deliberately NOT :func:`spacr.qt.sound_synth.read_wav`: that module imports scipy, and this one is reached from the backdrop's shading thread by somebody who may have sound switched off entirely. Reading a WAV is the standard library and numpy, and that is all this needs.",
+      "translation": "Viljandi EKKI :func:`spacr.qt.sound_synth.read_wav`: sú eining flytur inn scipy, og til þessarar er komið úr skyggingarþræði bakgrunnsins af einhverjum sem gæti haft alveg slökkt á hljóði. Lestur WAV-skrár er staðalsafnið og numpy, og það er allt sem þetta þarf.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.read_wav_mono#2",
+      "source": "the file.",
+      "source_sha256": "4dbf84b89ca778b809c39d04273d048c9fd8d85fb63aecc2b5ceb328bbb7e893",
+      "context": "the file.",
+      "translation": "skráin.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.resonance.read_wav_mono#4",
+      "source": "for anything that is not 16-bit PCM.",
+      "source_sha256": "ab1fbb3b80dfc6e4436778b989a0bd6eb8f3de8889bbd212ce3ad11d0946c264",
+      "context": "for anything that is not 16-bit PCM.",
+      "translation": "fyrir hvaðeina sem er ekki 16-bita PCM.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.sample#0",
+      "source": "``field`` read at the particles, nearest lattice point.",
+      "source_sha256": "f1d7e65fe11363e921fb7cf67fb19cb3e094db82b372d5531ef5a9ec4d0a73e0",
+      "context": "``field`` read at the particles, nearest lattice point.",
+      "translation": "``field`` lesið við agnirnar, næsti punktur hnitanetsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.sample#1",
+      "source": "any ``(grid, grid)`` from :func:`lattice`.",
+      "source_sha256": "72c2746b7d40fb19cd41178a6c75cac730ce26aa413d90d9b99dd17d8c114b49",
+      "context": "any ``(grid, grid)`` from :func:`lattice`.",
+      "translation": "hvaða ``(grid, grid)`` sem er frá :func:`lattice`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.sample#2",
+      "source": "particle x in 0..1.",
+      "source_sha256": "8649069bf0dd9ae0805eba50ee457a0c7900b3344c4bc174ad09f0780c46c11e",
+      "context": "particle x in 0..1.",
+      "translation": "x agnar á 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.sample#3",
+      "source": "particle y in 0..1.",
+      "source_sha256": "cde6830c4dbf9c175b9de73813d92f5e239e86b5c52d0583ad081e93e5bf8a5f",
+      "context": "particle y in 0..1.",
+      "translation": "y agnar á 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.sample#4",
+      "source": "one value per particle.",
+      "source_sha256": "15c673d518fa4ddc7df9bb12b04dbc7e3562918962146c29a67768769d275114",
+      "context": "one value per particle.",
+      "translation": "eitt gildi fyrir hverja ögn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.set_now_playing#0",
+      "source": "Record what is playing, from whichever thread started it.",
+      "source_sha256": "0a64f6e72217a6a64693a6953d0f7a6c29475b9f1a5a8ced75b57496f3db901e",
+      "context": "Record what is playing, from whichever thread started it.",
+      "translation": "Skrá hvað er að spilast, frá hvaða þræði sem hóf það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.set_now_playing#1",
+      "source": "THE ANALYSIS IS READ HERE AND NOWHERE ELSE, which is the whole reason this is a setter rather than a variable. :func:`playing_moment` is called once a frame from the backdrop's clock, which runs on the GUI thread; a ``stat`` there is a filesystem call on the GUI thread, and on a network home directory that is exactly the stall spaCR has :mod:`spacr.qt.path_probe` for. This runs on the audio thread, which has just rendered the file and is the right place to open it.",
+      "source_sha256": "8baca11f09cb7e8b35753ed8c59eec49bd6f48e0b4b2b4eae05a3290ed03e78a",
+      "context": "The analysis is read here and nowhere else, which is the whole reason this is a setter rather than a variable. :func:`playing_moment` is called once a frame from the backdrop's clock, which executes on the main GUI execution path; a ``stat`` there is a filesystem call on the main GUI execution path, and on a network home directory that is exactly the stall spaCR has :mod:`spacr.qt.path_probe` for. This executes on the audio independent execution path, which has just rendered the file and is the right place to open it.",
+      "translation": "GREININGIN ER LESIN HÉR OG HVERGI ANNARS STAÐAR, sem er öll ástæðan fyrir því að þetta er stillifall frekar en breyta. :func:`playing_moment` er kallað einu sinni á hvern ramma frá klukku bakgrunnsins, sem keyrir á GUI-þræðinum; ``stat`` þar er skráakerfiskall á GUI-þræðinum, og á heimamöppu á neti er það einmitt stöðvunin sem spaCR hefur :mod:`spacr.qt.path_probe` fyrir. Þetta keyrir á hljóðþræðinum, sem hefur rétt í þessu teiknað skrána og er rétti staðurinn til að opna hana.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.set_now_playing#2",
+      "source": "the piece, or ``None`` for silence.",
+      "source_sha256": "6e41e78b2a92edfd94ab7d8eb8c7cad0d688c26987263bd3a3a117158f53cf16",
+      "context": "the piece, or ``None`` for silence.",
+      "translation": "verkið, eða ``None`` fyrir þögn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#0",
+      "source": "Walk particles down ``|w|`` toward the plate's nodal lines.",
+      "source_sha256": "b683bac3391cde2970fcf975985577a72f636d74a41e63485a3244795219321c",
+      "context": "Walk particles down ``|w|`` toward the plate's nodal lines.",
+      "translation": "Láta agnir ganga niður ``|w|`` í átt að hnútalínum plötunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#1",
+      "source": "Each round is one Newton step onto the linearised zero set -- ``p -= t * w * grad(w) / |grad(w)|^2`` -- which lands on the nodal line in one step where the field is locally straight and converges in a handful where it is not. That is what the sand does, and it is cheaper than the gradient descent it replaces, which needs a step size that depends on the mode numbers.",
+      "source_sha256": "2bee42636948b098d067e55c51f416ef4a21cc2411ecb784768ccac20d6e6e04",
+      "context": "Each round is one Newton step onto the linearised zero set -- ``p -= t * w * grad(w) / |grad(w)|^2`` -- which lands on the nodal line in one step where the field is locally straight and converges in a handful where it is not. That is what the sand does, and it is cheaper than the gradient descent it replaces, which needs a step size that depends on the mode numbers.",
+      "translation": "Hver umferð er eitt Newton-skref á línulegaða núllmengið -- ``p -= t * w * grad(w) / |grad(w)|^2`` -- sem lendir á hnútalínunni í einu skrefi þar sem sviðið er staðbundið beint og samleitnar á fáeinum þar sem það er það ekki. Það er það sem sandurinn gerir, og það er ódýrara en stigulsniðurgangan sem það kemur í staðinn fyrir, sem þarf skrefstærð sem er háð háttatölunum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#10",
+      "source": "``(x, y)``, new arrays in 0..1.",
+      "source_sha256": "5941e8b3c813b5e008a1826464fcb10d7624e791dfd9d442387c34c0fee69d27",
+      "context": "``(x, y)``, new arrays in 0..1.",
+      "translation": "``(x, y)``, ný fylki á 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#2",
+      "source": "``tightness`` below 1 leaves the particles short of the lines, which is what a plate driven gently looks like: the sand gathers but does not resolve. It is the control that makes silence read as a loose cloud and a loud passage as a figure. It may be one number for every particle or ONE PER PARTICLE, and per particle is what the backdrop uses: a plate where every grain converges equally draws a wire diagram, and a real one has a haze of sand that never quite arrives. The haze is what makes the picture look like sand rather than like a plot of an equation.",
+      "source_sha256": "7b6db1e51823bf0c687d3d51c4f62317a39d5a45033aded2c482c7cffb93e679",
+      "context": "``tightness`` below 1 leaves the particles short of the lines, which is what a plate driven gently looks like: the sand gathers but does not resolve. It is the control that makes silence read as a loose cloud and a loud passage as a figure. It may be one number for every particle or one per particle, and per particle is what the backdrop uses: a plate where every grain converges equally draws a wire diagram, and a real one has a haze of sand that never quite arrives. The haze is what makes the picture look like sand rather than like a plot of an equation.",
+      "translation": "``tightness`` undir 1 skilur agnirnar eftir áður en þær ná línunum, sem er hvernig plata lítur út þegar hún er knúin varlega: sandurinn safnast en skerpist ekki. Það er stýringin sem lætur þögn lesast sem laust ský og háværan kafla sem mynstur. Það má vera ein tala fyrir allar agnir eða EITT FYRIR HVERJA ÖGN, og fyrir hverja ögn er það sem bakgrunnurinn notar: plata þar sem hvert korn samleitnar jafnt teiknar vírmynd, og raunveruleg plata hefur þoku af sandi sem kemst aldrei alveg alla leið. Þokan er það sem lætur myndina líta út eins og sand frekar en graf af jöfnu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#3",
+      "source": "particle x in 0..1. Copied, never modified in place: the caller's array is the seeded start it needs again next frame.",
+      "source_sha256": "a0cbbb6e64c00e711542ac6e36ca8b579a788f6ea3a26499b66d37ab8bc3c005",
+      "context": "particle x in 0..1. Copied, never modified in place: the caller's array is the seeded start it needs again next frame.",
+      "translation": "x agnar á 0..1. Afritað, aldrei breytt á staðnum: fylki kallandans er fræsetta upphafið sem hann þarf aftur í næsta ramma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#5",
+      "source": "``w`` from :func:`lattice`.",
+      "source_sha256": "ccc7ad666e173571c62295fb4459acc9efbf3e1873b7b8f25086d8cbc565b307",
+      "context": "``w`` from :func:`lattice`.",
+      "translation": "``w`` frá :func:`lattice`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#8",
+      "source": "how many Newton steps to take.",
+      "source_sha256": "bec453f453c76bff2b2dbea81bf4e6ff44611b3de8cf6f3f8dcdcf8a0a7bc656",
+      "context": "how many Newton steps to take.",
+      "translation": "hversu mörg Newton-skref á að taka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.settle#9",
+      "source": "fraction of each step to take, 0 to 1; a number or one value per particle.",
+      "source_sha256": "e4bcf52fd8599e65d552a3ef9874358b5d93286cc6d718d10a718bf87ccdfb4a",
+      "context": "fraction of each step to take, 0 to 1; a number or one value per particle.",
+      "translation": "hlutfall hvers skrefs sem á að taka, 0 til 1; tala eða eitt gildi fyrir hverja ögn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.silence#0",
+      "source": "The moment that stands for nothing playing.",
+      "source_sha256": "e3bc300fa28b7926e9c6ed8178476294346ee22b6be10c38ddc64bb2d4d9b278",
+      "context": "The moment that stands for nothing playing.",
+      "translation": "Augnablikið sem stendur fyrir að ekkert sé að spilast.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.silence#1",
+      "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
+      "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
+      "context": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
+      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.silence#2",
+      "source": "an all-zero moment.",
+      "source_sha256": "17a09a9567b3c7a2b864cfe0f1d75aa43e189614e9e94490857f21e57d2b4836",
+      "context": "an all-zero moment.",
+      "translation": "augnablik sem er allt núll.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.DiskEntry#1",
+      "source": "the folder that was measured; it stands for the whole filesystem it lives on.",
+      "source_sha256": "eb53ffa92b1da7bed7a987bbe1f9da0f1c8514ef24633f5492efb5184df796b1",
+      "context": "the folder that was measured; it stands for the whole filesystem it lives on.",
+      "translation": "mappan sem var mæld; hún stendur fyrir allt skráakerfið sem hún er á.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.DiskEntry#2",
+      "source": "the filesystem's size, in bytes.",
+      "source_sha256": "e01c56df68b5c021cbb00d9634ef0b8d482f45a0c3ef78d71eecaccdd4a8d017",
+      "context": "the filesystem's size, in bytes.",
+      "translation": "stærð skráakerfisins, í bætum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.DiskEntry#3",
+      "source": "bytes in use.",
+      "source_sha256": "41a9943d1f60e591123c5526010cf1c3589e78517a69acff25065ff53bcdce54",
+      "context": "bytes in use.",
+      "translation": "bæti í notkun.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.DiskEntry#4",
+      "source": "bytes free.",
+      "source_sha256": "848f5d56412d9077c16f4f1d9acefa0cdf052f16879be38bb99644f5eaf91c91",
+      "context": "bytes free.",
+      "translation": "laus bæti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.confirmation_text#2",
+      "source": "one of :data:`ACTIONS`; any other value raises ``KeyError``.",
+      "source_sha256": "2bc8d6e20c5da95d1ff5fa1908426cbec68b74bd5260cdaba86751d071129683",
+      "context": "one of :data:`ACTIONS`; any other value raises ``KeyError``.",
+      "translation": "eitt af :data:`ACTIONS`; hvert annað gildi kastar ``KeyError``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.summary_text#1",
+      "source": "``'ram'``, ``'vram'``, ``'cpu'`` or ``'disk'``.",
+      "source_sha256": "7249596cabfa74ee2bc4fceaa8809ad222d9a2a45a295be2f690ba74aa47d74a",
+      "context": "``'ram'``, ``'vram'``, ``'cpu'`` or ``'disk'``.",
+      "translation": "``'ram'``, ``'vram'``, ``'cpu'`` eða ``'disk'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPanel.closeEvent#1",
+      "source": "the close event; it is passed on to the base class unchanged.",
+      "source_sha256": "c4a4318a8e93198e62a539d4ae4de21ce29e81281f0e29b2c4c35dd708ede448",
+      "context": "the close event; it is passed on to the base class unchanged.",
+      "translation": "lokunaratburðurinn; hann er sendur óbreyttur til grunnklasans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPanel.set_roi_path#1",
+      "source": "where the ROI file should be written; it is made absolute.",
+      "source_sha256": "8bf45e73e3a7bc07bbf47f529351fcaf424076abb73c4bfe44116f965bb24787",
+      "context": "where the ROI file should be written; it is made absolute.",
+      "translation": "hvert á að skrifa ROI-skrána; hún er gerð að algildri slóð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen#4",
+      "source": "``'polygon'``, ``'rectangle'`` or ``'ellipse'``.",
+      "source_sha256": "f0c029074e603be279beabe08680066181791bbf99064ba5a5e0b078f64a1c02",
+      "context": "``'polygon'``, ``'rectangle'`` or ``'ellipse'``.",
+      "translation": "``'polygon'``, ``'rectangle'`` eða ``'ellipse'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.add_world#2",
+      "source": "the vertex position as ``{axis: world coordinate}``, converted to data coordinates through the layer's spacing.",
+      "source_sha256": "5e745a6a99873bc66763fa0eece97f28a01cdaa7fe03e40f86f7462ecabde268",
+      "context": "the vertex position as ``{axis: world coordinate}``, converted to data coordinates through the layer's spacing.",
+      "translation": "staðsetning hornpunktsins sem ``{axis: world coordinate}``, umbreytt í gagnahnit í gegnum bil lagsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.double_click#1",
+      "source": "the canvas that received the double-click; unused.",
+      "source_sha256": "a58eb21bf45dd8e4bee440224e2b6ee53e50132263bf5f8a5075843cace3f323",
+      "context": "the canvas that received the double-click; unused.",
+      "translation": "striginn sem tók við tvísmellinum; ónotað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.double_click#2",
+      "source": "the click position as ``{axis: world coordinate}``; unused, because the double-click only closes the shape.",
+      "source_sha256": "69359e1db50626079291cb68ea8753320b12ec1b48db17f28bc1cd09c6777969",
+      "context": "the click position as ``{axis: world coordinate}``; unused, because the double-click only closes the shape.",
+      "translation": "staðsetning smellsins sem ``{axis: world coordinate}``; ónotað, því tvísmellurinn lokar aðeins forminu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.double_click#3",
+      "source": "the mouse event; unused.",
+      "source_sha256": "10eb852951fe31537369865c092decdc02330904ef71301b3b88e890aa8f85a0",
+      "context": "the mouse event; unused.",
+      "translation": "músaratburðurinn; ónotað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.key#1",
+      "source": "the canvas that received the key press; unused.",
+      "source_sha256": "68c9577bd4e7fc51535b0fad113dc84df0c1946622400352c4007b36e27f2df9",
+      "context": "the canvas that received the key press; unused.",
+      "translation": "striginn sem tók við lyklaásláttinum; ónotað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.key#2",
+      "source": "the key event; only its ``key()`` is read.",
+      "source_sha256": "ec8e4c3ceb59ba28369f3033e46bc01f9d6bc840691dd5dbb372d3f8b6875713",
+      "context": "the key event; only its ``key()`` is read.",
+      "translation": "lyklaatburðurinn; aðeins ``key()`` hans er lesið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.press#1",
+      "source": "the canvas that received the press; unused.",
+      "source_sha256": "deb3fa84da7afcf0f57c6cf87e52804210577d1f499eca017ec7af966eff58af",
+      "context": "the canvas that received the press; unused.",
+      "translation": "striginn sem tók við ýtingunni; ónotað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.press#2",
+      "source": "the press position as ``{axis: world coordinate}``, added as a vertex on a left-button press.",
+      "source_sha256": "34aa7aa01bd8df2f6303c96ccb3229f35159969f4fc08ef2be5a3d3b9678e32f",
+      "context": "the press position as ``{axis: world coordinate}``, added as a vertex on a left-button press.",
+      "translation": "staðsetning ýtingarinnar sem ``{axis: world coordinate}``, bætt við sem hornpunkti við ýtingu á vinstri hnapp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.press#3",
+      "source": "the mouse event; only its ``button()`` is read, and an event without one counts as a left click.",
+      "source_sha256": "15ce28b19b3637aade6afeebf1289ba1113d65ea762db722b6c56708ca510899",
+      "context": "the mouse event; only its ``button()`` is read, and an event without one counts as a left click.",
+      "translation": "músaratburðurinn; aðeins ``button()`` hans er lesið, og atburður án þess telst vinstrismellur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.activation.ExplainNavigator.attach#1",
+      "source": "the activation page widget, stored as ``page``.",
+      "source_sha256": "2c4cc32aa8ab51bcebf5a7387db694fe58a59c9fd94641f32cdf8b8d0c40911b",
+      "context": "the activation page widget, stored as ``page``.",
+      "translation": "virkjunarsíðugræjan, vistuð sem ``page``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.activation.apply_seed#2",
+      "source": "the screen whose ``_settings_model`` widgets are set; None, or a screen without a settings model, does nothing.",
+      "source_sha256": "1d747eb32ae708e68265c1bc3f97f43ebf41ec6ffe38d0817fe2ae8001680769",
+      "context": "the screen whose ``_settings_model`` widgets are set; None, or a screen without a settings model, does nothing.",
+      "translation": "skjámyndin þar sem ``_settings_model`` græjur eru stilltar; None, eða skjámynd án stillingalíkans, gerir ekkert.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.activation.apply_seed#3",
+      "source": "setting name to value; each is applied to the widget of that name, and names with no widget are skipped.",
+      "source_sha256": "9979c0cf3d4b7e4eab87e660e0dcaeba3dd367fd196cb8f24d2b700dbd753192",
+      "context": "setting name to value; each is applied to the widget of that name, and names with no widget are skipped.",
+      "translation": "heiti stillingar á gildi; hverju er beitt á græjuna með því heiti, og heitum án græju er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.activation.host_of#2",
+      "source": "the widget to start from, usually a folded page; None gives None.",
+      "source_sha256": "8b2b000bda721f26ba7b7a2b3b3471b622003c5b387281fe6de4f23a442893ce",
+      "context": "the widget to start from, usually a folded page; None gives None.",
+      "translation": "græjan sem á að byrja frá, yfirleitt samanbrotin síða; None gefur None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.activation.open_page#1",
+      "source": "the screen that may carry the activation fold's opener; None gives None.",
+      "source_sha256": "d497a926e17c9bcbd9035ada4940b58787f48cb6bef3ba453452b108aa1b2778",
+      "context": "the screen that may carry the activation fold's opener; None gives None.",
+      "translation": "skjámyndin sem gæti borið opnara virkjunarfellingarinnar; None gefur None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class once each running job thread has been asked to quit and waited on (up to five seconds each).",
+      "source_sha256": "14259a8bc77e9bf1b366fc9e8b1c73f671ab594b8910d6f7f62aa67782feae05",
+      "context": "the close event, passed on to the base class once each executing job independent execution path has been asked to quit and waited on (up to five seconds each).",
+      "translation": "lokunaratburðurinn, sendur áfram til grunnklasans eftir að hver verkþráður í keyrslu hefur verið beðinn að hætta og beðið eftir honum (allt að fimm sekúndur hver).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.select_columns#1",
+      "source": "annotation column names to check; every other listed column is unchecked. Names not in the list are reported in the status line.",
+      "source_sha256": "d52be0e0c8c6b22f0927526a543a3549db4eb9bba0fb0c85eb34cb967ae6c221",
+      "context": "annotation column names to check; every other listed column is unchecked. Names not in the list are reported in the status line.",
+      "translation": "heiti athugasemdadálka sem á að haka við; tekið er hak af hverjum öðrum dálki á listanum. Heiti sem eru ekki á listanum eru tilkynnt í stöðulínunni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.select_disagreement#2",
+      "source": "zero-based row of the disagreement table; out of range clears the preview.",
+      "source_sha256": "f82c6369e3953a48a052e8259238874efdbde6ff74bfd6b97b1b346efe7a18e4",
+      "context": "zero-based row of the disagreement table; out of range clears the preview.",
+      "translation": "núllbyggð röð ósamræmistöflunnar; utan bils hreinsar forsýnina.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.set_database#2",
+      "source": "``measurements.db`` file, run ``src`` folder or ``measurements`` folder; resolved with :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "source_sha256": "afdc8879bcd1e0ed8359b2909fb3826f19a87cf3d02a0e8e7e2ee49e68cd5dc7",
+      "context": "``measurements.db`` file, run ``src`` folder or ``measurements`` folder; resolved with :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "translation": "``measurements.db`` skrá, ``src`` mappa keyrslu eða ``measurements`` mappa; leyst með :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.align.AlignScreen.apply_settings#1",
+      "source": "partial or full Align settings; missing keys are filled from :func:`spacr.align.default_settings` before the controls are set.",
+      "source_sha256": "86a8f20a07b2a92bdcdbb8be71af529867c9fc551e2c2da5334a752f5de8a846",
+      "context": "partial or full Align settings; missing structured-data names are filled from :func:`spacr.align.default_settings` before the controls are set.",
+      "translation": "hlutar eða allar Align-stillingar; lyklar sem vantar eru fylltir út úr :func:`spacr.align.default_settings` áður en stýringarnar eru stilltar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.mousePressEvent#1",
+      "source": "the mouse press event; only its position is read. A press outside every tile emits ``-1``.",
+      "source_sha256": "21fc520a444ed8fc27362685dc2b58da82d25412d2cb980adccc4bde5e17bbe1",
+      "context": "the mouse press event; only its position is read. A press outside every tile emits ``-1``.",
+      "translation": "músarýtingaratburðurinn; aðeins staðsetning hans er lesin. Ýting utan allra flísa sendir ``-1``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.paintEvent#1",
+      "source": "the paint event; not read, the whole widget is redrawn.",
+      "source_sha256": "a546835d8d0b6f0040aac53f32776c9614af0d10ca852ac5cc867cf5670f7958",
+      "context": "the paint event; not read, the whole widget is redrawn.",
+      "translation": "teikniatburðurinn; ekki lesinn, öll græjan er teiknuð upp á nýtt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.set_plan#1",
+      "source": "the plan whose placements are drawn; ``None`` shows the empty-state hint.",
+      "source_sha256": "23a5e30c657d64bdb9bb1b1eba4038117a11774fab696aa9e0d4ab94b6794e66",
+      "context": "the plan whose placements are drawn; ``None`` shows the empty-state hint.",
+      "translation": "áætlunin þar sem staðsetningar eru teiknaðar; ``None`` sýnir vísbendinguna fyrir tómt ástand.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.align.confidence_colour#2",
+      "source": "registration confidence from 0 to 1; values outside 0.3-1.0 are clamped to the ends of the ramp.",
+      "source_sha256": "f965ce025df8a8eed54a0e8b7bb372bc8c4908d434ec1166b0fd039f4c253a11",
+      "context": "registration confidence from 0 to 1; values outside 0.3-1.0 are clamped to the ends of the ramp.",
+      "translation": "öryggi skráningar frá 0 til 1; gildi utan 0.3-1.0 eru klemmd við enda kvarðans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.align.confidence_colour#3",
+      "source": "placement method, one of the ``spacr.align.METHOD_*`` values; ``\"nominal\"`` gives the warning colour and ``\"unreadable\"`` the error colour regardless of confidence.",
+      "source_sha256": "176fe6ad314cbe9a0b680d4b56115a54b501385400c07b41a0e3b31886fef9b1",
+      "context": "placement method, one of the ``spacr.align.METHOD_*`` values; ``\"nominal\"`` gives the warning colour and ``\"unreadable\"`` the error colour regardless of confidence.",
+      "translation": "staðsetningaraðferð, eitt af ``spacr.align.METHOD_*`` gildunum; ``\"nominal\"`` gefur viðvörunarlitinn og ``\"unreadable\"`` villulitinn óháð öryggi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED (item 512). A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
+      "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "TILLAGA ER METIN, EKKI ENDURMERKT (liður 512). Myndskurður sem Suggest lagði til flokk fyrir ber rafgult ``?`` merki við hlið brotna hringsins. Smellur eða ``Y`` staðfestir hana (hún verður venjulegt merki og ber grænt hak); hægrismellur eða ``N`` hafnar henni (hún fer aftur í ósvarað og ber rauðan kross); ``U`` afturkallar hvort tveggja. Stikan fyrir ofan lyklaskýringuna segir þetta, og telur það sem síðan og dálkurinn geyma. Hvert mat er skrifað í ``<column>_verdict`` dálkinn sem ``+c`` eða ``-c``, svo það lifir af endurræsingu, og næsta Suggest-umferð fær hafnanirnar til að þjálfa á. Sjá :meth:`AnnotateScreen._judge` og :func:`spacr.suggest.verdict_column`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS (item 512). The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
+      "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "SÍÐA ER ÞAÐ SEM KEMST FYRIR (liður 512). Hnitanetið geymir nákvæmlega þá myndskurði sem komast fyrir í rýminu sem myndskurðarrúðan gefur því, í myndskurðarstærðinni sem stillingarnar biðja um, og það flettist aldrei: að opna skipanagluggann, brjóta saman rúðu, breyta GUI-kvarðanum eða breyta stærð gluggans endurreiknar síðuna og ýtir restinni á þá næstu, síðuteljarinn fylgir, og fyrsti myndskurðurinn á skjánum helst þar sem hann var. Sjá :func:`grid_that_fits` og :meth:`AnnotateScreen._refit_grid`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class after every worker has been stopped or drained.",
+      "source_sha256": "c1d3fc3ec3e5e47e134fb18262cbfc252d2e0dbceee023a3a28ad1eb2743d6ee",
+      "context": "the close event, passed on to the base class after every worker has been stopped or drained.",
+      "translation": "lokunaratburðurinn, sendur áfram til grunnklasans eftir að hver vinnsluþráður hefur verið stöðvaður eða tæmdur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.eventFilter#2",
+      "source": "the watched object: the grid scroll area, its viewport or the grid holder. Resizes count only on the viewport, and mouse presses, moves and releases drive the selection band only on the grid holder.",
+      "source_sha256": "8de623cc7eb1579ba19a6ce3fb949c135b820d77839e07c16e3427410708fb78",
+      "context": "the watched object: the grid scroll area, its viewport or the grid holder. Resizes count only on the viewport, and mouse presses, moves and releases drive the selection band only on the grid holder.",
+      "translation": "hluturinn sem fylgst er með: flettisvæði hnitanetsins, sjónarhorn þess eða hnitanetshaldarinn. Stærðarbreytingar teljast aðeins á sjónarhorninu, og músarýtingar, -hreyfingar og -sleppingar stýra valbandinu aðeins á hnitanetshaldaranum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.eventFilter#3",
+      "source": "the event; key presses go to :meth:`handle_key`, and ``Leave`` clears the hover.",
+      "source_sha256": "c8ccd7e906cafda083b735661a606cdcc5e29dfe01ed49511dcf1ade8fc713c2",
+      "context": "the event; key presses go to :meth:`handle_key`, and ``Leave`` clears the hover.",
+      "translation": "atburðurinn; lyklaáslættir fara til :meth:`handle_key`, og ``Leave`` hreinsar bendilsyfirstöðuna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.handle_key#2",
+      "source": "Qt key code, Qt key name or literal character, normalised with :func:`key_token`.",
+      "source_sha256": "f8c4ca05efb4be49f8aa9f6d8772b17c4587f6a2b65c47fd85b92b1632c61939",
+      "context": "Qt key code, Qt key name or literal character, normalised with :func:`key_token`.",
+      "translation": "Qt-lyklakóði, Qt-lyklaheiti eða bókstaflegt tákn, staðlað með :func:`key_token`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.keyPressEvent#1",
+      "source": "the key event; its key code and text are read, and it is accepted when the key is bound.",
+      "source_sha256": "32a44685cfb2aa5b4d3867fb1f8d85e2f48e4c905b60597a222bf9760144d349",
+      "context": "the key event; its key code and text are read, and it is accepted when the key is bound.",
+      "translation": "lyklaatburðurinn; lyklakóði hans og texti eru lesnir, og hann er samþykktur þegar lykillinn er bundinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the grid is re-measured from the widget's new size.",
+      "source_sha256": "7412713f3f2639c1662146c5e570457bb6bd67fbb80137e1772ce9156f2969ec",
+      "context": "the resize event, passed to the base class; the grid is re-measured from the widget's new size.",
+      "translation": "stærðarbreytingaratburðurinn, sendur til grunnklasans; hnitanetið er endurmælt út frá nýrri stærð græjunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#0",
+      "source": "``(fill, glyph)`` for the corner badge a judged or judgeable crop wears.",
+      "source_sha256": "d02a905e93a98f5bd4c6dd39bb06a520a75083b66caf6e4fea42f458dbd3e3eb",
+      "context": "``(fill, glyph)`` for the corner badge a judged or judgeable extracted image region wears.",
+      "translation": "``(fill, glyph)`` fyrir hornmerkið sem metinn eða metanlegur myndskurður ber.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
+      "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "Liður 512. Tillaga er rafgul, staðfest tillaga græn og höfnuð rauð -- eigin viðvörunar-, árangurs- og villulitir þemans, svo merkið fylgir þemabreytingu eins og restin af umgjörðinni. Táknið er teiknað í bakgrunnslit þemans, sem er svartur á dökka þemanu og nánast hvítur á því ljósa; hver þessara fyllinga var valin á móti honum og lesist betur en 4.5:1 í báðum. None: enginn þeirra þriggja er flokkslitur, svo merki er aldrei lesið sem flokkur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#2",
+      "source": "one of :data:`JUDGEMENT_STATES`.",
+      "source_sha256": "7edbc9bf3a3b34cd6f802cea98ee83889357d69c6d73bf684d07d71ff41d1e16",
+      "context": "one of :data:`JUDGEMENT_STATES`.",
+      "translation": "eitt af :data:`JUDGEMENT_STATES`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#3",
+      "source": "which theme to answer for; the one on screen when None.",
+      "source_sha256": "f2b52d3da23ae2696084367095059fe5e3d2557707e7e3f65a8d07e402e07a3b",
+      "context": "which theme to answer for; the one on application view when None.",
+      "translation": "hvaða þema á að svara fyrir; það sem er á skjánum þegar None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#4",
+      "source": "``(fill, glyph)`` hex colours.",
+      "source_sha256": "33864a9aba841a363620ed2ed8b92aa89af209f45e2870f7fc9e9026a8375ddb",
+      "context": "``(fill, glyph)`` hex colours.",
+      "translation": "``(fill, glyph)`` sextándakerfislitir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#0",
+      "source": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "source_sha256": "20135f404e68d411c61c5eed4261cb2502d5c5b56f43d729b2d98d26c6e484a6",
+      "context": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "translation": "``(rows, cols)`` af ``tile_w`` x ``tile_h`` flísum sem komast fyrir í rými.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#1",
+      "source": "Pure arithmetic, so a page size can be asserted without a window. ``margin`` comes off every edge of the ``width`` x ``height`` room, ``gap`` sits between tiles and not after the last one, and there is always at least one row and one column: a room smaller than a tile shows one crop rather than none.",
+      "source_sha256": "0ca0580b9a74797e56e38613595ea89bc034a835ed3df1f747730d815377b464",
+      "context": "Pure arithmetic, so a page size can be asserted without a window. ``margin`` comes off every edge of the ``width`` x ``height`` room, ``gap`` sits between tiles and not after the last one, and there is always at least one row and one column: a room smaller than a tile shows one extracted image region rather than none.",
+      "translation": "Hreinn reikningur, svo hægt er að fullyrða um síðustærð án glugga. ``margin`` er tekið af hverri brún ``width`` x ``height`` rýmisins, ``gap`` situr milli flísa og ekki á eftir þeirri síðustu, og það er alltaf að minnsta kosti ein röð og einn dálkur: rými sem er minna en flís sýnir einn myndskurð frekar en engan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#2",
+      "source": "the room's width, in the same pixels as the tiles.",
+      "source_sha256": "47ae44eeccdf616b6129bbeec8d74dfeebfe48d05a4ae1d47c8655436546f699",
+      "context": "the room's width, in the same pixels as the tiles.",
+      "translation": "breidd rýmisins, í sömu pixlum og flísarnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#3",
+      "source": "the room's height.",
+      "source_sha256": "707ffd9245c8f2ad6dc88fd2604ea9101d7366ab241e7b1b1b3630917f89fe16",
+      "context": "the room's height.",
+      "translation": "hæð rýmisins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#4",
+      "source": "one tile's width, rings included.",
+      "source_sha256": "28188a1c6de1091e9116d8eb341ed60949d5fde40b7be3ff269c31f58111bc5b",
+      "context": "one tile's width, rings included.",
+      "translation": "breidd einnar flísar, hringir meðtaldir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#5",
+      "source": "one tile's height, rings included.",
+      "source_sha256": "3cb017cc6c9d2e63fdaf785dc37da862e77e9296d8f33682de4382bf5c38aab2",
+      "context": "one tile's height, rings included.",
+      "translation": "hæð einnar flísar, hringir meðtaldir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#6",
+      "source": "the layout's spacing between tiles.",
+      "source_sha256": "40ab2bbfe2e95da853f5513bb506a162bcde34b239dc2e3003f6de6e5dd7b1d1",
+      "context": "the layout's spacing between tiles.",
+      "translation": "bil uppsetningarinnar milli flísa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#7",
+      "source": "the layout's margin on each edge.",
+      "source_sha256": "c32c295529d1da01ef5d9254fbd7999d314f112f681616e641ea5234b730b7af",
+      "context": "the layout's margin on each edge.",
+      "translation": "spássía uppsetningarinnar á hverri brún.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.key_token#2",
+      "source": "Qt key code (an int or int-like value), a key name such as ``\"Left\"``, or a literal character such as ``\"1\"``.",
+      "source_sha256": "60622257a6bf62ebe4e21a57c62137ba10f3f777f9003c5aeae356c7cb88830d",
+      "context": "Qt key code (an int or int-like value), a key name such as ``\"Left\"``, or a literal character such as ``\"1\"``.",
+      "translation": "Qt-lyklakóði (heiltala eða gildi líkt heiltölu), lyklaheiti eins og ``\"Left\"``, eða bókstaflegt tákn eins og ``\"1\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#0",
+      "source": "True when a recorded judgement no longer agrees with the label.",
+      "source_sha256": "f2e864653c379f76b3a8d01fbd9611a900f40762013c995210acd14a08624bd9",
+      "context": "True when a recorded judgement no longer agrees with the label.",
+      "translation": "True þegar skráð mat er ekki lengur í samræmi við merkið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#1",
+      "source": "A confirmation of class c stands while the crop is labelled c; a rejection of class c stands until the crop is labelled c after all. Relabelling a confirmed crop, or labelling a rejected one as the class that was rejected, withdraws the judgement, so the verdict column never says something the annotation column contradicts.",
+      "source_sha256": "51cf2136f3a5203164009d9eba2799e14764276bcf874d20c9bfd565bc648c13",
+      "context": "A confirmation of class c stands while the extracted image region is labelled c; a rejection of class c stands until the extracted image region is labelled c after all. Relabelling a confirmed extracted image region, or labelling a rejected one as the class that was rejected, withdraws the judgement, so the verdict column never says something the annotation column contradicts.",
+      "translation": "Staðfesting á flokki c stendur á meðan myndskurðurinn er merktur c; höfnun á flokki c stendur þar til myndskurðurinn er þrátt fyrir allt merktur c. Endurmerking staðfests myndskurðar, eða merking hafnaðs myndskurðar sem flokkinn sem var hafnað, afturkallar matið, svo matsdálkurinn segir aldrei eitthvað sem athugasemdadálkurinn stangast á við.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
