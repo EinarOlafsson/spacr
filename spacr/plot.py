@@ -34,7 +34,8 @@ from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import write_tiff
 
 from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
-                            figure_style, hide_unused, panel_letter,
+                            figure_style, _group_colours, hide_unused,
+                            panel_letter,
                             reference_line, resolve_ink, rotate_ticks,
                             text_legend, theme_target)
 
@@ -3876,7 +3877,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         if colors:
             color_palette = colors
         else:
-            color_palette = [ROLES['data']] * len(unique_groups)
+            color_palette = (_group_colours(len(unique_groups))
+                             or [ROLES['data']] * len(unique_groups))
     
         if graph_type == 'bar':
             summary_df = df.groupby(
@@ -4139,6 +4141,10 @@ class spacrGraph:
         that was stored and never read, so a caller who passed a palette got
         the theme's anyway.
 
+        THE USER'S ``mark_colouring`` comes next: ``uniform`` and ``random``
+        replace the house rule (see :func:`spacr.figures.style._group_colours`),
+        and ``group``, the default, is the house rule itself.
+
         :param count: how many series will be drawn.
         :returns: a list of ``count`` colour specs.
         """
@@ -4146,6 +4152,9 @@ class spacrGraph:
         if self.colors:
             chosen = list(self.colors)
             return [chosen[index % len(chosen)] for index in range(count)]
+        ruled = _group_colours(count, list(self.sns_palette or ()))
+        if ruled is not None:
+            return ruled
         if len(self.data_column) == 1:
             return [ROLES['data']] * count
         return list(self.sns_palette[:count])

@@ -2,9 +2,9 @@
 SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
 ================================================================================
 
-Status:    IMPLEMENTATION COMPLETE, validated 2026-09-23. Engine, GUI,
-           queue/ledger, exact-ID editing/save and paired-data evaluation done.
-           API/tutorial/translation handoff remains with the documentation lane.
+Status:    DONE 2026-09-25. Engine, GUI, queue/ledger, exact-ID editing/save
+           and paired-data evaluation validated 2026-09-23; translations and
+           the Make Masks guide section have landed (re-checked 2026-09-25).
 Owner:     spacr/qt/mask_engine.py (the propagation), spacr/qt/cpu_modes.py
            and the Make Masks Detection method category.
 Requested: 2026-09-22, by the maintainer, in these words:
@@ -235,3 +235,13 @@ pass, including all9languages, full label retention, width-dependent height
 and clicking the caption. The rendered wrapped control was inspected.
 The exact CI Hindi font state was not reproduced locally; these regressions
 exercise both unbounded width sources found during that investigation.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2: tests/test_secondary_bbbc007_evaluation.py,
+test_secondary_mask_source.py, test_secondary_objects_keep_primary_ids.py,
+tests/qt/test_secondary_objects_in_make_masks.py and
+test_secondary_object_translations.py, 99 passed (offscreen). The last of
+those checks all nine catalogs, so the translation handoff is done;
+docs/source/make_masks.rst describes secondary objects. Nothing remains.
+The exact CI Hindi font state noted on 2026-09-24 was not reproduced
+locally; the width regressions cover both sources found.

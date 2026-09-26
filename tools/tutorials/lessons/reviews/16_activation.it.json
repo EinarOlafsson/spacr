@@ -1,31 +1,35 @@
 {
   "lesson": "16_activation",
-  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "title": "Activation Maps: salienza reale e i suoi limiti",
-  "description": "Apri Activation Maps dentro Classify, abbina un modello affidabile ai ritagli reali e confronta due risultati senza confondere attribuzione e validazione.",
+  "title": "Activation Maps: esaminare le mappe di salienza di un classificatore di immagini",
+  "description": "Seleziona un classificatore addestrato e ritagli compatibili, confronta la salienza per canale e per immagine e apri le mappe salvate.",
   "objectives": [
-    "Trovare lo strumento integrato e preservare il contratto di input del modello.",
-    "Distinguere preelaborazione, contrasto visivo e attribuzione.",
-    "Esaminare file salvati quando Figures è vuoto.",
-    "Separare verifica numerica, predizioni e validità scientifica."
+    "Far corrispondere l’archivio dei ritagli, il modello e le impostazioni di preelaborazione.",
+    "Eseguire la salienza per canale con una sovrapposizione sull’immagine.",
+    "Confrontare la salienza per immagine e trovare le griglie salvate."
   ],
-  "prerequisite": "Quattro ritagli RGB originali dell'esempio scaricato di Annotate e un checkpoint ResNet18 locale affidabile di una sola epoca. L'esempio precedente condivide pozzetti tra partizioni: NESSUNA accuratezza indipendente dimostrata. Conservare marcatore formato 3/RGB e scheda modello. Dimensione 128, batch 4, canali [1,2,3], normalize_input/normalize/Plot/Save attivi, shuffle/correlation disattivi, un processo CPU. saliency_channel con sovrapposizione, poi saliency_image senza. Verificati 196608 valori di input e 262144 componenti di mappe, tolleranza massima di un livello a otto bit. Identità e originali invariati. Avviso src e Figures vuoto NON riparati; PNG reali nel visualizzatore esterno. Quattro spazi inutilizzati vuoti. Nessuna validazione di attribuzione, accuratezza indipendente, richiesta AI, validazione biologica o pubblicazione. API: spacr.deep_spacr.generate_activation_maps e spacr.utils.SaliencyMapGenerator.",
+  "prerequisite": "Usa un checkpoint di classificazione delle immagini addestrato e un archivio TAR di ritagli compatibili. Conserva il marcatore del formato dei ritagli se presente e segui l’ordine dei canali, la dimensione dell’immagine e la normalizzazione indicati nella scheda del modello. L’esempio usa quattro ritagli RGB da Annotate e un modello ResNet18 da Classify. Prima di iniziare, addestra o procurati un modello di cui conosci la preelaborazione.",
   "scenes": [
-    "Apri Classify, poi lo strumento annidato Activation Maps. Questo flusso esamina come la predizione di un modello addestrato risponde ai pixel. Non addestra un classificatore né stabilisce la causa di un fenotipo osservato. Mostreremo due vere esecuzioni di salienza, la console e una via esplicita per visualizzare i file salvati.",
-    "Usa il vero archivio dei ritagli, non una cartella segnaposto. Il nostro piccolo archivio contiene quattro ritagli cellulari RGB invariati dell'esempio scaricato di Annotate e il marcatore di formato. Preserviamo gli originali e lavoriamo in un progetto privato. Quattro immagini comode illustrano il funzionamento; non sono una coorte rappresentativa di validazione.",
-    "Scegli il modello affidabile corrispondente e conserva la scheda. È un checkpoint ResNet diciotto addestrato per una sola epoca nella dimostrazione precedente. La suddivisione condivideva pozzetti, quindi non affermiamo accuratezza indipendente. Un'immagine di attribuzione convincente non recupera un modello insufficientemente validato. Non caricare checkpoint non affidabili per comodità.",
-    "Rispetta il contratto di input dell'addestramento: dimensione centoventotto e ordine RGB dichiarato. Qui il selettore reale usa uno, due, tre. Non scambiare canali perché un altro strumento usa indici da zero. Abbiamo verificato indipendentemente valori ritagliati al centro e trasformati rispetto al caricatore di addestramento prima di confrontare la salienza.",
-    "Distingui normalizzazione dell'input e della visualizzazione. L'input deve corrispondere all'addestramento; qui è attiva la preelaborazione simmetrica registrata. La normalizzazione visiva cambia l'aspetto dell'immagine sovrapposta, non l'accuratezza del modello o il significato di un colore. Conserva entrambe le impostazioni nei confronti; maggiore luminosità non significa maggiore evidenza.",
-    "Scegli saliency channel con Overlay attivo e mantieni Plot e Save. Usiamo un processo, un batch di quattro e CPU per questa piccola dimostrazione. Non c'è anteprima live: cambiare metodo richiede un'altra esecuzione. La salienza per canale mantiene separati i canali dell'input quando salva le mappe basate sulle derivate.",
-    "Leggi la console reale. Il calcolo termina, ma questa versione segnala erroneamente src mancante sebbene Activation usi Dataset. Anche il pannello Figures rimane vuoto. Abbiamo verificato indipendentemente input, mappe salvate e identità nel database; non abbiamo riparato questi difetti della GUI. Gli altri errori richiedono comunque indagine.",
-    "Apri la griglia salvata in un visualizzatore di immagini. È il vero visualizzatore esterno, non una figura inserita in spaCR. Quattro spazi occupati corrispondono ai nostri ritagli; gli altri quattro sono inutilizzati. Le etichette zero e uno sono predizioni, non verità di riferimento. La sovrapposizione visualizza sensibilità, non è una maschera di segmentazione.",
-    "Ora scegli saliency image, disattiva Overlay ed esegui di nuovo sugli stessi input. Questo metodo combina le derivate assolute tra canali prima di riscalare la mappa grigia salvata. Non è occlusione né gradienti integrati. Tieni separati gli output per metodo, senza confondere la seconda esecuzione con la prima.",
-    "La seconda griglia mostra le mappe senza immagini sottostanti. I colori indicano la scala di salienza visualizzata, non probabilità di classe o importanza biologica dimostrata. Controlli indipendenti confrontano ogni componente salvata con un gradiente calcolato separatamente, ammettendo al massimo un livello di arrotondamento a otto bit. Verificano l'implementazione, non l'utilità della spiegazione.",
-    "La quantificazione delle mappe è disattivata. Non abbiamo eseguito cancellazione, inserimento, randomizzazione del modello o altre prove di validazione dell'attribuzione; due metodi visivamente diversi non le sostituiscono. Prima di concludere, usa errori e successi rappresentativi, controlli pertinenti e dati riservati indipendentemente. Questa dimostrazione limitata verifica il flusso operativo.",
-    "Conserva insieme identità dei ritagli, immagini originali, modello e scheda, impostazioni, registri, mappe e database. Le fonti sono rimaste invariate ed entrambi i metodi hanno mantenuto tutte e quattro le identità. L'assistenza AI è facoltativa e qui non abbiamo inviato richieste. Confronta consigli successivi con API reale e prove: una spiegazione fluida non è validazione."
+    "Da Home, apri Classify e poi Activation Maps. Questo strumento mostra a quali pixel di input è sensibile la previsione di un classificatore di immagini addestrato. Parti dal modello e da un archivio di ritagli preparati come i suoi dati di addestramento.",
+    "Seleziona l’archivio dei ritagli in Dataset. Questo esempio contiene quattro ritagli RGB di cellule da Annotate. Includi il marcatore del formato dei ritagli quando impacchetti le immagini e conserva i nomi dei file, così potrai collegare ogni mappa al suo oggetto originale.",
+    "Seleziona il modello addestrato e scegline il tipo. Qui il modello è ResNet diciotto. Leggi la scheda del modello e imposta Image size su centoventotto per corrispondere all’input di addestramento.",
+    "Imposta Channels nell’ordine atteso dal modello. In questo esempio il selettore usa uno, due e tre per l’input RGB. Mantieni quell’ordine quando confronti mappe di immagini diverse.",
+    "Imposta Normalize input come durante l’addestramento. La normalizzazione di visualizzazione, separata, determina l’aspetto dell’immagine nella sovrapposizione salvata. Mantieni coerenti entrambe le impostazioni quando confronti le esecuzioni.",
+    "Scegli saliency channel e attiva Overlay, Plot e Save. Si ottengono mappe separate per canale sovrapposte alle immagini. Per l’esempio con quattro ritagli, usa una dimensione del batch di quattro e un solo processo, poi fai clic su Run.",
+    "Segui la console fino al termine dell’elaborazione. Se il pannello Figures è vuoto, apri la cartella di output ed esamina le griglie dei batch salvate. Controlla i messaggi di errore e i risultati salvati prima di continuare.",
+    "Apri batch_0_grid.png dalla cartella batch_grids del metodo. Abbina ogni casella occupata al suo ritaglio di origine; le caselle non usate possono restare vuote. Le etichette negli angoli sono le previsioni del modello. Confronta le regioni salienti con l’immagine originale e con i contorni noti degli oggetti.",
+    "Per confrontare una mappa combinata, seleziona saliency image e disattiva Overlay. Esegui di nuovo le stesse immagini con la stessa preelaborazione. Tieni gli output dei due metodi nelle rispettive cartelle.",
+    "Apri la seconda griglia salvata. La salienza per immagine combina le sensibilità dei canali in un’unica mappa per ogni ritaglio. Confronta le regioni evidenziate con le mappe per canale. I colori indicano la scala della mappa; per interpretarli bisogna considerare il modello e il contesto dell’immagine.",
+    "Lascia disattivato Correlation in questa prima guida. Esamina esempi di classi diverse, compresi gli errori di previsione, prima di interpretare degli schemi. Usa Classifier Evaluation per valutare le prestazioni su dati tenuti da parte in modo indipendente.",
+    "Tieni insieme l’archivio di input, il modello e la sua scheda, le impostazioni, le mappe e il database di output. Torna ai ritagli originali per indagare le regioni inattese, oppure confronta un altro metodo con gli stessi input."
   ]
 }

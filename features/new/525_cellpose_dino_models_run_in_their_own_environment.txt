@@ -1,6 +1,9 @@
 CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
 
-Status: BUILT 2026-09-25. Backend installed for real, ViT-B real CPU run done (see the trailing note).
+Status: BUILT 2026-09-25. Backend installed for real, ViT-B real CPU run done. Second pass
+(same day): v2, the Live and Timelapse previews and Make Masks' Mode box / Model list run
+cellpose_dino:; real v2 mask == V1 mask on plate1_A02_12 (see the trailing notes). Open:
+ViT-L run, a GPU run, i18n catalog rows.
 Owner: Claude (525 worktree). Related: 504 (bioimage.io lists Cellpose-DINO ViT-L and
 ViT-B but refuses them: Cellpose 4 needs the `dinov3` package, not installed),
 503/446 (Cellpose 3 in its own environment), 475 (SpotNet), 469 (figure
@@ -188,3 +191,100 @@ NOT DONE
   * Make Masks' Mode box has no Cellpose-DINO entry; a DINO model reaches
     Make Masks through its Model list (Model zoo... button).
   * i18n catalog rows for the strings above.
+  (The second and third bullets are done by the second pass below.)
+
+--------------------------------------------------------------------------------
+2026-09-25 (second pass) -- V2, THE PREVIEWS AND THE MODE BOX
+--------------------------------------------------------------------------------
+
+ONE MORE ROW. spacr.object._prefixed_model_route (503's table) gained
+('cellpose_dino', _cellpose_dino_choice, _cellpose_dino_masks). Every
+caller of the table -- pipeline_v2.stream_masks_from_stack, the Live
+preview's _segment_multi / _backend_preview_pass and the Timelapse
+preview's segment_frame -- now sends cellpose_dino:<path> to the
+Cellpose-DINO backend with no change of its own (pipeline_v2.py and core.py
+untouched). A prefix now wins over segmentation_backend in the table, as it
+does in V1 (cellpose_dino: in a segmentation_backend=cellpose3 run goes to
+DINO); a bare name under segmentation_backend=cellpose3 still goes to
+Cellpose 3.
+
+_cellpose_dino_masks (object.py, next to _cellpose3_masks) makes V1's
+Cellpose-SAM call and nothing else: x = the images (a 2-D plane gets a
+channel axis of 1), batch_size = number of images, normalize False,
+channel_axis -1, min_size, progress True, diameter =
+_eval_diameter(<obj>_diameter) (blank -> None, as V1), the object's flow
+and cellprob thresholds, resample = object_type != 'pathogen' (what
+settings._get_object_settings sets). It returns (masks, flows[, cell
+probability]) through parse_cellpose4_output, so the Live preview's Flows
+and Cell probability views fill as they do for cellpose3:. The
+default_diameter / batch_size arguments are taken for the table's shared
+signature and not used -- V1 and v2 send Cellpose-SAM one batch of all
+images, and the calls must be the same for v2 == V1.
+
+BOXES.
+  live_preview._is_a_real_model_name: cellpose_dino:<file on disk> is a
+    real model; cellpose_dino: alone or a missing file is not.
+  live_preview._checkpoint_is_missing: cellpose_dino: naming nothing or a
+    missing file is missing (falls back to cpsam and says so, as before).
+  Live preview Model zoo... button asks for cellpose_dino rows too.
+  make_masks: _zoo_models_of_kind(kind) is the old _zoo_cellpose_models
+    body (that name stays, = kind 'cellpose'); _zoo_cellpose_dino_models()
+    lists downloaded DINO checkpoints as (cellpose_dino:<path>,
+    "Cellpose-DINO · <file>"). _fill_zoo_models adds them to the Model
+    list after the Cellpose rows. _offer_cellpose_dino_modes(), called
+    when the Mode box is built, adds each as a magnifier mode to
+    _MAGNIFIER_BACKENDS (backend cellpose_dino) and _MAGNIFIER_SEGMENTERS
+    (_backend_segmenter -> _backend_model -> _load_backend('cellpose_dino',
+    model_name=<path>)); greying and the install offer are the existing
+    per-backend code. Not-downloaded DINO rows are not listed: the Model
+    zoo picker downloads them next to the backend install.
+  No new tr() strings (the caption reuses "Cellpose-DINO · {model}").
+
+REAL RUN, CPU (SPACR_DEVICE=cpu, CUDA hidden), this worktree. The ViT-B
+checkpoint 525 downloaded (/tmp/spacr-525-scratch/models/
+cellposedino_vit_b_2d_microscopy_instance_segmenter, 343,599,997 bytes,
+sha256 3ed4c06a... re-verified). Same field and settings as the first pass
+(make_masks_toxo_pv plate1_A02_12, cell on the PV channel, diameter 44).
+v2 needs Yokogawa-style names (C00/C01) where V1 reads cq1 names; the
+pixels are the same file.
+
+  style  objects GT matched  F1     mask sha256   wall (machine load ~29)
+  V1       44    33    29    0.753  53ad6892...   195.7 s
+  v2       44    33    29    0.753  53ad6892...   350.1 s
+
+v2's appended mask plane is PIXEL-IDENTICAL to V1's saved mask (same
+(1994, 1994) uint16 array; also identical to the first pass's V1 mask).
+Both made one worker call with the same keywords: one (1994, 1994, 1)
+image, batch_size 1, normalize False, channel_axis -1, min_size 0,
+progress True, diameter 44.0, flow 0.4, cellprob 0, resample True. The wall
+times are inflated by other sessions (load average 20-29; the first pass's
+V1 took 34.0 s on the same field) and are not a V1/v2 comparison.
+GPU: not run. The gpu_turn queue had 358 holding and 463/508/493 queued
+behind 6-min-idle / 10-min-gap rules, so no turn within ~20 min; CPU only.
+
+TESTS
+  tests/test_cellpose_dino_runs_in_its_own_environment.py +8: the route
+  table row (6 cases incl. prefix beats segmentation_backend, cellpose3
+  bare-name routing kept, cpsam None); _cellpose_dino_masks makes V1's SAM
+  call (2-D -> channel axis, pathogen resample off, blank diameter None,
+  cell probability returned); v2 vs V1 with the backend faked -- same
+  backend and model_name, the same eval call (images hashed, keywords
+  equal) and the same uint16 mask array.
+  tests/qt/test_cellpose_dino_rows_offer_their_backend.py +8: Live preview
+  routes cellpose_dino: to the backend with [cell, nucleus] and shows its
+  RGB flow and cell probability; nucleus is one (H, W, 1) plane; the model
+  box rules; the Timelapse frame; the preview's zoo button kinds; Make
+  Masks lists downloaded DINO models; the Model list offers them; the Mode
+  box registers them as cellpose_dino modes (grey until installed,
+  caption, loaded through _backend_model with the path).
+  503/525/v2/live-preview/timelapse/backend/bioimage/make-masks selection
+  (21 files): 660 passed, 2 skipped on clean nightly; 676 passed, 2
+  skipped after, and again after merging nightly 978acb0be.
+  Guards (docstring_correctness, user_facing_docstrings,
+  i18n_caption_ratchet, nested_functions_are_documented, dead_settings,
+  module_coverage_ratchet, mask_worker_processes, a_comment_leaves...): 4
+  failures, identical on a clean nightly 978acb0be copy.
+
+STILL OPEN
+  * ViT-L (famous-sheep) not run; no GPU run of Cellpose-DINO yet.
+  * i18n catalog rows for the first pass's strings (docs lane).

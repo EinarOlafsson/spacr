@@ -1456,14 +1456,13 @@ class GateEditorScreen(QWidget):
         its fonts embedded as TrueType. Calling matplotlib directly would
         give none of that.
 
-        WHAT IT DOES NOT DO IS RESTYLE FOR PRINT. The colours it applies
-        are the ones the preferences resolve to, and the "auto" halves
-        follow the app theme -- so under a dark theme the text is white on
-        a transparent page, which disappears on paper. That is deliberate
-        where it is decided (`_export_vector_pdf` explains why the export
-        and the on-screen refinement have to agree), and the way to get a
-        print-ready file is to set the figure background and text colours
-        explicitly rather than leaving them on "follow the theme".
+        THE FILE GETS THE PRINT STYLE. Decision 2026-09-25 (item 50):
+        "saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background,
+        dark text/axes/lines) whatever the screen theme". The render passes
+        ``for_print=True``, which styles a detached copy white with dark ink,
+        so the graph on screen keeps the theme's colours. The extension the
+        user picked decides whether the PDF is written, so choosing PDF in
+        the dialog under a PNG preference still gives a PDF.
 
         :param path: destination. Empty opens a file dialog.
         :returns: the path written, or "" when cancelled or nothing is
@@ -1494,7 +1493,9 @@ class GateEditorScreen(QWidget):
         from ..widgets.figure_queue import render_figure_to_png
         png_path = target.with_suffix(".png")
         try:
-            ok = render_figure_to_png(figure, str(png_path))
+            ok = render_figure_to_png(
+                figure, str(png_path), for_print=True,
+                write_pdf=target.suffix.lower() == ".pdf")
         except Exception as exc:
             LOG.info("saving the gate graph failed: %s", exc, exc_info=True)
             self.console.write(f"Could not save the graph: {exc}")

@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
                                QPlainTextEdit, QPushButton, QVBoxLayout,
                                QWidget)
 
+from ..i18n import tr
 from .toggle import Toggle
 
 from ...figures.spread import SPREAD_CHOICES, SPREAD_NONE, SPREAD_SEM
@@ -34,13 +35,17 @@ class _WellChoice(QDialog):
     preserving the canonical well labels used by the plate-map picker.
     """
 
-    def __init__(self, offered, chosen=None, parent: Optional[QWidget] = None):
+    def __init__(self, offered, chosen=None, parent: Optional[QWidget] = None,
+                 *, title: str = "", note: str = ""):
         """Ask which wells take part in the comparison.
 
         :param offered: every well that could be included.
         :param chosen: those ticked to start with, or ``None`` for all of
             them.
         :param parent: parent widget.
+        :param title: window title; empty keeps the well wording. The same
+            checklist picks the Compare panel's gRNAs and its selected wells.
+        :param note: the sentence above the list; empty keeps the well one.
 
         AN EXCLUDED WELL IS REMOVED FROM BOTH GROUPS. It is not moved into
         the comparison group, which is the reading this dialog exists to
@@ -48,12 +53,12 @@ class _WellChoice(QDialog):
         because the parameter names alone suggest a two-way split.
         """
         super().__init__(parent)
-        self.setWindowTitle("Which wells to include")
+        self.setWindowTitle(title or "Which wells to include")
         self._boxes = []
         outer = QVBoxLayout(self)
         outer.addWidget(QLabel(
-            "An excluded well is removed from both groups; it is not moved "
-            "into the comparison group."))
+            note or "An excluded well is removed from both groups; it is not "
+            "moved into the comparison group."))
         for well in offered:
             box = Toggle(str(well), self)
             box.setChecked(chosen is None or str(well) in chosen)
@@ -115,8 +120,20 @@ class MeasurementComparePanel(QWidget):
                  parent: Optional[QWidget] = None,
                  settings: Optional[Dict[str, Any]] = None,
                  databases: Optional[Any] = None,
-                 counts: Optional[Any] = None):
+                 counts: Optional[Any] = None,
+                 results: Optional[Any] = None):
         """Build the comparison panel: the pickers, the plot and the statistics.
+
+        IT OPENS ON THE TOP HITS. Decision 2026-09-25 (item 205): "the
+        regression Compare panel opens with the TOP HITS pre-selected (top
+        significant guides/genes and the wells that carry them; user can
+        change it)". The regression's results table gives the hits
+        (:func:`spacr.well_scope._top_hits`); without one, the guides of the
+        montage's own groups are the selection. The population box then
+        starts on "gRNAs + other datapoints in selected wells", the derived
+        wells are shown under the controls, and "gRNAs…" / "selected wells…"
+        change either. Nothing to select starts on "All datapoints", so a
+        panel with no guides still draws what it drew before.
 
         The join runs off the GUI thread. It reads every object table out of
         every attached database and joins them onto the crop rows -- measured at
@@ -135,6 +152,8 @@ class MeasurementComparePanel(QWidget):
         :param databases: measurement databases available for widening the
             object table.
         :param counts: per-well counts, used to resolve control wells.
+        :param results: the regression's coefficient table, as a frame or a
+            CSV path, for the opening selection.
         """
         super().__init__(parent)
         self._objects = objects
@@ -276,6 +295,27 @@ class MeasurementComparePanel(QWidget):
         second_row.addWidget(self.wells_button)
         layout.addLayout(second_row)
 
+        selection_row = QHBoxLayout()
+        self.selection_note = QLabel("")
+        self.selection_note.setObjectName("Muted")
+        self.selection_note.setWordWrap(True)
+        selection_row.addWidget(self.selection_note, 1)
+        self.guides_button = QPushButton(tr("gRNAs…"))
+        self.guides_button.setToolTip(tr(
+            "Choose the gRNAs the plot is about. It opens on the regression's "
+            "top significant hits; the selected wells are derived from the "
+            "gRNAs again whenever they change."))
+        self.guides_button.clicked.connect(self._choose_guides)
+        selection_row.addWidget(self.guides_button)
+        self.scope_wells_button = QPushButton(tr("selected wells…"))
+        self.scope_wells_button.setToolTip(tr(
+            "Narrow the wells that carry the chosen gRNAs. Only these wells' "
+            "objects are drawn under 'gRNAs + other datapoints in selected "
+            "wells'."))
+        self.scope_wells_button.clicked.connect(self._choose_selected_wells)
+        selection_row.addWidget(self.scope_wells_button)
+        layout.addLayout(selection_row)
+
         self._join_row = QHBoxLayout()
         self.join_note = QLabel("")
         self.join_note.setObjectName("Muted")
@@ -323,6 +363,9 @@ class MeasurementComparePanel(QWidget):
         layout.addWidget(self.report)
 
         self.resize(900, 720)
+        self._scope_report: Dict[str, Any] = {}
+        self._results = results
+        self._open_on_the_top_hits(results)
         self.refresh()
 
 
@@ -368,6 +411,8 @@ class MeasurementComparePanel(QWidget):
         self._groups = dict(groups or {})
         if settings is not None:
             self._settings = dict(settings)
+        if not self._selected_guides:
+            self._open_on_the_top_hits(getattr(self, "_results", None))
         remembered = self.measurement.currentData()
         self.measurement.blockSignals(True)
         self.measurement.clear()
@@ -579,6 +624,110 @@ class MeasurementComparePanel(QWidget):
                 f"{self.join_note.text()} {trouble}".strip())
         return trouble
 
+    def _open_on_the_top_hits(self, results=None) -> list:
+        """Pre-select the top hits and start on their wells. No redraw.
+
+        :param results: the regression's coefficient table (frame or CSV
+            path), or ``None`` to use the montage groups' guides.
+        :returns: the guides selected, in table order.
+        """
+        from ...well_scope import _guides_at, _top_hits
+
+        guides = _top_hits(self._objects, results)
+        if not guides:
+            members = [m for group in self._groups.values()
+                       for m in (group or ())]
+            guides = _guides_at(self._objects, members)
+        self._selected_guides = [str(g) for g in guides]
+        self._selected_wells = None
+        self.scope.blockSignals(True)
+        self.scope.setCurrentIndex(max(0, self.scope.findData(
+            "wells" if guides else "all")))
+        self.scope.blockSignals(False)
+        return list(self._selected_guides)
+
+    def _guides_on_offer(self) -> list:
+        """Every guide in the object table, in table order."""
+        from ...well_scope import GUIDE_COLUMNS
+
+        columns = getattr(self._objects, "columns", ())
+        column = next((c for c in GUIDE_COLUMNS if c in columns), None)
+        if column is None:
+            return []
+        return list(dict.fromkeys(self._objects[column].astype(str)))
+
+    def _choose_guides(self, *_args) -> bool:
+        """Open the gRNA checklist and apply a changed selection.
+
+        :returns: ``True`` when the selection changed.
+        """
+        offered = self._guides_on_offer()
+        if not offered:
+            self.selection_note.setText(tr(
+                "These object rows name no gRNA, so there is nothing to "
+                "choose between."))
+            return False
+        before = list(self._selected_guides)
+        dialog = _WellChoice(
+            offered, set(before), parent=self, title=tr("Which gRNAs to plot"),
+            note=tr("The plot opens on the regression's top hits. The "
+                    "selected wells follow the gRNAs ticked here."))
+        if dialog.exec() != QDialog.Accepted:
+            return False
+        chosen = [g for g in offered if g in dialog.chosen()]
+        if chosen == before:
+            return False
+        self.set_selected_guides(chosen)
+        return True
+
+    def _choose_selected_wells(self, *_args) -> bool:
+        """Open the checklist of the wells carrying the chosen gRNAs.
+
+        :returns: ``True`` when the well set changed.
+        """
+        from ...well_scope import wells_of as scope_wells_of
+
+        offered = scope_wells_of(self._objects, self._selected_guides)
+        if not offered:
+            self.selection_note.setText(tr(
+                "No well carries the chosen gRNAs, so there are no wells to "
+                "narrow."))
+            return False
+        before = self.selected_wells()
+        dialog = _WellChoice(
+            offered, set(before), parent=self,
+            title=tr("Which selected wells to draw"),
+            note=tr("These wells carry the chosen gRNAs. A well left out is "
+                    "not drawn at all."))
+        if dialog.exec() != QDialog.Accepted:
+            return False
+        chosen = [w for w in offered if w in dialog.chosen()]
+        if chosen == before:
+            return False
+        self.set_selected_wells(chosen)
+        return True
+
+    def _show_the_selection(self) -> None:
+        """Say which gRNAs and wells the plot is drawing, under the controls."""
+        from ...well_scope import describe
+
+        guides = list(self._selected_guides)
+        wells = self.selected_wells()
+        shown = ", ".join(guides[:6]) + (" …" if len(guides) > 6 else "")
+        where = ", ".join(wells[:8]) + (" …" if len(wells) > 8 else "")
+        lines = []
+        if guides:
+            lines.append(tr("gRNAs ({n}): {names}", n=len(guides),
+                            names=shown))
+            lines.append(tr("selected wells ({n}): {names}", n=len(wells),
+                            names=where or tr("none")))
+        else:
+            lines.append(tr("No gRNA is selected."))
+        if self._scope_report:
+            lines.append(describe(self._scope_report))
+        self.selection_note.setText("\n".join(lines))
+        self.scope_wells_button.setEnabled(bool(guides))
+
     def _on_scope(self, *_args) -> None:
         """The population changed: re-derive the wells and redraw."""
         self._selected_wells = None
@@ -705,8 +854,16 @@ class MeasurementComparePanel(QWidget):
         operator = str(self.operator.currentData() or "")
         second = str(self.second.currentData() or "") if operator else ""
         contrast = str(self.contrast.currentData() or "")
+        if contrast in ("against_controls", "against_other_wells"):
+            frame = self._objects
+            self._scope_report = {"note": tr(
+                "The population box is set aside for this contrast: it "
+                "compares against wells outside the selection.")}
+        else:
+            frame, self._scope_report = self.scoped_objects()
+        self._show_the_selection()
         self._comparison = with_statistics(
-            build(self._objects, measurement, groups=self._groups,
+            build(frame, measurement, groups=self._groups,
                   level=level, operator=operator, second=second,
                   contrast=contrast, wells=self.chosen_wells(),
                   controls=self._control_wells()))

@@ -1,24 +1,36 @@
 {
-  "lesson": "40_run_history", "language": "it",
-  "english_sha256": "95f7f8f67ce2fea87e24e2b3d1a69d607a49eb12df62bf662ca2fd0eb0b9e4d4",
-  "review": {"kind": "Parent editorial translation against frozen English and actual GUI; keep visible controls and API identifiers", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Run History: esaminare registri reali e ripristinare le impostazioni disponibili",
-  "description": "Trova le attività registrate tramite Help, controlla impostazioni, inventari, avvisi ed errori e riapri una configurazione reale di Recruitment senza eseguire o eliminare nulla.",
-  "objectives": ["Trovare Run history in Help e combinare filtri per modulo, stato e testo.", "Distinguere inventari ed esecuzione riuscita dalla validazione scientifica.", "Leggere impostazioni, ambiente, avvisi e la traccia di un errore reale.", "Copiare il percorso del registro e ripristinare Recruitment senza avviare analisi."],
-  "prerequisite": "Usa i registri dei tuoi esempi completati. La registrazione legge una copia isolata di ~/.spacr/runs con attività reali, non risultati inventati. Batch Runner e Recruitment spiegano i dati acquisiti; Regression fornisce avvisi reali e un precedente tentativo di Model Zoo un errore. Run History non dispone di download dati, anteprima in tempo reale, grafici o pannello AI dedicati. Non avviamo analisi, eliminazioni o un gestore di file esterno. Tutti i 496 file del registro rimangono identici byte per byte. Vengono ripristinate 27 impostazioni esposte di Recruitment; hash_inputs non è rappresentato nel modulo. Gli hash descrivono l'esecuzione passata, non una nuova verifica dei file attuali.",
+  "lesson": "40_run_history",
+  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Run History: esaminare i lavori passati e ripristinare le impostazioni",
+  "description": "Trova le esecuzioni salvate, esamina impostazioni e log e carica una configurazione precedente nel suo modulo.",
+  "objectives": [
+    "Trovare esecuzioni con filtri e ricerca.",
+    "Esaminare impostazioni salvate, file e problemi.",
+    "Ripristinare le impostazioni per una nuova esecuzione."
+  ],
+  "prerequisite": "Completa un lavoro di spaCR per creare un record di esecuzione locale. L’esempio scorre record di esecuzioni di conversione, di Recruitment e di Regression.",
   "scenes": [
-    "Apri Help, poi Run history. Questo strumento condiviso legge il registro locale delle esecuzioni, non tutte le cartelle dei progetti sul computer. Usiamo registrazioni autentiche degli altri tutorial. Non occorre ripetere le analisi per consultarne la cronologia.",
-    "Refresh carica i registri disponibili. La tabella mostra modulo, stato, durata, tempo CPU, conteggi e dimensioni dei file registrati. Trascina il divisore per ingrandire i dettagli. Sono misure salvate dell'esecuzione, non un monitor in tempo reale né una valutazione indipendente della qualità scientifica.",
-    "Scegli convert e Success, poi cerca il nome della cartella comune dell'esempio. Restano tre vere attività di Batch Runner. I filtri per modulo, stato e testo si combinano; il testo trova impostazioni, percorsi, versioni o problemi registrati. Non esistono filtri separati per data o risorse.",
-    "Files and models è vuoto per queste conversioni riuscite perché il registro ha saltato il calcolo degli hash dei file. Non significa che non siano state prodotte immagini. Il tutorial Batch Runner ha verificato separatamente tutte le dodici uscite. Un inventario assente è una prova mancante, non la prova che manchino dati.",
-    "Una ricerca senza corrispondenze svuota tabella e dettagli e disabilita le azioni sull'esecuzione selezionata. Ripristinando la ricerca precedente ricompaiono gli stessi tre registri. Controlla i filtri prima di concludere che un'esecuzione sia sparita: la ricerca non elimina file del registro.",
-    "Seleziona l'esecuzione reale di Recruitment. Overview indica circa diciotto secondi trascorsi e quarantacinque secondi di CPU del processo: sono misure diverse. Sono disponibili sei voci per file di ingresso e sei per file di uscita. Non sono conteggi di cellule né una garanzia di inventario completo.",
-    "Settings mostra la configurazione salvata: sorgente, canali, filtri degli oggetti e Plot attivo. Scorri per leggere l'intera istantanea. La sorgente è il progetto privato del tutorial. Questi valori storici non cambiano automaticamente se in seguito modifichi il progetto o le impostazioni correnti del modulo.",
-    "Files and models elenca percorsi, dimensioni e hash disponibili. Esamina ingressi e uscite: lo stesso database può avere hash diversi prima e dopo. Aprire la cronologia legge i dati salvati, senza ricalcolare l'hash di ogni file attuale né validare il risultato biologico.",
-    "Environment contiene versioni software, informazioni sui semi casuali e hash delle istantanee. Aiutano a indagare le differenze fra esecuzioni, ma da soli non garantiscono riproducibilità. Copy path copia negli appunti il percorso della cartella di questo registro. Conserva impostazioni e manifesto insieme agli ingressi e ai risultati separati del progetto.",
-    "Un'esecuzione riuscita di Regression può ancora riportare avvisi sul contrasto delle figure salvate e sui file di provenienza mancanti. Warnings and failure separa questi messaggi dalla traccia dell'errore. Success significa che l'esecuzione è terminata, non che figure, provenienza o disegno statistico siano adeguati. Consulta Regression per queste verifiche.",
-    "Il filtro Failed mostra un vero tentativo precedente di Model Zoo. La traccia termina con un argomento invert non accettato da Cellpose: un problema di compatibilità, non un risultato di segmentazione. Esaminiamo l'errore senza ripeterlo. Quando segnali un problema, includi versioni e dettagli pertinenti dell'errore.",
-    "Torna a Recruitment e scegli Load settings in module. Tutti i ventisette controlli disponibili corrispondono ai valori salvati e non parte alcuna analisi. Il registro contiene anche hash inputs, non rappresentato in questo modulo. Verifica impostazioni ripristinate e ingressi attuali prima dell'esecuzione: non è garantita una ripetizione esatta.",
-    "Clear all elimina i registri delle esecuzioni; non azzera i filtri. Non abbiamo usato questo pulsante né l'eliminazione nel menu delle righe, e tutti i file sono rimasti invariati. Per ricerche programmatiche usa search_runs in spacr.run_journal. Per un rapporto sul progetto consulta il tutorial Report."
+    "Apri Help e poi Run history per scorrere i record di esecuzione salvati su questo computer.",
+    "Fai clic su Refresh per caricare i record disponibili. Seleziona un’esecuzione per esaminarne i dettagli e trascina il divisore se ti serve più spazio.",
+    "Scegli un modulo e uno stato, poi inserisci un termine di ricerca per restringere l’elenco. Per esempio, seleziona convert e Success per trovare le conversioni completate.",
+    "Apri Files and models per i dettagli registrati di input e output. Le esecuzioni che hanno saltato il calcolo degli hash dei file possono avere un inventario vuoto; usa i percorsi di output nelle impostazioni o nei log per trovarne i risultati.",
+    "Cancella o regola i filtri se la tabella è vuota. Termini di ricerca e selezione dello stato agiscono insieme.",
+    "Seleziona un’esecuzione di Recruitment e leggi Overview per il tempo trascorso e il numero di file registrati. Questi dati riassumono quell’esecuzione salvata.",
+    "Apri Settings per esaminare la cartella di origine, i canali e i filtri sugli oggetti. Scorri la configurazione salvata prima di decidere se riutilizzarla.",
+    "Apri Files and models per esaminare percorsi, dimensioni e hash registrati. Tieni disponibili i file di progetto a cui fa riferimento quando devi tornare sull’analisi.",
+    "Apri Environment per le versioni del software e i semi registrati. Usa Copy path per trovare la cartella del diario dell’esecuzione.",
+    "Apri Warnings and failure per leggere gli avvisi associati a un’esecuzione completata. Esamina gli avvisi rilevanti prima di usarne i risultati.",
+    "Scegli Failed per trovare i lavori non riusciti. Leggi la traccia dell’errore e le versioni del software quando diagnostichi un problema o prepari una segnalazione di bug.",
+    "Torna all’esecuzione desiderata e scegli Load settings in module. Controlla i comandi ripristinati e i percorsi di input attuali prima di premere Run.",
+    "Conserva i diari che ti servono con la documentazione del progetto. Usa Clear all solo quando vuoi eliminare record di esecuzione. Apri Report per creare un riepilogo del progetto."
   ]
 }

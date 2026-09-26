@@ -580,9 +580,18 @@ class PairedFileTableWidget(QWidget):
         self._databases = list(dict.fromkeys(
             row["database"] for row in current if row.get("database")))
 
-    def _repropose(self) -> None:
-        """Rebuild every row from tokens, then honour the manual attachments."""
-        typed = self._plate_labels_the_user_typed()
+    def _repropose(self, typed: dict | None = None) -> None:
+        """Rebuild every row from tokens, then honour the manual attachments.
+
+        :param typed: the plate labels the user typed, keyed by the row's
+            files. Omitted, they are read from the table as it stands. A row
+            move or delete passes the labels it read BEFORE changing the
+            table, because a generated `plate 2` that a move carried to the
+            top no longer matches the proposal for its new position and would
+            otherwise be mistaken for a name the user chose.
+        """
+        if typed is None:
+            typed = self._plate_labels_the_user_typed()
         rows = suggest_file_pairs(self._scores, self._counts,
                                   databases=self._databases)
         for row in rows:
@@ -1014,21 +1023,42 @@ class PairedFileTableWidget(QWidget):
         target = row + offset
         if row < 0 or not 0 <= target < self.table.rowCount():
             return
+        typed = self._labels_before_a_change()
         values = self.get_value()
         values[row], values[target] = values[target], values[row]
         self.set_value(values)
+        self._repropose_after_a_change(typed)
         self.table.selectRow(target)
         self.value_changed.emit()
+
+    def _labels_before_a_change(self) -> dict:
+        """The typed plate labels, read while the table is still unchanged."""
+        self._rebuild_sides()
+        return self._plate_labels_the_user_typed()
+
+    def _repropose_after_a_change(self, typed: dict) -> None:
+        """Renumber generated plate labels the moment rows move or go.
+
+        A generated label names a row's position, so a move or a delete that
+        leaves it in place has it asserting a position the row no longer has
+        until the next file arrives.
+
+        :param typed: labels from :meth:`_labels_before_a_change`.
+        """
+        self._rebuild_sides()
+        self._repropose(typed)
 
     def _remove(self) -> None:
         """Remove the selected row."""
         rows = sorted({index.row() for index in self.table.selectedIndexes()},
                       reverse=True)
+        typed = self._labels_before_a_change() if rows else {}
         for row in rows:
             self._pinned.pop(self._cell(row, self.SIDE_COLUMNS["database"]),
                              None)
             self.table.removeRow(row)
         if rows:
+            self._repropose_after_a_change(typed)
             self._refresh_status()
             self.value_changed.emit()
 

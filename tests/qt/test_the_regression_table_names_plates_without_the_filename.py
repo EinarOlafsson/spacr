@@ -173,3 +173,66 @@ def test_a_generated_number_is_renumbered_rather_than_kept(qtbot, tmp_path):
 
     assert [row["plate"] for row in widget.get_value()] == \
         ["plate 1", "plate 2"], widget.get_value()
+
+
+def _two_generated_plates(qtbot, tmp_path):
+    """A table of two paired rows whose labels are both generated."""
+    from spacr.qt.widgets.file_list import PairedFileTableWidget
+
+    widget = PairedFileTableWidget()
+    qtbot.addWidget(widget)
+    widget.add_paths_for_side([_write(tmp_path, "a_scores.csv",
+                                      "grna,score\nA,0.5\n")], "score")
+    widget.add_paths_for_side([_write(tmp_path, "x_counts.csv")], "count")
+    widget.add_paths_for_side([_write(tmp_path, "b_scores.csv",
+                                      "grna,score\nB,0.5\n")], "score")
+    widget.add_paths_for_side([_write(tmp_path, "y_counts.csv")], "count")
+    assert [row["plate"] for row in widget.get_value()] == \
+        ["plate 1", "plate 2"], widget.get_value()
+    return widget
+
+
+def test_a_deleted_row_renumbers_the_rest_at_once(qtbot, tmp_path):
+    """Deleting the first row must not leave `plate 2` on the only row.
+
+    The number used to be corrected only when the next file arrived, so
+    between a Remove press and the next drop the table asserted a plate
+    position that no longer existed.
+    """
+    widget = _two_generated_plates(qtbot, tmp_path)
+
+    widget.table.selectRow(0)
+    widget._remove()
+
+    rows = widget.get_value()
+    assert len(rows) == 1 and rows[0]["score"].endswith("b_scores.csv"), rows
+    assert rows[0]["plate"] == "plate 1", rows
+
+
+def test_a_moved_row_is_renumbered_at_once(qtbot, tmp_path):
+    """A generated label names the row's position, so a move renumbers it."""
+    widget = _two_generated_plates(qtbot, tmp_path)
+
+    widget.table.selectRow(1)
+    widget._move(-1)
+
+    rows = widget.get_value()
+    assert [os.path.basename(row["score"]) for row in rows] == \
+        ["b_scores.csv", "a_scores.csv"], rows
+    assert [row["plate"] for row in rows] == ["plate 1", "plate 2"], rows
+    assert widget.table.currentRow() == 0
+
+
+def test_a_typed_label_survives_a_move_and_a_delete(qtbot, tmp_path):
+    """The renumbering is for defaults; a name the user chose stays put."""
+    widget = _two_generated_plates(qtbot, tmp_path)
+    widget.table.item(1, 0).setText("Treated")
+
+    widget.table.selectRow(1)
+    widget._move(-1)
+    assert [row["plate"] for row in widget.get_value()] == \
+        ["Treated", "plate 2"], widget.get_value()
+
+    widget.table.selectRow(1)
+    widget._remove()
+    assert [row["plate"] for row in widget.get_value()] == ["Treated"]

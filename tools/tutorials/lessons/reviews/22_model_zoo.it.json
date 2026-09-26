@@ -1,17 +1,30 @@
 {
-  "lesson": "22_model_zoo", "language": "it", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Zoo: trovare modelli e controllarne la provenienza",
-  "description": "Apri la libreria annidata, esplora una cache locale e distingui i dati di addestramento registrati dalla provenienza sconosciuta. L’attuale incompatibilità di Cellpose impedisce di mostrare una valutazione riuscita.",
-  "objectives": ["Trovare Model Zoo in Make Masks ed esplorare una cartella locale.", "Leggere origine, tipo, checksum e addestramento senza confondere metadati sconosciuti e validazione.", "Distinguere gestione dei modelli, download, addestramento e valutazione."],
-  "prerequisite": "spaCR 1.5.0.7 nightly. La registrazione esplora una cache Cellpose esistente e seleziona il file cpsam originale, senza download, addestramento o inferenza. Usa la tua cartella, non il percorso personale del presentatore. I metadati non indicano checksum pubblicato, dati di addestramento o autore; non li deduciamo dal nome. Un’impronta indipendente dimostra soltanto che il file non è cambiato durante la registrazione, non la sua origine. La valutazione di Model Zoo e Model Compare passano invert, incompatibile con Cellpose 4.2.1.1: qui il difetto non viene riparato né aggirato. Il tutorial Plaque mostra un download e un’anteprima reali. Non affermiamo accuratezza né validazione su dati indipendenti.",
+  "lesson": "22_model_zoo",
+  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Model Zoo: scegliere un modello e provarlo sulle tue immagini",
+  "description": "Apri Model Zoo, trova o scarica un checkpoint, esaminane i dettagli e scegli un piccolo insieme di immagini per una prova.",
+  "objectives": [
+    "Aprire Model Zoo e analizzare una cartella locale di modelli.",
+    "Scegliere una famiglia e una versione di modello, poi esaminarne i dettagli.",
+    "Eseguire una piccola prova sulle immagini ed esaminare le maschere e i riepiloghi di qualità ottenuti."
+  ],
+  "prerequisite": "Estrai l’esempio collegato e usa la sua cartella images per la prova su tre campi. Scegli un modello di segmentazione Cellpose installato, oppure scarica un checkpoint adatto tramite Model Zoo. Per una tua prova, prepara alcune immagini TIFF, PNG, NPY o NPZ rappresentative.",
   "scenes": [
-    "Model Zoo è la libreria di modelli dentro Make Masks. Apri il modulo principale, poi il controllo Model Zoo. La lezione dimostra la libreria reale e la ricerca di modelli locali, non un nuovo addestramento o un confronto di accuratezza.",
-    "La tabella riunisce voci pubblicate e file scoperti localmente. Leggi insieme le colonne tipo e origine. Essere elencato non significa che un modello sia scaricato, provato sulle tue immagini o validato per il tuo esperimento.",
-    "Inserisci una cartella di modelli esistente e premi Scan, oppure sceglila con il pulsante accanto. Qui esploriamo la vera cache Cellpose. Usa il tuo percorso. La ricerca trova file e metadati; non addestra modelli né esegue segmentazione.",
-    "Questa ricerca mostra otto voci: alcuni modelli remoti pubblicati e alcuni file locali di pesi. Il numero descrive questo computer, non una configurazione obbligatoria. Seleziona il file esatto: nomi simili non garantiscono gli stessi pesi.",
-    "Il file locale selezionato non ha un checksum pubblicato né una provenienza di addestramento registrata in questa vista. Sconosciuto significa sconosciuto. Il nome non prova i dati usati nell’addestramento. La nostra impronta conferma che il file non è cambiato durante la registrazione, non chi lo ha prodotto o quanto funzioni bene.",
-    "L’area download stabilisce dove salvare un modello remoto disponibile. Offre anche una scelta sui modelli privi di checksum pubblicato: un checksum mancante non equivale a un download verificato. Questa selezione locale non viene scaricata di nuovo. La lezione Plaque mostra un download e un’anteprima reali.",
-    "L’area inferiore serve a provare campi e confrontare modelli selezionati. Sono attività distinte dall’esplorazione della libreria. L’attuale incompatibilità degli argomenti Cellpose impedisce di dichiarare una valutazione riuscita. Non inventiamo maschere né punteggi. Nel valutare il flusso riparato, separa immagini rappresentative di validazione dagli esempi di addestramento."
+    "Da Home, apri Make Masks e poi scegli Model Zoo. Usa questa pagina per trovare un modello di segmentazione e provarlo su un piccolo insieme di immagini.",
+    "Fai clic su Choose folder e seleziona la directory dei modelli per analizzarla. Se digiti il percorso, fai clic su Scan. Attiva le intestazioni di origine che vuoi consultare, come Cellpose o i modelli locali.",
+    "Seleziona una famiglia di modelli e usa il suo controllo Version per scegliere il checkpoint. Leggi i dettagli su tipo di immagine, informazioni di addestramento e percorso locale. Per un checkpoint remoto, scegli una cartella in Save to e fai clic su Download prima di provarlo.",
+    "Estrai l’esempio collegato e scegli la sua cartella images in Test on fields. Imposta il numero di campi a tre. Con le tue immagini, parti da un piccolo insieme che includa campi tipici e casi difficili.",
+    "Seleziona il modello di segmentazione locale e fai clic su Test on fields. Attendi la fine della prova. Immagini e modelli più grandi possono richiedere più tempo, soprattutto su una CPU.",
+    "Seleziona una riga dei risultati per esaminare l’anteprima della maschera. Controlla sull’immagine i contorni, gli oggetti che si toccano e gli oggetti mancati. Usa il conteggio degli oggetti e gli indicatori di qualità per trovare i campi da esaminare più a fondo.",
+    "Esamina i riepiloghi dei campi, poi conserva il percorso del checkpoint scelto per il tuo modulo di analisi. Per confrontare due famiglie di modelli diverse sulle stesse immagini, seleziona entrambe le righe e scegli Compare the two selected. Usa il controllo della versione per provare un’altra versione della stessa famiglia."
   ]
 }

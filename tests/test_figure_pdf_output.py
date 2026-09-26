@@ -654,3 +654,97 @@ def test_sibling_pdf_cannot_collide_on_an_extensionless_name():
     assert _sibling_pdf("/tmp/run_2.5") != _sibling_pdf("/tmp/run_2.6")
     assert _sibling_pdf("/tmp/run_2.5") == Path("/tmp/run_2.5.pdf")
     assert _sibling_pdf("/tmp/plain") == Path("/tmp/plain.pdf")
+
+
+# ---------------------------------------------------------------------------
+# item 50: a SAVED graph is print-styled whatever the screen theme
+# ---------------------------------------------------------------------------
+
+def _dark_figure():
+    """A small figure with a title and labels, like the gate editor's."""
+    from matplotlib.figure import Figure
+    figure = Figure(figsize=(3, 2))
+    axes = figure.add_subplot(111)
+    axes.plot([0, 1, 2], [1, 0, 2])
+    axes.set_title("gate")
+    axes.set_xlabel("area")
+    return figure
+
+
+def test_a_saved_graph_is_white_with_dark_ink_under_a_dark_theme(prefs,
+                                                                 tmp_path):
+    """Decision 2026-09-25: "saved graphs (PDF/PNG) get a WHITE PRINT STYLE
+    (white background, dark text/axes/lines) whatever the screen theme"."""
+    from PIL import Image
+    from spacr.qt.widgets.figure_queue import (PRINT_BACKGROUND, PRINT_INK,
+                                               render_figure_to_png)
+
+    prefs.set_figure_colors("none", "#ffffff")
+    figure = _dark_figure()
+    target = tmp_path / "graph.png"
+
+    assert render_figure_to_png(figure, str(target), for_print=True,
+                                write_pdf=True)
+
+    pixels = Image.open(target).convert("RGBA")
+    assert pixels.getpixel((0, 0)) == (255, 255, 255, 255)
+    dark = [p for p in pixels.getdata() if max(p[:3]) < 60 and p[3] == 255]
+    assert dark, "no dark ink on the saved page"
+    assert (tmp_path / "graph.pdf").is_file()
+    assert PRINT_BACKGROUND == "#ffffff" and PRINT_INK == "#000000"
+
+
+def test_saving_for_print_leaves_the_screen_figure_alone(prefs, tmp_path):
+    """The print style is applied to a copy: the graph the user is looking at
+    keeps its theme colours."""
+    from matplotlib.colors import to_hex
+    from spacr.qt.widgets.figure_queue import render_figure_to_png
+
+    prefs.set_figure_colors("#101010", "#eeeeee")
+    figure = _dark_figure()
+    render_figure_to_png(figure, str(tmp_path / "screen.png"))
+    before = (to_hex(figure.patch.get_facecolor()),
+              to_hex(figure.axes[0].title.get_color()))
+    assert before == ("#101010", "#eeeeee")
+
+    assert render_figure_to_png(figure, str(tmp_path / "print.png"),
+                                for_print=True)
+
+    after = (to_hex(figure.patch.get_facecolor()),
+             to_hex(figure.axes[0].title.get_color()))
+    assert after == before
+
+
+def test_an_uncopyable_figure_is_put_back_after_a_print_save(prefs, tmp_path,
+                                                             monkeypatch):
+    """When the copy fails the figure is styled in place, written, and then
+    put back to the screen colours."""
+    from matplotlib.colors import to_hex
+    import spacr.qt.widgets.save_figure_dialog as dialog
+    from spacr.qt.widgets.figure_queue import render_figure_to_png
+
+    monkeypatch.setattr(dialog, "copy_figure", lambda _figure: None)
+    prefs.set_figure_colors("#101010", "#eeeeee")
+    figure = _dark_figure()
+    target = tmp_path / "print.png"
+
+    assert render_figure_to_png(figure, str(target), for_print=True)
+
+    from PIL import Image
+    assert Image.open(target).convert("RGBA").getpixel((0, 0)) == \
+        (255, 255, 255, 255)
+    assert to_hex(figure.axes[0].title.get_color()) == "#eeeeee"
+
+
+def test_the_gallery_page_still_follows_the_theme(prefs, tmp_path):
+    """Screen rendering is unchanged: without ``for_print`` the sibling PDF
+    the pixmap swap rasterises keeps the theme's page."""
+    from matplotlib.colors import to_hex
+    from spacr.qt.widgets.figure_queue import render_figure_to_png
+
+    prefs.set_figure_colors("#101010", "#eeeeee")
+    figure = _dark_figure()
+    assert render_figure_to_png(figure, str(tmp_path / "g.png"),
+                                write_pdf=True)
+    assert to_hex(figure.patch.get_facecolor()) == "#101010"
+    assert (tmp_path / "g.pdf").is_file()

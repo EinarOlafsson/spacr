@@ -97,13 +97,6 @@
     },
     {
       "table": "ui",
-      "key": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source_sha256": "c374731b1b2c4eec70eb888649b01ba12d6b48523762ee67263e16d45f3af320",
-      "translation": "이 페이지의 Plasmodium 모듈 8개는 모두 계획 단계입니다. 설명은 사용 가능한 분석 파이프라인이 아니라 의도한 판독값을 정의합니다. PlasmoDB와 UniProt은 마커 선택과 결과 해석을 위한 유전체 및 단백질 맥락을 제공합니다. 정단복합체 그림은 Toxoplasma와 공유하는 구획을 논의하는 데 유용하지만, 단백질이 두 생물에서 같은 위치에 있다는 것을 입증하지는 않습니다."
-    },
-    {
-      "table": "ui",
       "key": "Also provide the matching crops and channel preprocessing.",
       "source": "Also provide the matching crops and channel preprocessing.",
       "source_sha256": "5d14f534937d88a8a816046b5b06ec106abb7f34c8957aecb6f28e07eb986510",
@@ -122,13 +115,6 @@
       "source": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
       "source_sha256": "c838f473fa96e1a4d0dfd289edffec8b35a72f2681cada7ed544fd0f102f20d6",
       "translation": "설정된 플라크 모델로 플라크 이미지 또는 기존 마스크를 분석하세요. 이 경로는 측정을 거칠 필요가 없으며, 전용 플라크 예제를 사용하세요."
-    },
-    {
-      "table": "ui",
-      "key": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source_sha256": "f3daa1382843e31a232a9ecc036eba4b9ae12183a86a6f0b22dfe2fd6285368b",
-      "translation": "항진균제 반응은 진균 성장과 형태에 대한 농도-반응 제안 워크플로입니다. 형태 또는 바이오필름과 결합하면 처리 중 어떤 이미지 특징이 변하는지 설명하는 데 도움이 됩니다. Candida 모듈 8개는 모두 현재 계획 단계이며 타일에 출시 예정으로 표시되어 있습니다. Candida Genome Database와 UniProt은 마커 선택과 해석을 돕는 유전자 및 단백질 주석을 제공합니다."
     },
     {
       "table": "ui",
@@ -552,13 +538,6 @@
     },
     {
       "table": "ui",
-      "key": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source_sha256": "b4a8acea49fc2990a3ba506c91ffd1d86f8049dd25e2fb8e4774c09b37444de8",
-      "translation": "상피세포 침입은 세포 밖 진균과 상피세포에 내재화된 진균을 구별하도록 계획되어 있습니다. 식세포작용은 식세포에 의한 흡수를 측정할 예정입니다. 둘 다 적절한 차등 표지나 공간 정보처럼 접촉과 내재화를 구별할 방법이 필요합니다. 흡수 판독값과 함께 숙주 세포 집단과 진균 형태를 보고하세요."
-    },
-    {
-      "table": "ui",
       "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
@@ -717,13 +696,6 @@
       "source": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
       "source_sha256": "c6990de9aec7ce45253154d30b40db01c6be3a46df913a675d953dc274e1d8df",
       "translation": "GUI 전용 구획 강조 표시와 사용 가능한 어세이로의 이동. 측정값이나 파일은 생성되지 않습니다."
-    },
-    {
-      "table": "ui",
-      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source_sha256": "ebfb1c9811c74671d5842f0a8f7a663cdad6815e6a0622cb58809571a838e266",
-      "translation": "배우자모세포 성숙도는 적절한 마커와 참조 어노테이션이 있을 때 단계 및 성별 관련 이미지 특징을 위한 제안 워크플로입니다. 약물 반응 영상 분석은 성장과 형태를 농도와 연관 지을 예정입니다. 이 측정값과 함께 종, 시작 단계, 노출 기간을 기록하세요. 그렇지 않으면 단계 구성의 변화가 기생충 수의 변화로 오인될 수 있습니다."
     },
     {
       "table": "ui",
@@ -1074,13 +1046,6 @@
       "source": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
       "source_sha256": "08f075cd8d7c276a8437c84e93bc6e01d37ba0290019d2fe32545f515141a80a",
       "translation": "이미 가지고 있는 모델 파일을 목록에 추가하고, 원하면 Hugging Face에 공유해 다른 사람도 사용할 수 있게 합니다."
-    },
-    {
-      "table": "ui",
-      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source_sha256": "ae13b680adfb10492d7bda64d4b0f36ce4765cf0b32bd763df25fb690455fac1",
-      "translation": "간기 성장은 간세포 내 기생충의 수와 크기를 측정하도록 계획되어 있습니다. 스포로조이트 운동성은 활주 궤적이나 흔적에 초점을 두고, 세포 통과는 기생충 경로를 따른 숙주 세포 손상을 다룰 예정입니다. 통과, 생산적 침입, 이후 성장은 서로 다른 결과이므로 이미지 마커, 관찰 시간, 분모를 따로 정의해야 합니다."
     },
     {
       "table": "ui",
@@ -2526,31 +2491,10 @@
     },
     {
       "table": "ui",
-      "key": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source_sha256": "3db2af90e552d9f1ff09084d9fcc2467ba0a8907b230de616dd7257c8a266014",
-      "translation": "계획된 탈출 모듈은 공포 파열과 기생충의 탈출에 초점을 두고, 활주 운동성은 세포 밖 흔적과 움직임을 정량화할 예정입니다. 브래디조이트 전환은 단계 마커와 낭포벽 판독값을, 숙주세포 손상은 단층 소실을 다룹니다. 이들은 제안된 워크플로이므로 타일에 출시 예정으로 표시되어 있습니다. 고정 이미지, 시계열, 단계 특이 마커는 서로 다른 질문에 답하므로 의도한 판독값에 맞게 선택해야 합니다."
-    },
-    {
-      "table": "ui",
       "key": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source_sha256": "6e0c370bb9d95162771a35b59788beb7866ce81eb66ce6a73d44196cc8ff72d3",
       "translation": "미리보기 설정은 두 탭으로 되어 있습니다: 그림(플라크 웰을 찾고 그림을 판독)과 플라크 검출(플라크 모델과 임계값)."
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source_sha256": "77f3167fe2cb6f5c77b1e1b654a69b6404b54a6ad078b463adfa86b873a8e483",
-      "translation": "제안된 부착 모듈은 숙주 세포 표면에 붙은 진균 세포를 셀 예정입니다. 바이오필름은 집단 성장에 초점을 두며, 획득 데이터에 깊이 정보가 있으면 덮인 면적과 두께도 포함합니다. 2차원 시야 하나로는 표면 피복을 설명할 수 있지만 그것만으로 바이오필름 두께를 확정할 수는 없습니다. 종점에 맞게 단일 평면 또는 부피 이미징을 선택하세요."
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source_sha256": "1ed3b2e9fa86adf509f980a162693fab21484b44ddb9780c3f59e54f573546e6",
-      "translation": "제안된 기생충혈증 모듈은 전체 적혈구 집단 대비 감염된 적혈구를 셀 예정입니다. 혈액기 단계 분류는 링, 영양형, 분열체를 구분하여 단계 구성의 변화를 감염 빈도와 함께 검토할 수 있게 합니다. 메로조이트 침입은 적혈구로의 진입에 초점을 둡니다. 이 판독값들을 함께 쓰면 새로 감염된 세포가 적은 것과 이미 안에 있는 기생충의 발달이 바뀐 것을 구별하는 데 도움이 됩니다."
     },
     {
       "table": "ui",
