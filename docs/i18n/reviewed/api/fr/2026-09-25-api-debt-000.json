@@ -4459,6 +4459,350 @@
       "context": "Sort dropped files into rows and image data channel/mask columns with one regex.",
       "translation": "Répartit les fichiers déposés en lignes et en colonnes de canal/masque à l’aide d’une seule expression régulière.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#1",
+      "source": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
+      "source_sha256": "02c3a82f8385346fe30dc5aa0765bec82c258e660567679ffd67a6488752652a",
+      "context": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
+      "translation": "L’expression régulière est comparée au NOM DE BASE de chaque fichier. Ce qu’elle capture décide de la destination du fichier :",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#10",
+      "source": "the plate name for a new table.",
+      "source_sha256": "b16afdd51adc67e4a7971f7126812ca4437591378242619771865e9344316eec",
+      "context": "the plate name for a new table.",
+      "translation": "le nom de plaque pour une nouvelle table.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#11",
+      "source": "a :class:`TableAssignment`. Nothing is read from disk and nothing is written.",
+      "source_sha256": "10d7377a97eec21c603e92b3571ec69f40a372eea009cfafda6dee39db9486ea",
+      "context": "a :class:`TableAssignment`. Nothing is read from disk and nothing is written.",
+      "translation": "un :class:`TableAssignment`. Rien n’est lu sur le disque et rien n’est écrit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#12",
+      "source": "if ``pattern`` does not compile. The window catches this and shows it under the box rather than letting it reach a run.",
+      "source_sha256": "7c16fabbcb13db681607d7005497d36c75c222b3b5500e33eb930bc818d778e4",
+      "context": "if ``pattern`` does not compile. The window catches this and shows it under the box rather than letting it reach a run.",
+      "translation": "si ``pattern`` ne se compile pas. La fenêtre intercepte cette erreur et l’affiche sous la zone de saisie au lieu de la laisser atteindre une exécution.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#2",
+      "source": "one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a field token share a row, which is what makes a four-channel field one row rather than four.",
+      "source_sha256": "66ddf6f2e9eac71ca8fafd017b209be12db40f17d947c464ecb0f06dca3fade6",
+      "context": "one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a microscope field of view token share a row, which is what makes a four-channel microscope field of view one row rather than four.",
+      "translation": "l’un des groupes de :data:`FIELD_TABLE_FIELD_GROUPS` nomme la ligne. Les fichiers qui partagent un jeton de champ partagent une ligne ; c’est ce qui fait d’un champ à quatre canaux une seule ligne plutôt que quatre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#3",
+      "source": "one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column, through :func:`mask_role_of`.",
+      "source_sha256": "4c57c9ade5c5c3f15a35ac9060ac72956feb5a079f3052522375e60e268b8802",
+      "context": "one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column, through :func:`mask_role_of`.",
+      "translation": "l’un des groupes de :data:`FIELD_TABLE_MASK_GROUPS` l’envoie vers une colonne de masque, via :func:`mask_role_of`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#4",
+      "source": "one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.",
+      "source_sha256": "f023346a87acc0b365d033b4e2c831d6caab37dcc2ffc8f33e7f4e8ccc413bb5",
+      "context": "one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.",
+      "translation": "l’un des groupes de :data:`FIELD_TABLE_CHANNEL_GROUPS` l’envoie vers une colonne de canal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#5",
+      "source": "THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
+      "source_sha256": "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
+      "context": "The channel token is ranked, not read as a number, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
+      "translation": "LE JETON DE CANAL EST CLASSÉ, PAS LU COMME UN NOMBRE, et c’est la seule décision ici qui mérite d’être connue. ``C1``/``C2``/``C3``, ``w1``/``w2`` et ``0``/``1``/``2`` doivent tous devenir les canaux 0, 1, 2, et aucune lecture de ``C1`` n’est correcte pour les trois -- une lecture littérale fait commencer le premier ensemble au canal 1 et laisse le canal 0 vide pour toujours. Les jetons de canal DISTINCTS sont donc triés (numériquement sur leurs chiffres finaux) et associés à 0, 1, 2 ... dans cet ordre. L’association est donc une propriété de l’ensemble des fichiers, et non de l’un d’eux, c’est pourquoi la fenêtre affiche l’affectation au lieu de décrire la règle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#6",
+      "source": "THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second field's ``C2`` in column 0 beside a first field's ``C1``, and the only sign of it would be in the database.",
+      "source_sha256": "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
+      "context": "The set is the table's, not the drop's. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second microscope field of view's ``C2`` in column 0 beside a first microscope field of view's ``C1``, and the only sign of it would be in the database.",
+      "translation": "L’ENSEMBLE EST CELUI DE LA TABLE, PAS CELUI DU DÉPÔT. ``table`` mémorise quel jeton détient quelle colonne dans :attr:`FieldTable.channel_tokens`, et un dépôt ultérieur est classé par rapport à l’union de ce qu’il apporte et de ce qui s’y trouve déjà. Un jeton qui se classe avant un jeton déjà placé renumérote les colonnes et DÉPLACE les fichiers qui s’y trouvent déjà (:func:`_renumber_channels`), afin que toutes les lignes s’accordent sur ce qu’est le canal 0. Classer chaque dépôt isolément placerait au contraire le ``C2`` d’un deuxième champ dans la colonne 0 à côté du ``C1`` d’un premier champ, et le seul signe en serait dans la base de données.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#7",
+      "source": "file paths to assign.",
+      "source_sha256": "ab496304aa92d5b4aa46ed2c09302d6fce61ea50af41e9d959c33e8d089c26be",
+      "context": "file paths to assign.",
+      "translation": "chemins des fichiers à affecter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#8",
+      "source": "a regex with at least a field group and one of a channel or mask group.",
+      "source_sha256": "ca46bfe8f8c2ce8f6209f85629f8f50ec9a39d34b2c5c988795b86c753dd8262",
+      "context": "a regex with at least a microscope field of view group and one of an image data channel or mask group.",
+      "translation": "une expression régulière comportant au moins un groupe de champ et un groupe de canal ou de masque.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#9",
+      "source": "an existing table to add to. A new one is built when this is ``None``; its channel count and mask columns come from what the files turn out to hold.",
+      "source_sha256": "fc42067ba6a5a59eeeeea077e97a34951cecce8d3aebf317e1ceeb035b227c3d",
+      "context": "an existing table to add to. A new one is built when this is ``None``; its image data channel count and mask columns come from what the files turn out to hold.",
+      "translation": "une table existante à compléter. Une nouvelle table est construite lorsque ce paramètre vaut ``None`` ; son nombre de canaux et ses colonnes de masque dépendent de ce que contiennent effectivement les fichiers.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.crop_objects_from_array#13",
+      "source": "``(width, height)`` to resize every crop to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized THE WAY THE RUN RESIZES -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a run will write. Without it the preview showed bounding boxes while the run wrote squares, and the crop-size setting looked like it did nothing.",
+      "source_sha256": "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
+      "context": "``(width, height)`` to resize every extracted image region to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized the way the processing session resizes -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a processing session will write. Without it the preview showed bounding boxes while the processing session wrote squares, and the extracted image region-size setting looked like it did nothing.",
+      "translation": "``(width, height)`` aux dimensions duquel redimensionner chaque vignette, ou ``None`` pour renvoyer la boîte englobante propre à chaque objet. Il s’agit du réglage de ``measure_crop`` nommé ``png_size``, redimensionné DE LA MÊME FAÇON QUE L’EXÉCUTION -- le même appel ``PIL.Image.resize`` avec son rééchantillonnage par défaut -- car cela alimente l’aperçu Measure, dont le but est de montrer ce qu’une exécution écrira. Sans cela, l’aperçu affichait des boîtes englobantes alors que l’exécution écrivait des carrés, et le réglage de taille des vignettes semblait sans effet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#0",
+      "source": "Where a run of ``table`` would write, given the destination it was handed.",
+      "source_sha256": "519476ca5bd79d598e1461c44b329f1c2c9c568380a646aff2a3895cbc66cd29",
+      "context": "Where a run of ``table`` would write, given the destination it was handed.",
+      "translation": "Emplacement où écrirait une exécution de ``table``, compte tenu de la destination qui lui a été fournie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#1",
+      "source": "ONE ANSWER, so that the window and the run cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the run wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
+      "source_sha256": "cbd15fed09cbe3ab02bb5efce0266b7836fc0d792e48d6ac3f8b64a8d6dd6584",
+      "context": "One answer, so that the window and the processing session cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the processing session wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
+      "translation": "UNE SEULE RÉPONSE, afin que la fenêtre et l’exécution ne puissent pas être en désaccord. ``src`` fait partie de :data:`FIELD_TABLE_DECIDED_KEYS` ; la fenêtre FEATURES l’affiche donc rempli et désactivé. Avant l’existence de cette fonction, la fenêtre ne le déduisait que lorsqu’on lui avait fourni une destination, et une fenêtre ouverte sans destination affichait le texte indicatif ``path`` de la spécification des réglages tandis que l’exécution écrivait à côté du premier fichier de canal. Une zone désactivée portant la légende \"the table decides this\" qui nomme le mauvais dossier est pire que pas de zone du tout -- c’est la fenêtre qui indique à l’utilisateur où ses résultats ne se trouvent pas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#2",
+      "source": "the :class:`FieldTable` the run would measure.",
+      "source_sha256": "88bf79fdbdd1379ad1fe931225410b1f85ee08a0d9bb604bb686ef00d8471b96",
+      "context": "the :class:`FieldTable` the run would measure.",
+      "translation": "le :class:`FieldTable` que l’exécution mesurerait.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#3",
+      "source": "the destination the caller was given, or ``None`` to derive one from the table.",
+      "source_sha256": "28ceaf70a8485a4c3a88d7015385a5d93f69d3ee39b6d8267654da577da4727a",
+      "context": "the destination the caller was given, or ``None`` to derive one from the table.",
+      "translation": "la destination fournie à l’appelant, ou ``None`` pour en déduire une à partir de la table.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#4",
+      "source": "the project root, or ``None`` when the table is too empty to derive one. Nothing is read from disk.",
+      "source_sha256": "33263e8dac39c90bb749748c7f1a4fa44dba0dd2257e2419903e7f4ae8a1d94f",
+      "context": "the project root, or ``None`` when the table is too empty to derive one. Nothing is read from disk.",
+      "translation": "la racine du projet, ou ``None`` lorsque la table est trop vide pour en déduire une. Rien n’est lu sur le disque.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#0",
+      "source": "The measure_crop settings this table decides, over the ones it does not.",
+      "source_sha256": "923f0eb34be606819f559664ce20d796b59a87b2151d0c76a447f25283827f33",
+      "context": "The measure_crop settings this table decides, over the ones it does not.",
+      "translation": "Les réglages measure_crop que décide cette table, par-dessus ceux qu’elle ne décide pas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#1",
+      "source": "Everything the table can answer is answered from the table: the channel list, the mask plane of every object it supplies, the crop modes that are possible, the PNG channels, and ``src``. Every other key is the user's, taken from ``settings`` and defaulted by :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure module defaults them -- so the FEATURES window and the Measure module disagree about nothing.",
+      "source_sha256": "34cb67420b8d9b30eb5d3dabdeca2950bcee01238d4a0d6df94b8d9ee9f28f77",
+      "context": "Everything the table can answer is answered from the table: the image data channel list, the mask image layer of every object it supplies, the extracted image region modes that are possible, the PNG image data channels, and ``src``. Every other structured-data name is the user's, taken from ``settings`` and defaulted by :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure module defaults them -- so the FEATURES window and the Measure module disagree about nothing.",
+      "translation": "Tout ce à quoi la table peut répondre trouve sa réponse dans la table : la liste des canaux, la couche de masque de chaque objet qu’elle fournit, les modes de vignette possibles, les canaux PNG et ``src``. Toute autre clé appartient à l’utilisateur, prise dans ``settings`` et complétée par défaut par :func:`spacr.settings.get_measure_crop_settings` exactement comme le fait le module Measure -- ainsi, la fenêtre FEATURES et le module Measure ne sont en désaccord sur rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#2",
+      "source": "A role the table does NOT supply is set to ``None`` rather than left out, which is how ``measure_crop`` is told not to measure it.",
+      "source_sha256": "038db708ed5f69b8ba705e109de18b5ad86dce4e5e2a1cbea84248fdf782bf78",
+      "context": "A role the table does NOT supply is set to ``None`` rather than left out, which is how ``measure_crop`` is told not to measure it.",
+      "translation": "Un rôle que la table ne fournit PAS est fixé à ``None`` plutôt qu’omis ; c’est ainsi que l’on indique à ``measure_crop`` de ne pas le mesurer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#3",
+      "source": "the :class:`FieldTable` the user filled in.",
+      "source_sha256": "01317a74e65a3e64a76f51bf5f757cfdab25fbdaa9430ce5261a29ff2b814891",
+      "context": "the :class:`FieldTable` the user filled in.",
+      "translation": "le :class:`FieldTable` rempli par l’utilisateur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#4",
+      "source": "the user's answers from the settings panel.",
+      "source_sha256": "03e2a07699f87e1572a04cca6b08dbb489eaca148c311463d742c8b5519f52e7",
+      "context": "the user's answers from the settings panel.",
+      "translation": "les réponses de l’utilisateur issues du panneau de réglages.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#5",
+      "source": "the project root the run will write. ``src`` is its ``merged`` folder, which is where ``measure_crop`` reads fields from.",
+      "source_sha256": "2f7fa2f34d49d9e09ef562dc460c2cc2312dfa4b9019c2e8f0b1c2905c2eac21",
+      "context": "the project root the processing session will write. ``src`` is its ``merged`` folder, which is where ``measure_crop`` reads fields from.",
+      "translation": "la racine de projet dans laquelle l’exécution écrira. ``src`` est son dossier ``merged``, dans lequel ``measure_crop`` lit les champs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#6",
+      "source": "a new settings dict. Nothing is read from disk.",
+      "source_sha256": "c6f920fdda00e03c933ac7d82714cb4a20eb4c4d55bcc7d20d01cd4057932022",
+      "context": "a new settings key-value mapping. Nothing is read from disk.",
+      "translation": "un nouveau dictionnaire de réglages. Rien n’est lu sur le disque.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#0",
+      "source": "Resolve what a user typed in a mask column to a spaCR object role.",
+      "source_sha256": "193d07c7811dc1b698b7819d20bcd01980915ed2027c32e76dd737ccfbfa1e75",
+      "context": "Resolve what a user typed in a mask column to a spaCR object role.",
+      "translation": "Résout ce qu’un utilisateur a tapé dans une colonne de masque en un rôle d’objet spaCR.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#1",
+      "source": "Accepts the role's own name, the plural and the common laboratory synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle spelling the settings forms use on screen -- ``Organelle 2`` is ``organelleb``, because the slots are lettered internally and numbered for the reader.",
+      "source_sha256": "7b8959de77372b94cfc19f8b96f546322d30b1ac175ef9b8b9028c365952a41d",
+      "context": "Accepts the role's own name, the plural and the common laboratory synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle spelling the settings forms use on application view -- ``Organelle 2`` is ``organelleb``, because the slots are lettered internally and numbered for the reader.",
+      "translation": "Accepte le nom propre du rôle, son pluriel et les synonymes de laboratoire courants (``nuclei``, ``parasite``, ``mito``), ainsi que la graphie numérotée des organites qu’utilisent les formulaires de réglages à l’écran -- ``Organelle 2`` est ``organelleb``, car les emplacements sont désignés par des lettres en interne et numérotés pour le lecteur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#2",
+      "source": "what the regex captured or the user chose, in any case.",
+      "source_sha256": "b16e75eb33c9b12c4ecf9a26d872db522335beec7d3c9e1365258ab483433458",
+      "context": "what the regex captured or the user chose, in any case.",
+      "translation": "ce qu’a capturé l’expression régulière ou ce qu’a choisi l’utilisateur, sans tenir compte de la casse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#3",
+      "source": "a role from :data:`spacr.crops.MASK_PLANE_ORDER`, or ``None`` when the token names no object spaCR can measure.",
+      "source_sha256": "b6e80d42da73acd12e7d83f3552e072d6971f6bc03fcf47cbf0cc42a171fcd95",
+      "context": "a role from :data:`spacr.crops.MASK_PLANE_ORDER`, or ``None`` when the token names no object spaCR can measure.",
+      "translation": "un rôle de :data:`spacr.crops.MASK_PLANE_ORDER`, ou ``None`` lorsque le jeton ne désigne aucun objet que spaCR peut mesurer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_crop#4",
+      "source": "``psf_measurement_source`` — original (default) uses the normal rescaled/preprocessed intensities; processed adds an explicitly calibrated PSF before quantitative features. The immutable kernel reaches every worker. Source images and exported crops stay unchanged. Field provenance is saved in ``intensity_rescale``; incompatible existing PSF measurements are refused before any rows are appended.",
+      "source_sha256": "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
+      "context": "``psf_measurement_source`` — original (default) uses the normal rescaled/preprocessed intensities; processed adds an explicitly calibrated PSF before quantitative features. The immutable kernel reaches every worker. Source images and exported extracted image regions stay unchanged. microscope field of view provenance is saved in ``intensity_rescale``; incompatible existing PSF measurements are refused before any rows are appended.",
+      "translation": "``psf_measurement_source`` — original (par défaut) utilise les intensités normales remises à l’échelle/prétraitées ; processed ajoute une PSF explicitement calibrée avant les caractéristiques quantitatives. Le noyau immuable parvient à chaque worker. Les images sources et les vignettes exportées restent inchangées. La provenance des champs est enregistrée dans ``intensity_rescale`` ; les mesures PSF existantes incompatibles sont refusées avant l’ajout de toute ligne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#0",
+      "source": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
+      "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
+      "context": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
+      "translation": "Mesure une table d’images et de masques choisis à la main. Le point d’entrée de FEATURES.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#1",
+      "source": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a pipeline already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the fields came from. The database, the crops and the folder tree are therefore the Measure module's, because they are made by it.",
+      "source_sha256": "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
+      "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",
+      "translation": "L’autre voie d’entrée dans ce module. :func:`measure_crop` part d’un dossier ``merged/`` déjà construit par un pipeline ; celle-ci part d’une table qu’un utilisateur a remplie en y déposant des fichiers, écrit ce dossier, puis appelle :func:`measure_crop` LUI-MÊME -- inchangé, sans indicateur précisant d’où viennent les champs. La base de données, les vignettes et l’arborescence des dossiers sont donc celles du module Measure, puisque c’est lui qui les produit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#2",
+      "source": "the :class:`FieldTable` the FEATURES window edited.",
+      "source_sha256": "5da4813e8295f95f89038414c660841ee291e2a2aac75eb0ec678d7093c5284d",
+      "context": "the :class:`FieldTable` the FEATURES window edited.",
+      "translation": "le :class:`FieldTable` modifié par la fenêtre FEATURES.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#3",
+      "source": "the user's answers from the settings panel. The keys the table decides are overwritten from it -- see :func:`field_table_settings`.",
+      "source_sha256": "147e809f4cbdc8ec4aedcb1ceddf4731b8c59776b471dd71a4f8c52783ae5a5c",
+      "context": "the user's answers from the settings panel. The structured-data names that the table decides are overwritten from it -- see :func:`field_table_settings`.",
+      "translation": "les réponses de l’utilisateur issues du panneau de réglages. Les clés que décide la table y sont écrasées -- voir :func:`field_table_settings`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#4",
+      "source": "the project root to write. Defaults to a ``features`` folder beside the first channel file of the first row, which is where a user who dropped a folder in expects to find the results. See :func:`field_table_destination`, which is the one place that default is worked out.",
+      "source_sha256": "c071897510d7102e7e62aabbd0d515eeb6c4c5cff9eb4473f328c82b1beaf9c3",
+      "context": "the project root to write. Defaults to a ``features`` folder beside the first channel file of the first row, which is where a user who dropped a folder in expects to find the results. See :func:`field_table_destination`, which is the one place that default is worked out.",
+      "translation": "la racine de projet à écrire. Par défaut, un dossier ``features`` à côté du premier fichier de canal de la première ligne, là où un utilisateur qui a déposé un dossier s’attend à trouver les résultats. Voir :func:`field_table_destination`, seul endroit où cette valeur par défaut est déterminée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#5",
+      "source": "called with a sentence as each stage starts, or ``None``. It runs on whatever thread this does -- the FEATURES window runs this on a worker and its callback only emits a signal. Writing the arrays and measuring them are separate stages because on a large table the second takes minutes and the first does not.",
+      "source_sha256": "645c7da7a34005badb6c8abc0e5d815c046cf6775320a649524450e499231dbf",
+      "context": "called with a sentence as each stage starts, or ``None``. It executes on whatever independent execution path this does -- the FEATURES window runs this on a worker and its callback only emits a signal. Writing the arrays and measuring them are separate stages because on a large table the second takes minutes and the first does not.",
+      "translation": "appelée avec une phrase au début de chaque étape, ou ``None``. Elle s’exécute sur le même fil d’exécution que cette fonction -- la fenêtre FEATURES exécute celle-ci dans un worker et sa fonction de rappel ne fait qu’émettre un signal. L’écriture des tableaux et leur mesure sont des étapes distinctes car, sur une grande table, la seconde prend des minutes et la première non.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#6",
+      "source": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` is the measurements database whether or not it exists, so a caller can report the path it was asked for.",
+      "source_sha256": "ea2eed0d50b013fad298ad8ede7e9f3f5ec9281b76a9bdb1ad94419a1943b64d",
+      "context": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` is the measurements database whether or not it exists, so a caller can report the path it was asked for.",
+      "translation": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` est la base de données de mesures, qu’elle existe ou non, afin qu’un appelant puisse signaler le chemin qui lui a été demandé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#7",
+      "source": "if the table is incomplete or a file breaks the array contract. Nothing is measured in that case.",
+      "source_sha256": "47c7d25b397f58281374c5da6ab1554e0eb9868923ea4381f100c48cb6203ac0",
+      "context": "if the table is incomplete or a file breaks the array contract. Nothing is measured in that case.",
+      "translation": "si la table est incomplète ou si un fichier ne respecte pas le contrat des tableaux. Rien n’est mesuré dans ce cas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#9",
+      "source": "See Also: :func:`measure_crop` -- the run this delegates to, unchanged. :func:`write_field_table_project` -- the folders it writes first.",
+      "source_sha256": "24e2a1736002f331eead760689093685c87e8d3a22713148a88b0dd28a829ce7",
+      "context": "See Also: :func:`measure_crop` -- the processing session this delegates to, unchanged. :func:`write_field_table_project` -- the folders it writes first.",
+      "translation": "Voir aussi : :func:`measure_crop` -- l’exécution à laquelle cette fonction délègue, sans modification. :func:`write_field_table_project` -- les dossiers qu’elle écrit d’abord.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.process_meassure_crop_results#2",
+      "source": "Completed Measure job tuples, passed unchanged to :func:`process_measure_crop_results` after a ``DeprecationWarning``.",
+      "source_sha256": "de9380919c086bd88843ca44295b5827463c9be19e79a23ccce7ac06bf6a705d",
+      "context": "Completed Measure job tuples, passed unchanged to :func:`process_measure_crop_results` after a ``DeprecationWarning``.",
+      "translation": "Tuples de tâches Measure terminées, transmis sans modification à :func:`process_measure_crop_results` après un ``DeprecationWarning``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.process_meassure_crop_results#3",
+      "source": "Resolved Measure settings, passed unchanged; ``src`` identifies the output root.",
+      "source_sha256": "b6ac4abe3f728c797f73ebe47847264da8616c1e8a8a2c46ea59207b7222b6d0",
+      "context": "Resolved Measure settings, passed unchanged; ``src`` identifies the output root.",
+      "translation": "Réglages Measure résolus, transmis sans modification ; ``src`` identifie la racine de sortie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.resolve_measurement_spacing#5",
+      "source": "2 or 3.",
+      "source_sha256": "173af733ae23c3ed4dc26cf280385942785d8d2b650967a8446c7f191927b61e",
+      "context": "2 or 3.",
+      "translation": "2 ou 3.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.measure.spatial_column_names#2",
+      "source": "neighbourhood radius; truncated with ``int()`` for the ``neighbors_within_<r>`` name. The other four names do not depend on it.",
+      "source_sha256": "45da3cae010b33c5325ce27fa8c234110da14075c691738a07c43ad938058dd2",
+      "context": "neighbourhood radius; truncated with ``int()`` for the ``neighbors_within_<r>`` name. The other four names do not depend on it.",
+      "translation": "rayon de voisinage ; tronqué avec ``int()`` pour le nom ``neighbors_within_<r>``. Les quatre autres noms n’en dépendent pas.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
